@@ -34,6 +34,18 @@
 #include "Unit.h"
 #include <sstream>
 
+class VehicleJoinEvent : public BasicEvent
+{
+public:
+    VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
+    bool Execute(uint64, uint32) override;
+    void Abort(uint64) override;
+
+    Vehicle* Target;
+    Unit* Passenger;
+    SeatMap::iterator Seat;
+};
+
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE)
 {
@@ -533,7 +545,11 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // only for flyable vehicles
     if (unit->IsFlying())
-        _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    {
+        VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this);
+        if (!vehicleTemplate || !vehicleTemplate->CustomFlags.HasFlag(VehicleCustomFlags::DontForceParachuteOnExit))
+            _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    }
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
@@ -568,16 +584,12 @@ void Vehicle::RelocatePassengers()
         {
             ASSERT(passenger->IsInWorld());
 
-            float px, py, pz, po;
-            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
-
-            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
+            seatRelocation.emplace_back(passenger, _me->GetPositionWithOffset(passenger->m_movementInfo.transport.pos));
         }
     }
 
     for (auto const& [passenger, position] : seatRelocation)
-        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+        UpdatePassengerPosition(_me->GetMap(), passenger, position, false);
 }
 
 /**
@@ -632,6 +644,8 @@ void Vehicle::InitMovementInfoForBase()
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+
+    _me->m_movementInfo.pitch = GetPitch();
 }
 
 /**
@@ -964,6 +978,15 @@ Milliseconds Vehicle::GetDespawnDelay()
         return vehicleTemplate->DespawnDelay;
 
     return 1ms;
+}
+
+float Vehicle::GetPitch()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        if (vehicleTemplate->Pitch)
+            return *vehicleTemplate->Pitch;
+
+    return std::clamp(0.0f, _vehicleInfo->PitchMin, _vehicleInfo->PitchMax);
 }
 
 std::string Vehicle::GetDebugInfo() const

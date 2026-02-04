@@ -32,11 +32,11 @@ struct FieldLookupByAliasKey
     std::string_view Alias;
 
     // implicit constructor from string literal for users of the query result
-    consteval FieldLookupByAliasKey(char const* alias) : HashValue(HashFnv1a(alias)), Alias(alias) { }
+    consteval FieldLookupByAliasKey(char const* alias) : HashValue(HashFnv1a<>::GetHash(std::span(alias, std::char_traits<char>::length(alias)))), Alias(alias) { }
 
     // runtime only constructor used internally to fill alias to index mapping
     struct RuntimeInitTag { } static inline constexpr RuntimeInit = { };
-    FieldLookupByAliasKey(RuntimeInitTag, std::string_view alias) : HashValue(HashFnv1a(alias)), Alias(std::move(alias)) { }
+    FieldLookupByAliasKey(RuntimeInitTag, std::string_view alias) : HashValue(HashFnv1a<>::GetHash(alias)), Alias(std::move(alias)) { }
 
     friend bool operator==(FieldLookupByAliasKey const& left, FieldLookupByAliasKey const& right) = default;
 
@@ -61,6 +61,7 @@ class TC_DATABASE_API ResultSet
         Field const& operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
         QueryResultFieldMetadata const& GetFieldMetadata(std::size_t index) const;
+        QueryResultFieldMetadata const& GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
     protected:
         std::vector<QueryResultFieldMetadata> _fieldMetadata;
@@ -93,6 +94,7 @@ class TC_DATABASE_API PreparedResultSet
         Field const& operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
         QueryResultFieldMetadata const& GetFieldMetadata(std::size_t index) const;
+        QueryResultFieldMetadata const& GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const;
 
     protected:
         std::vector<QueryResultFieldMetadata> m_fieldMetadata;

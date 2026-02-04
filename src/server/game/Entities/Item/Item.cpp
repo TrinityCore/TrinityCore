@@ -20,6 +20,7 @@
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Bag.h"
+#include "ClientBuildInfo.h"
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -39,6 +40,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -62,6 +64,13 @@ Item* NewItemOrBag(ItemTemplate const* proto)
 
     return new Item();
 }
+
+struct ItemSetEffect
+{
+    uint32 ItemSetID;
+    std::unordered_set<Item const*> EquippedItems;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
+};
 
 void AddItemsSetItem(Player* player, Item const* item)
 {
@@ -134,9 +143,6 @@ void AddItemsSetItem(Player* player, Item const* item)
             if (itemSetSpell->Threshold > eff->EquippedItems.size())
                 continue;
 
-            if (eff->SetBonuses.count(itemSetSpell))
-                continue;
-
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
             if (!spellInfo)
             {
@@ -144,10 +150,17 @@ void AddItemsSetItem(Player* player, Item const* item)
                 continue;
             }
 
-            eff->SetBonuses.insert(itemSetSpell);
+            if (!eff->SetBonuses.insert(itemSetSpell).second)
+                continue;
+
             // spell cast only if fit form requirement, in other case will cast at form change
-            if (!itemSetSpell->ChrSpecID || ChrSpecialization(itemSetSpell->ChrSpecID) == player->GetPrimarySpecialization())
-                player->ApplyEquipSpell(spellInfo, nullptr, true);
+            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                continue;
+
+            if (itemSetSpell->TraitSubTreeID && int32(itemSetSpell->TraitSubTreeID) != player->m_playerData->CurrentCombatTraitConfigSubTreeID)
+                continue;
+
+            player->ApplyEquipSpell(spellInfo, nullptr, true);
         }
     }
 }
@@ -189,11 +202,10 @@ void RemoveItemsSetItem(Player* player, Item const* item)
             if (itemSetSpell->Threshold <= eff->EquippedItems.size())
                 continue;
 
-            if (!eff->SetBonuses.count(itemSetSpell))
+            if (!eff->SetBonuses.erase(itemSetSpell))
                 continue;
 
             player->ApplyEquipSpell(sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE), nullptr, false);
-            eff->SetBonuses.erase(itemSetSpell);
         }
     }
 
@@ -203,6 +215,35 @@ void RemoveItemsSetItem(Player* player, Item const* item)
         delete eff;
         player->ItemSetEff[setindex] = nullptr;
     }
+}
+
+void UpdateItemSetAuras(Player* player, bool formChange)
+{
+    // item set bonuses not dependent from item broken state
+    for (ItemSetEffect* eff : player->ItemSetEff)
+    {
+        if (!eff)
+            continue;
+
+        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
+
+            if ((itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                || (itemSetSpell->TraitSubTreeID && int32(itemSetSpell->TraitSubTreeID) != player->m_playerData->CurrentCombatTraitConfigSubTreeID))
+                player->ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
+            else
+            {
+                player->ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+                player->ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+            }
+        }
+    }
+}
+
+void DeleteItemSetEffects(ItemSetEffect* itemSetEffect)
+{
+    delete itemSetEffect;
 }
 
 bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
@@ -443,7 +484,6 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
 
 Item::Item()
 {
-    m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_Item, false);
@@ -468,7 +508,7 @@ Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemId);
     SetObjectScale(1.0f);
@@ -673,8 +713,6 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             if (m_itemData->Gems.size())
             {
-                using namespace std::string_view_literals;
-
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
@@ -886,7 +924,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -1039,6 +1077,21 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     }
 
     return true;
+}
+
+void Item::LoadAdditionalDataFromDB(Player const* owner, ItemAdditionalLoadInfo* addionalData)
+{
+    if (GetTemplate()->GetArtifactID() && addionalData->Artifact)
+        LoadArtifactData(owner, addionalData->Artifact->Xp, addionalData->Artifact->ArtifactAppearanceId,
+            addionalData->Artifact->ArtifactTierId, addionalData->Artifact->ArtifactPowers);
+
+    if (addionalData->AzeriteItem)
+        if (AzeriteItem* azeriteItem = ToAzeriteItem())
+            azeriteItem->LoadAzeriteItemData(owner, *addionalData->AzeriteItem);
+
+    if (addionalData->AzeriteEmpoweredItem)
+        if (AzeriteEmpoweredItem* azeriteEmpoweredItem = ToAzeriteEmpoweredItem())
+            azeriteEmpoweredItem->LoadAzeriteEmpoweredItemData(owner, *addionalData->AzeriteEmpoweredItem);
 }
 
 void Item::LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers)
@@ -1369,12 +1422,10 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
 {
     // Check all enchants for required skill
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->RequiredSkillID && player->GetSkillValue(enchantEntry->RequiredSkillID) < enchantEntry->RequiredSkillRank)
                     return false;
-    }
 
     return true;
 }
@@ -1538,7 +1589,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
                 for (uint16 bonusListId : gem->BonusListIDs)
                     gemBonus.AddBonusList(bonusListId);
 
-                uint32 gemBaseItemLevel = gemTemplate->GetBaseItemLevel();
+                uint32 gemBaseItemLevel = gemBonus.ItemLevel;
                 if (gemBonus.PlayerLevelToItemLevelCurveId)
                     if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel)))
                         gemBaseItemLevel = scaledIlvl;
@@ -1627,7 +1678,13 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             return false;
 
-        return gemProto->GetItemLimitCategory() == limitCategory;
+        BonusData gemBonus;
+        gemBonus.Initialize(gemProto);
+
+        for (uint16 bonusListID : gemData.BonusListIDs)
+            gemBonus.AddBonusList(bonusListID);
+
+        return gemBonus.LimitCategory == limitCategory;
     }));
 }
 
@@ -1731,6 +1788,8 @@ bool Item::IsBindedNotWith(Player const* player) const
 
 void Item::BuildUpdate(UpdateDataMapType& data_map)
 {
+    BuildUpdateChangesMask();
+
     if (Player* owner = GetOwner())
         BuildFieldsUpdate(owner, data_map);
     ClearUpdateMask(false);
@@ -1948,30 +2007,7 @@ bool Item::IsValidTransmogrificationTarget() const
     if (proto->HasFlag(ITEM_FLAG2_NO_ALTER_ITEM_VISUAL))
         return false;
 
-    if (!HasStats())
-        return false;
-
     return true;
-}
-
-bool Item::HasStats() const
-{
-    ItemTemplate const* proto = GetTemplate();
-    Player const* owner = GetOwner();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetStatPercentEditor(i)) != 0)
-            return true;
-
-    return false;
-}
-
-bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
-{
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->StatPercentEditor[i] != 0)
-            return true;
-
-    return false;
 }
 
 enum class ItemTransmogrificationWeaponCategory : uint8
@@ -1983,7 +2019,6 @@ enum class ItemTransmogrificationWeaponCategory : uint8
     // One-handed
     AXE_MACE_SWORD_1H,
     DAGGER,
-    FIST,
 
     INVALID
 };
@@ -2008,11 +2043,10 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
             case ITEM_SUBCLASS_WEAPON_MACE:
             case ITEM_SUBCLASS_WEAPON_SWORD:
             case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
                 return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
             case ITEM_SUBCLASS_WEAPON_DAGGER:
                 return ItemTransmogrificationWeaponCategory::DAGGER;
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                return ItemTransmogrificationWeaponCategory::FIST;
             default:
                 break;
         }
@@ -2292,21 +2326,26 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
-    uint32 itemLevel = itemTemplate->GetBaseItemLevel();
+    uint32 itemLevel = bonusData.ItemLevel;
     if (AzeriteLevelInfoEntry const* azeriteLevelInfo = sAzeriteLevelInfoStore.LookupEntry(azeriteLevel))
         itemLevel = azeriteLevelInfo->ItemLevel;
 
-    if (bonusData.PlayerLevelToItemLevelCurveId)
+    if (!bonusData.ItemLevelOffsetCurveId)
     {
-        if (fixedLevel)
-            level = fixedLevel;
-        else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true))
-            level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
+        if (bonusData.PlayerLevelToItemLevelCurveId)
+        {
+            if (fixedLevel)
+                level = fixedLevel;
+            else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, {}, true))
+                level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
-        itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
+            itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
+        }
+
+        itemLevel += bonusData.ItemLevelBonus;
     }
-
-    itemLevel += bonusData.ItemLevelBonus;
+    else
+        itemLevel = bonusData.ItemLevelOffset + uint32(sDB2Manager.GetCurveValueAt(bonusData.ItemLevelOffsetCurveId, bonusData.ItemLevelOffsetItemLevel));
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         itemLevel += bonusData.GemItemLevelBonus[i];
@@ -2314,7 +2353,34 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     uint32 itemLevelBeforeUpgrades = itemLevel;
 
     if (pvpBonus)
-        itemLevel += sDB2Manager.GetPvpItemLevelBonus(itemTemplate->GetId());
+    {
+        if (bonusData.PvpItemLevel)
+            itemLevel = bonusData.PvpItemLevel;
+
+        itemLevel += bonusData.PvpItemLevelBonus;
+    }
+
+    if (!bonusData.IgnoreSquish)
+    {
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+        {
+            int32 currentBuild = ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build);
+
+            // apply all squishes between items_squish and server_squish
+            for (uint32 squishId = bonusData.ItemSquishEraID; squishId < sItemSquishEraStore.GetNumRows(); ++squishId)
+            {
+                ItemSquishEraEntry const* squish = sItemSquishEraStore.LookupEntry(squishId);
+                if (!squish)
+                    continue;
+
+                if (squish->Patch > currentBuild)
+                    break;
+
+                if (squish->CurveID)
+                    itemLevel = uint32(sDB2Manager.GetCurveValueAt(squish->CurveID, itemLevel));
+            }
+        }
+    }
 
     if (itemTemplate->GetInventoryType() != INVTYPE_NON_EQUIP)
     {
@@ -2554,7 +2620,7 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(GetBonusListIDs().begin(), GetBonusListIDs().end(), int32(bonusListID)) != GetBonusListIDs().end())
+    if (advstd::ranges::contains(GetBonusListIDs(), int32(bonusListID)))
         return;
 
     WorldPackets::Item::ItemBonusKey itemBonusKey;
@@ -2597,20 +2663,25 @@ bool Item::IsArtifactDisabled() const
     return true;
 }
 
+int32 Item::GetArtifactPowerIndex(uint32 artifactPowerId) const
+{
+    return m_itemData->ArtifactPowers.FindIndexIf([artifactPowerId](UF::ArtifactPower const& artifactPower)
+    {
+        return uint32(artifactPower.ArtifactPowerID) == artifactPowerId;
+    });
+}
+
 UF::ArtifactPower const* Item::GetArtifactPower(uint32 artifactPowerId) const
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
-        return &m_itemData->ArtifactPowers[indexItr->second];
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
+        return &m_itemData->ArtifactPowers[index];
 
     return nullptr;
 }
 
 void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 {
-    uint16 index = uint16(m_artifactPowerIdToIndex.size());
-    m_artifactPowerIdToIndex[artifactPower->ArtifactPowerId] = index;
-
     UF::ArtifactPower& powerField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactPowers));
     powerField.ArtifactPowerID = artifactPower->ArtifactPowerId;
     powerField.PurchasedRank = artifactPower->PurchasedRank;
@@ -2619,27 +2690,31 @@ void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 
 void Item::SetArtifactPower(uint16 artifactPowerId, uint8 purchasedRank, uint8 currentRankWithBonus)
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::PurchasedRank), purchasedRank);
 
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), currentRankWithBonus);
     }
 }
 
 void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
 {
+    std::unordered_set<uint32> knownPowers;
+    for (UF::ArtifactPower const& power : m_itemData->ArtifactPowers)
+        knownPowers.insert(power.ArtifactPowerID);
+
     for (ArtifactPowerEntry const* artifactPower : sDB2Manager.GetArtifactPowers(artifactId))
     {
         if (artifactPower->Tier != artifactTier)
             continue;
 
-        if (m_artifactPowerIdToIndex.find(artifactPower->ID) != m_artifactPowerIdToIndex.end())
+        if (knownPowers.contains(artifactPower->ID))
             continue;
 
         ArtifactPowerData powerData;
@@ -2714,20 +2789,20 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     break;
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
                 {
-                    if (uint16 const* artifactPowerIndex = Trinity::Containers::MapGetValuePtr(m_artifactPowerIdToIndex, enchant->EffectArg[i]))
+                    if (int32 artifactPowerIndex = GetArtifactPowerIndex(enchant->EffectArg[i]); artifactPowerIndex >= 0)
                     {
-                        uint8 newRank = m_itemData->ArtifactPowers[*artifactPowerIndex].CurrentRankWithBonus;
+                        uint8 newRank = m_itemData->ArtifactPowers[artifactPowerIndex].CurrentRankWithBonus;
                         if (apply)
                             newRank += enchant->EffectPointsMin[i];
                         else
                             newRank -= enchant->EffectPointsMin[i];
 
                         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-                            .ModifyValue(&UF::ItemData::ArtifactPowers, *artifactPowerIndex)
+                            .ModifyValue(&UF::ItemData::ArtifactPowers, artifactPowerIndex)
                             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
 
                         if (IsEquipped())
-                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[*artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
+                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
                                 owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                     }
                     break;
@@ -2819,7 +2894,7 @@ void Item::SetFixedLevel(uint8 level)
 
     if (_bonusData.PlayerLevelToItemLevelCurveId)
     {
-        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, 0, true))
+        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, {}, true))
             level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, level);
@@ -2851,6 +2926,7 @@ std::string Item::GetDebugInfo() const
 void BonusData::Initialize(ItemTemplate const* proto)
 {
     Quality = proto->GetQuality();
+    ItemLevel = proto->GetBaseItemLevel();
     ItemLevelBonus = 0;
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -2885,6 +2961,14 @@ void BonusData::Initialize(ItemTemplate const* proto)
     Suffix = 0;
     RequiredLevelCurve = 0;
 
+    PvpItemLevel = 0;
+    PvpItemLevelBonus = 0;
+
+    ItemLevelOffsetCurveId = proto->GetItemLevelOffsetCurveId();
+    ItemLevelOffsetItemLevel = proto->GetItemLevelOffsetItemLevel();
+    ItemLevelOffset = 0;
+    ItemSquishEraID = proto->GetItemSquishEraId();
+
     EffectCount = 0;
     for (ItemEffectEntry const* itemEffect : proto->Effects)
         Effects[EffectCount++] = itemEffect;
@@ -2892,8 +2976,14 @@ void BonusData::Initialize(ItemTemplate const* proto)
     for (std::size_t i = EffectCount; i < Effects.size(); ++i)
         Effects[i] = nullptr;
 
+    LimitCategory = proto->GetItemLimitCategory();
+
     CanDisenchant = !proto->HasFlag(ITEM_FLAG_NO_DISENCHANT);
     CanScrap = proto->HasFlag(ITEM_FLAG4_SCRAPABLE);
+    CanSalvage = !proto->HasFlag(ITEM_FLAG4_NO_SALVAGE);
+    CanRecraft = proto->HasFlag(ITEM_FLAG4_RECRAFTABLE);
+    CannotTradeBindOnPickup = proto->HasFlag(ITEM_FLAG2_NO_TRADE_BIND_ON_ACQUIRE);
+    IgnoreSquish = false;
 
     _state.SuffixPriority = std::numeric_limits<int32>::max();
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
@@ -2901,7 +2991,11 @@ void BonusData::Initialize(ItemTemplate const* proto)
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
     _state.AzeriteTierUnlockSetPriority = std::numeric_limits<int32>::max();
     _state.RequiredLevelCurvePriority = std::numeric_limits<int32>::max();
+    _state.ItemLevelPriority = std::numeric_limits<int32>::max();
+    _state.PvpItemLevelPriority = std::numeric_limits<int32>::max();
+    _state.BondingPriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
+    _state.HasItemLimitCategory = false;
 }
 
 void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
@@ -3036,6 +3130,99 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                 _state.RequiredLevelCurvePriority = values[2];
                 if (values[1])
                     ContentTuningId = static_cast<uint32>(values[1]);
+            }
+            break;
+        case ITEM_BONUS_ITEM_LIMIT_CATEGORY:
+            if (!_state.HasItemLimitCategory)
+            {
+                LimitCategory = values[0];
+                _state.HasItemLimitCategory = true;
+            }
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT:
+            PvpItemLevelBonus += values[0];
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_SALVAGE:
+            CanSalvage = values[0] != 0;
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_RECRAFT:
+            CanRecraft = values[0] != 0;
+            break;
+        case ITEM_BONUS_ITEM_LEVEL_BASE:
+            if (values[1] < _state.ItemLevelPriority)
+            {
+                ItemLevel = values[0];
+                _state.ItemLevelPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_BASE:
+            if (values[1] < _state.PvpItemLevelPriority)
+            {
+                PvpItemLevel = values[0];
+                _state.PvpItemLevelPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_OVERRIDE_CANNOT_TRADE_BOP:
+            CannotTradeBindOnPickup = values[0] != 0;
+            break;
+        case ITEM_BONUS_BONDING_WITH_PRIORITY:
+            if (values[1] < _state.BondingPriority)
+            {
+                Bonding = static_cast<ItemBondingType>(values[0]);
+                _state.BondingPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_ITEM_OFFSET_CURVE:
+            if (values[3] < _state.ScalingStatDistributionPriority)
+            {
+                ItemLevelOffsetCurveId = values[0];
+                ItemLevelOffsetItemLevel = values[1];
+                _state.ScalingStatDistributionPriority = values[3];
+            }
+            break;
+        case ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL:
+            if (values[1] < _state.ScalingStatDistributionPriority)
+            {
+                if (ItemScalingConfigEntry const* scalingConfig = sItemScalingConfigStore.LookupEntry(values[0]))
+                {
+                    if (ItemOffsetCurveEntry const* itemOffsetCurve = sItemOffsetCurveStore.LookupEntry(scalingConfig->ItemOffsetCurveID))
+                    {
+                        ItemLevelOffsetCurveId = itemOffsetCurve->CurveID;
+                        ItemLevelOffset = itemOffsetCurve->Offset;
+                    }
+
+                    ItemLevelOffsetItemLevel = scalingConfig->ItemLevel;
+                    ItemSquishEraID = scalingConfig->ItemSquishEraID;
+                    if (scalingConfig->Flags & 0x1)
+                        IgnoreSquish = true;
+
+                    if (values[1] < _state.RequiredLevelCurvePriority)
+                    {
+                        RequiredLevelOverride = scalingConfig->RequiredLevel;
+                        RequiredLevelCurve = 0;
+                    }
+                }
+            }
+            break;
+        case ITEM_BONUS_ITEM_BONUS_LIST:
+            AddBonusList(values[0]);
+            break;
+        case ITEM_BONUS_SCALING_CONFIG:
+            if (values[1] < _state.ScalingStatDistributionPriority)
+            {
+                if (ItemScalingConfigEntry const* scalingConfig = sItemScalingConfigStore.LookupEntry(values[0]))
+                {
+                    if (ItemOffsetCurveEntry const* itemOffsetCurve = sItemOffsetCurveStore.LookupEntry(scalingConfig->ItemOffsetCurveID))
+                    {
+                        ItemLevelOffsetCurveId = itemOffsetCurve->CurveID;
+                        ItemLevelOffset = itemOffsetCurve->Offset;
+                    }
+
+                    ItemLevelOffsetItemLevel = 0;
+                    ItemSquishEraID = scalingConfig->ItemSquishEraID;
+                    if (scalingConfig->Flags & 0x1)
+                        IgnoreSquish = true;
+                }
             }
             break;
     }

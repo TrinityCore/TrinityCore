@@ -19,13 +19,16 @@
 #define TRINITYCORE_GOSSIP_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include <variant>
 
 class Object;
 class Quest;
 class WorldSession;
 struct GossipMenuItems;
+enum class PlayerInteractionType : int32;
 enum class QuestGiverStatus : uint64;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
@@ -33,65 +36,73 @@ enum class QuestGiverStatus : uint64;
 
 enum class GossipOptionNpc : uint8
 {
-    None                       = 0,    // White chat bubble. Default
-    Vendor                     = 1,    // Brown bag
-    Taxinode                   = 2,    // White wing
-    Trainer                    = 3,    // Brown book
-    SpiritHealer               = 4,    // Golden interaction wheel (with red center)
-    Binder                     = 5,    // Golden interaction wheel
-    Banker                     = 6,    // Brown bag (with gold coin in lower corner)
-    PetitionVendor             = 7,    // White chat bubble (with "..." inside)
-    GuildTabardVendor          = 8,    // White tabard
-    Battlemaster               = 9,    // Two crossed swords
-    Auctioneer                 = 10,   // Stack of gold coins
-    TalentMaster               = 11,   // White chat bubble
-    Stablemaster               = 12,   // White chat bubble
-    PetSpecializationMaster    = 13,   /*DEPRECATED*/ // White chat bubble
-    GuildBanker                = 14,   // White chat bubble
-    Spellclick                 = 15,   // White chat bubble
-    DisableXPGain              = 16,   // White chat bubble
-    EnableXPGain               = 17,   // White chat bubble
-    Mailbox                    = 18,   // White chat bubble
-    WorldPvPQueue              = 19,   /*NYI*/ // White chat bubble
-    LFGDungeon                 = 20,   /*NYI*/ // White chat bubble
-    ArtifactRespec             = 21,   /*NYI*/ // White chat bubble
-    CemeterySelect             = 22,   /*DEPRECATED*/ // White chat bubble
-    SpecializationMaster       = 23,   /*DEPRECATED*/ // White chat bubble
-    GlyphMaster                = 24,   /*DEPRECATED*/ // White chat bubble
-    QueueScenario              = 25,   /*NYI*/ // White chat bubble
-    GarrisonArchitect          = 26,   /*NYI*/ // White chat bubble
-    GarrisonMissionNpc         = 27,   /*NYI*/ // White chat bubble
-    ShipmentCrafter            = 28,   /*NYI*/ // Brown document
-    GarrisonTradeskillNpc      = 29,   /*NYI*/ // White chat bubble
-    GarrisonRecruitment        = 30,   /*NYI*/ // White chat bubble
-    AdventureMap               = 31,   /*NYI*/ // White chat bubble
-    GarrisonTalent             = 32,   // White chat bubble
-    ContributionCollector      = 33,   /*NYI*/ // White chat bubble
-    Transmogrify               = 34,   // Purple helm
-    AzeriteRespec              = 35,   // White chat bubble
-    IslandsMissionNpc          = 36,   /*NYI*/ // White chat bubble
-    UIItemInteraction          = 37,   /*NYI*/ // White chat bubble
-    WorldMap                   = 38,   /*NYI*/ // White chat bubble
-    Soulbind                   = 39,   /*NYI*/ // White chat bubble
-    ChromieTimeNpc             = 40,   /*NYI*/ // White chat bubble
-    CovenantPreviewNpc         = 41,   /*NYI*/ // White chat bubble
-    RuneforgeLegendaryCrafting = 42,   /*NYI*/ // White chat bubble
-    NewPlayerGuide             = 43,   /*NYI*/ // White chat bubble
-    RuneforgeLegendaryUpgrade  = 44,   /*NYI*/ // White chat bubble
-    CovenantRenownNpc          = 45,   /*NYI*/ // White chat bubble
-    BlackMarketAuctionHouse    = 46,
-    PerksProgramVendor         = 47,
-    ProfessionsCraftingOrder   = 48,
-    ProfessionsOpen            = 49,
-    ProfessionsCustomerOrder   = 50,
-    TraitSystem                = 51,
-    BarbersChoice              = 52,
-    MajorFactionRenown         = 53,
-    PersonalTabardVendor       = 54,
-    ForgeMaster                = 55,
-    CharacterBanker            = 56,
-    AccountBanker              = 57,
-    ProfessionRespec           = 58,
+    None                            = 0,    // White chat bubble. Default
+    Vendor                          = 1,    // Brown bag
+    Taxinode                        = 2,    // White wing
+    Trainer                         = 3,    // Brown book
+    SpiritHealer                    = 4,    // Golden interaction wheel (with red center)
+    Binder                          = 5,    // Golden interaction wheel
+    Banker                          = 6,    // Brown bag (with gold coin in lower corner)
+    PetitionVendor                  = 7,    // White chat bubble (with "..." inside)
+    GuildTabardVendor               = 8,    // White tabard
+    Battlemaster                    = 9,    // Two crossed swords
+    Auctioneer                      = 10,   // Stack of gold coins
+    TalentMaster                    = 11,   // White chat bubble
+    Stablemaster                    = 12,   // White chat bubble
+    PetSpecializationMaster         = 13,   /*DEPRECATED*/ // White chat bubble
+    GuildBanker                     = 14,   // White chat bubble
+    Spellclick                      = 15,   // White chat bubble
+    DisableXPGain                   = 16,   // White chat bubble
+    EnableXPGain                    = 17,   // White chat bubble
+    Mailbox                         = 18,   // White chat bubble
+    WorldPvPQueue                   = 19,   /*NYI*/ // White chat bubble
+    LFGDungeon                      = 20,   /*NYI*/ // White chat bubble
+    ArtifactRespec                  = 21,   /*NYI*/ // White chat bubble
+    CemeterySelect                  = 22,   /*DEPRECATED*/ // White chat bubble
+    SpecializationMaster            = 23,   /*DEPRECATED*/ // White chat bubble
+    GlyphMaster                     = 24,   /*DEPRECATED*/ // White chat bubble
+    QueueScenario                   = 25,   /*NYI*/ // White chat bubble
+    GarrisonArchitect               = 26,   /*NYI*/ // White chat bubble
+    GarrisonMissionNpc              = 27,   /*NYI*/ // White chat bubble
+    ShipmentCrafter                 = 28,   /*NYI*/ // Brown document
+    GarrisonTradeskillNpc           = 29,   /*NYI*/ // White chat bubble
+    GarrisonRecruitment             = 30,   /*NYI*/ // White chat bubble
+    AdventureMap                    = 31,   /*NYI*/ // White chat bubble
+    GarrisonTalent                  = 32,   // White chat bubble
+    ContributionCollector           = 33,   /*NYI*/ // White chat bubble
+    Transmogrify                    = 34,   // Purple helm
+    AzeriteRespec                   = 35,   // White chat bubble
+    IslandsMissionNpc               = 36,   /*NYI*/ // White chat bubble
+    UIItemInteraction               = 37,   /*NYI*/ // White chat bubble
+    WorldMap                        = 38,   /*NYI*/ // White chat bubble
+    Soulbind                        = 39,   /*NYI*/ // White chat bubble
+    ChromieTimeNpc                  = 40,   /*NYI*/ // White chat bubble
+    CovenantPreviewNpc              = 41,   /*NYI*/ // White chat bubble
+    RuneforgeLegendaryCrafting      = 42,   /*NYI*/ // White chat bubble
+    NewPlayerGuide                  = 43,   /*NYI*/ // White chat bubble
+    RuneforgeLegendaryUpgrade       = 44,   /*NYI*/ // White chat bubble
+    CovenantRenownNpc               = 45,   /*NYI*/ // White chat bubble
+    BlackMarketAuctionHouse         = 46,
+    PerksProgramVendor              = 47,
+    ProfessionsCraftingOrder        = 48,
+    ProfessionsOpen                 = 49,
+    ProfessionsCustomerOrder        = 50,
+    TraitSystem                     = 51,
+    BarbersChoice                   = 52,
+    MajorFactionRenown              = 53,
+    PersonalTabardVendor            = 54,
+    ForgeMaster                     = 55,
+    CharacterBanker                 = 56,
+    AccountBanker                   = 57,
+    ProfessionRespec                = 58,
+    RenameNeighborhood              = 59,
+    HousingCreateGuildNeighborhood  = 60,
+    HousingGetNeighborhoodCharter   = 61,
+    GuildRename                     = 62,
+    HousingOpenCharterConfirmation  = 63,
+    ItemUpgrade                     = 64,
+    HouseFinder                     = 65,
+    Placeholder6                    = 66,
 
     Count
 };
@@ -225,21 +236,77 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
-class InteractionData
+class PlayerChoiceData
 {
-    public:
-        void Reset()
-        {
-            SourceGuid.Clear();
-            TrainerId = 0;
-            PlayerChoiceId = 0;
-            IsLaunchedByQuest = false;
-        }
+public:
+    PlayerChoiceData() = default;
+    explicit PlayerChoiceData(uint32 choiceId) : _choiceId(choiceId) { }
 
-        ObjectGuid SourceGuid;
-        uint32 TrainerId = 0;
-        uint32 PlayerChoiceId = 0;
-        bool IsLaunchedByQuest = false;
+    uint32 GetChoiceId() const { return _choiceId; }
+    void SetChoiceId(uint32 choiceId) { _choiceId = choiceId; }
+
+    Optional<uint32> FindIdByClientIdentifier(uint16 clientIdentifier) const;
+    void AddResponse(uint32 id, uint16 clientIdentifier);
+
+    Optional<SystemTimePoint> GetExpireTime() const { return _expireTime; }
+    void SetExpireTime(Optional<SystemTimePoint> expireTime) { _expireTime = expireTime; }
+
+private:
+    struct Response
+    {
+        uint32 Id = 0;
+        uint16 ClientIdentifier = 0;
+    };
+
+    uint32 _choiceId = 0;
+    std::vector<Response> _responses;
+    Optional<SystemTimePoint> _expireTime;
+};
+
+class TC_GAME_API InteractionData
+{
+    template <typename>
+    struct TaggedId
+    {
+        TaggedId() = default;
+        explicit TaggedId(uint32 id) : Id(id) { }
+
+        uint32 Id = 0;
+    };
+
+    struct TrainerTag;
+    using TrainerData = TaggedId<TrainerTag>;
+
+public:
+    InteractionData();
+    InteractionData(InteractionData const& other);
+    InteractionData(InteractionData&& other) noexcept;
+    InteractionData& operator=(InteractionData const& other);
+    InteractionData& operator=(InteractionData&& other) noexcept;
+    ~InteractionData();
+
+    void StartInteraction(ObjectGuid target, PlayerInteractionType type);
+    bool IsInteractingWith(ObjectGuid target, PlayerInteractionType type) const { return SourceGuid == target && Type == type; }
+    void Reset();
+
+    ObjectGuid SourceGuid;
+    PlayerInteractionType Type = { };
+
+    TrainerData* GetTrainer() { return std::holds_alternative<TrainerData>(_data) ? &std::get<TrainerData>(_data) : nullptr; }
+
+    PlayerChoiceData* GetPlayerChoice() { return std::holds_alternative<PlayerChoiceData>(_data) ? &std::get<PlayerChoiceData>(_data) : nullptr; }
+
+    uint16 AddPlayerChoiceResponse(uint32 responseId)
+    {
+        std::get<PlayerChoiceData>(_data).AddResponse(responseId, ++_playerChoiceResponseIdentifierGenerator);
+        return _playerChoiceResponseIdentifierGenerator;
+    }
+
+    bool IsLaunchedByQuest = false;
+
+private:
+    uint16 _playerChoiceResponseIdentifierGenerator = 0; // not reset between interactions
+    std::variant<std::monostate, TrainerData, PlayerChoiceData> _data;
 };
 
 class TC_GAME_API PlayerMenu
@@ -275,10 +342,10 @@ class TC_GAME_API PlayerMenu
         void SendQuestGiverQuestListMessage(Object* questgiver);
 
         void SendQuestQueryResponse(Quest const* quest) const;
-        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const;
+        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup);
 
-        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
-        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
+        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched);
+        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched);
 
     private:
         GossipMenu _gossipMenu;

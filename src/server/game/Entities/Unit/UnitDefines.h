@@ -471,7 +471,7 @@ enum MovementFlags3 : uint32
     MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
     MOVEMENTFLAG3_CAN_ADV_FLY       = 0x00000002,
     MOVEMENTFLAG3_ADV_FLYING        = 0x00000004,
-    MOVEMENTFLAG3_CANT_SWIM         = 0x00002000,
+    MOVEMENTFLAG3_CANNOT_SWIM       = 0x00002000,
     MOVEMENTFLAG3_CAN_DRIVE         = 0x00004000,
     MOVEMENTFLAG3_DRIVING_FORWARD   = 0x00008000,
     MOVEMENTFLAG3_DRIVING_BACKWARD  = 0x00010000,
@@ -517,10 +517,10 @@ enum class AttackSwingErr : uint8
 
 #define MAX_DECLINED_NAME_CASES 5
 
-struct TC_GAME_API DeclinedName
+struct DeclinedName
 {
     DeclinedName() = default;
-    DeclinedName(UF::DeclinedNames const& uf);
+    TC_GAME_API DeclinedName(UF::DeclinedNames const& uf);
 
     std::string name[MAX_DECLINED_NAME_CASES];
 };

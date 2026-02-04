@@ -45,6 +45,7 @@
 #include <set>
 #include <unordered_set>
 
+class BaseEntity;
 class Battleground;
 class BattlegroundMap;
 class BattlegroundScript;
@@ -76,13 +77,14 @@ struct SummonPropertiesEntry;
 struct UpdateAdditionalSaveDataEvent;
 struct UpdateBossStateSaveDataEvent;
 class Transport;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum WeatherState : uint32;
 enum class ItemContext : uint8;
 
 namespace Trinity { struct ObjectUpdater; }
 namespace Vignettes { struct VignetteData; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
+namespace MMAP { class DynamicTileBuilder; }
 
 enum TransferAbortReason : uint32
 {
@@ -388,12 +390,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
         void markCell(uint32 pCellId) { marked_cells.set(pCellId); }
 
-        bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
+        bool HavePlayers() const { return !m_mapRefManager.empty(); }
         uint32 GetPlayersCountExceptGMs() const;
         bool ActiveObjectsNearGrid(NGridType const& ngrid) const;
 
-        void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
-        void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
+        void AddWorldObject(WorldObject* obj);
+        void RemoveWorldObject(WorldObject* obj);
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -485,22 +487,25 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return nullptr;
         }
 
-        InstanceMap* ToInstanceMap() { if (IsDungeon()) return reinterpret_cast<InstanceMap*>(this); else return nullptr;  }
-        InstanceMap const* ToInstanceMap() const { if (IsDungeon()) return reinterpret_cast<InstanceMap const*>(this); return nullptr; }
+        InstanceMap* ToInstanceMap() { return IsDungeon() ? reinterpret_cast<InstanceMap*>(this) : nullptr; }
+        InstanceMap const* ToInstanceMap() const { return IsDungeon() ? reinterpret_cast<InstanceMap const*>(this) : nullptr; }
 
-        BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return nullptr;  }
-        BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return nullptr; }
+        BattlegroundMap* ToBattlegroundMap() { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap*>(this) : nullptr; }
+        BattlegroundMap const* ToBattlegroundMap() const { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap const*>(this) : nullptr; }
 
         bool isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const;
         void Balance() { _dynamicTree.balance(); }
         void RemoveGameObjectModel(GameObjectModel const& model) { _dynamicTree.remove(model); }
         void InsertGameObjectModel(GameObjectModel const& model) { _dynamicTree.insert(model); }
         bool ContainsGameObjectModel(GameObjectModel const& model) const { return _dynamicTree.contains(model);}
+        std::span<GameObjectModel const* const> GetGameObjectModelsInGrid(uint32 gx, uint32 gy) const { return _dynamicTree.getModelsInGrid(gx, gy); }
         float GetGameObjectFloor(PhaseShift const& phaseShift, float x, float y, float z, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const
         {
             return _dynamicTree.getHeight(x, y, z, maxSearchDist, phaseShift);
         }
         bool getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
+
+        void RequestRebuildNavMeshOnGameObjectModelChange(GameObjectModel const& model, PhaseShift const& phaseShift);
 
         virtual ObjectGuid::LowType GetOwnerGuildId(uint32 /*team*/ = TEAM_OTHER) const { return UI64LIT(0); }
         /*
@@ -563,12 +568,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return GetGuidSequenceGenerator(high).GetNextAfterMaxUsed();
         }
 
-        void AddUpdateObject(Object* obj)
+        void AddUpdateObject(BaseEntity* obj)
         {
             _updateObjects.insert(obj);
         }
 
-        void RemoveUpdateObject(Object* obj)
+        void RemoveUpdateObject(BaseEntity* obj)
         {
             _updateObjects.erase(obj);
         }
@@ -647,6 +652,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;
+        std::shared_ptr<MMAP::DynamicTileBuilder> m_mmapTileRebuilder;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
@@ -763,27 +769,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         template<class T>
         void DeleteFromWorld(T*);
 
-        void AddToActiveHelper(WorldObject* obj)
-        {
-            m_activeNonPlayers.insert(obj);
-        }
-
-        void RemoveFromActiveHelper(WorldObject* obj)
-        {
-            // Map::Update for active object in proccess
-            if (m_activeNonPlayersIter != m_activeNonPlayers.end())
-            {
-                ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
-                if (itr == m_activeNonPlayers.end())
-                    return;
-                if (itr == m_activeNonPlayersIter)
-                    ++m_activeNonPlayersIter;
-                m_activeNonPlayers.erase(itr);
-            }
-            else
-                m_activeNonPlayers.erase(obj);
-        }
-
         std::unique_ptr<RespawnListContainer> _respawnTimes;
         RespawnInfoMap       _creatureRespawnTimesBySpawnId;
         RespawnInfoMap       _gameObjectRespawnTimesBySpawnId;
@@ -837,7 +822,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;
 
-        std::unordered_set<Object*> _updateObjects;
+        std::unordered_set<BaseEntity*> _updateObjects;
 
         MPSCQueue<FarSpellCallback> _farSpellCallbacks;
 
@@ -904,9 +889,9 @@ class TC_GAME_API InstanceMap : public Map
         std::string const& GetScriptName() const;
         InstanceScript* GetInstanceScript() { return i_data; }
         InstanceScript const* GetInstanceScript() const { return i_data; }
-        InstanceScenario* GetInstanceScenario() { return i_scenario; }
-        InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
-        void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
+        InstanceScenario* GetInstanceScenario() { return i_scenario.get(); }
+        InstanceScenario const* GetInstanceScenario() const { return i_scenario.get(); }
+        void SetInstanceScenario(InstanceScenario* scenario);
         InstanceLock const* GetInstanceLock() const { return i_instanceLock; }
         void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
         void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
@@ -928,7 +913,7 @@ class TC_GAME_API InstanceMap : public Map
         Optional<SystemTimePoint> i_instanceExpireEvent;
         InstanceScript* i_data;
         uint32 i_script_id;
-        InstanceScenario* i_scenario;
+        std::unique_ptr<InstanceScenario> i_scenario;
         InstanceLock* i_instanceLock;
         GroupInstanceReference i_owningGroupRef;
         Optional<uint32> i_lfgDungeonsId;

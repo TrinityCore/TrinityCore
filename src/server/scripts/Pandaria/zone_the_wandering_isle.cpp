@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
 #include "CellImpl.h"
 #include "Containers.h"
 #include "CreatureAI.h"
@@ -31,6 +33,20 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
+
+namespace Scripts::Pandaria::TheWanderingIsle
+{
+namespace Spells
+{
+    // Singing Pools
+    static constexpr uint32 CurseOfTheFrog = 102938;
+    static constexpr uint32 CurseOfTheSkunk = 102939;
+    static constexpr uint32 CurseOfTheTurtle = 102940;
+    static constexpr uint32 CurseOfTheCrane = 102941;
+    static constexpr uint32 CurseOfTheCrocodile = 102942;
+    static constexpr uint32 RideVehiclePole = 102717;
+    static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
+}
 
 enum TraineeMisc
 {
@@ -866,15 +882,15 @@ struct npc_aysa_cloudsinger_summon : public ScriptedAI
 
         _scheduler.Schedule(3s, [this](TaskContext task)
         {
-            me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[0], 12.0f, 17.4735f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[0], 12.0f, {}, 5.0f);
 
             task.Schedule(1700ms, [this](TaskContext task)
             {
-                me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[1], 12.0f, 10.7163f);
+                me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[1], 12.0f, {}, 5.0f);
 
                 task.Schedule(2s, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[2], 12.0f, 14.6923f, POINT_JUMP);
+                    me->GetMotionMaster()->MoveJump(POINT_JUMP, aysaJumpPos[2], 12.0f, {}, 5.0f);
                 });
             });
         });
@@ -1207,8 +1223,87 @@ class spell_meditation_timer_bar : public AuraScript
     }
 };
 
+enum FlameSpoutSpell
+{
+    SPELL_FLAME_SPOUT_VISUAL = 114686
+};
+
+// 114684 - Flame Spout
+class spell_flame_spout : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLAME_SPOUT_VISUAL });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLAME_SPOUT_VISUAL);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_flame_spout::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+template<uint32 CurseSpellID>
+class at_singing_pools_transform_base : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform_base(char const* scriptName) : AreaTriggerScript(scriptName) {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(CurseSpellID))
+            player->CastSpell(player, CurseSpellID);
+
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(CurseSpellID);
+        return true;
+    }
+};
+
+// 6986
+// 6987
+class at_singing_pools_transform_frog : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform_frog() : AreaTriggerScript("at_singing_pools_transform_frog") {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(Spells::CurseOfTheFrog))
+            player->CastSpell(player, Spells::CurseOfTheFrog);
+
+        if (player->HasAura(Spells::TrainingBellPoleExitExclusion))
+            player->RemoveAura(Spells::TrainingBellPoleExitExclusion);
+
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(Spells::CurseOfTheFrog);
+        return true;
+    }
+};
+};
+
 void AddSC_zone_the_wandering_isle()
 {
+    using namespace Scripts::Pandaria::TheWanderingIsle;
+
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
@@ -1225,8 +1320,15 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
+    RegisterSpellScript(spell_flame_spout);
 
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    new at_singing_pools_transform_frog();
+    new at_singing_pools_transform_base<Spells::CurseOfTheSkunk>("at_singing_pools_transform_skunk");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrocodile>("at_singing_pools_transform_crocodile");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrane>("at_singing_pools_transform_crane");
+    new at_singing_pools_transform_base<Spells::CurseOfTheTurtle>("at_singing_pools_transform_turtle");
 }

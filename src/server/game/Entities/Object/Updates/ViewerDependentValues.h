@@ -111,6 +111,10 @@ public:
                     if (gameObject->HasConditionalInteraction() && gameObject->CanActivateForPlayer(receiver))
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                     break;
+                case GAMEOBJECT_TYPE_TRANSPORT:
+                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                    dynFlags |= dynamicFlags;   // preserve all dynamicflgs
+                    break;
                 case GAMEOBJECT_TYPE_CAPTURE_POINT:
                     if (!gameObject->CanInteractWithCapturePoint(receiver))
                         dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
@@ -141,8 +145,8 @@ public:
                     dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
                 if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId()))
-                    if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
-                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId) != SpawnTrackingState::Active)
+                    if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
+                        if (receiver->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives) != SpawnTrackingState::Active)
                             dynFlags &= ~GO_DYNFLAG_LO_ACTIVATE;
             }
 
@@ -270,6 +274,42 @@ public:
                 stateAnimKitId = spawnTrackingStateData->StateAnimKitId.value_or(0);
 
         return stateAnimKitId;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = unitData->StateWorldEffectsQuestObjectiveID;
+
+        if (!stateWorldEffectsQuestObjectiveId && unit->IsCreature())
+        {
+            if (CreatureData const* data = unit->ToCreature()->GetCreatureData())
+            {
+                auto itr = data->spawnTrackingQuestObjectives.begin();
+                auto end = data->spawnTrackingQuestObjectives.end();
+                if (itr != end)
+                {
+                    // If there is no valid objective for player, fill UF with first objective (if any)
+                    stateWorldEffectsQuestObjectiveId = *itr;
+                    while (++itr != end)
+                    {
+                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, *itr) != SpawnTrackingState::Active)
+                            continue;
+
+                        stateWorldEffectsQuestObjectiveId = *itr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return stateWorldEffectsQuestObjectiveId;
     }
 };
 
@@ -535,6 +575,42 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = gameObjectData->StateWorldEffectsQuestObjectiveID;
+
+        if (!stateWorldEffectsQuestObjectiveId)
+        {
+            if (::GameObjectData const* data = gameObject->GetGameObjectData())
+            {
+                auto itr = data->spawnTrackingQuestObjectives.begin();
+                auto end = data->spawnTrackingQuestObjectives.end();
+                if (itr != end)
+                {
+                    // If there is no valid objective for player, fill UF with first objective (if any)
+                    stateWorldEffectsQuestObjectiveId = *itr;
+                    while (++itr != end)
+                    {
+                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, *itr) != SpawnTrackingState::Active)
+                            continue;
+
+                        stateWorldEffectsQuestObjectiveId = *itr;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return stateWorldEffectsQuestObjectiveId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::GameObjectData::FlagsTag>
 {
 public:
@@ -544,7 +620,7 @@ public:
     {
         value_type flags = gameObjectData->Flags;
         if (gameObject->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-            if (gameObject->GetGOInfo()->chest.usegrouplootrules && !gameObject->IsLootAllowedFor(receiver))
+            if (gameObject->GetGOInfo()->IsUsingGroupLootRules() && !gameObject->IsLootAllowedFor(receiver))
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
         return flags;

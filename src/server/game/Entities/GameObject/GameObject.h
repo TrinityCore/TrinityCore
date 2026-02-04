@@ -290,7 +290,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
-        std::vector<uint32> const* GetPauseTimes() const;
+        std::span<uint32 const> GetPauseTimes() const;
         Optional<float> GetPathProgressForClient() const { return m_transportPathProgress; }
         void SetPathProgressForClient(float progress);
 
@@ -396,21 +396,18 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetFaction() const override { return m_gameObjectData->FactionTemplate; }
         void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction); }
 
-        GameObjectModel* m_model;
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr) const;
+        std::unique_ptr<GameObjectModel> m_model;
+        Position GetRespawnPosition() const;
 
         TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
         TransportBase const* ToTransportBase() const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
+        Transport* ToTransport() { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport*>(this) : nullptr; }
+        Transport const* ToTransport() const { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport const*>(this) : nullptr; }
 
-        float GetStationaryX() const override { return m_stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
-        Position const& GetStationaryPosition() const { return m_stationaryPosition; }
+        Position const& GetStationaryPosition() const override { return m_stationaryPosition; }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
+        void RelocateStationaryPosition(Position const& pos) { m_stationaryPosition.Relocate(pos); }
 
         void AfterRelocation();
 

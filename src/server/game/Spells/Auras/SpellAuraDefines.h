@@ -18,13 +18,6 @@
 #define TRINITY_SPELLAURADEFINES_H
 
 #include "Define.h"
-#include "ObjectGuid.h"
-
-class Item;
-class SpellInfo;
-class Unit;
-class WorldObject;
-enum Difficulty : uint8;
 
 #define MAX_AURAS 300
 
@@ -303,7 +296,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS              = 209,
     SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS                     = 210,
     SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK                   = 211,
-    SPELL_AURA_MOD_HONOR_GAIN_PCT                           = 212,
+    SPELL_AURA_MOD_HONOR_GAIN_PCT_FROM_SOURCE               = 212,
     SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT                   = 213,
     SPELL_AURA_214                                          = 214,
     SPELL_AURA_ARENA_PREPARATION                            = 215,
@@ -315,7 +308,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_REMOVE_TRANSMOG_COST                         = 222,
     SPELL_AURA_REMOVE_BARBER_SHOP_COST                      = 223,
-    SPELL_AURA_LEARN_TALENT                                 = 224,  // NYI
+    SPELL_AURA_MOD_TRAIT_NODE_ENTRY_RANK                    = 224,  // NYI; Amount = ranks, MiscValue[0] = TraitNodeEntryID, MiscValue[1] = TraitNodeID (there are leftover deprecated spells that still have data referring to its old implementation, SPELL_AURA_LEARN_TALENT)
     SPELL_AURA_MOD_VISIBILITY_RANGE                         = 225,
     SPELL_AURA_PERIODIC_DUMMY                               = 226,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,
@@ -413,7 +406,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_320                                          = 320,
     SPELL_AURA_MOD_NO_ACTIONS                               = 321,
-    SPELL_AURA_INTERFERE_TARGETTING                         = 322,
+    SPELL_AURA_INTERFERE_ENEMY_TARGETING                    = 322,
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_OVERRIDE_UNLOCKED_AZERITE_ESSENCE_RANK       = 324,  // testing aura
     SPELL_AURA_LEARN_PVP_TALENT                             = 325,  // NYI
@@ -462,7 +455,7 @@ enum AuraType : uint32
     SPELL_AURA_368                                          = 368,  // Not used in 4.3.4
     SPELL_AURA_ENABLE_POWER_BAR_TIMER                       = 369,
     SPELL_AURA_SPELL_OVERRIDE_NAME_GROUP                    = 370,  // picks a random SpellOverrideName id from a group (group id in miscValue)
-    SPELL_AURA_371                                          = 371,
+    SPELL_AURA_DISABLE_AUTOATTACK                           = 371,
     SPELL_AURA_OVERRIDE_MOUNT_FROM_SET                      = 372,  // NYI
     SPELL_AURA_MOD_SPEED_NO_CONTROL                         = 373,  // NYI
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,
@@ -577,12 +570,12 @@ enum AuraType : uint32
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
     SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
-    SPELL_AURA_486                                          = 486,
+    SPELL_AURA_INTERFERE_ALL_TARGETING                      = 486,
     SPELL_AURA_COSMETIC_MOUNTED                             = 487,
     SPELL_AURA_DISABLE_GRAVITY                              = 488,
     SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE             = 489,
     SPELL_AURA_490                                          = 490,
-    SPELL_AURA_491                                          = 491,
+    SPELL_AURA_MOD_HONOR_GAIN_PCT                           = 491,
     SPELL_AURA_492                                          = 492,
     SPELL_AURA_493                                          = 493, // 1 spell, 267116 - Animal Companion (modifies Call Pet)
     SPELL_AURA_SET_POWER_POINT_CHARGE                       = 494, // NYI
@@ -735,6 +728,18 @@ enum AuraType : uint32
     SPELL_AURA_641                                          = 641,
     SPELL_AURA_642                                          = 642,
     SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT                 = 643, // NYI
+    SPELL_AURA_644                                          = 644,
+    SPELL_AURA_645                                          = 645,
+    SPELL_AURA_ADD_FLAT_PVP_MODIFIER                        = 646,
+    SPELL_AURA_ADD_PCT_PVP_MODIFIER                         = 647,
+    SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL         = 648,
+    SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL          = 649,
+    SPELL_AURA_650                                          = 650,
+    SPELL_AURA_651                                          = 651,
+    SPELL_AURA_652                                          = 652,
+    SPELL_AURA_653                                          = 653,
+    SPELL_AURA_654                                          = 654,
+    SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST           = 655,
 
     TOTAL_AURAS
 };
@@ -791,46 +796,6 @@ enum ShapeshiftForm
     FORM_WISP_FORM_2                = 40,
     FORM_SOULSHAPE                  = 41,
     FORM_FORGEBORNE_REVERIES        = 42
-};
-
-struct TC_GAME_API AuraCreateInfo
-{
-    friend class Aura;
-    friend class UnitAura;
-    friend class DynObjAura;
-
-    AuraCreateInfo(ObjectGuid castId, SpellInfo const* spellInfo, Difficulty castDifficulty, uint32 auraEffMask, WorldObject* owner);
-
-    AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
-    AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
-    AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
-    AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
-    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
-    AuraCreateInfo& SetIsRefresh(bool* isRefresh) { IsRefresh = isRefresh; return *this; }
-    AuraCreateInfo& SetStackAmount(int32 stackAmount) { StackAmount = stackAmount > 0 ? stackAmount : 1; return *this; }
-    AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
-
-    SpellInfo const* GetSpellInfo() const { return _spellInfo; }
-    uint32 GetAuraEffectMask() const { return _auraEffectMask; }
-
-    ObjectGuid CasterGUID;
-    Unit* Caster = nullptr;
-    int32 const* BaseAmount = nullptr;
-    ObjectGuid CastItemGUID;
-    uint32 CastItemId = 0;
-    int32 CastItemLevel = -1;
-    bool* IsRefresh = nullptr;
-    int32 StackAmount = 1;
-    bool ResetPeriodicTimer = true;
-
-private:
-    ObjectGuid _castId;
-    SpellInfo const* _spellInfo = nullptr;
-    Difficulty _castDifficulty = Difficulty(0);
-    uint32 _auraEffectMask = 0;
-    WorldObject* _owner = nullptr;
-
-    uint32 _targetEffectMask = 0;
 };
 
 #endif

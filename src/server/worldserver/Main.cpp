@@ -15,10 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd Trinity Daemon
-/// @{
-/// \file
-
 #include "Common.h"
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
@@ -53,7 +49,6 @@
 #include "TerrainMgr.h"
 #include "ThreadPool.h"
 #include "World.h"
-#include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "Util.h"
 #include <openssl/opensslv.h>
@@ -122,7 +117,7 @@ private:
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
@@ -273,7 +268,7 @@ int main(int argc, char** argv)
     }
 
     // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
+    boost::asio::basic_signal_set<Trinity::Asio::IoContext::Executor> signals(*ioContext, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -289,7 +284,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < numThreads; ++i)
         threadPool->PostWork([ioContext]() { ioContext->run(); });
 
-    auto ioContextStopHandle = Trinity::make_unique_ptr_with_deleter<&Trinity::Asio::IoContext::stop>(ioContext.get());
+    auto signalsCancelHandle = Trinity::make_unique_ptr_with_deleter<[](auto* s) { boost::system::error_code ec; s->cancel(ec); }>(&signals);
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -372,9 +367,9 @@ int main(int argc, char** argv)
     auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter<&BattlegroundMgr::DeleteAllBattlegrounds>(sBattlegroundMgr);
 
     // Start the Remote Access port (acceptor) if enabled
-    std::unique_ptr<AsyncAcceptor> raAcceptor;
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
+        raAcceptor = StartRaSocketAcceptor(*ioContext);
 
     // Start soap serving thread if enabled
     std::unique_ptr<std::thread, ShutdownTCSoapThread> soapThread;
@@ -449,10 +444,6 @@ int main(int argc, char** argv)
     // Shutdown starts here
     WorldPackets::Auth::ConnectTo::ShutdownEncryption();
     WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption();
-
-    ioContextStopHandle.reset();
-
-    threadPool.reset();
 
     sLog->SetSynchronous();
 
@@ -632,20 +623,23 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> acceptor = std::make_unique<Trinity::Net::AsyncAcceptor>(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
-        delete acceptor;
-        return nullptr;
+        acceptor = nullptr;
+        return acceptor;
     }
 
-    acceptor->AsyncAccept<RASession>();
+    acceptor->AsyncAccept(
+        [&] { return &ioContext; },
+        [](Trinity::Net::IoContextTcpSocket&& sock) { std::make_shared<RASession>(std::move(sock))->Start(); });
+
     return acceptor;
 }
 
@@ -696,7 +690,6 @@ void ClearOnlineAccounts(uint32 realmId)
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
-/// @}
 
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {

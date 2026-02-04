@@ -246,7 +246,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
         me->RemoveAurasDueToSpell(SPELL_KNEELING);
         scheduler.Schedule(2s, [this](TaskContext /*task*/)
         {
-            me->GetMotionMaster()->MoveJumpWithGravity(YmironIntroJumpPos, 24.0f, 25.31545448303222656, EVENT_JUMP);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, YmironIntroJumpPos, 24.0f, 2.0f);
         });
     }
 
@@ -553,8 +553,7 @@ struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
         AreaTriggerOrbitInfo orbitInfo;
         orbitInfo.CounterClockwise = false;
         orbitInfo.CanLoop = true;
-        orbitInfo.ElapsedTimeForMovement = 0;
-        orbitInfo.StartDelay = 0;
+        orbitInfo.ExtraTimeForBlending = 0;
         orbitInfo.Radius = radius;
         orbitInfo.BlendFromRadius = radius;
         orbitInfo.InitialAngle = angle;

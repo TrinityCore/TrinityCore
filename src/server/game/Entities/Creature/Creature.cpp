@@ -100,6 +100,11 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
 CreatureModel const CreatureModel::DefaultInvisibleModel(11686, 1.0f, 1.0f);
 CreatureModel const CreatureModel::DefaultVisibleModel(17519, 1.0f, 1.0f);
 
+CreatureTemplate::CreatureTemplate() = default;
+CreatureTemplate::CreatureTemplate(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate& CreatureTemplate::operator=(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate::~CreatureTemplate() = default;
+
 CreatureModel const* CreatureTemplate::GetModelByIdx(uint32 idx) const
 {
     return idx < Models.size() ? &Models[idx] : nullptr;
@@ -190,6 +195,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
+    stats.Flags[2] = creatureDifficulty->TypeFlags3;
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
@@ -268,6 +274,7 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            TypeFlags3 = 0;
             LootID = 0;
             PickPocketLootID = 0;
             SkinLootID = 0;
@@ -447,25 +454,20 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         if (IsFalling())
             StopMoving();
 
-        float x, y, z, o;
-        GetRespawnPosition(x, y, z, &o);
+        Position respawnPosition = GetRespawnPosition();
 
         // We were spawned on transport, calculate real position
         if (IsSpawnedOnTransport())
         {
-            Position& pos = m_movementInfo.transport.pos;
-            pos.m_positionX = x;
-            pos.m_positionY = y;
-            pos.m_positionZ = z;
-            pos.SetOrientation(o);
+            m_movementInfo.transport.pos = respawnPosition;
 
             if (TransportBase* transport = GetDirectTransport())
-                transport->CalculatePassengerPosition(x, y, z, &o);
+                respawnPosition = transport->GetPositionWithOffset(respawnPosition);
         }
 
-        UpdateAllowedPositionZ(x, y, z);
-        SetHomePosition(x, y, z, o);
-        GetMap()->CreatureRelocation(this, x, y, z, o);
+        UpdateAllowedPositionZ(respawnPosition.GetPositionX(), respawnPosition.GetPositionY(), respawnPosition.m_positionZ);
+        SetHomePosition(respawnPosition);
+        GetMap()->CreatureRelocation(this, respawnPosition.GetPositionX(), respawnPosition.GetPositionY(), respawnPosition.GetPositionZ(), respawnPosition.GetOrientation());
     }
     else
     {
@@ -560,6 +562,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetCanDualWield(creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
+    UpdateCreatureType();
+
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(data ? data->movementType : creatureInfo->MovementType);
     if (!m_wanderDistance && m_defaultMovementType == RANDOM_MOTION_TYPE)
@@ -579,7 +583,6 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // TODO: migrate these in DB
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT, (GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0);
     SetIgnoreFeignDeath((creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH) != 0);
-    SetInteractionAllowedInCombat((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT) != 0);
     SetTreatAsRaidUnit((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0);
 
     return true;
@@ -629,7 +632,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
+    // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
+    if (data && data->spawnTrackingQuestObjectives.size() == 1)
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data->spawnTrackingQuestObjectives.front());
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -1389,9 +1394,9 @@ void Creature::SetTappedBy(Unit const* unit, bool withGroup)
     m_tapList.insert(player->GetGUID());
     if (withGroup)
         if (Group const* group = player->GetGroup())
-            for (auto const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr->GetSource()))
-                    m_tapList.insert(itr->GetSource()->GetGUID());
+            for (GroupReference const& itr : group->GetMembers())
+                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr.GetSource()))
+                    m_tapList.insert(itr.GetSource()->GetGUID());
 
     if (m_tapList.size() >= CREATURE_TAPPERS_SOFT_CAP)
         SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
@@ -1549,20 +1554,22 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     stmt->setUInt16(index++, uint16(mapid));
     stmt->setString(index++, [&data]() -> std::string
     {
-        if (data.spawnDifficulties.empty())
-            return "";
-
         std::ostringstream os;
-        auto itr = data.spawnDifficulties.begin();
-        os << int32(*itr++);
+        if (!data.spawnDifficulties.empty())
+        {
+            auto itr = data.spawnDifficulties.begin();
+            os << int32(*itr++);
 
-        for (; itr != data.spawnDifficulties.end(); ++itr)
-            os << ',' << int32(*itr);
+            for (; itr != data.spawnDifficulties.end(); ++itr)
+                os << ',' << int32(*itr);
+        }
 
-        return os.str();
+        return std::move(os).str();
     }());
+    stmt->setUInt8(index++, data.phaseUseFlags);
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
+    stmt->setInt32(index++, data.terrainSwapMap);
     stmt->setUInt32(index++, displayId);
     stmt->setUInt8(index++, GetCurrentEquipmentId());
     stmt->setFloat(index++, GetPositionX());
@@ -1593,6 +1600,13 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
         stmt->setUInt32(index++, *unitFlags3);
     else
         stmt->setNull(index++);
+
+    stmt->setString(index++, sObjectMgr->GetScriptName(data.scriptId));
+    if (std::string_view stringId = GetStringId(StringIdType::Spawn); !stringId.empty())
+        stmt->setString(index++, stringId);
+    else
+        stmt->setNull(index++);
+
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1815,9 +1829,9 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     SetOriginalEntry(entry);
 
     if (vehId || cinfo->VehicleId)
-        Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
     else
-        Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
 
     if (!UpdateEntry(entry, data))
         return false;
@@ -2889,27 +2903,21 @@ void Creature::SetRespawnTime(uint32 respawn)
     m_respawnTime = respawn ? GameTime::GetGameTime() + respawn : 0;
 }
 
-void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, float* dist) const
+Position Creature::GetRespawnPosition(float* dist) const
 {
     if (m_creatureData)
     {
-        if (ori)
-            m_creatureData->spawnPoint.GetPosition(x, y, z, *ori);
-        else
-            m_creatureData->spawnPoint.GetPosition(x, y, z);
-
         if (dist)
             *dist = m_creatureData->wander_distance;
+
+        return m_creatureData->spawnPoint;
     }
     else
     {
-        Position const& homePos = GetHomePosition();
-        if (ori)
-            homePos.GetPosition(x, y, z, *ori);
-        else
-            homePos.GetPosition(x, y, z);
         if (dist)
             *dist = 0;
+
+        return GetHomePosition();
     }
 }
 
@@ -2940,7 +2948,7 @@ void Creature::UpdateMovementCapabilities()
 
     // Some Amphibious creatures toggle swimming while engaged
     if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM) && IsEngaged())
-        if (!IsSwimPrevented() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
+        if (!CanOnlySwimIfTargetSwims() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
             SetUnitFlag(UNIT_FLAG_CAN_SWIM);
 
     SetSwim(IsInWater() && CanSwim());
@@ -2963,6 +2971,14 @@ bool Creature::CanSwim() const
         return true;
 
     return false;
+}
+
+MovementGeneratorType Creature::GetDefaultMovementType() const
+{
+    if (!GetPlayerMovingMe())
+        return m_defaultMovementType;
+
+    return IDLE_MOTION_TYPE;
 }
 
 void Creature::AllLootRemovedFromCorpse()
@@ -3042,7 +3058,7 @@ void Creature::ApplyLevelScaling()
 {
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, 0))
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, {}))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
@@ -3060,8 +3076,8 @@ uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0f);
+    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0);
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
@@ -3070,8 +3086,6 @@ float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
         return 1.0f;
 
     uint8 levelForTarget = GetLevelForTarget(target);
-    if (GetLevel() < levelForTarget)
-        return 1.0f;
 
     return double(GetMaxHealthByLevel(levelForTarget)) / double(GetCreateHealth());
 }
@@ -3115,12 +3129,6 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
     if (Unit const* unitTarget = target->ToUnit())
     {
-        if (isWorldBoss())
-        {
-            uint8 level = unitTarget->GetLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-            return RoundToInterval<uint8>(level, 1u, 255u);
-        }
-
         // If this creature should scale level, adapt level depending of target level
         // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
         if (HasScalableLevels())
@@ -3129,9 +3137,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
             uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
-            int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
-            if (!targetLevel)
-                targetLevel = unitTarget->GetLevel();
+            int32 targetLevel = unitTarget->GetEffectiveLevel();
 
             int32 targetLevelDelta = 0;
 
@@ -3207,9 +3213,9 @@ SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Playe
 
     if (CreatureData const* data = GetCreatureData())
     {
-        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
         {
-            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives);
             return &data->spawnTrackingStates[AsUnderlyingType(state)];
         }
     }
@@ -3299,7 +3305,7 @@ void Creature::SetVendor(NPCFlags flags, bool apply)
     if (apply)
     {
         if (!m_vendorData)
-            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::FragmentSerializationTraits<&Creature::m_vendorData>{});
 
         SetNpcFlag(flags);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
@@ -3321,7 +3327,7 @@ void Creature::SetPetitioner(bool apply)
     if (apply)
     {
         if (!m_vendorData)
-            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::FragmentSerializationTraits<&Creature::m_vendorData>{});
 
         SetNpcFlag(UNIT_NPC_FLAG_PETITIONER);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
@@ -3758,7 +3764,7 @@ void Creature::AtDisengage()
 
 void Creature::ForcePartyMembersIntoCombat()
 {
-    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT) || !IsEngaged())
+    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_RAID_COMBAT) || !IsEngaged())
         return;
 
     Trinity::Containers::FlatSet<Group const*> partiesToForceIntoCombat;
@@ -3777,10 +3783,10 @@ void Creature::ForcePartyMembersIntoCombat()
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
     {
-        for (GroupReference const* ref = partyToForceIntoCombat->GetFirstMember(); ref != nullptr; ref = ref->next())
+        for (GroupReference const& ref : partyToForceIntoCombat->GetMembers())
         {
-            Player* player = ref->GetSource();
-            if (!player || !player->IsInWorld() || player->GetMap() != GetMap() || player->IsGameMaster())
+            Player* player = ref.GetSource();
+            if (!player->IsInMap(this) || player->IsGameMaster())
                 continue;
 
             EngageWithTarget(player);
@@ -3870,31 +3876,17 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
 {
     m_objectData->WriteCreate(*data, flags, this, target);
     m_unitData->WriteCreate(*data, flags, this, target);
-
-    if (m_vendorData)
-    {
-        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
-            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
-
-        m_vendorData->WriteCreate(*data, flags, this, target);
-    }
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    if (m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::CGObject))
-    {
-        *data << uint32(m_values.GetChangedObjectTypeMask());
+    *data << uint32(m_values.GetChangedObjectTypeMask());
 
-        if (m_values.HasChanged(TYPEID_OBJECT))
-            m_objectData->WriteUpdate(*data, flags, this, target);
+    if (m_values.HasChanged(TYPEID_OBJECT))
+        m_objectData->WriteUpdate(*data, flags, this, target);
 
-        if (m_values.HasChanged(TYPEID_UNIT))
-            m_unitData->WriteUpdate(*data, flags, this, target);
-    }
-
-    if (m_vendorData && m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::FVendor_C))
-        m_vendorData->WriteUpdate(*data, flags, this, target);
+    if (m_values.HasChanged(TYPEID_UNIT))
+        m_unitData->WriteUpdate(*data, flags, this, target);
 }
 
 void Creature::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const

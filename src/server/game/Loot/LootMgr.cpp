@@ -110,6 +110,11 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItem const* Roll(uint16 lootMode, Player const* personalLooter = nullptr) const;
 };
 
+LootStore::LootStore(char const* name, char const* entryName, bool ratesAllowed)
+    : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed)
+{
+}
+
 LootStore::LootStore(LootStore&&) noexcept = default;
 LootStore& LootStore::operator=(LootStore&&) noexcept = default;
 LootStore::~LootStore() = default;
@@ -229,11 +234,6 @@ void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
     // all still listed ids isn't referenced
     for (uint32 lootId : lootIdSet)
         TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} isn't {} and not referenced from loot, and thus useless.", GetName(), lootId, GetEntryName());
-}
-
-void LootStore::ReportNonExistingId(uint32 lootId) const
-{
-    TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist", GetName(), lootId);
 }
 
 void LootStore::ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const
@@ -1122,7 +1122,7 @@ void LoadLootTemplates_Disenchant()
     {
         uint32 lootid = disenchant->ID;
         if (!lootIdSet.contains(lootid))
-            LootTemplates_Disenchant.ReportNonExistingId(lootid);
+            LootTemplates_Disenchant.ReportNonExistingId(lootid, "ItemDisenchantLoot", lootid);
         else
             lootIdSetUsed.insert(lootid);
     }
@@ -1134,7 +1134,7 @@ void LoadLootTemplates_Disenchant()
 
         uint32 lootid = itemBonus->Value[0];
         if (!lootIdSet.contains(lootid))
-            LootTemplates_Disenchant.ReportNonExistingId(lootid);
+            LootTemplates_Disenchant.ReportNonExistingId(lootid, "ItemBonusList", itemBonus->ParentItemBonusListID);
         else
             lootIdSetUsed.insert(lootid);
     }

@@ -96,7 +96,15 @@ enum ItemModType
     ITEM_MOD_AGI_STR_INT              = 71,
     ITEM_MOD_AGI_STR                  = 72,
     ITEM_MOD_AGI_INT                  = 73,
-    ITEM_MOD_STR_INT                  = 74
+    ITEM_MOD_STR_INT                  = 74,
+    ITEM_MOD_PROFESSION_INSPIRATION   = 75,
+    ITEM_MOD_PROFESSION_RESOURCEFULNESS = 76,
+    ITEM_MOD_PROFESSION_FINESSE       = 77,
+    ITEM_MOD_PROFESSION_DEFTNESS      = 78,
+    ITEM_MOD_PROFESSION_PERCEPTION    = 79,
+    ITEM_MOD_PROFESSION_CRAFTING_SPEED = 80,
+    ITEM_MOD_PROFESSION_MULTICRAFT    = 81,
+    ITEM_MOD_PROFESSION_INGENUITY     = 82,
 };
 
 enum ItemSpelltriggerType
@@ -349,34 +357,40 @@ enum BAG_FAMILY_MASK
 
 enum SocketColor
 {
-    SOCKET_COLOR_META                           = 0x000001,
-    SOCKET_COLOR_RED                            = 0x000002,
-    SOCKET_COLOR_YELLOW                         = 0x000004,
-    SOCKET_COLOR_BLUE                           = 0x000008,
-    SOCKET_COLOR_HYDRAULIC                      = 0x000010, // not used
-    SOCKET_COLOR_COGWHEEL                       = 0x000020,
-    SOCKET_COLOR_PRISMATIC                      = 0x00000E,
-    SOCKET_COLOR_RELIC_IRON                     = 0x000040,
-    SOCKET_COLOR_RELIC_BLOOD                    = 0x000080,
-    SOCKET_COLOR_RELIC_SHADOW                   = 0x000100,
-    SOCKET_COLOR_RELIC_FEL                      = 0x000200,
-    SOCKET_COLOR_RELIC_ARCANE                   = 0x000400,
-    SOCKET_COLOR_RELIC_FROST                    = 0x000800,
-    SOCKET_COLOR_RELIC_FIRE                     = 0x001000,
-    SOCKET_COLOR_RELIC_WATER                    = 0x002000,
-    SOCKET_COLOR_RELIC_LIFE                     = 0x004000,
-    SOCKET_COLOR_RELIC_WIND                     = 0x008000,
-    SOCKET_COLOR_RELIC_HOLY                     = 0x010000,
-    SOCKET_COLOR_PUNCHCARD_RED                  = 0x020000,
-    SOCKET_COLOR_PUNCHCARD_YELLOW               = 0x040000,
-    SOCKET_COLOR_PUNCHCARD_BLUE                 = 0x080000,
-    SOCKET_COLOR_DOMINATION                     = 0x100000,
-    SOCKET_COLOR_CYPHER                         = 0x200000,
-    SOCKET_COLOR_TINKER                         = 0x400000,
-    SOCKET_COLOR_PRIMORDIAL                     = 0x800000,
+    SOCKET_COLOR_META                           = 0x00000001,
+    SOCKET_COLOR_RED                            = 0x00000002,
+    SOCKET_COLOR_YELLOW                         = 0x00000004,
+    SOCKET_COLOR_BLUE                           = 0x00000008,
+    SOCKET_COLOR_HYDRAULIC                      = 0x00000010,
+    SOCKET_COLOR_COGWHEEL                       = 0x00000020,
+    SOCKET_COLOR_RELIC_IRON                     = 0x00000040,
+    SOCKET_COLOR_RELIC_BLOOD                    = 0x00000080,
+    SOCKET_COLOR_RELIC_SHADOW                   = 0x00000100,
+    SOCKET_COLOR_RELIC_FEL                      = 0x00000200,
+    SOCKET_COLOR_RELIC_ARCANE                   = 0x00000400,
+    SOCKET_COLOR_RELIC_FROST                    = 0x00000800,
+    SOCKET_COLOR_RELIC_FIRE                     = 0x00001000,
+    SOCKET_COLOR_RELIC_WATER                    = 0x00002000,
+    SOCKET_COLOR_RELIC_LIFE                     = 0x00004000,
+    SOCKET_COLOR_RELIC_WIND                     = 0x00008000,
+    SOCKET_COLOR_RELIC_HOLY                     = 0x00010000,
+    SOCKET_COLOR_PUNCHCARD_RED                  = 0x00020000,
+    SOCKET_COLOR_PUNCHCARD_YELLOW               = 0x00040000,
+    SOCKET_COLOR_PUNCHCARD_BLUE                 = 0x00080000,
+    SOCKET_COLOR_DOMINATION_BLOOD               = 0x00100000,
+    SOCKET_COLOR_DOMINATION_FROST               = 0x00200000,
+    SOCKET_COLOR_DOMINATION_UNHOLY              = 0x00400000,
+    SOCKET_COLOR_CYPHER                         = 0x00800000,
+    SOCKET_COLOR_TINKER                         = 0x01000000,
+    SOCKET_COLOR_PRIMORDIAL                     = 0x02000000,
+    SOCKET_COLOR_FRAGRANCE                      = 0x04000000,
+    SOCKET_COLOR_SINGING_THUNDER                = 0x08000000,
+    SOCKET_COLOR_SINGING_SEA                    = 0x10000000,
+    SOCKET_COLOR_SINGING_WIND                   = 0x20000000,
+    SOCKET_COLOR_FIBER                          = 0x40000000,
 };
 
-extern int32 const SocketColorToGemTypeMask[26];
+extern int32 const SocketColorToGemTypeMask[31];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
@@ -456,10 +470,11 @@ enum ItemClass : uint8
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PETS                      = 17,
     ITEM_CLASS_WOW_TOKEN                        = 18,
-    ITEM_CLASS_PROFESSION                       = 19
+    ITEM_CLASS_PROFESSION                       = 19,
+    ITEM_CLASS_HOUSING                          = 20
 };
 
-#define MAX_ITEM_CLASS                            20
+#define MAX_ITEM_CLASS                            21
 
 enum ItemSubclassConsumable
 {
@@ -472,10 +487,12 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
     ITEM_SUBCLASS_BANDAGE                       = 7,
     ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8,
-    ITEM_SUBCLASS_VANTUS_RUNE                   = 9
+    ITEM_SUBCLASS_VANTUS_RUNE                   = 9,
+    ITEM_SUBCLASS_UTILITY_CURIO                 = 10,
+    ITEM_SUBCLASS_COMBAT_CURIO                  = 11,
 };
 
-#define MAX_ITEM_SUBCLASS_CONSUMABLE              10
+#define MAX_ITEM_SUBCLASS_CONSUMABLE              12
 
 enum ItemSubclassContainer
 {
@@ -753,6 +770,18 @@ enum ItemSubclassProfession
 
 #define MAX_ITEM_SUBCLASS_PROFESSION              14
 
+enum ItemSubclassHousing
+{
+    ITEM_SUBCLASS_HOUSING_DECOR                     = 0,
+    ITEM_SUBCLASS_HOUSING_DYE                       = 1,
+    ITEM_SUBCLASS_HOUSING_ROOM                      = 2,
+    ITEM_SUBCLASS_HOUSING_ROOM_CUSTOMIZATION        = 3,
+    ITEM_SUBCLASS_HOUSING_EXTERIOR_CUSTOMIZATION    = 4,
+    ITEM_SUBCLASS_HOUSING_SERVICE_ITEM              = 5
+};
+
+#define MAX_ITEM_SUBCLASS_HOUSING                     6
+
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
     MAX_ITEM_SUBCLASS_CONSUMABLE,
@@ -774,7 +803,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH,
     MAX_ITEM_SUBCLASS_BATTLE_PET,
     MAX_ITEM_SUBCLASS_WOW_TOKEN,
-    MAX_ITEM_SUBCLASS_PROFESSION
+    MAX_ITEM_SUBCLASS_PROFESSION,
+    MAX_ITEM_SUBCLASS_HOUSING
 };
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21
@@ -804,6 +834,9 @@ enum ItemIdConstants
     ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308,   // Purple Ribboned Holiday Gift
     ITEM_EMPTY_WRAPPER                           = 21830,   // Empty Wrapper
     ITEM_WRAPPED_GIFT                            = 21831,   // Wrappered Gift
+
+    ITEM_ACCOUNT_BANK_TAB_BAG                    = 208392,  // Account Bank Tab Bag (DNT)
+    ITEM_CHARACTER_BANK_TAB_BAG                  = 242709,  // Character Bank Tab Bag (DNT)
 };
 
 class Player;
@@ -841,6 +874,9 @@ struct TC_GAME_API ItemTemplate
     float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
     uint32 GetScalingStatContentTuning() const { return ExtendedData->ContentTuningID; }
     uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
+    uint32 GetItemLevelOffsetCurveId() const { return ExtendedData->ItemLevelOffsetCurveID; }
+    uint32 GetItemLevelOffsetItemLevel() const { return ExtendedData->ItemLevelOffsetItemLevel; }
+    uint32 GetItemSquishEraId() const { return ExtendedData->ItemSquishEraID; }
     uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }
@@ -903,10 +939,20 @@ struct TC_GAME_API ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return IsWeapon() &&
-               (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
+        if (!IsWeapon())
+            return false;
+
+        switch (ItemSubclassWeapon(GetSubClass()))
+        {
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 
     inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }

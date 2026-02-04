@@ -29,6 +29,7 @@ EndScriptData */
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "IpAddress.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -161,6 +162,13 @@ public:
         return HandleBanHelper(BAN_IP, args, handler);
     }
 
+    static bool IsIPAddress(std::string const& text)
+    {
+        boost::system::error_code error;
+        Trinity::Net::make_address(text, error);
+        return !error;
+    }
+
     static bool HandleBanHelper(BanMode mode, char const* args, ChatHandler* handler)
     {
         if (!*args)
@@ -199,7 +207,7 @@ public:
                 }
                 break;
             case BAN_IP:
-                if (!IsIPAddress(nameOrIP.c_str()))
+                if (!IsIPAddress(nameOrIP))
                     return false;
                 break;
         }
@@ -360,22 +368,13 @@ public:
         return true;
     }
 
-    static bool HandleBanInfoIPCommand(ChatHandler* handler, char const* args)
+    static bool HandleBanInfoIPCommand(ChatHandler* handler, std::string& ip)
     {
-        if (!*args)
+        if (!IsIPAddress(ip))
             return false;
 
-        char* ipStr = strtok((char*)args, "");
-        if (!ipStr)
-            return false;
-
-        if (!IsIPAddress(ipStr))
-            return false;
-
-        std::string IP = ipStr;
-
-        LoginDatabase.EscapeString(IP);
-        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", IP);
+        LoginDatabase.EscapeString(ip);
+        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", ip);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOIP);
@@ -745,7 +744,7 @@ public:
                 }
                 break;
             case BAN_IP:
-                if (!IsIPAddress(nameOrIP.c_str()))
+                if (!IsIPAddress(nameOrIP))
                     return false;
                 break;
         }

@@ -26,6 +26,7 @@
 
 class AreaBoundary;
 class AreaTrigger;
+class AuraApplication;
 class Creature;
 class DynamicObject;
 class GameObject;
@@ -67,7 +68,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        explicit CreatureAI(Creature* creature, uint32 scriptId = {});
+        explicit CreatureAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         virtual ~CreatureAI();
 
@@ -143,6 +144,12 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when a channeled spell finishes
         virtual void OnChannelFinished(SpellInfo const* /*spell*/) { }
+
+        // Called when aura is applied
+        virtual void OnAuraApplied(AuraApplication const* /*aurApp*/) { }
+
+        // Called when aura is removed
+        virtual void OnAuraRemoved(AuraApplication const* /*aurApp*/) { }
 
         // Should return true if the NPC is currently being escorted
         virtual bool IsEscorted() const { return false; }

@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -263,6 +264,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
+    if (!aura->GetCastItemGUID().IsEmpty())
+        auraData.CastItem = aura->GetCastItemGUID();
+
     if (auraData.Flags & AFLAG_DURATION)
     {
         auraData.Duration = aura->GetMaxDuration();
@@ -464,10 +468,18 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
     return aura;
 }
 
+SpellCastVisual AuraCreateInfo::CalcSpellVisual() const
+{
+    return _spellVisual.value_or<SpellCastVisual>({
+        .SpellXSpellVisualID = Caster ? Caster->GetCastSpellXSpellVisualId(_spellInfo) : _spellInfo->GetSpellXSpellVisualId(),
+        .ScriptVisualID = 0
+    });
+}
+
 Aura::Aura(AuraCreateInfo const& createInfo) :
 m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castId(createInfo._castId), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_castItemId(createInfo.CastItemId),
-m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId(), 0 }),
+m_castItemLevel(createInfo.CastItemLevel), m_spellVisual(createInfo.CalcSpellVisual()),
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(createInfo.Caster ? createInfo.Caster->GetLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(createInfo.StackAmount),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
@@ -537,6 +549,12 @@ Aura::~Aura()
 
     ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
+}
+
+void Aura::SetSpellVisual(SpellCastVisual const& spellVisual)
+{
+    m_spellVisual = spellVisual;
+    SetNeedClientUpdateForTargets();
 }
 
 Unit* Aura::GetCaster() const
@@ -666,7 +684,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
         {
             // needs readding - remove now, will be applied in next update cycle
             // (dbcs do not have auras which apply on same type of targets but have different radius, so this is not really needed)
-            if (itr->first->IsImmunedToSpell(GetSpellInfo(), caster, true) || !CanBeAppliedOn(itr->first))
+            if (itr->first->IsImmunedToSpell(GetSpellInfo(), itr->second, caster, true) || !CanBeAppliedOn(itr->first))
             {
                 targetsToRemove.push_back(applicationPair.second->GetTarget());
                 continue;
@@ -699,7 +717,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
                 if (itr->first->IsImmunedToSpellEffect(GetSpellInfo(), spellEffectInfo, caster))
                     itr->second &= ~(1 << spellEffectInfo.EffectIndex);
 
-            if (!itr->second || itr->first->IsImmunedToSpell(GetSpellInfo(), caster) || !CanBeAppliedOn(itr->first))
+            if (!itr->second || itr->first->IsImmunedToSpell(GetSpellInfo(), itr->second, caster) || !CanBeAppliedOn(itr->first))
                 addUnit = false;
         }
 
@@ -1579,6 +1597,19 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
     }
+
+    if (apply)
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraApplied(aurApp);
+    }
+    else
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraRemoved(aurApp);
+    }
 }
 
 bool Aura::CanBeAppliedOn(Unit* target)
@@ -1860,16 +1891,13 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
     }
 
     // check if we have charges to proc with
-    if (IsUsingCharges())
-    {
-        if (!GetCharges())
-            return 0;
+    if (IsUsingCharges() && !GetCharges())
+        return 0;
 
-        if (procEntry->AttributesMask & PROC_ATTR_REQ_SPELLMOD)
-            if (Spell const* spell = eventInfo.GetProcSpell())
-                if (!spell->m_appliedMods.count(const_cast<Aura*>(this)))
-                    return 0;
-    }
+    if (procEntry->AttributesMask & PROC_ATTR_REQ_SPELLMOD && (IsUsingCharges() || procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES))
+        if (Spell const* spell = eventInfo.GetProcSpell())
+            if (!spell->m_appliedMods.contains(const_cast<Aura*>(this)))
+                return 0;
 
     // check proc cooldown
     if (IsProcOnCooldown(now))
@@ -2614,8 +2642,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             if (uint32 containerTypeMask = Spell::GetSearcherTypeMask(m_spellInfo, spellEffectInfo, TARGET_OBJECT_TYPE_UNIT, condList))
             {
                 Trinity::WorldObjectSpellAreaTargetCheck check(radius, unitOwner, ref, unitOwner, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-                Trinity::UnitListSearcher searcher(unitOwner, units, check);
-                searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+                Trinity::UnitListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), units, check);
                 Spell::SearchTargets(searcher, containerTypeMask, unitOwner, unitOwner, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable

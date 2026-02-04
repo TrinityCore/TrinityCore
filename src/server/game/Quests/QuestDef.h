@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
@@ -32,7 +33,7 @@
 #include <vector>
 
 class Player;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 namespace WorldPackets
 {
@@ -376,6 +377,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_AREA_TRIGGER_ENTER      = 19,
     QUEST_OBJECTIVE_AREA_TRIGGER_EXIT       = 20,
     QUEST_OBJECTIVE_KILL_WITH_LABEL         = 21,
+    QUEST_OBJECTIVE_UNK_1127                = 22,
 
     MAX_QUEST_OBJECTIVE_TYPE
 };
@@ -401,14 +403,17 @@ enum QuestObjectiveFlags2
 
 enum class QuestCompleteSpellType : uint32
 {
-    LegacyBehavior  = 0,
-    Follower        = 1,
-    Tradeskill      = 2,
-    Ability         = 3,
-    Aura            = 4,
-    Spell           = 5,
-    Unlock          = 6,
-    Companion       = 7,
+    LegacyBehavior      = 0,
+    Follower            = 1,
+    Tradeskill          = 2,
+    Ability             = 3,
+    Aura                = 4,
+    Spell               = 5,
+    Unlock              = 6,
+    Companion           = 7,
+    QuestlineUnlock     = 8,
+    QuestlineReward     = 9,
+    QuestlineUnlockPart = 10,
     Max
 };
 
@@ -480,9 +485,12 @@ struct QuestObjective
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;
     int32  Amount       = 0;
+    int32  ConditionalAmount = 0;
     uint32 Flags        = 0;
     uint32 Flags2       = 0;
     float  ProgressBarWeight = 0.0f;
+    int32  ParentObjectiveID = 0;
+    bool   Visible      = false;
     std::string Description;
     std::vector<int32> VisualEffects;
     QuestObjectiveAction* CompletionEffect = nullptr;
@@ -572,9 +580,15 @@ class TC_GAME_API Quest
     friend class ObjectMgr;
     friend class Player;
     friend class PlayerMenu;
+    struct QuestTemplateQueryResult;
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
-        explicit Quest(Field* questRecord);
+        explicit Quest(QueryResult const& questRecord);
+        explicit Quest(QuestTemplateQueryResult const& questRecord);
+        Quest(Quest const&) = delete;
+        Quest(Quest&&) = delete;
+        Quest& operator=(Quest const&) = delete;
+        Quest& operator=(Quest&&) = delete;
         ~Quest();
         void LoadRewardDisplaySpell(Field* fields);
         void LoadRewardChoiceItems(Field* fields);
@@ -590,6 +604,8 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalOfferRewardText(Field* fields);
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
         void LoadTreasurePickers(Field* fields);
+        void LoadRewardHouseRoom(Field* fields);
+        void LoadRewardHouseDecor(Field* fields);
 
         uint32 XPValue(Player const* player) const;
         static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
@@ -666,6 +682,7 @@ class TC_GAME_API Quest
         uint32 GetRewMoneyDifficulty() const { return _rewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return _rewardHonor; }
         uint32 GetRewKillHonor() const { return _rewardKillHonor; }
+        int32 GetRewardFavor() const { return _rewardFavor; }
         uint32 GetArtifactXPDifficulty() const { return _rewardArtifactXPDifficulty; }
         float GetArtifactXPMultiplier() const { return _rewardArtifactXPMultiplier; }
         uint32 GetArtifactCategoryId() const { return _rewardArtifactCategoryID; }
@@ -691,6 +708,7 @@ class TC_GAME_API Quest
         uint32 GetFlags() const { return _flags; }
         uint32 GetFlagsEx() const { return _flagsEx; }
         uint32 GetFlagsEx2() const { return _flagsEx2; }
+        uint32 GetFlagsEx3() const { return _flagsEx3; }
         uint32 GetSpecialFlags() const { return _specialFlags; }
         uint32 GetScriptId() const { return _scriptId; }
         uint32 GetAreaGroupID() const { return _areaGroupID; }
@@ -705,6 +723,8 @@ class TC_GAME_API Quest
         int32 GetQuestGiverPortraitMount() const { return _questGiverPortraitMount; }
         int32 GetQuestGiverPortraitModelSceneId() const { return _questGiverPortraitModelSceneId; }
         uint32 GetQuestTurnInPortrait() const { return _questTurnInPortrait; }
+        std::vector<int32> const& GetRewardHouseRoomIds() const { return _rewardHouseRoomIDs; }
+        std::vector<int32> const& GetRewardRewardHouseDecorIds() const { return _rewardHouseDecorIDs; }
         bool IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
         bool IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
         bool IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
@@ -742,7 +762,6 @@ class TC_GAME_API Quest
 
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return _rewItemsCount; }
-        uint32 GetRewCurrencyCount() const { return _rewCurrencyCount; }
 
         void SetEventIdForQuest(uint16 eventId) { _eventIdForQuest = eventId; }
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
@@ -762,10 +781,9 @@ class TC_GAME_API Quest
         std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
     private:
-        uint32 _rewChoiceItemsCount = 0;
         uint32 _rewItemsCount = 0;
+        uint32 _rewChoiceItemsCount = 0;
         uint16 _eventIdForQuest = 0;
-        uint32 _rewCurrencyCount = 0;
 
         // wdb data (quest query response)
         uint32 _id = 0;
@@ -784,6 +802,7 @@ class TC_GAME_API Quest
         uint32 _rewardSpell = 0;
         uint32 _rewardHonor = 0;
         uint32 _rewardKillHonor = 0;
+        int32 _rewardFavor = 0;
         uint32 _rewardArtifactXPDifficulty = 0;
         float _rewardArtifactXPMultiplier = 0.f;
         uint32 _rewardArtifactCategoryID = 0;
@@ -791,6 +810,7 @@ class TC_GAME_API Quest
         uint32 _flags = 0;
         uint32 _flagsEx = 0;
         uint32 _flagsEx2 = 0;
+        uint32 _flagsEx3 = 0;
         uint32 _poiContinent = 0;
         float _poix = 0.f;
         float _poiy = 0.f;
@@ -813,6 +833,8 @@ class TC_GAME_API Quest
         int32 _expansion = 0;
         int32 _managedWorldStateID = 0;
         int32 _questSessionBonus = 0;
+        std::vector<int32> _rewardHouseRoomIDs;
+        std::vector<int32> _rewardHouseDecorIDs;
         std::string _logTitle;
         std::string _logDescription;
         std::string _questDescription;

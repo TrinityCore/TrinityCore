@@ -19,6 +19,7 @@
 #define TRINITY_UNITAI_H
 
 #include "Errors.h"
+#include "Hash.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
@@ -42,7 +43,7 @@ class SpellInfo;
 class Unit;
 struct AISpellInfoType;
 enum DamageEffectType : uint8;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum MovementGeneratorType : uint8;
 enum SpellEffIndex : uint8;
 

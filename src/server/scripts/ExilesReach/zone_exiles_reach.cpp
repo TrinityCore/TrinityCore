@@ -632,10 +632,7 @@ public:
         if (!transport || !creature)
             return;
 
-        float x, y, z, o;
-        position.GetPosition(x, y, z, o);
-        transport->CalculatePassengerPosition(x, y, z, &o);
-        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        creature->SummonPersonalClone(transport->GetPositionWithOffset(position), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
     }
 };
 
@@ -1522,7 +1519,7 @@ struct npc_murloc_spearhunter_watershaper_higher_ground : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        me->GetMotionMaster()->MoveJump(who->GetPosition(), 16.0f, 6.2f);
+        me->GetMotionMaster()->MoveJump(EVENT_JUMP, who->GetPosition(), 16.0f, 0.1f);
     }
 };
 
@@ -4426,7 +4423,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             me->SetControlled(false, UNIT_STATE_ROOT);
-            me->GetMotionMaster()->MoveJump(BriarpatchPrisonerJumpToPosition, 7.9894905f, 19.29110336303710937f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, BriarpatchPrisonerJumpToPosition, 8.0f);
             Talk(SAY_GET_OUT_OF_HERE);
             _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
         }
@@ -4647,8 +4644,8 @@ struct at_briarpatch_to_plains : AreaTriggerAI
         std::vector<WorldObject*> objs;
 
         Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), conversationId);
-        Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-        Cell::VisitGridObjects(player, checker, 100.0f);
+        Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), objs, check);
+        Cell::VisitGridObjects(player, searcher, 100.0f);
 
         if (objs.empty())
             Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr);
@@ -4781,7 +4778,7 @@ struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
                     }
 
                     if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
-                        copter->GetMotionMaster()->MoveJump(MiniChopperJumpPosition, 19.29f, 6.99f);
+                        copter->GetMotionMaster()->MoveJump(EVENT_JUMP, MiniChopperJumpPosition, 7.0f, 6.99f);
 
                     _events.ScheduleEvent(EVENT_RESIZE_COPTER_1, 6s);
                     break;

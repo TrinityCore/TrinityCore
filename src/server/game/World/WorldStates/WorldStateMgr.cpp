@@ -126,7 +126,7 @@ void WorldStateMgr::LoadFromDB()
                 id, areaIds);
         }
 
-        worldState.ScriptId = sObjectMgr->GetScriptId(fields[4].GetString());
+        worldState.ScriptId = sObjectMgr->GetScriptId(fields[4].GetStringView());
 
         if (!worldState.MapIds.empty())
         {

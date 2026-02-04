@@ -34,7 +34,6 @@
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(nullptr), _removedAura(nullptr), _caster(nullptr), _duration(0), _isViewpoint(false)
 {
-    m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
     m_updateFlag.Stationary = true;
@@ -93,7 +92,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
         return false;
     }
 
-    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
     PhasingHandler::InheritPhaseShift(this, caster);
 
     UpdatePositionData();
@@ -116,13 +115,8 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     TransportBase* transport = caster->GetTransport();
     if (transport)
     {
-        float x, y, z, o;
-        pos.GetPosition(x, y, z, o);
-        transport->CalculatePassengerOffset(x, y, z, &o);
-        m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
         // This object must be added to transport before adding to map for the client to properly display it
-        transport->AddPassenger(this);
+        transport->AddPassenger(this, transport->GetPositionOffsetTo(pos));
     }
 
     if (!GetMap()->AddToMap(this))

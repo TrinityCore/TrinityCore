@@ -18,7 +18,6 @@
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
-#include "Duration.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
 #include "ObjectGuid.h"
@@ -54,6 +53,13 @@ namespace Movement
         uint32 ParabolicCurveId = 0;
     };
 
+    struct TurnData
+    {
+        float StartFacing = 0.0f;
+        float TotalTurnRads = 0.0f;
+        float RadsPerSec = 0.0f;
+    };
+
     struct AnimTierTransition
     {
         uint32 TierTransitionId = 0;
@@ -62,7 +68,7 @@ namespace Movement
 
     struct MoveSplineInitArgs
     {
-        explicit MoveSplineInitArgs(size_t path_capacity = 16);
+        explicit MoveSplineInitArgs();
         MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept;
         ~MoveSplineInitArgs();
 
@@ -72,12 +78,11 @@ namespace Movement
         int32 path_Idx_offset;
         float velocity;
         float parabolic_amplitude;
-        float vertical_acceleration;
-        float effect_start_time_percent; // fraction of total spline duration
-        Milliseconds effect_start_time;  // absolute value
+        int32 effect_start_point;
         uint32 splineId;
         float initialOrientation;
         Optional<SpellEffectExtraData> spellEffectExtra;
+        Optional<TurnData> turnData;
         Optional<AnimTierTransition> animTier;
         bool walk;
         bool HasVelocity;

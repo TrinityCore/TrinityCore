@@ -143,7 +143,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = GetPlayer()->GetLevel();
-    uint32 contentTuningReplacementConditionMask = GetPlayer()->m_playerData->CtrOptions->ConditionalFlags;
+    std::span<uint32 const> contentTuningReplacementConditionMask = GetPlayer()->m_playerData->CtrOptions->ConditionalFlags;
     lfg::LfgDungeonSet const& randomDungeons = sLFGMgr->GetRandomAndSeasonalDungeons(level, GetExpansion(), contentTuningReplacementConditionMask);
 
     WorldPackets::LFG::LfgPlayerInfo lfgPlayerInfo;
@@ -209,12 +209,9 @@ void WorldSession::SendLfgPartyLockInfo()
     WorldPackets::LFG::LfgPartyInfo lfgPartyInfo;
 
     // Get the locked dungeons of the other party members
-    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const& itr : group->GetMembers())
     {
-        Player* plrg = itr->GetSource();
-        if (!plrg)
-            continue;
-
+        Player* plrg = itr.GetSource();
         ObjectGuid pguid = plrg->GetGUID();
         if (pguid == guid)
             continue;

@@ -24,6 +24,7 @@
 class AreaTrigger;
 class Spell;
 class Unit;
+enum class AreaTriggerExitReason : uint8;
 
 class TC_GAME_API AreaTriggerAI
 {
@@ -32,7 +33,11 @@ class TC_GAME_API AreaTriggerAI
     protected:
         AreaTrigger* const at;
     public:
-        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {});
+        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {}) noexcept;
+        AreaTriggerAI(AreaTriggerAI const&) = delete;
+        AreaTriggerAI(AreaTriggerAI&&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI const&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI&&) = delete;
         virtual ~AreaTriggerAI();
 
         // Called when the AreaTrigger has just been initialized, just before added to map
@@ -54,7 +59,7 @@ class TC_GAME_API AreaTriggerAI
         virtual void OnUnitEnter([[maybe_unused]] Unit* unit) { }
 
         // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit([[maybe_unused]] Unit* unit) { }
+        virtual void OnUnitExit([[maybe_unused]] Unit* unit, [[maybe_unused]] AreaTriggerExitReason reason) { }
 
         // Called when the AreaTrigger is removed
         virtual void OnRemove() { }

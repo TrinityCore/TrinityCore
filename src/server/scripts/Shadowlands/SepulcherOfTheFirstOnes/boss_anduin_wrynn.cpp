@@ -2449,7 +2449,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
         caster->CastSpell(unit, SPELL_BEFOULED_BARRIER_DEBUFF, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAura(SPELL_BEFOULED_BARRIER_DEBUFF);
     }
@@ -2999,7 +2999,7 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
         at->MovePositionToFirstCollision(destPos, 100.0f, angle);
 
         std::vector<G3D::Vector3> splinePoints;
-        splinePoints.push_back(PositionToVector3(at));
+        splinePoints.push_back(PositionToVector3(at->GetPosition()));
         splinePoints.push_back(PositionToVector3(destPos));
 
         at->InitSplines(splinePoints);
@@ -3555,7 +3555,7 @@ struct at_anduin_wrynn_hopelessness : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsAlive() && unit->HasAura(at->GetSpellId()))
             unit->RemoveAurasDueToSpell(at->GetSpellId());

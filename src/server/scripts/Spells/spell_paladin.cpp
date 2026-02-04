@@ -39,6 +39,7 @@
 
 enum PaladinSpells
 {
+    SPELL_PALADIN_A_JUST_REWARD_HEAL             = 469413,
     SPELL_PALADIN_ARDENT_DEFENDER_HEAL           = 66235,
     SPELL_PALADIN_ART_OF_WAR_TRIGGERED           = 231843,
     SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
@@ -56,6 +57,8 @@ enum PaladinSpells
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
     SPELL_PALADIN_CRUSADING_STRIKES_ENERGIZE     = 406834,
+    SPELL_PALADIN_DIVINE_AUXILIARY_ENERGIZE      = 408386,
+    SPELL_PALADIN_DIVINE_AUXILIARY_TALENT        = 406158,
     SPELL_PALADIN_DIVINE_PURPOSE_TRIGGERED       = 223819,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DWARF             = 276111,
@@ -68,6 +71,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
+    SPELL_PALADIN_ETERNAL_FLAME                  = 156322,
     SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE      = 387113,
     SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
     SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
@@ -141,6 +145,28 @@ enum PaladinSpellVisual
 enum PaladinSpellLabel
 {
     SPELL_LABEL_PALADIN_T30_2P_HEARTFIRE         = 2598
+};
+
+// 469411 - A Just Reward
+class spell_pal_a_just_reward : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_A_JUST_REWARD_HEAL });
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_A_JUST_REWARD_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_a_just_reward::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 31850 - Ardent Defender
@@ -252,7 +278,7 @@ struct areatrigger_pal_ashen_hallow : AreaTriggerAI
             unit->CastSpell(unit, SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (unit->GetGUID() == at->GetCasterGuid())
             unit->RemoveAura(SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER);
@@ -317,7 +343,7 @@ class spell_pal_blade_of_vengeance : public SpellScript
         return !GetCaster()->HasAura(SPELL_PALADIN_BLADE_OF_VENGEANCE);
     }
 
-    static void PreventProc(WorldObject*& target)
+    static void PreventProc(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -438,7 +464,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (at->GetCasterGuid() == unit->GetGUID())
             unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
@@ -488,6 +514,34 @@ class spell_pal_crusading_strikes : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_pal_crusading_strikes::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 406158 - Divine Auxiliary (attached to 343721 - Final Reckoning and 343527 - Execution Sentence)
+class spell_pal_divine_auxiliary : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_AUXILIARY_ENERGIZE, SPELL_PALADIN_DIVINE_AUXILIARY_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PALADIN_DIVINE_AUXILIARY_TALENT);
+    }
+
+    void HandleEnergize() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PALADIN_DIVINE_AUXILIARY_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pal_divine_auxiliary::HandleEnergize);
     }
 };
 
@@ -637,6 +691,47 @@ class spell_pal_divine_storm : public SpellScript
     void Register() override
     {
         OnCast += SpellCastFn(spell_pal_divine_storm::HandleOnCast);
+    }
+};
+
+// 156322 - Eternal Flame
+class spell_pal_eternal_flame : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pal_eternal_flame::CalculateHealing);
+    }
+};
+
+class spell_pal_eternal_flame_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pal_eternal_flame_aura::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1601,7 +1696,8 @@ class spell_pal_t8_2p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_MENDING });
+        return ValidateSpellEffect({ { SPELL_PALADIN_HOLY_MENDING, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -1615,11 +1711,10 @@ class spell_pal_t8_2p_bonus : public AuraScript
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty());
+        SpellEffectInfo const& hotEffect = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= hotEffect.GetPeriodicTickCount();
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
@@ -1637,7 +1732,8 @@ class spell_pal_t30_2p_protection_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE });
+        return ValidateSpellEffect({ { SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
@@ -1645,7 +1741,7 @@ class spell_pal_t30_2p_protection_bonus : public AuraScript
         PreventDefaultAction();
 
         Unit* caster = procInfo.GetActor();
-        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
         uint32 damage = CalculatePct(procInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
 
         caster->CastSpell(procInfo.GetActionTarget(), SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, CastSpellExtraArgs(aurEff)
@@ -1735,6 +1831,7 @@ class spell_pal_zeal : public AuraScript
 
 void AddSC_paladin_spell_scripts()
 {
+    RegisterSpellScript(spell_pal_a_just_reward);
     RegisterSpellScript(spell_pal_ardent_defender);
     RegisterSpellScript(spell_pal_art_of_war);
     RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
@@ -1747,10 +1844,12 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_crusading_strikes);
     RegisterSpellScript(spell_pal_consecration);
     RegisterAreaTriggerAI(areatrigger_pal_consecration);
+    RegisterSpellScript(spell_pal_divine_auxiliary);
     RegisterSpellScript(spell_pal_divine_purpose);
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
+    RegisterSpellAndAuraScriptPair(spell_pal_eternal_flame, spell_pal_eternal_flame_aura);
     RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_final_verdict);

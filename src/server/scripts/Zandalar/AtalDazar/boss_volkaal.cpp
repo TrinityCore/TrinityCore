@@ -320,29 +320,6 @@ class spell_volkaal_toxic_leap_selector : public SpellScript
     }
 };
 
-// 250258 - Toxic Leap
-class spell_volkaal_toxic_leap : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TOXIC_LEAP });
-    }
-
-    void HandleHit(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        float dist = GetCaster()->GetExactDist(GetHitDest());
-        float jumpGravity = 159500.0f / (dist * dist); // constant based on calculating avg of inverse from multiple leaps
-        GetCaster()->GetMotionMaster()->MoveJumpWithGravity(*GetHitDest(), 50, jumpGravity, EVENT_JUMP);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_volkaal_toxic_leap::HandleHit, EFFECT_1, SPELL_EFFECT_JUMP_CHARGE);
-    }
-};
-
 // 250229 - Soul Anchor
 class spell_volkaal_soul_anchor : public SpellScript
 {
@@ -402,8 +379,8 @@ class spell_volkaal_rapid_decay : public AuraScript
 
         float range = 100.0f;
         Player* player = nullptr;
-        Trinity::AnyPlayerInObjectRangeCheck check(caster, range);
-        Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, player, check);
+        Trinity::AnyUnitInObjectRangeCheck check(caster, range);
+        Trinity::PlayerSearcher searcher(caster, player, check);
         Cell::VisitWorldObjects(caster, searcher, range);
 
         CastSpellExtraArgs args;
@@ -434,7 +411,7 @@ struct at_volkaal_rapid_decay : AreaTriggerAI
         unit->CastSpell(unit, SPELL_TOXIC_POOL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_TOXIC_POOL);
     }
@@ -448,7 +425,6 @@ void AddSC_boss_volkaal()
     RegisterSpellScript(spell_volkaal_lingering_nausea);
     RegisterSpellScript(spell_volkaal_noxious_stench);
     RegisterSpellScript(spell_volkaal_toxic_leap_selector);
-    RegisterSpellScript(spell_volkaal_toxic_leap);
     RegisterSpellScript(spell_volkaal_soul_anchor);
     RegisterSpellScript(spell_volkaal_reanimate);
     RegisterSpellScript(spell_volkaal_rapid_decay);

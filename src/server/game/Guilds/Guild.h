@@ -201,8 +201,8 @@ enum GuildBankEventLogTypes
     GUILD_BANK_LOG_WITHDRAW_MONEY       = 5,
     GUILD_BANK_LOG_REPAIR_MONEY         = 6,
     GUILD_BANK_LOG_MOVE_ITEM2           = 7,
-    GUILD_BANK_LOG_UNK1                 = 8,
-    GUILD_BANK_LOG_BUY_SLOT             = 9,
+    GUILD_BANK_LOG_WITHDRAW_TO_BUY_TAB  = 8,
+    GUILD_BANK_LOG_BUY_TAB              = 9,
     GUILD_BANK_LOG_CASH_FLOW_DEPOSIT    = 10
 };
 
@@ -352,13 +352,13 @@ class TC_GAME_API Guild
                 void SaveToDB(CharacterDatabaseTransaction trans) const;
 
                 ObjectGuid const& GetGUID() const { return m_guid; }
-                std::string const& GetName() const { return m_name; }
+                std::string_view GetName() const { return m_name; }
                 uint32 GetAccountId() const { return m_accountId; }
                 GuildRankId GetRankId() const { return m_rankId; }
                 uint64 GetLogoutTime() const { return m_logoutTime; }
                 float GetInactiveDays() const;
-                std::string GetPublicNote() const { return m_publicNote; }
-                std::string GetOfficerNote() const { return m_officerNote; }
+                std::string_view GetPublicNote() const { return m_publicNote; }
+                std::string_view GetOfficerNote() const { return m_officerNote; }
                 uint8 GetRace() const { return m_race; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetGender() const { return m_gender; }
@@ -472,6 +472,8 @@ class TC_GAME_API Guild
                         eventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
                         eventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||
                         eventType == GUILD_BANK_LOG_REPAIR_MONEY ||
+                        eventType == GUILD_BANK_LOG_WITHDRAW_TO_BUY_TAB ||
+                        eventType == GUILD_BANK_LOG_BUY_TAB ||
                         eventType == GUILD_BANK_LOG_CASH_FLOW_DEPOSIT;
                 }
 
@@ -762,7 +764,7 @@ class TC_GAME_API Guild
 
         // Handle client commands
         void HandleRoster(WorldSession* session);
-        void SendQueryResponse(WorldSession* session);
+        void HandleQuery(WorldSession* session);
         void HandleSetAchievementTracking(WorldSession* session, uint32 const* achievementIdsBegin, uint32 const* achievementIdsEnd);
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string_view motd);
@@ -943,7 +945,7 @@ class TC_GAME_API Guild
         static void _DeleteMemberFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType lowguid);
 
         // Tries to create new bank tab
-        void _CreateNewBankTab();
+        void _CreateNewBankTab(CharacterDatabaseTransaction trans);
         // Creates default guild ranks with names in given locale
         void _CreateDefaultGuildRanks(CharacterDatabaseTransaction trans, LocaleConstant loc);
         // Creates new rank

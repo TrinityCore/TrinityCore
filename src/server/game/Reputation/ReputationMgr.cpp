@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationPackets.h"
@@ -208,7 +209,7 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 {
     ReputationRank rank = GetRank(factionEntry);
     if (!factionEntry->FriendshipRepID)
-        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
+        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[rank], _player->GetSession()->GetSessionDbcLocale());
 
     if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
     {
@@ -223,6 +224,11 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
 {
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
+}
+
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(uint32 factionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_forcedReactions, factionId);
 }
 
 bool ReputationMgr::IsParagonReputation(FactionEntry const* factionEntry) const
@@ -338,7 +344,7 @@ void ReputationMgr::SendState(FactionState const* faction)
     };
 
     if (faction)
-        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction));
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction), faction->ID);
 
     for (auto& [reputationIndex, state] : _factions)
     {
@@ -346,7 +352,7 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             state.needSend = false;
             if (!faction || state.ReputationListID != faction->ReputationListID)
-                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state));
+                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state), state.ID);
         }
     }
 

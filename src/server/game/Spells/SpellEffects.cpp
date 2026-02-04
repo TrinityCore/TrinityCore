@@ -248,7 +248,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
-    &Spell::EffectForceCast,                                //160 SPELL_EFFECT_FORCE_CAST_2
+    &Spell::EffectForceCast2,                               //160 SPELL_EFFECT_FORCE_CAST_2
     &Spell::EffectNULL,                                     //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectNULL,                                     //163 SPELL_EFFECT_OBLITERATE_ITEM
@@ -423,13 +423,26 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //332 SPELL_EFFECT_332
     &Spell::EffectNULL,                                     //333 SPELL_EFFECT_333
     &Spell::EffectNULL,                                     //334 SPELL_EFFECT_334
-    &Spell::EffectNULL,                                     //335 SPELL_EFFECT_335
-    &Spell::EffectNULL,                                     //336 SPELL_EFFECT_336
-    &Spell::EffectNULL,                                     //337 SPELL_EFFECT_337
-    &Spell::EffectNULL,                                     //338 SPELL_EFFECT_338
+    &Spell::EffectSetPlayerDataElementAccount,              //335 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_ACCOUNT
+    &Spell::EffectSetPlayerDataElementCharacter,            //336 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_CHARACTER
+    &Spell::EffectSetPlayerDataFlagAccount,                 //337 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_ACCOUNT
+    &Spell::EffectSetPlayerDataFlagCharacter,               //338 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_CHARACTER
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
     &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
+    &Spell::EffectNULL,                                     //342 SPELL_EFFECT_342
+    &Spell::EffectNULL,                                     //343 SPELL_EFFECT_343
+    &Spell::EffectNULL,                                     //344 SPELL_EFFECT_344
+    &Spell::EffectNULL,                                     //345 SPELL_EFFECT_ASSIST_ACTION
+    &Spell::EffectNULL,                                     //346 SPELL_EFFECT_346
+    &Spell::EffectNULL,                                     //347 SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT
+    &Spell::EffectNULL,                                     //348 SPELL_EFFECT_GIVE_HOUSE_LEVEL
+    &Spell::EffectNULL,                                     //349 SPELL_EFFECT_LEARN_HOUSE_ROOM
+    &Spell::EffectNULL,                                     //350 SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT
+    &Spell::EffectNULL,                                     //351 SPELL_EFFECT_LEARN_HOUSE_THEME
+    &Spell::EffectNULL,                                     //352 SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE
+    &Spell::EffectCreateAreaTrigger,                        //353 SPELL_EFFECT_CREATE_AREATRIGGER_2
+    &Spell::EffectNULL,                                     //354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
 };
 
 void Spell::EffectNULL()
@@ -540,34 +553,6 @@ void Spell::EffectSchoolDMG()
         }
 
         Unit* unitCaster = GetUnitCasterForEffectHandlers();
-        switch (m_spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_GENERIC:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARRIOR:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                break;
-            }
-            case SPELLFAMILY_PRIEST:
-            {
-                break;
-            }
-            case SPELLFAMILY_DRUID:
-            {
-                break;
-            }
-            case SPELLFAMILY_DEATHKNIGHT:
-            {
-                break;
-            }
-        }
-
         if (unitCaster && apply_direct_bonus)
         {
             uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
@@ -801,7 +786,7 @@ void Spell::EffectTriggerMissileSpell()
 
 void Spell::EffectForceCast()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     if (!unitTarget)
@@ -836,7 +821,6 @@ void Spell::EffectForceCast()
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.SetOriginalCaster(m_originalCasterGUID);
-                args.SetTriggeringSpell(this);
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
@@ -848,18 +832,56 @@ void Spell::EffectForceCast()
     {
         case 72298: // Malleable Goo Summon
             unitTarget->CastSpell(unitTarget, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(m_originalCasterGUID)
-                .SetTriggeringSpell(this));
+                .SetOriginalCaster(m_originalCasterGUID));
             return;
     }
 
-    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
-    args.SetTriggeringSpell(this);
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_REAGENT_COST));
     if (effectInfo->Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
         for (std::size_t i = 0; i < spellInfo->GetEffects().size(); ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     unitTarget->CastSpell(m_caster, spellInfo->Id, args);
+}
+
+void Spell::EffectForceCast2()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    uint32 triggered_spell_id = effectInfo->TriggerSpell;
+    if (triggered_spell_id == 0)
+    {
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectForceCast2: Spell {} [EffectIndex: {}] does not have triggered spell.", m_spellInfo->Id, effectInfo->EffectIndex);
+        return;
+    }
+
+    // normal case
+    if (!sSpellMgr->GetSpellInfo(triggered_spell_id, GetCastDifficulty()))
+    {
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast2 of spell {}: triggering unknown spell id {}.", m_spellInfo->Id, triggered_spell_id);
+        return;
+    }
+
+    // Start the cast during next update tick
+    // This is neccessary to preserve proper SMSG_SPELL_START and SMSG_SPELL_GO packet sequence
+    // (if packet sequence is not preserved then client cast bar in UI bugs and doesn't stop when the spell is interrupted)
+    // Triggered spells from effects handled during launch phase (such as SPELL_EFFECT_TRIGGER_SPELL)
+    // normally have their SMSG_SPELL_GO sent before parent spell SMSG_SPELL_GO
+    // SPELL_EFFECT_FORCE_CAST_2 requires these packets to be sent after parent spell
+    // but also needs to be handled during launch phase as well
+    unitTarget->m_Events.AddEventAtOffset([triggered_spell_id, target = CastSpellTargetArg(m_caster), caster = unitTarget]() mutable
+    {
+        if (!target.Targets)
+            return;
+
+        target.Targets->Update(caster);
+
+        caster->CastSpell(target, triggered_spell_id);
+    }, 0ms);
 }
 
 void Spell::EffectTriggerRitualOfSummoning()
@@ -888,21 +910,6 @@ void Spell::EffectTriggerRitualOfSummoning()
         .SetTriggeringSpell(this));
 }
 
-void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ)
-{
-    Unit* unitCaster = GetUnitCasterForEffectHandlers();
-    ASSERT(unitCaster);
-
-    float multiplier = effInfo->Amplitude;
-    if (multiplier <= 0.0f)
-        multiplier = 1.0f;
-
-    float minHeight = effInfo->MiscValue  ? effInfo->MiscValue  / 10.0f :    0.5f; // Lower bound is blizzlike
-    float maxHeight = effInfo->MiscValueB ? effInfo->MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
-
-    unitCaster->GetMotionMaster()->CalculateJumpSpeeds(dist, MOVE_RUN, multiplier, minHeight, maxHeight, speedXY, speedZ);
-}
-
 void Spell::EffectJump()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
@@ -918,8 +925,10 @@ void Spell::EffectJump()
     if (!unitTarget)
         return;
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(unitTarget), speedXY, speedZ);
+    Optional<float> speedMultiplier = effectInfo->Amplitude > 0.0f ? Optional<float>(effectInfo->Amplitude) : std::nullopt;
+    Optional<float> minHeight = effectInfo->MiscValue ? Optional<float>(effectInfo->MiscValue / 10.0f) : std::nullopt;
+    Optional<float> maxHeight = effectInfo->MiscValueB ? Optional<float>(effectInfo->MiscValueB / 10.0f) : std::nullopt;
+
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
     {
@@ -930,7 +939,9 @@ void Spell::EffectJump()
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
     arrivalCast.Target = unitTarget->GetGUID();
-    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *unitTarget, {}, minHeight, maxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+        false, speedMultiplier, &arrivalCast);
 }
 
 void Spell::EffectJumpDest()
@@ -948,8 +959,10 @@ void Spell::EffectJumpDest()
     if (!m_targets.HasDst())
         return;
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(destTarget), speedXY, speedZ);
+    Optional<float> speedMultiplier = effectInfo->Amplitude > 0.0f ? Optional<float>(effectInfo->Amplitude) : std::nullopt;
+    Optional<float> minHeight = effectInfo->MiscValue ? Optional<float>(effectInfo->MiscValue / 10.0f) : std::nullopt;
+    Optional<float> maxHeight = effectInfo->MiscValueB ? Optional<float>(effectInfo->MiscValueB / 10.0f) : std::nullopt;
+
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
     {
@@ -961,7 +974,9 @@ void Spell::EffectJumpDest()
 
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
-    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *destTarget, {}, minHeight, maxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+        false, speedMultiplier, &arrivalCast);
 }
 
 TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unitTarget, SpellDestination const& targetDest)
@@ -997,12 +1012,12 @@ void Spell::EffectTeleportUnits()
     }
 
     // Init dest coordinates
-    WorldLocation targetDest(*destTarget);
-    if (targetDest.GetMapId() == MAPID_INVALID)
-        targetDest.m_mapId = unitTarget->GetMapId();
+    TeleportLocation targetDest{ .Location = *destTarget };
+    if (targetDest.Location.GetMapId() == MAPID_INVALID)
+        targetDest.Location.m_mapId = unitTarget->GetMapId();
 
-    if (!targetDest.GetOrientation() && m_targets.GetUnitTarget())
-        targetDest.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
+    if (!targetDest.Location.GetOrientation() && m_targets.GetUnitTarget())
+        targetDest.Location.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
 
     Player* player = unitTarget->ToPlayer();
 
@@ -1010,15 +1025,21 @@ void Spell::EffectTeleportUnits()
     {
         // Custom loading screen
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
-            if (targetDest.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest, TELEPORT_MIN_LOAD_SCREEN_DISTANCE))
+            if (targetDest.Location.GetMapId() != unitTarget->GetMapId() || !unitTarget->IsInDist2d(targetDest.Location, TELEPORT_MIN_LOAD_SCREEN_DISTANCE))
                 player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
+        if (ObjectGuid transportGuid = m_destTargets[effectInfo->EffectIndex]._transportGUID; !transportGuid.IsEmpty())
+        {
+            targetDest.TransportGuid = transportGuid;
+            targetDest.Location.Relocate(m_destTargets[effectInfo->EffectIndex]._transportOffset);
+        }
+
         TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
-        player->TeleportTo(targetDest, options, {}, m_spellInfo->Id);
+        player->TeleportTo(targetDest, options, m_spellInfo->Id);
 
     }
-    else if (targetDest.GetMapId() == unitTarget->GetMapId())
-        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
+    else if (targetDest.Location.GetMapId() == unitTarget->GetMapId())
+        unitTarget->NearTeleportTo(targetDest.Location, unitTarget == m_caster);
     else
         TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId {} attempted to teleport creature to a different map.", m_spellInfo->Id);
 }
@@ -1026,15 +1047,15 @@ void Spell::EffectTeleportUnits()
 class DelayedSpellTeleportEvent : public BasicEvent
 {
 public:
-    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, TeleportToOptions options, uint32 spellId)
+    explicit DelayedSpellTeleportEvent(Unit* target, TeleportLocation const& targetDest, TeleportToOptions options, uint32 spellId)
         : _target(target), _targetDest(targetDest), _options(options), _spellId(spellId){ }
 
     bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
     {
         if (Player* player = _target->ToPlayer())
             player->TeleportTo(_targetDest, _options);
-        else if (_targetDest.GetMapId() == _target->GetMapId())
-            _target->NearTeleportTo(_targetDest, (_options & TELE_TO_SPELL) != TELE_TO_NONE);
+        else if (_targetDest.Location.GetMapId() == _target->GetMapId())
+            _target->NearTeleportTo(_targetDest.Location, (_options & TELE_TO_SPELL) != TELE_TO_NONE);
         else
             TC_LOG_ERROR("spells", "Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {} attempted to teleport creature to a different map.", _spellId);
 
@@ -1043,7 +1064,7 @@ public:
 
 private:
     Unit* _target;
-    WorldLocation _targetDest;
+    TeleportLocation _targetDest;
     TeleportToOptions _options;
     uint32 _spellId;
 };
@@ -1064,12 +1085,18 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
     }
 
     // Init dest coordinates
-    WorldLocation targetDest(*destTarget);
-    if (targetDest.GetMapId() == MAPID_INVALID)
-        targetDest.m_mapId = unitTarget->GetMapId();
+    TeleportLocation targetDest{ .Location = *destTarget };
+    if (targetDest.Location.GetMapId() == MAPID_INVALID)
+        targetDest.Location.m_mapId = unitTarget->GetMapId();
 
-    if (!targetDest.GetOrientation() && m_targets.GetUnitTarget())
-        targetDest.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
+    if (!targetDest.Location.GetOrientation() && m_targets.GetUnitTarget())
+        targetDest.Location.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
+
+    if (ObjectGuid transportGuid = m_destTargets[effectInfo->EffectIndex]._transportGUID; !transportGuid.IsEmpty())
+    {
+        targetDest.TransportGuid = transportGuid;
+        targetDest.Location.Relocate(m_destTargets[effectInfo->EffectIndex]._transportOffset);
+    }
 
     if (effectInfo->MiscValueB)
         if (Player* playerTarget = unitTarget->ToPlayer())
@@ -2202,6 +2229,9 @@ void Spell::EffectDispel()
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
 
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
 
@@ -2314,8 +2344,20 @@ void Spell::EffectTeleUnitsFaceCaster()
     if (unitTarget->IsInFlight())
         return;
 
-    if (m_targets.HasDst())
-        unitTarget->NearTeleportTo(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), destTarget->GetAbsoluteAngle(m_caster), unitTarget == m_caster);
+    if (!m_targets.HasDst())
+        return;
+
+    TeleportLocation targetDest{ .Location = *destTarget };
+    if (ObjectGuid transportGuid = m_destTargets[effectInfo->EffectIndex]._transportGUID; !transportGuid.IsEmpty())
+    {
+        targetDest.TransportGuid = transportGuid;
+        targetDest.Location.Relocate(m_destTargets[effectInfo->EffectIndex]._transportOffset);
+        targetDest.Location.SetOrientation(destTarget->GetAbsoluteAngle(m_caster) - targetDest.Location.GetOrientation());
+    }
+    else
+        targetDest.Location.SetOrientation(destTarget->GetAbsoluteAngle(m_caster));
+
+    unitTarget->NearTeleportTo(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), destTarget->GetAbsoluteAngle(m_caster), unitTarget == m_caster);
 }
 
 void Spell::EffectLearnSkill()
@@ -2782,8 +2824,12 @@ void Spell::EffectWeaponDmg()
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
+    uint32 effectMask = std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->EffectMask;
     for (size_t j = effectInfo->EffectIndex + 1; j < m_spellInfo->GetEffects().size(); ++j)
     {
+        if (!(effectMask & (1 << j)))
+            continue;
+
         switch (m_spellInfo->GetEffect(SpellEffIndex(j)).Effect)
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
@@ -2817,6 +2863,9 @@ void Spell::EffectWeaponDmg()
     float weaponDamagePercentMod = 1.0f;
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
     {
+        if (!(effectMask & (1 << spellEffectInfo.EffectIndex)))
+            continue;
+
         switch (spellEffectInfo.Effect)
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
@@ -2862,6 +2911,9 @@ void Spell::EffectWeaponDmg()
     // Sequence is important
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
     {
+        if (!(effectMask & (1 << spellEffectInfo.EffectIndex)))
+            continue;
+
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
         switch (spellEffectInfo.Effect)
@@ -2951,7 +3003,7 @@ void Spell::EffectInterruptCast()
         {
             SpellInfo const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
-            if ((spell->getState() == SPELL_STATE_CASTING
+            if ((spell->getState() == SPELL_STATE_CHANNELING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
                 && curSpellInfo->CanBeInterrupted(m_caster, unitTarget))
             {
@@ -3667,8 +3719,14 @@ void Spell::EffectLeap()
     if (!m_targets.HasDst())
         return;
 
-    Position pos = destTarget->GetPosition();
-    unitTarget->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), unitTarget == m_caster);
+    TeleportLocation targetDest{ .Location = *destTarget };
+    if (ObjectGuid transportGuid = m_destTargets[effectInfo->EffectIndex]._transportGUID; !transportGuid.IsEmpty())
+    {
+        targetDest.TransportGuid = transportGuid;
+        targetDest.Location.Relocate(m_destTargets[effectInfo->EffectIndex]._transportOffset);
+    }
+
+    unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
 }
 
 void Spell::EffectReputation()
@@ -3984,9 +4042,9 @@ void Spell::EffectKnockBack()
         return;
 
     float ratio = 0.1f;
-    float speedxy = float(effectInfo->MiscValue) * ratio;
-    float speedz = float(damage) * ratio;
-    if (speedxy < 0.01f && speedz < 0.01f)
+    float speedXY = float(effectInfo->MiscValue) * ratio;
+    float speedZ = float(damage) * ratio;
+    if (std::abs(speedXY) < 0.01f && std::abs(speedZ) < 0.01f)
         return;
 
     Position origin;
@@ -4000,7 +4058,7 @@ void Spell::EffectKnockBack()
     else //if (effectInfo->Effect == SPELL_EFFECT_KNOCK_BACK)
         origin = m_caster->GetPosition();
 
-    unitTarget->KnockbackFrom(origin, speedxy, speedz);
+    unitTarget->KnockbackFrom(origin, speedXY, speedZ);
 
     Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, PROC_FLAG_NONE, { PROC_FLAG_NONE, PROC_FLAG_2_KNOCKBACK },
         PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
@@ -4016,8 +4074,9 @@ void Spell::EffectLeapBack()
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
+
     // Disengage
-    unitTarget->JumpTo(speedxy, speedz, effectInfo->PositionFacing);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedxy, speedz, effectInfo->PositionFacing);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4046,26 +4105,21 @@ void Spell::EffectQuestClear()
     if (oldStatus == QUEST_STATUS_NONE)
         return;
 
+    player->RemoveActiveQuest(quest_id, false);
+
     // remove all quest entries for 'entry' from quest log
-    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    if (oldStatus != QUEST_STATUS_REWARDED)
     {
-        uint32 logQuest = player->GetQuestSlotQuestId(slot);
-        if (logQuest == quest_id)
+        // we ignore unequippable quest items in this case, it's still be equipped
+        player->TakeQuestSourceItem(quest_id, false);
+
+        if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
         {
-            player->SetQuestSlot(slot, 0);
-
-            // we ignore unequippable quest items in this case, it's still be equipped
-            player->TakeQuestSourceItem(logQuest, false);
-
-            if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-            {
-                player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                player->UpdatePvPState();
-            }
+            player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+            player->UpdatePvPState();
         }
     }
 
-    player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
     player->DespawnPersonalSummonsForQuest(quest_id);
 
@@ -4111,7 +4165,7 @@ void Spell::EffectPullTowards()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, 0.0f, pos);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedXY, speedZ, unitTarget->GetRelativeAngle(pos));
 }
 
 void Spell::EffectPullTowardsDest()
@@ -4147,7 +4201,7 @@ void Spell::EffectPullTowardsDest()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, 0.0f, *pos);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedXY, speedZ, unitTarget->GetRelativeAngle(pos));
 }
 
 void Spell::EffectChangeRaidMarker()
@@ -4196,6 +4250,11 @@ void Spell::EffectDispelMechanic()
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
 
+    CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
+
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
 
@@ -4217,7 +4276,7 @@ void Spell::EffectResurrectPet()
     if (!player->GetPet())
     {
         PetStable const* petStable = player->GetPetStable();
-        auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+        auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
         {
             return petInfo && !petInfo->Health;
         });
@@ -5438,16 +5497,13 @@ void Spell::EffectCancelConversation()
     if (!unitTarget)
         return;
 
-    std::vector<WorldObject*> objs;
-    Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-    Cell::VisitGridObjects(unitTarget, checker, 100.0f);
-
-    for (WorldObject* obj : objs)
+    auto work = [check = Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck(unitTarget->GetGUID(), effectInfo->MiscValue)](Conversation* conversation)
     {
-        if (Conversation* convo = obj->ToConversation())
-            convo->Remove();
-    }
+        if (check(conversation))
+            conversation->Remove();
+    };
+    Trinity::ConversationWorker worker(unitTarget, work);
+    Cell::VisitGridObjects(unitTarget, worker, 100.0f);
 }
 
 void Spell::EffectAddGarrisonFollower()
@@ -5830,9 +5886,13 @@ void Spell::EffectJumpCharge()
     if (!params)
         return;
 
-    float speed = params->Speed;
-    if (params->TreatSpeedAsMoveTimeSeconds)
-        speed = unitCaster->GetExactDist(destTarget) / params->MoveTimeInSec;
+    std::variant<std::monostate, float, Milliseconds> speedOrTime = [params]() -> std::variant<std::monostate, float, Milliseconds>
+    {
+        if (params->TreatSpeedAsMoveTimeSeconds)
+            return duration_cast<Milliseconds>(FloatSeconds(params->MoveTimeInSec));
+
+        return params->Speed;
+    }();
 
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
@@ -5842,10 +5902,11 @@ void Spell::EffectJumpCharge()
     }
 
     Optional<JumpArrivalCastArgs> arrivalCast;
-    if (effectInfo->TriggerSpell)
+    if (effectInfo->TriggerSpell || params->TriggerSpellId)
     {
         arrivalCast.emplace();
-        arrivalCast->SpellId = effectInfo->TriggerSpell;
+        arrivalCast->SpellId = params->TriggerSpellId ? *params->TriggerSpellId : effectInfo->TriggerSpell;
+        arrivalCast->Target = unitTarget ? unitTarget->GetGUID() : ObjectGuid::Empty;
     }
 
     Optional<Movement::SpellEffectExtraData> effectExtra;
@@ -5862,8 +5923,8 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, facing,
-        m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *destTarget, speedOrTime, params->MinHeight, params->MaxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), params->UnlimitedSpeed, {},
         arrivalCast ? &*arrivalCast : nullptr,
         effectExtra ? &*effectExtra : nullptr);
 }
@@ -6084,9 +6145,7 @@ void Spell::EffectModifyCooldowns()
         if (bitIndex < 0 || uint32(bitIndex) >= sizeof(flag128) * 8)
             return false;
 
-        flag128 reqFlag;
-        reqFlag[bitIndex / 32] = 1u << (bitIndex % 32);
-        return bool(spellOnCooldown->SpellFamilyFlags & reqFlag);
+        return (spellOnCooldown->SpellFamilyFlags[bitIndex / 32] & 1u << (bitIndex % 32)) != 0;
     }, Milliseconds(damage));
 }
 
@@ -6128,13 +6187,30 @@ void Spell::EffectCreateTraitTreeConfig()
         return;
 
     newConfig.TraitSystemID = sTraitTreeStore.AssertEntry(effectInfo->MiscValue)->TraitSystemID;
-    int32 existingConfigForSystem = target->m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& config)
+    TraitSystemEntry const* traitSystem = sTraitSystemStore.LookupEntry(newConfig.TraitSystemID);
+    if (!traitSystem)
+        return;
+
+    switch (traitSystem->GetVariationType())
+    {
+        case TraitSystemVariationType::None:
+            newConfig.VariationID = 0;
+            break;
+        case TraitSystemVariationType::Spec:
+            newConfig.VariationID = AsUnderlyingType(target->GetPrimarySpecialization());
+            break;
+        default:
+            return;
+    }
+
+    int32 const* existingConfigIdForSystem = target->m_activePlayerData->TraitConfigs.FindIf([&](UF::TraitConfig const& config)
     {
         return static_cast<TraitConfigType>(*config.Type) == TraitConfigType::Generic
-            && config.TraitSystemID == newConfig.TraitSystemID;
-    });
+            && config.TraitSystemID == newConfig.TraitSystemID
+            && config.VariationID == newConfig.VariationID;
+    }).first;
 
-    if (existingConfigForSystem < 0)
+    if (!existingConfigIdForSystem)
         target->CreateTraitConfig(newConfig);
 }
 
@@ -6188,4 +6264,52 @@ void Spell::EffectLearnWarbandScene()
         return;
 
     target->GetSession()->GetCollectionMgr()->AddWarbandScene(effectInfo->MiscValue);
+}
+
+void Spell::EffectSetPlayerDataElementAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementAccount(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataElementCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementCharacter(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataFlagAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagAccount(effectInfo->MiscValue, damage != 0);
+}
+
+void Spell::EffectSetPlayerDataFlagCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagCharacter(effectInfo->MiscValue, damage != 0);
 }
