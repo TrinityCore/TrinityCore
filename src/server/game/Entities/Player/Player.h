@@ -1234,14 +1234,14 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetRace(), GetClass(), GetLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0, uint32 preferredMountDisplay = 0, Optional<float> speed = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult = {});
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, Optional<float> speed = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult = {});
         void FinishTaxiFlight();
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
         void StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult);
 
         bool IsDeveloper() const { return HasPlayerFlag(PLAYER_FLAGS_DEVELOPER); }
         void SetDeveloper(bool on) { if (on) SetPlayerFlag(PLAYER_FLAGS_DEVELOPER); else RemovePlayerFlag(PLAYER_FLAGS_DEVELOPER); }
@@ -2233,7 +2233,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
             void operator()(Player const* player) const;
         };
 
-        void DestroyForPlayer(Player* target) const override;
+        void DestroyForPlayer(Player const* target) const override;
 
         // notifiers
         void SendAttackSwingCancelAttack() const;
@@ -2485,7 +2485,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void CastItemCombatSpell(DamageInfo const& damageInfo);
         void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);
-        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc);
+        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, std::array<int32, 3> const& misc);
         void ApplyItemLootedSpell(Item* item, bool apply);
         void ApplyItemLootedSpell(ItemTemplate const* itemTemplate);
 
@@ -2631,7 +2631,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         GuidUnorderedSet m_clientGUIDs;
         GuidUnorderedSet m_visibleTransports;
 
-        bool HaveAtClient(Object const* u) const;
+        bool HaveAtClient(BaseEntity const* u) const;
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 

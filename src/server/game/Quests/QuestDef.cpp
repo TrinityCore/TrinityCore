@@ -32,7 +32,7 @@
 #include "WorldSession.h"
 
 #define QUEST_TEMPLATE_FIELDS (ID)(QuestType)(QuestPackageID)(ContentTuningID)(QuestSortID)(QuestInfoID)(SuggestedGroupNum)(RewardNextQuest)(RewardXPDifficulty)\
-    (RewardXPMultiplier)(RewardMoneyDifficulty)(RewardMoneyMultiplier)(RewardBonusMoney)(RewardSpell)(RewardHonor)(RewardKillHonor)(StartItem)\
+    (RewardXPMultiplier)(RewardMoneyDifficulty)(RewardMoneyMultiplier)(RewardBonusMoney)(RewardSpell)(RewardHonor)(RewardKillHonor)(RewardFavor)(StartItem)\
     (RewardArtifactXPDifficulty)(RewardArtifactXPMultiplier)(RewardArtifactCategoryID)(Flags)(FlagsEx)(FlagsEx2)(FlagsEx3)\
     (RewardItem1)(RewardAmount1)(ItemDrop1)(ItemDropQuantity1)(RewardItem2)(RewardAmount2)(ItemDrop2)(ItemDropQuantity2)\
     (RewardItem3)(RewardAmount3)(ItemDrop3)(ItemDropQuantity3)(RewardItem4)(RewardAmount4)(ItemDrop4)(ItemDropQuantity4)\
@@ -102,6 +102,7 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     _rewardSpell(questRecord.RewardSpell().GetUInt32()),
     _rewardHonor(questRecord.RewardHonor().GetUInt32()),
     _rewardKillHonor(questRecord.RewardKillHonor().GetUInt32()),
+    _rewardFavor(questRecord.RewardFavor().GetInt32()),
     _rewardArtifactXPDifficulty(questRecord.RewardArtifactXPDifficulty().GetUInt32()),
     _rewardArtifactXPMultiplier(questRecord.RewardArtifactXPMultiplier().GetFloat()),
     _rewardArtifactCategoryID(questRecord.RewardArtifactCategoryID().GetUInt32()),
@@ -277,7 +278,7 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();
     obj.Amount = fields[5].GetInt32();
-    obj.SecondaryAmount = fields[6].GetInt32();
+    obj.ConditionalAmount = fields[6].GetInt32();
     obj.Flags = fields[7].GetUInt32();
     obj.Flags2 = fields[8].GetUInt32();
     obj.ProgressBarWeight = fields[9].GetFloat();
@@ -734,6 +735,8 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardHonor = GetRewHonor();
     response.Info.RewardKillHonor = GetRewKillHonor();
 
+    response.Info.RewardFavor = GetRewardFavor();
+
     response.Info.RewardArtifactXPDifficulty = GetArtifactXPDifficulty();
     response.Info.RewardArtifactXPMultiplier = GetArtifactXPMultiplier();
     response.Info.RewardArtifactCategoryID = GetArtifactCategoryId();
@@ -795,14 +798,31 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardHouseRoomIDs = GetRewardHouseRoomIds();
     response.Info.RewardHouseDecorIDs = GetRewardRewardHouseDecorIds();
 
-    for (QuestObjective const& questObjective : GetObjectives())
+    response.Info.Objectives.resize(GetObjectives().size());
+    for (std::size_t i = 0; i < GetObjectives().size(); ++i)
     {
-        response.Info.Objectives.push_back(questObjective);
+        QuestObjective const& questObjective = GetObjectives()[i];
+        WorldPackets::Quest::QuestInfoObjective& responseObjective = response.Info.Objectives[i];
+
+        responseObjective.ID = questObjective.ID;
+        responseObjective.QuestID = questObjective.QuestID;
+        responseObjective.Type = questObjective.Type;
+        responseObjective.StorageIndex = questObjective.StorageIndex;
+        responseObjective.ObjectID = questObjective.ObjectID;
+        responseObjective.Amount = questObjective.Amount;
+        responseObjective.ConditionalAmount = questObjective.ConditionalAmount;
+        responseObjective.Flags = questObjective.Flags;
+        responseObjective.Flags2 = questObjective.Flags2;
+        responseObjective.ProgressBarWeight = questObjective.ProgressBarWeight;
+        responseObjective.ParentObjectiveID = questObjective.ParentObjectiveID;
+        responseObjective.Visible = questObjective.Visible;
+        responseObjective.Description = questObjective.Description;
+        responseObjective.VisualEffects = questObjective.VisualEffects;
 
         if (loc != LOCALE_enUS)
         {
             if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
-                ObjectMgr::GetLocaleString(questObjectivesLocale->Description, loc, response.Info.Objectives.back().Description);
+                ObjectMgr::GetLocaleString(questObjectivesLocale->Description, loc, responseObjective.Description);
         }
     }
 

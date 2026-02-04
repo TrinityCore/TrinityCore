@@ -620,7 +620,7 @@ public:
     {
         value_type flags = gameObjectData->Flags;
         if (gameObject->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-            if (gameObject->GetGOInfo()->chest.usegrouplootrules && !gameObject->IsLootAllowedFor(receiver))
+            if (gameObject->GetGOInfo()->IsUsingGroupLootRules() && !gameObject->IsLootAllowedFor(receiver))
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
         return flags;

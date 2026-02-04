@@ -138,7 +138,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     _areaTriggerTemplate = _areaTriggerCreateProperties->Template;
 
-    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate() ? GetTemplate()->Id.Id : 0, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
+    _Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate() ? GetTemplate()->Id.Id : 0, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
 
     if (GetTemplate())
         SetEntry(GetTemplate()->Id.Id);
@@ -169,7 +169,10 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetSpellVisual(spellVisual);
     if (!IsStaticSpawn())
+    {
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), GetCreateProperties()->TimeToTargetScale != 0 ? GetCreateProperties()->TimeToTargetScale : *m_areaTriggerData->Duration);
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), *m_areaTriggerData->Duration);
+    }
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetCreateProperties()->Shape.GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetCreateProperties()->DecalPropertiesId);
     if (IsServerSide())
@@ -206,8 +209,6 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             fieldFlags |= AreaTriggerFieldFlags::AbsoluteOrientation;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape))
             fieldFlags |= AreaTriggerFieldFlags::DynamicShape;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
-            fieldFlags |= AreaTriggerFieldFlags::Attached;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
             fieldFlags |= AreaTriggerFieldFlags::FaceMovementDir;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain))
@@ -234,8 +235,12 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
     }
 
-    if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
+    if (target && aurEff)
+    {
+        SetAreaTriggerFlag(AreaTriggerFieldFlags::Attached);
         m_movementInfo.transport.guid = target->GetGUID();
+        m_updateFlag.MovementTransport = true;
+    }
 
     if (!IsStaticSpawn())
         UpdatePositionData();
@@ -296,7 +301,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (caster)
         caster->_RegisterAreaTrigger(this);
 
-    _ai->OnCreate(spell ? spell : nullptr);
+    _ai->OnCreate(spell);
 
     return true;
 }
@@ -1377,26 +1382,8 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
     if (_reachedDestination)
         return;
 
-    if (GetElapsedTimeForMovement() >= GetTimeToTarget())
-    {
-        _reachedDestination = true;
-        _lastSplineIndex = int32(spline.last());
-
-        G3D::Vector3 lastSplinePosition = spline.getPoint(_lastSplineIndex);
-        GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
-#ifdef TRINITY_DEBUG
-        DebugVisualizePosition();
-#endif
-
-        _ai->OnSplineIndexReached(_lastSplineIndex);
-        _ai->OnDestinationReached();
-        return;
-    }
-
-    float currentTimePercent = float(GetElapsedTimeForMovement()) / float(GetTimeToTarget());
-
-    if (currentTimePercent <= 0.f)
-        return;
+    float currentTimePercent = std::clamp(float(GetElapsedTimeForMovement()) / float(GetTimeToTarget()), 0.0f, 1.0f);
+    _reachedDestination = currentTimePercent >= 1.0f;
 
     if (m_areaTriggerData->MoveCurveId)
     {
@@ -1435,10 +1422,16 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
     DebugVisualizePosition();
 #endif
 
-    if (_lastSplineIndex != lastPositionIndex)
+    if (_lastSplineIndex != lastPositionIndex || _reachedDestination)
     {
         _lastSplineIndex = lastPositionIndex;
-        _ai->OnSplineIndexReached(_lastSplineIndex);
+        _ai->OnSplineIndexReached(_lastSplineIndex - _spline->first() /*translate to index of the input array used for AreaTrigger::InitSplines*/);
+        if (_reachedDestination)
+        {
+            _ai->OnDestinationReached();
+            _spline = nullptr;
+            SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+        }
     }
 }
 

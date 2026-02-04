@@ -22,6 +22,15 @@
 #include <array>
 #include <span>
 
+class BaseEntity;
+class ByteBuffer;
+class Player;
+
+namespace UF
+{
+enum class UpdateFieldFlag : uint8;
+}
+
 namespace WowCS
 {
 enum class EntityFragment : uint8
@@ -46,6 +55,7 @@ enum class EntityFragment : uint8
     PlayerHouseInfoComponent_C  = 32, //  UPDATEABLE, INDIRECT,
     FHousingStorage_C           = 33, //  UPDATEABLE,
     FHousingFixture_C           = 34, //  UPDATEABLE,
+    PlayerInitiativeComponent_C = 37, //  UPDATEABLE, INDIRECT,
     Tag_Item                    = 200, //  TAG,
     Tag_Container               = 201, //  TAG,
     Tag_AzeriteEmpoweredItem    = 202, //  TAG,
@@ -88,7 +98,8 @@ inline constexpr bool IsUpdateableFragment(EntityFragment frag)
         || frag == EntityFragment::FMirroredPositionData_C
         || frag == EntityFragment::PlayerHouseInfoComponent_C
         || frag == EntityFragment::FHousingStorage_C
-        || frag == EntityFragment::FHousingFixture_C;
+        || frag == EntityFragment::FHousingFixture_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
 }
 
 inline constexpr bool IsIndirectFragment(EntityFragment frag)
@@ -96,13 +107,39 @@ inline constexpr bool IsIndirectFragment(EntityFragment frag)
     return frag == EntityFragment::CGObject
         || frag == EntityFragment::FPlayerOwnershipLink
         || frag == EntityFragment::CActor
-        || frag == EntityFragment::PlayerHouseInfoComponent_C;
+        || frag == EntityFragment::PlayerHouseInfoComponent_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
 }
 
-// common case optimization, make use of the fact that fragment arrays are sorted
-inline constexpr uint8 CGObjectActiveMask   = 0x1;
-inline constexpr uint8 CGObjectChangedMask  = 0x2;
-inline constexpr uint8 CGObjectUpdateMask   = CGObjectActiveMask | CGObjectChangedMask;
+template <auto /*FragmentMemberPtr*/>
+struct FragmentSerializationTraits
+{
+};
+
+template <typename Entity, typename Fragment, Fragment Entity::* FragmentData>
+struct FragmentSerializationTraits<FragmentData>
+{
+    static void BuildCreate(BaseEntity const* baseEntity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+    {
+        Entity const* entity = static_cast<Entity const*>(baseEntity);
+        (entity->*FragmentData)->WriteCreate(data, flags, entity, target);
+    }
+
+    static void BuildUpdate(BaseEntity const* baseEntity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+    {
+        Entity const* entity = static_cast<Entity const*>(baseEntity);
+        (entity->*FragmentData)->WriteUpdate(data, flags, entity, target);
+    }
+
+    static bool IsChanged(BaseEntity const* baseEntity)
+    {
+        Entity const* entity = static_cast<Entity const*>(baseEntity);
+        return (entity->*FragmentData)->GetChangesMask().IsAnySet();
+    }
+};
+
+using EntityFragmentSerializeFn = void (*)(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
+using EntityFragmentIsChangedFn = bool (*)(BaseEntity const* entity);
 
 struct EntityFragmentsHolder
 {
@@ -111,34 +148,43 @@ struct EntityFragmentsHolder
         EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End,
         EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
     };
+
+    struct UpdateableFragments
+    {
+        static constexpr std::size_t N = 4;
+
+        std::array<EntityFragment, N> Ids =
+        {
+            EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
+        };
+        std::array<uint8, N> Masks = { };
+        std::array<EntityFragmentSerializeFn, N> SerializeCreate = { };
+        std::array<EntityFragmentSerializeFn, N> SerializeUpdate = { };
+        std::array<EntityFragmentIsChangedFn, N> IsChanged = { };
+    };
+
+    UpdateableFragments Updateable;
+
     uint8 Count = 0;
     bool IdsChanged = false;
 
-    std::array<EntityFragment, 4> UpdateableIds =
-    {
-        EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
-    };
-    std::array<uint8, 4> UpdateableMasks = { };
     uint8 UpdateableCount = 0;
     uint8 ContentsChangedMask = 0;
 
-    void Add(EntityFragment fragment, bool update);
+    void Add(EntityFragment fragment, bool update,
+        EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate, EntityFragmentIsChangedFn isChanged);
+
+    inline void Add(EntityFragment fragment, bool update) { Add(fragment, update, nullptr, nullptr, nullptr); }
+
+    template <typename SerializationTraits>
+    inline void Add(EntityFragment fragment, bool update, SerializationTraits)
+    {
+        Add(fragment, update, &SerializationTraits::BuildCreate, &SerializationTraits::BuildUpdate, &SerializationTraits::IsChanged);
+    }
+
     void Remove(EntityFragment fragment);
 
     std::span<EntityFragment const> GetIds() const { return std::span(Ids.begin(), Count); }
-    std::span<EntityFragment const> GetUpdateableIds() const { return std::span(UpdateableIds.begin(), UpdateableCount); }
-
-    uint8 GetUpdateMaskFor(EntityFragment fragment) const
-    {
-        if (fragment == EntityFragment::CGObject)   // common case optimization, make use of the fact that fragment arrays are sorted
-            return CGObjectChangedMask;
-
-        for (uint8 i = 1; i < UpdateableCount; ++i)
-            if (UpdateableIds[i] == fragment)
-                return UpdateableMasks[i];
-
-        return 0;
-    }
 };
 
 enum class EntityFragmentSerializationType : uint8

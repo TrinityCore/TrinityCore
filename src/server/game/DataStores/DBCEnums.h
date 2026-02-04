@@ -799,7 +799,7 @@ enum class CriteriaType : int16
     RemoveDecor                                    = 271, /*NYI*/ // Remove any decor
     CollectUniqueDecor                             = 272, /*NYI*/ // Collect Unique Decor
 
-    Count                                          = 279
+    Count                                          = 283
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -925,7 +925,7 @@ enum class CurveInterpolationMode : uint8
     Constant    = 6,
 };
 
-enum Difficulty : uint8
+enum Difficulty : int16
 {
     DIFFICULTY_NONE                 = 0,
     DIFFICULTY_NORMAL               = 1,
@@ -1149,6 +1149,7 @@ enum class GameRule : int32
     GdapiCharacterProfileDisabled           = 153,
     HousingEnabled                          = 154,
     RestrictedAchievementCategoryID         = 155,
+    EjJourneysDisabled                      = 156,
     LootMethodStyle                         = 157,
     ExperienceBarDisabled                   = 159,
     HideUnavailableTransmogSlots            = 160,
@@ -1160,6 +1161,7 @@ enum class GameRule : int32
     RecommendLeastPopulatedRealm            = 169,
     BagSpaceOverride                        = 172,
     UnflaggedPlayersCanAttackPvPFlaggedPlayers = 173,
+    PvPInitialRatingOverride                = 190,
 };
 
 enum class GlobalCurve : int32
@@ -1188,6 +1190,16 @@ enum class GlobalCurve : int32
     MythicPlusEndOfRunGearSequenceLevel = 23,
 
     SpellAreaEffectWarningRadius = 26,  // ground spell effect warning circle radius (based on spell radius)
+
+    HouseLevelFavorForLevel = 37,
+    HouseInteriorDecorBudget = 38,
+    HouseExteriorDecorBudget = 39,
+    HouseRoomPlacementBudget = 40,
+    HouseFixtureBudget = 41,
+
+    TransmogCost = 43,
+
+    MaxHouseSizeForLevel = 46,
 };
 
 #define MAX_ITEM_PROTO_FLAGS 5
@@ -1276,6 +1288,7 @@ enum ItemBonusType
     ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
     ITEM_BONUS_ITEM_OFFSET_CURVE                = 48,
     ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL     = 49,
+    ITEM_BONUS_ITEM_BONUS_LIST                  = 50,
     ITEM_BONUS_SCALING_CONFIG                   = 51,
 };
 
@@ -1546,12 +1559,15 @@ enum ItemSpecStat
 
 enum MapTypes                                               // Lua_IsInInstance
 {
-    MAP_COMMON          = 0,                                // none
-    MAP_INSTANCE        = 1,                                // party
-    MAP_RAID            = 2,                                // raid
-    MAP_BATTLEGROUND    = 3,                                // pvp
-    MAP_ARENA           = 4,                                // arena
-    MAP_SCENARIO        = 5                                 // scenario
+    MAP_COMMON              = 0,                            // none
+    MAP_INSTANCE            = 1,                            // party
+    MAP_RAID                = 2,                            // raid
+    MAP_BATTLEGROUND        = 3,                            // pvp
+    MAP_ARENA               = 4,                            // arena
+    MAP_SCENARIO            = 5,                            // scenario
+    MAP_WOWLABS             = 6,                            // wowlabs
+    MAP_HOUSE_INTERIOR      = 7,                            // interior
+    MAP_HOUSE_NEIGHBORHOOD  = 8                             // neighborhood
 };
 
 enum class MapFlags : uint32
