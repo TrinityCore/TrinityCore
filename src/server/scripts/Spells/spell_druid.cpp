@@ -1711,7 +1711,7 @@ class spell_dru_pulverize_thrash : public SpellScript
         if (!bleedAura)
             return;
 
-        int32 thresholdStacks = sSpellMgr->GetSpellInfo(SPELL_DRUID_PULVERIZE, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(caster);
+        int32 thresholdStacks = sSpellMgr->AssertSpellInfo(SPELL_DRUID_PULVERIZE, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(caster);
         if (bleedAura->GetStackAmount() >= thresholdStacks)
             caster->CastSpell(target, SPELL_DRUID_THRASH_PULVERIZE_TRIGGER, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
     }
