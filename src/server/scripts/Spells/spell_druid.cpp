@@ -1483,16 +1483,19 @@ class spell_dru_moonless_night : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return (eventInfo.GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL) && eventInfo.GetActionTarget()->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE);
+        return !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT) && eventInfo.GetActionTarget()->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE);
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
-
         int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-        caster->CastSpell(target, SPELL_DRUID_MOONLESS_NIGHT_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(damage));
+
+        caster->CastSpell(target, SPELL_DRUID_MOONLESS_NIGHT_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, damage } }
+        });
     }
 
     void Register() override
