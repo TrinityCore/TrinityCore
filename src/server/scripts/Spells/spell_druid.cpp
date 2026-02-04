@@ -125,6 +125,7 @@ enum DruidSpells
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
+    SPELL_DRUID_PULVERIZE                      = 80313,
     SPELL_DRUID_RAKE_STUN                      = 163505,
     SPELL_DRUID_REGROWTH                       = 8936,
     SPELL_DRUID_REJUVENATION                   = 774,
@@ -147,6 +148,7 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR_BLEED              = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
     SPELL_DRUID_THRASH_CAT_BLEED               = 405233,
+    SPELL_DRUID_THRASH_PULVERIZE_TRIGGER       = 158790,
     SPELL_DRUID_TWIN_MOONS                     = 279620,
     SPELL_DRUID_TWIN_MOONFIRE                  = 372567,
     SPELL_DRUID_UMBRAL_EMBRACE                 = 393763,
@@ -1651,6 +1653,105 @@ protected:
     bool ToCatForm() const override { return true; }
 };
 
+// 80313 - Pulverize
+class spell_dru_pulverize : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_BLEED })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID());
+        if (!bleedAura)
+            return;
+
+        int32 stacksToRemove = GetEffectInfo(EFFECT_2).CalcValue(caster);
+
+        bleedAura->ModStackAmount(-stacksToRemove);
+        target->RemoveAurasDueToSpell(SPELL_DRUID_THRASH_PULVERIZE_TRIGGER);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_pulverize::HandleEffectHit, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 80313 - Pulverize (Trigger)
+// Triggered by 77758 - Thrash (Bear Form)
+class spell_dru_pulverize_thrash : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_DRUID_THRASH_BEAR_BLEED,
+            SPELL_DRUID_PULVERIZE,
+            SPELL_DRUID_THRASH_PULVERIZE_TRIGGER
+        })
+        && ValidateSpellEffect({ { SPELL_DRUID_PULVERIZE, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_DRUID_PULVERIZE);
+    }
+
+    void HandleAfterHit()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID());
+        if (!bleedAura)
+            return;
+
+        int32 thresholdStacks = sSpellMgr->AssertSpellInfo(SPELL_DRUID_PULVERIZE, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(caster);
+        if (bleedAura->GetStackAmount() >= thresholdStacks)
+            caster->CastSpell(target, SPELL_DRUID_THRASH_PULVERIZE_TRIGGER, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_dru_pulverize_thrash::HandleAfterHit);
+    }
+};
+
+// 158790 - Thrash
+class spell_dru_pulverize_trigger_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_BLEED });
+    }
+
+    void OnTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+        {
+            Remove();
+            return;
+        }
+
+        // in case bleed aura is removed due to e.g. dwarf racial
+        if (!GetTarget()->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID()))
+            Remove();
+
+        // threshold stacks don't have to be checked here, duration of the trigger is less than Thrash uptime
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_pulverize_trigger_periodic::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 1822 - Rake
 class spell_dru_rake : public SpellScript
 {
@@ -2778,6 +2879,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
+    RegisterSpellScript(spell_dru_pulverize);
+    RegisterSpellScript(spell_dru_pulverize_thrash);
+    RegisterSpellScript(spell_dru_pulverize_trigger_periodic);
     RegisterSpellScript(spell_dru_rake);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
