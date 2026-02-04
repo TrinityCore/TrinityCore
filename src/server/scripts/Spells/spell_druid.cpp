@@ -1730,9 +1730,8 @@ class spell_dru_pulverize_trigger_periodic : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_BLEED });
     }
 
-    void OnTick(AuraEffect const* aurEff)
+    void OnTick(AuraEffect const* /*aurEff*/)
     {
-        Unit* target = GetTarget();
         Unit* caster = GetCaster();
         if (!caster)
         {
