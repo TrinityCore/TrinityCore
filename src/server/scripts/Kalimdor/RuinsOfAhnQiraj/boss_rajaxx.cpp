@@ -89,6 +89,37 @@ struct boss_rajaxx : public BossAI
             Talk(EMOTE_FRENZY);
     }
 
+    void DoAction(int32 action) override
+    {
+        if (!me->IsAlive())
+            return;
+
+        switch (action)
+        {
+            case ACTION_WAVE_STARTS_3:
+                Talk(SAY_WAVE_3);
+                break;
+            case ACTION_WAVE_STARTS_4:
+                Talk(SAY_WAVE_4);
+                break;
+            case ACTION_WAVE_STARTS_5:
+                Talk(SAY_WAVE_5);
+                break;
+            case ACTION_WAVE_STARTS_6:
+                Talk(SAY_WAVE_6);
+                break;
+            case ACTION_WAVE_STARTS_7:
+                Talk(SAY_WAVE_7);
+                break;
+            case ACTION_RAJAXX_ENTER:
+                Talk(SAY_INTRO);
+                DoZoneInCombat();
+                break;
+            default:
+                break;
+        }
+    }
+
     void KilledUnit(Unit* /*victim*/) override
     {
         Talk(SAY_SLAY);
