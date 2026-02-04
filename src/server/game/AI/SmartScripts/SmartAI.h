@@ -25,6 +25,7 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class AreaTriggerExitReason : uint8;
 enum class MovementStopReason : uint8;
 
 enum SmartEscortState : uint8
@@ -52,7 +53,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Start moving to the desired MovePoint
         void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 0,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         WaypointPath const* LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         bool CanResumePath();
@@ -131,6 +132,12 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a spell starts
         void OnSpellStart(SpellInfo const* spellInfo) override;
 
+        // Called when aura is applied
+        void OnAuraApplied(AuraApplication const* aurApp) override;
+
+        // Called when aura is removed
+        void OnAuraRemoved(AuraApplication const* aurApp) override;
+
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
 
@@ -174,25 +181,23 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnCharmed(bool isNew) override;
 
         // Used in scripts to share variables
-        void DoAction(int32 param = 0) override;
+        void DoAction(int32 param) override;
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0) const override;
+        uint32 GetData(uint32 id) const override;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
         void SetData(uint32 id, uint32 value, Unit* invoker);
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid const& guid, int32 id) override;
 
         // Used in scripts to share variables
-        ObjectGuid GetGUID(int32 id = 0) const override;
+        ObjectGuid GetGUID(int32 id) const override;
 
         // Makes the creature run/walk
         void SetRun(bool run = true);
-
-        void SetDisableGravity(bool disable = true);
 
         void SetEvadeDisabled(bool disable = true);
 
@@ -343,7 +348,7 @@ public:
     void OnInitialize() override;
     void OnUpdate(uint32 diff) override;
     void OnUnitEnter(Unit* unit) override;
-    void OnUnitExit(Unit* unit) override;
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason reason) override;
 
     SmartScript* GetScript() { return &mScript; }
     void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);

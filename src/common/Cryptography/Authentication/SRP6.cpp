@@ -16,14 +16,13 @@
  */
 
 #include "SRP6.h"
+#include "Common.h"
 #include "CryptoRandom.h"
 #include <algorithm>
 #include <functional>
 
 namespace Trinity::Crypto::SRP
 {
-using namespace std::string_literals;
-
 BigNumber const GruntSRP6::N = "894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7"s;
 BigNumber const GruntSRP6::g = 7;
 

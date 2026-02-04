@@ -83,6 +83,7 @@ LoginREST.TicketDuration=3600
 #
 #    BindIP
 #        Description: Bind auth server to IP/hostname
+#                     Using IPv6 address (such as "::") will enable both IPv4 and IPv6 connections
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"

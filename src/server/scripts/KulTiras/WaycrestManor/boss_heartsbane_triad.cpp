@@ -730,7 +730,7 @@ class spell_heartsbane_triad_drop_the_iris : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_heartsbane_triad_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_heartsbane_triad_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -824,21 +824,9 @@ struct at_heartsbane_triad_aura_of_apathy : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_APATHY_DEBUFF, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
-    }
-
-    void OnRemove() override
-    {
-        for (ObjectGuid const& guid : at->GetInsideUnits())
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-            if (!unit)
-                continue;
-
-            OnUnitExit(unit);
-        }
     }
 };
 
@@ -855,22 +843,10 @@ struct at_heartsbane_triad_aura_of_dread : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_DREAD_MOVE_CHECK, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_DAMAGE);
-    }
-
-    void OnRemove() override
-    {
-        for (ObjectGuid const& guid : at->GetInsideUnits())
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-            if (!unit)
-                continue;
-
-            OnUnitExit(unit);
-        }
     }
 };
 
@@ -949,21 +925,9 @@ struct at_heartsbane_triad_aura_of_thorns : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_THORNS_CHECK_PROC, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
-    }
-
-    void OnRemove() override
-    {
-        for (ObjectGuid const& guid : at->GetInsideUnits())
-        {
-            Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-            if (!unit)
-                continue;
-
-            OnUnitExit(unit);
-        }
     }
 };
 

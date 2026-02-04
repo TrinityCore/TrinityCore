@@ -21,11 +21,11 @@
 #include "BattlegroundScript.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
-#include "Containers.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "DynamicTree.h"
+#include "DynamicMMapTileBuilder.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -37,7 +37,9 @@
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MMapManager.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -52,7 +54,7 @@
 #include "TerrainMgr.h"
 #include "Transport.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "Vehicle.h"
 #include "Vignette.h"
 #include "VignettePackets.h"
@@ -135,23 +137,12 @@ void Map::DeleteStateMachine()
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode) :
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false), _areaTriggersToMoveLock(false),
 i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
-m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
+m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE), m_mapRefIter(m_mapRefManager.end()),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
-i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0),
+i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0), i_grids(),
 i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _respawnCheckTimer(0), _vignetteUpdateTimer(5200, 5200)
 {
-    for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
-    {
-        for (uint32 y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
-        {
-            //z code
-            setNGrid(nullptr, x, y);
-        }
-    }
-
-    _zonePlayerCountMap.clear();
-
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
 
@@ -165,14 +156,17 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
 
     m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
 
+    if (MMAP::MMapManager::isRebuildingTilesEnabledOnMap(GetId()))
+        m_mmapTileRebuilder = std::make_shared<MMAP::DynamicTileBuilder>(this, MMAP::MMapManager::instance()->GetNavMesh(GetId(), GetInstanceId()));
+
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 }
 
 void Map::InitVisibilityDistance()
 {
     //init visibility for continents
-    m_VisibleDistance = World::GetMaxVisibleDistanceOnContinents();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_CONTINENT);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_CONTINENT);
 }
 
 // Template specialization of utility methods
@@ -180,52 +174,21 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
-}
+    if constexpr (WorldTypeMapContainer::TypeExists<T> && GridTypeMapContainer::TypeExists<T>)
+    {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
+        if (obj->IsStoredInWorldObjectGridContainer())
+            cellType.AddWorldObject<T>(obj);
+        else
+            cellType.AddGridObject<T>(obj);
+    }
+    else if constexpr (WorldTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject<T>(obj);
+    else if constexpr (GridTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject<T>(obj);
 
-template<>
-void Map::AddToGrid(Creature* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(GameObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(AreaTrigger* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
+    if constexpr (std::is_base_of_v<MapObject, T>)
+        obj->SetCurrentCell(cell);
 }
 
 template<>
@@ -240,10 +203,11 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
         if (obj->IsStoredInWorldObjectGridContainer())
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
+            cellType.AddWorldObject(obj);
         else
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+            cellType.AddGridObject(obj);
     }
 }
 
@@ -331,6 +295,7 @@ void Map::EnsureGridCreated(GridCoord const& p)
         int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
 
         m_terrain->LoadMapAndVMap(gx, gy);
+        m_terrain->LoadMMap(GetInstanceId(), gx, gy);
     }
 }
 
@@ -688,6 +653,9 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 void Map::Update(uint32 t_diff)
 {
     _dynamicTree.update(t_diff);
+    if (m_mmapTileRebuilder)
+        m_mmapTileRebuilder->Update(Milliseconds(t_diff));
+
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
@@ -841,7 +809,7 @@ void Map::Update(uint32 t_diff)
     MoveAllGameObjectsInMoveList();
     MoveAllAreaTriggersInMoveList();
 
-    if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
+    if (!m_mapRefManager.empty() || !m_activeNonPlayers.empty())
         ProcessRelocationNotifies(t_diff);
 
     sScriptMgr->OnMapUpdate(this, t_diff);
@@ -1543,9 +1511,8 @@ bool Map::AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell)
 
 bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
-    float resp_x, resp_y, resp_z, resp_o;
-    c->GetRespawnPosition(resp_x, resp_y, resp_z, &resp_o);
-    Cell resp_cell(resp_x, resp_y);
+    Position resp = c->GetRespawnPosition();
+    Cell resp_cell(resp.GetPositionX(), resp.GetPositionY());
 
     //creature will be unloaded with grid
     if (diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
@@ -1561,7 +1528,7 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
     // teleport it to respawn point (like normal respawn if player see)
     if (CreatureCellRelocation(c, resp_cell))
     {
-        c->Relocate(resp_x, resp_y, resp_z, resp_o);
+        c->Relocate(resp);
         c->GetMotionMaster()->Initialize(); // prevent possible problems with default move generators
         //CreatureRelocationNotify(c, resp_cell, resp_cell.GetCellCoord());
         c->UpdatePositionData();
@@ -1574,9 +1541,8 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 
 bool Map::GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly)
 {
-    float resp_x, resp_y, resp_z, resp_o;
-    go->GetRespawnPosition(resp_x, resp_y, resp_z, &resp_o);
-    Cell resp_cell(resp_x, resp_y);
+    Position resp = go->GetRespawnPosition();
+    Cell resp_cell(resp.GetPositionX(), resp.GetPositionY());
 
     //GameObject will be unloaded with grid
     if (diffGridOnly && !go->GetCurrentCell().DiffGrid(resp_cell))
@@ -1589,7 +1555,7 @@ bool Map::GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly)
     // teleport it to respawn point (like normal respawn if player see)
     if (GameObjectCellRelocation(go, resp_cell))
     {
-        go->Relocate(resp_x, resp_y, resp_z, resp_o);
+        go->Relocate(resp);
         go->UpdatePositionData();
         go->UpdateObjectVisibility(false);
         return true;
@@ -1607,7 +1573,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
         if (!unloadAll)
         {
             //pets, possessed creatures (must be active), transport passengers
-            if (ngrid.GetWorldObjectCountInNGrid<Creature>())
+            if (ngrid.HasWorldObjectsInNGrid<Creature>())
                 return false;
 
             if (ActiveObjectsNearGrid(ngrid))
@@ -1806,6 +1772,28 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     return result;
 }
 
+void Map::RequestRebuildNavMeshOnGameObjectModelChange(GameObjectModel const& model, PhaseShift const& phaseShift)
+{
+    if (!m_mmapTileRebuilder)
+        return;
+
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, GetId(), m_terrain.get(), model.GetPosition().x, model.GetPosition().y);
+
+    G3D::AABox const& bounds = model.getBounds();
+
+    GridCoord low = Trinity::ComputeGridCoord(bounds.high().x, bounds.high().y);
+    low.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.x_coord;
+    low.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.y_coord;
+
+    GridCoord high = Trinity::ComputeGridCoord(bounds.low().x, bounds.low().y);
+    high.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.x_coord;
+    high.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.y_coord;
+
+    for (uint32 x = low.x_coord; x <= high.x_coord; ++x)
+        for (uint32 y = low.y_coord; y <= high.y_coord; ++y)
+            m_mmapTileRebuilder->AddTile(terrainMapId, x, y);
+}
+
 TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
@@ -1883,6 +1871,9 @@ void Map::SendInitSelf(Player* player)
     WorldPacket packet;
     data.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
+
+    // client will respond to SMSG_UPDATE_OBJECT that contains ThisIsYou = true with CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE
+    player->GetSession()->RegisterTimeSync(WorldSession::SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER);
 }
 
 void Map::SendInitTransports(Player* player)
@@ -1897,6 +1888,9 @@ void Map::SendInitTransports(Player* player)
             player->m_visibleTransports.insert(transport->GetGUID());
         }
     }
+
+    if (!transData.HasData())
+        return;
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
@@ -1915,6 +1909,9 @@ void Map::SendRemoveTransports(Player* player)
             player->m_visibleTransports.erase(transport->GetGUID());
         }
     }
+
+    if (!transData.HasData())
+        return;
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
@@ -1946,6 +1943,9 @@ void Map::SendUpdateTransportVisibility(Player* player)
         }
     }
 
+    if (!transData.HasData())
+        return;
+
     WorldPacket packet;
     transData.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
@@ -1967,7 +1967,7 @@ void Map::SendObjectUpdates()
 
     while (!_updateObjects.empty())
     {
-        Object* obj = *_updateObjects.begin();
+        BaseEntity* obj = *_updateObjects.begin();
         ASSERT(obj->IsInWorld());
         _updateObjects.erase(_updateObjects.begin());
         obj->BuildUpdate(update_players);
@@ -2539,11 +2539,7 @@ void Map::UpdateSpawnGroupConditions()
 
 ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
 {
-    auto itr = _guidGenerators.find(high);
-    if (itr == _guidGenerators.end())
-        itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator>(high))).first;
-
-    return *itr->second;
+    return _guidGenerators.try_emplace(high, high).first->second;
 }
 
 void Map::AddFarSpellCallback(FarSpellCallback&& callback)
@@ -2732,26 +2728,30 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
     return false;
 }
 
+void Map::AddWorldObject(WorldObject* obj)
+{
+    i_worldObjects.insert(obj);
+}
+
+void Map::RemoveWorldObject(WorldObject* obj)
+{
+    i_worldObjects.erase(obj);
+}
+
 void Map::AddToActive(WorldObject* obj)
 {
-    AddToActiveHelper(obj);
+    m_activeNonPlayers.insert(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())
     {
         case TYPEID_UNIT:
             if (Creature* creature = obj->ToCreature(); !creature->IsPet() && creature->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                creature->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = creature->GetRespawnPosition();
             break;
         case TYPEID_GAMEOBJECT:
             if (GameObject* gameObject = obj->ToGameObject(); gameObject->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                gameObject->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = gameObject->GetRespawnPosition();
             break;
         default:
             break;
@@ -2773,24 +2773,30 @@ void Map::AddToActive(WorldObject* obj)
 
 void Map::RemoveFromActive(WorldObject* obj)
 {
-    RemoveFromActiveHelper(obj);
+    // Map::Update for active object in proccess
+    if (m_activeNonPlayersIter != m_activeNonPlayers.end())
+    {
+        ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+        if (itr != m_activeNonPlayers.end())
+        {
+            if (itr == m_activeNonPlayersIter)
+                ++m_activeNonPlayersIter;
+            m_activeNonPlayers.erase(itr);
+        }
+    }
+    else
+        m_activeNonPlayers.erase(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())
     {
         case TYPEID_UNIT:
             if (Creature* creature = obj->ToCreature(); !creature->IsPet() && creature->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                creature->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = creature->GetRespawnPosition();
             break;
         case TYPEID_GAMEOBJECT:
             if (GameObject* gameObject = obj->ToGameObject(); gameObject->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                gameObject->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = gameObject->GetRespawnPosition();
             break;
         default:
             break;
@@ -2831,7 +2837,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock,
     Optional<uint32> lfgDungeonsId)
   : Map(id, expiry, InstanceId, SpawnMode),
-    i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
+    i_data(nullptr), i_script_id(0), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -2856,14 +2862,13 @@ InstanceMap::~InstanceMap()
         i_instanceLock->SetInUse(false);
 
     delete i_data;
-    delete i_scenario;
 }
 
 void InstanceMap::InitVisibilityDistance()
 {
     //init visibility distance for instances
-    m_VisibleDistance = World::GetMaxVisibleDistanceInInstances();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInInstances();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE);
 }
 
 /*
@@ -2901,6 +2906,10 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
         if (lockError != TRANSFER_ABORT_NONE)
             return lockError;
     }
+
+    if (Group* owningGroup = GetOwningGroup())
+        if (!player->IsInGroup(owningGroup->GetGUID()))
+            return TRANSFER_ABORT_MAX_PLAYERS;
 
     return Map::CannotEnter(player);
 }
@@ -2978,7 +2987,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
         i_data->OnPlayerLeave(player);
 
     // if last player set unload timer
-    if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
+    if (!m_unloadTimer && m_mapRefManager.size() == 1)
         m_unloadTimer = (i_instanceLock && i_instanceLock->IsExpired()) ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
     if (i_scenario)
@@ -3101,6 +3110,23 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
 std::string const& InstanceMap::GetScriptName() const
 {
     return sObjectMgr->GetScriptName(i_script_id);
+}
+
+void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
+{
+    i_scenario.reset(); // sends exit packets to all players
+
+    if (scenario)
+    {
+        i_scenario.reset(scenario);
+
+        scenario->LoadInstanceData();
+
+        DoOnPlayers([scenario](Player* player)
+        {
+            scenario->OnPlayerEnter(player);
+        });
+    }
 }
 
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
@@ -3407,8 +3433,8 @@ BattlegroundMap::~BattlegroundMap()
 void BattlegroundMap::InitVisibilityDistance()
 {
     //init visibility distance for BG/Arenas
-    m_VisibleDistance        = IsBattleArena() ? World::GetMaxVisibleDistanceInArenas() : World::GetMaxVisibleDistanceInBG();
-    m_VisibilityNotifyPeriod = IsBattleArena() ? World::GetVisibilityNotifyPeriodInArenas() : World::GetVisibilityNotifyPeriodInBG();
+    m_VisibleDistance        = sWorld->getFloatConfig(IsBattleArena() ? CONFIG_MAX_VISIBILITY_DISTANCE_ARENA : CONFIG_MAX_VISIBILITY_DISTANCE_BATTLEGROUND);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(IsBattleArena() ? CONFIG_VISIBILITY_NOTIFY_PERIOD_ARENA : CONFIG_VISIBILITY_NOTIFY_PERIOD_BATTLEGROUND);
 }
 
 std::string const& BattlegroundMap::GetScriptName() const
@@ -3437,8 +3463,6 @@ void BattlegroundMap::InitScriptData()
         else
             _battlegroundScript = std::make_unique<BattlegroundScript>(this);
     }
-
-    _battlegroundScript->OnInit();
 }
 
 TransferAbortParams BattlegroundMap::CannotEnter(Player* player)
@@ -3584,7 +3608,7 @@ AreaTrigger* Map::GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const
 void Map::UpdateIteratorBack(Player* player)
 {
     if (&*m_mapRefIter == &player->GetMapRef())
-        m_mapRefIter = m_mapRefIter->nocheck_prev();
+        --m_mapRefIter;
 }
 
 void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans, bool startup)
@@ -3954,7 +3978,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::PlayMusic playMusic(musicId);
         playMusic.Write();
@@ -4005,7 +4029,7 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
     info.Intensity = intensity;
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::Weather weather(weatherId, intensity);
         weather.Write();
@@ -4036,7 +4060,7 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrid
     }
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::OverrideLight overrideLight;
         overrideLight.AreaLightID = areaLightId;
@@ -4085,4 +4109,4 @@ std::string InstanceMap::GetDebugInfo() const
     return sstr.str();
 }
 
-template class TC_GAME_API TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
+template struct TC_GAME_API TypeListContainer<MapStoredObjectsUnorderedMap, Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, SceneObject, Conversation>;

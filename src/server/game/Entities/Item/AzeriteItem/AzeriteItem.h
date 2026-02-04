@@ -74,8 +74,8 @@ public:
     void SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId);
 
 protected:
-    void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-    void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+    void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+    void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
     void ClearUpdateMask(bool remove) override;
 
 public:
@@ -95,7 +95,7 @@ public:
         void operator()(Player const* player) const;
     };
 
-    UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
+    UF::UpdateField<UF::AzeriteItemData, int32(WowCS::EntityFragment::CGObject), TYPEID_AZERITE_ITEM> m_azeriteItemData;
 
 private:
     void UnlockDefaultMilestones();

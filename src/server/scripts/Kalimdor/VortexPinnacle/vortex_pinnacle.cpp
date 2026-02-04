@@ -115,7 +115,7 @@ struct npc_vp_slipstream : public NullCreatureAI
             if (slipstreamInfo.SpellClick)
             {
                 me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
             }
             break;
         }

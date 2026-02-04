@@ -26,6 +26,12 @@
 
 using namespace Trinity;
 
+VisibleNotifier::VisibleNotifier(Player& player): i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs)
+{
+}
+
+VisibleNotifier::~VisibleNotifier() = default;
+
 void VisibleNotifier::SendToSelf()
 {
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
@@ -124,10 +130,11 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 
     if (!c->HasUnitState(UNIT_STATE_SIGHTLESS))
     {
-        if (c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true))
+        if (c->IsAIEnabled() && c->CanSeeOrDetect(u, { .DistanceCheck = true }))
             c->AI()->MoveInLineOfSight_Safe(u);
         else
-            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true, true))
+            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled()
+                && c->CanSeeOrDetect(u, { .DistanceCheck = true, .AlertCheck = true }))
                 c->AI()->TriggerAlert(u);
     }
 }
@@ -239,6 +246,25 @@ void AIRelocationNotifier::Visit(CreatureMapType &m)
         CreatureUnitRelocationWorker(c, &i_unit);
         if (isCreature)
             CreatureUnitRelocationWorker((Creature*)&i_unit, c);
+    }
+}
+
+void CreatureAggroGracePeriodExpiredNotifier::Visit(CreatureMapType& m)
+{
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Creature* c = iter->GetSource();
+        CreatureUnitRelocationWorker(c, &i_creature);
+        CreatureUnitRelocationWorker(&i_creature, c);
+    }
+}
+
+void CreatureAggroGracePeriodExpiredNotifier::Visit(PlayerMapType& m)
+{
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Player* player = iter->GetSource();
+        CreatureUnitRelocationWorker(&i_creature, player);
     }
 }
 

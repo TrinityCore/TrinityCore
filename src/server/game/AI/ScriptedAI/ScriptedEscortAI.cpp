@@ -34,7 +34,7 @@ enum Points
     POINT_HOME          = 0xFFFFFE
 };
 
-EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+EscortAI::EscortAI(Creature* creature) noexcept : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     _escortQuest(nullptr), _activeAttacker(true), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true),
     _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {
@@ -60,10 +60,9 @@ void EscortAI::JustDied(Unit* /*killer*/)
     {
         if (Group* group = player->GetGroup())
         {
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                if (Player* member = groupRef->GetSource())
-                    if (member->IsInMap(player))
-                        member->FailQuest(_escortQuest->GetQuestId());
+            for (GroupReference const& groupRef : group->GetMembers())
+                if (groupRef.GetSource()->IsInMap(player))
+                    groupRef.GetSource()->FailQuest(_escortQuest->GetQuestId());
         }
         else
             player->FailQuest(_escortQuest->GetQuestId());
@@ -177,10 +176,7 @@ void EscortAI::UpdateAI(uint32 diff)
                         TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: reached end of waypoints, despawning at end ({})", me->GetGUID().ToString());
                         if (_returnToStart)
                         {
-                            Position respawnPosition;
-                            float orientation = 0.f;
-                            me->GetRespawnPosition(respawnPosition.m_positionX, respawnPosition.m_positionY, respawnPosition.m_positionZ, &orientation);
-                            respawnPosition.SetOrientation(orientation);
+                            Position respawnPosition = me->GetRespawnPosition();
                             me->GetMotionMaster()->MovePoint(POINT_HOME, respawnPosition);
                             TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition.ToString(), me->GetGUID().ToString());
                         }
@@ -261,8 +257,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointNode& waypoint = _path.Nodes.emplace_back(id, x, y, z, orientation, waitTime);
-    waypoint.MoveType = run ? WaypointMoveType::Run : WaypointMoveType::Walk;
+    _path.Nodes.emplace_back(id, x, y, z, orientation, waitTime, run ? WaypointMoveType::Run : WaypointMoveType::Walk);
 }
 
 void EscortAI::ResetPath()
@@ -417,10 +412,9 @@ bool EscortAI::IsPlayerOrGroupInRange()
     {
         if (Group* group = player->GetGroup())
         {
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                if (Player* member = groupRef->GetSource())
-                    if (me->IsWithinDistInMap(member, GetMaxPlayerDistance()))
-                        return true;
+            for (GroupReference const& groupRef : group->GetMembers())
+                if (me->IsWithinDistInMap(groupRef.GetSource(), GetMaxPlayerDistance()))
+                    return true;
         }
         else if (me->IsWithinDistInMap(player, GetMaxPlayerDistance()))
             return true;

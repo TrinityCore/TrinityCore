@@ -85,7 +85,8 @@ enum InnEventLines
 enum InnEventMisc
 {
     DATA_REQUEST_FACING = 0,
-    DATA_REACHED_WP     = 1
+    DATA_REACHED_WP     = 1,
+    DATA_INVOKING_PLAYER_GUID,
 };
 
 class npc_hearthsinger_forresten_cot : public CreatureScript
@@ -158,8 +159,11 @@ class npc_hearthsinger_forresten_cot : public CreatureScript
             }
 
             // Player has hit the Belfast stairs areatrigger, we are taking him over for a moment
-            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
+                if (id != DATA_INVOKING_PLAYER_GUID)
+                    return;
+
                 if (_hadBelfast)
                     return;
                 _hadBelfast = true;
@@ -226,7 +230,7 @@ class at_stratholme_inn_stairs_cot : public AreaTriggerScript
                 if (instance->GetData(DATA_INSTANCE_PROGRESS) <= CRATES_IN_PROGRESS)
                     // Forrest's script will handle Belfast for this, since SmartAI lacks the features to do it (we can't pass a custom target)
                     if (Creature* forrest = player->FindNearestCreature(NPC_FORREST, 200.0f, true))
-                        forrest->AI()->SetGUID(player->GetGUID());
+                        forrest->AI()->SetGUID(player->GetGUID(), DATA_INVOKING_PLAYER_GUID);
             return true;
         }
 };

@@ -41,11 +41,11 @@ DoorData const doorData[] =
 
 DungeonEncounterData const encounters[] =
 {
-    { BOSS_GLUBTOK,             {{ 1064 }}  },
-    { BOSS_HELIX_GEARBREAKER,   {{ 1065 }}  },
-    { BOSS_FOE_REAPER_5000,     {{ 1063 }}  },
-    { BOSS_ADMIRAL_RIPSNARL,    {{ 1062 }}  },
-    { BOSS_CAPTAIN_COOKIE,      {{ 1060 }}  },
+    { BOSS_GLUBTOK,             {{ 2976, 2981 }}  },
+    { BOSS_HELIX_GEARBREAKER,   {{ 2977, 2982 }}  },
+    { BOSS_FOE_REAPER_5000,     {{ 2975, 2980 }}  },
+    { BOSS_ADMIRAL_RIPSNARL,    {{ 2974, 2979 }}  },
+    { BOSS_CAPTAIN_COOKIE,      {{ 2973, 2978 }}  },
     { BOSS_VANESSA_VANCLEEF,    {{ 1081 }}  }
 };
 

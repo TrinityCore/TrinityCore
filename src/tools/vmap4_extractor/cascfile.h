@@ -15,19 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-#ifndef _CRT_SECURE_NO_WARNINGS // fuck the police^Wwarnings
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #ifndef MPQ_H
 #define MPQ_H
 
-#include "Define.h"
 #include "CascHandles.h"
 #include <memory>
 #include <string>
-#include <utility>
 
 class CASCFile
 {
@@ -54,11 +47,5 @@ public:
     void seekRelative(int offset);
     void close();
 };
-
-inline void flipcc(char *fcc)
-{
-    std::swap(fcc[0], fcc[3]);
-    std::swap(fcc[1], fcc[2]);
-}
 
 #endif

@@ -343,7 +343,7 @@ enum TrinityStrings
     LANG_COMMAND_NPC_SHOWLOOT_MONEY       = 292,
     LANG_COMMAND_NPC_SHOWLOOT_LABEL_2     = 293,
     LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL    = 294,
-    LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2     = 295,
+    LANG_COMMAND_NPC_SHOWLOOT_TRACKING_QUEST = 295,
     LANG_COMMAND_NPC_SHOWLOOT_CURRENCY    = 296,
 
       // END
@@ -762,7 +762,7 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME              = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE      = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND     = 809,
-    // unused                             = 810,
+    LANG_BANK_TAB_NAME                    = 810,
     LANG_GUILD_MASTER                     = 811,
     LANG_GUILD_OFFICER                    = 812,
     LANG_GUILD_VETERAN                    = 813,
@@ -995,7 +995,13 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED            = 1216,
     LANG_ACCOUNT_BNET_NOT_LINKED          = 1217,
     LANG_DISALLOW_TICKETS_CONFIG          = 1218,
-    // 1219-1499 - free
+
+    // Guild list (.guild list)
+    LANG_GUILD_LIST_TITLE                 = 1219,
+    LANG_GUILD_LIST_HEADER                = 1220,
+    LANG_GUILD_LIST_ROW                   = 1221,
+    LANG_GUILD_LIST_TOTAL                 = 1222,
+    // 1223-1499 - free
 
     // Command argument parsers
     LANG_CMDPARSER_EITHER                 = 1500,
@@ -1211,7 +1217,11 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE          = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE             = 10055,
 
-    // 10056-10066 - free
+    // Deephaul Ravine
+    LANG_BG_DR_CRYSTAL_TAKEN              = 10056,
+    LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL     = 10057,
+
+    // 10058-10066 - free
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,

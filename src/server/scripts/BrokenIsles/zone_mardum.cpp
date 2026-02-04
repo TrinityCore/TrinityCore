@@ -20,11 +20,14 @@
 #include "CellImpl.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "PassiveAI.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -32,6 +35,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -212,7 +216,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 3000);
             me->PlayObjectSound(SOUND_SPELL_DOUBLE_JUMP, me->GetGUID(), summonerPlayer);
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_DOUBLE_JUMP, 0, 0);
-            me->GetMotionMaster()->MoveJumpWithGravity(KaynDoubleJumpPosition, 24.0, 0.9874f, POINT_KAYN_MOVE_TO_DEMON);
+            me->GetMotionMaster()->MoveJump(POINT_KAYN_MOVE_TO_DEMON, KaynDoubleJumpPosition, 24.0f, {}, 1.5f);
         }
         else if (pointId == POINT_KAYN_MOVE_TO_DEMON)
         {
@@ -240,7 +244,7 @@ struct npc_jayce_darkweaver_invasion_begins : public ScriptedAI
         if (pathId == PATH_JAYCE_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPos, 12.0f, 15.2792f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, JayceJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_JAYCE_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -269,7 +273,7 @@ struct npc_allari_the_souleater_invasion_begins : public ScriptedAI
         if (pathId == PATH_ALLARI_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(AllariJumpPos, 12.0f, 9.2722f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, AllariJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_ALLARI_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -298,7 +302,7 @@ struct npc_korvas_bloodthorn_invasion_begins : public ScriptedAI
         if (pathId == PATH_KORVAS_INVASION_BEGINS)
         {
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KORVAS_JUMP, 4, 2000);
-            me->GetMotionMaster()->MoveJumpWithGravity(KorvasJumpPos, 24.0f, 19.2911f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, KorvasJumpPos, 24.0f, {}, 5.0f);
         }
         else if (pathId == PATH_KORVAS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -327,7 +331,7 @@ struct npc_sevis_brightflame_invasion_begins : public ScriptedAI
         if (pathId == PATH_SEVIS_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(SevisJumpPos, 12.0f, 13.3033f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, SevisJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_SEVIS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -356,7 +360,7 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
         if (pathId == PATH_CYANA_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(CyanaJumpPos, 12.0f, 8.4555f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, CyanaJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_CYANA_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -376,10 +380,10 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
 };
 
 // 922 - The Invasion Begins
-class conversation_the_invasion_begins : public ConversationScript
+class conversation_the_invasion_begins : public ConversationAI
 {
 public:
-    conversation_the_invasion_begins() : ConversationScript("conversation_the_invasion_begins") { }
+    conversation_the_invasion_begins(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum TheInvasionBeginsConversationData
     {
@@ -396,7 +400,7 @@ public:
         EVENT_ILLIDARI_START_PATH
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* kaynObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_KAYN_SUNFURY_INVASION_BEGINS, .IgnorePhases = true });
         Creature* jayceObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = NPC_JAYCE_DARKWEAVER_INVASION_BEGINS, .IgnorePhases = true });
@@ -428,7 +432,7 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
@@ -439,7 +443,7 @@ public:
             _events.ScheduleEvent(EVENT_ILLIDARI_START_PATH, *illidariStartPathLineStarted);
     }
 
-    static void StartCloneChannel(ObjectGuid guid, Conversation* conversation)
+    void StartCloneChannel(ObjectGuid guid)
     {
         Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
         if (!privateObjectOwner)
@@ -452,7 +456,7 @@ public:
         clone->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
     }
 
-    static void StartCloneMovement(ObjectGuid cloneGUID, uint32 pathId, uint32 animKit, Conversation* conversation)
+    void StartCloneMovement(ObjectGuid cloneGUID, uint32 pathId, uint32 animKit)
     {
         Creature* clone = ObjectAccessor::GetCreature(*conversation, cloneGUID);
         if (!clone)
@@ -464,7 +468,7 @@ public:
             clone->SetAIAnimKitId(animKit);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -472,12 +476,12 @@ public:
         {
             case EVENT_ILLIDARI_FACE_PLAYERS:
             {
-                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KAYN)->GetGUID(), conversation);
-                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), conversation);
-                StartCloneChannel(_jayceGUID, conversation);
-                StartCloneChannel(_allariGUID, conversation);
-                StartCloneChannel(_cyanaGUID, conversation);
-                StartCloneChannel(_sevisGUID, conversation);
+                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KAYN)->GetGUID());
+                StartCloneChannel(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID());
+                StartCloneChannel(_jayceGUID);
+                StartCloneChannel(_allariGUID);
+                StartCloneChannel(_cyanaGUID);
+                StartCloneChannel(_sevisGUID);
                 break;
             }
             case EVENT_ILLIDARI_START_PATH:
@@ -497,15 +501,15 @@ public:
                 kaynClone->PlayObjectSound(SOUND_METAL_WEAPON_UNSHEATH, kaynClone->GetGUID(), player);
                 kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_GLIDE, 4, 3000);
                 kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 4000);
-                kaynClone->GetMotionMaster()->MoveJumpWithGravity(KaynJumpPos, 20.5f, 396.3535f, POINT_KAYN_TRIGGER_DOUBLE_JUMP);
+                kaynClone->GetMotionMaster()->MoveJump(POINT_KAYN_TRIGGER_DOUBLE_JUMP, KaynJumpPos, 23.0f, 1.5f);
                 kaynClone->SetSheath(SHEATH_STATE_MELEE);
                 kaynClone->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
 
-                StartCloneMovement(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
-                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASION_BEGINS, 0, conversation);
-                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASION_BEGINS, ANIM_DH_RUN_ALLARI, conversation);
-                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASION_BEGINS, 0, conversation);
-                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASION_BEGINS, ANIM_DH_RUN, conversation);
+                StartCloneMovement(conversation->GetActorUnit(CONVO_ACTOR_IDX_KORVAS)->GetGUID(), PATH_KORVAS_INVASION_BEGINS, ANIM_DH_RUN);
+                StartCloneMovement(_jayceGUID, PATH_JAYCE_INVASION_BEGINS, 0);
+                StartCloneMovement(_allariGUID, PATH_ALLARI_INVASION_BEGINS, ANIM_DH_RUN_ALLARI);
+                StartCloneMovement(_cyanaGUID, PATH_CYANA_INVASION_BEGINS, 0);
+                StartCloneMovement(_sevisGUID, PATH_SEVIS_INVASION_BEGINS, ANIM_DH_RUN);
                 break;
             }
             default:
@@ -1846,7 +1850,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
             return;
 
         if (pointId == POINT_JAYCE_DARKWEAVER_PREPARE_JUMP)
-            me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPosition, 19.880844f, 32.78205f, POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE);
+            me->GetMotionMaster()->MoveJump(POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE, JayceJumpPosition, 20.0f, 4.0f);
         else if (pointId == POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE)
         {
             me->GetMotionMaster()->MovePath(PATH_JAYCE_DARKWEAVER_RUN_INTO_CAVE, false);
@@ -1967,6 +1971,282 @@ CreatureAI* DemonHunterHiddenNoMoreAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
+enum FelLordCazaData
+{
+    // Text
+    SAY_FEL_LORD_CAZA_AGGRO                 = 0,
+    SAY_FEL_LORD_CAZA_THROW_AXE             = 1,
+    SAY_FEL_LORD_CAZA_DEATH                 = 2,
+
+    // Spells
+    SPELL_FEL_LORD_CAZA_SWEEPING_SLASH      = 197002,
+    SPELL_FEL_LORD_CAZA_FEL_INFUSION        = 197180,
+    SPELL_FEL_LORD_CAZA_VIOLENT_FEL_ENERGY  = 196989,
+    SPELL_FEL_LORD_CAZA_THROW_AXE_JUMP      = 196875,
+    SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE   = 196876,
+    SPELL_FEL_LORD_CAZA_THROW_AXE_KNOCKBACK = 196955,
+    SPELL_FEL_LORD_CAZA_DIES                = 210101,
+    SPELL_FEL_LORD_CAZA_KILL_CREDIT         = 210104,
+    SPELL_FEL_LORD_CAZA_TAKING_POWER        = 210105,
+    SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA   = 197471, // Serverside
+
+    // Events
+    EVENT_CAZA_SWEEPING_SLASH               = 1,
+    EVENT_CAZA_FEL_INFUSION,
+    EVENT_CAZA_THROW_AXE_JUMP,
+
+    NPC_FEL_LORD_CAZA                       = 96441,
+
+    DATA_CAZA_AXE_TARGET_GUID               = 0,
+
+    ACTION_CAZA_AXE_RETRIEVED               = 0,
+};
+
+// 96441 - Fel Lord Caza
+struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
+{
+    npc_fel_lord_caza_cryptic_hollow(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_FEL_LORD_CAZA_AGGRO);
+        _events.ScheduleEvent(EVENT_CAZA_SWEEPING_SLASH, 6s);
+        _events.ScheduleEvent(EVENT_CAZA_FEL_INFUSION, 11s);
+        _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 23s);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _axeTarget = ObjectGuid::Empty;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_FEL_LORD_CAZA_DEATH);
+        DoCastSelf(SPELL_FEL_LORD_CAZA_DIES);
+
+        for (ObjectGuid tapperGUID : me->GetTapList())
+        {
+            if (Player* tapper = ObjectAccessor::GetPlayer(*me, tapperGUID))
+                tapper->CastSpell(tapper, SPELL_FEL_LORD_CAZA_KILL_CREDIT, false);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE)
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA && target->GetTypeId() == TYPEID_PLAYER && !me->IsInCombat())
+            me->AI()->AttackStart(target->ToUnit());
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CAZA_SWEEPING_SLASH:
+                    DoCastVictim(SPELL_FEL_LORD_CAZA_SWEEPING_SLASH);
+                    break;
+                case EVENT_CAZA_FEL_INFUSION:
+                    DoCast(SPELL_FEL_LORD_CAZA_FEL_INFUSION);
+                    break;
+                case EVENT_CAZA_THROW_AXE_JUMP:
+                    Talk(SAY_FEL_LORD_CAZA_THROW_AXE);
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCast(SPELL_FEL_LORD_CAZA_THROW_AXE_JUMP);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+
+    void DoAction(int32 param) override
+    {
+        if (param != ACTION_CAZA_AXE_RETRIEVED)
+            return;
+
+        _events.ScheduleEvent(EVENT_CAZA_FEL_INFUSION, 400ms);
+        _events.ScheduleEvent(EVENT_CAZA_SWEEPING_SLASH, 8500ms);
+        _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 12000ms);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        if (id != DATA_CAZA_AXE_TARGET_GUID)
+            return;
+
+        _axeTarget = guid;
+    }
+
+    ObjectGuid GetGUID(int32 id) const override
+    {
+        if (id != DATA_CAZA_AXE_TARGET_GUID)
+            return ObjectGuid::Empty;
+
+        return _axeTarget;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _axeTarget;
+};
+
+// ID - 169
+struct at_fel_lord_caza_intro : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->IsGameMaster())
+            return;
+
+        Creature* caza = player->FindNearestCreature(NPC_FEL_LORD_CAZA, 100.0f);
+        if (!caza || caza->isDead())
+            return;
+
+        // This should have a cooldown of 2 minutes
+        caza->CastSpell(player, SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+};
+
+// 197180 - Fel Infusion
+// ID - 5315
+struct at_fel_lord_caza_fel_infusion : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_FEL_LORD_CAZA_VIOLENT_FEL_ENERGY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+};
+
+// 196959 - Throw Axe
+// ID - 5295
+struct at_fel_lord_caza_throw_axe_knockback : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        Unit* axeTarget = ObjectAccessor::GetUnit(*at, caster->GetAI()->GetGUID(DATA_CAZA_AXE_TARGET_GUID));
+        if (!axeTarget)
+            return;
+
+        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetMaxRange(false, caster), at->GetRelativeAngle(axeTarget));
+        PathGenerator path(at);
+
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+        at->InitSplines(path.GetPath());
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_FEL_LORD_CAZA_THROW_AXE_KNOCKBACK, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+};
+
+// 196889 - Throw Axe
+class spell_fel_lord_caza_throwing_axe_selector : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([this](WorldObject* target) -> bool
+        {
+            return GetCaster()->GetDistance(target) <= 25.0f;
+        });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->SetFacingToObject(GetHitUnit());
+        GetCaster()->GetAI()->SetGUID(GetHitUnit()->GetGUID(), DATA_CAZA_AXE_TARGET_GUID);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_fel_lord_caza_throwing_axe_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_fel_lord_caza_throwing_axe_selector::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 210103 - (Serverside/Non-DB2) Hidden No More: Fel Lord Caza Dies 02
+class spell_fel_lord_caza_dies_02 : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEL_LORD_CAZA_TAKING_POWER });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_FEL_LORD_CAZA_TAKING_POWER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fel_lord_caza_dies_02::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 196892 - Disarmed
+class spell_fel_lord_caza_disarmed : public AuraScript
+{
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->GetAI()->DoAction(ACTION_CAZA_AXE_RETRIEVED);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fel_lord_caza_disarmed::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_mardum()
 {
     // Creature
@@ -1980,6 +2260,7 @@ void AddSC_zone_mardum()
     RegisterCreatureAI(npc_inquisitor_baleful_molten_shore);
     RegisterCreatureAI(npc_baleful_beaming_eye);
     RegisterCreatureAI(npc_sevis_brightflame_shivarra_gateway);
+    RegisterCreatureAI(npc_fel_lord_caza_cryptic_hollow);
 
     // AISelector
     new FactoryCreatureScript<CreatureAI, &KaynSunfuryNearLegionBannerAISelector>("npc_kayn_sunfury_ashtongue_intro");
@@ -1996,13 +2277,16 @@ void AddSC_zone_mardum()
     // AreaTrigger
     RegisterAreaTriggerAI(at_enter_the_illidari_ashtongue_allari_killcredit);
     RegisterAreaTriggerAI(at_enter_the_illidari_shivarra_conversation);
+    RegisterAreaTriggerAI(at_fel_lord_caza_intro);
+    RegisterAreaTriggerAI(at_fel_lord_caza_fel_infusion);
+    RegisterAreaTriggerAI(at_fel_lord_caza_throw_axe_knockback);
 
     // EventScript
     new event_sevis_sacrifice_player();
     new event_sevis_sacrifice_self();
 
     // Conversation
-    new conversation_the_invasion_begins();
+    RegisterConversationAI(conversation_the_invasion_begins);
 
     // Scene
     new scene_demonhunter_intro();
@@ -2024,4 +2308,7 @@ void AddSC_zone_mardum()
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
+    RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
+    RegisterSpellScript(spell_fel_lord_caza_dies_02);
+    RegisterSpellScript(spell_fel_lord_caza_disarmed);
 };

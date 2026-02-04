@@ -578,18 +578,20 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberFullState partyMemberStats;
-
-    Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
-    if (!player)
+    for (ObjectGuid const& target : packet.Targets)
     {
-        partyMemberStats.MemberGuid = packet.TargetGUID;
-        partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
+        WorldPackets::Party::PartyMemberFullState partyMemberStats;
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(target))
+        {
+            partyMemberStats.Initialize(player);
+        }
+        else
+        {
+            partyMemberStats.MemberGuid = target;
+            partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
+        }
+        SendPacket(partyMemberStats.Write());
     }
-    else
-        partyMemberStats.Initialize(player);
-
-    SendPacket(partyMemberStats.Write());
 }
 
 void WorldSession::HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& /*packet*/)
@@ -716,11 +718,13 @@ void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& p
     broadcastPingUnit.Type = pingUnit.Type;
     broadcastPingUnit.PinFrameID = pingUnit.PinFrameID;
     broadcastPingUnit.PingDuration = pingUnit.PingDuration;
+    broadcastPingUnit.CreatureID = pingUnit.CreatureID;
+    broadcastPingUnit.SpellOverrideNameID = pingUnit.SpellOverrideNameID;
     broadcastPingUnit.Write();
 
-    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const& itr : group->GetMembers())
     {
-        Player const* member = itr->GetSource();
+        Player const* member = itr.GetSource();
         if (_player == member || !_player->IsInMap(member))
             continue;
 
@@ -747,9 +751,9 @@ void WorldSession::HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPo
     broadcastPingWorldPoint.PingDuration = pingWorldPoint.PingDuration;
     broadcastPingWorldPoint.Write();
 
-    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const& itr : group->GetMembers())
     {
-        Player const* member = itr->GetSource();
+        Player const* member = itr.GetSource();
         if (_player == member || !_player->IsInMap(member))
             continue;
 

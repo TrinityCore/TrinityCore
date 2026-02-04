@@ -22,17 +22,16 @@
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
-#include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "Common.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -45,6 +44,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -63,6 +63,7 @@
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
+#include <boost/circular_buffer.hpp>
 #include <sstream>
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
@@ -133,6 +134,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_SPAWN_TRACKING, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS, stmt);
@@ -176,10 +181,6 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED, stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
-    stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     stmt->setUInt64(0, lowGuid);
@@ -340,6 +341,18 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TRAIT_CONFIGS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_DATA_ELEMENTS_CHARACTER);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_DATA_ELEMENTS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_DATA_FLAGS_CHARACTER);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_DATA_FLAGS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANK_TAB_SETTINGS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BANK_TAB_SETTINGS, stmt);
+
     return res;
 }
 
@@ -392,7 +405,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = static_cast<EnumCharactersQueryHolder const&>(holder).IsDeletedCharacters();
-    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
+    charEnum.ClassDisableMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     if (!charEnum.IsDeletedCharacters)
         _legitCharacters.clear();
@@ -431,13 +444,13 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
 
                     charInfo.Customizations.clear();
 
-                    if (!(charInfo.Flags2 & (CHAR_CUSTOMIZE_FLAG_CUSTOMIZE | CHAR_CUSTOMIZE_FLAG_FACTION | CHAR_CUSTOMIZE_FLAG_RACE)))
+                    if (!(charInfo.Flags2 & (CHARACTER_FLAG_2_CUSTOMIZE | CHARACTER_FLAG_2_FACTION_CHANGE | CHARACTER_FLAG_2_RACE_CHANGE)))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                         stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
                         stmt->setUInt64(1, charInfo.Guid.GetCounter());
                         CharacterDatabase.Execute(stmt);
-                        charInfo.Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+                        charInfo.Flags2 = CHARACTER_FLAG_2_CUSTOMIZE;
                     }
                 }
 
@@ -458,14 +471,17 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
     {
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
-        raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
-        raceUnlock.HasAchievement = requirement.second.AchievementId != 0
+        raceUnlock.HasUnlockedLicense = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasUnlockedAchievement = requirement.second.AchievementId != 0
             && (sWorld->getBoolConfig(CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT)
                 /* || HasAccountAchievement(requirement.second.AchievementId)*/);
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
     SendPacket(charEnum.Write());
+
+    if (!charEnum.IsDeletedCharacters)
+        _collectionMgr->SendWarbandSceneCollectionData();
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
@@ -1105,6 +1121,9 @@ void WorldSession::HandleContinuePlayerLogin()
 
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
+    // client will respond to SMSG_RESUME_COMMS with CMSG_QUEUED_MESSAGES_END
+    RegisterTimeSync(SPECIAL_RESUME_COMMS_TIME_SYNC_COUNTER);
+
     AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase const& holder)
     {
         HandlePlayerLogin(static_cast<LoginQueryHolder const&>(holder));
@@ -1146,6 +1165,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         return;
     }
 
+    if (!_timeSyncClockDeltaQueue->empty())
+    {
+        pCurrChar->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+        pCurrChar->SetTransportServerTime(_timeSyncClockDelta);
+    }
+
     pCurrChar->SetVirtualPlayerRealm(GetVirtualRealmAddress());
 
     SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
@@ -1167,8 +1192,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Send MOTD
     {
-        for (std::string const& motdLine : sWorld->GetMotd())
-            sWorld->SendServerMessage(SERVER_MSG_STRING, motdLine, pCurrChar);
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
     }
 
     SendSetTimeZoneInformation();
@@ -1205,6 +1231,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->SetGuildRank(0);
         pCurrChar->SetGuildLevel(0);
     }
+
+    SendAuctionFavoriteList();
 
     pCurrChar->GetSession()->GetBattlePetMgr()->SendJournalLockStatus();
 
@@ -1245,9 +1273,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
-        AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
-        if (at)
-            pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
+        if (AreaTriggerTeleport const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId()))
+            pCurrChar->TeleportTo(at->Loc);
         else
             pCurrChar->TeleportTo(pCurrChar->m_homebind);
     }
@@ -1307,6 +1334,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             pCurrChar->CastSpell(pCurrChar, 8326, true); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
         pCurrChar->SetWaterWalking(true);
+
+        int32 const delay = pCurrChar->CalculateCorpseReclaimDelay(true);
+        if (delay > 0)
+            pCurrChar->SendCorpseReclaimDelay(delay);
     }
 
     pCurrChar->ContinueTaxiFlight();
@@ -1470,26 +1501,25 @@ void WorldSession::SendFeatureSystemStatus()
     /// START OF DUMMY VALUES
     features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
     features.CfgRealmID = 2;
-    features.CfgRealmRecID = 0;
-    features.TokenPollTimeSeconds = 300;
+    features.CfgRealmRecID = sRealmList->GetCurrentRealmId().Realm;
+    features.CommercePricePollTimeSeconds = 300;
     features.VoiceEnabled = false;
-    features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
     // Enable guilds only.
     // This is required to restore old guild channel behavior for GMs.
     // The new club streams do not support sending messages through the guild channel when you are not in a guild.
-    features.ClubsEnabled = true;
-    features.ClubsBattleNetClubTypeAllowed = false;
-    features.ClubsCharacterClubTypeAllowed = false;
-    features.ClubsPresenceUpdateEnabled = true;
-    features.HiddenUIClubsPresenceUpdateTimer = 60000;
+    features.CommunitiesEnabled = true;
+    features.BnetGroupsEnabled = false;
+    features.CharacterCommunitiesEnabled = false;
+    features.ClubPresenceAllowSubscribeAll = true;
+    features.ClubPresenceUnsubscribeDelay = 60000;
 
     features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
-    features.TutorialsEnabled = true;
+    features.TutorialEnabled = true;
     features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
@@ -1499,10 +1529,30 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
-    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
-    features.IsMuted = !CanSpeak();
+    features.IsChatMuted = !CanSpeak();
 
-    features.TextToSpeechFeatureEnabled = false;
+    features.SpeakForMeAllowed = false;
+
+    for (World::GameRule const& gameRule : sWorld->GetGameRules())
+    {
+        WorldPackets::System::GameRuleValuePair& rule = features.GameRules.emplace_back();
+        rule.Rule = AsUnderlyingType(gameRule.Rule);
+        std::visit([&]<typename T>(T value)
+        {
+            if constexpr (std::is_same_v<T, float>)
+                rule.ValueF = value;
+            else
+                rule.Value = value;
+        }, gameRule.Value);
+    }
+
+    features.AddonChatThrottle.MaxTries = 10;
+    features.AddonChatThrottle.TriesRestoredPerSecond = 1;
+    features.AddonChatThrottle.UsedTriesPerMessage = 1;
+    features.GuildChatThrottle.UsedTriesPerMessage = 1;
+    features.GuildChatThrottle.TriesRestoredPerSecond = 20;
+    features.GroupChatThrottle.UsedTriesPerMessage = 1;
+    features.GroupChatThrottle.TriesRestoredPerSecond = 20;
 
     SendPacket(features.Write());
 }
@@ -2134,7 +2184,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     Field* fields              = result->Fetch();
     uint16 atLoginFlags        = fields[0].GetUInt16();
     std::string knownTitlesStr = fields[1].GetString();
-    uint32 groupId             = !fields[2].IsNull() ? fields[2].GetUInt32() : 0;
+    uint32 groupId             = fields[2].GetUInt32();
 
     uint16 usedLoginFlag = (factionChangeInfo->FactionChange ? AT_LOGIN_CHANGE_FACTION : AT_LOGIN_CHANGE_RACE);
     if (!(atLoginFlags & usedLoginFlag))

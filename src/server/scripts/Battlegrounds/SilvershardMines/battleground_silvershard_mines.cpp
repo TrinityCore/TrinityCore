@@ -715,7 +715,8 @@ public:
         }
     }
 
-    void DoForPlayersInControlZone(std::function<void(GameObject const*, Player*)> const& fn) const
+    template <std::invocable<GameObject const*, Player*> Action>
+    void DoForPlayersInControlZone(Action const& fn) const
     {
         if (GameObject const* controlZone = GetControlZone())
             for (ObjectGuid const& playerGuid : *controlZone->GetInsidePlayers())

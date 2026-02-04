@@ -26,7 +26,8 @@ target_compile_options(trinity-warning-interface
 # disable permissive mode to make msvc more eager to reject code that other compilers don't already accept
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /permissive-)
+    /permissive-
+    /utf-8)
 
 if(PLATFORM EQUAL 32)
   # mark 32 bit executables large address aware so they can use > 2GB address space
@@ -65,14 +66,12 @@ if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.2302
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # /Zc:throwingNew.
-  # When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
-  # that the program will eventually be linked with a conforming operator new implementation,
-  # and can omit all of these extra null checks from your program.
-  # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /Zc:throwingNew)
+      /Zc:__cplusplus   # Enable updated __cplusplus macro value
+      /Zc:preprocessor  # Enable preprocessor conformance mode
+      /Zc:templateScope # Check template parameter shadowing
+      /Zc:throwingNew)  # Assume operator new throws
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
@@ -127,14 +126,15 @@ if(BUILD_SHARED_LIBS)
   message(STATUS "MSVC: Enabled shared linking")
 endif()
 
-# Move some warnings that are enabled for other compilers from level 4 to level 3
+# Move some warnings that are enabled for other compilers from level 4 to level 3 and enable some warnings which are off by default
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /w34100  # C4100 'identifier' : unreferenced formal parameter
+    /w15038  # C5038: data member 'member1' will be initialized after data member 'member2'
+    /w34100  # C4100: 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
     /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
     /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
-	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
+    /w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function

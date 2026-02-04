@@ -16,14 +16,12 @@
  */
 
 #include "LanguageMgr.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "SpellInfo.h"
+#include "MapUtils.h"
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "Util.h"
-#include <sstream>
 
 LanguageMgr::LanguageMgr() : _langsMap(), _wordsMap() { }
 
@@ -133,7 +131,13 @@ namespace
                 case 'c':
                 case 'C':
                     // skip color
-                    i += 9;
+                    if (i + 2 >= source.length())
+                        break;
+
+                    if (source[i + 2] == 'n')
+                        i = source.find(':', i); // numeric color id
+                    else
+                        i += 9;
                     break;
                 case 'r':
                     ++i;
@@ -176,12 +180,17 @@ namespace
         WStrToUtf8(wstrText, text);
     }
 
-    static char upper_backslash(char c)
+    constexpr char upper_backslash(char c)
     {
-        return c == '/' ? '\\' : char(toupper(c));
+        if (c == '/')
+            return '\\';
+        if (c >= 'a' && c <= 'z')
+            return char('A' + char(c - 'a'));
+        else
+            return c;
     }
 
-    static uint32 const sstr_hashtable[16] =
+    constexpr std::array<uint32, 16> sstr_hashtable =
     {
         0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB,
         0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49,
@@ -189,7 +198,7 @@ namespace
         0xE3061AE7, 0xA39B0FA1, 0x9797F25F, 0xE4444563,
     };
 
-    uint32 SStrHash(std::string_view string, bool caseInsensitive, uint32 seed = 0x7FED7FED)
+    constexpr uint32 SStrHash(std::string_view string, bool caseInsensitive, uint32 seed = 0x7FED7FED)
     {
         uint32 shift = 0xEEEEEEEE;
         for (char c : string)

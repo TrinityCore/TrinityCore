@@ -31,6 +31,8 @@ EXPORTS
 
     CascAddEncryptionKey
     CascAddStringEncryptionKey
+    CascImportKeysFromString
+    CascImportKeysFromFile
     CascFindEncryptionKey
     CascGetNotFoundEncryptionKey
 

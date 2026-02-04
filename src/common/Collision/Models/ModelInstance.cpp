@@ -112,8 +112,7 @@ namespace VMAP
         if (info.hitModel->GetLiquidLevel(pModel, zDist))
         {
             // calculate world height (zDist in model coords):
-            // assume WMO not tilted (wouldn't make much sense anyway)
-            liqHeight = zDist * iScale + iPos.z;
+            liqHeight = (Vector3(pModel.x, pModel.y, zDist) * iInvRot * iScale + iPos).z;
             return true;
         }
         return false;

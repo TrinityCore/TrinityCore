@@ -16,11 +16,11 @@
  */
 
 #include "WorldStateMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "StringConvert.h"
@@ -126,7 +126,7 @@ void WorldStateMgr::LoadFromDB()
                 id, areaIds);
         }
 
-        worldState.ScriptId = sObjectMgr->GetScriptId(fields[4].GetString());
+        worldState.ScriptId = sObjectMgr->GetScriptId(fields[4].GetStringView());
 
         if (!worldState.MapIds.empty())
         {

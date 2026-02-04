@@ -25,6 +25,8 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "api/common/v2/attribute_types.pb.h"
+#include "global_extensions/field_options.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -37,6 +39,7 @@ void protobuf_AssignDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
 void protobuf_ShutdownFile_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
 
 class MessageId;
+class ExternalMessageId;
 
 enum TypingIndicator {
   TYPING_START = 0,
@@ -57,13 +60,33 @@ inline bool TypingIndicator_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<TypingIndicator>(
     TypingIndicator_descriptor(), name, value);
 }
+enum ExternalMessagePlatform {
+  EXTERNAL_MESSAGE_PLATFORM_NONE = 0,
+  EXTERNAL_MESSAGE_PLATFORM_DISCORD = 1
+};
+TC_PROTO_API bool ExternalMessagePlatform_IsValid(int value);
+const ExternalMessagePlatform ExternalMessagePlatform_MIN = EXTERNAL_MESSAGE_PLATFORM_NONE;
+const ExternalMessagePlatform ExternalMessagePlatform_MAX = EXTERNAL_MESSAGE_PLATFORM_DISCORD;
+const int ExternalMessagePlatform_ARRAYSIZE = ExternalMessagePlatform_MAX + 1;
+
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* ExternalMessagePlatform_descriptor();
+inline const ::std::string& ExternalMessagePlatform_Name(ExternalMessagePlatform value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    ExternalMessagePlatform_descriptor(), value);
+}
+inline bool ExternalMessagePlatform_Parse(
+    const ::std::string& name, ExternalMessagePlatform* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ExternalMessagePlatform>(
+    ExternalMessagePlatform_descriptor(), name, value);
+}
 enum MessageOrigin {
   MESSAGE_ORIGIN_PLAYER = 0,
-  MESSAGE_ORIGIN_SYSTEM = 1
+  MESSAGE_ORIGIN_SYSTEM = 1,
+  MESSAGE_ORIGIN_DISCORD = 2
 };
 TC_PROTO_API bool MessageOrigin_IsValid(int value);
 const MessageOrigin MessageOrigin_MIN = MESSAGE_ORIGIN_PLAYER;
-const MessageOrigin MessageOrigin_MAX = MESSAGE_ORIGIN_SYSTEM;
+const MessageOrigin MessageOrigin_MAX = MESSAGE_ORIGIN_DISCORD;
 const int MessageOrigin_ARRAYSIZE = MessageOrigin_MAX + 1;
 
 TC_PROTO_API const ::google::protobuf::EnumDescriptor* MessageOrigin_descriptor();
@@ -132,12 +155,32 @@ class TC_PROTO_API MessageId : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 position() const;
   inline void set_position(::google::protobuf::uint64 value);
 
+  // optional uint32 origin = 3;
+  inline bool has_origin() const;
+  inline void clear_origin();
+  static const int kOriginFieldNumber = 3;
+  inline ::google::protobuf::uint32 origin() const;
+  inline void set_origin(::google::protobuf::uint32 value);
+
+  // optional .bgs.protocol.ExternalMessageId external_message_id = 4;
+  inline bool has_external_message_id() const;
+  inline void clear_external_message_id();
+  static const int kExternalMessageIdFieldNumber = 4;
+  inline const ::bgs::protocol::ExternalMessageId& external_message_id() const;
+  inline ::bgs::protocol::ExternalMessageId* mutable_external_message_id();
+  inline ::bgs::protocol::ExternalMessageId* release_external_message_id();
+  inline void set_allocated_external_message_id(::bgs::protocol::ExternalMessageId* external_message_id);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.MessageId)
  private:
   inline void set_has_epoch();
   inline void clear_has_epoch();
   inline void set_has_position();
   inline void clear_has_position();
+  inline void set_has_origin();
+  inline void clear_has_origin();
+  inline void set_has_external_message_id();
+  inline void clear_has_external_message_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -145,12 +188,138 @@ class TC_PROTO_API MessageId : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::uint64 epoch_;
   ::google::protobuf::uint64 position_;
+  ::bgs::protocol::ExternalMessageId* external_message_id_;
+  ::google::protobuf::uint32 origin_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
   friend void protobuf_AssignDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
 
   void InitAsDefaultInstance();
   static MessageId* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API ExternalMessageId : public ::google::protobuf::Message {
+ public:
+  ExternalMessageId();
+  virtual ~ExternalMessageId();
+
+  ExternalMessageId(const ExternalMessageId& from);
+
+  inline ExternalMessageId& operator=(const ExternalMessageId& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ExternalMessageId& default_instance();
+
+  void Swap(ExternalMessageId* other);
+
+  // implements Message ----------------------------------------------
+
+  ExternalMessageId* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 platform = 1;
+  inline bool has_platform() const;
+  inline void clear_platform();
+  static const int kPlatformFieldNumber = 1;
+  inline ::google::protobuf::uint32 platform() const;
+  inline void set_platform(::google::protobuf::uint32 value);
+
+  // optional string id = 2;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 2;
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
+
+  // optional string creator_id = 3;
+  inline bool has_creator_id() const;
+  inline void clear_creator_id();
+  static const int kCreatorIdFieldNumber = 3;
+  inline const ::std::string& creator_id() const;
+  inline void set_creator_id(const ::std::string& value);
+  inline void set_creator_id(const char* value);
+  inline void set_creator_id(const char* value, size_t size);
+  inline ::std::string* mutable_creator_id();
+  inline ::std::string* release_creator_id();
+  inline void set_allocated_creator_id(::std::string* creator_id);
+
+  // optional string creator_display_name = 4;
+  inline bool has_creator_display_name() const;
+  inline void clear_creator_display_name();
+  static const int kCreatorDisplayNameFieldNumber = 4;
+  inline const ::std::string& creator_display_name() const;
+  inline void set_creator_display_name(const ::std::string& value);
+  inline void set_creator_display_name(const char* value);
+  inline void set_creator_display_name(const char* value, size_t size);
+  inline ::std::string* mutable_creator_display_name();
+  inline ::std::string* release_creator_display_name();
+  inline void set_allocated_creator_display_name(::std::string* creator_display_name);
+
+  // repeated .bgs.protocol.v2.Attribute platform_data = 5;
+  inline int platform_data_size() const;
+  inline void clear_platform_data();
+  static const int kPlatformDataFieldNumber = 5;
+  inline const ::bgs::protocol::v2::Attribute& platform_data(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_platform_data(int index);
+  inline ::bgs::protocol::v2::Attribute* add_platform_data();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      platform_data() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_platform_data();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.ExternalMessageId)
+ private:
+  inline void set_has_platform();
+  inline void clear_has_platform();
+  inline void set_has_id();
+  inline void clear_has_id();
+  inline void set_has_creator_id();
+  inline void clear_has_creator_id();
+  inline void set_has_creator_display_name();
+  inline void clear_has_creator_display_name();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* id_;
+  ::std::string* creator_id_;
+  ::std::string* creator_display_name_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > platform_data_;
+  ::google::protobuf::uint32 platform_;
+  friend void TC_PROTO_API protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ExternalMessageId* default_instance_;
 };
 // ===================================================================
 
@@ -208,6 +377,357 @@ inline void MessageId::set_position(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.MessageId.position)
 }
 
+// optional uint32 origin = 3;
+inline bool MessageId::has_origin() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void MessageId::set_has_origin() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void MessageId::clear_has_origin() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void MessageId::clear_origin() {
+  origin_ = 0u;
+  clear_has_origin();
+}
+inline ::google::protobuf::uint32 MessageId::origin() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.MessageId.origin)
+  return origin_;
+}
+inline void MessageId::set_origin(::google::protobuf::uint32 value) {
+  set_has_origin();
+  origin_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.MessageId.origin)
+}
+
+// optional .bgs.protocol.ExternalMessageId external_message_id = 4;
+inline bool MessageId::has_external_message_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void MessageId::set_has_external_message_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void MessageId::clear_has_external_message_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void MessageId::clear_external_message_id() {
+  if (external_message_id_ != NULL) external_message_id_->::bgs::protocol::ExternalMessageId::Clear();
+  clear_has_external_message_id();
+}
+inline const ::bgs::protocol::ExternalMessageId& MessageId::external_message_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.MessageId.external_message_id)
+  return external_message_id_ != NULL ? *external_message_id_ : *default_instance_->external_message_id_;
+}
+inline ::bgs::protocol::ExternalMessageId* MessageId::mutable_external_message_id() {
+  set_has_external_message_id();
+  if (external_message_id_ == NULL) external_message_id_ = new ::bgs::protocol::ExternalMessageId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.MessageId.external_message_id)
+  return external_message_id_;
+}
+inline ::bgs::protocol::ExternalMessageId* MessageId::release_external_message_id() {
+  clear_has_external_message_id();
+  ::bgs::protocol::ExternalMessageId* temp = external_message_id_;
+  external_message_id_ = NULL;
+  return temp;
+}
+inline void MessageId::set_allocated_external_message_id(::bgs::protocol::ExternalMessageId* external_message_id) {
+  delete external_message_id_;
+  external_message_id_ = external_message_id;
+  if (external_message_id) {
+    set_has_external_message_id();
+  } else {
+    clear_has_external_message_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.MessageId.external_message_id)
+}
+
+// -------------------------------------------------------------------
+
+// ExternalMessageId
+
+// optional uint32 platform = 1;
+inline bool ExternalMessageId::has_platform() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ExternalMessageId::set_has_platform() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ExternalMessageId::clear_has_platform() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ExternalMessageId::clear_platform() {
+  platform_ = 0u;
+  clear_has_platform();
+}
+inline ::google::protobuf::uint32 ExternalMessageId::platform() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.ExternalMessageId.platform)
+  return platform_;
+}
+inline void ExternalMessageId::set_platform(::google::protobuf::uint32 value) {
+  set_has_platform();
+  platform_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.ExternalMessageId.platform)
+}
+
+// optional string id = 2;
+inline bool ExternalMessageId::has_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ExternalMessageId::set_has_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ExternalMessageId::clear_has_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ExternalMessageId::clear_id() {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_->clear();
+  }
+  clear_has_id();
+}
+inline const ::std::string& ExternalMessageId::id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.ExternalMessageId.id)
+  return *id_;
+}
+inline void ExternalMessageId::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.ExternalMessageId.id)
+}
+inline void ExternalMessageId::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.ExternalMessageId.id)
+}
+inline void ExternalMessageId::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.ExternalMessageId.id)
+}
+inline ::std::string* ExternalMessageId::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.ExternalMessageId.id)
+  return id_;
+}
+inline ::std::string* ExternalMessageId::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ExternalMessageId::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.ExternalMessageId.id)
+}
+
+// optional string creator_id = 3;
+inline bool ExternalMessageId::has_creator_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void ExternalMessageId::set_has_creator_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void ExternalMessageId::clear_has_creator_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void ExternalMessageId::clear_creator_id() {
+  if (creator_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_id_->clear();
+  }
+  clear_has_creator_id();
+}
+inline const ::std::string& ExternalMessageId::creator_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.ExternalMessageId.creator_id)
+  return *creator_id_;
+}
+inline void ExternalMessageId::set_creator_id(const ::std::string& value) {
+  set_has_creator_id();
+  if (creator_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_id_ = new ::std::string;
+  }
+  creator_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.ExternalMessageId.creator_id)
+}
+inline void ExternalMessageId::set_creator_id(const char* value) {
+  set_has_creator_id();
+  if (creator_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_id_ = new ::std::string;
+  }
+  creator_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.ExternalMessageId.creator_id)
+}
+inline void ExternalMessageId::set_creator_id(const char* value, size_t size) {
+  set_has_creator_id();
+  if (creator_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_id_ = new ::std::string;
+  }
+  creator_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.ExternalMessageId.creator_id)
+}
+inline ::std::string* ExternalMessageId::mutable_creator_id() {
+  set_has_creator_id();
+  if (creator_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.ExternalMessageId.creator_id)
+  return creator_id_;
+}
+inline ::std::string* ExternalMessageId::release_creator_id() {
+  clear_has_creator_id();
+  if (creator_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = creator_id_;
+    creator_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ExternalMessageId::set_allocated_creator_id(::std::string* creator_id) {
+  if (creator_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete creator_id_;
+  }
+  if (creator_id) {
+    set_has_creator_id();
+    creator_id_ = creator_id;
+  } else {
+    clear_has_creator_id();
+    creator_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.ExternalMessageId.creator_id)
+}
+
+// optional string creator_display_name = 4;
+inline bool ExternalMessageId::has_creator_display_name() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ExternalMessageId::set_has_creator_display_name() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ExternalMessageId::clear_has_creator_display_name() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ExternalMessageId::clear_creator_display_name() {
+  if (creator_display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_display_name_->clear();
+  }
+  clear_has_creator_display_name();
+}
+inline const ::std::string& ExternalMessageId::creator_display_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.ExternalMessageId.creator_display_name)
+  return *creator_display_name_;
+}
+inline void ExternalMessageId::set_creator_display_name(const ::std::string& value) {
+  set_has_creator_display_name();
+  if (creator_display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_display_name_ = new ::std::string;
+  }
+  creator_display_name_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.ExternalMessageId.creator_display_name)
+}
+inline void ExternalMessageId::set_creator_display_name(const char* value) {
+  set_has_creator_display_name();
+  if (creator_display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_display_name_ = new ::std::string;
+  }
+  creator_display_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.ExternalMessageId.creator_display_name)
+}
+inline void ExternalMessageId::set_creator_display_name(const char* value, size_t size) {
+  set_has_creator_display_name();
+  if (creator_display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_display_name_ = new ::std::string;
+  }
+  creator_display_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.ExternalMessageId.creator_display_name)
+}
+inline ::std::string* ExternalMessageId::mutable_creator_display_name() {
+  set_has_creator_display_name();
+  if (creator_display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    creator_display_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.ExternalMessageId.creator_display_name)
+  return creator_display_name_;
+}
+inline ::std::string* ExternalMessageId::release_creator_display_name() {
+  clear_has_creator_display_name();
+  if (creator_display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = creator_display_name_;
+    creator_display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ExternalMessageId::set_allocated_creator_display_name(::std::string* creator_display_name) {
+  if (creator_display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete creator_display_name_;
+  }
+  if (creator_display_name) {
+    set_has_creator_display_name();
+    creator_display_name_ = creator_display_name;
+  } else {
+    clear_has_creator_display_name();
+    creator_display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.ExternalMessageId.creator_display_name)
+}
+
+// repeated .bgs.protocol.v2.Attribute platform_data = 5;
+inline int ExternalMessageId::platform_data_size() const {
+  return platform_data_.size();
+}
+inline void ExternalMessageId::clear_platform_data() {
+  platform_data_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& ExternalMessageId::platform_data(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.ExternalMessageId.platform_data)
+  return platform_data_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* ExternalMessageId::mutable_platform_data(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.ExternalMessageId.platform_data)
+  return platform_data_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* ExternalMessageId::add_platform_data() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.ExternalMessageId.platform_data)
+  return platform_data_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+ExternalMessageId::platform_data() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.ExternalMessageId.platform_data)
+  return platform_data_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+ExternalMessageId::mutable_platform_data() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.ExternalMessageId.platform_data)
+  return &platform_data_;
+}
+
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -220,6 +740,11 @@ template <> struct is_proto_enum< ::bgs::protocol::TypingIndicator> : ::google::
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::TypingIndicator>() {
   return ::bgs::protocol::TypingIndicator_descriptor();
+}
+template <> struct is_proto_enum< ::bgs::protocol::ExternalMessagePlatform> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::ExternalMessagePlatform>() {
+  return ::bgs::protocol::ExternalMessagePlatform_descriptor();
 }
 template <> struct is_proto_enum< ::bgs::protocol::MessageOrigin> : ::google::protobuf::internal::true_type {};
 template <>
