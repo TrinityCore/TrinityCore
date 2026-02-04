@@ -21,8 +21,9 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ruins_of_ahnqiraj.h"
+#include <algorithm>
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_KURINAXX,        DATA_KURINNAXX    },
     { NPC_RAJAXX,          DATA_RAJAXX       },
@@ -33,6 +34,23 @@ ObjectData const creatureData[] =
     { NPC_ANDOROV,         DATA_ANDOROV      },
     { 0,                   0                 } // END
 };
+
+struct RajaxxWave
+{
+    std::string_view StringId;
+    int32 BossActionIdOnClear;
+};
+
+static constexpr std::array<RajaxxWave, 7> RajaxxWaves =
+{{
+    { "GeneralRajaxxWave1", 0 },
+    { "GeneralRajaxxWave2", ACTION_WAVE_STARTS_3 },
+    { "GeneralRajaxxWave3", ACTION_WAVE_STARTS_4 },
+    { "GeneralRajaxxWave4", ACTION_WAVE_STARTS_5 },
+    { "GeneralRajaxxWave5", ACTION_WAVE_STARTS_6 },
+    { "GeneralRajaxxWave6", ACTION_WAVE_STARTS_7 },
+    { "GeneralRajaxxWave7", ACTION_RAJAXX_ENTER }
+}};
 
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
@@ -54,26 +72,9 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 InstanceScript::OnCreatureCreate(creature);
 
-                if (creature->HasStringId("GeneralRajaxxWave1"))
-                    WaveGuidList[0].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave2"))
-                    WaveGuidList[1].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave3"))
-                    WaveGuidList[2].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave4"))
-                    WaveGuidList[3].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave5"))
-                    WaveGuidList[4].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave6"))
-                    WaveGuidList[5].insert(creature->GetGUID());
-
-                if (creature->HasStringId("GeneralRajaxxWave7"))
-                    WaveGuidList[6].insert(creature->GetGUID());
+                auto rajaxxWave = std::ranges::find_if(RajaxxWaves, [creature](std::string_view stringId) { return creature->HasStringId(stringId); }, &RajaxxWave::StringId);
+                if (rajaxxWave != RajaxxWaves.end())
+                    WaveGuidList[std::ranges::distance(RajaxxWaves.begin(), rajaxxWave)].insert(creature->GetGUID());
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -83,107 +84,22 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 if (unit->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                // Wave 2
-                if (WaveGuidList[0].find(unit->GetGUID()) != WaveGuidList[0].end())
+                auto rajaxxWave = std::ranges::find_if(RajaxxWaves, [creature = unit->ToCreature()](std::string_view stringId) { return creature->HasStringId(stringId); }, &RajaxxWave::StringId);
+                if (rajaxxWave != RajaxxWaves.end())
                 {
-                    WaveGuidList[0].erase(unit->GetGUID());
-                    if (WaveGuidList[0].size() == 0)
+                    std::ptrdiff_t waveIndex = std::ranges::distance(RajaxxWaves.begin(), rajaxxWave);
+                    if (WaveGuidList[waveIndex].erase(unit->GetGUID()) && WaveGuidList[waveIndex].empty())
                     {
-                        for (ObjectGuid guid : WaveGuidList[1])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-                    }
-                }
+                        // start next wave
+                        if (waveIndex + 1 < std::ranges::ssize(WaveGuidList))
+                            for (ObjectGuid guid : WaveGuidList[waveIndex + 1])
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    if (creature->IsAlive() && !creature->IsInCombat())
+                                        creature->AI()->DoZoneInCombat();
 
-                // Wave 3
-                if (WaveGuidList[1].find(unit->GetGUID()) != WaveGuidList[1].end())
-                {
-                    WaveGuidList[1].erase(unit->GetGUID());
-                    if (WaveGuidList[1].size() == 0)
-                    {
-                        for (ObjectGuid guid : WaveGuidList[2])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_WAVE_STARTS_3);
-                    }
-                }
-
-                // Wave 4
-                if (WaveGuidList[2].find(unit->GetGUID()) != WaveGuidList[2].end())
-                {
-                    WaveGuidList[2].erase(unit->GetGUID());
-                    if (WaveGuidList[2].size() == 0)
-                    {
-                        for (ObjectGuid guid : WaveGuidList[3])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_WAVE_STARTS_4);
-                    }
-                }
-
-                // Wave 5
-                if (WaveGuidList[3].find(unit->GetGUID()) != WaveGuidList[3].end())
-                {
-                    WaveGuidList[3].erase(unit->GetGUID());
-                    if (WaveGuidList[3].size() == 0)
-                    {
-                        for (ObjectGuid guid : WaveGuidList[4])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_WAVE_STARTS_5);
-                    }
-                }
-
-                // Wave 6
-                if (WaveGuidList[4].find(unit->GetGUID()) != WaveGuidList[4].end())
-                {
-                    WaveGuidList[4].erase(unit->GetGUID());
-                    if (WaveGuidList[4].size() == 0)
-                    {
-                        for (ObjectGuid guid : WaveGuidList[5])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_WAVE_STARTS_6);
-                    }
-                }
-
-                // Wave 7
-                if (WaveGuidList[5].find(unit->GetGUID()) != WaveGuidList[5].end())
-                {
-                    WaveGuidList[5].erase(unit->GetGUID());
-                    if (WaveGuidList[5].size() == 0)
-                    {
-                        for (ObjectGuid guid : WaveGuidList[6])
-                            if (Creature* creature = instance->GetCreature(guid))
-                                if (creature->IsAlive() && !creature->IsInCombat())
-                                    creature->AI()->DoZoneInCombat();
-
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_WAVE_STARTS_7);
-                    }
-                }
-
-                // Rajaxx
-                if (WaveGuidList[6].find(unit->GetGUID()) != WaveGuidList[6].end())
-                {
-                    WaveGuidList[6].erase(unit->GetGUID());
-                    if (WaveGuidList[6].size() == 0)
-                    {
-                        if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
-                            rajaxx->AI()->DoAction(ACTION_RAJAXX_ENTER);
+                        if (rajaxxWave->BossActionIdOnClear)
+                            if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
+                                rajaxx->AI()->DoAction(rajaxxWave->BossActionIdOnClear);
                     }
                 }
             }
