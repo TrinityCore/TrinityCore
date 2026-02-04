@@ -53,7 +53,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Start moving to the desired MovePoint
         void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 0,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         WaypointPath const* LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         bool CanResumePath();

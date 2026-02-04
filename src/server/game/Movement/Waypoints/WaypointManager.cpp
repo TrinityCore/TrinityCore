@@ -355,8 +355,8 @@ void WaypointPath::BuildSegments()
     {
         ++ContinuousSegments.back().second;
 
-        // split on delay
-        if (i + 1 != Nodes.size() && Nodes[i].Delay)
+        // split on delay or different move type
+        if (i + 1 != Nodes.size() && (Nodes[i].Delay || Nodes[i].MoveType != Nodes[i + 1].MoveType))
             ContinuousSegments.emplace_back(i, 1);
     }
 }

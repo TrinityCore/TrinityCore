@@ -1967,7 +1967,7 @@ void Map::SendObjectUpdates()
 
     while (!_updateObjects.empty())
     {
-        Object* obj = *_updateObjects.begin();
+        BaseEntity* obj = *_updateObjects.begin();
         ASSERT(obj->IsInWorld());
         _updateObjects.erase(_updateObjects.begin());
         obj->BuildUpdate(update_players);
@@ -2906,6 +2906,10 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
         if (lockError != TRANSFER_ABORT_NONE)
             return lockError;
     }
+
+    if (Group* owningGroup = GetOwningGroup())
+        if (!player->IsInGroup(owningGroup->GetGUID()))
+            return TRANSFER_ABORT_MAX_PLAYERS;
 
     return Map::CannotEnter(player);
 }
