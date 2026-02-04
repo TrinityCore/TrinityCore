@@ -120,6 +120,8 @@ enum DruidSpells
     SPELL_DRUID_MATTED_FUR                     = 385786,
     SPELL_DRUID_MOONFIRE                       = 8921,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_MOONLESS_NIGHT                 = 400278,
+    SPELL_DRUID_MOONLESS_NIGHT_DAMAGE          = 400360,
     SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
     SPELL_DRUID_NEW_MOON                       = 274281,
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
@@ -1468,6 +1470,38 @@ class spell_dru_moonfire : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_moonfire::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 400278 - Moonless Night
+class spell_dru_moonless_night : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MOONFIRE_DAMAGE, SPELL_DRUID_MOONLESS_NIGHT_DAMAGE });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT) && eventInfo.GetActionTarget()->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE);
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+
+        caster->CastSpell(target, SPELL_DRUID_MOONLESS_NIGHT_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, damage } }
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_moonless_night::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dru_moonless_night::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2870,6 +2904,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_mangle);
     RegisterSpellScript(spell_dru_matted_fur_absorb);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_moonless_night);
     RegisterSpellScript(spell_dru_natures_grace);
     RegisterSpellScript(spell_dru_natures_grace_eclipse);
     RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE));
