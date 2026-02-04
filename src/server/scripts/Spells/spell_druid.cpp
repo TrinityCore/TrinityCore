@@ -1658,7 +1658,7 @@ class spell_dru_pulverize : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_AURA })
+        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_BLEED })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
@@ -1666,12 +1666,11 @@ class spell_dru_pulverize : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-
-        int32 stacksToRemove = GetEffectInfo(EFFECT_2).CalcValue(caster);
-
-        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_AURA, caster->GetGUID());
+        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID());
         if (!bleedAura)
             return;
+
+        int32 stacksToRemove = GetEffectInfo(EFFECT_2).CalcValue(caster);
 
         bleedAura->ModStackAmount(-stacksToRemove);
         target->RemoveAurasDueToSpell(SPELL_DRUID_THRASH_PULVERIZE_TRIGGER);
@@ -1691,7 +1690,7 @@ class spell_dru_pulverize_thrash : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_DRUID_THRASH_BEAR_AURA,
+            SPELL_DRUID_THRASH_BEAR_BLEED,
             SPELL_DRUID_PULVERIZE,
             SPELL_DRUID_THRASH_PULVERIZE_TRIGGER
         })
@@ -1708,7 +1707,7 @@ class spell_dru_pulverize_thrash : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_AURA, caster->GetGUID());
+        Aura* bleedAura = target->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID());
         if (!bleedAura)
             return;
 
@@ -1720,6 +1719,37 @@ class spell_dru_pulverize_thrash : public SpellScript
     void Register() override
     {
         AfterHit += SpellHitFn(spell_dru_pulverize_thrash::HandleAfterHit);
+    }
+};
+
+// 158790 - Thrash
+class spell_dru_pulverize_trigger_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_BLEED });
+    }
+
+    void OnTick(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+        if (!caster)
+        {
+            Remove();
+            return;
+        }
+
+        // in case bleed aura is removed due to e.g. dwarf racial
+        if (!GetTarget()->GetAura(SPELL_DRUID_THRASH_BEAR_BLEED, caster->GetGUID()))
+            Remove();
+
+        // threshold stacks don't have to be checked here, duration of the trigger is less than Thrash uptime
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_pulverize_trigger_periodic::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -2852,6 +2882,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_pulverize);
     RegisterSpellScript(spell_dru_pulverize_thrash);
+    RegisterSpellScript(spell_dru_pulverize_trigger_periodic);
     RegisterSpellScript(spell_dru_rake);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
