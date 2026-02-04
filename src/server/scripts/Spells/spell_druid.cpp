@@ -445,28 +445,6 @@ class spell_dru_celestial_alignment : public SpellScript
     }
 };
 
-// Called by 202497 - Shooting Stars
-class spell_dru_crashing_star : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DRUID_CRASHING_STAR_TALENT, SPELL_DRUID_CRASHING_STAR_DAMAGE });
-    }
-
-    void HandleDamage(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (AuraEffect const* shootingStars = caster->GetAuraEffect(SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0))
-                if (roll_chance_i(shootingStars->GetAmount()))
-                    caster->CastSpell(GetHitUnit(), SPELL_DRUID_CRASHING_STAR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_crashing_star::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 // 774 - Rejuvenation
 // 155777 - Rejuventation (Germination)
 class spell_dru_cultivation : public AuraScript
@@ -1797,8 +1775,8 @@ class spell_dru_shooting_stars : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS_DAMAGE })
-            && ValidateSpellEffect({ { SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1 } })
+        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS_DAMAGE, SPELL_DRUID_CRASHING_STAR_DAMAGE })
+            && ValidateSpellEffect({ { SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0 } })
             && sSpellMgr->AssertSpellInfo(SPELL_DRUID_MOONFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE)
             && sSpellMgr->AssertSpellInfo(SPELL_DRUID_SUNFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE);
     }
@@ -1838,9 +1816,16 @@ class spell_dru_shooting_stars : public AuraScript
 
         Trinity::Containers::RandomResize(targets, procs);
         for (Unit* target : targets)
-            caster->CastSpell(target, SPELL_DRUID_SHOOTING_STARS_DAMAGE, CastSpellExtraArgsInit{
+        {
+            uint32 spellId = SPELL_DRUID_SHOOTING_STARS_DAMAGE;
+            AuraEffect const* crashingStarTalent = caster->GetAuraEffect(SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0);
+            if (crashingStarTalent && roll_chance_i(crashingStarTalent->GetAmount()))
+                spellId = SPELL_DRUID_CRASHING_STAR_DAMAGE;
+
+            caster->CastSpell(target, spellId, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
             });
+        }
     }
 
     void Register() override
@@ -2752,7 +2737,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
     RegisterSpellScript(spell_dru_celestial_alignment);
-    RegisterSpellScript(spell_dru_crashing_star);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_dream_of_cenarius_guardian);
