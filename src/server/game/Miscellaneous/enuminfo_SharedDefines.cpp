@@ -1717,8 +1717,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr11>::ToString(SpellAttr11 value)
         case SPELL_ATTR11_UNK15: return { "SPELL_ATTR11_UNK15", "Unknown attribute 15@Attr11", "" };
         case SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE: return { "SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE", "Not in Mythic+ Mode (Challenge Mode)", "" };
         case SPELL_ATTR11_UNK17: return { "SPELL_ATTR11_UNK17", "Unknown attribute 17@Attr11", "" };
-        case SPELL_ATTR11_UNK18: return { "SPELL_ATTR11_UNK18", "Unknown attribute 18@Attr11", "" };
-        case SPELL_ATTR11_UNK19: return { "SPELL_ATTR11_UNK19", "Unknown attribute 19@Attr11", "" };
+        case SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS: return { "SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS", "Ignore Caster Absorb Modifiers", "" };
+        case SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS: return { "SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS", "Ignore Target Absorb Modifiers", "" };
         case SPELL_ATTR11_UNK20: return { "SPELL_ATTR11_UNK20", "Unknown attribute 20@Attr11", "" };
         case SPELL_ATTR11_UNK21: return { "SPELL_ATTR11_UNK21", "Unknown attribute 21@Attr11", "" };
         case SPELL_ATTR11_UNK22: return { "SPELL_ATTR11_UNK22", "Unknown attribute 22@Attr11", "" };
@@ -1761,8 +1761,8 @@ TC_API_EXPORT SpellAttr11 EnumUtils<SpellAttr11>::FromIndex(size_t index)
         case 15: return SPELL_ATTR11_UNK15;
         case 16: return SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE;
         case 17: return SPELL_ATTR11_UNK17;
-        case 18: return SPELL_ATTR11_UNK18;
-        case 19: return SPELL_ATTR11_UNK19;
+        case 18: return SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS;
+        case 19: return SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS;
         case 20: return SPELL_ATTR11_UNK20;
         case 21: return SPELL_ATTR11_UNK21;
         case 22: return SPELL_ATTR11_UNK22;
@@ -1802,8 +1802,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr11>::ToIndex(SpellAttr11 value)
         case SPELL_ATTR11_UNK15: return 15;
         case SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE: return 16;
         case SPELL_ATTR11_UNK17: return 17;
-        case SPELL_ATTR11_UNK18: return 18;
-        case SPELL_ATTR11_UNK19: return 19;
+        case SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS: return 18;
+        case SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS: return 19;
         case SPELL_ATTR11_UNK20: return 20;
         case SPELL_ATTR11_UNK21: return 21;
         case SPELL_ATTR11_UNK22: return 22;
