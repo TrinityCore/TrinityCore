@@ -23,6 +23,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -30,12 +31,26 @@ EndScriptData */
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "zulaman.h"
+#include <algorithm>
 
 enum Misc
 {
     RAND_VENDOR                    = 2,
     WORLDSTATE_SHOW_TIMER          = 3104,
     WORLDSTATE_TIME_TO_SACRIFICE   = 3106
+};
+
+struct NalorakkWaveDefinition
+{
+    std::string_view StringId;
+    uint8 CreatureCount;
+    ZAActionIds ActionId;
+} static constexpr NalorakkEventWaves[] =
+{
+    { .StringId = "NalorakkWave1", .CreatureCount = 3, .ActionId = ACTION_WAVE_DONE_1 },
+    { .StringId = "NalorakkWave2", .CreatureCount = 4, .ActionId = ACTION_WAVE_DONE_2 },
+    { .StringId = "NalorakkWave3", .CreatureCount = 2, .ActionId = ACTION_WAVE_DONE_3 },
+    { .StringId = "NalorakkWave4", .CreatureCount = 4, .ActionId = ACTION_WAVE_DONE_4 },
 };
 
 // Chests spawn at bear/eagle/dragonhawk/lynx bosses
@@ -149,6 +164,27 @@ class instance_zulaman : public InstanceMapScript
                         break;
                     default:
                         break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                InstanceScript::OnUnitDeath(unit);
+
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                auto nalorakkEventWave = std::ranges::find_if(NalorakkEventWaves,
+                    [creature](std::string_view stringId) { return creature->HasStringId(stringId); }, &NalorakkWaveDefinition::StringId);
+                if (nalorakkEventWave != std::ranges::end(NalorakkEventWaves))
+                {
+                    std::ptrdiff_t waveIndex = std::ranges::distance(std::ranges::begin(NalorakkEventWaves), nalorakkEventWave);
+                    ++killedUnitInWaveCounter[waveIndex];
+
+                    if (killedUnitInWaveCounter[waveIndex] == nalorakkEventWave->CreatureCount)
+                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
+                            nalorakk->AI()->DoAction(nalorakkEventWave->ActionId);
                 }
             }
 
@@ -310,6 +346,9 @@ class instance_zulaman : public InstanceMapScript
                     QuestTimer -= diff;
                 }
             }
+
+        protected:
+            std::array<uint8, 4> killedUnitInWaveCounter = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

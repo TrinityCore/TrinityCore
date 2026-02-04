@@ -61,20 +61,21 @@ struct AccountInfo
     AccountTypes SecurityLevel = SEC_PLAYER;
 };
 
-class AuthSession : public Socket<AuthSession>
+class AuthSession final : public Trinity::Net::Socket<>
 {
-    typedef Socket<AuthSession> AuthSocket;
+    using AuthSocket = Socket;
 
 public:
-    AuthSession(tcp::socket&& socket);
+    AuthSession(Trinity::Net::IoContextTcpSocket&& socket);
 
     void Start() override;
     bool Update() override;
 
     void SendPacket(ByteBuffer& packet);
 
-protected:
-    void ReadHandler() override;
+    Trinity::Net::SocketReadCallbackResult ReadHandler() override;
+
+    void QueueQuery(QueryCallback&& queryCallback);
 
 private:
     friend AuthHandlerTable;
@@ -87,7 +88,6 @@ private:
     bool HandleXferResume();
     bool HandleXferCancel();
 
-    void CheckIpCallback(PreparedQueryResult result);
     void LogonChallengeCallback(PreparedQueryResult result);
     void ReconnectChallengeCallback(PreparedQueryResult result);
     void RealmListCallback(PreparedQueryResult result);

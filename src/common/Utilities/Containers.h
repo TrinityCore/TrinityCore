@@ -207,7 +207,7 @@ namespace Trinity
                     if (!p(*rpos))
                     {
                         if (rpos != wpos)
-                            std::swap(*rpos, *wpos);
+                            std::ranges::swap(*rpos, *wpos);
                         ++wpos;
                     }
                 }
