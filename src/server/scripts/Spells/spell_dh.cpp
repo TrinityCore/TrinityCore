@@ -2146,11 +2146,6 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 // 395446 - Soul Sigils
 class spell_dh_soul_sigils : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_FELBLADE });
-    }
-
     void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), aurEff->GetAmount());
