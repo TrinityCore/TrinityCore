@@ -28,7 +28,6 @@
 
 SceneObject::SceneObject() : WorldObject(false)
 {
-    m_objectType |= TYPEMASK_SCENEOBJECT;
     m_objectTypeId = TYPEID_SCENEOBJECT;
 
     m_updateFlag.Stationary = true;
@@ -118,7 +117,7 @@ bool SceneObject::Create(ObjectGuid::LowType lowGuid, SceneType type, uint32 sce
 
     SetPrivateObjectOwner(privateObjectOwner);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::SceneObject>(GetMapId(), sceneId, lowGuid));
+    _Create(ObjectGuid::Create<HighGuid::SceneObject>(GetMapId(), sceneId, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
     UpdatePositionData();
