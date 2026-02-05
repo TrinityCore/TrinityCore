@@ -208,7 +208,11 @@ void TutorialSetFlag::Read()
 
 WorldPacket const* WorldServerInfo::Write()
 {
-    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
+    _worldPacket << HouseGUID;
+    _worldPacket << HouseOwnerAccountGUID;
+    _worldPacket << HouseCosmeticOwnerGUID;
+    _worldPacket << NeighborhoodGUID;
     _worldPacket << Bits<1>(IsTournamentRealm);
     _worldPacket << Bits<1>(XRealmPvpAlert);
     _worldPacket << Bits<1>(BlockExitingLoadingScreen);
@@ -242,7 +246,7 @@ void SetRaidDifficulty::Read()
 
 WorldPacket const* DungeonDifficultySet::Write()
 {
-    _worldPacket << int32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
 
     return &_worldPacket;
 }
@@ -250,7 +254,7 @@ WorldPacket const* DungeonDifficultySet::Write()
 WorldPacket const* RaidDifficultySet::Write()
 {
     _worldPacket << int32(Legacy);
-    _worldPacket << int32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
 
     return &_worldPacket;
 }
@@ -656,7 +660,7 @@ WorldPacket const* AccountHeirloomUpdate::Write()
     _worldPacket << Bits<1>(IsFullUpdate);
     _worldPacket.FlushBits();
 
-    _worldPacket << int32(ItemCollectionType);
+    _worldPacket << int8(ItemCollectionType);
 
     // both lists have to have the same size
     _worldPacket << Size<uint32>(*Heirlooms);
