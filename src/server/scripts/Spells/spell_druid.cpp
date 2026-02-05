@@ -1417,22 +1417,20 @@ class spell_dru_maim : public SpellScript
         return ValidateSpellInfo({ SPELL_DRUID_MAIM_STUN });
     }
 
-    bool Load() override
-    {
-        _cp = GetCaster()->GetPower(POWER_COMBO_POINTS);
-        return true;
-    }
-
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod)
     {
-        pctMod *= _cp;
+        int32 comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
+
+        pctMod *= comboPoints;
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
+        int32 comboPoints = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
+
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_MAIM_STUN, CastSpellExtraArgsInit{
             .TriggeringSpell = GetSpell(),
-            .SpellValueOverrides = { { SPELLVALUE_DURATION, _cp * IN_MILLISECONDS } }
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, comboPoints * IN_MILLISECONDS } }
         });
     }
 
@@ -1441,8 +1439,6 @@ class spell_dru_maim : public SpellScript
         CalcDamage += SpellCalcDamageFn(spell_dru_maim::CalculateDamage);
         OnEffectHitTarget += SpellEffectFn(spell_dru_maim::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
-
-    int32 _cp{};
 };
 
 // 33917 - Mangle
