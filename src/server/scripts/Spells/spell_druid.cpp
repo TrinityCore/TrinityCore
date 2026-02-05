@@ -46,6 +46,7 @@ enum DruidSpells
     SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE          = 394061,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
+    SPELL_DRUID_BARKSKIN                       = 22812,
     SPELL_DRUID_BEAR_FORM                      = 5487,
     SPELL_DRUID_BLESSING_OF_CENARIUS           = 40452,
     SPELL_DRUID_BLESSING_OF_ELUNE              = 40446,
@@ -91,6 +92,8 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_MOONKIN          = 37343,
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
+    SPELL_DRUID_FLOWER_WALK                    = 439901,
+    SPELL_DRUID_FLOWER_WALK_HEAL               = 439902,
     SPELL_DRUID_FULL_MOON                      = 274283,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
     SPELL_DRUID_GERMINATION                    = 155675,
@@ -940,6 +943,68 @@ class spell_dru_ferocious_bite : public SpellScript
 
 private:
     float _damageMultiplier = 0.0f;
+};
+
+// 439901 - Flower Walk
+// Triggered by 22812 - Barkskin
+class spell_dru_flower_walk : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FLOWER_WALK_HEAL })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_FLOWER_WALK);
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_FLOWER_WALK_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_SUPPRESS_CASTER_ANIM);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_flower_walk::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 439902 - Flower Walk (Heal)
+class spell_dru_flower_walk_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        int32 maxTargets = GetEffectInfo(EFFECT_1).CalcValue(caster);
+
+        if (targets.size() > 1)
+            targets.remove(caster);
+
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
+
+        if (targets.empty())
+            targets.push_back(caster);
+    }
+
+    void PreventEffect(WorldObject*& target)
+    {
+        if (target->ToUnit() == GetCaster())
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_flower_walk_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_flower_walk_heal::PreventEffect, EFFECT_0, TARGET_UNIT_TARGET_ALLY);
+    }
 };
 
 // 37336 - Druid Forms Trinket
@@ -2947,6 +3012,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterSpellScript(spell_dru_flower_walk);
+    RegisterSpellScript(spell_dru_flower_walk_heal);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
