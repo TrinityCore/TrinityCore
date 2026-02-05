@@ -2143,6 +2143,20 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     }
 };
 
+// 395446 - Soul Sigils
+class spell_dh_soul_sigils : public AuraScript
+{
+    void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_soul_sigils::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 202138 - Sigil of Chains
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
@@ -2431,6 +2445,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_soulmonger);
     RegisterSpellAndAuraScriptPair(spell_dh_soul_carver, spell_dh_soul_carver_aura);
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
+    RegisterSpellScript(spell_dh_soul_sigils);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
