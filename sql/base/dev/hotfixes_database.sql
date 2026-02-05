@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.43, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.44, for Linux (x86_64)
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	8.0.43-0ubuntu0.22.04.2
+-- Server version	8.0.44-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2304,6 +2304,7 @@ CREATE TABLE `conditional_content_tuning` (
   `OrderIndex` int NOT NULL DEFAULT '0',
   `RedirectContentTuningID` int NOT NULL DEFAULT '0',
   `RedirectFlag` int NOT NULL DEFAULT '0',
+  `RedirectEnum` int NOT NULL DEFAULT '0',
   `ParentContentTuningID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -4232,6 +4233,7 @@ CREATE TABLE `gossip_npc_option` (
   `TraitTreeID` int NOT NULL DEFAULT '0',
   `ProfessionID` int NOT NULL DEFAULT '0',
   `Unknown_1002_14` int NOT NULL DEFAULT '0',
+  `NeighborhoodMapID` int NOT NULL DEFAULT '0',
   `SkillLineID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -4569,6 +4571,7 @@ CREATE TABLE `item` (
   `ContentTuningID` int NOT NULL DEFAULT '0',
   `ModifiedCraftingReagentItemID` int NOT NULL DEFAULT '0',
   `CraftingQualityID` int NOT NULL DEFAULT '0',
+  `Unknown1127` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -5058,6 +5061,7 @@ CREATE TABLE `item_effect` (
   `SpellCategoryID` smallint unsigned NOT NULL DEFAULT '0',
   `SpellID` int NOT NULL DEFAULT '0',
   `ChrSpecializationID` smallint unsigned NOT NULL DEFAULT '0',
+  `PlayerConditionID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -5342,6 +5346,7 @@ CREATE TABLE `item_scaling_config` (
   `ItemLevel` int NOT NULL DEFAULT '0',
   `RequiredLevel` int NOT NULL DEFAULT '0',
   `Unknown1125` int NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -5560,6 +5565,7 @@ CREATE TABLE `item_sparse` (
   `PlayerLevelToItemLevelCurveID` int NOT NULL DEFAULT '0',
   `ItemLevelOffsetCurveID` int NOT NULL DEFAULT '0',
   `ItemLevelOffsetItemLevel` int NOT NULL DEFAULT '0',
+  `Unknown1127` int NOT NULL DEFAULT '0',
   `ItemNameDescriptionID` smallint unsigned NOT NULL DEFAULT '0',
   `RequiredTransmogHoliday` smallint unsigned NOT NULL DEFAULT '0',
   `RequiredHoliday` smallint unsigned NOT NULL DEFAULT '0',
@@ -6395,11 +6401,14 @@ CREATE TABLE `map_challenge_mode` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `MapID` smallint unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
+  `MaxMedals` int NOT NULL DEFAULT '0',
   `ExpansionLevel` int unsigned NOT NULL DEFAULT '0',
   `RequiredWorldStateID` int NOT NULL DEFAULT '0',
   `CriteriaCount1` smallint NOT NULL DEFAULT '0',
   `CriteriaCount2` smallint NOT NULL DEFAULT '0',
   `CriteriaCount3` smallint NOT NULL DEFAULT '0',
+  `CriteriaCount4` smallint NOT NULL DEFAULT '0',
+  `CriteriaCount5` smallint NOT NULL DEFAULT '0',
   `FirstRewardQuestID1` int NOT NULL DEFAULT '0',
   `FirstRewardQuestID2` int NOT NULL DEFAULT '0',
   `FirstRewardQuestID3` int NOT NULL DEFAULT '0',
@@ -9441,6 +9450,7 @@ CREATE TABLE `spell_visual` (
   `MissileImpactOffset1` float NOT NULL DEFAULT '0',
   `MissileImpactOffset2` float NOT NULL DEFAULT '0',
   `MissileImpactOffset3` float NOT NULL DEFAULT '0',
+  `StateKit` int NOT NULL DEFAULT '0',
   `AnimEventSoundID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `MissileAttachment` tinyint NOT NULL DEFAULT '0',
@@ -11304,4 +11314,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-29  6:57:07
+-- Dump completed on 2026-01-14 23:40:39

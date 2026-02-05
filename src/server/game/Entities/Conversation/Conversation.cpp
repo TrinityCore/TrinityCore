@@ -34,7 +34,6 @@
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
-    m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
 
     m_updateFlag.Stationary = true;
@@ -177,7 +176,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
     RelocateStationaryPosition(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
+    _Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
     UpdatePositionData();

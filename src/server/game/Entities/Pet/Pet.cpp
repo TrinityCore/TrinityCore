@@ -1683,7 +1683,7 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry, uint32 /*p
     SetMap(map);
 
     // TODO: counter should be constructed as (summon_count << 32) | petNumber
-    Object::_Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
 
     m_spawnId = guidlow;
     m_originalEntry = Entry;

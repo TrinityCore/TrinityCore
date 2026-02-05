@@ -46,7 +46,7 @@ std::unordered_map<uint32, Minutes, std::identity> InitTimezoneHashDb()
         std::chrono::sys_info sysInfo = zone.get_info(dummmy);
         Minutes offsetMinutes = std::chrono::duration_cast<Minutes>(sysInfo.offset);
         std::string offsetStr = Trinity::ToString(offsetMinutes.count());
-        hashToOffset.emplace(Trinity::HashFnv1a(offsetStr), offsetMinutes);
+        hashToOffset.emplace(Trinity::HashFnv1a<uint32>::GetHash(offsetStr), offsetMinutes);
     }
 
 #else
