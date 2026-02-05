@@ -18,6 +18,7 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
+#include "BaseEntity.h"
 #include "Common.h"
 #include "Duration.h"
 #include "Errors.h"
@@ -26,16 +27,13 @@
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
 #include "PhaseShift.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
 #include "UniqueTrackablePtr.h"
-#include "UpdateFields.h"
 #include <list>
-#include <unordered_map>
 
 class AreaTrigger;
 class Conversation;
@@ -66,6 +64,7 @@ class ZoneScript;
 struct FactionTemplateEntry;
 struct Loot;
 struct QuaternionData;
+struct SpawnTrackingStateData;
 struct SpellPowerCost;
 
 namespace WorldPackets
@@ -76,89 +75,17 @@ namespace WorldPackets
     }
 }
 
-typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
-
-struct CreateObjectBits
-{
-    bool NoBirthAnim : 1;
-    bool EnablePortals : 1;
-    bool PlayHoverAnim : 1;
-    bool MovementUpdate : 1;
-    bool MovementTransport : 1;
-    bool Stationary : 1;
-    bool CombatVictim : 1;
-    bool ServerTime : 1;
-    bool Vehicle : 1;
-    bool AnimKit : 1;
-    bool Rotation : 1;
-    bool AreaTrigger : 1;
-    bool GameObject : 1;
-    bool SmoothPhasing : 1;
-    bool ThisIsYou : 1;
-    bool SceneObject : 1;
-    bool ActivePlayer : 1;
-    bool Conversation : 1;
-
-    void Clear()
-    {
-        memset(this, 0, sizeof(CreateObjectBits));
-    }
-};
-
-namespace UF
-{
-    template<typename T>
-    inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
-    {
-        return setter.SetValue(std::move(value));
-    }
-
-    template<typename T>
-    inline typename DynamicUpdateFieldSetter<T>::insert_result AddDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter)
-    {
-        return setter.AddValue();
-    }
-
-    template<typename T>
-    inline typename DynamicUpdateFieldSetter<T>::insert_result InsertDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
-    {
-        return setter.InsertValue(index);
-    }
-
-    template<typename T>
-    inline void RemoveDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
-    {
-        setter.RemoveValue(index);
-    }
-
-    template<typename T>
-    inline void ClearDynamicUpdateFieldValues(DynamicUpdateFieldSetter<T>& setter)
-    {
-        setter.Clear();
-    }
-
-    template<typename T>
-    inline void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
-    {
-        setter.RemoveValue();
-    }
-}
-
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
-class TC_GAME_API Object
+class TC_GAME_API Object : public BaseEntity
 {
     public:
         virtual ~Object();
 
-        bool IsInWorld() const { return m_inWorld; }
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-        virtual void AddToWorld();
-        virtual void RemoveFromWorld();
-
-        static ObjectGuid GetGUID(Object const* o) { return o ? o->GetGUID() : ObjectGuid::Empty; }
-        ObjectGuid const& GetGUID() const { return m_guid; }
         uint32 GetEntry() const { return m_objectData->EntryID; }
         void SetEntry(uint32 entry) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry); }
 
@@ -171,258 +98,95 @@ class TC_GAME_API Object
         void RemoveDynamicFlag(uint32 flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
         void ReplaceAllDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
 
-        TypeID GetTypeId() const { return m_objectTypeId; }
-        bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
-
-        virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
-        void SendUpdateToPlayer(Player* player);
-
-        void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
-        void BuildDestroyUpdateBlock(UpdateData* data) const;
-        void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
-        ByteBuffer& PrepareValuesUpdateBuffer(UpdateData* data) const;
 
-        virtual void DestroyForPlayer(Player* target) const;
-        void SendOutOfRangeForPlayer(Player* target) const;
-
-        virtual void ClearUpdateMask(bool remove);
-
-        virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
+        void ClearUpdateMask(bool remove) override;
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
-        void SetIsNewObject(bool enable) { m_isNewObject = enable; }
-        bool IsDestroyedObject() const { return m_isDestroyedObject; }
-        void SetDestroyedObject(bool destroyed) { m_isDestroyedObject = destroyed; }
-        virtual void BuildUpdate(UpdateDataMapType&) { }
-        void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
-        inline bool IsWorldObject() const { return isType(TYPEMASK_WORLDOBJECT); }
-        static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
-        static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
-        WorldObject* ToWorldObject() { if (IsWorldObject()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
-        WorldObject const* ToWorldObject() const { if (IsWorldObject()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
+        WorldObject* ToWorldObject() { return IsWorldObject() ? reinterpret_cast<WorldObject*>(this) : nullptr; }
+        WorldObject const* ToWorldObject() const { return IsWorldObject() ? reinterpret_cast<WorldObject const*>(this) : nullptr; }
+        static WorldObject* ToWorldObject(Object* o) { return o && o->IsWorldObject() ? reinterpret_cast<WorldObject*>(o) : nullptr; }
+        static WorldObject const* ToWorldObject(Object const* o) { return o && o->IsWorldObject() ? reinterpret_cast<WorldObject const*>(o) : nullptr; }
 
-        inline bool IsItem() const { return isType(TYPEMASK_ITEM); }
-        static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
-        static Item const* ToItem(Object const* o) { return o ? o->ToItem() : nullptr; }
-        Item* ToItem() { if (IsItem()) return reinterpret_cast<Item*>(this); else return nullptr; }
-        Item const* ToItem() const { if (IsItem()) return reinterpret_cast<Item const*>(this); else return nullptr; }
+        Item* ToItem() { return IsItem() ? reinterpret_cast<Item*>(this) : nullptr; }
+        Item const* ToItem() const { return IsItem() ? reinterpret_cast<Item const*>(this) : nullptr; }
+        static Item* ToItem(Object* o) { return o && o->IsItem() ? reinterpret_cast<Item*>(o) : nullptr; }
+        static Item const* ToItem(Object const* o) { return o && o->IsItem() ? reinterpret_cast<Item const*>(o) : nullptr; }
 
-        inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
-        static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
-        static Player const* ToPlayer(Object const* o) { return o ? o->ToPlayer() : nullptr; }
-        Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
-        Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }
+        Unit* ToUnit() { return IsUnit() ? reinterpret_cast<Unit*>(this) : nullptr; }
+        Unit const* ToUnit() const { return IsUnit() ? reinterpret_cast<Unit const*>(this) : nullptr; }
+        static Unit* ToUnit(Object* o) { return o && o->IsUnit() ? reinterpret_cast<Unit*>(o) : nullptr; }
+        static Unit const* ToUnit(Object const* o) { return o && o->IsUnit() ? reinterpret_cast<Unit const*>(o) : nullptr; }
 
-        inline bool IsCreature() const { return GetTypeId() == TYPEID_UNIT; }
-        static Creature* ToCreature(Object* o) { return o ? o->ToCreature() : nullptr; }
-        static Creature const* ToCreature(Object const* o) { return o ? o->ToCreature() : nullptr; }
-        Creature* ToCreature() { if (IsCreature()) return reinterpret_cast<Creature*>(this); else return nullptr; }
-        Creature const* ToCreature() const { if (IsCreature()) return reinterpret_cast<Creature const*>(this); else return nullptr; }
+        Creature* ToCreature() { return IsCreature() ? reinterpret_cast<Creature*>(this) : nullptr; }
+        Creature const* ToCreature() const { return IsCreature() ? reinterpret_cast<Creature const*>(this) : nullptr; }
+        static Creature* ToCreature(Object* o) { return o && o->IsCreature() ? reinterpret_cast<Creature*>(o) : nullptr; }
+        static Creature const* ToCreature(Object const* o) { return o && o->IsCreature() ? reinterpret_cast<Creature const*>(o) : nullptr; }
 
-        inline bool IsUnit() const { return isType(TYPEMASK_UNIT); }
-        static Unit* ToUnit(Object* o) { return o ? o->ToUnit() : nullptr; }
-        static Unit const* ToUnit(Object const* o) { return o ? o->ToUnit() : nullptr; }
-        Unit* ToUnit() { if (IsUnit()) return reinterpret_cast<Unit*>(this); else return nullptr; }
-        Unit const* ToUnit() const { if (IsUnit()) return reinterpret_cast<Unit const*>(this); else return nullptr; }
+        Player* ToPlayer() { return IsPlayer() ? reinterpret_cast<Player*>(this) : nullptr; }
+        Player const* ToPlayer() const { return IsPlayer() ? reinterpret_cast<Player const*>(this) : nullptr; }
+        static Player* ToPlayer(Object* o) { return o && o->IsPlayer() ? reinterpret_cast<Player*>(o) : nullptr; }
+        static Player const* ToPlayer(Object const* o) { return o && o->IsPlayer() ? reinterpret_cast<Player const*>(o) : nullptr; }
 
-        inline bool IsGameObject() const { return GetTypeId() == TYPEID_GAMEOBJECT; }
-        static GameObject* ToGameObject(Object* o) { return o ? o->ToGameObject() : nullptr; }
-        static GameObject const* ToGameObject(Object const* o) { return o ? o->ToGameObject() : nullptr; }
-        GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
-        GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
+        GameObject* ToGameObject() { return IsGameObject() ? reinterpret_cast<GameObject*>(this) : nullptr; }
+        GameObject const* ToGameObject() const { return IsGameObject() ? reinterpret_cast<GameObject const*>(this) : nullptr; }
+        static GameObject* ToGameObject(Object* o) { return o && o->IsGameObject() ? reinterpret_cast<GameObject*>(o) : nullptr; }
+        static GameObject const* ToGameObject(Object const* o) { return o && o->IsGameObject() ? reinterpret_cast<GameObject const*>(o) : nullptr; }
 
-        inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
-        static Corpse* ToCorpse(Object* o) { return o ? o->ToCorpse() : nullptr; }
-        static Corpse const* ToCorpse(Object const* o) { return o ? o->ToCorpse() : nullptr; }
-        Corpse* ToCorpse() { if (IsCorpse()) return reinterpret_cast<Corpse*>(this); else return nullptr; }
-        Corpse const* ToCorpse() const { if (IsCorpse()) return reinterpret_cast<Corpse const*>(this); else return nullptr; }
+        Corpse* ToCorpse() { return IsCorpse() ? reinterpret_cast<Corpse*>(this) : nullptr; }
+        Corpse const* ToCorpse() const { return IsCorpse() ? reinterpret_cast<Corpse const*>(this) : nullptr; }
+        static Corpse* ToCorpse(Object* o) { return o && o->IsCorpse() ? reinterpret_cast<Corpse*>(o) : nullptr; }
+        static Corpse const* ToCorpse(Object const* o) { return o && o->IsCorpse() ? reinterpret_cast<Corpse const*>(o) : nullptr; }
 
-        inline bool IsDynObject() const { return GetTypeId() == TYPEID_DYNAMICOBJECT; }
-        static DynamicObject* ToDynObject(Object* o) { return o ? o->ToDynObject() : nullptr; }
-        static DynamicObject const* ToDynObject(Object const* o) { return o ? o->ToDynObject() : nullptr; }
-        DynamicObject* ToDynObject() { if (IsDynObject()) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
-        DynamicObject const* ToDynObject() const { if (IsDynObject()) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
+        DynamicObject* ToDynObject() { return IsDynObject() ? reinterpret_cast<DynamicObject*>(this) : nullptr; }
+        DynamicObject const* ToDynObject() const { return IsDynObject() ? reinterpret_cast<DynamicObject const*>(this) : nullptr; }
+        static DynamicObject* ToDynObject(Object* o) { return o && o->IsDynObject() ? reinterpret_cast<DynamicObject*>(o) : nullptr; }
+        static DynamicObject const* ToDynObject(Object const* o) { return o && o->IsDynObject() ? reinterpret_cast<DynamicObject const*>(o) : nullptr; }
 
-        inline bool IsAreaTrigger() const { return GetTypeId() == TYPEID_AREATRIGGER; }
-        static AreaTrigger* ToAreaTrigger(Object* o) { return o ? o->ToAreaTrigger() : nullptr; }
-        static AreaTrigger const* ToAreaTrigger(Object const* o) { return o ? o->ToAreaTrigger() : nullptr; }
-        AreaTrigger* ToAreaTrigger() { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger*>(this); else return nullptr; }
-        AreaTrigger const* ToAreaTrigger() const { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger const*>(this); else return nullptr; }
+        AreaTrigger* ToAreaTrigger() { return IsAreaTrigger() ? reinterpret_cast<AreaTrigger*>(this) : nullptr; }
+        AreaTrigger const* ToAreaTrigger() const { return IsAreaTrigger() ? reinterpret_cast<AreaTrigger const*>(this) : nullptr; }
+        static AreaTrigger* ToAreaTrigger(Object* o) { return o && o->IsAreaTrigger() ? reinterpret_cast<AreaTrigger*>(o) : nullptr; }
+        static AreaTrigger const* ToAreaTrigger(Object const* o) { return o && o->IsAreaTrigger() ? reinterpret_cast<AreaTrigger const*>(o) : nullptr; }
 
-        inline bool IsSceneObject() const { return GetTypeId() == TYPEID_SCENEOBJECT; }
-        static SceneObject* ToSceneObject(Object* o) { return o ? o->ToSceneObject() : nullptr; }
-        static SceneObject const* ToSceneObject(Object const* o) { return o ? o->ToSceneObject() : nullptr; }
-        SceneObject* ToSceneObject() { if (IsSceneObject()) return reinterpret_cast<SceneObject*>(this); else return nullptr; }
-        SceneObject const* ToSceneObject() const { if (IsSceneObject()) return reinterpret_cast<SceneObject const*>(this); else return nullptr; }
+        SceneObject* ToSceneObject() { return IsSceneObject() ? reinterpret_cast<SceneObject*>(this) : nullptr; }
+        SceneObject const* ToSceneObject() const { return IsSceneObject() ? reinterpret_cast<SceneObject const*>(this) : nullptr; }
+        static SceneObject* ToSceneObject(Object* o) { return o && o->IsSceneObject() ? reinterpret_cast<SceneObject*>(o) : nullptr; }
+        static SceneObject const* ToSceneObject(Object const* o) { return o && o->IsSceneObject() ? reinterpret_cast<SceneObject const*>(o) : nullptr; }
 
-        inline bool IsConversation() const { return GetTypeId() == TYPEID_CONVERSATION; }
-        static Conversation* ToConversation(Object* o) { return o ? o->ToConversation() : nullptr; }
-        static Conversation const* ToConversation(Object const* o) { return o ? o->ToConversation() : nullptr; }
-        Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
-        Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+        Conversation* ToConversation() { return IsConversation() ? reinterpret_cast<Conversation*>(this) : nullptr; }
+        Conversation const* ToConversation() const { return IsConversation() ? reinterpret_cast<Conversation const*>(this) : nullptr; }
+        static Conversation* ToConversation(Object* o) { return o && o->IsConversation() ? reinterpret_cast<Conversation*>(o) : nullptr; }
+        static Conversation const* ToConversation(Object const* o) { return o && o->IsConversation() ? reinterpret_cast<Conversation const*>(o) : nullptr; }
 
-        UF::UpdateFieldHolder m_values;
-        UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
+        UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
-        template<typename T>
-        void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
-        {
-            AddToObjectUpdateIfNeeded();
-        }
-
-        virtual std::string GetDebugInfo() const;
+        std::string GetDebugInfo() const override;
 
         Trinity::unique_weak_ptr<Object> GetWeakPtr() const { return m_scriptRef; }
 
         virtual Loot* GetLootForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
 
+        virtual SpawnTrackingStateData const* GetSpawnTrackingStateDataForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
+
     protected:
         Object();
 
-        void _Create(ObjectGuid const& guid);
-
-        template<typename T>
-        void SetUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
-        {
-            if (UF::SetUpdateFieldValue(setter, std::move(value)))
-                AddToObjectUpdateIfNeeded();
-        }
-
-        template<typename T>
-        void SetUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
-        {
-            static_assert(std::is_integral<T>::value, "SetUpdateFieldFlagValue must be used with integral types");
-            SetUpdateFieldValue(setter, setter.GetValue() | flag);
-        }
-
-        template<typename T>
-        void RemoveUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
-        {
-            static_assert(std::is_integral<T>::value, "RemoveUpdateFieldFlagValue must be used with integral types");
-            SetUpdateFieldValue(setter, setter.GetValue() & ~flag);
-        }
-
-        template<typename T>
-        typename UF::DynamicUpdateFieldSetter<T>::insert_result AddDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            return UF::AddDynamicUpdateFieldValue(setter);
-        }
-
-        template<typename T>
-        typename UF::DynamicUpdateFieldSetter<T>::insert_result InsertDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
-        {
-            AddToObjectUpdateIfNeeded();
-            return UF::InsertDynamicUpdateFieldValue(setter, index);
-        }
-
-        template<typename T>
-        void RemoveDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveDynamicUpdateFieldValue(setter, index);
-        }
-
-        template<typename T>
-        void ClearDynamicUpdateFieldValues(UF::DynamicUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::ClearDynamicUpdateFieldValues(setter);
-        }
-
-        template<typename T>
-        void RemoveOptionalUpdateFieldValue(UF::OptionalUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveOptionalUpdateFieldValue(setter);
-        }
-
-        // stat system helpers
-        template<typename T>
-        void SetUpdateFieldStatValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-            SetUpdateFieldValue(setter, std::max(value, T(0)));
-        }
-
-        template<typename T>
-        void ApplyModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type mod, bool apply)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-
-            T value = setter.GetValue();
-            if (apply)
-                value += mod;
-            else
-                value -= mod;
-
-            SetUpdateFieldValue(setter, value);
-        }
-
-        template<typename T>
-        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, float percent, bool apply)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-
-            T value = setter.GetValue();
-
-            // don't want to include Util.h here
-            //ApplyPercentModFloatVar(value, percent, apply);
-            if (percent == -100.0f)
-                percent = -99.99f;
-            value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
-
-            SetUpdateFieldValue(setter, value);
-        }
-
-        template<typename Action>
-        void DoWithSuppressingObjectUpdates(Action&& action)
-        {
-            bool wasUpdatedBeforeAction = m_objectUpdated;
-            action();
-            if (m_objectUpdated && !wasUpdatedBeforeAction)
-            {
-                RemoveFromObjectUpdate();
-                m_objectUpdated = false;
-            }
-        }
-
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
-        virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
-    protected:
-        uint16 m_objectType;
-
-        TypeID m_objectTypeId;
-        CreateObjectBits m_updateFlag;
-
-        virtual bool AddToObjectUpdate() = 0;
-        virtual void RemoveFromObjectUpdate() = 0;
-        void AddToObjectUpdateIfNeeded();
-
-        bool m_objectUpdated;
-
     private:
-        ObjectGuid m_guid;
-        bool m_inWorld;
-        bool m_isNewObject;
-        bool m_isDestroyedObject;
+        static void BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
+        static void BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
+        static bool IsObjectFragmentChanged(BaseEntity const* entity);
 
         struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Object> m_scriptRef;
-
-        Object(Object const& right) = delete;
-        Object(Object&& right) = delete;
-        Object& operator=(Object const& right) = delete;
-        Object& operator=(Object&& right) = delete;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
@@ -452,12 +216,22 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum class FindCreatureAliveState : uint8
+{
+    Alive               = 0, // includes feign death
+    Dead                = 1, // excludes feign death
+    EffectivelyAlive    = 2, // excludes feign death
+    EffectivelyDead     = 3, // includes feign death
+
+    Max
+};
+
 struct FindCreatureOptions
 {
     Optional<uint32> CreatureId;
     Optional<std::string_view> StringId;
 
-    Optional<bool> IsAlive;
+    Optional<FindCreatureAliveState> IsAlive;
     Optional<bool> IsInCombat;
     Optional<bool> IsSummon;
 
@@ -490,6 +264,17 @@ struct FindGameObjectOptions
     Optional<GameobjectTypes> GameObjectType;
 };
 
+struct CanSeeOrDetectExtraArgs
+{
+    bool ImplicitDetection = false;
+    bool IgnorePhaseShift = false;
+    bool IncludeHiddenBySpawnTracking = false;
+    bool IncludeAnyPrivateObject = false;
+
+    bool DistanceCheck = false;
+    bool AlertCheck = false;
+};
+
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -505,7 +290,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
         void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
-        void MovePosition(Position &pos, float dist, float angle) const;
+        void MovePosition(Position &pos, float dist, float angle, float maxHeightChange = 6.0f) const;
         Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle) const;
         Position GetFirstCollisionPosition(float dist, float angle);
@@ -609,7 +394,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
         float GetSightRange(WorldObject const* target = nullptr) const;
-        bool CanSeeOrDetect(WorldObject const* obj, bool implicitDetect = false, bool distanceCheck = false, bool checkAlert = false) const;
+        bool CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs const& args = { }) const;
 
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealth;
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealthDetect;
@@ -675,7 +460,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const;
         virtual SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
-        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false) const;
+        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect, bool canImmune) const;
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
 
         virtual uint32 GetFaction() const = 0;
@@ -759,14 +544,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
-        void SetTransport(TransportBase* t) { m_transport = t; }
+        void SetTransport(TransportBase* t);
 
         MovementInfo m_movementInfo;
 
-        virtual float GetStationaryX() const { return GetPositionX(); }
-        virtual float GetStationaryY() const { return GetPositionY(); }
-        virtual float GetStationaryZ() const { return GetPositionZ(); }
-        virtual float GetStationaryO() const { return GetOrientation(); }
+        virtual Position const& GetStationaryPosition() const { return *this; }
 
         float GetFloorZ() const;
         virtual float GetCollisionHeight() const { return 0.0f; }
@@ -819,7 +601,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
-        virtual bool CanNeverSee(WorldObject const* obj) const;
+        virtual bool CanNeverSee(WorldObject const* obj, bool ignorePhaseShift = false) const;
         virtual bool CanAlwaysSee([[maybe_unused]] WorldObject const* /*obj*/) const { return false; }
         virtual bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects = false) const { return !IsInWorld() || IsDestroyedObject(); }
         virtual bool IsAlwaysVisibleFor([[maybe_unused]] WorldObject const* seer) const { return false; }

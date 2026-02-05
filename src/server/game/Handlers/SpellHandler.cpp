@@ -16,10 +16,13 @@
  */
 
 #include "WorldSession.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerPackets.h"
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
 #include "Guild.h"
@@ -498,7 +501,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
     {
         WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
         mirrorImageComponentedData.UnitGUID = guid;
-        mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
+        if (ChrModelEntry const* chrModel = sDB2Manager.GetChrModel(creator->GetRace(), creator->GetGender()))
+            mirrorImageComponentedData.ChrModelID = chrModel->ID;
         mirrorImageComponentedData.RaceID = creator->GetRace();
         mirrorImageComponentedData.Gender = creator->GetGender();
         mirrorImageComponentedData.ClassID = creator->GetClass();
@@ -511,7 +515,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);
 
-        static EquipmentSlots const itemSlots[] =
+        static constexpr EquipmentSlots itemSlots[] =
         {
             EQUIPMENT_SLOT_HEAD,
             EQUIPMENT_SLOT_SHOULDERS,
@@ -558,9 +562,7 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     if (!spell || !spell->m_targets.HasDst())
         return;
 
-    Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(packet.CollisionPos);
-    spell->m_targets.ModDst(pos);
+    spell->m_targets.ModDst(packet.CollisionPos);
 
     // we changed dest, recalculate flight time
     spell->RecalculateDelayMomentForDst();
@@ -586,6 +588,41 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
 
     if (packet.Status)
         HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
+}
+
+void WorldSession::HandleUpdateAuraVisual(WorldPackets::Spells::UpdateAuraVisual const& updateAuraVisual)
+{
+    Unit* target = ObjectAccessor::GetUnit(*_player, updateAuraVisual.TargetGUID);
+    if (!target)
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(updateAuraVisual.SpellID, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    uint32 spellXspellVisualId = _player->GetCastSpellXSpellVisualId(spellInfo);
+    for (auto const& [_, auraApp] : Trinity::Containers::MapEqualRange(target->GetAppliedAuras(), spellInfo->Id))
+        if (auraApp->GetBase()->GetCasterGUID() == _player->GetGUID())
+            auraApp->GetBase()->SetSpellVisual({ .SpellXSpellVisualID = spellXspellVisualId });
+
+    if (_player->GetChannelSpellId() == spellInfo->Id)
+        _player->SetChannelVisual({ .SpellXSpellVisualID = spellXspellVisualId });
+}
+
+void WorldSession::HandleUpdateAreaTriggerVisual(WorldPackets::AreaTrigger::UpdateAreaTriggerVisual const& updateAreaTriggerVisual)
+{
+    AreaTrigger* target = ObjectAccessor::GetAreaTrigger(*_player, updateAreaTriggerVisual.TargetGUID);
+    if (!target)
+        return;
+
+    if (target->GetCasterGuid() != _player->GetGUID())
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(target->m_areaTriggerData->SpellForVisuals, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    target->SetSpellVisual({ .SpellXSpellVisualID = _player->GetCastSpellXSpellVisualId(spellInfo) });
 }
 
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)

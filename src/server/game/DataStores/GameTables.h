@@ -56,6 +56,7 @@ struct GtBaseMPEntry
     float DemonHunter = 0.0f;
     float Evoker = 0.0f;
     float Adventurer = 0.0f;
+    float Traveler = 0.0f;
 };
 
 struct GtBattlePetXPEntry
@@ -118,6 +119,11 @@ struct GtItemSocketCostPerLevelEntry
     float SocketCost = 0.0f;
 };
 
+struct GtItemLevelByLevelEntry
+{
+    float ItemLevel = 0.0f;
+};
+
 struct GtNpcManaCostScalerEntry
 {
     float Scaler = 0.0f;
@@ -139,6 +145,7 @@ struct GtSpellScalingEntry
     float DemonHunter = 0.0f;
     float Evoker = 0.0f;
     float Adventurer = 0.0f;
+    float Traveler = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
     float Gem1 = 0.0f;
@@ -195,6 +202,7 @@ TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXP
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
+TC_GAME_API extern GameTable<GtItemLevelByLevelEntry>               sItemLevelByLevelTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
@@ -236,6 +244,8 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Evoker;
         case CLASS_ADVENTURER:
             return row->Adventurer;
+        case CLASS_TRAVELER:
+            return row->Traveler;
         default:
             break;
     }
@@ -275,6 +285,8 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Evoker;
         case CLASS_ADVENTURER:
             return row->Adventurer;
+        case CLASS_TRAVELER:
+            return row->Traveler;
         case -1:
         case -7:
             return row->Item;

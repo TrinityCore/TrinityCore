@@ -34,10 +34,11 @@
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(nullptr), _removedAura(nullptr), _caster(nullptr), _duration(0), _isViewpoint(false)
 {
-    m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
     m_updateFlag.Stationary = true;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_DynamicObject, false);
 }
 
 DynamicObject::~DynamicObject()
@@ -54,7 +55,7 @@ void DynamicObject::AddToWorld()
     ///- Register the dynamicObject for guid lookup and for caster
     if (!IsInWorld())
     {
-        GetMap()->GetObjectsStore().Insert<DynamicObject>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<DynamicObject>(this);
         WorldObject::AddToWorld();
         BindToCaster();
     }
@@ -77,7 +78,7 @@ void DynamicObject::RemoveFromWorld()
 
         UnbindFromCaster();
         WorldObject::RemoveFromWorld();
-        GetMap()->GetObjectsStore().Remove<DynamicObject>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<DynamicObject>(this);
     }
 }
 
@@ -91,7 +92,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
         return false;
     }
 
-    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
     PhasingHandler::InheritPhaseShift(this, caster);
 
     UpdatePositionData();
@@ -114,13 +115,8 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     TransportBase* transport = caster->GetTransport();
     if (transport)
     {
-        float x, y, z, o;
-        pos.GetPosition(x, y, z, o);
-        transport->CalculatePassengerOffset(x, y, z, &o);
-        m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
         // This object must be added to transport before adding to map for the client to properly display it
-        transport->AddPassenger(this);
+        transport->AddPassenger(this, transport->GetPositionOffsetTo(pos));
     }
 
     if (!GetMap()->AddToMap(this))
@@ -252,22 +248,14 @@ SpellInfo const* DynamicObject::GetSpellInfo() const
     return sSpellMgr->GetSpellInfo(GetSpellId(), GetMap()->GetDifficultyID());
 }
 
-void DynamicObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void DynamicObject::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_dynamicObjectData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void DynamicObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -275,13 +263,12 @@ void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) co
 
     if (m_values.HasChanged(TYPEID_DYNAMICOBJECT))
         m_dynamicObjectData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -292,6 +279,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

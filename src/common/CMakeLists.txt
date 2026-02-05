@@ -8,54 +8,37 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
-  ${CMAKE_CURRENT_SOURCE_DIR}/Platform
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-if(WIN32)
-  CollectSourceFiles(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
-    WINDOWS_DEBUGGING_SOURCES)
-  list(APPEND PRIVATE_SOURCES
-    ${WINDOWS_DEBUGGING_SOURCES})
-  CollectSourceFiles(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows
-    WINDOWS_PLATFORM_SOURCES)
-  list(APPEND PRIVATE_SOURCES
-    ${WINDOWS_PLATFORM_SOURCES})
-endif()
-
-if(USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/commonPCH.h)
-endif(USE_COREPCH)
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(common
-  ${PRIVATE_SOURCES}
-)
+add_library(common)
 
-CollectIncludeDirectories(
+CollectAndAddSourceFiles(
+  common
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
+  ${CMAKE_CURRENT_SOURCE_DIR}/Platform
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
+  ${CMAKE_CURRENT_SOURCE_DIR}/mmaps_common
+  ${CMAKE_CURRENT_SOURCE_DIR}/network)
+
+if(WIN32)
+  CollectAndAddSourceFiles(
+    common
+    ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
+    BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+  CollectAndAddSourceFiles(
+    common
+    ${CMAKE_CURRENT_SOURCE_DIR}/Platform/Windows
+    BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
 
 target_include_directories(common
   PUBLIC
     # Provide the binary dir for all child targets
     ${CMAKE_BINARY_DIR}
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
-
-set_target_properties(common
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_COMMON)
 
 target_link_libraries(common
   PRIVATE
@@ -65,7 +48,6 @@ target_link_libraries(common
     boost
     fmt
     g3dlib
-    Detour
     sfmt
     utf8cpp
     openssl
@@ -75,12 +57,13 @@ target_link_libraries(common
     openssl_ed25519
     short_alloc)
 
-add_dependencies(common revision_data.h)
-
 set_target_properties(common
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_COMMON
+    FOLDER "server")
+
+add_dependencies(common revision_data.h)
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)
@@ -96,5 +79,8 @@ endif()
 
 # Generate precompiled header
 if(USE_COREPCH)
-  add_cxx_pch(common ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(common PrecompiledHeaders/commonPCH.h)
 endif()
+
+add_subdirectory(mmaps_common)
+add_subdirectory(network)

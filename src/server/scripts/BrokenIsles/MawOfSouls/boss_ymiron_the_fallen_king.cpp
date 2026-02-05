@@ -246,7 +246,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
         me->RemoveAurasDueToSpell(SPELL_KNEELING);
         scheduler.Schedule(2s, [this](TaskContext /*task*/)
         {
-            me->GetMotionMaster()->MoveJumpWithGravity(YmironIntroJumpPos, 24.0f, 25.31545448303222656, EVENT_JUMP);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, YmironIntroJumpPos, 24.0f, 2.0f);
         });
     }
 
@@ -470,7 +470,7 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
     static constexpr float BANE_MISSILE_DIST_BASE = 10.0f;
     static constexpr float BANE_MISSILE_ANGLE_OFFSET = 0.75f;
 
-    static constexpr int8 BANE_MAX_TOTAL_TICKS = 4 + 4 + 14;
+    static constexpr std::size_t BANE_MAX_TOTAL_TICKS = 4 + 4 + 14;
 
     void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& /*isPeriodic*/, int32& amplitude)
     {
@@ -494,7 +494,7 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
 
     void OnAfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        for (int8 i = 0; i < BANE_MAX_TOTAL_TICKS; i++)
+        for (std::size_t i = 0; i < BANE_MAX_TOTAL_TICKS; i++)
         {
             float angle = Position::NormalizeOrientation(GetCaster()->GetOrientation() + (i * BANE_MISSILE_ANGLE_OFFSET));
             _angles[2 * i + 0] = angle;
@@ -533,15 +533,13 @@ class spell_ymiron_the_fallen_king_bane_periodic_AuraScript : public AuraScript
     }
 
 private:
-    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _angles;
-    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _distances;
+    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _angles = { };
+    std::array<float, BANE_MAX_TOTAL_TICKS * 2> _distances = { };
 };
 
 struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
 {
     at_ymiron_the_fallen_king_bane(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    static constexpr float TIME_TO_TARGET_DIST_MULTIPLIER = 966.6466466434464f;
 
     void OnInitialize() override
     {
@@ -550,19 +548,17 @@ struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
             return;
 
         float radius = at->GetExactDist(caster);
-        float timeToTarget = radius * TIME_TO_TARGET_DIST_MULTIPLIER;
         float angle = at->GetOrientation();
 
         AreaTriggerOrbitInfo orbitInfo;
         orbitInfo.CounterClockwise = false;
         orbitInfo.CanLoop = true;
-        orbitInfo.ElapsedTimeForMovement = 0;
-        orbitInfo.StartDelay = 0;
+        orbitInfo.ExtraTimeForBlending = 0;
         orbitInfo.Radius = radius;
         orbitInfo.BlendFromRadius = radius;
         orbitInfo.InitialAngle = angle;
         orbitInfo.PathTarget = caster->GetGUID();
-        at->InitOrbit(orbitInfo, timeToTarget);
+        at->InitOrbit(orbitInfo);
     }
 
     void OnUnitEnter(Unit* unit) override

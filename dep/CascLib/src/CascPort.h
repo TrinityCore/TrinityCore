@@ -100,10 +100,6 @@
 
   #define    PKEXPORT
 
-  #ifndef __SYS_ZLIB
-    #define    __SYS_ZLIB
-  #endif
-
   #ifndef __BIG_ENDIAN__
     #define CASCLIB_PLATFORM_LITTLE_ENDIAN
   #endif
@@ -210,6 +206,7 @@
   #define _tremove  remove
   #define _taccess  access
   #define _access   access
+  #define _tfopen   fopen
 
   #define _stricmp  strcasecmp
   #define _strnicmp strncasecmp

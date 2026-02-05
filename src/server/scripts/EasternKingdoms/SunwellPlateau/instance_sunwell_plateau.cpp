@@ -63,7 +63,7 @@ ObjectData const creatureData[] =
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
+    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0f), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
 };
 
 DungeonEncounterData const encounters[] =
@@ -97,7 +97,7 @@ class instance_sunwell_plateau : public InstanceMapScript
             {
                 Map::PlayerList const& players = instance->GetPlayers();
 
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {

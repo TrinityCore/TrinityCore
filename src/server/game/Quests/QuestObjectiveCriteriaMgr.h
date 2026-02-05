@@ -35,7 +35,7 @@ public:
     void LoadFromDB(PreparedQueryResult objectiveResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction trans);
 
-    void ResetCriteriaTree(uint32 criteriaTreeId);
+    void ResetCriteriaTree(QuestObjective const* questObjective);
 
     void SendAllData(Player const* receiver) const override;
 

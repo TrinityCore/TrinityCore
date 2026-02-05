@@ -8,11 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
+add_executable(vmap4extractor)
 
-add_executable(vmap4extractor ${PRIVATE_SOURCES})
+CollectAndAddSourceFiles(
+  vmap4extractor
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 target_link_libraries(vmap4extractor
   PRIVATE
@@ -20,20 +22,14 @@ target_link_libraries(vmap4extractor
   PUBLIC
     extractor_common)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
-
 target_include_directories(vmap4extractor
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set_target_properties(vmap4extractor
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")
 
 if(UNIX)
   install(TARGETS vmap4extractor DESTINATION bin)

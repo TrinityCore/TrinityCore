@@ -32,10 +32,11 @@
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
-    m_objectType |= TYPEMASK_CORPSE;
     m_objectTypeId = TYPEID_CORPSE;
 
     m_updateFlag.Stationary = true;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_Corpse, false);
 
     m_time = GameTime::GetGameTime();
 
@@ -48,7 +49,7 @@ void Corpse::AddToWorld()
 {
     ///- Register the corpse for guid lookup
     if (!IsInWorld())
-        GetMap()->GetObjectsStore().Insert<Corpse>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Corpse>(this);
 
     Object::AddToWorld();
 }
@@ -57,14 +58,14 @@ void Corpse::RemoveFromWorld()
 {
     ///- Remove the corpse from the accessor
     if (IsInWorld())
-        GetMap()->GetObjectsStore().Remove<Corpse>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Corpse>(this);
 
     WorldObject::RemoveFromWorld();
 }
 
 bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)
 {
-    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(map->GetId(), 0, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Corpse>(map->GetId(), 0, guidlow));
     return true;
 }
 
@@ -81,7 +82,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(owner->GetMapId(), 0, guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Corpse>(owner->GetMapId(), 0, guidlow));
 
     SetObjectScale(1.0f);
     SetOwnerGUID(owner->GetGUID());
@@ -189,7 +190,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     float o      = fields[3].GetFloat();
     uint32 mapId = fields[4].GetUInt16();
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(mapId, 0, guid));
+    _Create(ObjectGuid::Create<HighGuid::Corpse>(mapId, 0, guid));
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
@@ -238,22 +239,14 @@ bool Corpse::IsExpired(time_t t) const
         return m_time < t - 3 * DAY;
 }
 
-void Corpse::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Corpse::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_corpseData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void Corpse::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Corpse::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -261,13 +254,12 @@ void Corpse::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
 
     if (m_values.HasChanged(TYPEID_CORPSE))
         m_corpseData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::CorpseData::Mask const& requestedCorpseMask, Player const* target) const
 {
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     if (requestedObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_OBJECT);
@@ -278,6 +270,7 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])

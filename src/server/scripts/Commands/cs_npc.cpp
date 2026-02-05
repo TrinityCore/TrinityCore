@@ -35,6 +35,7 @@ EndScriptData */
 #include "Language.h"
 #include "Loot.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -1174,7 +1175,7 @@ public:
             name = itemTemplate->GetName(handler->GetSessionDbcLocale());
         if (!name)
             name = "Unknown item";
-        handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_ENTRY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
             itemCount, ItemQualityColors[itemTemplate ? static_cast<ItemQualities>(itemTemplate->GetQuality()) : ITEM_QUALITY_POOR], itemId, name, itemId);
     }
 
@@ -1188,6 +1189,23 @@ public:
             name = "Unknown currency";
         handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_CURRENCY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
             count, ItemQualityColors[currency ? static_cast<ItemQualities>(currency->Quality) : ITEM_QUALITY_POOR], currencyId, count, name, currencyId);
+    }
+
+    static void _ShowLootTrackingQuestCurrencyEntry(ChatHandler* handler, uint32 questId, bool alternateString = false)
+    {
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        std::string_view name;
+        if (quest)
+        {
+            name = quest->GetLogTitle();
+            if (handler->GetSessionDbLocaleIndex() != LOCALE_enUS)
+                if (QuestTemplateLocale const* localeData = sObjectMgr->GetQuestLocale(questId))
+                    ObjectMgr::GetLocaleString(localeData->LogTitle, handler->GetSessionDbLocaleIndex(), name);
+        }
+        if (name.empty())
+            name = "Unknown quest";
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_TRACKING_QUEST, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
+            questId, STRING_VIEW_FMT_ARG(name), questId);
     }
 
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
@@ -1211,6 +1229,9 @@ public:
                             break;
                         case LootItemType::Currency:
                             _ShowLootCurrencyEntry(handler, item.itemid, item.count, true);
+                            break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid, true);
                             break;
                     }
                 }
@@ -1237,6 +1258,9 @@ public:
                         case LootItemType::Currency:
                             _ShowLootCurrencyEntry(handler, item.itemid, item.count);
                             break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid);
+                            break;
                     }
                 }
             }
@@ -1255,6 +1279,9 @@ public:
                             break;
                         case LootItemType::Currency:
                             _ShowLootCurrencyEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid);
                             break;
                     }
                 }
@@ -1287,7 +1314,7 @@ public:
 
         Loot const* loot = creatureTarget->m_loot.get();
         if ((!loot || loot->isLooted())
-            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), &std::unordered_map<ObjectGuid, std::unique_ptr<Loot>>::value_type::second))
+            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), Trinity::Containers::MapValue))
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);
@@ -1300,8 +1327,6 @@ public:
             _ShowLootContents(handler, all.has_value(), loot);
         else
         {
-            using namespace std::string_view_literals;
-
             for (auto const& [lootOwner, personalLoot] : creatureTarget->m_personalLoot)
             {
                 CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(lootOwner);
@@ -1313,7 +1338,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID)
+    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID, Optional<bool> linkedAggro, Optional<bool> formationMovement)
     {
         Creature* creature = handler->getSelectedCreature();
 
@@ -1336,17 +1361,22 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        float  followAngle = (creature->GetAbsoluteAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
-        float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        float  followAngle = creature->GetRelativeAngle(chr) * 180.0f / float(M_PI);
+        float  followDist  = chr->GetExactDist2d(creature);
         uint32 groupAI     = 0;
+        if (linkedAggro == true)
+            groupAI |= FLAG_MEMBERS_ASSIST_MEMBER;
+        if (formationMovement == true)
+            groupAI |= FLAG_IDLE_IN_FORMATION;
+
         sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
         stmt->setUInt64(0, leaderGUID);
         stmt->setUInt64(1, lowguid);
-        stmt->setFloat (2, followAngle);
-        stmt->setFloat (3, followDist);
+        stmt->setFloat (2, followDist);
+        stmt->setFloat (3, followAngle);
         stmt->setUInt32(4, groupAI);
 
         WorldDatabase.Execute(stmt);

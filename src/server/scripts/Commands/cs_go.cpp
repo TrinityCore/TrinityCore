@@ -38,7 +38,6 @@ EndScriptData */
 #include "Transport.h"
 #include "Util.h"
 #include "WorldSession.h"
-#include <sstream>
 
 using namespace Trinity::ChatCommands;
 
@@ -482,16 +481,16 @@ public:
             player->SaveRecallPosition();
 
         // try going to entrance
-        if (AreaTriggerStruct const* exit = sObjectMgr->GetGoBackTrigger(mapId))
+        if (AreaTriggerTeleport const* exit = sObjectMgr->GetGoBackTrigger(mapId))
         {
-            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+            if (player->TeleportTo(exit->Loc.GetMapId(), exit->Loc.GetPositionX(), exit->Loc.GetPositionY(), exit->Loc.GetPositionZ(), exit->Loc.GetOrientation() + M_PI))
             {
                 handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapName, mapId);
                 return true;
             }
             else
             {
-                uint32 const parentMapId = exit->target_mapId;
+                uint32 const parentMapId = exit->Loc.GetMapId();
                 char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->MapName[handler->GetSessionDbcLocale()];
                 handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
             }
@@ -500,9 +499,9 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapName, mapId);
 
         // try going to start
-        if (AreaTriggerStruct const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
+        if (AreaTriggerTeleport const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
         {
-            if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+            if (player->TeleportTo(entrance->Loc))
             {
                 handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapName, mapId);
                 return true;

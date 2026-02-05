@@ -29,6 +29,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "VehicleDefines.h"
+#include "advstd.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
@@ -287,32 +288,20 @@ void Garrison::Upgrade()
 void Garrison::Enter() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (int32(_owner->GetMapId()) == map->ParentMapID)
-        {
-            WorldLocation loc(_siteLevel->MapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
-    }
+            _owner->TeleportTo(WorldLocation(_siteLevel->MapID, *_owner), TELE_TO_SEAMLESS);
 }
 
 void Garrison::Leave() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
-    {
         if (_owner->GetMapId() == _siteLevel->MapID)
-        {
-            WorldLocation loc(map->ParentMapID);
-            loc.Relocate(_owner);
-            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
-        }
-    }
+            _owner->TeleportTo(WorldLocation(map->ParentMapID, *_owner), TELE_TO_SEAMLESS);
 }
 
 GarrisonFactionIndex Garrison::GetFaction() const
 {
-    return _owner->GetTeam() == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE;
+    return GetFaction(_owner->GetTeam());
 }
 
 std::vector<Garrison::Plot*> Garrison::GetPlots()
@@ -541,20 +530,15 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
     return nullptr;
 }
 
-void Garrison::SendInfo()
+void Garrison::BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const
 {
-    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
-    garrisonInfo.FactionIndex = GetFaction();
-    garrisonInfo.Garrisons.emplace_back();
-
-    WorldPackets::Garrison::GarrisonInfo& garrison = garrisonInfo.Garrisons.back();
     garrison.GarrTypeID = GetType();
     garrison.GarrSiteID = _siteLevel->GarrSiteID;
     garrison.GarrSiteLevelID = _siteLevel->ID;
     garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
     for (auto& p : _plots)
     {
-        Plot& plot = p.second;
+        Plot const& plot = p.second;
         garrison.Plots.push_back(&plot.PacketInfo);
         if (plot.BuildingInfo.PacketInfo)
             garrison.Buildings.push_back(&*plot.BuildingInfo.PacketInfo);
@@ -562,8 +546,6 @@ void Garrison::SendInfo()
 
     for (auto const& p : _followers)
         garrison.Followers.push_back(&p.second.PacketInfo);
-
-    _owner->SendDirectMessage(garrisonInfo.Write());
 }
 
 void Garrison::SendRemoteInfo() const
@@ -681,7 +663,7 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
     return GARRISON_SUCCESS;
 }
 
-template<class T, void(T::*SecondaryRelocate)(float,float,float,float)>
+template<class T, void(T::*SecondaryRelocate)(Position const&)>
 T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
 {
     T* spawn = new T();
@@ -691,14 +673,10 @@ T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* m
         return nullptr;
     }
 
-    float x = spawn->GetPositionX();
-    float y = spawn->GetPositionY();
-    float z = spawn->GetPositionZ();
-    float o = spawn->GetOrientation();
-    TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
+    Position globalPosition = building->GetPositionWithOffset(spawn->GetPosition());
 
-    spawn->Relocate(x, y, z, o);
-    (spawn->*SecondaryRelocate)(x, y, z, o);
+    spawn->Relocate(globalPosition);
+    (spawn->*SecondaryRelocate)(globalPosition);
 
     if (!spawn->IsPositionValid())
     {
@@ -851,8 +829,5 @@ uint32 Garrison::Follower::GetItemLevel() const
 
 bool Garrison::Follower::HasAbility(uint32 garrAbilityId) const
 {
-    return std::find_if(PacketInfo.AbilityID.begin(), PacketInfo.AbilityID.end(), [garrAbilityId](GarrAbilityEntry const* garrAbility)
-    {
-        return garrAbility->ID == garrAbilityId;
-    }) != PacketInfo.AbilityID.end();
+    return advstd::ranges::contains(PacketInfo.AbilityID, garrAbilityId, &GarrAbilityEntry::ID);
 }

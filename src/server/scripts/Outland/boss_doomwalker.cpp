@@ -15,8 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -32,10 +35,12 @@ enum Spells
     SPELL_EARTHQUAKE        = 32686,
     SPELL_SUNDER_ARMOR      = 33661,
     SPELL_CHAIN_LIGHTNING   = 33665,
+    SPELL_SUMMON_OVERRUN_TARGET = 32632, // Serverside
     SPELL_OVERRUN           = 32636,
     SPELL_ENRAGE            = 33653,
     SPELL_MARK_DEATH        = 37128,
-    SPELL_AURA_DEATH        = 37131
+    SPELL_AURA_DEATH        = 37131,
+    SPELL_KNOCKDOWN         = 13360
 };
 
 enum Events
@@ -45,6 +50,12 @@ enum Events
     EVENT_CHAIN     = 3,
     EVENT_QUAKE     = 4,
     EVENT_OVERRUN   = 5
+};
+
+enum DoomwalkerMisc
+{
+    POINT_OVERRUN         = 0,
+    NPC_OVERRUN_TARGET    = 18665
 };
 
 struct boss_doomwalker : public ScriptedAI
@@ -91,11 +102,22 @@ struct boss_doomwalker : public ScriptedAI
     }
 
     void MoveInLineOfSight(Unit* who) override
-
     {
         if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
             if (who->HasAura(SPELL_MARK_DEATH))
-                who->CastSpell(who, SPELL_AURA_DEATH, 1);
+                who->CastSpell(who, SPELL_AURA_DEATH, true);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == POINT_OVERRUN)
+        {
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveAurasDueToSpell(SPELL_OVERRUN);
+
+            if (Creature* overrunTarget = me->FindNearestCreature(NPC_OVERRUN_TARGET, 500.0f))
+                overrunTarget->DespawnOrUnsummon();
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -121,14 +143,13 @@ struct boss_doomwalker : public ScriptedAI
                     }
                     break;
                 case EVENT_OVERRUN:
+                    DoCastSelf(SPELL_SUMMON_OVERRUN_TARGET);
+                    me->SetReactState(REACT_PASSIVE);
                     Talk(SAY_OVERRUN);
                     DoCastVictim(SPELL_OVERRUN);
                     _events.ScheduleEvent(EVENT_OVERRUN, 25s, 40s);
                     break;
                 case EVENT_QUAKE:
-                    if (urand(0, 1))
-                        return;
-
                     Talk(SAY_EARTHQUAKE);
 
                     //remove enrage before casting earthquake because enrage + earthquake = 16000dmg over 8sec and all dead
@@ -158,7 +179,64 @@ struct boss_doomwalker : public ScriptedAI
         bool _inEnrage;
 };
 
+// 32686 - Earthquake
+// 326405 - Earthquake
+class spell_doomwalker_earthquake : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN });
+    }
+
+    void HandleKnockdown(AuraEffect const* /*aurEff*/) const
+    {
+        if (roll_chance_i(50))
+            GetTarget()->CastSpell(GetTarget(), SPELL_KNOCKDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_doomwalker_earthquake::HandleKnockdown, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 32636 - Overrun
+class spell_doomwalker_overrun : public SpellScript
+{
+    void StartMovement() const
+    {
+        if (Creature* overrunTarget = GetCaster()->FindNearestCreature(NPC_OVERRUN_TARGET, 500.0f))
+            GetCaster()->GetMotionMaster()->MovePoint(0, overrunTarget->GetPosition(), true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceRun);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_doomwalker_overrun::StartMovement);
+    }
+};
+
+// 32637 - Overrun
+class spell_doomwalker_overrun_damage : public SpellScript
+{
+    void StartNextCast(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetCaster()->HasAura(SPELL_OVERRUN))
+            GetCaster()->CastSpell(nullptr, GetSpellInfo()->Id, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SET_FACING,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_doomwalker_overrun_damage::StartNextCast, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_doomwalker()
 {
     RegisterCreatureAI(boss_doomwalker);
+    RegisterSpellScript(spell_doomwalker_earthquake);
+    RegisterSpellScript(spell_doomwalker_overrun);
+    RegisterSpellScript(spell_doomwalker_overrun_damage);
 }

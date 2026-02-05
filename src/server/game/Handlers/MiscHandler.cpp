@@ -27,6 +27,7 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -139,7 +140,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPackets::Who::WhoResponsePkt response;
-    response.RequestID = whoRequest.RequestID;
+    response.Token = whoRequest.Token;
 
     WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
     for (WhoListPlayerInfo const& target : whoList)
@@ -566,9 +567,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     {
         // set resting flag we are in the inn
         if (packet.Entered)
-            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        {
+            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .IsDBC = true, .AreaTriggerEntryId = atEntry->ID });
+        }
         else
+        {
             player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
+            player->GetRestMgr().SetInnTrigger(std::nullopt);
+        }
 
         if (sWorld->IsFFAPvPRealm())
         {
@@ -588,12 +594,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (!packet.Entered)
         return;
 
-    AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
+    AreaTriggerTeleport const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)
         return;
 
     bool teleported = false;
-    if (player->GetMapId() != at->target_mapId)
+    if (player->GetMapId() != at->Loc.GetMapId())
     {
         if (!player->IsAlive())
         {
@@ -603,7 +609,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 uint32 corpseMap = player->GetCorpseLocation().GetMapId();
                 do
                 {
-                    if (corpseMap == at->target_mapId)
+                    if (corpseMap == at->Loc.GetMapId())
                         break;
 
                     InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
@@ -616,52 +622,52 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                     return;
                 }
 
-                TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance {} and can enter.", player->GetName(), at->target_mapId);
+                TC_LOG_DEBUG("maps", "MAP: Player '{}' has corpse in instance {} and can enter.", player->GetName(), at->Loc.GetMapId());
             }
             else
                 TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '{}' is dead but does not have a corpse!", player->GetName());
         }
 
-        if (TransferAbortParams denyReason = Map::PlayerCannotEnter(at->target_mapId, player))
+        if (TransferAbortParams denyReason = Map::PlayerCannotEnter(at->Loc.GetMapId(), player))
         {
             switch (denyReason.Reason)
             {
                 case TRANSFER_ABORT_MAP_NOT_ALLOWED:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' attempted to enter map with id {} which has no entry", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' attempted to enter map with id {} which has no entry", player->GetName(), at->Loc.GetMapId());
                     break;
                 case TRANSFER_ABORT_DIFFICULTY:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' attempted to enter instance map {} but the requested difficulty was not found", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' attempted to enter instance map {} but the requested difficulty was not found", player->GetName(), at->Loc.GetMapId());
                     break;
                 case TRANSFER_ABORT_NEED_GROUP:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter map {}", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter map {}", player->GetName(), at->Loc.GetMapId());
                     player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
                     break;
                 case TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because their permanent bind is incompatible with their group's", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because their permanent bind is incompatible with their group's", player->GetName(), at->Loc.GetMapId());
                     break;
                 case TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because their permanent bind is incompatible with their group's", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because their permanent bind is incompatible with their group's", player->GetName(), at->Loc.GetMapId());
                     break;
                 case TRANSFER_ABORT_TOO_MANY_INSTANCES:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because he has exceeded the maximum number of instances per hour.", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because he has exceeded the maximum number of instances per hour.", player->GetName(), at->Loc.GetMapId());
                     break;
                 case TRANSFER_ABORT_MAX_PLAYERS:
                     break;
                 case TRANSFER_ABORT_ZONE_IN_COMBAT:
                     break;
                 case TRANSFER_ABORT_NOT_FOUND:
-                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because instance is resetting.", player->GetName(), at->target_mapId);
+                    TC_LOG_DEBUG("maps", "MAP: Player '{}' cannot enter instance map {} because instance is resetting.", player->GetName(), at->Loc.GetMapId());
                     break;
                 default:
                     break;
             }
 
             if (denyReason.Reason != TRANSFER_ABORT_NEED_GROUP)
-                player->SendTransferAborted(at->target_mapId, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
+                player->SendTransferAborted(at->Loc.GetMapId(), denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
 
             if (!player->IsAlive() && player->HasCorpse())
             {
-                if (player->GetCorpseLocation().GetMapId() == at->target_mapId)
+                if (player->GetCorpseLocation().GetMapId() == at->Loc.GetMapId())
                 {
                     player->ResurrectPlayer(0.5f);
                     player->SpawnCorpseBones();
@@ -678,11 +684,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
     if (!teleported)
     {
-        WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->target_mapId);
-        if (entranceLocation && player->GetMapId() != at->target_mapId)
+        WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->Loc.GetMapId());
+        if (entranceLocation && player->GetMapId() != at->Loc.GetMapId())
             player->TeleportTo(entranceLocation->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
         else
-            player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+            player->TeleportTo(at->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
     }
 }
 
@@ -697,6 +703,13 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     if (packet.Size == 0)                               // erase
     {
         SetAccountData(AccountDataType(packet.DataType), 0, "");
+
+        WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+        updateAccountDataComplete.Player = packet.PlayerGuid;
+        updateAccountDataComplete.DataType = packet.DataType;
+        updateAccountDataComplete.Result = 0;
+        SendPacket(updateAccountDataComplete.Write());
+
         return;
     }
 
@@ -710,13 +723,19 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     dest.resize(packet.Size);
 
     uLongf realSize = packet.Size;
-    if (uncompress(reinterpret_cast<Bytef*>(dest.data()), &realSize, packet.CompressedData.contents(), packet.CompressedData.size()) != Z_OK)
+    if (uncompress(reinterpret_cast<Bytef*>(dest.data()), &realSize, packet.CompressedData.data(), packet.CompressedData.size()) != Z_OK)
     {
         TC_LOG_ERROR("network", "UAD: Failed to decompress account data");
         return;
     }
 
     SetAccountData(AccountDataType(packet.DataType), packet.Time, dest);
+
+    WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+    updateAccountDataComplete.Player = packet.PlayerGuid;
+    updateAccountDataComplete.DataType = packet.DataType;
+    updateAccountDataComplete.Result = 0;
+    SendPacket(updateAccountDataComplete.Write());
 }
 
 void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request)
@@ -738,7 +757,7 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
 
     data.CompressedData.resize(destSize);
 
-    if (data.Size && compress(data.CompressedData.contents(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
+    if (data.Size && compress(data.CompressedData.data(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
     {
         TC_LOG_ERROR("network", "RAD: Failed to compress account data");
         return;
@@ -1155,7 +1174,9 @@ void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& 
 
 void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction)
 {
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
+    if (_player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest)
+        _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = false;
+    else if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
 
     if (_player->GetStableMaster() == closeInteraction.SourceGuid)
@@ -1164,8 +1185,8 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)
 {
-    if (Conversation* convo = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
-        sScriptMgr->OnConversationLineStarted(convo, conversationLineStarted.LineID, _player);
+    if (Conversation* conversation = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
+        conversation->AI()->OnLineStarted(conversationLineStarted.LineID, _player);
 }
 
 void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)

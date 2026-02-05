@@ -19,14 +19,13 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "Map.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "Unit.h"
 
-namespace WorldPackets
-{
-namespace Spells
+namespace WorldPackets::Spells
 {
 void SpellCastLogData::Initialize(Unit const* unit)
 {
@@ -78,6 +77,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
     {
         ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
         TargetContentTuningID = contentTuning->ID;
     }
     TargetLevel = target->GetLevel();
@@ -99,6 +99,7 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
     {
         ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
+        ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
         TargetContentTuningID = contentTuning->ID;
     }
     TargetLevel = target->GetLevel();
@@ -160,6 +161,8 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
+    data << int32(spellCastLogData.Unknown_1105_1);
+    data << int32(spellCastLogData.Unknown_1105_2);
     data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
@@ -178,16 +181,20 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << float(contentTuningParams.PlayerItemLevel);
     data << float(contentTuningParams.TargetItemLevel);
     data << int16(contentTuningParams.PlayerLevelDelta);
-    data << uint32(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << int32(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << int32(contentTuningParams.Unused1117);
+    data << int32(contentTuningParams.ScalingHealthPrimaryStatCurveID);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
     data << uint32(contentTuningParams.Flags);
     data << int32(contentTuningParams.PlayerContentTuningID);
     data << int32(contentTuningParams.TargetContentTuningID);
-    data << int32(contentTuningParams.Unused927);
-    data.WriteBits(contentTuningParams.Type, 4);
+    data << int32(contentTuningParams.TargetHealingContentTuningID);
+    data << float(contentTuningParams.PlayerPrimaryStatToExpectedRatio);
+    data << Bits<4>(contentTuningParams.Type);
     data.FlushBits();
+
     return data;
 }
 
@@ -209,17 +216,19 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
 {
-    data << supportInfo.CasterGUID;
-    data << int32(supportInfo.SpellID);
-    data << int32(supportInfo.Amount);
-    data << float(supportInfo.Percentage);
+    data << supportInfo.Supporter;
+    data << int32(supportInfo.SupportSpellID);
+    data << int32(supportInfo.AmountRaw);
+    data << float(supportInfo.AmountPortion);
 
     return data;
 }
 }
-}
 
-ByteBuffer& WorldPackets::CombatLog::CombatLogServerPacket::WriteLogData()
+namespace WorldPackets::CombatLog
+{
+ByteBuffer& CombatLogServerPacket::WriteLogData()
 {
     return _fullLogPacket << LogData;
+}
 }

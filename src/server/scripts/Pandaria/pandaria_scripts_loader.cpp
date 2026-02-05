@@ -16,11 +16,13 @@
  */
 
 // This is where scripts loading function should be declared:
+void AddSC_zone_the_jade_forest();
 void AddSC_zone_the_wandering_isle();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddPandariaScripts()
 {
+    AddSC_zone_the_jade_forest();
     AddSC_zone_the_wandering_isle();
 }

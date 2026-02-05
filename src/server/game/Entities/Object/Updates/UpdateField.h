@@ -18,11 +18,14 @@
 #ifndef UpdateField_h__
 #define UpdateField_h__
 
+#include "Concepts.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UpdateMask.h"
 #include <algorithm>
 #include <memory>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
 class ByteBuffer;
@@ -62,17 +65,48 @@ namespace UF
     template<typename T, int32 BlockBit, uint32 Bit>
     class DynamicUpdateField;
 
+    template<typename K, typename V>
+    class MapUpdateFieldBase;
+
+    template<typename K, typename V, int32 BlockBit, uint32 Bit>
+    class MapUpdateField;
+
+    template<typename T>
+    class SetUpdateFieldBase;
+
+    template<typename T, int32 BlockBit, uint32 Bit>
+    class SetUpdateField;
+
     template<typename T>
     class OptionalUpdateFieldBase;
 
     template<typename T, int32 BlockBit, uint32 Bit>
     class OptionalUpdateField;
 
+    template<typename T>
+    inline constexpr std::type_identity<T> VariantCase;
+
+    template<typename... Types>
+    class VariantUpdateFieldBase;
+
+    template<int32 BlockBit, uint32 Bit, typename... Types>
+    class VariantUpdateField;
+
     template<typename T, bool PublicSet>
-    struct MutableFieldReference;
+    struct MutableFieldReferenceWithChangesMask;
+
+    template<typename T, bool PublicSet>
+    struct MutableFieldReferenceNoChangesMask;
 
     template<typename T, bool PublicSet>
     struct MutableNestedFieldReference;
+
+    enum class MapUpdateFieldState : uint8
+    {
+        Unchanged   = 0,
+        Changed     = 1,
+        Deleted     = 2
+    };
 
     struct IsUpdateFieldStructureTag
     {
@@ -85,14 +119,14 @@ namespace UF
     };
 
     template<typename T>
-    struct UpdateFieldSetter
+    struct UpdateFieldPrivateSetter
     {
         using value_type = T;
 
         template<typename F>
-        friend bool SetUpdateFieldValue(UpdateFieldSetter<F>& setter, typename UpdateFieldSetter<F>::value_type&& value);
+        friend bool SetUpdateFieldValue(UpdateFieldPrivateSetter<F>& setter, typename UpdateFieldPrivateSetter<F>::value_type&& value);
 
-        UpdateFieldSetter(T& value) : _value(value)
+        UpdateFieldPrivateSetter(T& value) : _value(value)
         {
         }
 
@@ -139,6 +173,14 @@ namespace UF
         T& _value;
     };
 
+    template<typename T, bool PublicSet>
+    using UpdateFieldSetter = std::conditional_t<PublicSet, UpdateFieldPublicSetter<T>, UpdateFieldPrivateSetter<T>>;
+
+    template<typename T, bool PublicSet>
+    using MutableFieldReference = std::conditional_t<std::is_base_of_v<HasChangesMaskTag, T>,
+        MutableFieldReferenceWithChangesMask<T, PublicSet>,
+        MutableFieldReferenceNoChangesMask<T, PublicSet>>;
+
     template<typename T>
     struct DynamicUpdateFieldSetter
     {
@@ -165,9 +207,9 @@ namespace UF
         insert_result AddValue()
         {
             MarkChanged(_values.size());
-            _values.emplace_back();
-            T& value = _values.back();
-            MarkNewValue(value, std::is_base_of<HasChangesMaskTag, T>{});
+            T& value = _values.emplace_back();
+            if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                value._changesMask.SetAll();
             return { value };
         }
 
@@ -178,7 +220,8 @@ namespace UF
             {
                 MarkChanged(i);
                 // also mark all fields of value as changed
-                MarkNewValue(_values[i], std::is_base_of<HasChangesMaskTag, T>{});
+                if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                    _values[i]._changesMask.SetAll();
             }
             return { _values[index] };
         }
@@ -191,7 +234,8 @@ namespace UF
             {
                 MarkChanged(i);
                 // also mark all fields of value as changed
-                MarkNewValue(_values[i], std::is_base_of<HasChangesMaskTag, T>{});
+                if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                    _values[i]._changesMask.SetAll();
             }
             if (_values.size() % 32)
                 _updateMask[UpdateMaskHelpers::GetBlockIndex(_values.size())] &= ~UpdateMaskHelpers::GetBlockFlag(_values.size());
@@ -214,51 +258,96 @@ namespace UF
             _updateMask[block] |= UpdateMaskHelpers::GetBlockFlag(index);
         }
 
-        static void MarkNewValue(T&, std::false_type)
-        {
-        }
-
-        static void MarkNewValue(T& value, std::true_type)
-        {
-            value._changesMask.SetAll();
-        }
-
         std::vector<T>& _values;
         std::vector<uint32>& _updateMask;
+    };
+
+    template<typename K, typename V>
+    struct MapUpdateFieldSetter
+    {
+        template<typename F, typename G>
+        friend bool RemoveMapUpdateFieldValue(MapUpdateFieldSetter<F, G>& setter, std::type_identity_t<F> const& key);
+
+        MapUpdateFieldSetter(std::unordered_map<K, V>& values) : _values(values) { }
+
+    private:
+        bool RemoveKey(K const& key)
+        {
+            auto itr = _values.find(key);
+            if (itr != _values.end())
+            {
+                itr->second.state = MapUpdateFieldState::Deleted;
+                return true;
+            }
+            return false;
+        }
+
+        std::unordered_map<K, V>& _values;
+    };
+
+    template<typename T>
+    struct SetUpdateFieldSetter
+    {
+        template<typename F>
+        friend bool RemoveSetUpdateFieldValue(SetUpdateFieldSetter<F>& setter, std::type_identity_t<F> const& key);
+
+        SetUpdateFieldSetter(std::unordered_map<T, MapUpdateFieldState>& values) : _values(values) { }
+
+    private:
+        bool Insert(T const& key)
+        {
+            return _values.emplace(key, MapUpdateFieldState::Changed).second;
+        }
+
+        bool Remove(T const& key)
+        {
+            auto itr = _values.find(key);
+            if (itr != _values.end())
+            {
+                itr->second = MapUpdateFieldState::Deleted;
+                return true;
+            }
+            return false;
+        }
+
+        std::unordered_map<T, MapUpdateFieldState>& _values;
     };
 
     template<typename T>
     struct OptionalUpdateFieldSetter
     {
         template<typename F>
-        friend void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<F>& setter);
+        friend bool RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<F>& setter);
 
         OptionalUpdateFieldSetter(OptionalUpdateFieldBase<T>& field) : _field(field) { }
 
     private:
-        void RemoveValue()
+        bool RemoveValue()
         {
             if (_field.has_value())
+            {
                 _field.DestroyValue();
+                return true;
+            }
+            return false;
         }
 
         OptionalUpdateFieldBase<T>& _field;
     };
 
     template<typename T, bool PublicSet>
-    struct MutableFieldReference
+    struct MutableFieldReferenceWithChangesMask
     {
-        MutableFieldReference(T& value) : _value(value)
+        MutableFieldReferenceWithChangesMask(T& value) : _value(value)
         {
         }
 
-        template<typename V, int32 BlockBit, uint32 Bit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>,
-            std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+        template<typename V, int32 BlockBit, uint32 Bit>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
             MutableNestedFieldReference<V, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>>
+            UpdateFieldSetter<V, PublicSet>>>
             ModifyValue(UpdateField<V, BlockBit, Bit>(T::* field))
         {
             if constexpr (BlockBit >= 0)
@@ -268,13 +357,12 @@ namespace UF
             return { (_value.*field)._value };
         }
 
-        template<typename V, std::size_t Size, uint32 Bit, int32 FirstElementBit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>,
-            std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+        template<typename V, std::size_t Size, uint32 Bit, int32 FirstElementBit>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
             MutableNestedFieldReference<V, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>>
+            UpdateFieldSetter<V, PublicSet>>>
             ModifyValue(UpdateFieldArray<V, Size, Bit, FirstElementBit>(T::* field), uint32 index)
         {
             _value._changesMask.Set(Bit);
@@ -289,9 +377,8 @@ namespace UF
             return { (_value.*field)._values[index] };
         }
 
-        template<typename V, int32 BlockBit, uint32 Bit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>, DynamicUpdateFieldSetter<V>>
-            ModifyValue(DynamicUpdateField<V, BlockBit, Bit>(T::* field))
+        template<typename V, int32 BlockBit, uint32 Bit>
+        DynamicUpdateFieldSetter<V> ModifyValue(DynamicUpdateField<V, BlockBit, Bit>(T::* field))
         {
             if constexpr (BlockBit >= 0)
                 _value._changesMask.Set(BlockBit);
@@ -300,20 +387,19 @@ namespace UF
             return { (_value.*field)._values, (_value.*field)._updateMask };
         }
 
-        template<typename V, int32 BlockBit, uint32 Bit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>,
-            std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+        template<typename V, int32 BlockBit, uint32 Bit>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
             MutableNestedFieldReference<V, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>>
+            UpdateFieldSetter<V, PublicSet>>>
             ModifyValue(DynamicUpdateField<V, BlockBit, Bit>(T::* field), uint32 index)
         {
             if (index >= (_value.*field).size())
             {
                 // fill with zeros until reaching desired slot
                 (_value.*field)._values.resize(index + 1);
-                (_value.*field)._updateMask.resize(((_value.*field)._values.size() + 31) / 32);
+                (_value.*field)._updateMask.resize((index + 1 + 31) / 32);
             }
 
             if constexpr (BlockBit >= 0)
@@ -324,9 +410,47 @@ namespace UF
             return { (_value.*field)._values[index] };
         }
 
-        template<typename V, int32 BlockBit, uint32 Bit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>, OptionalUpdateFieldSetter<V>>
-            ModifyValue(OptionalUpdateField<V, BlockBit, Bit>(T::* field))
+        template<typename K, typename V, int32 BlockBit, uint32 Bit>
+        MapUpdateFieldSetter<K, typename MapUpdateField<K, V, BlockBit, Bit>::mapped_type>
+            ModifyValue(MapUpdateField<K, V, BlockBit, Bit>(T::* field))
+        {
+            if constexpr (BlockBit >= 0)
+                _value._changesMask.Set(BlockBit);
+
+            _value._changesMask.Set(Bit);
+            return { (_value.*field)._values };
+        }
+
+        template<typename K, typename V, int32 BlockBit, uint32 Bit>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+            MutableFieldReference<V, PublicSet>,
+            std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
+            MutableNestedFieldReference<V, PublicSet>,
+            UpdateFieldSetter<V, PublicSet>>>
+            ModifyValue(MapUpdateField<K, V, BlockBit, Bit>(T::* field), std::type_identity_t<K> const& key)
+        {
+            if constexpr (BlockBit >= 0)
+                _value._changesMask.Set(BlockBit);
+
+            _value._changesMask.Set(Bit);
+
+            auto itr = (_value.*field)._values.try_emplace(key).first;
+            itr->second.state = MapUpdateFieldState::Changed;
+            return { itr->second.value };
+        }
+
+        template<typename V, int32 BlockBit, uint32 Bit>
+        SetUpdateFieldSetter<V> ModifyValue(SetUpdateField<V, BlockBit, Bit>(T::* field))
+        {
+            if constexpr (BlockBit >= 0)
+                _value._changesMask.Set(BlockBit);
+
+            _value._changesMask.Set(Bit);
+            return { (_value.*field)._values };
+        }
+
+        template<typename V, int32 BlockBit, uint32 Bit>
+        OptionalUpdateFieldSetter<V> ModifyValue(OptionalUpdateField<V, BlockBit, Bit>(T::* field))
         {
             if constexpr (BlockBit >= 0)
                 _value._changesMask.Set(BlockBit);
@@ -335,13 +459,12 @@ namespace UF
             return { _value.*field };
         }
 
-        template<typename V, int32 BlockBit, uint32 Bit, typename U = T>
-        std::enable_if_t<std::is_base_of_v<HasChangesMaskTag, U>,
-            std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+        template<typename V, int32 BlockBit, uint32 Bit>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
             MutableFieldReference<V, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
             MutableNestedFieldReference<V, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>>
+            UpdateFieldSetter<V, PublicSet>>>
             ModifyValue(OptionalUpdateField<V, BlockBit, Bit>(T::* field), uint32 /*dummy*/)
         {
             if (!(_value.*field).has_value())
@@ -354,18 +477,43 @@ namespace UF
             return { *((_value.*field)._value) };
         }
 
-        template<typename V, typename U = T>
-        std::enable_if_t<!std::is_base_of_v<HasChangesMaskTag, U> && !std::is_array_v<V>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>
-            ModifyValue(V(T::* field))
+        template<typename V, int32 BlockBit, uint32 Bit, typename... Types>
+        std::conditional_t<std::is_base_of_v<IsUpdateFieldStructureTag, V>,
+            MutableFieldReference<V, PublicSet>,
+            std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, V>,
+            MutableNestedFieldReference<V, PublicSet>,
+            UpdateFieldSetter<V, PublicSet>>>
+            ModifyValue(VariantUpdateField<BlockBit, Bit, Types...>(T::* field), [[maybe_unused]] std::type_identity<V> type)
+        {
+            if (!(_value.*field).template Is<V>())
+                (_value.*field).template ConstructValue<V>();
+
+            if constexpr (BlockBit >= 0)
+                _value._changesMask.Set(BlockBit);
+
+            _value._changesMask.Set(Bit);
+            return { *((_value.*field).template Get<V>()) };
+        }
+
+    private:
+        T& _value;
+    };
+
+    template<typename T, bool PublicSet>
+    struct MutableFieldReferenceNoChangesMask
+    {
+        MutableFieldReferenceNoChangesMask(T& value) : _value(value)
+        {
+        }
+
+        template<typename V>
+        UpdateFieldSetter<V, PublicSet> ModifyValue(V(T::* field))
         {
             return { _value.*field };
         }
 
-        template<typename V, std::size_t Size, typename U = T>
-        std::enable_if_t<!std::is_base_of_v<HasChangesMaskTag, U>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>
-            ModifyValue(V(T::* field)[Size], uint32 index)
+        template<typename V, std::size_t Size>
+        UpdateFieldSetter<V, PublicSet> ModifyValue(V(T::* field)[Size], uint32 index)
         {
             return { (_value.*field)[index] };
         }
@@ -389,7 +537,7 @@ namespace UF
             MutableFieldReference<value_type, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, value_type>,
             MutableNestedFieldReference<value_type, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<value_type>, UpdateFieldSetter<value_type>>>>>
+            UpdateFieldSetter<value_type, PublicSet>>>>
             ModifyValue()
         {
             return { _value._value };
@@ -401,7 +549,7 @@ namespace UF
             MutableFieldReference<value_type, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, value_type>,
             MutableNestedFieldReference<value_type, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<value_type>, UpdateFieldSetter<value_type>>>>>
+            UpdateFieldSetter<value_type, PublicSet>>>>
             ModifyValue(uint32 index)
         {
             return { _value._values[index] };
@@ -420,14 +568,14 @@ namespace UF
             MutableFieldReference<value_type, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, value_type>,
             MutableNestedFieldReference<value_type, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<value_type>, UpdateFieldSetter<value_type>>>>>
+            UpdateFieldSetter<value_type, PublicSet>>>>
             ModifyValue(uint32 index)
         {
             if (index >= _value.size())
             {
                 // fill with zeros until reaching desired slot
                 _value._values.resize(index + 1);
-                _value._updateMask.resize((_value._values.size() + 31) / 32);
+                _value._updateMask.resize((index + 1 + 31) / 32);
             }
 
             _value.MarkChanged(index);
@@ -447,7 +595,7 @@ namespace UF
             MutableFieldReference<value_type, PublicSet>,
             std::conditional_t<std::is_base_of_v<IsUpdateFieldHolderTag, value_type>,
             MutableNestedFieldReference<value_type, PublicSet>,
-            std::conditional_t<PublicSet, UpdateFieldPublicSetter<value_type>, UpdateFieldSetter<value_type>>>>>
+            UpdateFieldSetter<value_type, PublicSet>>>>
             ModifyValue(uint32 /*dummy*/)
         {
             if (!_value.has_value())
@@ -466,8 +614,14 @@ namespace UF
         template<typename T>
         friend struct DynamicUpdateFieldSetter;
 
+        template<typename K, typename V>
+        friend struct MapUpdateFieldSetter;
+
         template<typename T, bool PublicSet>
-        friend struct MutableFieldReference;
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename T, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
 
         template<typename T, int32 BlockBit, uint32 Bit>
         friend class UpdateField;
@@ -481,50 +635,6 @@ namespace UF
     public:
         using Base = HasChangesMask<Bits>;
         using Mask = UpdateMask<Bits>;
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { (static_cast<Derived*>(this)->*field)._value };
-        }
-
-        template<typename Derived, typename T, std::size_t Size, uint32 Bit, int32 FirstElementBit>
-        MutableFieldReference<T, false> ModifyValue(UpdateFieldArray<T, Size, Bit, FirstElementBit>(Derived::* field), uint32 index)
-        {
-            MarkChanged(field, index);
-            return { (static_cast<Derived*>(this)->*field)._values[index] };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { (static_cast<Derived*>(this)->*field)._values };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
-        {
-            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            if (index >= uf.size())
-            {
-                // fill with zeros until reaching desired slot
-                uf._values.resize(index + 1);
-                uf._updateMask.resize((uf._values.size() + 31) / 32);
-            }
-
-            MarkChanged(field);
-            (static_cast<Derived*>(this)->*field).MarkChanged(index);
-            return { uf._values[index] };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { *((static_cast<Derived*>(this)->*field)._value) };
-        }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
         void MarkChanged(UpdateField<T, BlockBit, Bit>(Derived::*))
@@ -553,7 +663,51 @@ namespace UF
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void MarkChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::*), uint32)
+        void MarkChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            if constexpr (BlockBit >= 0)
+                _changesMask.Set(BlockBit);
+
+            _changesMask.Set(Bit);
+            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            if (index < uf.size())
+                uf.MarkChanged(index);
+        }
+
+        template<typename Derived, typename K, typename V, int32 BlockBit, uint32 Bit>
+        void MarkChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::* field), std::type_identity_t<K> const& key)
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            if constexpr (BlockBit >= 0)
+                _changesMask.Set(BlockBit);
+
+            _changesMask.Set(Bit);
+            MapUpdateField<K, V, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            auto itr = uf._values.find(key);
+            if (itr != uf._values.end() && itr->second.state == MapUpdateFieldState::Unchanged)
+                itr->second.state = MapUpdateFieldState::Changed;
+        }
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        void MarkChanged(SetUpdateField<T, BlockBit, Bit>(Derived::* field), std::type_identity_t<T> const& key)
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            if constexpr (BlockBit >= 0)
+                _changesMask.Set(BlockBit);
+
+            _changesMask.Set(Bit);
+            SetUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            auto itr = uf._values.find(key);
+            if (itr != uf._values.end() && itr->second == MapUpdateFieldState::Unchanged)
+                itr->second = MapUpdateFieldState::Changed;
+        }
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        void MarkChanged(OptionalUpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
@@ -563,8 +717,8 @@ namespace UF
             _changesMask.Set(Bit);
         }
 
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void MarkChanged(OptionalUpdateField<T, BlockBit, Bit>(Derived::*))
+        template<typename Derived, int32 BlockBit, uint32 Bit, typename... Types>
+        void MarkChanged(VariantUpdateField<BlockBit, Bit, Types...>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
@@ -599,8 +753,33 @@ namespace UF
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
         void ClearChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
         {
-            _changesMask.Reset(Bit);
-            (static_cast<Derived*>(this)->*field).ClearChanged(index);
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            if (index < uf.size())
+                uf.ClearChanged(index);
+        }
+
+        template<typename Derived, typename K, typename V, int32 BlockBit, uint32 Bit>
+        void ClearChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::* field), std::type_identity_t<K> const& key)
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            MapUpdateField<K, V, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            auto itr = uf._values.find(key);
+            if (itr != uf._values.end() && itr->second.state == MapUpdateFieldState::Changed)
+                itr->second.state = MapUpdateFieldState::Unchanged;
+        }
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        void ClearChanged(SetUpdateField<T, BlockBit, Bit>(Derived::* field), std::type_identity_t<T> const& key)
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            SetUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
+            auto itr = uf._values.find(key);
+            if (itr != uf._values.end() && itr->second == MapUpdateFieldState::Changed)
+                itr->second = MapUpdateFieldState::Unchanged;
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
@@ -611,117 +790,127 @@ namespace UF
             _changesMask.Reset(Bit);
         }
 
+        template<typename Derived, int32 BlockBit, uint32 Bit, typename... Types>
+        void ClearChanged(VariantUpdateField<BlockBit, Bit, Types...>(Derived::*))
+        {
+            static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
+
+            _changesMask.Reset(Bit);
+        }
+
         Mask const& GetChangesMask() const { return _changesMask; }
 
     protected:
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(UpdateField<T, BlockBit, Bit>& field)
+        template<typename T>
+        static inline void ClearChangesMask(UpdateFieldBase<T>& field)
         {
-            ClearChangesMask(field, std::is_base_of<HasChangesMaskTag, T>{});
+            if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                field._value.ClearChangesMask();
         }
 
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(UpdateField<T, BlockBit, Bit>&, std::false_type) { }
-
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(UpdateField<T, BlockBit, Bit>& field, std::true_type)
+        template<typename T, std::size_t Size>
+        static inline void ClearChangesMask(UpdateFieldArrayBase<T, Size>& field)
         {
-            field._value.ClearChangesMask();
+            if constexpr (std::disjunction_v<std::is_base_of<HasChangesMaskTag, T>, std::is_base_of<IsUpdateFieldHolderTag, T>>)
+                for (T& value : field._values)
+                    value.ClearChangesMask();
         }
 
-        template<typename T, std::size_t Size, uint32 Bit, int32 FirstElementBit>
-        static void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>& field)
+        template<typename T>
+        static inline void ClearChangesMask(DynamicUpdateFieldBase<T>& field)
         {
-            ClearChangesMask(field, std::disjunction<std::is_base_of<HasChangesMaskTag, T>, std::is_base_of<IsUpdateFieldHolderTag, T>>{});
-        }
+            if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                for (T& value : field._values)
+                    value.ClearChangesMask();
 
-        template<typename T, std::size_t Size, uint32 Bit, int32 FirstElementBit>
-        static void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>&, std::false_type) { }
-
-        template<typename T, std::size_t Size, uint32 Bit, int32 FirstElementBit>
-        static void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>& field, std::true_type)
-        {
-            for (uint32 i = 0; i < Size; ++i)
-                field._values[i].ClearChangesMask();
-        }
-
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>& field)
-        {
-            ClearChangesMask(field, std::is_base_of<HasChangesMaskTag, T>{});
             field.ClearChangesMask();
         }
 
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>&, std::false_type) { }
-
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>& field, std::true_type)
+        template<typename K, typename V>
+        static inline void ClearChangesMask(MapUpdateFieldBase<K, V>& field)
         {
-            for (uint32 i = 0; i < field._values.size(); ++i)
-                field._values[i].ClearChangesMask();
+            for (auto itr = field._values.begin(); itr != field._values.end(); )
+            {
+                switch (itr->second.state)
+                {
+                    case MapUpdateFieldState::Unchanged:
+                        break;
+                    case MapUpdateFieldState::Changed:
+                        if constexpr (std::is_base_of_v<HasChangesMaskTag, K>)
+                            const_cast<K&>(itr->first).ClearChangesMask();
+
+                        if constexpr (std::is_base_of_v<HasChangesMaskTag, V>)
+                            itr->second.value.ClearChangesMask();
+
+                        itr->second.state = MapUpdateFieldState::Unchanged;
+                        break;
+                    case MapUpdateFieldState::Deleted:
+                        itr = field._values.erase(itr++);
+                        continue;
+                    default:
+                        break;
+                }
+
+                ++itr;
+            }
         }
 
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>& field)
+        template<typename T>
+        static inline void ClearChangesMask(SetUpdateFieldBase<T>& field)
         {
-            ClearChangesMask(field, std::is_base_of<HasChangesMaskTag, T>{});
+            for (auto itr = field._values.begin(); itr != field._values.end(); )
+            {
+                switch (itr->second)
+                {
+                    case MapUpdateFieldState::Unchanged:
+                        break;
+                    case MapUpdateFieldState::Changed:
+                        if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                            const_cast<T&>(itr->first).ClearChangesMask();
+
+                        itr->second = MapUpdateFieldState::Unchanged;
+                        break;
+                    case MapUpdateFieldState::Deleted:
+                        itr = field._values.erase(itr++);
+                        continue;
+                    default:
+                        break;
+                }
+
+                ++itr;
+            }
         }
 
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>&, std::false_type) { }
-
-        template<typename T, int32 BlockBit, uint32 Bit>
-        static void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>& field, std::true_type)
+        template<typename T>
+        static inline void ClearChangesMask(OptionalUpdateFieldBase<T>& field)
         {
-            if (field.has_value())
-                field._value->ClearChangesMask();
+            if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                if (field.has_value())
+                    field._value->ClearChangesMask();
+        }
+
+        template<typename... Types>
+        static inline void ClearChangesMask(VariantUpdateFieldBase<Types...>& field)
+        {
+            if constexpr ((std::is_base_of_v<HasChangesMaskTag, Types> || ...))
+                std::visit([]<typename T>(T& value)
+                {
+                    if constexpr (std::is_base_of_v<HasChangesMaskTag, T>)
+                        value.ClearChangesMask();
+                }, field._value);
         }
 
         Mask _changesMask;
-    };
-
-    class UpdateFieldHolder
-    {
-    public:
-        explicit UpdateFieldHolder(Object* owner) : _owner(owner)
-        {
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            _changesMask.Set(Bit);
-            return { (static_cast<Derived*>(_owner)->*field)._value };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            _changesMask.Reset(Bit);
-            (static_cast<Derived*>(_owner)->*field)._value.ClearChangesMask();
-        }
-
-        uint32 GetChangedObjectTypeMask() const
-        {
-            return _changesMask.GetBlock(0);
-        }
-
-        bool HasChanged(uint32 index) const
-        {
-            return _changesMask[index];
-        }
-
-    private:
-        UpdateMask<NUM_CLIENT_OBJECT_TYPES> _changesMask;
-        Object* _owner;
     };
 
     template<typename T>
     class UpdateFieldBase : public IsUpdateFieldHolderTag
     {
         template<typename F, bool PublicSet>
-        friend struct MutableFieldReference;
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
 
         template<typename F, bool PublicSet>
         friend struct MutableNestedFieldReference;
@@ -765,7 +954,10 @@ namespace UF
     class UpdateFieldArrayBase : public UpdateFieldArrayBaseWithoutSize<T>
     {
         template<typename F, bool PublicSet>
-        friend struct MutableFieldReference;
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
 
         template<typename F, bool PublicSet>
         friend struct MutableNestedFieldReference;
@@ -819,13 +1011,15 @@ namespace UF
     };
 
     void WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data, int32 bitsForSize = 32);
-    void WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data, int32 bitsForSize = 32);
 
     template<typename T>
     class DynamicUpdateFieldBase : public IsUpdateFieldHolderTag
     {
         template<typename F, bool PublicSet>
-        friend struct MutableFieldReference;
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
 
         template<typename F, bool PublicSet>
         friend struct MutableNestedFieldReference;
@@ -887,7 +1081,7 @@ namespace UF
 
         bool HasChanged(uint32 index) const
         {
-            return (_updateMask[index / 32] & (1 << (index % 32))) != 0;
+            return (_updateMask[UpdateMaskHelpers::GetBlockIndex(index)] & UpdateMaskHelpers::GetBlockFlag(index)) != 0;
         }
 
         void WriteUpdateMask(ByteBuffer& data, int32 bitsForSize = 32) const
@@ -898,25 +1092,17 @@ namespace UF
     private:
         void MarkChanged(std::size_t index)
         {
-            std::size_t block = UpdateMaskHelpers::GetBlockIndex(index);
-            if (block >= _updateMask.size())
-                _updateMask.emplace_back(0);
-
-            _updateMask[block] |= UpdateMaskHelpers::GetBlockFlag(index);
+            _updateMask[UpdateMaskHelpers::GetBlockIndex(index)] |= UpdateMaskHelpers::GetBlockFlag(index);
         }
 
         void ClearChanged(std::size_t index)
         {
-            std::size_t block = UpdateMaskHelpers::GetBlockIndex(index);
-            if (block >= _updateMask.size())
-                _updateMask.emplace_back(0);
-
-            _updateMask[block] &= ~UpdateMaskHelpers::GetBlockFlag(index);
+            _updateMask[UpdateMaskHelpers::GetBlockIndex(index)] &= ~UpdateMaskHelpers::GetBlockFlag(index);
         }
 
         void ClearChangesMask()
         {
-            std::fill(_updateMask.begin(), _updateMask.end(), 0);
+            std::memset(_updateMask.data(), 0, _updateMask.size() * sizeof(uint32));
         }
 
         std::vector<T> _values;
@@ -928,11 +1114,138 @@ namespace UF
     {
     };
 
+    template<typename K, typename V>
+    class MapUpdateFieldBase : public IsUpdateFieldHolderTag
+    {
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableNestedFieldReference;
+
+        template<std::size_t Bits>
+        friend class HasChangesMask;
+
+    public:
+        struct Value
+        {
+            V value;
+            MapUpdateFieldState state;
+        };
+
+        using key_type = K;
+        using mapped_type = Value;
+        using value_type = std::pair<key_type const, mapped_type>;
+
+        typename std::unordered_map<K, Value>::const_iterator begin() const
+        {
+            return _values.begin();
+        }
+
+        typename std::unordered_map<K, Value>::const_iterator end() const
+        {
+            return _values.end();
+        }
+
+        bool empty() const
+        {
+            return _values.empty();
+        }
+
+        std::size_t size() const
+        {
+            return _values.size();
+        }
+
+        V const* Get(K const& key) const
+        {
+            auto itr = _values.find(key);
+            if (itr != _values.end())
+                return &itr->second.value;
+
+            return nullptr;
+        }
+
+        template <Trinity::invocable_r<bool, V const&> Pred>
+        std::pair<K const*, V const*> FindIf(Pred&& pred) const
+        {
+            auto itr = std::ranges::find_if(_values, std::forward<Pred>(pred),
+                [](value_type const& pair) -> V const& { return pair.second.value; });
+            if (itr != _values.end())
+                return std::make_pair(&itr->first, &itr->second.value);
+
+            return { nullptr, nullptr };
+        }
+
+    private:
+        std::unordered_map<K, Value> _values;
+    };
+
+    template<typename K, typename V, int32 BlockBit, uint32 Bit>
+    class MapUpdateField : public MapUpdateFieldBase<K, V>
+    {
+    };
+
+    template<typename T>
+    class SetUpdateFieldBase : public IsUpdateFieldHolderTag
+    {
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableNestedFieldReference;
+
+        template<std::size_t Bits>
+        friend class HasChangesMask;
+
+    public:
+        using key_type = T;
+        using mapped_type = MapUpdateFieldState;
+        using value_type = std::pair<key_type const, mapped_type>;
+
+        typename std::unordered_map<T, MapUpdateFieldState>::const_iterator begin() const
+        {
+            return _values.begin();
+        }
+
+        typename std::unordered_map<T, MapUpdateFieldState>::const_iterator end() const
+        {
+            return _values.end();
+        }
+
+        bool empty() const
+        {
+            return _values.empty();
+        }
+
+        std::size_t size() const
+        {
+            return _values.size();
+        }
+
+    private:
+        std::unordered_map<T, MapUpdateFieldState> _values;
+    };
+
+    template<typename T, int32 BlockBit, uint32 Bit>
+    class SetUpdateField : public SetUpdateFieldBase<T>
+    {
+    };
+
     template<typename T>
     class OptionalUpdateFieldBase : public IsUpdateFieldHolderTag
     {
         template<typename F, bool PublicSet>
-        friend struct MutableFieldReference;
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
 
         template<typename F, bool PublicSet>
         friend struct MutableNestedFieldReference;
@@ -943,24 +1256,21 @@ namespace UF
         template<typename F>
         friend struct OptionalUpdateFieldSetter;
 
+        friend class UpdateFieldHolder;
+
     public:
         using value_type = T;
         using IsLarge = std::integral_constant<bool, sizeof(void*) * 3 < sizeof(T)>;
         using StorageType = std::conditional_t<IsLarge::value, std::unique_ptr<T>, Optional<T>>;
-
-        ~OptionalUpdateFieldBase()
-        {
-            DestroyValue();
-        }
 
         bool has_value() const
         {
             return !!_value;
         }
 
-        operator T const& () const
+        operator bool() const
         {
-            return *_value;
+            return has_value();
         }
         T const* operator->() const
         {
@@ -974,17 +1284,10 @@ namespace UF
     private:
         void ConstructValue()
         {
-            ConstructValue(IsLarge{});
-        }
-
-        void ConstructValue(std::false_type)
-        {
-            _value.emplace();
-        }
-
-        void ConstructValue(std::true_type)
-        {
-            _value = std::make_unique<T>();
+            if constexpr (IsLarge::value)
+                _value = std::make_unique<T>();
+            else
+                _value.emplace();
         }
 
         void DestroyValue()
@@ -997,6 +1300,64 @@ namespace UF
 
     template<typename T, int32 BlockBit, uint32 Bit>
     class OptionalUpdateField : public OptionalUpdateFieldBase<T>
+    {
+    };
+
+    template<typename... Types>
+    class VariantUpdateFieldBase : public IsUpdateFieldHolderTag
+    {
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceWithChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReferenceNoChangesMask;
+
+        template<typename F, bool PublicSet>
+        friend struct MutableNestedFieldReference;
+
+        template<std::size_t Bits>
+        friend class HasChangesMask;
+
+        friend class UpdateFieldHolder;
+
+    public:
+        template<typename T>
+        bool Is() const { return std::holds_alternative<T>(_value); }
+
+        template<typename T>
+        T const* Get() const noexcept
+        {
+            if (std::holds_alternative<T>(_value))
+                return &std::get<T>(_value);
+            return nullptr;
+        }
+
+        template<typename Visitor>
+        decltype(auto) Visit(Visitor&& visitor) const noexcept
+        {
+            return std::visit(std::forward<Visitor>(visitor), _value);
+        }
+
+    private:
+        template<typename T>
+        void ConstructValue()
+        {
+            _value.template emplace<T>();
+        }
+
+        template<typename T>
+        T* Get() noexcept
+        {
+            if (std::holds_alternative<T>(_value))
+                return &std::get<T>(_value);
+            return nullptr;
+        }
+
+        std::variant<std::monostate, Types...> _value;
+    };
+
+    template<int32 BlockBit, uint32 Bit, typename... Types>
+    class VariantUpdateField : public VariantUpdateFieldBase<Types...>
     {
     };
 

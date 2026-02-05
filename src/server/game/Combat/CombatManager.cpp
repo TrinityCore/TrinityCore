@@ -16,9 +16,9 @@
  */
 
 #include "CombatManager.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "MapUtils.h"
 #include "Player.h"
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
@@ -124,6 +124,10 @@ bool PvPCombatReference::Update(uint32 tdiff)
 void PvPCombatReference::RefreshTimer()
 {
     _combatTimer = PVP_COMBAT_TIMEOUT;
+}
+
+CombatManager::CombatManager(Unit* owner) : _owner(owner)
+{
 }
 
 CombatManager::~CombatManager()

@@ -15,12 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PacketUtilities_h__
-#define PacketUtilities_h__
+#ifndef TRINITYCORE_PACKET_UTILITIES_H
+#define TRINITYCORE_PACKET_UTILITIES_H
 
 #include "ByteBuffer.h"
 #include "Duration.h"
-#include "Optional.h"
 #include "Tuples.h"
 #include <short_alloc/short_alloc.h>
 #include <string_view>
@@ -31,7 +30,7 @@ namespace WorldPackets
     class InvalidStringValueException : public ByteBufferInvalidValueException
     {
     public:
-        InvalidStringValueException(std::string_view value);
+        explicit InvalidStringValueException(char const* type, std::string_view value);
 
         std::string const& GetInvalidValue() const { return _value; }
 
@@ -42,19 +41,26 @@ namespace WorldPackets
     class InvalidUtf8ValueException : public InvalidStringValueException
     {
     public:
-        InvalidUtf8ValueException(std::string_view value);
+        explicit InvalidUtf8ValueException(std::string_view value);
     };
 
     class InvalidHyperlinkException : public InvalidStringValueException
     {
     public:
-        InvalidHyperlinkException(std::string_view value);
-    };
+        enum Reason : uint8
+        {
+            Malformed,
+            NotAllowed
+        };
 
-    class IllegalHyperlinkException : public InvalidStringValueException
-    {
-    public:
-        IllegalHyperlinkException(std::string_view value);
+        explicit InvalidHyperlinkException(std::string_view value, Reason reason);
+
+        Reason GetReason() const { return _reason; }
+
+    private:
+        static char const* GetReasonText(Reason reason);
+
+        Reason _reason;
     };
 
     namespace Strings
@@ -120,6 +126,11 @@ namespace WorldPackets
             return *this = std::string_view(value);
         }
 
+        void resize(std::size_t size)
+        {
+            _storage.resize(size);
+        }
+
     private:
         static bool Validate(std::string_view value)
         {
@@ -141,6 +152,23 @@ namespace WorldPackets
         PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit);
     };
 
+    [[noreturn]] void OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit);
+
+    template <typename T, std::size_t N, bool IsLarge>
+    struct ArrayAllocatorTraits
+    {
+        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
+        using resource_type = typename allocator_type::arena_type;
+    };
+
+    // don't store elements inline when size is large
+    template <typename T, std::size_t N>
+    struct ArrayAllocatorTraits<T, N, true>
+    {
+        using allocator_type = std::allocator<T>;
+        using resource_type = std::allocator<T>;
+    };
+
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
@@ -148,8 +176,9 @@ namespace WorldPackets
     class Array
     {
     public:
-        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
-        using arena_type = typename allocator_type::arena_type;
+        using allocator_traits = ArrayAllocatorTraits<T, N, (sizeof(T) * N > 0x1000)>;
+        using allocator_type = typename allocator_traits::allocator_type;
+        using allocator_resource_type = typename allocator_traits::resource_type;
 
         using storage_type = std::vector<T, allocator_type>;
 
@@ -164,7 +193,7 @@ namespace WorldPackets
         using iterator = typename storage_type::iterator;
         using const_iterator = typename storage_type::const_iterator;
 
-        Array() : _storage(_data) { }
+        Array() : _storage(_allocatorResource) { }
 
         Array(Array const& other) : Array()
         {
@@ -188,6 +217,8 @@ namespace WorldPackets
 
         Array& operator=(Array&& other) noexcept = delete;
 
+        ~Array() = default;
+
         iterator begin() { return _storage.begin(); }
         const_iterator begin() const { return _storage.begin(); }
 
@@ -206,7 +237,7 @@ namespace WorldPackets
         void resize(size_type newSize)
         {
             if (newSize > max_capacity::value)
-                throw PacketArrayMaxCapacityException(newSize, max_capacity::value);
+                OnInvalidArraySize(newSize, max_capacity::value);
 
             _storage.resize(newSize);
         }
@@ -214,7 +245,7 @@ namespace WorldPackets
         void push_back(value_type const& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(value);
         }
@@ -222,7 +253,7 @@ namespace WorldPackets
         void push_back(value_type&& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(std::forward<value_type>(value));
         }
@@ -245,7 +276,7 @@ namespace WorldPackets
         }
 
     private:
-        arena_type _data;
+        allocator_resource_type _allocatorResource;
         storage_type _storage;
     };
 
@@ -287,7 +318,7 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
         {
-            timestamp._value = data.read<time_t, Underlying>();
+            timestamp._value = static_cast<time_t>(data.read<Underlying>());
             return data;
         }
 
@@ -328,121 +359,6 @@ namespace WorldPackets
     private:
         ChronoDuration _value = ChronoDuration::zero();
     };
-
-    template<typename Underlying, typename T>
-    struct AsWriter
-    {
-        T const& Value;
-
-        friend inline ByteBuffer& operator<<(ByteBuffer& data, AsWriter const& opt)
-        {
-            data << Underlying(opt.Value);
-            return data;
-        }
-    };
-
-    template<typename Underlying, typename T>
-    struct AsReaderWriter : AsWriter<Underlying, T>
-    {
-        friend inline ByteBuffer& operator>>(ByteBuffer& data, AsReaderWriter const& opt)
-        {
-            Underlying temp;
-            data >> temp;
-            const_cast<T&>(opt.Value) = static_cast<T>(temp);
-            return data;
-        }
-    };
-
-    template<typename Underlying, typename T>
-    inline AsWriter<Underlying, T> As(T const& value) { return { value }; }
-
-    template<typename Underlying, typename T>
-    inline AsReaderWriter<Underlying, T> As(T& value) { return { value }; }
-
-    template<typename T>
-    struct OptionalInitWriter
-    {
-        Optional<T> const& Opt;
-
-        friend inline ByteBuffer& operator<<(ByteBuffer& data, OptionalInitWriter const& opt)
-        {
-            data.WriteBit(opt.Opt.has_value());
-            return data;
-        }
-    };
-
-    template<typename T>
-    struct OptionalInitReaderWriter : OptionalInitWriter<T>
-    {
-        friend inline ByteBuffer& operator>>(ByteBuffer& data, OptionalInitReaderWriter const& opt)
-        {
-            if (data.ReadBit())
-                const_cast<Optional<T>&>(opt.Opt).emplace();
-            return data;
-        }
-    };
-
-    template<typename T>
-    inline OptionalInitWriter<T> OptionalInit(Optional<T> const& value) { return { value }; }
-
-    template<typename T>
-    inline OptionalInitReaderWriter<T> OptionalInit(Optional<T>& value) { return { value }; }
-
-    template<uint32 BitCount, typename T>
-    struct BitsWriter
-    {
-        T const& Value;
-
-        friend inline ByteBuffer& operator<<(ByteBuffer& data, BitsWriter const& bits)
-        {
-            data.WriteBits(static_cast<uint32>(bits.Value), BitCount);
-            return data;
-        }
-    };
-
-    template<uint32 BitCount, typename T>
-    struct BitsReaderWriter : BitsWriter<BitCount, T>
-    {
-        friend inline ByteBuffer& operator>>(ByteBuffer& data, BitsReaderWriter const& bits)
-        {
-            const_cast<T&>(bits.Value) = static_cast<T>(data.ReadBits(BitCount));
-            return data;
-        }
-    };
-
-    template<uint32 BitCount, typename T>
-    inline BitsWriter<BitCount, T> Bits(T const& value) { return { value }; }
-
-    template<uint32 BitCount, typename T>
-    inline BitsReaderWriter<BitCount, T> Bits(T& value) { return { value }; }
-
-    template<uint32 BitCount, typename Container>
-    struct BitsSizeWriter
-    {
-        Container const& Value;
-
-        friend inline ByteBuffer& operator<<(ByteBuffer& data, BitsSizeWriter const& bits)
-        {
-            data.WriteBits(static_cast<uint32>(bits.Value.size()), BitCount);
-            return data;
-        }
-    };
-
-    template<uint32 BitCount, typename Container>
-    struct BitsSizeReaderWriter : BitsSizeWriter<BitCount, Container>
-    {
-        friend inline ByteBuffer& operator>>(ByteBuffer& data, BitsSizeReaderWriter const& bits)
-        {
-            const_cast<Container&>(bits.Value).resize(data.ReadBits(BitCount));
-            return data;
-        }
-    };
-
-    template<uint32 BitCount, typename Container>
-    inline BitsSizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
-
-    template<uint32 BitCount, typename Container>
-    inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
 }
 
-#endif // PacketUtilities_h__
+#endif // TRINITYCORE_PACKET_UTILITIES_H

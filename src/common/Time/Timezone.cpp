@@ -17,13 +17,20 @@
 
 #include "Timezone.h"
 #include "Hash.h"
-#include "Locales.h"
 #include "MapUtils.h"
-#include "StringConvert.h"
-#include <boost/locale/date_time_facet.hpp>
-#include <chrono>
-#include <memory>
+#include "Tuples.h"
+#include <algorithm>
+#include <array>
 #include <unordered_map>
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "StringConvert.h"
+#else
+#include "Locales.h"
+#include "Util.h"
+#include <boost/locale/date_time_facet.hpp>
+#include <memory>
+#endif
 
 namespace
 {
@@ -39,7 +46,7 @@ std::unordered_map<uint32, Minutes, std::identity> InitTimezoneHashDb()
         std::chrono::sys_info sysInfo = zone.get_info(dummmy);
         Minutes offsetMinutes = std::chrono::duration_cast<Minutes>(sysInfo.offset);
         std::string offsetStr = Trinity::ToString(offsetMinutes.count());
-        hashToOffset.emplace(Trinity::HashFnv1a(offsetStr), offsetMinutes);
+        hashToOffset.emplace(Trinity::HashFnv1a<uint32>::GetHash(offsetStr), offsetMinutes);
     }
 
 #else
@@ -163,20 +170,13 @@ std::string GetSystemZoneName()
 std::string_view FindClosestClientSupportedTimezone(std::string_view currentTimezone, Minutes currentTimezoneOffset)
 {
     // try exact match
-    auto itr = std::find_if(_clientSupportedTimezones.begin(), _clientSupportedTimezones.end(), [currentTimezone](ClientSupportedTimezone const& tz)
-    {
-        return tz.second == currentTimezone;
-    });
+    auto itr = std::ranges::find(_clientSupportedTimezones, currentTimezone, Trinity::TupleElement<1>);
     if (itr != _clientSupportedTimezones.end())
         return itr->second;
 
     // try closest offset
-    itr = std::min_element(_clientSupportedTimezones.begin(), _clientSupportedTimezones.end(), [currentTimezoneOffset](ClientSupportedTimezone const& left, ClientSupportedTimezone const& right)
-    {
-        Minutes leftDiff = left.first - currentTimezoneOffset;
-        Minutes rightDiff = right.first - currentTimezoneOffset;
-        return std::abs(leftDiff.count()) < std::abs(rightDiff.count());
-    });
+    itr = std::ranges::min_element(_clientSupportedTimezones, std::ranges::less(),
+        [currentTimezoneOffset](ClientSupportedTimezone const& ctz) { return std::chrono::abs(ctz.first - currentTimezoneOffset); });
 
     return itr->second;
 }

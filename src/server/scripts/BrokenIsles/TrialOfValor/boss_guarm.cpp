@@ -286,7 +286,7 @@ struct boss_guarm : public BossAI
                 events.CancelEvent(EVENT_LICK);
                 me->GetMotionMaster()->Clear(); // remove ChaseMovementGen
                 me->SetReactState(REACT_PASSIVE);
-                me->GetMotionMaster()->MoveJump(BerserkerPair.JumpPos, 42.0f, 21.5f, POINT_BERSERK_JUMP);
+                me->GetMotionMaster()->MoveJump(POINT_BERSERK_JUMP, BerserkerPair.JumpPos, {}, 12.0f);
                 break;
             default:
                 break;
@@ -642,7 +642,7 @@ class spell_headlong_charge_trigger : public SpellScript
         uint8 pairId = urand(0, 3);
         caster->GetMotionMaster()->Clear(); // remove ChaseMovementGen
         caster->SetReactState(REACT_PASSIVE);
-        caster->GetMotionMaster()->MoveJump(HeadlongChargePairs[pairId].JumpPos, 42.0f, 21.5f, POINT_HEADLONG_CHARGE + pairId);
+        caster->GetMotionMaster()->MoveJump(POINT_HEADLONG_CHARGE + pairId, HeadlongChargePairs[pairId].JumpPos, {}, 12.0f);
     }
 
     void Register() override

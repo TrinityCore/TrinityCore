@@ -80,9 +80,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
 
     m_Map               = nullptr;
 
-    m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamIds[TEAM_HORDE]      = 0;
-
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
 
@@ -579,7 +576,7 @@ void Battleground::RewardHonorToTeam(uint32 Honor, Team team)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(team, itr, "RewardHonorToTeam"))
-            UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor);
+            UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor, true, HonorGainSource::TeamContribution);
 }
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, Team team)
@@ -729,7 +726,11 @@ void Battleground::EndBattleground(Team winner)
                 if (BattlegroundMgr::IsRandomBattleground(bgPlayer->queueTypeId.BattlemasterListId)
                     || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
                 {
-                    UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winnerKills));
+                    HonorGainSource source = HonorGainSource::BGCompletion;
+                    if (!player->GetRandomWinner())
+                        source = BattlegroundMgr::IsRandomBattleground(bgPlayer->queueTypeId.BattlemasterListId) ? HonorGainSource::RandomBGCompletion : HonorGainSource::HolidayBGCompletion;
+
+                    UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winnerKills), true, source);
                     if (!player->GetRandomWinner())
                     {
                         player->SetRandomWinner(true);
@@ -759,7 +760,7 @@ void Battleground::EndBattleground(Team winner)
             {
                 if (BattlegroundMgr::IsRandomBattleground(bgPlayer->queueTypeId.BattlemasterListId)
                     || BattlegroundMgr::IsBGWeekend(BattlegroundTypeId(bgPlayer->queueTypeId.BattlemasterListId)))
-                    UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loserKills));
+                    UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loserKills), true, HonorGainSource::BGCompletion);
             }
         }
 
@@ -868,7 +869,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (SendPacket && bgQueueTypeId)
             {
                 WorldPackets::Battleground::BattlefieldStatusNone battlefieldStatus;
-                sBattlegroundMgr->BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(*bgQueueTypeId), player->GetBattlegroundQueueJoinTime(*bgQueueTypeId));
+                BattlegroundMgr::BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(*bgQueueTypeId), player->GetBattlegroundQueueJoinTime(*bgQueueTypeId));
                 player->SendDirectMessage(battlefieldStatus.Write());
             }
 
@@ -955,7 +956,7 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     if (m_IsRated)
-        TC_LOG_DEBUG("bg.arena", "Arena match type: {} for Team1Id: {} - Team2Id: {} started.", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
+        TC_LOG_DEBUG("bg.arena", "Arena match type: {} started.", m_ArenaType);
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
@@ -1282,14 +1283,14 @@ BattlegroundScore const* Battleground::GetBattlegroundScore(Player* player) cons
     return Trinity::Containers::MapGetValuePtr(PlayerScores, player->GetGUID());
 }
 
-bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
+bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor, Optional<HonorGainSource> source)
 {
     BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUID());
     if (itr == PlayerScores.end()) // player not found...
         return false;
 
     if (type == SCORE_BONUS_HONOR && doAddHonor && isBattleground())
-        player->RewardHonor(nullptr, 1, value); // RewardHonor calls UpdatePlayerScore with doAddHonor = false
+        player->RewardHonor(nullptr, 1, value, source.value_or(HonorGainSource::Kill)); // RewardHonor calls UpdatePlayerScore with doAddHonor = false
     else
         itr->second->UpdateScore(type, value);
 

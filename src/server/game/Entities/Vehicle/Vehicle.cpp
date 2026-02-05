@@ -34,6 +34,18 @@
 #include "Unit.h"
 #include <sstream>
 
+class VehicleJoinEvent : public BasicEvent
+{
+public:
+    VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
+    bool Execute(uint64, uint32) override;
+    void Abort(uint64) override;
+
+    Vehicle* Target;
+    Unit* Passenger;
+    SeatMap::iterator Seat;
+};
+
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE)
 {
@@ -93,7 +105,7 @@ void Vehicle::InstallAllAccessories(bool evading)
 
     for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
         if (!evading || itr->IsMinion)  // only install minions on evade mode
-            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime);
+            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime, itr->RideSpellID);
 }
 
 /**
@@ -378,7 +390,7 @@ VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* pass
  * @param summonTime Time after which the minion is despawned in case of a timed despawn @type specified.
  */
 
-void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime)
+void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime, Optional<uint32> rideSpellId /*= {}*/)
 {
     /// @Prevent adding accessories when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING)
@@ -398,7 +410,10 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     if (minion)
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
-    _me->HandleSpellClick(accessory, seatId);
+    if (rideSpellId)
+        _me->HandleSpellClick(accessory, seatId, *rideSpellId);
+    else
+        _me->HandleSpellClick(accessory, seatId);
 
     /// If for some reason adding accessory to vehicle fails it will unsummon in
     /// @VehicleJoinEvent::Abort
@@ -530,7 +545,11 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // only for flyable vehicles
     if (unit->IsFlying())
-        _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    {
+        VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this);
+        if (!vehicleTemplate || !vehicleTemplate->CustomFlags.HasFlag(VehicleCustomFlags::DontForceParachuteOnExit))
+            _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+    }
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
@@ -565,16 +584,12 @@ void Vehicle::RelocatePassengers()
         {
             ASSERT(passenger->IsInWorld());
 
-            float px, py, pz, po;
-            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
-
-            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
+            seatRelocation.emplace_back(passenger, _me->GetPositionWithOffset(passenger->m_movementInfo.transport.pos));
         }
     }
 
     for (auto const& [passenger, position] : seatRelocation)
-        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+        UpdatePassengerPosition(_me->GetMap(), passenger, position, false);
 }
 
 /**
@@ -629,6 +644,8 @@ void Vehicle::InitMovementInfoForBase()
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
         _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+
+    _me->m_movementInfo.pitch = GetPitch();
 }
 
 /**
@@ -961,6 +978,15 @@ Milliseconds Vehicle::GetDespawnDelay()
         return vehicleTemplate->DespawnDelay;
 
     return 1ms;
+}
+
+float Vehicle::GetPitch()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        if (vehicleTemplate->Pitch)
+            return *vehicleTemplate->Pitch;
+
+    return std::clamp(0.0f, _vehicleInfo->PitchMin, _vehicleInfo->PitchMax);
 }
 
 std::string Vehicle::GetDebugInfo() const

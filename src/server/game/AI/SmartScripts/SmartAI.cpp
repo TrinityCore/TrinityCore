@@ -29,6 +29,7 @@
 #include "PetDefines.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "Vehicle.h"
 #include "WaypointManager.h"
 
@@ -46,7 +47,7 @@ bool SmartAI::IsAIControlled() const
 }
 
 void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult/* = {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult/* = {}*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
@@ -191,7 +192,7 @@ void SmartAI::EndPath(bool fail)
     ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me);
     if (targets && _escortQuestId)
     {
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
+        if (targets->size() == 1 && targets->front()->IsPlayer())
         {
             Player* player = targets->front()->ToPlayer();
             if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
@@ -202,9 +203,9 @@ void SmartAI::EndPath(bool fail)
 
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference const& groupRef : group->GetMembers())
                 {
-                    Player* groupGuy = groupRef->GetSource();
+                    Player* groupGuy = groupRef.GetSource();
                     if (!groupGuy->IsInMap(player))
                         continue;
 
@@ -219,9 +220,8 @@ void SmartAI::EndPath(bool fail)
         {
             for (WorldObject* target : *targets)
             {
-                if (GetScript()->IsPlayer(target))
+                if (Player* player = target->ToPlayer())
                 {
-                    Player* player = target->ToPlayer();
                     if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                         player->AreaExploredOrEventHappens(_escortQuestId);
                     else if (fail)
@@ -298,17 +298,17 @@ bool SmartAI::IsEscortInvokerInRange()
     if (ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me))
     {
         float checkDist = me->GetInstanceScript() ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
+        if (targets->size() == 1 && targets->front()->IsPlayer())
         {
-            Player* player = (*targets->begin())->ToPlayer();
+            Player* player = targets->front()->ToPlayer();
             if (me->GetDistance(player) <= checkDist)
                 return true;
 
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference const& groupRef : group->GetMembers())
                 {
-                    Player* groupGuy = groupRef->GetSource();
+                    Player* groupGuy = groupRef.GetSource();
                     if (groupGuy->IsInMap(player) && me->GetDistance(groupGuy) <= checkDist)
                         return true;
                 }
@@ -317,13 +317,8 @@ bool SmartAI::IsEscortInvokerInRange()
         else
         {
             for (WorldObject* target : *targets)
-            {
-                if (GetScript()->IsPlayer(target))
-                {
-                    if (me->GetDistance(target->ToPlayer()) <= checkDist)
-                        return true;
-                }
-            }
+                if (target->IsPlayer() && me->GetDistance(target) <= checkDist)
+                    return true;
         }
 
         // no valid target found
@@ -617,6 +612,16 @@ void SmartAI::OnSpellStart(SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, 0, 0, false, spellInfo);
 }
 
+void SmartAI::OnAuraApplied(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_APPLIED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
+void SmartAI::OnAuraRemoved(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_REMOVED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
@@ -733,11 +738,6 @@ void SmartAI::SetRun(bool run)
 {
     me->SetWalk(!run);
     _run = run;
-}
-
-void SmartAI::SetDisableGravity(bool fly)
-{
-    me->SetDisableGravity(fly);
 }
 
 void SmartAI::SetEvadeDisabled(bool disable)
@@ -1114,13 +1114,19 @@ class SmartTrigger : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            if (!player->IsAlive())
-                return false;
-
-            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} is using SmartTrigger script", trigger->ID);
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} enter is using SmartTrigger script", trigger->ID);
             SmartScript script;
             script.OnInitialize(player, trigger);
-            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->ID);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ENTER, player);
+            return true;
+        }
+
+        bool OnExit(Player* player, AreaTriggerEntry const* trigger) override
+        {
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} exit is using SmartTrigger script", trigger->ID);
+            SmartScript script;
+            script.OnInitialize(player, trigger);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_EXIT, player);
             return true;
         }
 };
@@ -1137,7 +1143,12 @@ void SmartAreaTriggerAI::OnUpdate(uint32 diff)
 
 void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, unit);
+    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ENTER, unit);
+}
+
+void SmartAreaTriggerAI::OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_EXIT, unit);
 }
 
 void SmartAreaTriggerAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)

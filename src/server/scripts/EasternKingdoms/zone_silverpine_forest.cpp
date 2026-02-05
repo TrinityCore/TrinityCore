@@ -480,7 +480,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        garrosh->GetMotionMaster()->MoveJump(GarroshJumpPos, 15.595897f, 15.595897f);
+                        garrosh->GetMotionMaster()->MoveJump(EVENT_JUMP, GarroshJumpPos, 16.0f);
 
                         _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 3, 2s + 500ms);
                     }
@@ -1617,8 +1617,6 @@ struct go_silverpine_abandoned_outhouse : public GameObjectAI
 
 Position const YorickReadyPosition = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
 
-Position const YorickDeathPosition = { 1295.52f, 1206.58f, 58.501f };
-
 enum DeathstalkerRaneYorick
 {
     PHASE_WAITING_TO_EXSANGUINATE           = 265,
@@ -1822,7 +1820,6 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                 }
 
                 case EVENT_RANE_LAST_MOVE:
-                    me->GetMotionMaster()->MoveJump(YorickDeathPosition, 10.0f, 10.0f);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                     _events.ScheduleEvent(EVENT_RANE_LAST_MOVE + 1, 2s);
                     break;
@@ -3628,8 +3625,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
     }
 
     void IsSummonedBy(WorldObject* summoner) override
@@ -3938,7 +3934,6 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
     void JustAppeared() override
     {
         me->SetDisableGravity(true);
-        me->SetHover(true);
 
         _lurkingOnCeilingPos = me->GetPosition();
 
@@ -3954,16 +3949,9 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
 
     void JustReachedHome() override
     {
-        me->SetDisableGravity(true);
-        me->SetHover(true);
+        me->SetFacingTo(0.820305f);
 
-        me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
-
-        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_HANGING_BY_WEB);
-
-        me->GetMotionMaster()->MoveJump(_lurkingOnCeilingPos, 8.0f, 8.0f);
-
-        _events.ScheduleEvent(EVENT_RESET_POSITION, 1s + 500ms);
+        _events.ScheduleEvent(EVENT_RESET_POSITION, 1s);
     }
 
     void JustSummoned(Creature* summon) override
@@ -3994,13 +3982,11 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
             {
                 case EVENT_MATRIARCH_AGGRO:
                     me->SetDisableGravity(false);
-                    me->SetHover(false);
                     me->GetMotionMaster()->MoveFall();
                     _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 1, 1s);
                     break;
 
                 case EVENT_MATRIARCH_AGGRO + 1:
-                    me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
                     me->CastStop();
                     me->SetHomePosition(me->GetPosition());
                     _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s + 500ms);
@@ -4012,8 +3998,10 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
                     break;
 
                 case EVENT_RESET_POSITION:
-                    me->SetFacingTo(0.820305f);
+                    me->SetDisableGravity(true);
+                    me->NearTeleportTo(_lurkingOnCeilingPos);
                     me->SetHomePosition(me->GetPosition());
+                    me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
                     me->SetAIAnimKitId(ANIMKIT_MATRIARCH_LURKING_ON_CEILING);
                     break;
 
@@ -4298,8 +4286,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveFollow(summoner, 3.0f, float(M_PI / 2.0f));
 
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToAll(false);
 
                         me->SetReactState(REACT_ASSIST);
                     }
@@ -4326,8 +4313,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
         _isSceneStarted = true;
 
-        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(false);
 
         me->SetReactState(REACT_PASSIVE);
 
@@ -4575,8 +4561,7 @@ struct npc_silverpine_forsaken_trooper_fenris_isle : public ScriptedAI
         if (!summoner->IsCreature())
             return;
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
 
@@ -4862,8 +4847,7 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
         if (Unit* unit = summoner->ToUnit())
             unit->EnterVehicle(me, SEAT_FENRIS_CAMERA);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -4982,8 +4966,7 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -5121,8 +5104,7 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
         if (Creature* fenrisStalker = me->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
             me->SetFacingToObject(fenrisStalker);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true);
 
         me->SetReactState(REACT_PASSIVE);
     }

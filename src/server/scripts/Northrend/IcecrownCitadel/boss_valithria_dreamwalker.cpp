@@ -942,8 +942,8 @@ struct npc_dream_cloud : public ScriptedAI
                 case EVENT_CHECK_PLAYER:
                 {
                     Player* player = nullptr;
-                    Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
-                    Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+                    Trinity::AnyUnitInObjectRangeCheck check(me, 5.0f);
+                    Trinity::PlayerSearcher searcher(me, player, check);
                     Cell::VisitWorldObjects(me, searcher, 7.5f);
                     _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1s);
                     break;

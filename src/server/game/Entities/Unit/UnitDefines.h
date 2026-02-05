@@ -127,6 +127,29 @@ enum UnitMoveType : uint8
 
 #define MAX_MOVE_TYPE     9
 
+enum AdvFlyingRateTypeSingle : uint8
+{
+    ADV_FLYING_AIR_FRICTION             = 0,
+    ADV_FLYING_MAX_VEL                  = 1,
+    ADV_FLYING_LIFT_COEFFICIENT         = 2,
+    ADV_FLYING_DOUBLE_JUMP_VEL_MOD      = 3,
+    ADV_FLYING_GLIDE_START_MIN_HEIGHT   = 4,
+    ADV_FLYING_ADD_IMPULSE_MAX_SPEED    = 5,
+    ADV_FLYING_SURFACE_FRICTION         = 14,
+    ADV_FLYING_OVER_MAX_DECELERATION    = 15,
+    ADV_FLYING_LAUNCH_SPEED_COEFFICIENT = 16
+};
+
+enum AdvFlyingRateTypeRange : uint8
+{
+    ADV_FLYING_BANKING_RATE             = 6,
+    ADV_FLYING_PITCHING_RATE_DOWN       = 8,
+    ADV_FLYING_PITCHING_RATE_UP         = 10,
+    ADV_FLYING_TURN_VELOCITY_THRESHOLD  = 12
+};
+
+#define ADV_FLYING_MAX_SPEED_TYPE 17
+
 enum DamageEffectType : uint8
 {
     DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
@@ -330,6 +353,9 @@ enum NPCFlags : uint32
 
 DEFINE_ENUM_FLAG(NPCFlags);
 
+inline constexpr NPCFlags UNIT_NPC_FLAG_VENDOR_MASK = UNIT_NPC_FLAG_VENDOR | UNIT_NPC_FLAG_VENDOR_AMMO | UNIT_NPC_FLAG_VENDOR_FOOD
+                                                    | UNIT_NPC_FLAG_VENDOR_POISON | UNIT_NPC_FLAG_VENDOR_REAGENT;
+
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
@@ -445,7 +471,10 @@ enum MovementFlags3 : uint32
     MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
     MOVEMENTFLAG3_CAN_ADV_FLY       = 0x00000002,
     MOVEMENTFLAG3_ADV_FLYING        = 0x00000004,
-    MOVEMENTFLAG3_CANT_SWIM         = 0x00002000,
+    MOVEMENTFLAG3_CANNOT_SWIM       = 0x00002000,
+    MOVEMENTFLAG3_CAN_DRIVE         = 0x00004000,
+    MOVEMENTFLAG3_DRIVING_FORWARD   = 0x00008000,
+    MOVEMENTFLAG3_DRIVING_BACKWARD  = 0x00010000,
 };
 
 enum HitInfo
@@ -488,10 +517,10 @@ enum class AttackSwingErr : uint8
 
 #define MAX_DECLINED_NAME_CASES 5
 
-struct TC_GAME_API DeclinedName
+struct DeclinedName
 {
     DeclinedName() = default;
-    DeclinedName(UF::DeclinedNames const& uf);
+    TC_GAME_API DeclinedName(UF::DeclinedNames const& uf);
 
     std::string name[MAX_DECLINED_NAME_CASES];
 };

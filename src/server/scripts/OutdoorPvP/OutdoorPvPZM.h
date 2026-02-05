@@ -193,10 +193,10 @@ class OutdoorPvPZM : public OutdoorPvP
         uint32 GetHordeTowersControlled() const;
         void SetHordeTowersControlled(uint32 count);
 
-        OPvPCapturePointZM_Graveyard* GetGraveyard() { return m_Graveyard; }
+        OPvPCapturePointZM_Graveyard* GetGraveyard() { return m_Graveyard.get(); }
 
     private:
-        OPvPCapturePointZM_Graveyard* m_Graveyard;
+        std::unique_ptr<OPvPCapturePointZM_Graveyard> m_Graveyard;
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
 };

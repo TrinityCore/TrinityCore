@@ -35,7 +35,7 @@ void HashMapHolder<T>::Insert(T* o)
     static_assert(std::is_same<Player, T>::value,
         "Only Player can be registered in global HashMapHolder");
 
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    std::scoped_lock lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
 }
@@ -43,7 +43,7 @@ void HashMapHolder<T>::Insert(T* o)
 template<class T>
 void HashMapHolder<T>::Remove(T* o)
 {
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    std::scoped_lock lock(*GetLock());
 
     GetContainer().erase(o->GetGUID());
 }
@@ -51,7 +51,7 @@ void HashMapHolder<T>::Remove(T* o)
 template<class T>
 T* HashMapHolder<T>::Find(ObjectGuid guid)
 {
-    std::shared_lock<std::shared_mutex> lock(*GetLock());
+    std::shared_lock lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
     return (itr != GetContainer().end()) ? itr->second : nullptr;
@@ -124,7 +124,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
     {
         case HighGuid::Item:
             if (typemask & TYPEMASK_ITEM && p.GetTypeId() == TYPEID_PLAYER)
-                return ((Player const&)p).GetItemByGuid(guid);
+                return static_cast<Player const&>(p).GetItemByGuid(guid);
             break;
         case HighGuid::Player:
             if (typemask & TYPEMASK_PLAYER)
@@ -161,6 +161,8 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
                 return GetConversation(p, guid);
             break;
         case HighGuid::Corpse:
+            if (typemask & TYPEMASK_CORPSE)
+                return GetCorpse(p, guid);
             break;
         default:
             break;
@@ -288,7 +290,7 @@ HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
 
 void ObjectAccessor::SaveAllPlayers()
 {
-    std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+    std::shared_lock lock(*HashMapHolder<Player>::GetLock());
 
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)

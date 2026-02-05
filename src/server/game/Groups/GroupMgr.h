@@ -30,6 +30,11 @@ private:
     ~GroupMgr();
 
 public:
+    GroupMgr(GroupMgr const&) = delete;
+    GroupMgr(GroupMgr&&) = delete;
+    GroupMgr& operator=(GroupMgr const&) = delete;
+    GroupMgr& operator=(GroupMgr&&) = delete;
+
     static GroupMgr* instance();
 
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
@@ -42,7 +47,7 @@ public:
     void   FreeGroupDbStoreId(Group* group);
     void   SetNextGroupDbStoreId(uint32 storageId) { NextGroupDbStoreId = storageId; };
     Group* GetGroupByDbStoreId(uint32 storageId) const;
-    void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
+    void   SetGroupDbStoreSize(uint32 newSize);
 
     void Update(uint32 diff);
 

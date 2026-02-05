@@ -321,7 +321,7 @@ enum DisplayIds
     THORIM_WEAPON_DISPLAY_ID                = 45900
 };
 
-Position const LightningOrbPath[] =
+G3D::Vector3 const LightningOrbPath[] =
 {
     { 2134.889893f, -298.632996f, 438.247467f },
     { 2134.570068f, -440.317993f, 438.247467f },
@@ -332,7 +332,6 @@ Position const LightningOrbPath[] =
     { 2202.208008f, -262.939270f, 412.168976f },
     { 2182.310059f, -263.233093f, 414.739410f }
 };
-std::size_t const LightningOrbPathSize = std::extent<decltype(LightningOrbPath)>::value;
 
 // used for trash jump calculation
 Position const ArenaCenter = { 2134.77f, -262.307f };
@@ -340,8 +339,8 @@ Position const ArenaCenter = { 2134.77f, -262.307f };
 // used for lightning field calculation
 Position const LightningFieldCenter = { 2135.178f, -321.122f };
 
-CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4);
-CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0, true);
+CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4f);
+CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0f, true);
 
 CreatureBoundary const ArenaBoundaries =
 {
@@ -635,14 +634,7 @@ class boss_thorim : public CreatureScript
 
                         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
                         {
-                            Movement::PointsArray path;
-                            path.reserve(LightningOrbPathSize);
-                            std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
-                            {
-                                return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-                            });
-
-                            init.MovebyPath(path);
+                            init.MovebyPath(LightningOrbPath);
                         };
                         summon->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         break;
@@ -709,7 +701,7 @@ class boss_thorim : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetDisableGravity(false);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, 30.0f, 20.0f);
+                            me->GetMotionMaster()->MoveJump(EVENT_JUMP, { 2134.8f, -263.056f, 419.983f }, {}, 5.0f);
                             events.ScheduleEvent(EVENT_START_PERIODIC_CHARGE, 2s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 15s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20s, 0, PHASE_2);
@@ -966,7 +958,7 @@ struct npc_thorim_trashAI : public ScriptedAI
                     heal += spellEffectInfo.CalcValue(caster);
 
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA) && spellEffectInfo.IsAura(SPELL_AURA_PERIODIC_HEAL))
-                    heal += spellInfo->GetMaxTicks() * spellEffectInfo.CalcValue(caster);
+                    heal += spellEffectInfo.GetPeriodicTickCount() * spellEffectInfo.CalcValue(caster);
             }
             return heal;
         }

@@ -8,37 +8,19 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-if(USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/databasePCH.h)
-endif()
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(database
-  ${PRIVATE_SOURCES}
-)
+add_library(database)
 
-CollectIncludeDirectories(
+CollectAndAddSourceFiles(
+  database
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
+  EXCLUDE
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 target_include_directories(database
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
-
-set_target_properties(database
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_DATABASE)
 
 target_link_libraries(database
   PRIVATE
@@ -48,9 +30,10 @@ target_link_libraries(database
     common)
 
 set_target_properties(database
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_DATABASE
+    FOLDER "server")
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)
@@ -66,5 +49,5 @@ endif()
 
 # Generate precompiled header
 if(USE_COREPCH)
-  add_cxx_pch(database ${PRIVATE_PCH_HEADER})
+  add_cxx_pch(database PrecompiledHeaders/databasePCH.h)
 endif()
