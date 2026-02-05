@@ -3198,7 +3198,10 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             }
         }
 
-        hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster, m_spentComboPoints);
+        if (m_spellValue->Duration)
+            hitInfo.AuraDuration = *m_spellValue->Duration;
+        else
+            hitInfo.AuraDuration = Aura::CalcMaxDuration(m_spellInfo, origCaster, m_spentComboPoints);
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(m_spellInfo, hitInfo.AuraDuration, origCaster, diminishLevel))
