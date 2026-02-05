@@ -9473,7 +9473,7 @@ uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /
     if (location.HasFlag(ItemSearchLocation::Inventory))
     {
         uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < inventoryEnd; ++i)
+        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < inventoryEnd; ++i)
             if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeSlotCount;
 
