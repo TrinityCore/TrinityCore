@@ -1143,6 +1143,11 @@ class spell_dru_gore : public AuraScript
 // Triggered by 22842 - Frenzied Regeneration
 class spell_dru_guardian_of_elune_healing : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_GUARDIAN_OF_ELUNE_AURA, EFFECT_1 } });
+    }
+
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
