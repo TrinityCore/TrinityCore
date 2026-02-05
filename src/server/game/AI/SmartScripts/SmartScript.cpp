@@ -1198,7 +1198,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 y = pos.GetPositionY() + (std::sin(o - (M_PI / 2))*e.target.x) + (std::sin(o)*e.target.y);
                 z = pos.GetPositionZ() + e.target.z;
 
-                Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+                Scripting::v2::ActionResultSetter<MovementStopReason> scriptResult;
                 if (waitEvent)
                     scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
@@ -1424,7 +1424,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
 
             std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+            Scripting::v2::ActionResultSetter<MovementStopReason> scriptResult;
             if (waitEvent)
                 scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
 
@@ -1499,7 +1499,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 target = Trinity::Containers::SelectRandomContainerElement(targets);
 
             std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+            Scripting::v2::ActionResultSetter<MovementStopReason> scriptResult;
             if (waitEvent)
                 scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
 
@@ -1807,13 +1807,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (Player* playerTarget = target->ToPlayer())
                 {
-                    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> scriptResult;
+                    Scripting::v2::ActionResultSetter<MovementStopReason> scriptResult;
                     if (waitEvent)
                         scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
                     if (!playerTarget->ActivateTaxiPathTo(e.action.taxi.id, 0, {}, scriptResult))
                         if (scriptResult)
-                            scriptResult->SetResult(MovementStopReason::Interrupted);
+                            scriptResult.SetResult(MovementStopReason::Interrupted);
                 }
             }
             if (waitEvent && !waitEvent->Results.empty())
@@ -1919,7 +1919,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+            Scripting::v2::ActionResultSetter<MovementStopReason> actionResultSetter;
             if (waitEvent)
                 actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
 
@@ -2138,7 +2138,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                         if (closest.first != 0)
                         {
-                            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+                            Scripting::v2::ActionResultSetter<MovementStopReason> actionResultSetter;
                             if (waitEvent)
                                 actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
@@ -2681,7 +2681,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (Unit* unitTarget = target->ToUnit())
                 {
-                    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+                    Scripting::v2::ActionResultSetter<MovementStopReason> actionResultSetter;
                     if (waitEvent)
                         actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
@@ -3752,7 +3752,7 @@ void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
     e.timer = urand(min, max);
-    e.active = e.timer ? false : true;
+    e.active = e.timer == 0;
 }
 
 void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
@@ -3855,20 +3855,6 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         e.timer -= diff;
 }
 
-bool SmartScript::CheckTimer(SmartScriptHolder const& e) const
-{
-    return e.active;
-}
-
-void SmartScript::InstallEvents()
-{
-    if (!mInstallEvents.empty())
-    {
-        mEvents.insert(mEvents.end(), std::move_iterator(mInstallEvents.begin()), std::move_iterator(mInstallEvents.end()));
-        mInstallEvents.clear();
-    }
-}
-
 void SmartScript::RemoveStoredEvent(uint32 id)
 {
     if (!mStoredEvents.empty())
@@ -3932,8 +3918,6 @@ void SmartScript::OnUpdate(uint32 const diff)
 
         return;
     }
-
-    InstallEvents();//before UpdateTimers
 
     if (mEventSortingRequired)
     {
@@ -4220,7 +4204,6 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
         InitTimer(event);//calculate timers for first time use
 
     ProcessEventsFor(SMART_EVENT_AI_INIT);
-    InstallEvents();
     ProcessEventsFor(SMART_EVENT_JUST_CREATED);
     mCounterList.clear();
 }

@@ -56,12 +56,12 @@ AuctionsBucketKey::AuctionsBucketKey(WorldPackets::AuctionHouse::AuctionBucketKe
 
 std::size_t AuctionsBucketKey::Hash(AuctionsBucketKey const& key)
 {
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, std::hash<uint32>()(key.ItemId));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.ItemLevel));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.BattlePetSpeciesId));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.SuffixItemNameDescriptionId));
-    return hashVal;
+    Trinity::HashFnv1a<> hash;
+    hash.UpdateData(key.ItemId);
+    hash.UpdateData(key.ItemLevel);
+    hash.UpdateData(key.BattlePetSpeciesId);
+    hash.UpdateData(key.SuffixItemNameDescriptionId);
+    return hash.Value;
 }
 
 AuctionsBucketKey AuctionsBucketKey::ForItem(Item const* item)
@@ -1146,9 +1146,8 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
     if (filters.HasFlag(AuctionHouseFilterMask::UncollectedOnly))
     {
         knownAppearanceIds = player->GetSession()->GetCollectionMgr()->GetAppearanceIds();
-        knownPetSpecies.init_from_block_range(knownPetBits.begin(), knownPetBits.end());
-        if (knownPetSpecies.size() < sBattlePetSpeciesStore.GetNumRows())
-            knownPetSpecies.resize(sBattlePetSpeciesStore.GetNumRows());
+        knownPetSpecies.resize(std::max(knownPetSpecies.size() * 32, std::size_t(sBattlePetSpeciesStore.GetNumRows())));
+        boost::from_block_range(knownPetBits.begin(), knownPetBits.end(), knownPetSpecies);
     }
 
     AuctionsResultBuilder<AuctionsBucketData> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, AuctionHouseResultLimits::Browse);
