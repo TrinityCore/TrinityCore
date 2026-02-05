@@ -98,6 +98,7 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_GROWL                          = 6795,
+    SPELL_DRUID_GUARDIAN_OF_ELUNE_AURA         = 213680,
     SPELL_DRUID_HALF_MOON                      = 274282,
     SPELL_DRUID_HALF_MOON_OVERRIDE             = 274297,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
@@ -1135,6 +1136,33 @@ class spell_dru_gore : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_gore::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_gore::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 213680 - Guardian of Elune
+// Triggered by 22842 - Frenzied Regeneration
+class spell_dru_guardian_of_elune_healing : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_GUARDIAN_OF_ELUNE_AURA, EFFECT_1 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AuraEffect* guardianOfElune = caster->GetAuraEffect(SPELL_DRUID_GUARDIAN_OF_ELUNE_AURA, EFFECT_1))
+            AddPct(amount, guardianOfElune->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_guardian_of_elune_healing::CalculateAmount, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
     }
 };
 
@@ -2924,6 +2952,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_germination);
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
+    RegisterSpellScript(spell_dru_guardian_of_elune_healing);
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_incarnation);
     RegisterSpellScript(spell_dru_incarnation_tree_of_life);
