@@ -431,6 +431,7 @@ enum class ChrSpecialization : uint32
     MonkMistweaver              = 270,
     DemonHunterHavoc            = 577,
     DemonHunterVengeance        = 581,
+    DemonHunterDevourer         = 1480,
     EvokerDevastation           = 1467,
     EvokerPreservation          = 1468,
     EvokerAugmentation          = 1473
