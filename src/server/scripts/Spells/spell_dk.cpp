@@ -179,10 +179,10 @@ public:
     {
         absorbedAmount += absorbAmount;
 
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
-            GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
-        }
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_RUNIC_POWER_ENERGIZE, args);
+    }
 
     void Register() override
     {
@@ -1415,15 +1415,15 @@ struct at_dk_death_and_decay : AreaTriggerAI
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
-        {
+    {
         if (unit->GetGUID() != at->GetCasterGuid())
             return;
 
         if (Aura* deathAndDecay = unit->GetAura(SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS))
-            {
+        {
             if (AuraEffect* const cleavingStrikes = unit->GetAuraEffect(SPELL_DK_CLEAVING_STRIKES, EFFECT_3))
                 deathAndDecay->SetDuration(cleavingStrikes->GetAmount());
-            }
+        }
 
         unit->RemoveAurasDueToSpell(SPELL_DK_SANGUINE_GROUND);
     }
