@@ -952,16 +952,18 @@ class spell_dru_flower_walk : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_FLOWER_WALK_HEAL })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_FLOWER_WALK);
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        Unit* caster = GetTarget();
-        if (!caster->HasAura(SPELL_DRUID_FLOWER_WALK))
-            return;
-
-        caster->CastSpell(caster, SPELL_DRUID_FLOWER_WALK_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_FLOWER_WALK_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_SUPPRESS_CASTER_ANIM);
     }
 
     void Register() override
@@ -975,13 +977,13 @@ class spell_dru_flower_walk_heal : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
-        int32 maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster);
+        int32 maxTargets = GetEffectInfo(EFFECT_1).CalcValue(caster);
 
         if (targets.size() > 1)
             targets.remove(caster);
