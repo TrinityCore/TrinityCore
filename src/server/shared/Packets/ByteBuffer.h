@@ -619,9 +619,9 @@ class TC_SHARED_API ByteBuffer
 
         void hexlike() const;
 
-    protected:
         [[noreturn]] void OnInvalidPosition(size_t pos, size_t valueSize) const;
 
+    protected:
         size_t _rpos, _wpos;
         uint8 _bitpos;
         uint8 _curbitval;

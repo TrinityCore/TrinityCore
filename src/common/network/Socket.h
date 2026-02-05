@@ -128,7 +128,7 @@ class Socket : public std::enable_shared_from_this<Socket<Stream>>
 public:
     template<typename... Args>
     explicit Socket(IoContextTcpSocket&& socket, Args&&... args) : _socket(std::move(socket), std::forward<Args>(args)...),
-        _remoteAddress(_socket.remote_endpoint().address()), _remotePort(_socket.remote_endpoint().port()), _openState(OpenState_Open)
+        _remoteEndpoint(_socket.remote_endpoint()), _openState(OpenState_Open)
     {
     }
 
@@ -185,18 +185,17 @@ public:
 
     boost::asio::ip::address const& GetRemoteIpAddress() const
     {
-        return _remoteAddress;
+        return _remoteEndpoint.Address;
     }
 
     uint16 GetRemotePort() const
     {
-        return _remotePort;
+        return _remoteEndpoint.Port;
     }
 
     void SetRemoteEndpoint(boost::asio::ip::tcp::endpoint const& endpoint)
     {
-        _remoteAddress = endpoint.address();
-        _remotePort = endpoint.port();
+        _remoteEndpoint = endpoint;
     }
 
     template <invocable_r<SocketReadCallbackResult> Callback>
@@ -227,7 +226,7 @@ public:
 
     void CloseSocket()
     {
-        if ((_openState.fetch_or(OpenState_Closed) & OpenState_Closed) == 0)
+        if (_openState.exchange(OpenState_Closed) == OpenState_Closed)
             return;
 
         boost::system::error_code shutdownError;
@@ -242,7 +241,8 @@ public:
     /// Marks the socket for closing after write buffer becomes empty
     void DelayedCloseSocket()
     {
-        if (_openState.fetch_or(OpenState_Closing) != 0)
+        uint8 oldState = OpenState_Open;
+        if (!_openState.compare_exchange_strong(oldState, OpenState_Closing))
             return;
 
         if (_writeQueue.empty())
@@ -380,8 +380,14 @@ private:
 
     Stream _socket;
 
-    boost::asio::ip::address _remoteAddress;
-    uint16 _remotePort = 0;
+    struct Endpoint
+    {
+        Endpoint() : Address(), Port(0) { }
+        explicit(false) Endpoint(boost::asio::ip::tcp_endpoint const& endpoint) : Address(endpoint.address()), Port(endpoint.port()) { }
+
+        boost::asio::ip::address Address;
+        uint16 Port;
+    } _remoteEndpoint;
 
     MessageBuffer _readBuffer = MessageBuffer(0x1000);
     std::queue<MessageBuffer> _writeQueue;
