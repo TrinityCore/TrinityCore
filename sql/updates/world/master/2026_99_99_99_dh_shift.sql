@@ -4,4 +4,4 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `jump_charge_params` WHERE `id`=1466;
 INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `unlimitedSpeed`, `minHeight`, `maxHeight`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`, `triggerSpellId`) VALUES
-(1466, 0.1, 1, 1, NULL, NULL, 164063, 88051, 88052, NULL);
+(1466, 0.1, 1, 1, 0.5, NULL, 164063, 88051, 88052, NULL);
