@@ -82,6 +82,8 @@ enum WarriorSpells
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
+    SPELL_WARRIOR_REND                              = 772,
+    SPELL_WARRIOR_REND_AURA                         = 388539,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -101,6 +103,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
+    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_VICIOUS_CONTEMPT                  = 383885,
@@ -109,10 +112,7 @@ enum WarriorSpells
     SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
-    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
-    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
-    SPELL_WARRIOR_REND                              = 772,
-    SPELL_WARRIOR_REND_AURA                         = 388539
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
 };
 
 enum WarriorMisc
@@ -1490,6 +1490,55 @@ class spell_warr_tenderize : public AuraScript
     }
 };
 
+// 6343 - Thunder Clap
+class spell_warr_thunder_clap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_CLAP_SLOW });
+    }
+
+    void HandleSlow(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 6343 - Thunder Clap (Rend)
+class spell_warr_thunder_clap_rend : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_REND, SPELL_WARRIOR_REND_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_WARRIOR_REND);
+    }
+
+    void HandleRend(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_REND_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap_rend::HandleRend, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 394329 - Titanic Rage
 class spell_warr_titanic_rage : public AuraScript
 {
@@ -1674,72 +1723,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// 6343 - Thunder Clap
-class spell_warr_thunder_clap : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_CLAP_SLOW });
-    }
-
-    void HandleSlow(SpellEffIndex /*effIndex*/) const
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 6343 - Thunder Clap (Rend)
-class spell_warr_thunder_clap_rend : public SpellScript
-{
-public:
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({
-            SPELL_WARRIOR_REND,
-            SPELL_WARRIOR_REND_AURA
-            });
-    }
-
-    bool Load() override
-    {
-        if (Player* player = GetCaster()->ToPlayer())
-            return player->HasSpell(SPELL_WARRIOR_REND);
-        return false;
-    }
-
-    void HandleRend(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (_applicationCount >= 5)
-            return;
-
-        caster->CastSpell(target, SPELL_WARRIOR_REND_AURA, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-            });
-
-        ++_applicationCount;
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap_rend::HandleRend, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-
-private:
-    uint8 _applicationCount = 0;
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1785,6 +1768,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tenderize);
+    RegisterSpellScript(spell_warr_thunder_clap);
+    RegisterSpellScript(spell_warr_thunder_clap_rend);
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
@@ -1792,6 +1777,4 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_thunder_clap);
-    RegisterSpellScript(spell_warr_thunder_clap_rend);
 }
