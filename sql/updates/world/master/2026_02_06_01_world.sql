@@ -1,4 +1,4 @@
-SET @CGUID := 3000098;
+SET @CGUID := 224151;
 SET @POOLID := 3000003;
 
 -- Creature
@@ -111,7 +111,7 @@ INSERT INTO `pool_members` (`type`, `spawnId`, `poolSpawnId`, `chance`, `descrip
 (0, @CGUID+26, @POOLID+12, 0, 'Westfall - The Jansen Stead - Transient');
 
 -- SpellScriptNames
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (79169, 79168);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_westfall_summon_ragamuffin_looter', 'spell_westfall_aggro_hobo');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (79169, 'spell_westfall_summon_ragamuffin_looter'),
 (79168, 'spell_westfall_aggro_hobo');

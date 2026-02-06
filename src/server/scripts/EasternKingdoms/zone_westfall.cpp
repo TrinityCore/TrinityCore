@@ -35,8 +35,8 @@ namespace Creatures
     static constexpr uint32 OverloadedHarvestGolem = 42601;
     static constexpr uint32 JangolodeMineGlubtok = 42492;
     static constexpr uint32 JangolodeMineFigure = 42515;
-    static constexpr uint32 HomelessStormwindCitizenOne = 42386;
-    static constexpr uint32 HomelessStormwindCitizenTwo = 42384;
+    static constexpr uint32 HomelessStormwindCitizen1 = 42386;
+    static constexpr uint32 HomelessStormwindCitizen2 = 42384;
     static constexpr uint32 WestPlainDrifter = 42391;
     static constexpr uint32 Transient = 42383;
 }
@@ -110,10 +110,10 @@ namespace Text
 
     namespace HoboText
     {
-        static constexpr uint32 HoboSayClueOne = 0;
-        static constexpr uint32 HoboSayClueTwo = 1;
-        static constexpr uint32 HoboSayClueThree = 2;
-        static constexpr uint32 HoboSayClueFour = 3;
+        static constexpr uint32 HoboSayClue1 = 0;
+        static constexpr uint32 HoboSayClue2 = 1;
+        static constexpr uint32 HoboSayClue3 = 2;
+        static constexpr uint32 HoboSayClue4 = 3;
         static constexpr uint32 HoboAggroBribe = 4;
         static constexpr uint32 HoboAggroConvince = 5;
         static constexpr uint32 HoboEvent = 6;
@@ -365,6 +365,20 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 {
     npc_westfall_hobo_witness(Creature* creature) : ScriptedAI(creature), _bribeFailed(false), _hoboRage(false), _flee(false) {}
 
+    struct HoboClueData
+    {
+        uint32 SpellID;
+        uint32 TextID;
+    };
+
+    static constexpr std::array<HoboClueData, 4> HoboClues =
+    { {
+        { Spells::HoboInformation1, Text::HoboText::HoboSayClue1 },
+        { Spells::HoboInformation2, Text::HoboText::HoboSayClue2 },
+        { Spells::HoboInformation3, Text::HoboText::HoboSayClue3 },
+        { Spells::HoboInformation4, Text::HoboText::HoboSayClue4 },
+    } };
+
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         uint8 clueGainChance = 0;
@@ -405,36 +419,18 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
         uint16 slot = player->FindQuestSlot(Quests::MurderWasTheCaseThatTheyGaveMe);
 
-        if (player->GetQuestSlotCounter(slot, 0) == 0)
+        for (uint8 i = 0; i < HoboClues.size(); i++)
         {
-            player->CastSpell(player, Spells::HoboInformation1);
-            Talk(Text::HoboText::HoboSayClueOne, player);
-            me->DespawnOrUnsummon(12s);
-            return;
-        }
+            if (player->GetQuestSlotCounter(slot, i) == 0)
+            {
+                HoboClueData const& data = HoboClues[i];
 
-        if (player->GetQuestSlotCounter(slot, 1) == 0)
-        {
-            player->CastSpell(player, Spells::HoboInformation2);
-            Talk(Text::HoboText::HoboSayClueTwo, player);
-            me->DespawnOrUnsummon(12s);
-            return;
-        }
+                player->CastSpell(player, data.SpellID);
+                Talk(data.TextID, player);
 
-        if (player->GetQuestSlotCounter(slot, 2) == 0)
-        {
-            player->CastSpell(player, Spells::HoboInformation3);
-            Talk(Text::HoboText::HoboSayClueThree, player);
-            me->DespawnOrUnsummon(12s);
-            return;
-        }
-
-        if (player->GetQuestSlotCounter(slot, 3) == 0)
-        {
-            player->CastSpell(player, Spells::HoboInformation4);
-            Talk(Text::HoboText::HoboSayClueFour, player);
-            me->DespawnOrUnsummon(12s);
-            return;
+                me->DespawnOrUnsummon(12s);
+                return;
+            }
         }
     }
 
@@ -503,7 +499,6 @@ struct npc_westfall_hobo_witness : public ScriptedAI
     void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
     {
         _targetGUID = guid;
-        DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroAction);
     }
 
     void UpdateAI(uint32 diff) override
@@ -539,7 +534,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
                     break;
                 case Events::MurderWasTheCaseThatTheyGaveMe::PropertyRage:
                 {
-                    uint32 creatureId = RAND(Creatures::HomelessStormwindCitizenOne, Creatures::HomelessStormwindCitizenTwo, Creatures::Transient, Creatures::WestPlainDrifter);
+                    uint32 creatureId = RAND(Creatures::HomelessStormwindCitizen1, Creatures::HomelessStormwindCitizen2, Creatures::Transient, Creatures::WestPlainDrifter);
                     if (Creature* creature = GetClosestCreatureWithEntry(me, creatureId, 25.0f))
                     {
                         if (!creature->IsAlive() || creature->IsInCombat())
@@ -623,7 +618,10 @@ class spell_westfall_aggro_hobo : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Creature* creature = GetHitCreature())
+        {
             creature->AI()->SetGUID(GetCaster()->GetGUID(), 0);
+            creature->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroAction);
+        }
     }
 
     void Register() override
