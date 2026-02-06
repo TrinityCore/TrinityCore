@@ -30,7 +30,6 @@
 #include "Player.h"
 #include "VehicleDefines.h"
 #include "advstd.h"
-#include <ranges>
 
 // We could move this do a database table if needed
 static constexpr GarrisonType SiteIdToGarrType(uint32 siteId)
@@ -192,7 +191,7 @@ void Garrison::SaveToDB(CharacterDatabaseTransaction trans)
     DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
-    for (auto const& garrInfo : _garrisonInfo | std::views::values)
+    for (auto const& [_, garrInfo] : _garrisonInfo )
     {
         stmt->setUInt64(0, _owner->GetGUID().GetCounter());
         stmt->setUInt8(1, garrInfo.GarrType->ID);
@@ -327,7 +326,7 @@ void Garrison::Delete(uint32 garrSiteId)
 
 void Garrison::InitializePlots()
 {
-    for (auto const& garrisonInfo : _garrisonInfo | std::views::values)
+    for (auto const& [_, garrisonInfo] : _garrisonInfo)
     {
         if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(garrisonInfo.GarrSiteLevel->ID))
         {
@@ -655,7 +654,7 @@ void Garrison::SendRemoteInfo() const
 {
     WorldPackets::Garrison::GarrisonRemoteInfo remoteInfo;
 
-    for (auto const& garrisonInfo : _garrisonInfo | std::views::values)
+    for (auto const& [_, garrisonInfo] : _garrisonInfo)
     {
         MapEntry const* garrisonMap = sMapStore.LookupEntry(garrisonInfo.GarrSiteLevel->MapID);
         if (!garrisonMap || int32(_owner->GetMapId()) != garrisonMap->ParentMapID)
@@ -957,7 +956,7 @@ void Garrison::SendInfoResult() const
 
     std::unordered_map<uint8 /*garrType*/, std::vector<WorldPackets::Garrison::GarrisonPlotInfo const*>> plotsByGarrType;
     std::unordered_map<uint8 /*garrType*/, std::vector<WorldPackets::Garrison::GarrisonBuildingInfo const*>> buildingsByGarrType;
-    for (auto const& plot : _plots | std::views::values)
+    for (auto const& [_, plot] : _plots)
     {
         GarrSiteLevelEntry const* siteLevelStore = sGarrSiteLevelStore.AssertEntry(plot.SiteLevelPlotInstEntry->GarrSiteLevelID);
 
@@ -967,11 +966,12 @@ void Garrison::SendInfoResult() const
     }
 
     std::unordered_map<uint8 /*garrType*/, std::vector<WorldPackets::Garrison::GarrisonFollower const*>> followersByGarrType;
-    for (auto const& [PacketInfo, FollowerEntry] : _followers | std::views::values)
-        followersByGarrType[FollowerEntry->GarrTypeID].push_back(&PacketInfo);
+    for (auto const& [_, follower] : _followers)
+        followersByGarrType[follower.FollowerEntry->GarrTypeID].push_back(&follower.PacketInfo);
 
-    std::ranges::transform(_garrisonInfo | std::views::values, std::back_inserter(result.Garrisons), [&](GarrisonInfo const& garrisonInfo)
+    std::ranges::transform(_garrisonInfo, std::back_inserter(result.Garrisons), [&](auto const& kv)
     {
+        GarrisonInfo const& garrisonInfo = kv.second;
         WorldPackets::Garrison::GarrisonInfo garrison;
         garrison.GarrTypeID = garrisonInfo.GarrType->ID;
         garrison.GarrSiteID = garrisonInfo.GarrSiteLevel->GarrSiteID;
