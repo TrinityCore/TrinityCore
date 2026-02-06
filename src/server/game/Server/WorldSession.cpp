@@ -15,11 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-    \ingroup u2w
-*/
-
 #include "WorldSession.h"
+#include "Account.h"
 #include "AccountMgr.h"
 #include "AuthenticationPackets.h"
 #include "Bag.h"
@@ -53,7 +50,6 @@
 #include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "WardenWin.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include <boost/circular_buffer.hpp>
@@ -108,17 +104,19 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
-    std::string os, Minutes timezoneOffset, uint32 build, ClientBuild::VariantId clientBuildVariant, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::string&& battlenetAccountEmail,
+    std::shared_ptr<WorldSocket>&& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string&& os, Minutes timezoneOffset,
+    uint32 build, ClientBuild::VariantId clientBuildVariant, LocaleConstant locale, uint32 recruiter, bool isARecruiter) :
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
     m_GUIDLow(UI64LIT(0)),
     _player(nullptr),
+    m_Socket({ std::move(sock), nullptr }),
     _security(sec),
     _accountId(id),
     _accountName(std::move(name)),
-    _battlenetAccountId(battlenetAccountId),
+    _battlenetAccount(new Battlenet::Account(this, ObjectGuid::Create<HighGuid::BNetAccount>(battlenetAccountId), std::move(battlenetAccountEmail))),
     m_accountExpansion(expansion),
     m_expansion(std::min<uint8>(expansion, sWorld->getIntConfig(CONFIG_EXPANSION))),
     _os(std::move(os)),
@@ -152,14 +150,13 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _battlePetMgr(std::make_unique<BattlePets::BattlePetMgr>(this)),
     _collectionMgr(std::make_unique<CollectionMgr>(this))
 {
-    if (sock)
+    if (m_Socket[CONNECTION_TYPE_REALM])
     {
-        m_Address = sock->GetRemoteIpAddress().to_string();
+        m_Address = m_Socket[CONNECTION_TYPE_REALM]->GetRemoteIpAddress().to_string();
         ResetTimeOutTime(false);
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId());     // One-time query
     }
 
-    m_Socket[CONNECTION_TYPE_REALM] = std::move(sock);
     _instanceConnectKey.Raw = UI64LIT(0);
 }
 
@@ -194,6 +191,16 @@ bool WorldSession::PlayerDisconnected() const
 {
     return !(m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() &&
              m_Socket[CONNECTION_TYPE_INSTANCE] && m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen());
+}
+
+uint32 WorldSession::GetBattlenetAccountId() const
+{
+    return GetBattlenetAccountGUID().GetCounter();
+}
+
+ObjectGuid WorldSession::GetBattlenetAccountGUID() const
+{
+    return _battlenetAccount->GetGUID();
 }
 
 std::string const & WorldSession::GetPlayerName() const
@@ -318,9 +325,9 @@ void WorldSession::AddInstanceConnection(WorldSession* session, std::weak_ptr<Wo
 }
 
 /// Add an incoming packet to the queue
-void WorldSession::QueuePacket(WorldPacket* new_packet)
+void WorldSession::QueuePacket(WorldPacket&& new_packet)
 {
-    _recvQueue.add(new_packet);
+    _recvQueue.add(new WorldPacket(std::move(new_packet)));
 }
 
 /// Logging helper for unexpected opcodes
@@ -518,32 +525,23 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
-        if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
-            _warden->Update(diff);
-
         ///- If necessary, log the player out
         if (ShouldLogOut(currentTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
 
         ///- Cleanup socket pointer if need
-        if ((m_Socket[CONNECTION_TYPE_REALM] && !m_Socket[CONNECTION_TYPE_REALM]->IsOpen()) ||
-            (m_Socket[CONNECTION_TYPE_INSTANCE] && !m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen()))
+        if (std::ranges::any_of(m_Socket, [](std::shared_ptr<WorldSocket> const& s) { return s && !s->IsOpen(); }))
         {
-            if (GetPlayer() && _warden)
-                _warden->Update(diff);
-
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
-                if (m_Socket[CONNECTION_TYPE_REALM])
+                for (std::shared_ptr<WorldSocket>& socket : m_Socket)
                 {
-                    m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
-                    m_Socket[CONNECTION_TYPE_REALM].reset();
-                }
-                if (m_Socket[CONNECTION_TYPE_INSTANCE])
-                {
-                    m_Socket[CONNECTION_TYPE_INSTANCE]->CloseSocket();
-                    m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                    if (socket)
+                    {
+                        socket->CloseSocket();
+                        socket.reset();
+                    }
                 }
             }
         }
@@ -833,6 +831,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
 
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
+    connectTo.NativeRealmAddress = GetVirtualRealmAddress();
     connectTo.Serial = serial;
     connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
@@ -1191,23 +1190,6 @@ SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallb
 bool WorldSession::CanAccessAlliedRaces() const
 {
     return GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
-}
-
-void WorldSession::InitWarden(SessionKey const& k)
-{
-    if (_os == "Win")
-    {
-        _warden = std::make_unique<WardenWin>();
-        _warden->Init(this, k);
-    }
-    else if (_os == "Wn64")
-    {
-        // Not implemented
-    }
-    else if (_os == "Mc64")
-    {
-        // Not implemented
-    }
 }
 
 void WorldSession::LoadPermissions()

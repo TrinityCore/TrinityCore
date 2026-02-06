@@ -15,10 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
-
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
@@ -51,7 +47,6 @@ class LoginQueryHolder;
 class MessageBuffer;
 class Player;
 class Unit;
-class Warden;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
@@ -70,6 +65,11 @@ enum class PlayerInteractionType : int32;
 enum InventoryResult : uint8;
 enum class StableResult : uint8;
 enum class TabardVendorType : int32;
+
+namespace Battlenet
+{
+class Account;
+}
 
 namespace BattlePets
 {
@@ -415,6 +415,11 @@ namespace WorldPackets
     {
         class DBQueryBulk;
         class HotfixRequest;
+    }
+
+    namespace Housing
+    {
+        class DeclineNeighborhoodInvites;
     }
 
     namespace Inspect
@@ -827,11 +832,6 @@ namespace WorldPackets
         class MoveSetVehicleRecIdAck;
     }
 
-    namespace Warden
-    {
-        class WardenData;
-    }
-
     namespace Who
     {
         class WhoIsRequest;
@@ -970,8 +970,9 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
-            std::string os, Minutes timezoneOffset, uint32 build, ClientBuild::VariantId clientBuildVariant, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::string&& battlenetAccountEmail,
+            std::shared_ptr<WorldSocket>&& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string&& os, Minutes timezoneOffset,
+            uint32 build, ClientBuild::VariantId clientBuildVariant, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -1007,8 +1008,9 @@ class TC_GAME_API WorldSession
         uint32 GetAccountId() const { return _accountId; }
         ObjectGuid GetAccountGUID() const { return ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId()); }
         std::string const& GetAccountName() const { return _accountName; }
-        uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
-        ObjectGuid GetBattlenetAccountGUID() const { return ObjectGuid::Create<HighGuid::BNetAccount>(GetBattlenetAccountId()); }
+        uint32 GetBattlenetAccountId() const;
+        ObjectGuid GetBattlenetAccountGUID() const;
+        Battlenet::Account& GetBattlenetAccount() const { return *_battlenetAccount; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
@@ -1023,10 +1025,6 @@ class TC_GAME_API WorldSession
         ClientBuild::VariantId const& GetClientBuildVariant() const { return _clientBuildVariant; }
 
         bool CanAccessAlliedRaces() const;
-        Warden* GetWarden() { return _warden.get(); }
-        Warden const* GetWarden() const { return _warden.get(); }
-
-        void InitWarden(SessionKey const& k);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -1055,7 +1053,7 @@ class TC_GAME_API WorldSession
         // May kick player on false depending on world config (handler should abort)
         bool DisallowHyperlinksAndMaybeKick(std::string const& str);
 
-        void QueuePacket(WorldPacket* new_packet);
+        void QueuePacket(WorldPacket&& new_packet);
         bool Update(uint32 diff, PacketFilter& updater);
 
         /// Handle the authentication waiting queue (to be completed)
@@ -1450,6 +1448,8 @@ class TC_GAME_API WorldSession
         void HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& packet);
         void HandleGuildChallengeUpdateRequest(WorldPackets::Guild::GuildChallengeUpdateRequest& packet);
         void HandleDeclineGuildInvites(WorldPackets::Guild::DeclineGuildInvites& packet);
+
+        void HandleDeclineNeighborhoodInvites(WorldPackets::Housing::DeclineNeighborhoodInvites const& declineNeighborhoodInvites);
 
         void HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode);
         void HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& taxiNodeStatusQuery);
@@ -1854,9 +1854,6 @@ class TC_GAME_API WorldSession
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
-        // Warden
-        void HandleWardenData(WorldPackets::Warden::WardenData& packet);
-
         // Battlenet
         void HandleBattlenetChangeRealmTicket(WorldPackets::Battlenet::ChangeRealmTicket& changeRealmTicket);
         void HandleBattlenetRequest(WorldPackets::Battlenet::Request& request);
@@ -1970,14 +1967,14 @@ class TC_GAME_API WorldSession
 
         ObjectGuid::LowType m_GUIDLow;                      // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        std::shared_ptr<WorldSocket> m_Socket[MAX_CONNECTION_TYPES];
+        std::array<std::shared_ptr<WorldSocket>, MAX_CONNECTION_TYPES> m_Socket;
         std::string m_Address;                              // Current Remote Address
      // std::string m_LAddress;                             // Last Attempted Remote Adress - we can not set attempted ip for a non-existing session!
 
         AccountTypes _security;
         uint32 _accountId;
         std::string _accountName;
-        uint32 _battlenetAccountId;
+        std::unique_ptr<Battlenet::Account> _battlenetAccount;
         uint8 m_accountExpansion;
         uint8 m_expansion;
         std::string _os;
@@ -1988,9 +1985,6 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32 /*realmAddress*/, uint8> _realmCharacterCounts;
         std::unordered_map<uint32, std::function<void(MessageBuffer)>> _battlenetResponseCallbacks;
         uint32 _battlenetRequestToken;
-
-        // Warden
-        std::unique_ptr<Warden> _warden;                                    // Remains NULL if Warden system is not enabled by config
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
@@ -2037,4 +2031,3 @@ class TC_GAME_API WorldSession
 };
 
 #endif
-/// @}
