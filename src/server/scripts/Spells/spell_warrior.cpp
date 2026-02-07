@@ -66,6 +66,7 @@ enum WarriorSpells
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_HEROIC_LEAP_DAMAGE                = 52174,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
+    SPELL_WARRIOR_IMPROVED_EXECUTE_ARMS             = 316405,
     SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
     SPELL_WARRIOR_IMPROVED_WHIRLWIND                = 12950,
     SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE     = 316595,
@@ -98,8 +99,8 @@ enum WarriorSpells
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
-    SPELL_WARRIOR_SUDDEN_DEATH                      = 280721,
-    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 280776,
+    SPELL_WARRIOR_SUDDEN_DEATH                      = 29725,
+    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -655,18 +656,121 @@ class spell_warr_enrage_proc : public AuraScript
     }
 };
 
+// 163201 - Execute (Arms, Protection)
+// 281000 - Massacre
+class spell_warr_execute : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({
+            { SPELL_WARRIOR_SUDDEN_DEATH, EFFECT_0 },
+            { spellInfo->Id, EFFECT_0 }
+        }) && ValidateSpellInfo({
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell
+        });
+    }
+
+    Optional<int32> GetSuddenDeathRageCost() const
+    {
+        if (Aura const* suddenDeathTalentAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH))
+            if (Aura* suddenDeathAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH_BUFF))
+                if (GetSpell()->m_appliedMods.contains(suddenDeathAura))
+                    return suddenDeathTalentAura->GetEffect(EFFECT_0)->CalculateAmount(GetCaster()) * 10;
+
+        return {};
+    }
+
+    std::pair<int32, int32> GetRageCost() const
+    {
+        for (SpellPowerEntry const* powerCost : GetSpellInfo()->PowerCosts)
+            if (powerCost->PowerType == POWER_RAGE)
+                return { powerCost->ManaCost, powerCost->OptionalCost };
+
+        return { 0, 0 };
+    }
+
+    void HandleExecuteCast(SpellEffIndex spellEffIndex)
+    {
+        PreventHitDefaultEffect(spellEffIndex);
+
+        // Can't use SpellInfo::CalcPowerCost here since Sudden Death modifies the costs so it's free.
+        std::pair<int32, int32> powerCosts = GetRageCost();
+        int32 rageSpent = GetSpell()->GetPowerTypeCostAmount(POWER_RAGE).value_or(0);
+
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(spellEffIndex).TriggerSpell, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .CustomArg = TriggerArgs{
+                .BaseRageCost = powerCosts.first,
+                .OptionalRageCost = powerCosts.second,
+                .DamageRageSpent = GetSuddenDeathRageCost().value_or(rageSpent),
+                .RefundRage = CalculatePct(rageSpent, GetEffectInfo(EFFECT_1).CalcValue())
+            }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_execute::HandleExecuteCast, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+
+public:
+    struct TriggerArgs
+    {
+        int32 BaseRageCost;
+        int32 OptionalRageCost;
+        int32 DamageRageSpent;
+        int32 RefundRage;
+    };
+};
+
 // 260798 - Execute (Arms, Protection)
 class spell_warr_execute_damage : public SpellScript
 {
-    static void CalculateExecuteDamage(SpellScript const&, SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
+    void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod) const
     {
-        // tooltip has 2 multiplier hardcoded in it $damage=${2.0*$260798s1}
-        pctMod *= 2.0f;
+        spell_warr_execute::TriggerArgs const* triggerArgs = std::any_cast<spell_warr_execute::TriggerArgs>(&GetSpell()->m_customArg);
+        if (!triggerArgs)
+            return;
+
+        if (triggerArgs->OptionalRageCost <= 0)
+            return;
+
+        pctMod *= (static_cast<float>(triggerArgs->DamageRageSpent - triggerArgs->BaseRageCost) / static_cast<float>(triggerArgs->OptionalRageCost) + 1.0f);
     }
 
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
+// 260798 - Execute -> 316405 (Improved Execute (Arms))
+class spell_warr_execute_refund_rage : public SpellScript
+{
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_EXECUTE_ARMS);
+    }
+
+    void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
+    {
+        bool killed = damageInfo.GetDamage() >= damageInfo.GetVictim()->GetHealth();
+        if (killed)
+            return;
+
+        spell_warr_execute::TriggerArgs const* triggerArgs = std::any_cast<spell_warr_execute::TriggerArgs>(&GetSpell()->m_customArg);
+        if (!triggerArgs)
+            return;
+
+        GetCaster()->ModifyPower(POWER_RAGE, triggerArgs->RefundRage, false);
+    }
+
+    void Register() override
+    {
+        // abuse OnCalculateResistAbsorb to determine if this spell will kill target or not (its still not perfect - happens before absorbs are applied)
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_warr_execute_refund_rage::DetermineKillStatus);
     }
 };
 
@@ -1739,7 +1843,9 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_deft_experience);
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_enrage_proc);
+    RegisterSpellScript(spell_warr_execute);
     RegisterSpellScript(spell_warr_execute_damage);
+    RegisterSpellScript(spell_warr_execute_refund_rage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
