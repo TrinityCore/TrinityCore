@@ -234,6 +234,7 @@ enum DemonHunterSpells
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
+    SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
     SPELL_DH_WAVE_OF_DEBILITATION_SLOW             = 453263,
 };
@@ -2405,6 +2406,29 @@ class spell_dh_violent_transformation : public AuraScript
     }
 };
 
+// 473728 - Void Ray
+class spell_dh_void_ray : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_VOID_RAY_DAMAGE });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(nullptr, SPELL_DH_VOID_RAY_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_void_ray::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 179057 - Chaos Nova
 class spell_dh_wave_of_debilitation : public AuraScript
 {
@@ -2512,6 +2536,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
     RegisterSpellScript(spell_dh_violent_transformation);
+    RegisterSpellScript(spell_dh_void_ray);
     RegisterSpellScript(spell_dh_wave_of_debilitation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
