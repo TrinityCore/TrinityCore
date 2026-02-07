@@ -14107,10 +14107,10 @@ void Unit::DestroyForPlayer(Player const* target) const
     WorldObject::DestroyForPlayer(target);
 }
 
-void Unit::ClearUpdateMask(bool remove)
+void Unit::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Unit::m_unitData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }
 
 int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue /*= false*/, int32 miscValue /*= 0*/) const

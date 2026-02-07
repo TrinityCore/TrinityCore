@@ -70,29 +70,29 @@ inline void WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& da
 }
 
 template <typename K, typename V, typename T>
-inline void WriteMapFieldCreate(MapUpdateFieldBase<K, V> const& map, ByteBuffer& data, T const* owner, Player const* receiver)
+inline void WriteMapFieldCreate(MapUpdateFieldBase<K, V> const& map, ByteBuffer& data, Player const* receiver, T const* owner)
 {
     data << uint32(map.size());
     for (auto const& [k, v] : map)
     {
         if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, K>)
-            k.WriteCreate(data, owner, receiver);
+            k.WriteCreate(data, receiver, owner);
         else
             data << k;
 
         if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, V>)
-            v.value.WriteCreate(data, owner, receiver);
+            v.value.WriteCreate(data, receiver, owner);
         else
             data << v.value;
     }
 }
 
 template <typename K, typename V, typename T>
-inline void WriteMapFieldUpdate(MapUpdateFieldBase<K, V> const& map, ByteBuffer& data, bool ignoreChangesMask, T const* owner, Player const* receiver)
+inline void WriteMapFieldUpdate(MapUpdateFieldBase<K, V> const& map, bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, T const* owner)
 {
     data << uint8(ignoreChangesMask ? 1 : 0);
     if (ignoreChangesMask)
-        UF::WriteMapFieldCreate(map, data, owner, receiver);
+        UF::WriteMapFieldCreate(map, data, receiver, owner);
     else
     {
         uint16 changesCount = 0;
@@ -107,7 +107,7 @@ inline void WriteMapFieldUpdate(MapUpdateFieldBase<K, V> const& map, ByteBuffer&
             ++changesCount;
 
             if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, K>)
-                k.WriteUpdate(data, false, owner, receiver);
+                k.WriteUpdate(false, data, receiver, owner);
             else
                 data << k;
 
@@ -116,7 +116,7 @@ inline void WriteMapFieldUpdate(MapUpdateFieldBase<K, V> const& map, ByteBuffer&
                 continue;
 
             if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, V>)
-                v.value.WriteUpdate(data, false, owner, receiver);
+                v.value.WriteUpdate(false, data, receiver, owner);
             else
                 data << v.value;
         }
@@ -126,20 +126,20 @@ inline void WriteMapFieldUpdate(MapUpdateFieldBase<K, V> const& map, ByteBuffer&
 }
 
 template <typename T, typename O>
-inline void WriteSetFieldCreate(SetUpdateFieldBase<T> const& set, ByteBuffer& data, O const* owner, Player const* receiver)
+inline void WriteSetFieldCreate(SetUpdateFieldBase<T> const& set, ByteBuffer& data, Player const* receiver, O const* owner)
 {
     data << uint32(set.size());
     for (auto const& [k, _] : set)
     {
         if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, T>)
-            k.WriteCreate(data, owner, receiver);
+            k.WriteCreate(data, receiver, owner);
         else
             data << k;
     }
 }
 
 template <typename T, typename O>
-inline void WriteSetFieldUpdate(SetUpdateFieldBase<T> const& set, ByteBuffer& data, bool ignoreChangesMask, O const* owner, Player const* receiver)
+inline void WriteSetFieldUpdate(SetUpdateFieldBase<T> const& set, bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, O const* owner)
 {
     data << uint8(ignoreChangesMask ? 1 : 0);
     if (ignoreChangesMask)
@@ -158,7 +158,7 @@ inline void WriteSetFieldUpdate(SetUpdateFieldBase<T> const& set, ByteBuffer& da
             ++changesCount;
 
             if constexpr (std::is_base_of_v<IsUpdateFieldStructureTag, T>)
-                k.WriteUpdate(data, false, owner, receiver);
+                k.WriteUpdate(false, data, receiver, owner);
             else
                 data << k;
 

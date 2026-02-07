@@ -1881,7 +1881,7 @@ class TC_GAME_API Unit : public WorldObject
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
 
         void DestroyForPlayer(Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void ClearValuesChangesMask() override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
