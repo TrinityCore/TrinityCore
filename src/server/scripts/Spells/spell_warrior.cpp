@@ -658,6 +658,8 @@ class spell_warr_enrage_proc : public AuraScript
 
 // 163201 - Execute (Arms, Protection)
 // 281000 - Massacre
+// 330334 - Condemn (Venthyr) (Arms)
+// 317349 - Condemn (Venthyr) (Protection)
 class spell_warr_execute : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
@@ -726,6 +728,7 @@ public:
 };
 
 // 260798 - Execute (Arms, Protection)
+// 317483 - Condemn (Venthyr) (Arms, Protection)
 class spell_warr_execute_damage : public SpellScript
 {
     void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod) const
