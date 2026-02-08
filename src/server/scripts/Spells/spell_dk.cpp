@@ -1293,6 +1293,24 @@ class spell_dk_subduing_grasp : public SpellScript
     }
 };
 
+// 374049 - Suppression
+class spell_dk_suppression : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo)
+            return false;
+
+        return (spellInfo->GetAllEffectsMechanicMask() & MECHANIC_LOSS_CONTROL_MASK) != 0;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_suppression::CheckProc);
+    }
+};
+
 // 242057 - Rune Empowered
 class spell_dk_t20_2p_rune_empowered : public AuraScript
 {
@@ -1456,6 +1474,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dk_soul_reaper, "spell_dk_soul_reaper", EFFECT_1, EFFECT_2);
     RegisterSpellScriptWithArgs(spell_dk_soul_reaper, "spell_dk_soul_reaper_reaper_of_souls", EFFECT_0, Optional<SpellEffIndex>());
     RegisterSpellScript(spell_dk_subduing_grasp);
+    RegisterSpellScript(spell_dk_suppression);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
     RegisterSpellScript(spell_dk_voracious);

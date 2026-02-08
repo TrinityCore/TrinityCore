@@ -18,11 +18,14 @@
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "SharedDefines.h"
 
 namespace Scripts::EasternKingdoms::Westfall
 {
@@ -32,12 +35,40 @@ namespace Creatures
     static constexpr uint32 OverloadedHarvestGolem = 42601;
     static constexpr uint32 JangolodeMineGlubtok = 42492;
     static constexpr uint32 JangolodeMineFigure = 42515;
+    static constexpr uint32 HomelessStormwindCitizen1 = 42386;
+    static constexpr uint32 HomelessStormwindCitizen2 = 42384;
+    static constexpr uint32 WestPlainDrifter = 42391;
+    static constexpr uint32 Transient = 42383;
+}
+
+namespace Quests
+{
+    static constexpr uint32 MurderWasTheCaseThatTheyGaveMe = 26209;
 }
 
 namespace Spells
 {
     static constexpr uint32 JangolodeMineSummonFigure = 79265;
     static constexpr uint32 JangolodeMineSummonGlubtok = 79263;
+    static constexpr uint32 HoboInformation1 = 79181;
+    static constexpr uint32 HoboInformation2 = 79182;
+    static constexpr uint32 HoboInformation3 = 79183;
+    static constexpr uint32 HoboInformation4 = 79184;
+    static constexpr uint32 SummonRagamuffinLooter = 79169;
+    static constexpr uint32 SummonRagamuffinLooter1 = 79170;
+    static constexpr uint32 SummonRagamuffinLooter2 = 79171;
+    static constexpr uint32 SummonRagamuffinLooter3 = 79172;
+    static constexpr uint32 SummonRagamuffinLooter4 = 79173;
+    static constexpr uint32 HoboAggro = 79168;
+}
+
+namespace Gossip
+{
+    namespace GossipOption
+    {
+        static constexpr uint32 GossipOption0 = 0;
+        static constexpr uint32 GossipOption1 = 1;
+    }
 }
 
 namespace Events
@@ -47,6 +78,27 @@ namespace Events
         static constexpr uint32 CheckArea = 1;
         static constexpr uint32 DespawnHarvester = 2;
     }
+
+    namespace MurderWasTheCaseThatTheyGaveMe
+    {
+        static constexpr uint32 HoboTalk = 1;
+        static constexpr uint32 JackpotIntro = 2;
+        static constexpr uint32 HoboCry = 3;
+        static constexpr uint32 PropertyRage = 4;
+        static constexpr uint32 JackpotMiddle = 5;
+        static constexpr uint32 JackpotEnd = 6;
+        static constexpr uint32 ResumeMove = 7;
+        static constexpr uint32 GroupOOC = 1;
+    }
+}
+
+namespace Actions
+{
+    namespace MurderWasTheCaseThatTheyGaveMe
+    {
+        static constexpr uint32 HoboAggroAction = 1;
+        static constexpr uint32 HoboAggroActionDone = 2;
+    }
 }
 
 namespace Text
@@ -54,6 +106,21 @@ namespace Text
     namespace HarvestGolem
     {
         static constexpr uint32 AnnounceOutOfArea = 0;
+    }
+
+    namespace HoboText
+    {
+        static constexpr uint32 HoboSayClue1 = 0;
+        static constexpr uint32 HoboSayClue2 = 1;
+        static constexpr uint32 HoboSayClue3 = 2;
+        static constexpr uint32 HoboSayClue4 = 3;
+        static constexpr uint32 HoboAggroBribe = 4;
+        static constexpr uint32 HoboAggroConvince = 5;
+        static constexpr uint32 HoboEvent = 6;
+        static constexpr uint32 HoboJackpotIntro = 7;
+        static constexpr uint32 HoboJackpotEnd = 8;
+        static constexpr uint32 HoboPropertyRage = 9;
+        static constexpr uint32 HoboFlee = 10;
     }
 }
 
@@ -289,6 +356,279 @@ class spell_westfall_despawn_jangolode_actor : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_despawn_jangolode_actor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
+
+// 42386 - Homeless Stormwind Citizen
+// 42384 - Homeless Stormwind Citizen
+// 42384 - West Plain Drifter
+// 42383 - Transient
+struct npc_westfall_hobo_witness : public ScriptedAI
+{
+    npc_westfall_hobo_witness(Creature* creature) : ScriptedAI(creature), _bribeFailed(false), _hoboRage(false), _flee(false) {}
+
+    struct HoboClueData
+    {
+        uint32 SpellID;
+        uint32 TextID;
+    };
+
+    static constexpr std::array<HoboClueData, 4> HoboClues =
+    { {
+        { Spells::HoboInformation1, Text::HoboText::HoboSayClue1 },
+        { Spells::HoboInformation2, Text::HoboText::HoboSayClue2 },
+        { Spells::HoboInformation3, Text::HoboText::HoboSayClue3 },
+        { Spells::HoboInformation4, Text::HoboText::HoboSayClue4 },
+    } };
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint8 clueGainChance = 0;
+        switch (gossipListId)
+        {
+            case Gossip::GossipOption::GossipOption0:
+            {
+                clueGainChance = 25;
+                break;
+            }
+            case Gossip::GossipOption::GossipOption1:
+            {
+                clueGainChance = 75;
+                _bribeFailed = true;
+                break;
+            }
+            default:
+                return true;
+        }
+
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        CloseGossipMenuFor(player);
+        if (roll_chance_i(clueGainChance))
+            GiveClue(player);
+        else
+        {
+            me->SetImmuneToPC(false);
+            AttackStart(player);
+        }
+
+        return false;
+    }
+
+    void GiveClue(Player* player)
+    {
+        _events.CancelEventGroup(Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+        me->SetFacingToObject(player);
+
+        uint16 slot = player->FindQuestSlot(Quests::MurderWasTheCaseThatTheyGaveMe);
+
+        for (uint8 i = 0; i < HoboClues.size(); i++)
+        {
+            if (player->GetQuestSlotCounter(slot, i) == 0)
+            {
+                HoboClueData const& data = HoboClues[i];
+
+                player->CastSpell(player, data.SpellID);
+                Talk(data.TextID, player);
+
+                me->DespawnOrUnsummon(12s);
+                return;
+            }
+        }
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->SetAIAnimKitId(0);
+        _events.CancelEventGroup(Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+
+        if (!who->IsPlayer())
+            return;
+
+        Talk(_bribeFailed ? Text::HoboText::HoboAggroBribe : Text::HoboText::HoboAggroConvince, who);
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_flee && me->HealthBelowPctDamaged(20, damage))
+        {
+            _flee = true;
+            me->DoFleeToGetAssistance();
+            Talk(Text::HoboText::HoboFlee);
+        }
+    }
+
+    void JustDied(Unit* who) override
+    {
+        if (Creature* creature = who->ToCreature())
+            creature->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroActionDone);
+        DoCastSelf(Spells::SummonRagamuffinLooter);
+    }
+
+    void Reset() override
+    {
+        ScriptedAI::Reset();
+        _events.Reset();
+        _bribeFailed = false;
+        _hoboRage = false;
+        _flee = false;
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetImmuneToPC(true);
+        _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 100ms, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroAction:
+                if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                {
+                    _hoboRage = true;
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->PauseMovement();
+                    me->SetFacingToObject(target);
+                    AttackStart(target);
+                }
+                break;
+            case Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroActionDone:
+                _hoboRage = false;
+                break;
+            default:
+                return;
+        }
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        _targetGUID = guid;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case Events::MurderWasTheCaseThatTheyGaveMe::HoboTalk:
+                    me->PauseMovement();
+                    Talk(Text::HoboText::HoboEvent);
+                    _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 6s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                case Events::MurderWasTheCaseThatTheyGaveMe::JackpotIntro:
+                    me->PauseMovement();
+                    Talk(Text::HoboText::HoboJackpotIntro);
+                    _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::JackpotMiddle, 2s + 500ms, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                case Events::MurderWasTheCaseThatTheyGaveMe::JackpotMiddle:
+                    me->SetAIAnimKitId(648);
+                    Talk(Text::HoboText::HoboJackpotEnd);
+                    _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::JackpotEnd, 6s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                case Events::MurderWasTheCaseThatTheyGaveMe::JackpotEnd:
+                    me->SetAIAnimKitId(0);
+                    _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 4s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                case Events::MurderWasTheCaseThatTheyGaveMe::HoboCry:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
+                    me->PauseMovement();
+                    _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 2s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                case Events::MurderWasTheCaseThatTheyGaveMe::PropertyRage:
+                {
+                    uint32 creatureId = RAND(Creatures::HomelessStormwindCitizen1, Creatures::HomelessStormwindCitizen2, Creatures::Transient, Creatures::WestPlainDrifter);
+                    if (Creature* creature = GetClosestCreatureWithEntry(me, creatureId, 25.0f))
+                    {
+                        if (!creature->IsAlive() || creature->IsInCombat())
+                        {
+                            _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 100ms, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                            return;
+                        }
+                        _hoboRage = true;
+                        Talk(Text::HoboText::HoboPropertyRage);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                        me->PauseMovement();
+                        me->CastSpell(creature, Spells::HoboAggro, true);
+                        me->SetFacingToObject(creature);
+                    }
+                    else
+                        _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 100ms, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    break;
+                }
+                case Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove:
+                    me->ResumeMovement();
+                    if (roll_chance_i(50)) // prevent spam
+                    {
+                        if (roll_chance_i(70)) // chance to trigger simple talk event
+                            _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::HoboTalk, 30s, 80s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                        else
+                            _events.ScheduleEvent(urand(Events::MurderWasTheCaseThatTheyGaveMe::JackpotIntro, Events::MurderWasTheCaseThatTheyGaveMe::PropertyRage), 30s, 80s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
+                    }
+                    else
+                        _events.Repeat(30s, 80s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!_hoboRage)
+            if (!UpdateVictim())
+                return;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _targetGUID;
+    bool _bribeFailed;
+    bool _hoboRage;
+    bool _flee;
+};
+
+// 79169 - Summon Ragamuffin Looter
+class spell_westfall_summon_ragamuffin_looter : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                Spells::SummonRagamuffinLooter1,
+                Spells::SummonRagamuffinLooter2,
+                Spells::SummonRagamuffinLooter3,
+                Spells::SummonRagamuffinLooter4
+            });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, Spells::SummonRagamuffinLooter1, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(caster, Spells::SummonRagamuffinLooter2, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(caster, Spells::SummonRagamuffinLooter3, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(caster, Spells::SummonRagamuffinLooter4, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_westfall_summon_ragamuffin_looter::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 79168 - Hobo Aggro
+class spell_westfall_aggro_hobo : public SpellScript
+{
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature())
+        {
+            creature->AI()->SetGUID(GetCaster()->GetGUID(), 0);
+            creature->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroAction);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_aggro_hobo::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
 }
 
 void AddSC_westfall()
@@ -297,6 +637,7 @@ void AddSC_westfall()
 
     // Creature
     RegisterCreatureAI(npc_westfall_overloaded_harvest_golem);
+    RegisterCreatureAI(npc_westfall_hobo_witness);
 
     // Spells
     RegisterSpellScript(spell_westfall_unbound_energy);
@@ -307,4 +648,6 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_despawn_jangolode_actor);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_glubtok);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_figure);
+    RegisterSpellScript(spell_westfall_summon_ragamuffin_looter);
+    RegisterSpellScript(spell_westfall_aggro_hobo);
 }

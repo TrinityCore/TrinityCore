@@ -29,8 +29,9 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovementGenerator<T>>
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f, Optional<Milliseconds> duration = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+        explicit RandomMovementGenerator(float distance, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
@@ -51,6 +52,8 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
         std::unique_ptr<PathGenerator> _path;
         TimeTracker _timer;
         Optional<TimeTracker> _duration;
+        Optional<float> _speed;
+        MovementWalkRunSpeedSelectionMode _speedSelectionMode;
         Position _reference;
         float _wanderDistance;
         uint8 _wanderSteps;
