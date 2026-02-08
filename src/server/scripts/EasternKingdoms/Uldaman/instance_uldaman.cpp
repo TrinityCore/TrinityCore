@@ -23,7 +23,7 @@
 #include "Map.h"
 #include "uldaman.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_TEMPLE_DOOR_TO_KEEPERS,    DATA_STONE_KEEPERS,  DOOR_TYPE_ROOM    },
     { GO_TEMPLE_DOOR_TO_ARCHAEDAS,  DATA_STONE_KEEPERS,  DOOR_TYPE_PASSAGE },
@@ -32,13 +32,13 @@ DoorData const doorData[] =
     { 0,                            0,                   DOOR_TYPE_ROOM    } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_ARCHAEDAS,                DATA_ARCHAEDAS                },
     { 0,                            0                             } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_IRONAYA_SEAL_DOOR,         DATA_IRONAYA_SEAL_DOOR        },
     { 0,                            0                             } // END
@@ -69,17 +69,10 @@ class instance_uldaman : public InstanceMapScript
                 {
                     case NPC_STONE_KEEPER:
                     {
-                        if (creature->HasStringId("StoneKeeper1"))
-                            StoneKeeperGuid[0] = creature->GetGUID();
-
-                        if (creature->HasStringId("StoneKeeper2"))
-                            StoneKeeperGuid[1] = creature->GetGUID();
-
-                        if (creature->HasStringId("StoneKeeper3"))
-                            StoneKeeperGuid[2] = creature->GetGUID();
-
-                        if (creature->HasStringId("StoneKeeper4"))
-                            StoneKeeperGuid[3] = creature->GetGUID();
+                        static constexpr std::array<std::string_view, 4> KeeperStringId = {{ "StoneKeeper1", "StoneKeeper2", "StoneKeeper3", "StoneKeeper4" }};
+                        auto stringId = std::ranges::find_if(KeeperStringId, [creature](std::string_view stringId) { return creature->HasStringId(stringId); });
+                        if (stringId != KeeperStringId.end())
+                            StoneKeeperGuid[std::ranges::distance(KeeperStringId.begin(), stringId)] = creature->GetGUID();
                         break;
                     }
                     case NPC_EARTHEN_GUARDIAN:
@@ -144,17 +137,17 @@ class instance_uldaman : public InstanceMapScript
                 {
                     case NPC_STONE_KEEPER:
                     {
-                        if (creature->GetGUID() == StoneKeeperGuid[0])
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[1]))
-                                keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
-
-                        if (creature->GetGUID() == StoneKeeperGuid[1])
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[2]))
-                                keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
-
-                        if (creature->GetGUID() == StoneKeeperGuid[2])
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[3]))
-                                keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
+                        for (std::size_t i = 0; i < StoneKeeperGuid.size() - 1; ++i)
+                        {
+                            if (creature->GetGUID() == StoneKeeperGuid[i])
+                            {
+                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[i + 1]))
+                                {
+                                    keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
+                                    break;
+                                }
+                            }
+                        }
 
                         if (creature->GetGUID() == StoneKeeperGuid[3])
                             SetBossState(DATA_STONE_KEEPERS, DONE);
@@ -186,28 +179,15 @@ class instance_uldaman : public InstanceMapScript
                     case DATA_STONE_KEEPERS:
                         if (state == FAIL)
                         {
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
+                            for (std::size_t i = 0; i < StoneKeeperGuid.size() - 1; ++i)
                             {
-                                if (!keeper->IsAlive())
+                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[i]))
                                 {
-                                    StoneKeeperGuid[0].Clear();
-                                    keeper->Respawn();
-                                }
-                            }
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[1]))
-                            {
-                                if (!keeper->IsAlive())
-                                {
-                                    StoneKeeperGuid[1].Clear();
-                                    keeper->Respawn();
-                                }
-                            }
-                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[2]))
-                            {
-                                if (!keeper->IsAlive())
-                                {
-                                    StoneKeeperGuid[2].Clear();
-                                    keeper->Respawn();
+                                    if (!keeper->IsAlive())
+                                    {
+                                        StoneKeeperGuid[i].Clear();
+                                        keeper->Respawn();
+                                    }
                                 }
                             }
 
@@ -281,7 +261,7 @@ class instance_uldaman : public InstanceMapScript
             }
 
         protected:
-            ObjectGuid StoneKeeperGuid[4] = { };
+            std::array<ObjectGuid, 4> StoneKeeperGuid;
             GuidSet ArchaedasMinionsGuidSet;
             uint32 IronayaIntroState;
         };
