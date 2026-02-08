@@ -9798,6 +9798,7 @@ void CharmInfo::InitPossessCreateSpells()
             case 27664: // Crashin' Thrashin' Racer
             case 40281: // Crashin' Thrashin' Racer
             case 28511: // Eye of Acherus
+            case 21949: // Fel Reaver Sentinel
                 break;
             default:
                 InitEmptyActionBar();
