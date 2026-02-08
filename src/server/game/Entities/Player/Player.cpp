@@ -5333,6 +5333,9 @@ void Player::UpdateRating(CombatRating cr)
         if (aurEff->GetMiscValue() & (1 << cr))
             amount += int32(CalculatePct(amount, aurEff->GetAmount()));
 
+    if (cr == CR_PARRY)
+        amount += m_baseRatingValue[CR_CRIT_MELEE] * (GetTotalAuraMultiplier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING) - 1.0f);
+
     if (amount < 0)
         amount = 0;
 
@@ -5370,6 +5373,7 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateCritPercentage(BASE_ATTACK);
                 UpdateCritPercentage(OFF_ATTACK);
             }
+            UpdateRating(CR_PARRY);
             break;
         case CR_CRIT_RANGED:
             if (affectStats)

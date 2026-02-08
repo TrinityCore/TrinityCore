@@ -532,7 +532,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_RESET_COOLDOWNS_ON_DUEL_START
     &AuraEffect::HandleNULL,                                      //461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_MOD_HEALING_AND_ABSORB_FROM_CASTER
-    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING used by Riposte
+    &AuraEffect::HandleConvertCritToParry,                        //463 SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING used by Riposte
     &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_MOD_ATTACK_POWER_OF_BONUS_ARMOR
     &AuraEffect::HandleModBonusArmor,                             //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleModBonusArmorPercent,                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
@@ -4048,6 +4048,18 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + GetMiscValue());
 
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
+}
+
+void AuraEffect::HandleConvertCritToParry(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateRating(CR_PARRY);
 }
 
 /********************************/

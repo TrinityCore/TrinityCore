@@ -547,7 +547,7 @@ enum AuraType : uint32
     SPELL_AURA_RESET_COOLDOWNS_ON_DUEL_START                = 460,  // NYI
     SPELL_AURA_461                                          = 461,
     SPELL_AURA_MOD_HEALING_AND_ABSORB_FROM_CASTER           = 462,  // NYI
-    SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,  // NYI
+    SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,
     SPELL_AURA_MOD_ATTACK_POWER_OF_BONUS_ARMOR              = 464,  // NYI
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // Affects bonus armor gain from all sources except base stats
