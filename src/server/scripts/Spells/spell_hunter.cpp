@@ -269,7 +269,7 @@ class spell_hun_chimera_shot : public SpellScript
 
             if (spellId)
             {
-                CastSpellExtraArgs args(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
                 args.AddSpellBP0(basePoint);
                 caster->CastSpell(unitTarget, spellId, args);
             }

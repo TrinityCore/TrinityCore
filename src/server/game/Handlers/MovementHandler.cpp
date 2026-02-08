@@ -530,16 +530,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 
     /* the client data has been verified. let's do the actual change now */
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
 
     mover->m_movementInfo = movementInfo;
     mover->UpdatePosition(movementInfo.pos);
@@ -630,17 +621,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
-
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
 
     mover->m_movementInfo = movementInfo;
     mover->UpdatePosition(movementInfo.pos);

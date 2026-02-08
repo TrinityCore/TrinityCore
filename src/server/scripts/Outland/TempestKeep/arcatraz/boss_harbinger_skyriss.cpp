@@ -16,11 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "arcatraz.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "arcatraz.h"
-#include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
 enum SkyrissTexts
@@ -126,11 +124,6 @@ struct boss_harbinger_skyriss : public BossAI
         }
     }
 
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_phase < PHASE_HEALTH_66 && me->HealthBelowPctDamaged(66, damage))
@@ -143,6 +136,11 @@ struct boss_harbinger_skyriss : public BossAI
             _phase++;
             events.ScheduleEvent(EVENT_SUMMON_33, 0s);
         }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -250,28 +248,40 @@ struct boss_harbinger_skyriss_illusion : public ScriptedAI
     void JustAppeared() override
     {
         DoZoneInCombat();
-        // Should be in this sniffed order but makes it ignore other spell casts, so disabled
-        // DoCastSelf(SPELL_BIRTH);
-        DoCastSelf(SPELL_BLINK_VISUAL);
 
-        switch (me->GetEntry())
-        {
-            case NPC_ILLUSION_66:
-                DoCastSelf(SPELL_66_HEALTH);
-                break;
-            case NPC_ILLUSION_33:
-                DoCastSelf(SPELL_33_HEALTH);
-                break;
-            default:
-                break;
-        }
-
-        _scheduler.Schedule(2s, 10s, [this](TaskContext task)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                DoCast(target, IsHeroic() ? SPELL_MIND_REND_IMAGE_H : SPELL_MIND_REND_IMAGE);
-            task.Repeat(8s, 12s);
-        });
+        _scheduler
+            .SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(0s, [this](TaskContext /*task*/)
+            {
+                DoCastSelf(SPELL_BIRTH);
+            })
+            .Schedule(0s, [this](TaskContext /*task*/)
+            {
+                DoCastSelf(SPELL_BLINK_VISUAL);
+            })
+            .Schedule(0s, [this](TaskContext /*task*/)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_ILLUSION_66:
+                        DoCastSelf(SPELL_66_HEALTH);
+                        break;
+                    case NPC_ILLUSION_33:
+                        DoCastSelf(SPELL_33_HEALTH);
+                        break;
+                    default:
+                       break;
+                }
+            })
+            .Schedule(2s, 10s, [this](TaskContext task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, IsHeroic() ? SPELL_MIND_REND_IMAGE_H : SPELL_MIND_REND_IMAGE);
+                task.Repeat(8s, 12s);
+            });
     }
 
     void UpdateAI(uint32 diff) override
