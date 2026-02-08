@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "uldaman.h"
+#include <algorithm>
 
 static constexpr DoorData doorData[] =
 {
