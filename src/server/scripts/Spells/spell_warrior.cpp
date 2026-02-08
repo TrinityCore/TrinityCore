@@ -533,7 +533,7 @@ class spell_warr_deft_experience : public SpellScript
         Unit const* caster = GetCaster();
         if (Aura* enrageAura = caster->GetAura(SPELL_WARRIOR_ENRAGE))
             if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1))
-                enrageAura->SetDuration(enrageAura->GetDuration() + aurEff->GetAmount() * IsHitCrit() ? 2 : 1);
+                enrageAura->SetDuration(enrageAura->GetDuration() + (aurEff->GetAmount() * (IsHitCrit() ? 2 : 1)));
     }
 
     void Register() override
