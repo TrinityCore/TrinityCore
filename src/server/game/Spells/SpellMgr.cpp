@@ -4949,6 +4949,31 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
     });
 
+    // Random Rocket Missile
+    ApplySpellFix({ 38054 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 10;
+    });
+
+    // Destroy Deathforged Infernal
+    // World Breaker
+    ApplySpellFix({ 38055, 38006 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 10000;
+    });
+
+    // Sonic Boom
+    ApplySpellFix({ 38488 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 15000;
+    });
+
+    // Turbo Boost
+    ApplySpellFix({ 37920 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 30000;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
