@@ -1136,7 +1136,7 @@ protected:
         return GetCaster()->HasAura(SPELL_WARRIOR_MEAT_CLEAVER_TALENT);
     }
 
-    void HandleDamageBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    void HandleDamageBonus(SpellEffectInfo const& spellEffectInfo, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         Unit const* caster = GetCaster();
         Aura const* meatCleaver = caster->GetAura(SPELL_WARRIOR_MEAT_CLEAVER_TALENT);
@@ -1147,12 +1147,12 @@ protected:
         if (!minTargetCount)
             return;
 
-        int64 const targetCount = GetUnitTargetCountForEffect(EFFECT_0);
+        int64 const targetCount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
 
         if (targetCount < minTargetCount->GetAmount())
             return;
 
-        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_MEAT_CLEAVER_TALENT, EFFECT_0))
+        if (AuraEffect const* aurEff = meatCleaver->GetEffect(EFFECT_0))
             AddPct(pctMod, aurEff->GetAmount());
     }
 
