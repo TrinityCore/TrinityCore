@@ -86,6 +86,22 @@ void Vehicle::InstallAllAccessories(bool evading)
     if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
+    if (GetBase()->GetTypeId() == TYPEID_UNIT && evading)
+        for (auto const& [_, seat] : Seats)
+        {
+            if (!seat.Passenger.Guid.IsEmpty() && seat.Passenger.Guid.GetTypeId() == TYPEID_UNIT)
+                if (Creature* passenger = ObjectAccessor::GetCreature(*_me, seat.Passenger.Guid))
+                    if (passenger->IsInEvadeMode())
+                    {
+                        passenger->ClearUnitState(UNIT_STATE_EVADE);
+                        passenger->SetSpawnHealth();
+                        passenger->LoadCreaturesAddon();
+                        if (passenger->IsVehicle())
+                            passenger->GetVehicleKit()->Reset(true);
+                        passenger->AI()->JustReachedHome();
+                    }
+        }
+
     VehicleAccessoryList const* accessories = sObjectMgr->GetVehicleAccessoryList(this);
     if (!accessories)
         return;
