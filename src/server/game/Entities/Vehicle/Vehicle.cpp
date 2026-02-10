@@ -98,7 +98,6 @@ void Vehicle::InstallAllAccessories(bool evading)
                         passenger->LoadCreaturesAddon();
                         if (passenger->IsVehicle())
                             passenger->GetVehicleKit()->Reset(true);
-                        passenger->AI()->JustReachedHome();
                     }
         }
 
