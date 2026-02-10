@@ -315,6 +315,15 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->GetSpellHistory()->ResetAllCooldowns();
     EngagementOver();
 
+    if (Vehicle* myVehicle = me->GetVehicleKit())
+        for (auto const& [_, seat] : myVehicle->Seats)
+        {
+            if (!seat.Passenger.Guid.IsEmpty() && seat.Passenger.Guid.GetTypeId() == TYPEID_UNIT)
+                if (Creature* passenger = ObjectAccessor::GetCreature(*me, seat.Passenger.Guid))
+                    if (passenger->IsAIEnabled() && passenger->AI())
+                        passenger->AI()->EnterEvadeMode(EVADE_REASON_VEHICLE_EVADE);
+        }
+
     return true;
 }
 
