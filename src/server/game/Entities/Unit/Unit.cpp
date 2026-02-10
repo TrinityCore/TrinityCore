@@ -12754,6 +12754,16 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         else
             ToTempSummon()->UnSummon(2000); // Approximation
     }
+    else if (HasUnitState(UNIT_STATE_EVADE) && GetTypeId() == TYPEID_UNIT)
+    {
+        Creature* toCreature = ToCreature();
+        toCreature->ClearUnitState(UNIT_STATE_EVADE);
+        toCreature->SetSpawnHealth();
+        toCreature->LoadCreaturesAddon();
+        if (toCreature->IsVehicle())
+            toCreature->GetVehicleKit()->Reset(true);
+        toCreature->AI()->JustReachedHome();
+    }
 }
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
