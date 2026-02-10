@@ -218,6 +218,12 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
 
     TC_LOG_DEBUG("scripts.ai", "CreatureAI::EnterEvadeMode: entering evade mode (why: {}) ({})", why, me->GetGUID().ToString());
 
+    if (why == EVADE_REASON_VEHICLE_EVADE)
+    {
+        Reset();
+        return;
+    }
+
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
         if (Unit* owner = me->GetCharmerOrOwner())
