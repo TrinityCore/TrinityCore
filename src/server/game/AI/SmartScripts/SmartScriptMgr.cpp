@@ -989,6 +989,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_HOME_POS: return NO_PARAMS;
             case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::setHealthRegen);
             case SMART_ACTION_SET_ROOT: return sizeof(SmartAction::setRoot);
+            case SMART_ACTION_SET_COLLISION: return sizeof(SmartAction::setCollision);
             case SMART_ACTION_SUMMON_CREATURE_GROUP: return sizeof(SmartAction::creatureGroup);
             case SMART_ACTION_SET_POWER: return sizeof(SmartAction::power);
             case SMART_ACTION_ADD_POWER: return sizeof(SmartAction::power);
@@ -2454,6 +2455,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DO_ACTION:
         case SMART_ACTION_EXIT_VEHICLE:
         case SMART_ACTION_FALL:
+        case SMART_ACTION_SET_COLLISION:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {

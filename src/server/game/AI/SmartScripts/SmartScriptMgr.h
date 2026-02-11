@@ -615,7 +615,8 @@ enum SMART_ACTION
     SMART_ACTION_EXIT_VEHICLE                       = 157,
     SMART_ACTION_RESUME_MOVEMENT                    = 158,    // UNUSED NEEDS CHERRYPICK
     SMART_ACTION_FALL                               = 159,    // pointId
-    SMART_ACTION_END                                = 160
+    SMART_ACTION_SET_COLLISION                      = 160,    // 0 = disable collision detection, 1 = enable collision detection
+    SMART_ACTION_END                                = 161
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1061,6 +1062,11 @@ struct SmartAction
         {
             SAIBool root;
         } setRoot;
+
+        struct
+        {
+            SAIBool collision;
+        } setCollision;
 
         struct
         {
