@@ -504,6 +504,7 @@ namespace WorldPackets
 
     namespace Misc
     {
+        class SetCurrencyFlags;
         class SetSelection;
         class ViolenceLevel;
         class TimeSyncResponse;
@@ -1323,6 +1324,7 @@ class TC_GAME_API WorldSession
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
         void HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet);
 
+        void HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& packet);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);

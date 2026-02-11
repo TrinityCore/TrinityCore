@@ -7442,6 +7442,21 @@ bool Player::HasCurrency(uint32 id, uint32 amount) const
     return itr != _currencyStorage.end() && itr->second.Quantity >= amount;
 }
 
+void Player::SetCurrencyFlags(uint32 id, CurrencyDbFlags flags)
+{
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return;
+
+    CurrencyDbFlags validFlags = flags & CurrencyDbFlags::ClientFlags;
+    if (itr->second.Flags == validFlags)
+        return;
+
+    itr->second.Flags = validFlags;
+    if (itr->second.state != PLAYERCURRENCY_NEW)
+        itr->second.state = PLAYERCURRENCY_CHANGED;
+}
+
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
