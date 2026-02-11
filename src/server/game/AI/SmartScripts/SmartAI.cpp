@@ -967,6 +967,7 @@ void SmartAI::UpdatePath(uint32 diff)
         {
             _OOCReached = false;
             RemoveEscortState(SMART_ESCORT_RETURNING);
+            GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
             if (!HasEscortState(SMART_ESCORT_PAUSED))
                 ResumePath();
         }
