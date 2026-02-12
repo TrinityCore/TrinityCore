@@ -724,7 +724,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //652
     &AuraEffect::HandleNULL,                                      //653
     &AuraEffect::HandleNULL,                                      //654
-    &AuraEffect::HandleNULL,                                      //655 SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST
+    &AuraEffect::HandleNULL,                                      //655 SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
