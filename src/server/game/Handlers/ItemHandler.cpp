@@ -427,6 +427,81 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem const& sell
         _player->SendSellError(*sellResult, creature, sellItem.ItemGUID);
 }
 
+void WorldSession::HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems const& sellAllJunkItems)
+{
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(sellAllJunkItems.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    if (!creature)
+    {
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty);
+        return;
+    }
+
+    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    {
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, ObjectGuid::Empty);
+        return;
+    }
+
+    // collect junk items first - can't modify inventory while iterating
+    std::vector<Item*> junkItems;
+    _player->ForEachItem(ItemSearchLocation::Inventory, [this, &junkItems](Item* item)
+    {
+        if (item->GetQuality() != ITEM_QUALITY_POOR)
+            return ItemSearchCallbackResult::Continue;
+
+        if (item->GetSellPrice(_player) == 0)
+            return ItemSearchCallbackResult::Continue;
+
+        if (item->IsRefundable())
+            return ItemSearchCallbackResult::Continue;
+
+        if (_player->GetLootGUID() == item->GetGUID())
+            return ItemSearchCallbackResult::Continue;
+
+        if (item->IsNotEmptyBag())
+            return ItemSearchCallbackResult::Continue;
+
+        // check per-bag junk sell exclusion
+        if (item->GetBagSlot() == INVENTORY_SLOT_BAG_0)
+        {
+            if (_player->IsBackpackSellJunkDisabled())
+                return ItemSearchCallbackResult::Continue;
+        }
+        else
+        {
+            uint32 bagIndex = item->GetBagSlot() - INVENTORY_SLOT_BAG_START;
+            if (bagIndex < _player->m_activePlayerData->BagSlotFlags.size()
+                && _player->GetBagSlotFlags(bagIndex).HasFlag(BagSlotFlags::ExcludeJunkSell))
+                return ItemSearchCallbackResult::Continue;
+        }
+
+        junkItems.push_back(item);
+        return ItemSearchCallbackResult::Continue;
+    });
+
+    for (Item* item : junkItems)
+    {
+        uint32 sellPrice = item->GetSellPrice(_player);
+
+        uint64 money = uint64(sellPrice) * item->GetCount();
+
+        using BuybackStorageType = std::remove_cvref_t<decltype(_player->m_activePlayerData->BuybackPrice[0])>;
+        if (money > std::numeric_limits<BuybackStorageType>::max())
+            continue;
+
+        if (!_player->ModifyMoney(money))
+            continue;
+
+        _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
+        _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
+
+        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+        _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+        RemoveItemFromUpdateQueueOf(item, _player);
+        _player->AddItemToBuyBackSlot(item);
+    }
+}
+
 void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUYBACK_ITEM: Vendor {}, Slot: {}", packet.VendorGUID.ToString(), packet.Slot);
