@@ -105,6 +105,12 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::SetCurrencyFlags::Read()
+{
+    _worldPacket >> CurrencyID;
+    _worldPacket >> As<uint8>(Flags);
+}
+
 void WorldPackets::Misc::SetSelection::Read()
 {
     _worldPacket >> Selection;
