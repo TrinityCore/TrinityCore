@@ -782,7 +782,7 @@ class spell_dru_efflorescence_heal : public SpellScript
     }
 };
 
-// 370586 - Elune's Favored
+// 370586 - Elune's Favored (attached to 5487 - Bear Form)
 class spell_dru_elunes_favored : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -790,21 +790,24 @@ class spell_dru_elunes_favored : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED_PROC });
     }
 
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* caster = GetTarget();
-        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_PROC);
+        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetAura()->GetCastId()
+        });
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_ELUNES_FAVORED_PROC);
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_dru_elunes_favored::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_dru_elunes_favored::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_elunes_favored::HandleApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_elunes_favored::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -813,20 +816,13 @@ class spell_dru_elunes_favored_proc : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED, SPELL_DRUID_ELUNES_FAVORED_HEAL })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+        return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED_HEAL })
+            && ValidateSpellEffect({ { SPELL_DRUID_ELUNES_FAVORED, EFFECT_0 } });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetActor()->HasAura(SPELL_DRUID_BEAR_FORM);
-    }
-
-    void HandleProc(ProcEventInfo& eventInfo)
-    {
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (damageInfo && damageInfo->GetDamage())
-            _arcaneDamage += damageInfo->GetDamage();
+        _arcaneDamage += eventInfo.GetDamageInfo()->GetDamage();
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)
@@ -835,21 +831,25 @@ class spell_dru_elunes_favored_proc : public AuraScript
         if (!_arcaneDamage)
             return;
 
-        int32 healPct = sSpellMgr->GetSpellInfo(SPELL_DRUID_ELUNES_FAVORED, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
-        int32 heal = CalculatePct(_arcaneDamage, healPct);
+        AuraEffect const* elunesFavored = caster->GetAuraEffect(SPELL_DRUID_ELUNES_FAVORED, EFFECT_0);
+        if (!elunesFavored)
+            return;
 
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(heal);
-        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_HEAL, args);
+        int32 heal = CalculatePct(_arcaneDamage, elunesFavored->GetAmount());
+
+        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, heal } }
+        });
 
         _arcaneDamage = 0;
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_dru_elunes_favored_proc::CheckProc);
         OnProc += AuraProcFn(spell_dru_elunes_favored_proc::HandleProc);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_elunes_favored_proc::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_elunes_favored_proc::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
     uint32 _arcaneDamage{};
