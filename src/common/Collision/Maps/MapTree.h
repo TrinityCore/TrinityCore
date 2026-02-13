@@ -48,7 +48,7 @@ namespace VMAP
 
     class TC_COMMON_API StaticMapTree
     {
-        typedef std::unordered_map<uint32, bool> loadedTileMap;
+        typedef std::unordered_map<uint32, std::vector<uint32>> loadedTileMap;
         private:
             uint32 iMapID;
             BIH iTree;
@@ -79,7 +79,7 @@ namespace VMAP
             LoadResult InitMap(std::string const& fname);
             void UnloadMap();
             LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
-            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
+            void UnloadMapTile(uint32 tileX, uint32 tileY);
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             std::span<ModelInstance const> getModelInstances() const;
 

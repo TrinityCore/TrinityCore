@@ -37,7 +37,7 @@ class InstanceLock;
 class InstanceMap;
 class Map;
 class Player;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 class TC_GAME_API MapManager
 {

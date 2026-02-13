@@ -562,6 +562,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetCanDualWield(creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
+    UpdateCreatureType();
+
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(data ? data->movementType : creatureInfo->MovementType);
     if (!m_wanderDistance && m_defaultMovementType == RANDOM_MOTION_TYPE)
@@ -1827,9 +1829,9 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     SetOriginalEntry(entry);
 
     if (vehId || cinfo->VehicleId)
-        Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
     else
-        Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
 
     if (!UpdateEntry(entry, data))
         return false;
@@ -2971,6 +2973,14 @@ bool Creature::CanSwim() const
     return false;
 }
 
+MovementGeneratorType Creature::GetDefaultMovementType() const
+{
+    if (!GetPlayerMovingMe())
+        return m_defaultMovementType;
+
+    return IDLE_MOTION_TYPE;
+}
+
 void Creature::AllLootRemovedFromCorpse()
 {
     time_t now = GameTime::GetGameTime();
@@ -3048,7 +3058,7 @@ void Creature::ApplyLevelScaling()
 {
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, 0))
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, {}))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
@@ -3294,11 +3304,13 @@ void Creature::SetVendor(NPCFlags flags, bool apply)
     VendorDataTypeFlags vendorFlags = static_cast<VendorDataTypeFlags>(AsUnderlyingType(flags) >> 7);
     if (apply)
     {
-        if (!m_vendorData)
-            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+        bool addFragment = !m_vendorData.has_value();
 
         SetNpcFlag(flags);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
+
+        if (addFragment)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
     else if (m_vendorData)
     {
@@ -3316,11 +3328,13 @@ void Creature::SetPetitioner(bool apply)
 {
     if (apply)
     {
-        if (!m_vendorData)
-            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+        bool addFragment = !m_vendorData.has_value();
 
         SetNpcFlag(UNIT_NPC_FLAG_PETITIONER);
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
+
+        if (addFragment)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
     else if (m_vendorData)
     {
@@ -3862,47 +3876,33 @@ void Creature::InitializeInteractSpellId()
         SetInteractSpellId(0);
 }
 
-void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Creature::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_unitData->WriteCreate(*data, flags, this, target);
-
-    if (m_vendorData)
-    {
-        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
-            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
-
-        m_vendorData->WriteCreate(*data, flags, this, target);
-    }
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_unitData->WriteCreate(flags, data, target, this);
 }
 
-void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Creature::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    if (m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::CGObject))
-    {
-        *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
-        if (m_values.HasChanged(TYPEID_OBJECT))
-            m_objectData->WriteUpdate(*data, flags, this, target);
+    if (m_values.HasChanged(TYPEID_OBJECT))
+        m_objectData->WriteUpdate(flags, data, target, this);
 
-        if (m_values.HasChanged(TYPEID_UNIT))
-            m_unitData->WriteUpdate(*data, flags, this, target);
-    }
-
-    if (m_vendorData && m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::FVendor_C))
-        m_vendorData->WriteUpdate(*data, flags, this, target);
+    if (m_values.HasChanged(TYPEID_UNIT))
+        m_unitData->WriteUpdate(flags, data, target, this);
 }
 
-void Creature::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Creature::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_UNIT);
 
-    *data << uint32(valuesMask.GetBlock(0));
+    data << uint32(valuesMask.GetBlock(0));
 
     UF::UnitData::Mask mask;
-    m_unitData->AppendAllowedFieldsMaskForFlag(mask, flags);
-    m_unitData->WriteUpdate(*data, mask, true, this, target);
+    UF::UnitData::AppendAllowedFieldsMaskForFlag(mask, flags);
+    m_unitData->WriteUpdate(mask, data, target, this, true);
 }
 
 void Creature::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -3914,21 +3914,21 @@ void Creature::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectDa
         valuesMask.Set(TYPEID_OBJECT);
 
     UF::UnitData::Mask unitMask = requestedUnitMask;
-    m_unitData->FilterDisallowedFieldsMaskForFlag(unitMask, flags);
+    UF::UnitData::FilterDisallowedFieldsMaskForFlag(unitMask, flags);
     if (unitMask.IsAnySet())
         valuesMask.Set(TYPEID_UNIT);
 
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_UNIT])
-        m_unitData->WriteUpdate(buffer, unitMask, true, this, target);
+        m_unitData->WriteUpdate(unitMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -3944,10 +3944,4 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
-}
-
-void Creature::ClearUpdateMask(bool remove)
-{
-    m_values.ClearChangesMask(&Creature::m_vendorData);
-    Unit::ClearUpdateMask(remove);
 }
