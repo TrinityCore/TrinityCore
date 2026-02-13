@@ -111,7 +111,7 @@ WorldPacket const* SetCurrency::Write()
 void SetCurrencyFlags::Read()
 {
     _worldPacket >> CurrencyID;
-    _worldPacket >> Flags;
+    _worldPacket >> As<uint8>(Flags);
 }
 
 void SetSelection::Read()

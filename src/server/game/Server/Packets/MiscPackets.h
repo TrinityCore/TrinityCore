@@ -131,7 +131,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 CurrencyID = 0;
-            uint8 Flags = 0;
+            CurrencyDbFlags Flags = { };
         };
 
         class SetSelection final : public ClientPacket
