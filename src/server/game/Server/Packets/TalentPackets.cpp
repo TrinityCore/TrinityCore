@@ -102,7 +102,7 @@ WorldPacket const* UpdateTalentData::Write()
             _worldPacket << talent;
 
         for (uint32 talent : talentGroupInfo.GlyphIDs)
-            _worldPacket << uint16(talent);
+            _worldPacket << uint32(talent);
     }
 
     return &_worldPacket;

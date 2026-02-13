@@ -98,6 +98,7 @@ enum Expansions
     EXPANSION_SHADOWLANDS              = 8,
     EXPANSION_DRAGONFLIGHT             = 9,
     EXPANSION_THE_WAR_WITHIN           = 10,
+    EXPANSION_MIDNIGHT                 = 11,
     MAX_EXPANSIONS,
 
     MAX_ACCOUNT_EXPANSIONS
@@ -131,6 +132,8 @@ constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
             return 70;
         case EXPANSION_THE_WAR_WITHIN:
             return 80;
+        case EXPANSION_MIDNIGHT:
+            return 90;
         default:
             break;
     }
@@ -163,11 +166,12 @@ enum Classes : uint8
     CLASS_DRUID         = 11, // TITLE Druid
     CLASS_DEMON_HUNTER  = 12, // TITLE Demon Hunter
     CLASS_EVOKER        = 13, // TITLE Evoker
-    CLASS_ADVENTURER    = 14  // TITLE Adventurer
+    CLASS_ADVENTURER    = 14, // TITLE Adventurer
+    CLASS_TRAVELER      = 15  // TITLE Traveler
 };
 
 // max+1 for player class
-#define MAX_CLASSES       15
+#define MAX_CLASSES       16
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
@@ -279,9 +283,10 @@ enum Stats : uint16
     STAT_AGILITY                       = 1,
     STAT_STAMINA                       = 2,
     STAT_INTELLECT                     = 3,
+    STAT_SPIRIT                        = 4,
 };
 
-#define MAX_STATS                        4
+#define MAX_STATS                        5
 
 // EnumUtils: DESCRIBE THIS
 enum Powers : int8
@@ -854,8 +859,8 @@ enum SpellAttr11 : uint32
     SPELL_ATTR11_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr11
     SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE    = 0x00010000, // TITLE Not in Mythic+ Mode (Challenge Mode)
     SPELL_ATTR11_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr11
-    SPELL_ATTR11_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr11
-    SPELL_ATTR11_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr11
+    SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS                     = 0x00040000, // TITLE Ignore Caster Absorb Modifiers
+    SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS                     = 0x00080000, // TITLE Ignore Target Absorb Modifiers
     SPELL_ATTR11_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr11
     SPELL_ATTR11_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr11
     SPELL_ATTR11_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr11
@@ -1016,6 +1021,43 @@ enum SpellAttr15 : uint32
     SPELL_ATTR15_UNK29                           = 0x20000000, // TITLE Unknown attribute 29@Attr15
     SPELL_ATTR15_UNK30                           = 0x40000000, // TITLE Unknown attribute 30@Attr15
     SPELL_ATTR15_UNK31                           = 0x80000000  // TITLE Unknown attribute 31@Attr15
+};
+
+// EnumUtils: DESCRIBE THIS
+enum SpellAttr16 : uint32
+{
+    SPELL_ATTR16_UNK0                            = 0x00000001, // TITLE Unknown attribute 0@Attr16
+    SPELL_ATTR16_UNK1                            = 0x00000002, // TITLE Unknown attribute 1@Attr16
+    SPELL_ATTR16_UNK2                            = 0x00000004, // TITLE Unknown attribute 2@Attr16
+    SPELL_ATTR16_UNK3                            = 0x00000008, // TITLE Unknown attribute 3@Attr16
+    SPELL_ATTR16_UNK4                            = 0x00000010, // TITLE Unknown attribute 4@Attr16
+    SPELL_ATTR16_UNK5                            = 0x00000020, // TITLE Unknown attribute 5@Attr16
+    SPELL_ATTR16_UNK6                            = 0x00000040, // TITLE Unknown attribute 6@Attr16
+    SPELL_ATTR16_UNK7                            = 0x00000080, // TITLE Unknown attribute 7@Attr16
+    SPELL_ATTR16_UNK8                            = 0x00000100, // TITLE Unknown attribute 8@Attr16
+    SPELL_ATTR16_UNK9                            = 0x00000200, // TITLE Unknown attribute 9@Attr16
+    SPELL_ATTR16_UNK10                           = 0x00000400, // TITLE Unknown attribute 10@Attr16
+    SPELL_ATTR16_UNK11                           = 0x00000800, // TITLE Unknown attribute 11@Attr16
+    SPELL_ATTR16_UNK12                           = 0x00001000, // TITLE Unknown attribute 12@Attr16
+    SPELL_ATTR16_UNK13                           = 0x00002000, // TITLE Unknown attribute 13@Attr16
+    SPELL_ATTR16_UNK14                           = 0x00004000, // TITLE Unknown attribute 14@Attr16
+    SPELL_ATTR16_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr16
+    SPELL_ATTR16_UNK16                           = 0x00010000, // TITLE Unknown attribute 16@Attr16
+    SPELL_ATTR16_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr16
+    SPELL_ATTR16_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr16
+    SPELL_ATTR16_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr16
+    SPELL_ATTR16_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr16
+    SPELL_ATTR16_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr16
+    SPELL_ATTR16_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr16
+    SPELL_ATTR16_UNK23                           = 0x00800000, // TITLE Unknown attribute 23@Attr16
+    SPELL_ATTR16_UNK24                           = 0x01000000, // TITLE Unknown attribute 24@Attr16
+    SPELL_ATTR16_UNK25                           = 0x02000000, // TITLE Unknown attribute 25@Attr16
+    SPELL_ATTR16_UNK26                           = 0x04000000, // TITLE Unknown attribute 26@Attr16
+    SPELL_ATTR16_UNK27                           = 0x08000000, // TITLE Unknown attribute 27@Attr16
+    SPELL_ATTR16_UNK28                           = 0x10000000, // TITLE Unknown attribute 28@Attr16
+    SPELL_ATTR16_UNK29                           = 0x20000000, // TITLE Unknown attribute 29@Attr16
+    SPELL_ATTR16_UNK30                           = 0x40000000, // TITLE Unknown attribute 30@Attr16
+    SPELL_ATTR16_UNK31                           = 0x80000000  // TITLE Unknown attribute 31@Attr16
 };
 
 #define MIN_SPECIALIZATION_LEVEL    10
@@ -1643,6 +1685,15 @@ enum SpellEffectName
     SPELL_EFFECT_343                                = 343,
     SPELL_EFFECT_344                                = 344, // some kind of teleport
     SPELL_EFFECT_ASSIST_ACTION                      = 345, // MiscValue[0] = AssistActionType, MiscValue[1] = ID, depends on type
+    SPELL_EFFECT_346                                = 346,
+    SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT              = 347, // MiscValue[0] = TransmogOutfitEntry
+    SPELL_EFFECT_GIVE_HOUSE_LEVEL                   = 348,
+    SPELL_EFFECT_LEARN_HOUSE_ROOM                   = 349, // MiscValue[0] = HouseRoom
+    SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT     = 350, // MiscValue[0] = ExteriorComponent
+    SPELL_EFFECT_LEARN_HOUSE_THEME                  = 351, // MiscValue[0] = HouseTheme
+    SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE = 352, // MiscValue[0] = RoomComponentTexture
+    SPELL_EFFECT_CREATE_AREATRIGGER_2               = 353,
+    SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE        = 354, // MiscValue[0] = NeighborhoodInitiative
     TOTAL_SPELL_EFFECTS
 };
 
@@ -1972,7 +2023,8 @@ enum SpellCastResult : int32
     SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN        = 320,
     SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT               = 321,
     SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN                    = 322,
-    SPELL_FAILED_UNKNOWN                                        = 323,
+    SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN                  = 323,
+    SPELL_FAILED_UNKNOWN                                        = 324,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
@@ -2854,6 +2906,9 @@ inline constexpr uint64 IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK(\
     (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_BANISH) | (1 << MECHANIC_SHACKLE) | \
     (1 << MECHANIC_TURN) | (1 << MECHANIC_HORROR) | (1 << MECHANIC_DAZE) | \
     (1 << MECHANIC_SAPPED));
+
+inline constexpr uint64 MECHANIC_LOSS_CONTROL_MASK(\
+    IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK & ~((1 << MECHANIC_SNARE) | (1 << MECHANIC_TURN) | (1 << MECHANIC_DAZE)));
 
 // Spell dispel type
 enum DispelType
@@ -6630,69 +6685,71 @@ enum ResponseCodes
     CHAR_CREATE_TIMEOUT                                    = 47,
     CHAR_CREATE_THROTTLE                                   = 48,
     CHAR_CREATE_ALLIED_RACE_ACHIEVEMENT                    = 49,
-    CHAR_CREATE_CHARACTER_IN_COMMUNITY                     = 50,
-    CHAR_CREATE_NEW_PLAYER                                 = 51,
-    CHAR_CREATE_NAME_RESERVATION_FULL                      = 52,
-    CHAR_CREATE_DRACTHYR_DUPLICATE                         = 53,
-    CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT                 = 54,
-    CHAR_CREATE_DEATHKNIGHT_DUPLICATE                      = 55,
-    CHAR_CREATE_DEATHKNIGHT_LEVEL_REQUIREMENT              = 56,
-    CHAR_CREATE_CLASS_TRIAL_NEWCOMER                       = 57,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_HOUR                  = 58,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_DAY                   = 59,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_WEEK                  = 60,
-    CHAR_CREATE_CLASS_TRIAL_THROTTLE_ACCOUNT               = 61,
-    CHAR_CREATE_FACTION_BALANCE                            = 62,
-    CHAR_CREATE_TIMERUNNING                                = 63,
+    CHAR_CREATE_RACECLASS_ACHIEVEMENT                      = 50,
+    CHAR_CREATE_CHARACTER_IN_COMMUNITY                     = 51,
+    CHAR_CREATE_NEW_PLAYER                                 = 52,
+    CHAR_CREATE_NAME_RESERVATION_FULL                      = 53,
+    CHAR_CREATE_DRACTHYR_DUPLICATE                         = 54,
+    CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT                 = 55,
+    CHAR_CREATE_DEATHKNIGHT_DUPLICATE                      = 56,
+    CHAR_CREATE_DEATHKNIGHT_LEVEL_REQUIREMENT              = 57,
+    CHAR_CREATE_CLASS_TRIAL_NEWCOMER                       = 58,
+    CHAR_CREATE_CLASS_TRIAL_THROTTLE_HOUR                  = 59,
+    CHAR_CREATE_CLASS_TRIAL_THROTTLE_DAY                   = 60,
+    CHAR_CREATE_CLASS_TRIAL_THROTTLE_WEEK                  = 61,
+    CHAR_CREATE_CLASS_TRIAL_THROTTLE_ACCOUNT               = 62,
+    CHAR_CREATE_FACTION_BALANCE                            = 63,
+    CHAR_CREATE_TIMERUNNING                                = 64,
 
-    CHAR_DELETE_IN_PROGRESS                                = 64,
-    CHAR_DELETE_SUCCESS                                    = 65,
-    CHAR_DELETE_FAILED                                     = 66,
-    CHAR_DELETE_FAILED_CHARACTER_SERVICE_PENDING           = 67,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 68,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 69,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 70,
-    CHAR_DELETE_FAILED_DEPRECATED1                         = 71,
-    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 72,
-    CHAR_DELETE_FAILED_DEPRECATED2                         = 73,
-    CHAR_DELETE_FAILED_COMMUNITY_OWNER                     = 74,
+    CHAR_DELETE_IN_PROGRESS                                = 65,
+    CHAR_DELETE_SUCCESS                                    = 66,
+    CHAR_DELETE_FAILED                                     = 67,
+    CHAR_DELETE_FAILED_CHARACTER_SERVICE_PENDING           = 68,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 69,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 70,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 71,
+    CHAR_DELETE_FAILED_DEPRECATED1                         = 72,
+    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 73,
+    CHAR_DELETE_FAILED_DEPRECATED2                         = 74,
+    CHAR_DELETE_FAILED_COMMUNITY_OWNER                     = 75,
+    CHAR_DELETE_FAILED_NEIGHBORHOOD_OWNER                  = 76,
+    CHAR_DELETE_FAILED_HOUSE_OWNER                         = 77,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 75,
-    CHAR_LOGIN_SUCCESS                                     = 76,
-    CHAR_LOGIN_NO_WORLD                                    = 77,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 78,
-    CHAR_LOGIN_NO_INSTANCES                                = 79,
-    CHAR_LOGIN_FAILED                                      = 80,
-    CHAR_LOGIN_DISABLED                                    = 81,
-    CHAR_LOGIN_NO_CHARACTER                                = 82,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 83,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 84,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 85,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 86,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 87,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 88,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 89,
-    CHAR_LOGIN_LOCKED_BY_RESTRICTION                       = 90,
-    CHAR_LOGIN_LOCKED_FOR_REALM_PLAYTYPE                   = 91,
+    CHAR_LOGIN_IN_PROGRESS                                 = 78,
+    CHAR_LOGIN_SUCCESS                                     = 79,
+    CHAR_LOGIN_NO_WORLD                                    = 80,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 81,
+    CHAR_LOGIN_NO_INSTANCES                                = 82,
+    CHAR_LOGIN_FAILED                                      = 83,
+    CHAR_LOGIN_DISABLED                                    = 84,
+    CHAR_LOGIN_NO_CHARACTER                                = 85,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 86,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 87,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 88,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 89,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 90,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 91,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 92,
+    CHAR_LOGIN_LOCKED_BY_RESTRICTION                       = 93,
+    CHAR_LOGIN_LOCKED_FOR_REALM_PLAYTYPE                   = 94,
 
-    CHAR_NAME_SUCCESS                                      = 92,
-    CHAR_NAME_FAILURE                                      = 93,
-    CHAR_NAME_NO_NAME                                      = 94,
-    CHAR_NAME_TOO_SHORT                                    = 95,
-    CHAR_NAME_TOO_LONG                                     = 96,
-    CHAR_NAME_INVALID_CHARACTER                            = 97,
-    CHAR_NAME_MIXED_LANGUAGES                              = 98,
-    CHAR_NAME_PROFANE                                      = 99,
-    CHAR_NAME_RESERVED                                     = 100,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 101,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 102,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 103,
-    CHAR_NAME_INVALID_SPACE                                = 104,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 105,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 106,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 107,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 108,
-    CHAR_NAME_SPACES_DISALLOWED                            = 109,
+    CHAR_NAME_SUCCESS                                      = 95,
+    CHAR_NAME_FAILURE                                      = 96,
+    CHAR_NAME_NO_NAME                                      = 97,
+    CHAR_NAME_TOO_SHORT                                    = 98,
+    CHAR_NAME_TOO_LONG                                     = 99,
+    CHAR_NAME_INVALID_CHARACTER                            = 100,
+    CHAR_NAME_MIXED_LANGUAGES                              = 101,
+    CHAR_NAME_PROFANE                                      = 102,
+    CHAR_NAME_RESERVED                                     = 103,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 104,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 105,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 106,
+    CHAR_NAME_INVALID_SPACE                                = 107,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 108,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 109,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 110,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 111,
 };
 
 enum CharacterUndeleteResult
@@ -8549,7 +8606,40 @@ enum class GameError : uint32
     ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1199,
     ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1200,
     ERR_CURRENCY_TRANSFER_DISABLED                                  = 1201,
-    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1202,
+    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1202,
+    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1203,
+    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1204,
+    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1205,
+    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1206,
+    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1207,
+    ERR_HOUSE_MOVED                                                 = 1208,
+    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1209,
+    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1210,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1211,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1212,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1213,
+    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1214,
+    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1215,
+    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1216,
+    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1217,
+    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1218,
+    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1219,
+    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1220,
+    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1221,
+    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1222,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1223,
+    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1224,
+    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1225,
+    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1226,
+    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1227,
+    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1228,
+    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1229,
+    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1230,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_S                  = 1231,
+    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1232,
+    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1233,
+    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1234,
+    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1235,
 };
 
 enum class MountResult : uint32

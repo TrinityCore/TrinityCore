@@ -71,6 +71,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
+    SPELL_PALADIN_ETERNAL_FLAME                  = 156322,
     SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE      = 387113,
     SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
     SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
@@ -690,6 +691,47 @@ class spell_pal_divine_storm : public SpellScript
     void Register() override
     {
         OnCast += SpellCastFn(spell_pal_divine_storm::HandleOnCast);
+    }
+};
+
+// 156322 - Eternal Flame
+class spell_pal_eternal_flame : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pal_eternal_flame::CalculateHealing);
+    }
+};
+
+class spell_pal_eternal_flame_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pal_eternal_flame_aura::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1654,7 +1696,8 @@ class spell_pal_t8_2p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_MENDING });
+        return ValidateSpellEffect({ { SPELL_PALADIN_HOLY_MENDING, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -1668,11 +1711,10 @@ class spell_pal_t8_2p_bonus : public AuraScript
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty());
+        SpellEffectInfo const& hotEffect = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= hotEffect.GetPeriodicTickCount();
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
@@ -1690,7 +1732,8 @@ class spell_pal_t30_2p_protection_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE });
+        return ValidateSpellEffect({ { SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
@@ -1698,7 +1741,7 @@ class spell_pal_t30_2p_protection_bonus : public AuraScript
         PreventDefaultAction();
 
         Unit* caster = procInfo.GetActor();
-        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
         uint32 damage = CalculatePct(procInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
 
         caster->CastSpell(procInfo.GetActionTarget(), SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, CastSpellExtraArgs(aurEff)
@@ -1806,6 +1849,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
+    RegisterSpellAndAuraScriptPair(spell_pal_eternal_flame, spell_pal_eternal_flame_aura);
     RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_final_verdict);
