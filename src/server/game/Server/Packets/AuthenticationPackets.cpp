@@ -60,6 +60,11 @@ WorldPacket const* Pong::Write()
     return &_worldPacket;
 }
 
+void LogDisconnect::Read()
+{
+    _worldPacket >> Reason;
+}
+
 WorldPacket const* AuthChallenge::Write()
 {
     _worldPacket.append(DosChallenge.data(), DosChallenge.size());

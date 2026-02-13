@@ -185,20 +185,20 @@ namespace WorldPackets
 
                 struct VisualItemInfo
                 {
+                    uint32 ItemID           = 0;
+                    uint32 TransmogrifiedItemID = 0;
+                    uint8 Subclass          = 0;
+                    uint8 InvType           = 0;
                     uint32 DisplayID        = 0;
                     uint32 DisplayEnchantID = 0;
                     int32 SecondaryItemModifiedAppearanceID = 0; // also -1 is some special value
-                    uint8 InvType           = 0;
-                    uint8 Subclass          = 0;
-                    uint32 ItemID           = 0;
-                    uint32 TransmogrifiedItemID = 0;
                 };
 
                 std::array<VisualItemInfo, 19> VisualItems = { };
                 CustomTabardInfo PersonalTabard;
-                uint32 Unused1110_1 = 0;
-                bool Unused1110_2 = false;
-                bool Unused1110_3 = false;
+                uint32 RealmQueue = 0;
+                bool RealmInfoFound = false;
+                bool IsRealmOffline = false;
             };
 
             struct CharacterRestrictionAndMailData
@@ -231,6 +231,13 @@ namespace WorldPackets
                 int16 PvpRatingAssociatedSpecID = 0;
             };
 
+            struct ClassUnlock
+            {
+               int8 ClassID = 0;
+               bool HasUnlockedAchievement = false;
+               uint32 AchievementID = 0;
+            };
+
             struct RaceUnlock
             {
                 int8 RaceID = 0;
@@ -238,7 +245,8 @@ namespace WorldPackets
                 bool HasUnlockedAchievement = false;
                 bool HasHeritageArmorUnlockAchievement = false;
                 bool HideRaceOnClient = false;
-                bool Unused1027 = false;
+                bool FactionBalanceDisabled = false;
+                std::vector<ClassUnlock> ClassUnlocks;
             };
 
             struct UnlockedConditionalAppearance
@@ -270,8 +278,8 @@ namespace WorldPackets
             bool IsRestrictedNewPlayer            = false; ///< forbids using level boost and class trials
             bool IsNewcomerChatCompleted          = false; ///< forbids hero classes and allied races
             bool IsRestrictedTrial                = false;
-            bool Unused1127                       = false;
-            bool DontCreateCharacterDisplays      = false;
+            bool IsAccountLapsedPlayer            = false;
+            bool ForceCharacterListSort           = false;
 
             int32 MaxCharacterLevel     = 1;
             Optional<uint32> ClassDisableMask;

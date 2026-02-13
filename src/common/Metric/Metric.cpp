@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Util.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <span>
 
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
@@ -29,22 +30,21 @@ void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& 
     _realmName = FormatInfluxDBTagValue(realmName);
     _batchTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _overallStatusTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _overallStatusLogger = overallStatusLogger;
+    _overallStatusLogger = std::move(overallStatusLogger);
     LoadFromConfigs();
 }
 
 bool Metric::Connect()
 {
-    auto& stream = static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream());
-    stream.connect(_hostname, _port);
-    if (boost::system::error_code const& error = stream.error())
+    GetDataStream().connect(_hostname, _port);
+    if (boost::system::error_code const& error = GetDataStream().error())
     {
         TC_LOG_ERROR("metric", "Error connecting to '{}:{}', disabling Metric. Error message : {}",
             _hostname, _port, error.message());
         _enabled = false;
         return false;
     }
-    stream.clear();
+    GetDataStream().clear();
     return true;
 }
 
@@ -68,11 +68,11 @@ void Metric::LoadFromConfigs()
 
     _thresholds.clear();
     std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
-    for (std::string const& thresholdSetting : thresholdSettings)
+    for (std::string& thresholdSetting : thresholdSettings)
     {
-        int thresholdValue = sConfigMgr->GetIntDefault(thresholdSetting, 0);
+        int64 thresholdValue = sConfigMgr->GetIntDefault(thresholdSetting, 0);
         std::string thresholdName = thresholdSetting.substr(strlen("Metric.Threshold."));
-        _thresholds[thresholdName] = thresholdValue;
+        _thresholds.emplace(std::move(thresholdName), thresholdValue);
     }
 
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
@@ -112,7 +112,7 @@ void Metric::Update()
     }
 }
 
-bool Metric::ShouldLog(std::string const& category, int64 value) const
+bool Metric::ShouldLog(std::string_view category, int64 value) const
 {
     auto threshold = _thresholds.find(category);
     if (threshold == _thresholds.end())
@@ -120,16 +120,16 @@ bool Metric::ShouldLog(std::string const& category, int64 value) const
     return value >= threshold->second;
 }
 
-void Metric::LogEvent(std::string category, std::string title, std::string description)
+void Metric::LogEvent(std::string_view category, std::string_view title, std::string description)
 {
-    using namespace std::chrono;
-
-    MetricData* data = new MetricData;
-    data->Category = std::move(category);
-    data->Timestamp = system_clock::now();
-    data->Type = METRIC_DATA_EVENT;
-    data->Title = std::move(title);
-    data->ValueOrEventText = std::move(description);
+    MetricData* data = new MetricData
+    {
+        .Category = std::string(category),
+        .Timestamp = std::chrono::system_clock::now(),
+        .Type = METRIC_DATA_EVENT,
+        .Title = std::string(title),
+        .ValueOrEventText = std::move(description)
+    };
 
     _queuedData.Enqueue(data);
 }
@@ -150,14 +150,21 @@ void Metric::SendBatch()
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
-        if (data->Tags)
+        auto tags = [](MetricTags const& tags) -> std::span<MetricTag const>
         {
-            auto begin = std::visit([](auto&& value) { return value.data(); }, *data->Tags);
-            auto end = std::visit([](auto&& value) { return value.data() + value.size(); }, *data->Tags);
-            for (auto itr = begin; itr != end; ++itr)
-                if (!itr->first.empty())
-                    batchedData << "," << itr->first << "=" << FormatInfluxDBTagValue(itr->second);
-        }
+            switch (tags.index())
+            {
+                case 1: return std::get<1>(tags);
+                case 2: return std::get<2>(tags);
+                default:
+                    break;
+            }
+            return {};
+        }(data->Tags);
+
+        for (auto const& [tagName, tagValue] : tags)
+            if (!tagName.empty())
+                batchedData << "," << tagName << "=" << FormatInfluxDBTagValue(tagValue);
 
         batchedData << " ";
 
@@ -173,14 +180,15 @@ void Metric::SendBatch()
 
         batchedData << " ";
 
-        batchedData << std::to_string(duration_cast<nanoseconds>(data->Timestamp.time_since_epoch()).count());
+        batchedData << duration_cast<nanoseconds>(data->Timestamp.time_since_epoch()).count();
 
         firstLoop = false;
         delete data;
     }
 
     // Check if there's any data to send
-    if (batchedData.tellp() == std::streampos(0))
+    std::streamoff batchedDataSize = batchedData.tellp();
+    if (batchedDataSize <= 0)
     {
         ScheduleSend();
         return;
@@ -195,7 +203,7 @@ void Metric::SendBatch()
     GetDataStream() << "Content-Type: application/octet-stream\r\n";
     GetDataStream() << "Content-Transfer-Encoding: binary\r\n";
 
-    GetDataStream() << "Content-Length: " << std::to_string(batchedData.tellp()) << "\r\n\r\n";
+    GetDataStream() << "Content-Length: " << batchedDataSize << "\r\n\r\n";
     GetDataStream() << batchedData.rdbuf();
 
     std::string http_version;
@@ -214,7 +222,7 @@ void Metric::SendBatch()
     std::string header;
     while (std::getline(GetDataStream(), header) && header != "\r")
         if (header == "Connection: close\r")
-            static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
+            GetDataStream().close();
 
     ScheduleSend();
 }
@@ -228,7 +236,7 @@ void Metric::ScheduleSend()
     }
     else
     {
-        static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
+        GetDataStream().close();
         MetricData* data;
         // Clear the queue
         while (_queuedData.Dequeue(data))
@@ -267,7 +275,7 @@ std::string Metric::FormatInfluxDBValue(bool value)
     return std::string(1, value ? 't' : 'f');
 }
 
-template<class T>
+template<class T> requires std::integral<T> && (!std::same_as<T, bool>)
 std::string Metric::FormatInfluxDBValue(T value)
 {
     std::string result = std::to_string(value);

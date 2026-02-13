@@ -36,7 +36,7 @@ class Player;
 class Spell;
 class Unit;
 class WorldObject;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
 enum SpellCastResult : int32;
@@ -190,9 +190,24 @@ enum class SpellModOp : uint8
     MaxAuraStacks               = 37,
     ProcCooldown                = 38,
     PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2
+    MaxTargets                  = 40
 };
 
-#define MAX_SPELLMOD 40
+#define MAX_SPELLMOD 41
+
+enum class SpellPvpModifier : uint8
+{
+    HealingAndDamage            = 0,
+    PeriodicHealingAndDamage    = 1,
+    BonusCoefficient            = 2,
+
+    Points                      = 4,
+    PointsIndex0                = 5,
+    PointsIndex1                = 6,
+    PointsIndex2                = 7,
+    PointsIndex3                = 8,
+    PointsIndex4                = 9,
+};
 
 enum SpellValueMod : int32
 {
@@ -284,6 +299,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //!< Will ignore equipped item requirements
     TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //!< Will ignore most target checks (mostly DBC target checks)
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00200000,   //!< Will ignore caster aura states including combat requirements and death state
+    TRIGGERED_SUPPRESS_CASTER_ANIM                  = 0x00400000,   //!< Will not play cast animations on caster
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
@@ -484,7 +500,7 @@ struct CastSpellExtraArgsInit
     };
     std::vector<SpellValueOverride> SpellValueOverrides;
     std::any CustomArg;
-    Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> ScriptResult;
+    Scripting::v2::ActionResultSetter<SpellCastResult> ScriptResult;
     bool ScriptWaitsForSpellHit = false;
 };
 
@@ -520,7 +536,7 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs& AddSpellMod(SpellValueModFloat mod, float val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
     CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
-    CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult> scriptResult) { ScriptResult.emplace(std::move(scriptResult)); return *this; }
+    CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult>&& scriptResult) { ScriptResult = std::move(scriptResult); return *this; }
     CastSpellExtraArgs& SetScriptWaitsForSpellHit(bool scriptWaitsForSpellHit) { ScriptWaitsForSpellHit = scriptWaitsForSpellHit; return *this; }
 };
 

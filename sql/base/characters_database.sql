@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.43, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.44, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.43-0ubuntu0.22.04.2
+-- Server version	8.0.44-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1777,6 +1777,7 @@ CREATE TABLE `character_stats` (
   `agility` int unsigned NOT NULL DEFAULT '0',
   `stamina` int unsigned NOT NULL DEFAULT '0',
   `intellect` int unsigned NOT NULL DEFAULT '0',
+  `spirit` int unsigned NOT NULL DEFAULT '0',
   `armor` int unsigned NOT NULL DEFAULT '0',
   `resHoly` int unsigned NOT NULL DEFAULT '0',
   `resFire` int unsigned NOT NULL DEFAULT '0',
@@ -3828,7 +3829,10 @@ INSERT INTO `updates` VALUES
 ('2025_09_09_00_characters.sql','CF3F0738623248620204175B049AAF0833262222','ARCHIVED','2025-09-09 14:11:21',0),
 ('2025_10_10_00_characters.sql','F1EF875805AF1E87A413387F5449FE37D5205E94','ARCHIVED','2025-10-09 23:58:44',0),
 ('2025_10_29_00_characters.sql','DC6A5D66E866352AC243869B627D282EE6A8B4F2','ARCHIVED','2025-10-29 06:57:00',0),
-('2025_11_25_00_characters.sql','A0C04B2404B1832421402F78436DDC4AA18EBAD8','RELEASED','2025-11-25 22:28:32',0);
+('2025_11_25_00_characters.sql','A0C04B2404B1832421402F78436DDC4AA18EBAD8','ARCHIVED','2025-11-25 22:28:32',0),
+('2026_01_14_00_characters.sql','FF5D889A41BBD9F9827489DEC08BCA9DB457933E','ARCHIVED','2026-01-14 23:40:33',0),
+('2026_01_28_00_characters.sql','807B6622970E81089806C3B45C6C7A32EF531BCA','ARCHIVED','2026-01-25 21:53:51',0),
+('2026_02_06_00_characters.sql','90735F4481A137E79B8371F291008CF6051657AC','ARCHIVED','2026-02-06 12:45:48',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3856,6 +3860,7 @@ INSERT INTO `updates_include` VALUES
 ('$/sql/custom/characters','RELEASED'),
 ('$/sql/old/10.x/characters','ARCHIVED'),
 ('$/sql/old/11.x/characters','ARCHIVED'),
+('$/sql/old/12.x/characters','ARCHIVED'),
 ('$/sql/old/6.x/characters','ARCHIVED'),
 ('$/sql/old/7/characters','ARCHIVED'),
 ('$/sql/old/8.x/characters','ARCHIVED'),
@@ -3933,4 +3938,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-29  6:57:03
+-- Dump completed on 2026-02-06 12:45:50

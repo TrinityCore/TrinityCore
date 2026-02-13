@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "StringFormatFwd.h"
 #include "advstd.h"
 #include <array>
@@ -283,7 +284,7 @@ class TC_GAME_API ObjectGuidFactory
 public:
     static constexpr ObjectGuid CreateNull();
     static constexpr ObjectGuid CreateUniq(uint64 id);
-    static ObjectGuid CreatePlayer(uint32 realmId, uint64 dbId);
+    static ObjectGuid CreatePlayer(uint32 realmId, uint8 subType, uint32 arg1, uint64 dbId);
     static ObjectGuid CreateItem(uint32 realmId, uint64 dbId);
     static ObjectGuid CreateWorldObject(HighGuid type, uint8 subType, uint32 realmId, uint16 mapId, uint32 serverId, uint32 entry, uint64 counter);
     static ObjectGuid CreateTransport(HighGuid type, uint32 counter);
@@ -322,7 +323,7 @@ class TC_GAME_API ObjectGuid
         constexpr ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
-        std::array<uint8, 16> GetRawValue() const;
+        std::span<uint8 const, 16> GetRawValue() const { return std::span<uint8 const, 16>(reinterpret_cast<uint8 const*>(_data.data()), BytesSize); }
         void SetRawValue(std::span<uint8 const> rawBytes);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
         void Clear() { _data = { }; }
@@ -396,11 +397,10 @@ class TC_GAME_API ObjectGuid
         std::string ToString() const;
         std::string ToHexString() const;
         static ObjectGuid FromString(std::string_view guidString);
-        std::size_t GetHash() const;
 
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Null, int32> = 0> static constexpr ObjectGuid Create() { return ObjectGuidFactory::CreateNull(); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Uniq, int32> = 0> static constexpr ObjectGuid Create(LowType id) { return ObjectGuidFactory::CreateUniq(id); }
-        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Player, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreatePlayer(0, dbId); }
+        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Player, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreatePlayer(0, 0, 0, dbId); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Item, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreateItem(0, dbId); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldObject, int32> = 0> static ObjectGuid Create(uint16 mapId, uint32 entry, LowType counter) { return ObjectGuidFactory::CreateWorldObject(type, 0, 0, mapId, 0, entry, counter); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldObject, int32> = 0> static ObjectGuid Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return ObjectGuidFactory::CreateWorldObject(type, subType, 0, mapId, 0, entry, counter); }
@@ -437,12 +437,12 @@ using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
-template<>
+template <>
 struct std::hash<ObjectGuid>
 {
-    size_t operator()(ObjectGuid const& key) const noexcept
+    std::size_t operator()(ObjectGuid const& key) const noexcept
     {
-        return key.GetHash();
+        return Trinity::HashFnv1a<>::GetHash(key.GetRawValue());
     }
 };
 

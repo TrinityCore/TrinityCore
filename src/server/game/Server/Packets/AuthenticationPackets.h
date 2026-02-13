@@ -73,6 +73,18 @@ namespace WorldPackets
             uint32 Serial = 0;
         };
 
+        class LogDisconnect final : public EarlyProcessClientPacket<LogDisconnect>
+        {
+        public:
+            explicit LogDisconnect(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_LOG_DISCONNECT, std::move(packet)) { }
+
+            uint32 Reason = 0;
+
+        private:
+            friend EarlyProcessClientPacket;
+            void Read() override;
+        };
+
         class AuthChallenge final : public ServerPacket
         {
         public:

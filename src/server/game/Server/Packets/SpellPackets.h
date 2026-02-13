@@ -19,6 +19,8 @@
 #define TRINITYCORE_SPELL_PACKETS_H
 
 #include "CombatLogPacketsCommon.h"
+#include "CraftingPacketsCommon.h"
+#include "ItemPacketsCommon.h"
 #include "MovementInfo.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -203,10 +205,10 @@ namespace WorldPackets
         struct SpellTargetData
         {
             uint32 Flags = 0;
-            bool Unknown1127_2 = false;
+            bool HousingIsResident = false;
             ObjectGuid Unit;
             ObjectGuid Item;
-            ObjectGuid Unknown1127_1;
+            ObjectGuid HousingGUID;
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
             Optional<float> Orientation;
@@ -229,9 +231,9 @@ namespace WorldPackets
 
         struct SpellCraftingReagent
         {
-            int32 ItemID = 0;
-            int32 DataSlotIndex = 0;
+            int32 Slot = 0;
             int32 Quantity = 0;
+            Crafting::CraftingReagentBase Reagent;
             Optional<uint8> Source;
         };
 
@@ -251,13 +253,13 @@ namespace WorldPackets
             MissileTrajectoryRequest MissileTrajectory;
             Optional<MovementInfo> MoveUpdate;
             std::vector<SpellWeight> Weight;
-            Array<SpellCraftingReagent, 6> OptionalReagents;
-            Array<SpellCraftingReagent, 6> RemovedModifications;
-            Array<SpellExtraCurrencyCost, 5 /*MAX_ITEM_EXT_COST_CURRENCIES*/> OptionalCurrencies;
+            Array<SpellCraftingReagent, 6> CraftingReagents;
+            Array<SpellCraftingReagent, 6> RemovedReagents;
+            Array<SpellExtraCurrencyCost, 5 /*MAX_ITEM_EXT_COST_CURRENCIES*/> ExtraCurrencyCosts;
             Optional<uint64> CraftingOrderID;
-            uint8 CraftingFlags = 0; // 1 = ApplyConcentration
+            uint8 CraftingCastFlags = 0; // 1 = ApplyConcentration
             ObjectGuid CraftingNPC;
-            int32 Misc[2] = { };
+            std::array<int32, 3> Misc = { };
         };
 
         class CastSpell final : public ClientPacket
@@ -435,7 +437,7 @@ namespace WorldPackets
         class SpellFailure final : public ServerPacket
         {
         public:
-            explicit SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 16 + 4 + 8 + 2 + 16) { }
+            explicit SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 16 + 4 + 8 + 2 + 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -444,12 +446,13 @@ namespace WorldPackets
             SpellCastVisual Visual;
             uint16 Reason   = 0;
             ObjectGuid CastID;
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SpellFailedOther final : public ServerPacket
         {
         public:
-            explicit SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 16 + 4 + 8 + 1 + 16) { }
+            explicit SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 16 + 4 + 8 + 1 + 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -458,12 +461,13 @@ namespace WorldPackets
             SpellCastVisual Visual;
             uint8 Reason    = 0;
             ObjectGuid CastID;
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class TC_GAME_API CastFailed final : public ServerPacket
         {
         public:
-            explicit CastFailed() : ServerPacket(SMSG_CAST_FAILED, 4 + 4 + 4 + 4 + 1) { }
+            explicit CastFailed() : ServerPacket(SMSG_CAST_FAILED, 16 + 4 + 8 + 4 + 4 + 4 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -473,12 +477,13 @@ namespace WorldPackets
             int32 Reason              = 0;
             int32 FailedArg1          = -1;
             int32 FailedArg2          = -1;
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class TC_GAME_API PetCastFailed final : public ServerPacket
         {
         public:
-            explicit PetCastFailed() : ServerPacket(SMSG_PET_CAST_FAILED, 4 + 4 + 4 + 1) { }
+            explicit PetCastFailed() : ServerPacket(SMSG_PET_CAST_FAILED, 16+ 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -860,6 +865,7 @@ namespace WorldPackets
 
             ObjectGuid CasterGUID;
             int32 TimeRemaining = 0;
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SpellEmpowerStart final : public ServerPacket
@@ -894,6 +900,7 @@ namespace WorldPackets
             Duration<Milliseconds, int32> TimeRemaining;
             std::vector<Duration<Milliseconds, uint32>> StageDurations;
             uint8 Status = 0;
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SetEmpowerMinHoldStagePercent final : public ClientPacket

@@ -28,7 +28,7 @@
 template<class T>
 RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : _timer(0), _speed(speed), _speedSelectionMode(speedSelectionMode), _wanderDistance(distance), _wanderSteps(0)
 {
     this->Mode = MOTION_MODE_DEFAULT;
