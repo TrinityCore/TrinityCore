@@ -814,7 +814,7 @@ class spell_dru_elunes_favored : public AuraScript
 // 370588 - Elune's Favored (Proc)
 class spell_dru_elunes_favored_proc : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED_HEAL })
             && ValidateSpellEffect({ { SPELL_DRUID_ELUNES_FAVORED, EFFECT_0 } });
