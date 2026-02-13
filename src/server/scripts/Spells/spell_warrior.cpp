@@ -798,6 +798,20 @@ class spell_warr_frothing_berserker : public AuraScript
     }
 };
 
+// 382551 - Pain and Gain (heal)
+class spell_warr_pain_and_gain_heal : public SpellScript
+{
+    static void CalculateHeal(SpellScript const&, SpellEffectInfo const& /*effInfo*/, Unit const* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
+    {
+        pctMod *= 0.1f;
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcDamageFn(spell_warr_pain_and_gain_heal::CalculateHeal);
+    }
+};
+
 // 440277 - Powerful Enrage (attached to 184362 - Enrage)
 class spell_warr_powerful_enrage : public SpellScript
 {
@@ -1754,6 +1768,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
+    RegisterSpellScript(spell_warr_pain_and_gain_heal);
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
     RegisterSpellScript(spell_warr_rallying_cry);
