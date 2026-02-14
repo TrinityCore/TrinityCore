@@ -1023,7 +1023,7 @@ class spell_warr_impending_victory : public SpellScript
 };
 
 // 12950 - Improved Whirlwind (attached to 190411 - Whirlwind)
-class spell_improved_whirlwind : public SpellScript
+class spell_warr_improved_whirlwind : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -1062,7 +1062,7 @@ class spell_improved_whirlwind : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_improved_whirlwind::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_improved_whirlwind::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1854,7 +1854,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_damage);
     RegisterSpellScript(spell_warr_impending_victory);
-    RegisterSpellScript(spell_improved_whirlwind);
+    RegisterSpellScript(spell_warr_improved_whirlwind);
     RegisterSpellScript(spell_warr_intervene);
     RegisterSpellScript(spell_warr_intervene_charge);
     RegisterSpellScript(spell_warr_intimidating_shout);
