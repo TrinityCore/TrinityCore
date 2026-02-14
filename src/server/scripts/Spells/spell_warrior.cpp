@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "Map.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
