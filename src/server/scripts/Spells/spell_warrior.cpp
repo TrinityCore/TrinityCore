@@ -22,6 +22,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "Map.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
@@ -38,6 +40,7 @@ enum WarriorSpells
     SPELL_WARRIOR_AVATAR                            = 107574,
     SPELL_WARRIOR_BLADESTORM                        = 227847,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
+    SPELL_WARRIOR_BLOODSURGE_ENERGIZE               = 384362,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_BOUNDING_STRIDE_AURA              = 202163,
     SPELL_WARRIOR_BOUNDING_STRIDE                   = 202164,
@@ -261,6 +264,42 @@ class spell_warr_avatar : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_avatar::HandleRemoveImpairingAuras, EFFECT_5, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 384361 - Bloodsurge
+class spell_warr_bloodsurge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_BLOODSURGE_ENERGIZE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetTarget();
+        float rends = 0.0f;
+        auto work = [&rends, warrior = caster->GetGUID()](Unit const* target)
+        {
+            if (target->HasAuraEffect(SPELL_WARRIOR_REND_AURA, EFFECT_0, warrior))
+                rends += 1.0f;
+        };
+        Trinity::UnitWorker worker(caster, work);
+        Cell::VisitAllObjects(caster, worker, 50.0f);
+
+        float chance = std::sqrt(rends) * aurEff->GetAmount();
+        if (!roll_chance_f(chance))
+            return;
+
+        caster->CastSpell(caster, SPELL_WARRIOR_BLOODSURGE_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_bloodsurge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1794,6 +1833,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_anger_management_proc);
     RegisterSpellScript(spell_warr_ashen_juggernaut);
     RegisterSpellScript(spell_warr_avatar);
+    RegisterSpellScript(spell_warr_bloodsurge);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
     RegisterSpellScript(spell_warr_charge);
