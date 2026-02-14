@@ -54,7 +54,7 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     }
     else if (splineflags.Turning)
     {
-        c.orientation = Position::NormalizeOrientation(turn->StartFacing + float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec);
+        c.orientation = Position::NormalizeOrientation(turn->StartFacing + std::copysign(float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec, turn->TotalTurnRads));
     }
     else
     {
@@ -192,7 +192,7 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
 
     if (turn)
     {
-        MySpline::LengthType totalTurnTime = static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS));
+        MySpline::LengthType totalTurnTime = std::abs(static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS)));
         spline.set_length(spline.last(), std::max(spline.length(), totalTurnTime));
     }
 
@@ -271,6 +271,11 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
     {
         CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), unit->GetDebugInfo());
         CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), unit->GetDebugInfo());
+    }
+    if (turnData)
+    {
+        CHECK(G3D::fuzzyNe(turnData->TotalTurnRads, 0.0f), unit->GetDebugInfo());
+        CHECK(turnData->RadsPerSec > 0.0f, unit->GetDebugInfo());
     }
     return true;
 #undef CHECK
