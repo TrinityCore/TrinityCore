@@ -34,6 +34,7 @@
 #include "SpellScript.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum HodirTexts
