@@ -63,20 +63,18 @@ struct std::hash<TileCacheKey>
 {
     static std::size_t Compute(TileCacheKey const& key) noexcept
     {
-        size_t hashVal = 0;
-        Trinity::hash_combine(hashVal, key.TerrainMapId);
-        Trinity::hash_combine(hashVal, key.X);
-        Trinity::hash_combine(hashVal, key.Y);
+        Trinity::HashFnv1a<> hash;
+        hash.UpdateData(key.TerrainMapId);
+        hash.UpdateData(key.X);
+        hash.UpdateData(key.Y);
         for (TileCacheKeyObject const& object : key.Objects)
         {
-            Trinity::hash_combine(hashVal, object.DisplayId);
-            Trinity::hash_combine(hashVal, object.Scale);
-            Trinity::hash_combine(hashVal, object.Position[0]);
-            Trinity::hash_combine(hashVal, object.Position[1]);
-            Trinity::hash_combine(hashVal, object.Position[2]);
-            Trinity::hash_combine(hashVal, object.Rotation);
+            hash.UpdateData(object.DisplayId);
+            hash.UpdateData(object.Scale);
+            hash.UpdateData(object.Position);
+            hash.UpdateData(object.Rotation);
         }
-        return hashVal;
+        return hash.Value;
     }
 
     std::size_t operator()(TileCacheKey const& key) const noexcept
@@ -138,7 +136,7 @@ struct TileCache
         MMAP::CreateVMapManager = &CreateVMapManager;
 
         // init timer
-        OnCacheCleanupTimerTick({});
+        OnCacheCleanupTimerTick();
 
         // start the worker
         _builderThread = std::thread([this] { _taskContext.run(); });
@@ -163,15 +161,18 @@ struct TileCache
     }
 
 private:
-    void OnCacheCleanupTimerTick(boost::system::error_code const& error)
+    void OnCacheCleanupTimerTick()
     {
-        if (error || !_builderThread.joinable() /*shutting down*/)
-            return;
-
         TimePoint now = GameTime::Now();
         RemoveOldCacheEntries(now - CACHE_MAX_AGE);
         _cacheCleanupTimer.expires_at(now + CACHE_CLEANUP_INTERVAL);
-        _cacheCleanupTimer.async_wait([this](boost::system::error_code const& error) { OnCacheCleanupTimerTick(error); });
+        _cacheCleanupTimer.async_wait([this](boost::system::error_code const& error)
+        {
+            if (error || !_builderThread.joinable() /*shutting down*/)
+                return;
+
+            OnCacheCleanupTimerTick();
+        });
     }
 
     void RemoveOldCacheEntries(TimePoint oldestPreservedEntryTimestamp)
