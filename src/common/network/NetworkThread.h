@@ -24,8 +24,6 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
-#include "Socket.h"
-#include <boost/asio/ip/tcp.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -33,12 +31,12 @@
 
 namespace Trinity::Net
 {
-template<class SocketType>
+template<class SocketType, class DerivedThread>
 class NetworkThread
 {
 public:
     NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
-        _acceptSocket(_ioContext), _updateTimer(_ioContext)
+        _updateTimer(_ioContext)
     {
     }
 
@@ -82,15 +80,15 @@ public:
         return _connections;
     }
 
-    void AddSocket(std::shared_ptr<SocketType> sock)
+    void AddSocket(std::shared_ptr<SocketType>&& sock)
     {
         std::scoped_lock lock(_newSocketsLock);
 
         ++_connections;
-        SocketAdded(_newSockets.emplace_back(std::move(sock)));
+        static_cast<DerivedThread*>(this)->SocketAdded(_newSockets.emplace_back(std::move(sock)));
     }
 
-    Trinity::Net::IoContextTcpSocket* GetSocketForAccept() { return &_acceptSocket; }
+    Trinity::Asio::IoContext* GetIoContext() { return &_ioContext; }
 
 protected:
     virtual void SocketAdded(std::shared_ptr<SocketType> const& /*sock*/) { }
@@ -107,7 +105,7 @@ protected:
         {
             if (!sock->IsOpen())
             {
-                SocketRemoved(sock);
+                static_cast<DerivedThread*>(this)->SocketRemoved(sock);
                 --_connections;
             }
             else
@@ -147,7 +145,7 @@ protected:
                 if (sock->IsOpen())
                     sock->CloseSocket();
 
-                this->SocketRemoved(sock);
+                static_cast<DerivedThread*>(this)->SocketRemoved(sock);
 
                 --this->_connections;
                 return true;
@@ -171,7 +169,6 @@ private:
     SocketContainer _newSockets;
 
     Trinity::Asio::IoContext _ioContext;
-    Trinity::Net::IoContextTcpSocket _acceptSocket;
     Trinity::Asio::DeadlineTimer _updateTimer;
 };
 }

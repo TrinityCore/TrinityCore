@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
 #include "CellImpl.h"
 #include "Containers.h"
 #include "CreatureAI.h"
@@ -31,6 +33,20 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
+
+namespace Scripts::Pandaria::TheWanderingIsle
+{
+namespace Spells
+{
+    // Singing Pools
+    static constexpr uint32 CurseOfTheFrog = 102938;
+    static constexpr uint32 CurseOfTheSkunk = 102939;
+    static constexpr uint32 CurseOfTheTurtle = 102940;
+    static constexpr uint32 CurseOfTheCrane = 102941;
+    static constexpr uint32 CurseOfTheCrocodile = 102942;
+    static constexpr uint32 RideVehiclePole = 102717;
+    static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
+}
 
 enum TraineeMisc
 {
@@ -1231,8 +1247,63 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+template<uint32 CurseSpellID>
+class at_singing_pools_transform_base : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform_base(char const* scriptName) : AreaTriggerScript(scriptName) {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(CurseSpellID))
+            player->CastSpell(player, CurseSpellID);
+
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(CurseSpellID);
+        return true;
+    }
+};
+
+// 6986
+// 6987
+class at_singing_pools_transform_frog : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform_frog() : AreaTriggerScript("at_singing_pools_transform_frog") {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(Spells::CurseOfTheFrog))
+            player->CastSpell(player, Spells::CurseOfTheFrog);
+
+        if (player->HasAura(Spells::TrainingBellPoleExitExclusion))
+            player->RemoveAura(Spells::TrainingBellPoleExitExclusion);
+
+        return true;
+    }
+
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        player->RemoveAurasDueToSpell(Spells::CurseOfTheFrog);
+        return true;
+    }
+};
+};
+
 void AddSC_zone_the_wandering_isle()
 {
+    using namespace Scripts::Pandaria::TheWanderingIsle;
+
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
@@ -1254,4 +1325,10 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    new at_singing_pools_transform_frog();
+    new at_singing_pools_transform_base<Spells::CurseOfTheSkunk>("at_singing_pools_transform_skunk");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrocodile>("at_singing_pools_transform_crocodile");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrane>("at_singing_pools_transform_crane");
+    new at_singing_pools_transform_base<Spells::CurseOfTheTurtle>("at_singing_pools_transform_turtle");
 }
