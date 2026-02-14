@@ -1183,7 +1183,7 @@ class spell_hodir_storm_cloud_primer : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ?
-		    SPELL_STORM_CLOUD_EFFECT : SPELL_STORM_CLOUD_EFFECT_H);
+            SPELL_STORM_CLOUD_EFFECT : SPELL_STORM_CLOUD_EFFECT_H);
     }
 
     void Register() override
