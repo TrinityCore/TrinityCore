@@ -7,19 +7,18 @@
 
 namespace efsw { namespace Platform {
 
-class System
-{
-	public:
-		static void sleep( const unsigned long& ms );
+class System {
+  public:
+	static void sleep( const unsigned long& ms );
 
-		static std::string getProcessPath();
+	static std::string getProcessPath();
 
-		static void maxFD();
+	static void maxFD();
 
-		static Uint64 getMaxFD();
+	static Uint64 getMaxFD();
 };
 
-}}
+}} // namespace efsw::Platform
 
 #endif
 

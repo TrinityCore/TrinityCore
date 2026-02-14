@@ -173,6 +173,8 @@ enum TriggerCastFlags : uint32
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
+DEFINE_ENUM_FLAG(TriggerCastFlags);
+
 enum SpellCastTargetFlags : uint32
 {
     TARGET_FLAG_NONE            = 0x00000000,
