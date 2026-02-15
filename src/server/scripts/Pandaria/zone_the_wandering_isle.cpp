@@ -1366,8 +1366,7 @@ struct npc_li_fei_combat : public ScriptedAI
 
     enum Events
     {
-        EVENT_CHECK_PLAYER = 1,
-        EVENT_FEET_OF_FURY,
+        EVENT_FEET_OF_FURY = 1,
         EVENT_SHADOW_KICK,
         EVENT_SHADOW_KICK_STUN,
     };
@@ -1377,17 +1376,12 @@ struct npc_li_fei_combat : public ScriptedAI
         if (spellInfo->Id != Spells::FireCrashPhaseShift)
             return;
 
-        _playerGuid.Clear();
-
-        _playerGuid = caster->ToPlayer()->GetGUID();
-
         me->SetImmuneToPC(false);
 
         me->GetMotionMaster()->MoveFollow(caster->ToPlayer(), 1.0f);
 
         me->Attack(caster->ToUnit(), true);
 
-        _events.RescheduleEvent(EVENT_CHECK_PLAYER, 1500ms);
         _events.RescheduleEvent(EVENT_FEET_OF_FURY, 5000ms);
         _events.RescheduleEvent(EVENT_SHADOW_KICK, 10000ms);
     }
@@ -1423,6 +1417,7 @@ struct npc_li_fei_combat : public ScriptedAI
 
                 liFei->AI()->Talk(Talks::LiFeiTalk0, player);
             }
+
             EnterEvadeMode();
         }
     }
@@ -1438,47 +1433,25 @@ struct npc_li_fei_combat : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!UpdateVictim())
+            return;
+
         _events.Update(diff);
 
         if (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
-                case EVENT_CHECK_PLAYER:
-                {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
-
-                    me->Attack(player, true);
-
-                    if (!player || !player->IsAlive())
-                    {
-                        _playerGuid.Clear();
-                        me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
-                        break;
-                    }
-
-                    if (player->GetQuestStatus(Quests::OnlyTheWorthyShallPass) != QUEST_STATUS_INCOMPLETE)
-                    {
-                        _playerGuid.Clear();
-                        me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
-                        break;
-                    }
-
-                    _events.RescheduleEvent(EVENT_CHECK_PLAYER, 2500ms);
-                    break;
-                }
                 case EVENT_FEET_OF_FURY:
                 {
-                    if (me->GetVictim())
-                        me->CastSpell(me, Spells::FeetOfFury);
+                    me->CastSpell(me, Spells::FeetOfFury);
 
                     _events.RescheduleEvent(EVENT_FEET_OF_FURY, 10000ms);
                     break;
                 }
                 case EVENT_SHADOW_KICK:
                 {
-                    if (me->GetVictim())
-                        DoCastVictim(Spells::FlyingShadowKick);
+                    DoCastVictim(Spells::FlyingShadowKick);
 
                     _events.RescheduleEvent(EVENT_SHADOW_KICK_STUN, 1000ms);
                     _events.RescheduleEvent(EVENT_SHADOW_KICK, 12500ms);
@@ -1486,8 +1459,7 @@ struct npc_li_fei_combat : public ScriptedAI
                 }
                 case EVENT_SHADOW_KICK_STUN:
                 {
-                    if (me->GetVictim())
-                        DoCastVictim(Spells::FlyingShadowKick_1);
+                    DoCastVictim(Spells::FlyingShadowKick_1);
                     break;
                 }
             }
@@ -1495,7 +1467,6 @@ struct npc_li_fei_combat : public ScriptedAI
     }
 private:
     EventMap _events;
-    ObjectGuid _playerGuid;
 };
 
 // 108936 - Flying Shadow Kick
