@@ -11,8 +11,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (54135, 0, 0, 'You have earned the right to proceed.  Huo lies beyond.', 12, 0, 100, 0, 0, 0, 55251, 0, 'Master Li Fei to Player');
 
 -- ScriptNames
-UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei_fight' WHERE `entry`=54734; 
-UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei' WHERE `entry`=54135; 
+UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei' WHERE `entry`=54135;
+UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei_combat' WHERE `entry`=54734; 
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fire_crash', 'spell_flying_shadow_kick', 'spell_fury_kick_channel');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 

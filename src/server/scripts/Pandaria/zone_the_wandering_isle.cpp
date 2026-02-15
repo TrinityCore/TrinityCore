@@ -48,7 +48,7 @@ namespace Spells
     static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
 
     // Only the Worthy Shall Pass
-    static constexpr uint32 FireCrashCove = 108149;
+    static constexpr uint32 FireCrashCover = 108149;
     static constexpr uint32 FlyingShadowKick = 108936;
     static constexpr uint32 FlyingShadowKick_1 = 108944;
     static constexpr uint32 FeetOfFury = 108958;
@@ -1333,13 +1333,12 @@ struct npc_li_fei : public ScriptedAI
     {
         if (quest->GetQuestId() == Quests::OnlyTheWorthyShallPass)
         {
-            Creature* liFei = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFeiCombat, .IgnorePhases = true});
+            Creature* liFei = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFeiCombat, .IgnorePhases = true });
 
             if (!liFei)
                 return;
 
-            player->CastSpell(player, Spells::FireCrashCove);
-            player->CastSpell(liFei, Spells::FireCrashPhaseShift);
+            player->CastSpell(player, Spells::FireCrashCover);
         }
     }
 };
@@ -1347,7 +1346,7 @@ struct npc_li_fei : public ScriptedAI
 // 102499 - Fire Crash
 class spell_fire_crash : public SpellScript
 {
-    static constexpr Position PlayerJumpPos = { 1354.744751f, 3937.895996f, 109.416115f, 2.898135f };
+    static constexpr Position PlayerJumpPos = { 1351.3334f, 3939.0347f, 109.32395f };
 
     void SetDest(SpellDestination& dest) const
     {
@@ -1361,9 +1360,9 @@ class spell_fire_crash : public SpellScript
 };
 
 // 54734 - Master Li Fei (combat)
-struct npc_li_fei_fight : public ScriptedAI
+struct npc_li_fei_combat : public ScriptedAI
 {
-    npc_li_fei_fight(Creature* creature) : ScriptedAI(creature) {}
+    npc_li_fei_combat(Creature* creature) : ScriptedAI(creature) {}
 
     enum Events
     {
@@ -1407,34 +1406,34 @@ struct npc_li_fei_fight : public ScriptedAI
             me->SetImmuneToPC(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+            Creature* liFei = me->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFei, .IgnorePhases = true });
+            if (!liFei)
+                return;
+
+            for (ObjectGuid const& guid : me->GetTapList())
             {
+                Player* player = ObjectAccessor::GetPlayer(*me, guid);
+                if (!player)
+                    continue;
+
                 player->KilledMonsterCredit(Creatures::MasterLiFei, ObjectGuid::Empty);
-                player->RemoveAurasDueToSpell(Spells::FireCrashCove);
+                player->RemoveAurasDueToSpell(Spells::FireCrashCover);
                 player->RemoveAurasDueToSpell(Spells::FireCrashInvis);
                 player->RemoveAurasDueToSpell(Spells::FireCrashPhaseShift);
 
-                Creature* lifei = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFei });
-
-                if (!lifei)
-                    return;
-
-                lifei->Talk(Talks::LiFeiTalk0, CHAT_MSG_SAY, 15.0f, player);
-
-                me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
+                liFei->AI()->Talk(Talks::LiFeiTalk0, player);
             }
+            EnterEvadeMode();
         }
     }
 
     void KilledUnit(Unit* victim) override
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            victim->ToPlayer()->SetQuestStatus(Quests::OnlyTheWorthyShallPass, QUEST_STATUS_FAILED);
+        Player* player = victim->ToPlayer();
+        if (!player)
+            return;
 
-            if (victim->GetGUID() == _playerGuid)
-                me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
-        }
+        player->SetQuestStatus(Quests::OnlyTheWorthyShallPass, QUEST_STATUS_FAILED);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1578,6 +1577,6 @@ void AddSC_zone_the_wandering_isle()
 
     RegisterCreatureAI(npc_li_fei);
     RegisterSpellScript(spell_fire_crash);
-    RegisterCreatureAI(npc_li_fei_fight);
+    RegisterCreatureAI(npc_li_fei_combat);
     RegisterSpellScript(spell_flying_shadow_kick);
     RegisterSpellScript(spell_fury_kick_channel);}
