@@ -152,7 +152,7 @@ GameObject* InstanceScript::GetGameObject(uint32 type)
     return instance->GetGameObject(GetObjectGuid(type));
 }
 
-void InstanceScript::SetHeaders(std::string const& dataHeaders)
+void InstanceScript::SetHeaders(std::string_view dataHeaders)
 {
     headers = dataHeaders;
 }
@@ -169,48 +169,44 @@ void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
             bosses[entry.BossId].boundary.push_back(entry.Boundary);
 }
 
-void InstanceScript::LoadMinionData(MinionData const* data)
+void InstanceScript::LoadDoorData(std::span<DoorData const> data)
 {
-    while (data->entry)
-    {
-        if (data->bossId < bosses.size())
-            minions.try_emplace(data->entry, &bosses[data->bossId]);
+    for (DoorData const& door : data)
+        if (door.bossId < bosses.size())
+            doors.emplace(std::piecewise_construct, std::forward_as_tuple(door.entry), std::forward_as_tuple(&bosses[door.bossId], door.Behavior));
 
-        ++data;
-    }
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: {} minions loaded.", uint64(minions.size()));
-}
-
-void InstanceScript::LoadDoorData(DoorData const* data)
-{
-    while (data->entry)
-    {
-        if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->Behavior)));
-
-        ++data;
-    }
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: {} doors loaded.", uint64(doors.size()));
 }
 
-void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData)
+void InstanceScript::LoadObjectData(std::span<ObjectData const> creatureData, std::span<ObjectData const> gameObjectData)
 {
-    if (creatureData)
-        LoadObjectData(creatureData, _creatureInfo);
-
-    if (gameObjectData)
-        LoadObjectData(gameObjectData, _gameObjectInfo);
+    LoadObjectData(creatureData, _creatureInfo);
+    LoadObjectData(gameObjectData, _gameObjectInfo);
 
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: {} objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
 }
 
-void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)
+void InstanceScript::LoadDungeonEncounterData(std::span<DungeonEncounterData const> encounters)
 {
-    while (data->entry)
+    for (DungeonEncounterData const& encounter : encounters)
+        LoadDungeonEncounterData(encounter.BossId, encounter.DungeonEncounterId);
+}
+
+void InstanceScript::LoadMinionData(std::span<MinionData const> data)
+{
+    for (MinionData const& minion : data)
+        if (minion.bossId < bosses.size())
+            minions.emplace(minion.entry, &bosses[minion.bossId]);
+
+    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: {} minions loaded.", uint64(minions.size()));
+}
+
+void InstanceScript::LoadObjectData(std::span<ObjectData const> data, ObjectInfoMap& objectInfo)
+{
+    for (ObjectData const& object : data)
     {
-        bool inserted = objectInfo.try_emplace(data->entry, data->type).second;
+        bool inserted = objectInfo.emplace(object.entry, object.type).second;
         ASSERT(inserted);
-        ++data;
     }
 }
 

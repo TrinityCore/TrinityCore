@@ -58,7 +58,7 @@ BossBoundaryData const boundaries =
     { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0f) }
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_ROOM_ANUBREKHAN,       BOSS_ANUBREKHAN,    EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_PASSAGE_ANUBREKHAN,    BOSS_ANUBREKHAN,    EncounterDoorBehavior::OpenWhenDone },
@@ -93,20 +93,18 @@ DoorData const doorData[] =
     { GO_MILI_EYE_RAMP_BOSS,    BOSS_HORSEMEN,      EncounterDoorBehavior::OpenWhenDone },
     { GO_CONS_EYE_RAMP,         BOSS_THADDIUS,      EncounterDoorBehavior::OpenWhenDone },
     { GO_CONS_EYE_RAMP_BOSS,    BOSS_THADDIUS,      EncounterDoorBehavior::OpenWhenDone },
-    { 0,                        0,                  EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-ObjectData const objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_NAXX_PORTAL_ARACHNID,  DATA_NAXX_PORTAL_ARACHNID  },
     { GO_NAXX_PORTAL_CONSTRUCT, DATA_NAXX_PORTAL_CONSTRUCT },
     { GO_NAXX_PORTAL_PLAGUE,    DATA_NAXX_PORTAL_PLAGUE    },
     { GO_NAXX_PORTAL_MILITARY,  DATA_NAXX_PORTAL_MILITARY  },
     { GO_KELTHUZAD_THRONE,      DATA_KELTHUZAD_THRONE      },
-    { 0,                        0,                         }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_ANUBREKHAN, {{ 1107 }} },
     { BOSS_FAERLINA, {{  1110 }} },
@@ -138,7 +136,7 @@ class instance_naxxramas : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                LoadObjectData(nullptr, objectData);
+                LoadObjectData({}, objectData);
                 LoadDungeonEncounterData(encounters);
 
                 hadSapphironBirth       = false;

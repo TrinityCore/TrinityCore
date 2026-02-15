@@ -19,13 +19,12 @@
 #include "well_of_eternity.h"
 #include "InstanceScript.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_PEROTHARN,    BOSS_PEROTHARN  },
-    { 0,                0               } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_PEROTHARN,       {{ 1272 }}  },
     { BOSS_QUEEN_AZSHARA,   {{ 1273 }}  },
@@ -43,7 +42,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
     };

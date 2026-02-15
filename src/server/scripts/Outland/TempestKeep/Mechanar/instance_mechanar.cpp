@@ -19,15 +19,14 @@
 #include "InstanceScript.h"
 #include "mechanar.h"
 
-static DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_DOOR_MOARG_1,          DATA_GATEWATCHER_IRON_HAND,     EncounterDoorBehavior::OpenWhenDone },
     { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      EncounterDoorBehavior::OpenWhenDone },
     { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_GATEWATCHER_GYROKILL, {{ 1933 }} },
     { DATA_GATEWATCHER_IRON_HAND, {{ 1934 }} },

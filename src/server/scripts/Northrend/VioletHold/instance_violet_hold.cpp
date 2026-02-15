@@ -35,13 +35,12 @@
 
 Position const DefenseSystemLocation  = { 1888.146f, 803.382f,  58.60389f, 3.071779f }; // sniff
 
-Position const CyanigosaSpawnLocation = { 1922.109f, 804.4493f, 52.49254f, 3.176499f }; // sniff
-Position const CyanigosaJumpLocation  = { 1888.32f,  804.473f,  38.3578f,  0.0f      }; // sniff
+static constexpr Position CyanigosaSpawnLocation = { 1922.109f, 804.4493f, 52.49254f, 3.176499f }; // sniff
+static constexpr Position CyanigosaJumpLocation  = { 1888.32f,  804.473f,  38.3578f,  0.0f      }; // sniff
 
-Position const SaboteurSpawnLocation  = { 1886.251f, 803.0743f, 38.42326f, 3.211406f }; // sniff
+static constexpr Position SaboteurSpawnLocation  = { 1886.251f, 803.0743f, 38.42326f, 3.211406f }; // sniff
 
-uint32 const PortalPositionsSize = 5;
-Position const PortalPositions[PortalPositionsSize] = // sniff
+static constexpr Position PortalPositions[] = // sniff
 {
     { 1877.523f, 850.1788f, 45.36822f, 4.34587f   }, // 0
     { 1890.679f, 753.4202f, 48.771f,   1.675516f  }, // 1
@@ -50,16 +49,14 @@ Position const PortalPositions[PortalPositionsSize] = // sniff
     { 1907.288f, 831.1111f, 40.22015f, 3.560472f  }  // 4
 };
 
-uint32 const PortalElitePositionsSize = 3;
-Position const PortalElitePositions[PortalElitePositionsSize] = // sniff
+static constexpr Position PortalElitePositions[] = // sniff
 {
     { 1911.281f, 800.9722f, 39.91673f, 3.01942f  }, // 5
     { 1926.516f, 763.6616f, 52.35725f, 2.251475f }, // 6
     { 1922.464f, 847.0699f, 48.50161f, 3.961897f }  // 7
 };
 
-uint32 const PortalIntroPositionsSize = 5;
-Position const PortalIntroPositions[PortalIntroPositionsSize] = // sniff
+Position const PortalIntroPositions[] = // sniff
 {
     { 1877.51f,  850.1042f, 44.65989f, 4.782202f }, // 0 - Intro
     { 1890.637f, 753.4705f, 48.72239f, 1.710423f }, // 1 - Intro
@@ -68,7 +65,7 @@ Position const PortalIntroPositions[PortalIntroPositionsSize] = // sniff
     { 1924.096f, 804.3707f, 54.29256f, 3.228859f }  // 4 - Boss 3
 };
 
-uint32 const EncouterPortalsCount = PortalPositionsSize + PortalElitePositionsSize;
+static constexpr uint32 EncouterPortalsCount = std::ranges::size(PortalPositions) + std::ranges::size(PortalElitePositions);
 
 WaypointPath const MoraggPath = // sniff
 {
@@ -180,7 +177,7 @@ enum Spells
     SPELL_ZURAMAT_COSMETIC_CHANNEL_OMNI         = 57552
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_XEVOZZ,           DATA_XEVOZZ           },
     { NPC_LAVANTHOR,        DATA_LAVANTHOR        },
@@ -191,10 +188,9 @@ ObjectData const creatureData[] =
     { NPC_CYANIGOSA,        DATA_CYANIGOSA        },
     { NPC_SINCLARI,         DATA_SINCLARI         },
     { NPC_SINCLARI_TRIGGER, DATA_SINCLARI_TRIGGER },
-    { 0,                    0                     } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_EREKEM_GUARD_1_DOOR, DATA_EREKEM_LEFT_GUARD_CELL  },
     { GO_EREKEM_GUARD_2_DOOR, DATA_EREKEM_RIGHT_GUARD_CELL },
@@ -205,16 +201,14 @@ ObjectData const gameObjectData[] =
     { GO_ICHORON_DOOR,        DATA_ICHORON_CELL            },
     { GO_XEVOZZ_DOOR,         DATA_XEVOZZ_CELL             },
     { GO_MAIN_DOOR,           DATA_MAIN_DOOR               },
-    { 0,                      0                            } // END
 };
 
-MinionData const minionData[] =
+static constexpr MinionData minionData[] =
 {
     { NPC_EREKEM_GUARD, DATA_EREKEM },
-    { 0,                0           } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_1ST_BOSS, {{ 2019 }} },
     { DATA_2ND_BOSS, {{ 2018 }} },
@@ -520,14 +514,14 @@ class instance_violet_hold : public InstanceMapScript
                 LastPortalLocation = (LastPortalLocation + urand(1, EncouterPortalsCount - 1)) % (EncouterPortalsCount);
                 if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                 {
-                    if (LastPortalLocation < PortalPositionsSize)
+                    if (LastPortalLocation < std::ranges::size(PortalPositions))
                     {
                         if (Creature* portal = sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL, PortalPositions[LastPortalLocation], TEMPSUMMON_CORPSE_DESPAWN))
                             portal->AI()->SetData(DATA_PORTAL_LOCATION, LastPortalLocation);
                     }
                     else
                     {
-                        if (Creature* portal = sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_ELITE, PortalElitePositions[LastPortalLocation - PortalPositionsSize], TEMPSUMMON_CORPSE_DESPAWN))
+                        if (Creature* portal = sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_ELITE, PortalElitePositions[LastPortalLocation - std::ranges::size(PortalPositions)], TEMPSUMMON_CORPSE_DESPAWN))
                             portal->AI()->SetData(DATA_PORTAL_LOCATION, LastPortalLocation);
                     }
                 }

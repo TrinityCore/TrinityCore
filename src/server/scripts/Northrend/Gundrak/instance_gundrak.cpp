@@ -24,23 +24,21 @@
 #include "Map.h"
 #include "ScriptMgr.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenDone },
     { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenDone },
     { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           EncounterDoorBehavior::OpenWhenDone },
     { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                0,                      EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_DRAKKARI_COLOSSUS, DATA_DRAKKARI_COLOSSUS },
-    { 0,                     0                      } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_SLAD_RAN_ALTAR,           DATA_SLAD_RAN_ALTAR           },
     { GO_MOORABI_ALTAR,            DATA_MOORABI_ALTAR            },
@@ -51,10 +49,9 @@ ObjectData const gameObjectData[] =
     { GO_GAL_DARAH_STATUE,         DATA_GAL_DARAH_STATUE         },
     { GO_TRAPDOOR,                 DATA_TRAPDOOR                 },
     { GO_COLLISION,                DATA_COLLISION                },
-    { 0,                           0                             } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_SLAD_RAN, {{ 1978 }} },
     { DATA_DRAKKARI_COLOSSUS, {{ 1983 }} },
@@ -63,7 +60,7 @@ DungeonEncounterData const encounters[] =
     { DATA_ECK_THE_FEROCIOUS, {{ 1988 }} }
 };
 
-Position const EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
+static constexpr Position EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
 class instance_gundrak : public InstanceMapScript
 {
