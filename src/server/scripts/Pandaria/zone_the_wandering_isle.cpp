@@ -70,7 +70,7 @@ namespace Creatures
 
 namespace Talks
 {
-    static constexpr uint32 LiFeiTalk0 = 0;
+    static constexpr uint32 LiFeiDefeat = 0;
 }
 
 enum TraineeMisc
@@ -1397,7 +1397,7 @@ struct npc_li_fei_combat : public ScriptedAI
                 player->RemoveAurasDueToSpell(Spells::FireCrashPhaseShift);
             }
 
-            liFei->AI()->Talk(Talks::LiFeiTalk0, attacker);
+            liFei->AI()->Talk(Talks::LiFeiDefeat, attacker);
 
             EnterEvadeMode();
         }
