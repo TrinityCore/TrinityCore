@@ -86,6 +86,7 @@ struct BonusData
     uint32 ItemLevelOffsetCurveId;
     uint32 ItemLevelOffsetItemLevel;
     uint32 ItemLevelOffset;
+    uint32 ItemSquishEraID;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
     uint32 LimitCategory;
@@ -95,6 +96,7 @@ struct BonusData
     bool CanRecraft;
     bool HasFixedLevel;
     bool CannotTradeBindOnPickup;
+    bool IgnoreSquish;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
@@ -385,12 +387,12 @@ class TC_GAME_API Item : public Object
 
     protected:
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const final;
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ItemData::Mask const& requestedItemMask, Player const* target) const;
 

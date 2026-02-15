@@ -108,6 +108,12 @@ WorldPacket const* SetCurrency::Write()
     return &_worldPacket;
 }
 
+void SetCurrencyFlags::Read()
+{
+    _worldPacket >> CurrencyID;
+    _worldPacket >> As<uint8>(Flags);
+}
+
 void SetSelection::Read()
 {
     _worldPacket >> Selection;
@@ -208,11 +214,11 @@ void TutorialSetFlag::Read()
 
 WorldPacket const* WorldServerInfo::Write()
 {
-    _worldPacket << uint32(DifficultyID);
-    _worldPacket << HouseGuid;
-    _worldPacket << HouseOwnerBnetAccount;
-    _worldPacket << HouseOwnerPlayer;
-    _worldPacket << NeighborhoodGuid;
+    _worldPacket << int16(DifficultyID);
+    _worldPacket << HouseGUID;
+    _worldPacket << HouseOwnerAccountGUID;
+    _worldPacket << HouseCosmeticOwnerGUID;
+    _worldPacket << NeighborhoodGUID;
     _worldPacket << Bits<1>(IsTournamentRealm);
     _worldPacket << Bits<1>(XRealmPvpAlert);
     _worldPacket << Bits<1>(BlockExitingLoadingScreen);
@@ -246,7 +252,7 @@ void SetRaidDifficulty::Read()
 
 WorldPacket const* DungeonDifficultySet::Write()
 {
-    _worldPacket << int32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
 
     return &_worldPacket;
 }
@@ -254,7 +260,7 @@ WorldPacket const* DungeonDifficultySet::Write()
 WorldPacket const* RaidDifficultySet::Write()
 {
     _worldPacket << int32(Legacy);
-    _worldPacket << int32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
 
     return &_worldPacket;
 }

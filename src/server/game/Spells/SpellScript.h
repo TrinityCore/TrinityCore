@@ -52,7 +52,7 @@ class WorldObject;
 struct SpellDestination;
 struct SpellModifier;
 struct SpellValue;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum class ItemContext : uint8;
 
 #define SPELL_EFFECT_ANY ((uint16)-1)

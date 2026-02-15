@@ -78,9 +78,6 @@ namespace UF
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
         inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
 
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
-
         uint32 GetChangedObjectTypeMask() const { return _changesMask; }
 
         bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
@@ -127,15 +124,27 @@ namespace UF
     }
 
     template<typename K, typename V>
-    inline void RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
+    inline bool RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
     {
-        setter.RemoveKey(key);
+        return setter.RemoveKey(key);
     }
 
     template<typename T>
-    inline void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
+    inline bool InsertSetUpdateFieldValue(SetUpdateFieldSetter<T>& setter, std::type_identity_t<T> const& key)
     {
-        setter.RemoveValue();
+        return setter.Insert(key);
+    }
+
+    template<typename T>
+    inline bool RemoveSetUpdateFieldValue(SetUpdateFieldSetter<T>& setter, std::type_identity_t<T> const& key)
+    {
+        return setter.Remove(key);
+    }
+
+    template<typename T>
+    inline bool RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
+    {
+        return setter.RemoveValue();
     }
 }
 
@@ -181,7 +190,7 @@ class TC_GAME_API BaseEntity
         virtual void DestroyForPlayer(Player const* target) const;
         void SendOutOfRangeForPlayer(Player const* target) const;
 
-        virtual void ClearUpdateMask(bool remove);
+        void ClearUpdateMask(bool remove);
 
         virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
 
@@ -250,13 +259,6 @@ class TC_GAME_API BaseEntity
             UF::RemoveDynamicUpdateFieldValue(setter, index);
         }
 
-        template<typename K, typename V>
-        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveMapUpdateFieldValue(setter, key);
-        }
-
         template<typename T>
         void ClearDynamicUpdateFieldValues(UF::DynamicUpdateFieldSetter<T> setter)
         {
@@ -264,11 +266,32 @@ class TC_GAME_API BaseEntity
             UF::ClearDynamicUpdateFieldValues(setter);
         }
 
+        template<typename K, typename V>
+        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
+        {
+            if (UF::RemoveMapUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
+        template<typename T>
+        void InsertSetUpdateFieldValue(UF::SetUpdateFieldSetter<T> setter, std::type_identity_t<T> const& key)
+        {
+            if (UF::InsertSetUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
+        template<typename T>
+        void RemoveSetUpdateFieldValue(UF::SetUpdateFieldSetter<T> setter, std::type_identity_t<T> const& key)
+        {
+            if (UF::RemoveSetUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
         template<typename T>
         void RemoveOptionalUpdateFieldValue(UF::OptionalUpdateFieldSetter<T> setter)
         {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveOptionalUpdateFieldValue(setter);
+            if (UF::RemoveOptionalUpdateFieldValue(setter))
+                AddToObjectUpdateIfNeeded();
         }
 
         // stat system helpers
@@ -321,9 +344,9 @@ class TC_GAME_API BaseEntity
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
+        void BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        static void BuildEntityFragments(ByteBuffer& data, std::span<WowCS::EntityFragment const> fragments);
 
         TypeID m_objectTypeId = NUM_CLIENT_OBJECT_TYPES;
         CreateObjectBits m_updateFlag = {};
@@ -397,23 +420,12 @@ inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(Op
 template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
 {
+    static_assert(WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject);
+
     BaseEntity* owner = GetOwner();
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+    _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
 
     (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    BaseEntity* owner = GetOwner();
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-
-    auto& uf = (static_cast<Derived*>(owner)->*field);
-    if (uf.has_value())
-        uf._value->ClearChangesMask();
 }
 
 #endif // TRINITYCORE_BASE_ENTITY_H

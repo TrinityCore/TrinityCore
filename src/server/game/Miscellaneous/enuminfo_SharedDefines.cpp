@@ -1714,8 +1714,8 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr11>::ToString(SpellAttr11 value)
         case SPELL_ATTR11_UNK15: return { "SPELL_ATTR11_UNK15", "Unknown attribute 15@Attr11", "" };
         case SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE: return { "SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE", "Not in Mythic+ Mode (Challenge Mode)", "" };
         case SPELL_ATTR11_UNK17: return { "SPELL_ATTR11_UNK17", "Unknown attribute 17@Attr11", "" };
-        case SPELL_ATTR11_UNK18: return { "SPELL_ATTR11_UNK18", "Unknown attribute 18@Attr11", "" };
-        case SPELL_ATTR11_UNK19: return { "SPELL_ATTR11_UNK19", "Unknown attribute 19@Attr11", "" };
+        case SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS: return { "SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS", "Ignore Caster Absorb Modifiers", "" };
+        case SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS: return { "SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS", "Ignore Target Absorb Modifiers", "" };
         case SPELL_ATTR11_UNK20: return { "SPELL_ATTR11_UNK20", "Unknown attribute 20@Attr11", "" };
         case SPELL_ATTR11_UNK21: return { "SPELL_ATTR11_UNK21", "Unknown attribute 21@Attr11", "" };
         case SPELL_ATTR11_UNK22: return { "SPELL_ATTR11_UNK22", "Unknown attribute 22@Attr11", "" };
@@ -1758,8 +1758,8 @@ TC_API_EXPORT SpellAttr11 EnumUtils<SpellAttr11>::FromIndex(size_t index)
         case 15: return SPELL_ATTR11_UNK15;
         case 16: return SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE;
         case 17: return SPELL_ATTR11_UNK17;
-        case 18: return SPELL_ATTR11_UNK18;
-        case 19: return SPELL_ATTR11_UNK19;
+        case 18: return SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS;
+        case 19: return SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS;
         case 20: return SPELL_ATTR11_UNK20;
         case 21: return SPELL_ATTR11_UNK21;
         case 22: return SPELL_ATTR11_UNK22;
@@ -1799,8 +1799,8 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr11>::ToIndex(SpellAttr11 value)
         case SPELL_ATTR11_UNK15: return 15;
         case SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE: return 16;
         case SPELL_ATTR11_UNK17: return 17;
-        case SPELL_ATTR11_UNK18: return 18;
-        case SPELL_ATTR11_UNK19: return 19;
+        case SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS: return 18;
+        case SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS: return 19;
         case SPELL_ATTR11_UNK20: return 20;
         case SPELL_ATTR11_UNK21: return 21;
         case SPELL_ATTR11_UNK22: return 22;
@@ -2333,6 +2333,135 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr15>::ToIndex(SpellAttr15 value)
     }
 }
 
+/*******************************************************************\
+|* data for enum 'SpellAttr16' in 'SharedDefines.h' auto-generated *|
+\*******************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellAttr16>::ToString(SpellAttr16 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR16_UNK0: return { "SPELL_ATTR16_UNK0", "Unknown attribute 0@Attr16", "" };
+        case SPELL_ATTR16_UNK1: return { "SPELL_ATTR16_UNK1", "Unknown attribute 1@Attr16", "" };
+        case SPELL_ATTR16_UNK2: return { "SPELL_ATTR16_UNK2", "Unknown attribute 2@Attr16", "" };
+        case SPELL_ATTR16_UNK3: return { "SPELL_ATTR16_UNK3", "Unknown attribute 3@Attr16", "" };
+        case SPELL_ATTR16_UNK4: return { "SPELL_ATTR16_UNK4", "Unknown attribute 4@Attr16", "" };
+        case SPELL_ATTR16_UNK5: return { "SPELL_ATTR16_UNK5", "Unknown attribute 5@Attr16", "" };
+        case SPELL_ATTR16_UNK6: return { "SPELL_ATTR16_UNK6", "Unknown attribute 6@Attr16", "" };
+        case SPELL_ATTR16_UNK7: return { "SPELL_ATTR16_UNK7", "Unknown attribute 7@Attr16", "" };
+        case SPELL_ATTR16_UNK8: return { "SPELL_ATTR16_UNK8", "Unknown attribute 8@Attr16", "" };
+        case SPELL_ATTR16_UNK9: return { "SPELL_ATTR16_UNK9", "Unknown attribute 9@Attr16", "" };
+        case SPELL_ATTR16_UNK10: return { "SPELL_ATTR16_UNK10", "Unknown attribute 10@Attr16", "" };
+        case SPELL_ATTR16_UNK11: return { "SPELL_ATTR16_UNK11", "Unknown attribute 11@Attr16", "" };
+        case SPELL_ATTR16_UNK12: return { "SPELL_ATTR16_UNK12", "Unknown attribute 12@Attr16", "" };
+        case SPELL_ATTR16_UNK13: return { "SPELL_ATTR16_UNK13", "Unknown attribute 13@Attr16", "" };
+        case SPELL_ATTR16_UNK14: return { "SPELL_ATTR16_UNK14", "Unknown attribute 14@Attr16", "" };
+        case SPELL_ATTR16_UNK15: return { "SPELL_ATTR16_UNK15", "Unknown attribute 15@Attr16", "" };
+        case SPELL_ATTR16_UNK16: return { "SPELL_ATTR16_UNK16", "Unknown attribute 16@Attr16", "" };
+        case SPELL_ATTR16_UNK17: return { "SPELL_ATTR16_UNK17", "Unknown attribute 17@Attr16", "" };
+        case SPELL_ATTR16_UNK18: return { "SPELL_ATTR16_UNK18", "Unknown attribute 18@Attr16", "" };
+        case SPELL_ATTR16_UNK19: return { "SPELL_ATTR16_UNK19", "Unknown attribute 19@Attr16", "" };
+        case SPELL_ATTR16_UNK20: return { "SPELL_ATTR16_UNK20", "Unknown attribute 20@Attr16", "" };
+        case SPELL_ATTR16_UNK21: return { "SPELL_ATTR16_UNK21", "Unknown attribute 21@Attr16", "" };
+        case SPELL_ATTR16_UNK22: return { "SPELL_ATTR16_UNK22", "Unknown attribute 22@Attr16", "" };
+        case SPELL_ATTR16_UNK23: return { "SPELL_ATTR16_UNK23", "Unknown attribute 23@Attr16", "" };
+        case SPELL_ATTR16_UNK24: return { "SPELL_ATTR16_UNK24", "Unknown attribute 24@Attr16", "" };
+        case SPELL_ATTR16_UNK25: return { "SPELL_ATTR16_UNK25", "Unknown attribute 25@Attr16", "" };
+        case SPELL_ATTR16_UNK26: return { "SPELL_ATTR16_UNK26", "Unknown attribute 26@Attr16", "" };
+        case SPELL_ATTR16_UNK27: return { "SPELL_ATTR16_UNK27", "Unknown attribute 27@Attr16", "" };
+        case SPELL_ATTR16_UNK28: return { "SPELL_ATTR16_UNK28", "Unknown attribute 28@Attr16", "" };
+        case SPELL_ATTR16_UNK29: return { "SPELL_ATTR16_UNK29", "Unknown attribute 29@Attr16", "" };
+        case SPELL_ATTR16_UNK30: return { "SPELL_ATTR16_UNK30", "Unknown attribute 30@Attr16", "" };
+        case SPELL_ATTR16_UNK31: return { "SPELL_ATTR16_UNK31", "Unknown attribute 31@Attr16", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr16>::Count() { return 32; }
+
+template <>
+TC_API_EXPORT SpellAttr16 EnumUtils<SpellAttr16>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return SPELL_ATTR16_UNK0;
+        case 1: return SPELL_ATTR16_UNK1;
+        case 2: return SPELL_ATTR16_UNK2;
+        case 3: return SPELL_ATTR16_UNK3;
+        case 4: return SPELL_ATTR16_UNK4;
+        case 5: return SPELL_ATTR16_UNK5;
+        case 6: return SPELL_ATTR16_UNK6;
+        case 7: return SPELL_ATTR16_UNK7;
+        case 8: return SPELL_ATTR16_UNK8;
+        case 9: return SPELL_ATTR16_UNK9;
+        case 10: return SPELL_ATTR16_UNK10;
+        case 11: return SPELL_ATTR16_UNK11;
+        case 12: return SPELL_ATTR16_UNK12;
+        case 13: return SPELL_ATTR16_UNK13;
+        case 14: return SPELL_ATTR16_UNK14;
+        case 15: return SPELL_ATTR16_UNK15;
+        case 16: return SPELL_ATTR16_UNK16;
+        case 17: return SPELL_ATTR16_UNK17;
+        case 18: return SPELL_ATTR16_UNK18;
+        case 19: return SPELL_ATTR16_UNK19;
+        case 20: return SPELL_ATTR16_UNK20;
+        case 21: return SPELL_ATTR16_UNK21;
+        case 22: return SPELL_ATTR16_UNK22;
+        case 23: return SPELL_ATTR16_UNK23;
+        case 24: return SPELL_ATTR16_UNK24;
+        case 25: return SPELL_ATTR16_UNK25;
+        case 26: return SPELL_ATTR16_UNK26;
+        case 27: return SPELL_ATTR16_UNK27;
+        case 28: return SPELL_ATTR16_UNK28;
+        case 29: return SPELL_ATTR16_UNK29;
+        case 30: return SPELL_ATTR16_UNK30;
+        case 31: return SPELL_ATTR16_UNK31;
+        default: throw std::out_of_range("index");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAttr16>::ToIndex(SpellAttr16 value)
+{
+    switch (value)
+    {
+        case SPELL_ATTR16_UNK0: return 0;
+        case SPELL_ATTR16_UNK1: return 1;
+        case SPELL_ATTR16_UNK2: return 2;
+        case SPELL_ATTR16_UNK3: return 3;
+        case SPELL_ATTR16_UNK4: return 4;
+        case SPELL_ATTR16_UNK5: return 5;
+        case SPELL_ATTR16_UNK6: return 6;
+        case SPELL_ATTR16_UNK7: return 7;
+        case SPELL_ATTR16_UNK8: return 8;
+        case SPELL_ATTR16_UNK9: return 9;
+        case SPELL_ATTR16_UNK10: return 10;
+        case SPELL_ATTR16_UNK11: return 11;
+        case SPELL_ATTR16_UNK12: return 12;
+        case SPELL_ATTR16_UNK13: return 13;
+        case SPELL_ATTR16_UNK14: return 14;
+        case SPELL_ATTR16_UNK15: return 15;
+        case SPELL_ATTR16_UNK16: return 16;
+        case SPELL_ATTR16_UNK17: return 17;
+        case SPELL_ATTR16_UNK18: return 18;
+        case SPELL_ATTR16_UNK19: return 19;
+        case SPELL_ATTR16_UNK20: return 20;
+        case SPELL_ATTR16_UNK21: return 21;
+        case SPELL_ATTR16_UNK22: return 22;
+        case SPELL_ATTR16_UNK23: return 23;
+        case SPELL_ATTR16_UNK24: return 24;
+        case SPELL_ATTR16_UNK25: return 25;
+        case SPELL_ATTR16_UNK26: return 26;
+        case SPELL_ATTR16_UNK27: return 27;
+        case SPELL_ATTR16_UNK28: return 28;
+        case SPELL_ATTR16_UNK29: return 29;
+        case SPELL_ATTR16_UNK30: return 30;
+        case SPELL_ATTR16_UNK31: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /***********************************************************************\
 |* data for enum 'SpellCastResult' in 'SharedDefines.h' auto-generated *|
 \***********************************************************************/
@@ -2664,13 +2793,14 @@ TC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
         case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return { "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN", "" };
         case SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT: return { "SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT", "SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT", "" };
         case SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN: return { "SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN", "SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN", "" };
+        case SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN: return { "SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN", "SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN", "" };
         case SPELL_FAILED_UNKNOWN: return { "SPELL_FAILED_UNKNOWN", "SPELL_FAILED_UNKNOWN", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 324; }
+TC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 325; }
 
 template <>
 TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
@@ -3000,7 +3130,8 @@ TC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
         case 320: return SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN;
         case 321: return SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT;
         case 322: return SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN;
-        case 323: return SPELL_FAILED_UNKNOWN;
+        case 323: return SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN;
+        case 324: return SPELL_FAILED_UNKNOWN;
         default: throw std::out_of_range("index");
     }
 }
@@ -3333,7 +3464,8 @@ TC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
         case SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN: return 320;
         case SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT: return 321;
         case SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN: return 322;
-        case SPELL_FAILED_UNKNOWN: return 323;
+        case SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN: return 323;
+        case SPELL_FAILED_UNKNOWN: return 324;
         default: throw std::out_of_range("value");
     }
 }

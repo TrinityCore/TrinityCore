@@ -87,17 +87,17 @@ void ScenarioMgr::LoadDBData()
         Field* fields = result->Fetch();
 
         uint32 mapId = fields[0].GetUInt32();
-        uint8 difficulty = fields[1].GetUInt8();
+        Difficulty difficulty = Difficulty(fields[1].GetInt32());
 
         uint32 scenarioAllianceId = fields[2].GetUInt32();
-        if (scenarioAllianceId > 0 && _scenarioData.find(scenarioAllianceId) == _scenarioData.end())
+        if (scenarioAllianceId > 0 && !_scenarioData.contains(scenarioAllianceId))
         {
             TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_A contained an invalid scenario (Id: {})!", scenarioAllianceId);
             continue;
         }
 
         uint32 scenarioHordeId = fields[3].GetUInt32();
-        if (scenarioHordeId > 0 && _scenarioData.find(scenarioHordeId) == _scenarioData.end())
+        if (scenarioHordeId > 0 && !_scenarioData.contains(scenarioHordeId))
         {
             TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {})!", scenarioHordeId);
             continue;
