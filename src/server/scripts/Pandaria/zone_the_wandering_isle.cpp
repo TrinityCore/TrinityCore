@@ -1378,65 +1378,43 @@ class spell_summon_child_2 : public SpellScript
 };
 
 // 60250 - Cai
-// 60249 - Deng
-struct npc_summoned_childs : public ScriptedAI
+struct npc_cai : public ScriptedAI
 {
-    npc_summoned_childs(Creature* creature) : ScriptedAI(creature) {}
+    npc_cai(Creature* creature) : ScriptedAI(creature) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (Player* player = summoner->ToPlayer())
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 4);
+
+        _scheduler.Schedule(7s, [this](TaskContext /*task*/)
         {
-            _playerGuid = player->GetGUID();
+            me->AI()->Talk(Texts::CaiTalk0);
+        });
+        _scheduler.Schedule(21s, [this](TaskContext /*task*/)
+        {
+            me->AI()->Talk(Texts::CaiTalk1);
+        });
+        _scheduler.Schedule(37s, [this](TaskContext /*task*/)
+        {
+            me->AI()->Talk(Texts::CaiTalk2);
+        });
+        _scheduler.Schedule(45s, [this](TaskContext /*task*/)
+        {
+            TempSummon* summon = me->ToTempSummon();
+            if (!summon)
+                return;
 
-            if (me->GetEntry() == Creatures::Deng)
-                me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 2);
-            else if (me->GetEntry() == Creatures::Cai)
-                me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 4);
+            Unit* summoner = summon->GetSummonerUnit();
+            if (!summoner)
+                return;
 
-            _scheduler.Schedule(7s, [this](TaskContext /*task*/)
-            {
-                if (me->GetEntry() == Creatures::Cai)
-                    me->AI()->Talk(Texts::CaiTalk0);
-            });
-            _scheduler.Schedule(14s, [this](TaskContext /*task*/)
-            {
-                if (me->GetEntry() == Creatures::Deng)
-                    me->AI()->Talk(Texts::DengTalk0);
-            });
-            _scheduler.Schedule(21s, [this](TaskContext /*task*/)
-            {
-                if (me->GetEntry() == Creatures::Cai)
-                    me->AI()->Talk(Texts::CaiTalk1);
-            });
-            _scheduler.Schedule(29s, [this](TaskContext /*task*/)
-            {
-                if (me->GetEntry() == Creatures::Deng)
-                    me->AI()->Talk(Texts::DengTalk1);
-            });
-            _scheduler.Schedule(37s, [this](TaskContext /*task*/)
-            {
-                if (me->GetEntry() == Creatures::Cai)
-                    me->AI()->Talk(Texts::CaiTalk2);
-            });
-            _scheduler.Schedule(45s, [this](TaskContext /*task*/)
-            {
-                Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
-
-                if (me->GetEntry() == Creatures::Deng)
-                {
-                    me->AI()->Talk(Texts::DengTalk2);
-                    me->GetMotionMaster()->MoveFleeing(player);
-                    me->DespawnOrUnsummon(3s);
-                }
-                else if (me->GetEntry() == Creatures::Cai)
-                {
-                    me->AI()->Talk(Texts::CaiTalk3);
-                    me->GetMotionMaster()->MoveFleeing(player);
-                    me->DespawnOrUnsummon(3s);
-                }
-            });
-        }
+            me->GetMotionMaster()->MoveFleeing(summoner);
+            me->DespawnOrUnsummon(3s);
+        });
     }
 
     void UpdateAI(uint32 diff) override
@@ -1445,8 +1423,52 @@ struct npc_summoned_childs : public ScriptedAI
     }
 
 private:
-    ObjectGuid _playerGuid;
+    TaskScheduler _scheduler;
+};
 
+// 60249 - Deng
+struct npc_deng : public ScriptedAI
+{
+    npc_deng(Creature* creature) : ScriptedAI(creature) {}
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        Player* player = summoner->ToPlayer();
+        if (!player)
+            return;
+
+        me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 2);
+
+        _scheduler.Schedule(14s, [this](TaskContext /*task*/)
+        {
+            me->AI()->Talk(Texts::DengTalk0);
+        });
+        _scheduler.Schedule(29s, [this](TaskContext /*task*/)
+        {
+            me->AI()->Talk(Texts::DengTalk1);
+        });
+        _scheduler.Schedule(45s, [this](TaskContext /*task*/)
+        {
+            TempSummon* summon = me->ToTempSummon();
+            if (!summon)
+                return;
+
+            Unit* summoner = summon->GetSummonerUnit();
+            if (!summoner)
+                return;
+
+            me->AI()->Talk(Texts::DengTalk2);
+            me->GetMotionMaster()->MoveFleeing(summoner);
+            me->DespawnOrUnsummon(3s);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
     TaskScheduler _scheduler;
 };
 };
@@ -1486,5 +1508,6 @@ void AddSC_zone_the_wandering_isle()
     new at_the_singing_pools_children_summon();
     RegisterSpellScript(spell_summon_child_1);
     RegisterSpellScript(spell_summon_child_2);
-    RegisterCreatureAI(npc_summoned_childs);
+    RegisterCreatureAI(npc_cai);
+    RegisterCreatureAI(npc_deng);
 }

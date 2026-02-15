@@ -6,7 +6,8 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBu
 UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=-3, `LevelScalingDeltaMax`=-3, `ContentTuningID`=1723, `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry` IN (60250, 60249) AND `DifficultyID`=0); -- 60250 (Cai) - CanSwim
 
 UPDATE `creature_template` SET `unit_flags3`=0x40000000 WHERE `entry`=54975; -- Aysa Cloudsinger
-UPDATE `creature_template` SET `ScriptName`='npc_summoned_childs', `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry` IN (60250, 60249); -- Cai
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_cai', `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=60250; -- Cai
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_deng', `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=60249; -- Deng
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7784);
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES 
