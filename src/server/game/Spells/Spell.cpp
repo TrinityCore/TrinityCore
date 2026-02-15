@@ -534,7 +534,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_castFlagsEx = 0;
 
     if (IsIgnoringCooldowns())
-        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
+        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN | CAST_FLAG_EX_DONT_CONSUME_CHARGES;
 
     if (_triggeredCastFlags & TRIGGERED_SUPPRESS_CASTER_ANIM)
         m_castFlagsEx |= CAST_FLAG_EX_SUPPRESS_CASTER_ANIM;
