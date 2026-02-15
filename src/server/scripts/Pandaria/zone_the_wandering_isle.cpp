@@ -59,12 +59,13 @@ namespace Spells
 
 namespace Quests
 {
-    static constexpr uint32 ParcheminVolant = 29421;
+    static constexpr uint32 OnlyTheWorthyShallPass = 29421;
 }
 
 namespace Creatures
 {
-    static constexpr uint32 Quest_Credit = 54734;
+    static constexpr uint32 MasterLiFei = 54135;
+    static constexpr uint32 MasterLiFeiCombat = 54734;
 }
 
 namespace Talks
@@ -1323,22 +1324,22 @@ public:
     }
 };
 
-// 54734 - Master Li Fei
+// 54135 - Master Li Fei
 struct npc_li_fei : public ScriptedAI
 {
     npc_li_fei(Creature* creature) : ScriptedAI(creature) {}
 
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == Quests::ParcheminVolant)
+        if (quest->GetQuestId() == Quests::OnlyTheWorthyShallPass)
         {
-            Creature* lifei = player->FindNearestCreatureWithOptions(15.0f, { .StringId = "Li_Fei_Fight", .IgnorePhases = true});
+            Creature* liFei = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFeiCombat, .IgnorePhases = true});
 
-            if (!lifei)
+            if (!liFei)
                 return;
 
             player->CastSpell(player, Spells::FireCrashCove);
-            player->CastSpell(lifei, Spells::FireCrashPhaseShift);
+            player->CastSpell(liFei, Spells::FireCrashPhaseShift);
         }
     }
 };
@@ -1359,27 +1360,7 @@ class spell_fire_crash : public SpellScript
     }
 };
 
-// 108936 - Flying Shadow Kick
-class spell_flying_shadow_kick : public SpellScript
-{
-    void HandleTeleport(SpellEffIndex /*effIndex*/)
-    {
-        float distance = 4.0f;
-        float orientation = GetCaster()->GetVictim()->GetOrientation();
-        float targetX = GetCaster()->GetVictim()->GetPositionX() - distance * std::cos(orientation);
-        float targetY = GetCaster()->GetVictim()->GetPositionY() - distance * std::sin(orientation);
-        float targetZ = GetCaster()->GetVictim()->GetPositionZ();
-
-        Position pos(targetX, targetY, targetZ, orientation);
-        GetHitDest()->Relocate(pos);
-    }
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
-    }
-};
-
-// 54734 - Master Li Fei
+// 54734 - Master Li Fei (combat)
 struct npc_li_fei_fight : public ScriptedAI
 {
     npc_li_fei_fight(Creature* creature) : ScriptedAI(creature) {}
@@ -1428,12 +1409,12 @@ struct npc_li_fei_fight : public ScriptedAI
 
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
             {
-                player->KilledMonsterCredit(Creatures::Quest_Credit, ObjectGuid::Empty);
+                player->KilledMonsterCredit(Creatures::MasterLiFei, ObjectGuid::Empty);
                 player->RemoveAurasDueToSpell(Spells::FireCrashCove);
                 player->RemoveAurasDueToSpell(Spells::FireCrashInvis);
                 player->RemoveAurasDueToSpell(Spells::FireCrashPhaseShift);
 
-                Creature* lifei = player->FindNearestCreatureWithOptions(15.0f, { .StringId = "Li_Fei_Talk" });
+                Creature* lifei = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFei });
 
                 if (!lifei)
                     return;
@@ -1449,7 +1430,7 @@ struct npc_li_fei_fight : public ScriptedAI
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
-            victim->ToPlayer()->SetQuestStatus(Quests::ParcheminVolant, QUEST_STATUS_FAILED);
+            victim->ToPlayer()->SetQuestStatus(Quests::OnlyTheWorthyShallPass, QUEST_STATUS_FAILED);
 
             if (victim->GetGUID() == _playerGuid)
                 me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
@@ -1477,7 +1458,7 @@ struct npc_li_fei_fight : public ScriptedAI
                         break;
                     }
 
-                    if (player->GetQuestStatus(Quests::ParcheminVolant) != QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(Quests::OnlyTheWorthyShallPass) != QUEST_STATUS_INCOMPLETE)
                     {
                         _playerGuid.Clear();
                         me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
@@ -1516,6 +1497,26 @@ struct npc_li_fei_fight : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _playerGuid;
+};
+
+// 108936 - Flying Shadow Kick
+class spell_flying_shadow_kick : public SpellScript
+{
+    void HandleTeleport(SpellEffIndex /*effIndex*/)
+    {
+        float distance = 4.0f;
+        float orientation = GetCaster()->GetVictim()->GetOrientation();
+        float targetX = GetCaster()->GetVictim()->GetPositionX() - distance * std::cos(orientation);
+        float targetY = GetCaster()->GetVictim()->GetPositionY() - distance * std::sin(orientation);
+        float targetZ = GetCaster()->GetVictim()->GetPositionZ();
+
+        Position pos(targetX, targetY, targetZ, orientation);
+        GetHitDest()->Relocate(pos);
+    }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+    }
 };
 
 // 108958 - Feet of Fury
@@ -1577,6 +1578,6 @@ void AddSC_zone_the_wandering_isle()
 
     RegisterCreatureAI(npc_li_fei);
     RegisterSpellScript(spell_fire_crash);
-    RegisterSpellScript(spell_flying_shadow_kick);
     RegisterCreatureAI(npc_li_fei_fight);
+    RegisterSpellScript(spell_flying_shadow_kick);
     RegisterSpellScript(spell_fury_kick_channel);}
