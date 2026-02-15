@@ -15,7 +15,7 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei_fight' WHERE `entry`=54
 UPDATE `creature` SET `ScriptName`= 'npc_li_fei', `StringId`= 'Li_Fei_Talk' WHERE `guid`=450596; 
 UPDATE `creature` SET `StringId`= 'Li_Fei_Fight' WHERE `guid`=450605; 
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (102499, 108936, 108958);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fire_crash', 'spell_flying_shadow_kick', 'spell_fury_kick_channel');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (102499, 'spell_fire_crash'),
 (108936, 'spell_flying_shadow_kick'),
