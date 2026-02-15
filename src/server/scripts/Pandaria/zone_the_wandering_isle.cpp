@@ -1409,7 +1409,7 @@ struct npc_li_fei_combat : public ScriptedAI
         if (!player)
             return;
 
-        player->SetQuestStatus(Quests::OnlyTheWorthyShallPass, QUEST_STATUS_FAILED);
+        player->FailQuest(Quests::OnlyTheWorthyShallPass);
     }
 
     void UpdateAI(uint32 diff) override
