@@ -46,6 +46,38 @@ namespace Spells
     static constexpr uint32 CurseOfTheCrocodile = 102942;
     static constexpr uint32 RideVehiclePole = 102717;
     static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
+    static constexpr uint32 SummonChild1 = 116190;
+}
+
+namespace Quests
+{
+    static constexpr uint32 TheSingingPools = 29521;
+}
+
+namespace Positions
+{
+    // Singing Pools
+    static constexpr Position CaiSpawnPos = { 934.0156f, 3513.154f, 188.1347f, 0.0f };
+    static constexpr Position DengSpawnPos = { 949.37f, 3510.0f, 187.7983f, 0.0f };
+}
+
+namespace Creatures
+{
+    // Singing Pools
+    static constexpr uint32 Cai = 60250;
+    static constexpr uint32 Deng = 60249;
+}
+
+namespace Texts
+{
+    // Singing Pools
+    static constexpr uint32 DengTalk0 = 0;
+    static constexpr uint32 DengTalk1 = 1;
+    static constexpr uint32 DengTalk2 = 2;
+    static constexpr uint32 CaiTalk0 = 0;
+    static constexpr uint32 CaiTalk1 = 1;
+    static constexpr uint32 CaiTalk2 = 2;
+    static constexpr uint32 CaiTalk3 = 3;
 }
 
 enum TraineeMisc
@@ -1298,173 +1330,125 @@ public:
         return true;
     }
 };
+
+// 7784
+class at_the_singing_pools_children_summon : public AreaTriggerScript
+{
+public:
+    at_the_singing_pools_children_summon() : AreaTriggerScript("at_the_singing_pools_children_summon") {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player)
+            return false;
+
+        if (player->GetQuestStatus(Quests::TheSingingPools) == QUEST_STATUS_COMPLETE)
+            player->CastSpell(player, Spells::SummonChild1);
+
+        return true;
+    }
 };
 
-namespace Scripts::WanderingIsle::Quest_29521
+// 116190 - Summon Child 1
+class spell_summon_child_1 : public SpellScript
 {
-    static constexpr uint32 Quest_The_Singing_Pools = 29521;
-
-    namespace Positions
+    void SetDest(SpellDestination& dest) const
     {
-        static constexpr Position caiSpawnPos = { 934.0156f, 3513.154f, 188.1347f, 0.0f };
-        static constexpr Position denSpawnPos = { 949.37f, 3510.0f, 187.7983f, 0.0f };
+        dest.Relocate(Positions::CaiSpawnPos);
     }
 
-    namespace NpcInfo
+    void Register() override
     {
-        static constexpr uint32 npc_cai = 60250;
-        static constexpr uint32 npc_den = 60249;
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_1::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+// 116191 - Summon Child 2
+class spell_summon_child_2 : public SpellScript
+{
+    void SetDest(SpellDestination& dest) const
+    {
+        dest.Relocate(Positions::DengSpawnPos);
     }
 
-    namespace Spells
+    void Register() override
     {
-        static constexpr uint32 spell_summon_child_1 = 116190;
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_2::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
+};
 
-    namespace Texts
+// 60250 - Cai
+// 60249 - Deng
+struct npc_summoned_childs : public ScriptedAI
+{
+    npc_summoned_childs(Creature* creature) : ScriptedAI(creature) {}
+
+    void IsSummonedBy(WorldObject* summoner) override
     {
-        static constexpr uint32 den_talk_0 = 0;
-        static constexpr uint32 den_talk_1 = 1;
-        static constexpr uint32 den_talk_2 = 2;
-
-        static constexpr uint32 cai_talk_0 = 0;
-        static constexpr uint32 cai_talk_1 = 1;
-        static constexpr uint32 cai_talk_2 = 2;
-        static constexpr uint32 cai_talk_3 = 3;
-    }
-
-    // 7784
-    class at_temple_east_quest_29521_childs : public AreaTriggerScript
-    {
-    public:
-        at_temple_east_quest_29521_childs() : AreaTriggerScript("at_temple_east_quest_29521_childs") {}
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        if (Player* player = summoner->ToPlayer())
         {
-            if (!player)
-                return false;
+            _playerGuid = player->GetGUID();
 
-            if (player->GetQuestStatus(Quest_The_Singing_Pools) == QUEST_STATUS_COMPLETE)
+            if (me->GetEntry() == Creatures::Deng)
+                me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 2);
+            else if (me->GetEntry() == Creatures::Cai)
+                me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 4);
+
+            _scheduler.Schedule(7s, [this](TaskContext /*task*/)
             {
-                player->CastSpell(player, Spells::spell_summon_child_1);
-            }
-            return true;
-        }
-    };
-
-    // 116190
-    class spell_summon_child_1 : public SpellScript
-    {
-        void SetDest(SpellDestination& dest) const
-        {
-            dest.Relocate(Positions::caiSpawnPos);
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_1::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
-        }
-    };
-
-    // 116191
-    class spell_summon_child_2 : public SpellScript
-    {
-        void SetDest(SpellDestination& dest) const
-        {
-            dest.Relocate(Positions::denSpawnPos);
-        }
-
-        void Register() override
-        {
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_2::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
-        }
-    };
-
-    //60250, 60249
-    struct npc_summoned_childs : public ScriptedAI
-    {
-        npc_summoned_childs(Creature* creature) : ScriptedAI(creature) {}
-
-        void IsSummonedBy(WorldObject* summoner) override
-        {
-            if (Player* player = summoner->ToPlayer())
+                if (me->GetEntry() == Creatures::Cai)
+                    me->AI()->Talk(Texts::CaiTalk0);
+            });
+            _scheduler.Schedule(14s, [this](TaskContext /*task*/)
             {
-                _playerGuid = player->GetGUID();
+                if (me->GetEntry() == Creatures::Deng)
+                    me->AI()->Talk(Texts::DengTalk0);
+            });
+            _scheduler.Schedule(21s, [this](TaskContext /*task*/)
+            {
+                if (me->GetEntry() == Creatures::Cai)
+                    me->AI()->Talk(Texts::CaiTalk1);
+            });
+            _scheduler.Schedule(29s, [this](TaskContext /*task*/)
+            {
+                if (me->GetEntry() == Creatures::Deng)
+                    me->AI()->Talk(Texts::DengTalk1);
+            });
+            _scheduler.Schedule(37s, [this](TaskContext /*task*/)
+            {
+                if (me->GetEntry() == Creatures::Cai)
+                    me->AI()->Talk(Texts::CaiTalk2);
+            });
+            _scheduler.Schedule(45s, [this](TaskContext /*task*/)
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
 
-                if (me->GetEntry() == NpcInfo::npc_den)
+                if (me->GetEntry() == Creatures::Deng)
                 {
-                    me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 2);
+                    me->AI()->Talk(Texts::DengTalk2);
+                    me->GetMotionMaster()->MoveFleeing(player);
+                    me->DespawnOrUnsummon(3s);
                 }
-                else if (me->GetEntry() == NpcInfo::npc_cai)
+                else if (me->GetEntry() == Creatures::Cai)
                 {
-                    me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 4);
+                    me->AI()->Talk(Texts::CaiTalk3);
+                    me->GetMotionMaster()->MoveFleeing(player);
+                    me->DespawnOrUnsummon(3s);
                 }
-
-                _scheduler.Schedule(7s, [this](TaskContext /*task*/)
-                    {
-                        if (me->GetEntry() == NpcInfo::npc_cai)
-                        {
-                            me->AI()->Talk(Texts::cai_talk_0);
-                        }
-                    });
-                _scheduler.Schedule(14s, [this](TaskContext /*task*/)
-                    {
-                        if (me->GetEntry() == NpcInfo::npc_den)
-                        {
-                            me->AI()->Talk(Texts::den_talk_0);
-                        }
-                    });
-                _scheduler.Schedule(21s, [this](TaskContext /*task*/)
-                    {
-                        if (me->GetEntry() == NpcInfo::npc_cai)
-                        {
-                            me->AI()->Talk(Texts::cai_talk_1);
-                        }
-                    });
-                _scheduler.Schedule(29s, [this](TaskContext /*task*/)
-                    {
-                        if (me->GetEntry() == NpcInfo::npc_den)
-                        {
-                            me->AI()->Talk(Texts::den_talk_1);
-                        }
-                    });
-                _scheduler.Schedule(37s, [this](TaskContext /*task*/)
-                    {
-                        if (me->GetEntry() == NpcInfo::npc_cai)
-                        {
-                            me->AI()->Talk(Texts::cai_talk_2);
-                        }
-                    });
-                _scheduler.Schedule(45s, [this](TaskContext /*task*/)
-                    {
-                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
-
-                        if (me->GetEntry() == NpcInfo::npc_den)
-                        {
-                            me->AI()->Talk(Texts::den_talk_2);
-                            me->GetMotionMaster()->MoveFleeing(player);
-                            me->DespawnOrUnsummon(3s);
-                        }
-                        else if (me->GetEntry() == NpcInfo::npc_cai)
-                        {
-                            me->AI()->Talk(Texts::cai_talk_3);
-                            me->GetMotionMaster()->MoveFleeing(player);
-                            me->DespawnOrUnsummon(3s);
-                        }
-                    });
-            }
+            });
         }
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
 
-    private:
-        ObjectGuid _playerGuid;
+private:
+    ObjectGuid _playerGuid;
 
-        TaskScheduler _scheduler;
-    };
+    TaskScheduler _scheduler;
+};
 };
 
 void AddSC_zone_the_wandering_isle()
@@ -1499,8 +1483,7 @@ void AddSC_zone_the_wandering_isle()
     new at_singing_pools_transform_base<Spells::CurseOfTheCrane>("at_singing_pools_transform_crane");
     new at_singing_pools_transform_base<Spells::CurseOfTheTurtle>("at_singing_pools_transform_turtle");
 
-    using namespace Scripts::WanderingIsle::Quest_29521;
-    new at_temple_east_quest_29521_childs();
+    new at_the_singing_pools_children_summon();
     RegisterSpellScript(spell_summon_child_1);
     RegisterSpellScript(spell_summon_child_2);
     RegisterCreatureAI(npc_summoned_childs);

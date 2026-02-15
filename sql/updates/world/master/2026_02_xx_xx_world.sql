@@ -10,7 +10,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_summoned_childs', `BaseAttackTi
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` IN (7784);
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES 
-(7784, 'at_temple_east_quest_29521_childs');
+(7784, 'at_the_singing_pools_children_summon');
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (116190, 116191);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
