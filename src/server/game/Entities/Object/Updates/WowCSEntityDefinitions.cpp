@@ -21,8 +21,7 @@
 
 namespace WowCS
 {
-void EntityFragmentsHolder::Add(EntityFragment fragment, bool update,
-    EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate, EntityFragmentIsChangedFn isChanged)
+void EntityFragmentsHolder::Add(EntityFragment fragment, bool update, void const* data /*= nullptr*/)
 {
     ASSERT(Count < Ids.size());
 
@@ -45,7 +44,7 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update,
     if (IsUpdateableFragment(fragment))
     {
         ASSERT(UpdateableCount < Updateable.Ids.size());
-        ASSERT(serializeCreate && serializeUpdate && isChanged);
+        ASSERT(data);
 
         auto insertedItr = insertSorted(Updateable.Ids, UpdateableCount, fragment).first;
         std::ptrdiff_t index = std::ranges::distance(Updateable.Ids.begin(), insertedItr);
@@ -69,9 +68,7 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update,
             arr[i] = value;
         };
 
-        insertAtIndex(Updateable.SerializeCreate, UpdateableCount, index, serializeCreate);
-        insertAtIndex(Updateable.SerializeUpdate, UpdateableCount, index, serializeUpdate);
-        insertAtIndex(Updateable.IsChanged, UpdateableCount, index, isChanged);
+        insertAtIndex(Updateable.Data, UpdateableCount, index, data);
     }
 
     if (update)
@@ -121,12 +118,29 @@ void EntityFragmentsHolder::Remove(EntityFragment fragment)
             };
 
             uint8 oldSize = UpdateableCount + 1;
-            removeAtIndex(Updateable.SerializeCreate, oldSize, index, nullptr);
-            removeAtIndex(Updateable.SerializeUpdate, oldSize, index, nullptr);
-            removeAtIndex(Updateable.IsChanged, oldSize, index, nullptr);
+            removeAtIndex(Updateable.Data, oldSize, index, nullptr);
         }
     }
 
     IdsChanged = true;
+}
+
+EntityFragmentInfos const* EntityFragmentInfo;
+
+void EntityFragmentInfos::Register(EntityFragment fragment, EntityFragmentSerializeFn serializeCreate,
+    EntityFragmentSerializeFn serializeUpdate, EntityFragmentIsChangedFn isChanged, EntityFragmentClearChangedFn clearChanged)
+{
+    static EntityFragmentInfos entityFragmentInfo;
+
+    std::size_t index = static_cast<std::size_t>(fragment);
+    entityFragmentInfo.SerializeCreate[index] = serializeCreate;
+    entityFragmentInfo.SerializeUpdate[index] = serializeUpdate;
+    entityFragmentInfo.IsChanged[index] = isChanged;
+    entityFragmentInfo.ClearChanged[index] = clearChanged;
+}
+
+EntityFragmentInfos::EntityFragmentInfos()
+{
+    EntityFragmentInfo = this;
 }
 }
