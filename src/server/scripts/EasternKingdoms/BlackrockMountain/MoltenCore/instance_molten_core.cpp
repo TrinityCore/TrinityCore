@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include <algorithm>
 
 static constexpr ObjectData creatureData[] =
 {

@@ -25,6 +25,7 @@
 #include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
