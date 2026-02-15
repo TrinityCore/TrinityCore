@@ -14,11 +14,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei' WHERE `entry`=54135;
 UPDATE `creature_template` SET `unit_flags`=`unit_flags` & ~0x100, `ScriptName`= 'npc_li_fei_combat' WHERE `entry`=54734; 
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fire_crash', 'spell_flying_shadow_kick', 'spell_fury_kick_channel');
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=`StaticFlags1`|0x00000008 WHERE `entry`=54734;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fire_crash', 'spell_feet_of_fury', 'spell_flying_shadow_kick');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (102499, 'spell_fire_crash'),
-(108936, 'spell_flying_shadow_kick'),
-(108958, 'spell_fury_kick_channel');
-
--- Creature Template Difficulty
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x0, `VerifiedBuild`=64978 WHERE (`Entry`=54734 AND `DifficultyID` IN (0, 1)); -- 54734 (Master Li Fei) - 
+(108958, 'spell_feet_of_fury'),
+(108936, 'spell_flying_shadow_kick');
