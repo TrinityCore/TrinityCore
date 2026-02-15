@@ -17,19 +17,20 @@
 
 #include "ScriptMgr.h"
 #include "molten_core.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_MAJORDOMO_EXECUTUS,  BOSS_MAJORDOMO_EXECUTUS },
+    { NPC_RAGNAROS,            BOSS_RAGNAROS },
     { 0,                       0                       } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_RUNE_OF_KORO,         DATA_RUNE_OF_KORO  },
     { GO_RUNE_OF_ZETH,         DATA_RUNE_OF_ZETH  },
@@ -46,7 +47,7 @@ struct MoltenCoreRuneInfo
     uint32 RuneData, BossId;
 };
 
-MoltenCoreRuneInfo constexpr MoltenCoreRunes[MAX_MOLTEN_CORE_RUNES] =
+static constexpr MoltenCoreRuneInfo MoltenCoreRunes[] =
 {
     { DATA_RUNE_OF_KRESS, BOSS_MAGMADAR },
     { DATA_RUNE_OF_MOHN,  BOSS_GEHENNAS },
@@ -109,16 +110,13 @@ class instance_molten_core : public InstanceMapScript
                     case BOSS_GOLEMAGG_THE_INCINERATOR:
                         if (state == DONE)
                         {
-                            for (uint32 runeIndex = 0; runeIndex < MAX_MOLTEN_CORE_RUNES; ++runeIndex)
+                            auto runeItr = std::ranges::find(MoltenCoreRunes, bossId, &MoltenCoreRuneInfo::BossId);
+                            if (runeItr != std::ranges::end(MoltenCoreRunes))
                             {
-                                if (MoltenCoreRunes[runeIndex].BossId == bossId)
+                                if (GameObject* rune = GetGameObject(runeItr->RuneData))
                                 {
-                                    if (GameObject* rune = GetGameObject(MoltenCoreRunes[runeIndex].RuneData))
-                                    {
-                                        rune->SetGoState(GO_STATE_READY);
-                                        rune->SetLootState(GO_JUST_DEACTIVATED);
-                                    }
-                                    break;
+                                    rune->SetGoState(GO_STATE_READY);
+                                    rune->SetLootState(GO_JUST_DEACTIVATED);
                                 }
                             }
                         }

@@ -19,11 +19,12 @@
  * Is SAY_REINFORCEMENTS_2 really used?
  * Are SPELL_SUBMERGE_FADE and SPELL_EMERGE used?
  * Combat timers requires to be revisited
- * Lava Burst trap doesn't cast spell
  */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -429,6 +430,25 @@ class spell_ragnaros_summon_sons_of_flame : public SpellScript
     }
 };
 
+// 178088 - Ragnaros
+struct go_ragnaros_lava_burst_trap : public GameObjectAI
+{
+    using GameObjectAI::GameObjectAI;
+
+    void InitializeAI() override
+    {
+        // This trap is supposed to trigger immediately after spawning without any nearby players
+        me->m_Events.AddEventAtOffset([go = me]()
+        {
+            // no spell found in sniff (either serverside and not in spell_dbc or just a manual script action)
+            go->ActivateObject(GameObjectActions::AnimateCustom0);
+
+            if (Creature* ragnaros = go->GetInstanceScript()->GetCreature(BOSS_RAGNAROS))
+                go->ActivateObject(GameObjectActions::Disturb, ragnaros);
+        }, 1ms);
+    }
+};
+
 void AddSC_boss_ragnaros()
 {
     RegisterMoltenCoreCreatureAI(boss_ragnaros);
@@ -436,4 +456,5 @@ void AddSC_boss_ragnaros()
     RegisterMoltenCoreCreatureAI(npc_son_of_flame);
     RegisterSpellScript(spell_ragnaros_lava_burst);
     RegisterSpellScript(spell_ragnaros_summon_sons_of_flame);
+    RegisterMoltenCoreGameObjectAI(go_ragnaros_lava_burst_trap);
 }

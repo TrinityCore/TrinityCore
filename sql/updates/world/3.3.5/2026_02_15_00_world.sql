@@ -8,6 +8,8 @@ UPDATE `gameobject` SET `state` = 0 WHERE `id` BETWEEN 176951 AND 176957;
 -- Majordomo & Ragnaros
 UPDATE `gameobject` SET `spawntimesecs` = 604800 WHERE `guid` = 67870 AND `id` = 179703;
 
+UPDATE `gameobject_template` SET `ScriptName`='go_ragnaros_lava_burst_trap' WHERE `entry`=178088;
+
 DELETE FROM `spawn_group` WHERE `spawnId` = 67870 AND `spawnType` = 1;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 (@SPAWN_GROUP_ID+0,1,67870);
@@ -91,8 +93,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (12018,5,0,"The runes of warding have been destroyed! Hunt down the infidels, my brethren!",14,0,100,0,0,8039,7566,0,"Majordomo SAY_SPAWN"),
 (12018,6,0,"You think you've won already? Perhaps you'll need another lesson in pain!",14,0,100,0,0,0,8545,0,"Majordomo SAY_CHAMPION"),
 (12018,7,0,"Very well, $n.",12,0,100,0,0,0,7649,0,"Majordomo SAY_SUMMON_1"),
-(12018,8,0,"Impudent whelps! You've rushed headlong to your own deaths! See now, the master stirs!
-",14,0,100,0,0,0,7655,0,"Majordomo SAY_SUMMON_2"),
+(12018,8,0,"Impudent whelps! You've rushed headlong to your own deaths! See now, the master stirs!\n",14,0,100,0,0,0,7655,0,"Majordomo SAY_SUMMON_2"),
 (12018,9,0,"Behold Ragnaros - the Firelord! He who was ancient when this world was young! Bow before him, mortals! Bow before your ending!",14,0,100,0,0,8040,7657,0,"Majordomo SAY_SUMMON_3"),
 (12018,10,0,"These mortal infidels, my lord! They have invaded your sanctum and seek to steal your secrets!",14,0,100,0,0,8041,7661,0,"Majordomo SAY_SUMMON_4");
 
@@ -133,8 +134,7 @@ DELETE FROM `creature_text` WHERE `CreatureID` = 11502;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (11502,0,0,"TOO SOON! YOU HAVE AWAKENED ME TOO SOON, EXECUTUS! WHAT IS THE MEANING OF THIS INTRUSION???",14,0,100,15,0,8043,7636,0,"Ragnaros SAY_ARRIVAL_1"),
 (11502,1,0,"FOOL! YOU ALLOWED THESE INSECTS TO RUN RAMPANT THROUGH THE HALLOWED CORE? AND NOW YOU LEAD THEM TO MY VERY LAIR? YOU HAVE FAILED ME, EXECUTUS! JUSTICE SHALL BE MET, INDEED!",14,0,100,15,0,8044,7662,0,"Ragnaros SAY_ARRIVAL_2"),
-(11502,2,0,"NOW FOR YOU, INSECTS! BOLDLY, YOU SOUGHT THE POWER OF RAGNAROS. NOW YOU SHALL SEE IT FIRSTHAND!
-",14,0,100,15,0,8045,7685,0,"Ragnaros SAY_ARRIVAL_3"),
+(11502,2,0,"NOW FOR YOU, INSECTS! BOLDLY, YOU SOUGHT THE POWER OF RAGNAROS. NOW YOU SHALL SEE IT FIRSTHAND!\n",14,0,100,15,0,8045,7685,0,"Ragnaros SAY_ARRIVAL_3"),
 (11502,3,0,"BY FIRE BE PURGED!",14,0,100,0,0,8046,9426,0,"Ragnaros SAY_MIGHT"),
 (11502,4,0,"TASTE THE FLAMES OF SULFURON!",14,0,100,0,0,8047,9427,0,"Ragnaros SAY_WRATH"),
 (11502,5,0,"COME FORTH, MY SERVANTS! DEFEND YOUR MASTER!",14,0,100,0,0,8049,8572,0,"Ragnaros SAY_REINFORCEMENTS_1"),

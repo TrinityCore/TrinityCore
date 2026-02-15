@@ -94,11 +94,6 @@ enum MCActions
     ACTION_FLAMEWAKER_DIES          = 0
 };
 
-enum MCMisc
-{
-    MAX_MOLTEN_CORE_RUNES           = 7
-};
-
 template <class AI, class T>
 inline AI* GetMoltenCoreAI(T* obj)
 {
@@ -106,5 +101,6 @@ inline AI* GetMoltenCoreAI(T* obj)
 }
 
 #define RegisterMoltenCoreCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMoltenCoreAI)
+#define RegisterMoltenCoreGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetMoltenCoreAI)
 
 #endif
