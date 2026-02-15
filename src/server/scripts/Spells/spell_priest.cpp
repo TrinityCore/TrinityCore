@@ -1971,28 +1971,23 @@ class spell_pri_evangelism : public SpellScript
 
     void HandleCast()
     {
-        Unit* caster = GetCaster();
-
-        if (Aura* aura = caster->GetAura(SPELL_PRIEST_EVANGELISM))
-            aura->SetStackAmount(GetEffectInfo(EFFECT_0).CalcValue(caster));
+        GetSpell()->SetSpellValue({ SPELLVALUE_AURA_STACK, GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetExplTargetUnit();
-
-        caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_RADIANCE, CastSpellExtraArgsInit
+        GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_PRIEST_POWER_WORD_RADIANCE, CastSpellExtraArgsInit
         {
-            .TriggerFlags = TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS,
+            .TriggerFlags = TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_POWER_COST
+                | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .CustomArg = GetSpellInfo()
         });
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_pri_evangelism::HandleCast);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_evangelism::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        BeforeCast += SpellCastFn(spell_pri_evangelism::HandleCast);
+        OnEffectLaunch += SpellEffectFn(spell_pri_evangelism::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3360,11 +3355,11 @@ class spell_pri_power_word_radiance : public SpellScript
 
     void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
     {
-        SpellInfo const* const* triggSpell = std::any_cast<SpellInfo const*>(&GetSpell()->m_customArg);
+        SpellInfo const** triggSpell = std::any_cast<SpellInfo const*>(&GetSpell()->m_customArg);
         if (!triggSpell || (*triggSpell)->Id != SPELL_PRIEST_EVANGELISM)
             return;
 
-        AddPct(pctMod, (*triggSpell)->GetEffect(EFFECT_1).CalcValue(GetCaster()));
+        pctMod *= static_cast<float>((*triggSpell)->GetEffect(EFFECT_1).CalcValue(GetCaster())) / 100.f;
     }
 
     void Register() override
