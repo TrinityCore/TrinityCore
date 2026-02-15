@@ -325,9 +325,9 @@ void WorldSession::AddInstanceConnection(WorldSession* session, std::weak_ptr<Wo
 }
 
 /// Add an incoming packet to the queue
-void WorldSession::QueuePacket(WorldPacket* new_packet)
+void WorldSession::QueuePacket(WorldPacket&& new_packet)
 {
-    _recvQueue.add(new_packet);
+    _recvQueue.add(new WorldPacket(std::move(new_packet)));
 }
 
 /// Logging helper for unexpected opcodes
