@@ -1371,19 +1371,10 @@ struct npc_li_fei_combat : public ScriptedAI
         EVENT_SHADOW_KICK_STUN,
     };
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void JustEngagedWith(Unit* /*attacker*/) override
     {
-        if (spellInfo->Id != Spells::FireCrashPhaseShift)
-            return;
-
-        me->SetImmuneToPC(false);
-
-        me->GetMotionMaster()->MoveFollow(caster->ToPlayer(), 1.0f);
-
-        me->Attack(caster->ToUnit(), true);
-
-        _events.RescheduleEvent(EVENT_FEET_OF_FURY, 5000ms);
-        _events.RescheduleEvent(EVENT_SHADOW_KICK, 10000ms);
+        _events.ScheduleEvent(EVENT_FEET_OF_FURY, 5000ms);
+        _events.ScheduleEvent(EVENT_SHADOW_KICK, 10000ms);
     }
 
     void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
@@ -1465,6 +1456,7 @@ struct npc_li_fei_combat : public ScriptedAI
             }
         }
     }
+
 private:
     EventMap _events;
 };

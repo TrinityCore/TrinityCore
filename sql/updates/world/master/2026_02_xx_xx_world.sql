@@ -12,7 +12,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- ScriptNames
 UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei' WHERE `entry`=54135;
-UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei_combat' WHERE `entry`=54734; 
+UPDATE `creature_template` SET `unit_flags`=`unit_flags` & ~0x100, `ScriptName`= 'npc_li_fei_combat' WHERE `entry`=54734; 
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fire_crash', 'spell_flying_shadow_kick', 'spell_fury_kick_channel');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
