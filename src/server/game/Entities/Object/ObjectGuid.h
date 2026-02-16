@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "StringFormatFwd.h"
 #include "advstd.h"
 #include <array>
@@ -47,10 +48,14 @@ enum TypeID : uint8
     TYPEID_CORPSE                 = 10,
     TYPEID_AREATRIGGER            = 11,
     TYPEID_SCENEOBJECT            = 12,
-    TYPEID_CONVERSATION           = 13
-};
+    TYPEID_CONVERSATION           = 13,
+    TYPEID_MESH_OBJECT            = 14,
+    TYPEID_AI_GROUP               = 15,
+    TYPEID_SCENARIO               = 16,
+    TYPEID_LOOT_OBJECT            = 17,
 
-#define NUM_CLIENT_OBJECT_TYPES             14
+    NUM_CLIENT_OBJECT_TYPES
+};
 
 enum TypeMask
 {
@@ -68,12 +73,16 @@ enum TypeMask
     TYPEMASK_AREATRIGGER            = 1 << TYPEID_AREATRIGGER,
     TYPEMASK_SCENEOBJECT            = 1 << TYPEID_SCENEOBJECT,
     TYPEMASK_CONVERSATION           = 1 << TYPEID_CONVERSATION,
+    TYPEMASK_MESH_OBJECT            = 1 << TYPEID_MESH_OBJECT,
+    TYPEMASK_AI_GROUP               = 1 << TYPEID_AI_GROUP,
+    TYPEMASK_SCENARIO               = 1 << TYPEID_SCENARIO,
+    TYPEMASK_LOOT_OBJECT            = 1 << TYPEID_LOOT_OBJECT,
 
     TYPEMASK_SEER                   = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_DYNAMICOBJECT,
-    TYPEMASK_WORLDOBJECT            = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AREATRIGGER | TYPEMASK_SCENEOBJECT | TYPEMASK_CONVERSATION
+    TYPEMASK_WORLDOBJECT            = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AREATRIGGER | TYPEMASK_SCENEOBJECT | TYPEMASK_CONVERSATION | TYPEMASK_MESH_OBJECT
 };
 
-inline constexpr std::array<uint32, NUM_CLIENT_OBJECT_TYPES> ObjectTypeMask =
+inline constexpr std::array<uint32, NUM_CLIENT_OBJECT_TYPES + 1> ObjectTypeMask =
 {
     TYPEMASK_OBJECT,
     TYPEMASK_OBJECT | TYPEMASK_ITEM,
@@ -88,7 +97,12 @@ inline constexpr std::array<uint32, NUM_CLIENT_OBJECT_TYPES> ObjectTypeMask =
     TYPEMASK_OBJECT | TYPEMASK_CORPSE,
     TYPEMASK_OBJECT | TYPEMASK_AREATRIGGER,
     TYPEMASK_OBJECT | TYPEMASK_SCENEOBJECT,
-    TYPEMASK_OBJECT | TYPEMASK_CONVERSATION
+    TYPEMASK_OBJECT | TYPEMASK_CONVERSATION,
+    TYPEMASK_OBJECT | TYPEMASK_MESH_OBJECT,
+    TYPEMASK_OBJECT | TYPEMASK_AI_GROUP,
+    TYPEMASK_OBJECT | TYPEMASK_SCENARIO,
+    TYPEMASK_OBJECT | TYPEMASK_LOOT_OBJECT,
+    0,
 };
 
 enum class HighGuid
@@ -148,6 +162,9 @@ enum class HighGuid
     ArenaTeam        = 52,
     LMMParty         = 53,
     LMMLobby         = 54,
+    Housing          = 55,
+    MeshObject       = 56,
+    Entity           = 57,
 
     Count,
 };
@@ -183,6 +200,7 @@ enum class ObjectGuidFormatType
     ToolsClient,
     WorldLayer,
     LMMLobby,
+    Housing,
 };
 
 template<HighGuid high>
@@ -254,6 +272,9 @@ MAKE_GUID_TRAIT(HighGuid::WorldLayer, ObjectGuidSequenceSource::Global, ObjectGu
 MAKE_GUID_TRAIT(HighGuid::ArenaTeam, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Guild);
 MAKE_GUID_TRAIT(HighGuid::LMMParty, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Client);
 MAKE_GUID_TRAIT(HighGuid::LMMLobby, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::LMMLobby);
+MAKE_GUID_TRAIT(HighGuid::Housing, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::Housing);
+MAKE_GUID_TRAIT(HighGuid::MeshObject, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::WorldObject);
+MAKE_GUID_TRAIT(HighGuid::Entity, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::WorldObject);
 
 class ByteBuffer;
 class ObjectGuid;
@@ -263,7 +284,7 @@ class TC_GAME_API ObjectGuidFactory
 public:
     static constexpr ObjectGuid CreateNull();
     static constexpr ObjectGuid CreateUniq(uint64 id);
-    static ObjectGuid CreatePlayer(uint32 realmId, uint64 dbId);
+    static ObjectGuid CreatePlayer(uint32 realmId, uint8 subType, uint32 arg1, uint64 dbId);
     static ObjectGuid CreateItem(uint32 realmId, uint64 dbId);
     static ObjectGuid CreateWorldObject(HighGuid type, uint8 subType, uint32 realmId, uint16 mapId, uint32 serverId, uint32 entry, uint64 counter);
     static ObjectGuid CreateTransport(HighGuid type, uint32 counter);
@@ -280,6 +301,7 @@ public:
     static ObjectGuid CreateToolsClient(uint16 mapId, uint32 serverId, uint64 counter);
     static ObjectGuid CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4);
     static ObjectGuid CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, uint64 counter);
+    static ObjectGuid CreateHousing(uint32 subType, uint32 arg1, uint32 arg2, uint64 arg3);
 };
 
 class TC_GAME_API ObjectGuid
@@ -301,7 +323,7 @@ class TC_GAME_API ObjectGuid
         constexpr ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
-        std::array<uint8, 16> GetRawValue() const;
+        std::span<uint8 const, 16> GetRawValue() const { return std::span<uint8 const, 16>(reinterpret_cast<uint8 const*>(_data.data()), BytesSize); }
         void SetRawValue(std::span<uint8 const> rawBytes);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
         void Clear() { _data = { }; }
@@ -375,11 +397,10 @@ class TC_GAME_API ObjectGuid
         std::string ToString() const;
         std::string ToHexString() const;
         static ObjectGuid FromString(std::string_view guidString);
-        std::size_t GetHash() const;
 
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Null, int32> = 0> static constexpr ObjectGuid Create() { return ObjectGuidFactory::CreateNull(); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Uniq, int32> = 0> static constexpr ObjectGuid Create(LowType id) { return ObjectGuidFactory::CreateUniq(id); }
-        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Player, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreatePlayer(0, dbId); }
+        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Player, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreatePlayer(0, 0, 0, dbId); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Item, int32> = 0> static ObjectGuid Create(LowType dbId) { return ObjectGuidFactory::CreateItem(0, dbId); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldObject, int32> = 0> static ObjectGuid Create(uint16 mapId, uint32 entry, LowType counter) { return ObjectGuidFactory::CreateWorldObject(type, 0, 0, mapId, 0, entry, counter); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldObject, int32> = 0> static ObjectGuid Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return ObjectGuidFactory::CreateWorldObject(type, subType, 0, mapId, 0, entry, counter); }
@@ -397,6 +418,7 @@ class TC_GAME_API ObjectGuid
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::ToolsClient, int32> = 0> static ObjectGuid Create(uint16 mapId, uint32 serverId, LowType counter) { return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldLayer, int32> = 0> static ObjectGuid Create(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4) { return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::LMMLobby, int32> = 0> static ObjectGuid Create(uint32 arg2, uint8 arg3, uint8 arg4, LowType counter) { return ObjectGuidFactory::CreateLMMLobby(0, arg2, arg3, arg4, counter); }
+        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Housing, int32> = 0> static ObjectGuid Create(uint32 subType, uint32 arg1, uint32 arg2, uint64 arg3) { return ObjectGuidFactory::CreateHousing(subType, arg1, arg2, arg3); }
 
     protected:
         constexpr ObjectGuid(uint64 high, uint64 low) : _data({{ low, high }})
@@ -415,12 +437,12 @@ using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
-template<>
+template <>
 struct std::hash<ObjectGuid>
 {
-    size_t operator()(ObjectGuid const& key) const noexcept
+    std::size_t operator()(ObjectGuid const& key) const noexcept
     {
-        return key.GetHash();
+        return Trinity::HashFnv1a<>::GetHash(key.GetRawValue());
     }
 };
 
