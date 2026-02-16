@@ -169,9 +169,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ~GameObject();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -198,7 +198,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         static GameObject* CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit = 0);
         static GameObject* CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
 
-        void Update(uint32 p_time) override;
+        void Update(uint32 diff) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
         GameObjectOverride const* GetGameObjectOverride() const;
@@ -290,7 +290,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
-        std::vector<uint32> const* GetPauseTimes() const;
+        std::span<uint32 const> GetPauseTimes() const;
         Optional<float> GetPathProgressForClient() const { return m_transportPathProgress; }
         void SetPathProgressForClient(float progress);
 
@@ -402,8 +402,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
         TransportBase const* ToTransportBase() const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
+        Transport* ToTransport() { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport*>(this) : nullptr; }
+        Transport const* ToTransport() const { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport const*>(this) : nullptr; }
 
         Position const& GetStationaryPosition() const override { return m_stationaryPosition; }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }

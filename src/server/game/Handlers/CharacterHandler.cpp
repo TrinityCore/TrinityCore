@@ -1192,8 +1192,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Send MOTD
     {
-        for (std::string const& motdLine : sWorld->GetMotd())
-            sWorld->SendServerMessage(SERVER_MSG_STRING, motdLine, pCurrChar);
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
     }
 
     SendSetTimeZoneInformation();
@@ -1272,9 +1273,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
-        AreaTriggerTeleport const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
-        if (at)
-            pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
+        if (AreaTriggerTeleport const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId()))
+            pCurrChar->TeleportTo(at->Loc);
         else
             pCurrChar->TeleportTo(pCurrChar->m_homebind);
     }

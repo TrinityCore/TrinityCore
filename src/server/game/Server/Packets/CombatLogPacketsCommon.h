@@ -43,8 +43,9 @@ namespace WorldPackets
             int32 AttackPower = 0;
             int32 SpellPower = 0;
             int32 Armor = 0;
-            int32 Unknown_1105_1 = 0;
-            int32 Unknown_1105_2 = 0;
+            int32 Versatility = 0;
+            int32 Avoidance = 0;
+            bool HideFromCombatLog = false;
             std::vector<SpellLogPowerData> PowerData;
 
             void Initialize(Unit const* unit);
