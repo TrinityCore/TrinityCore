@@ -152,7 +152,7 @@ namespace VMAP
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
         {
-            instanceTree->second->UnloadMapTile(x, y, this);
+            instanceTree->second->UnloadMapTile(x, y);
             if (instanceTree->second->numLoadedTiles() == 0)
                 instanceTree->second = nullptr;
         }

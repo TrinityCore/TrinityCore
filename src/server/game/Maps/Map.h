@@ -45,6 +45,7 @@
 #include <set>
 #include <unordered_set>
 
+class BaseEntity;
 class Battleground;
 class BattlegroundMap;
 class BattlegroundScript;
@@ -76,7 +77,7 @@ struct SummonPropertiesEntry;
 struct UpdateAdditionalSaveDataEvent;
 struct UpdateBossStateSaveDataEvent;
 class Transport;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum WeatherState : uint32;
 enum class ItemContext : uint8;
 
@@ -486,11 +487,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return nullptr;
         }
 
-        InstanceMap* ToInstanceMap() { if (IsDungeon()) return reinterpret_cast<InstanceMap*>(this); else return nullptr;  }
-        InstanceMap const* ToInstanceMap() const { if (IsDungeon()) return reinterpret_cast<InstanceMap const*>(this); return nullptr; }
+        InstanceMap* ToInstanceMap() { return IsDungeon() ? reinterpret_cast<InstanceMap*>(this) : nullptr; }
+        InstanceMap const* ToInstanceMap() const { return IsDungeon() ? reinterpret_cast<InstanceMap const*>(this) : nullptr; }
 
-        BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return nullptr;  }
-        BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return nullptr; }
+        BattlegroundMap* ToBattlegroundMap() { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap*>(this) : nullptr; }
+        BattlegroundMap const* ToBattlegroundMap() const { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap const*>(this) : nullptr; }
 
         bool isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const;
         void Balance() { _dynamicTree.balance(); }
@@ -567,12 +568,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return GetGuidSequenceGenerator(high).GetNextAfterMaxUsed();
         }
 
-        void AddUpdateObject(Object* obj)
+        void AddUpdateObject(BaseEntity* obj)
         {
             _updateObjects.insert(obj);
         }
 
-        void RemoveUpdateObject(Object* obj)
+        void RemoveUpdateObject(BaseEntity* obj)
         {
             _updateObjects.erase(obj);
         }
@@ -821,7 +822,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;
 
-        std::unordered_set<Object*> _updateObjects;
+        std::unordered_set<BaseEntity*> _updateObjects;
 
         MPSCQueue<FarSpellCallback> _farSpellCallbacks;
 
