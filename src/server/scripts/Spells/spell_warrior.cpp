@@ -713,25 +713,6 @@ class spell_warr_execute_damage : public SpellScript
     }
 };
 
-// 400205 - Finishing Blows
-class spell_warr_finishing_blows : public AuraScript
-{
-    bool CheckProc(ProcEventInfo const& eventInfo)
-    {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return false;
-
-        Unit* target = eventInfo.GetActionTarget();
-        return target && target->HealthBelowPct(35);
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_warr_finishing_blows::CheckProc);
-    }
-};
-
 // 383848 - Frenzied Enrage (attached to 184362 - Enrage)
 class spell_warr_frenzied_enrage : public SpellScript
 {
@@ -857,6 +838,37 @@ class spell_warr_frothing_berserker : public AuraScript
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorFury>, EFFECT_1, SPELL_AURA_DUMMY);
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorProtection>, EFFECT_2, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_warr_frothing_berserker::HandleProc, EFFECT_ALL, SPELL_AURA_DUMMY);
+    }
+};
+
+// 400205 - Overpowering Finish (attached to 7384 - Overpower)
+class spell_warr_overpowering_finish : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_OVERPOWERING_FINISH, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_OVERPOWERING_FINISH);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Aura const* talent = GetCaster()->GetAura(SPELL_WARRIOR_OVERPOWERING_FINISH);
+        if (!talent || !talent->HasEffect(EFFECT_0) || !talent->HasEffect(EFFECT_1))
+            return;
+
+        if (!victim->HealthBelowPct(talent->GetEffect(EFFECT_1)->GetAmount()))
+            return;
+
+        AddPct(pctMod, talent->GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_overpowering_finish::CalculateDamage);
     }
 };
 
@@ -1893,7 +1905,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
-    RegisterSpellScript(spell_warr_finishing_blows);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
@@ -1910,6 +1921,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
+    RegisterSpellScript(spell_warr_overpowering_finish);
     RegisterSpellScript(spell_warr_pain_and_gain_heal);
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
