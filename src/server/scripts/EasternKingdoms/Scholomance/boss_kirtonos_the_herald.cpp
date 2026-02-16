@@ -71,7 +71,7 @@ enum KirtonosMisc
     POINT_LANDING                     = 13,
     POINT_STAIRS_UP                   = 0,
     POINT_STAIRS_DOWN                 = 1,
-    PATH_INTRO                        = 105061,
+    PATH_INTRO                        = 840488,
     NPC_KIRTONOS                      = 10506,
     SOUND_SCREECH                     = 557
 };

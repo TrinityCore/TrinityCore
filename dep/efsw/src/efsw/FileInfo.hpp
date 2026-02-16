@@ -2,65 +2,63 @@
 #define EFSW_FILEINFO_HPP
 
 #include <efsw/base.hpp>
-#include <string>
+#include <vector>
 #include <map>
-#include <list>
+#include <string>
 
 namespace efsw {
 
-class FileInfo
-{
-	public:
-		static bool exists( const std::string& filePath );
+class FileInfo {
+  public:
+	static bool exists( const std::string& filePath );
 
-		static bool isLink( const std::string& filePath );
+	static bool isLink( const std::string& filePath );
 
-		static bool inodeSupported();
+	static bool inodeSupported();
 
-		FileInfo();
+	FileInfo();
 
-		FileInfo( const std::string& filepath );
+	FileInfo( const std::string& filepath );
 
-		FileInfo( const std::string& filepath, bool linkInfo );
+	FileInfo( const std::string& filepath, bool linkInfo );
 
-		bool operator==( const FileInfo& Other ) const;
+	bool operator==( const FileInfo& Other ) const;
 
-		bool operator!=( const FileInfo& Other ) const;
+	bool operator!=( const FileInfo& Other ) const;
 
-		FileInfo& operator=( const FileInfo& Other );
+	FileInfo& operator=( const FileInfo& Other );
 
-		bool isDirectory() const;
+	bool isDirectory() const;
 
-		bool isRegularFile() const;
+	bool isRegularFile() const;
 
-		bool isReadable() const;
+	bool isReadable() const;
 
-		bool sameInode( const FileInfo& Other ) const;
+	bool sameInode( const FileInfo& Other ) const;
 
-		bool isLink() const;
+	bool isLink() const;
 
-		std::string linksTo();
+	std::string linksTo();
 
-		bool exists();
+	bool exists();
 
-		void getInfo();
+	void getInfo();
 
-		void getRealInfo();
+	void getRealInfo();
 
-		std::string		Filepath;
-		Uint64			ModificationTime;
-		Uint64			Size;
-		Uint32			OwnerId;
-		Uint32			GroupId;
-		Uint32			Permissions;
-		Uint64			Inode;
+	std::string Filepath;
+	Uint64 ModificationTime;
+	Uint64 Size;
+	Uint32 OwnerId;
+	Uint32 GroupId;
+	Uint32 Permissions;
+	Uint64 Inode;
 };
 
-typedef std::map<std::string, FileInfo>					FileInfoMap;
-typedef std::list<FileInfo>								FileInfoList;
-typedef std::list< std::pair< std::string, FileInfo> >	MovedList;
+typedef std::map<std::string, FileInfo> FileInfoMap;
+typedef std::vector<FileInfo> FileInfoList;
+typedef std::vector<std::pair<std::string, FileInfo>> MovedList;
 
-}
+} // namespace efsw
 
 #endif
-

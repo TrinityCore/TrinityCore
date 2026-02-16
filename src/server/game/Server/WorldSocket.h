@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WORLDSOCKET_H__
-#define __WORLDSOCKET_H__
+#ifndef TRINITYCORE_WORLD_SOCKET_H
+#define TRINITYCORE_WORLD_SOCKET_H
 
 #include "Common.h"
 #include "ServerPktHeader.h"
@@ -64,16 +64,18 @@ struct ClientPktHeader
 
 struct AuthSession;
 
-class TC_GAME_API WorldSocket : public Socket<WorldSocket>
+class TC_GAME_API WorldSocket final : public Trinity::Net::Socket<>
 {
-    typedef Socket<WorldSocket> BaseSocket;
+    using BaseSocket = Socket;
 
 public:
-    WorldSocket(tcp::socket&& socket);
+    WorldSocket(Trinity::Net::IoContextTcpSocket&& socket);
     ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
+    WorldSocket(WorldSocket&& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
+    WorldSocket& operator=(WorldSocket&& right) = delete;
 
     void Start() override;
     bool Update() override;
@@ -82,9 +84,14 @@ public:
 
     void SetSendBufferSize(std::size_t sendBufferSize) { _sendBufferSize = sendBufferSize; }
 
-protected:
     void OnClose() override;
-    void ReadHandler() override;
+    Trinity::Net::SocketReadCallbackResult ReadHandler() override;
+
+    void QueueQuery(QueryCallback&& queryCallback);
+
+    void SendAuthSession();
+
+protected:
     bool ReadHeaderHandler();
 
     enum class ReadDataHandlerResult
@@ -97,14 +104,11 @@ protected:
     ReadDataHandlerResult ReadDataHandler();
 
 private:
-    void CheckIpCallback(PreparedQueryResult result);
-
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket const& packet);
-    void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
     void HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);

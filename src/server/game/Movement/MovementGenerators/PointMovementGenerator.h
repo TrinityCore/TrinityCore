@@ -31,8 +31,8 @@ class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGe
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
-        void DoInitialize(T*);
-        void DoReset(T*);
+        bool DoInitialize(T*);
+        bool DoReset(T*);
         bool DoUpdate(T*, uint32);
         void DoDeactivate(T*);
         void DoFinalize(T*, bool, bool);
