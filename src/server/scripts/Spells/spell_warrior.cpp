@@ -103,8 +103,8 @@ enum WarriorSpells
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
-    SPELL_WARRIOR_SUDDEN_DEATH                      = 280721,
-    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 280776,
+    SPELL_WARRIOR_SUDDEN_DEATH                      = 29725,
+    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -1480,39 +1480,25 @@ class spell_warr_strategist : public AuraScript
     }
 };
 
-// 280776 - Sudden Death
+// 29725 - Sudden Death
 class spell_warr_sudden_death : public AuraScript
-{
-    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
-    {
-        // should only proc on primary target
-        return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_warr_sudden_death::CheckProc);
-    }
-};
-
-// 280721 - Sudden Death
-class spell_warr_sudden_death_proc : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_SUDDEN_DEATH_BUFF });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
-        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_SUDDEN_DEATH_BUFF, CastSpellExtraArgsInit{
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_WARRIOR_SUDDEN_DEATH_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1874,7 +1860,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
-    RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tenderize);
     RegisterSpellScript(spell_warr_thunder_clap);
