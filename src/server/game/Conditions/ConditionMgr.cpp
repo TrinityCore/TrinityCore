@@ -182,11 +182,11 @@ ConditionSourceInfo::ConditionSourceInfo(Map const* map) :
 
 std::size_t ConditionId::GetHash() const
 {
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, SourceGroup);
-    Trinity::hash_combine(hashVal, SourceEntry);
-    Trinity::hash_combine(hashVal, SourceId);
-    return hashVal;
+    Trinity::HashFnv1a<> hash;
+    hash.UpdateData(SourceGroup);
+    hash.UpdateData(SourceEntry);
+    hash.UpdateData(SourceId);
+    return hash.Value;
 }
 
 // Checks if object meets the condition
@@ -264,7 +264,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DIFFICULTY_ID:
         {
-            condMeets = map->GetDifficultyID() == ConditionValue1;
+            condMeets = map->GetDifficultyID() == int32(ConditionValue1);
             break;
         }
         case CONDITION_SCENARIO_STEP:
@@ -3977,7 +3977,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::Sex:
             return unit->GetGender();
         case UnitConditionVariable::LevelWithinContentTuning:
-            if (Optional<ContentTuningLevels> levelRange = sDB2Manager.GetContentTuningData(value, 0))
+            if (Optional<ContentTuningLevels> levelRange = sDB2Manager.GetContentTuningData(value, {}))
                 return unit->GetLevel() >= levelRange->MinLevel && unit->GetLevel() <= levelRange->MaxLevel ? value : 0;
             return 0;
         case UnitConditionVariable::IsFlying:

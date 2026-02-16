@@ -20,24 +20,21 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_GAROTHI_WORLDBREAKER,    DATA_GAROTHI_WORLDBREAKER   },
     { NPC_DECIMATOR,                DATA_DECIMATOR              },
     { NPC_ANNIHILATOR,              DATA_ANNIHILATOR            },
-    { 0,                            0                           }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_COLLISION,                 DATA_GAROTHI_WORLDBREAKER,  EncounterDoorBehavior::OpenWhenDone },
     { GO_ROCK,                      DATA_GAROTHI_WORLDBREAKER,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,                            0,                          EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_GAROTHI_WORLDBREAKER, {{ 2076 }} },
     { DATA_FELHOUNDS_OF_SAGERAS, {{ 2074 }} },
@@ -63,7 +60,7 @@ class instance_antorus_the_burning_throne : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
             }
