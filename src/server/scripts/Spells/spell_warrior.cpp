@@ -83,6 +83,7 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
+    SPELL_WARRIOR_OVERPOWER                         = 7384,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
@@ -107,6 +108,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
+    SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
@@ -1545,6 +1547,46 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
+// 184783 - Tactician
+class spell_warr_tactician : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_OVERPOWER, SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW })
+            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_OVERPOWER, DIFFICULTY_NONE)->ChargeCategoryId;
+    }
+
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* procSpell = eventInfo.GetSpellInfo();
+        if (!procSpell)
+            return false;
+
+        if (!procSpell->CalcPowerCost(POWER_RAGE, false, eventInfo.GetActor(), SpellSchoolMask(procSpell->SchoolMask)))
+            return false;
+
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        SpellInfo const* overpowerInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_OVERPOWER, DIFFICULTY_NONE);
+        caster->GetSpellHistory()->RestoreCharge(overpowerInfo->ChargeCategoryId);
+        caster->CastSpell(caster, SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_tactician::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_warr_tactician::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 388933 - Tenderize
 class spell_warr_tenderize : public AuraScript
 {
@@ -1861,6 +1903,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sweeping_strikes);
+    RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
     RegisterSpellScript(spell_warr_thunder_clap);
     RegisterSpellScript(spell_warr_thunder_clap_rend);
