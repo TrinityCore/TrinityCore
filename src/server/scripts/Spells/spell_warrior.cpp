@@ -841,6 +841,39 @@ class spell_warr_frothing_berserker : public AuraScript
     }
 };
 
+// 400205 - Overpowering Finish (attached to 7384 - Overpower)
+class spell_warr_overpowering_finish : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_OVERPOWERING_FINISH, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_OVERPOWERING_FINISH);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Aura const* talent = GetCaster()->GetAura(SPELL_WARRIOR_OVERPOWERING_FINISH);
+        if (!talent)
+            return;
+
+        AuraEffect const* healthPct = talent->GetEffect(EFFECT_1);
+        if (!healthPct || !victim->HealthBelowPct(healthPct->GetAmount()))
+            return;
+
+        if (AuraEffect const* dmgIncrease = talent->GetEffect(EFFECT_0))
+            AddPct(pctMod, dmgIncrease->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_overpowering_finish::CalculateDamage);
+    }
+};
+
 // 382551 - Pain and Gain (heal)
 class spell_warr_pain_and_gain_heal : public SpellScript
 {
@@ -1890,6 +1923,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
+    RegisterSpellScript(spell_warr_overpowering_finish);
     RegisterSpellScript(spell_warr_pain_and_gain_heal);
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
