@@ -108,7 +108,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
-    SPELL_WARRIOR_TACTICIAN                         = 184783,
+    SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
@@ -1552,56 +1552,38 @@ class spell_warr_tactician : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_TACTICIAN, SPELL_WARRIOR_OVERPOWER });
+        return ValidateSpellInfo({ SPELL_WARRIOR_OVERPOWER, SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW })
+            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_OVERPOWER, DIFFICULTY_NONE)->ChargeCategoryId;
     }
 
-    bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-
-        Unit* actor = eventInfo.GetActor();
-        if (!actor || !actor->HasAura(SPELL_WARRIOR_TACTICIAN))
-            return false;
-
-        Spell const* procSpell = eventInfo.GetProcSpell();
+        SpellInfo const* procSpell = eventInfo.GetSpellInfo();
         if (!procSpell)
             return false;
 
-        if (!procSpell->HasPowerTypeCost(POWER_RAGE))
+        if (!procSpell->CalcPowerCost(POWER_RAGE, false, eventInfo.GetActor(), SpellSchoolMask(procSpell->SchoolMask)))
             return false;
 
-        return procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) > 0;
+        return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        Unit* caster = GetTarget();
-        if (!caster)
-            return;
-
-        SpellHistory* history = caster->GetSpellHistory();
-        if (!history)
-            return;
-
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return;
-
-        int32 rageSpent = procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) / 10;
-        if (rageSpent <= 0)
-            return;
-
-        if (!roll_chance_i(rageSpent))
-            return;
-
-        SpellInfo const* overpowerInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_OVERPOWER, GetCastDifficulty());
-        if (overpowerInfo->ChargeCategoryId)
-            history->RestoreCharge(overpowerInfo->ChargeCategoryId);
+        Unit* caster = eventInfo.GetActor();
+        SpellInfo const* overpowerInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_OVERPOWER, DIFFICULTY_NONE);
+        caster->GetSpellHistory()->RestoreCharge(overpowerInfo->ChargeCategoryId);
+        caster->CastSpell(caster, SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff
+        });
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_warr_tactician::CheckProc);
-        OnProc += AuraProcFn(spell_warr_tactician::HandleProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_tactician::CheckEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_warr_tactician::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
