@@ -857,13 +857,15 @@ class spell_warr_overpowering_finish : public SpellScript
     void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         Aura const* talent = GetCaster()->GetAura(SPELL_WARRIOR_OVERPOWERING_FINISH);
-        if (!talent || !talent->HasEffect(EFFECT_0) || !talent->HasEffect(EFFECT_1))
+        if (!talent)
             return;
 
-        if (!victim->HealthBelowPct(talent->GetEffect(EFFECT_1)->GetAmount()))
+        AuraEffect const* healthPct = talent->GetEffect(EFFECT_1);
+        if (!healthPct || !victim->HealthBelowPct(healthPct->GetAmount()))
             return;
 
-        AddPct(pctMod, talent->GetEffect(EFFECT_0)->GetAmount());
+        if (AuraEffect const* dmgIncrease = talent->GetEffect(EFFECT_0))
+            AddPct(pctMod, dmgIncrease->GetAmount());
     }
 
     void Register() override
