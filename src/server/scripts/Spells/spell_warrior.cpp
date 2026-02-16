@@ -1488,27 +1488,16 @@ class spell_warr_sudden_death : public AuraScript
         return ValidateSpellInfo({ SPELL_WARRIOR_SUDDEN_DEATH_BUFF });
     }
 
-    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
-    {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return false;
-
-        Unit* primaryTarget = procSpell->m_targets.GetUnitTarget();
-        return eventInfo.GetActionTarget() == primaryTarget;
-    }
-
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_WARRIOR_SUDDEN_DEATH_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-            });
+        });
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_warr_sudden_death::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
