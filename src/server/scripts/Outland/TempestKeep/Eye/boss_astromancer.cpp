@@ -133,6 +133,13 @@ static constexpr std::array<uint32, 4> SplitSmallRadiusSpells =
     SPELL_ASTROMANCER_SPLIT_SMALL_4
 };
 
+static constexpr std::array<uint32, 3> SpotlightSummonSpells =
+{
+    SPELL_SUMMON_ASTROMANCER_SOLARIAN,
+    SPELL_SUMMON_ASTROMANCER_PRIEST,
+    SPELL_SUMMON_ASTROMANCER_PRIEST
+};
+
 // 18805 - High Astromancer Solarian
 struct boss_high_astromancer_solarian : public BossAI
 {
@@ -269,19 +276,15 @@ struct boss_high_astromancer_solarian : public BossAI
                     events.ScheduleEvent(EVENT_SPLIT_6, 15s);
                     break;
                 case EVENT_SPLIT_6:
+                {
                     // We become visible here because otherwise spell below will not hit Solarian
                     me->SetVisible(true);
 
                     Trinity::Containers::RandomShuffle(_spotlightsGuidVector);
 
-                    if (Creature* spotlight = ObjectAccessor::GetCreature(*me, _spotlightsGuidVector[0]))
-                        spotlight->CastSpell(spotlight, SPELL_SUMMON_ASTROMANCER_SOLARIAN);
-
-                    if (Creature* spotlight = ObjectAccessor::GetCreature(*me, _spotlightsGuidVector[1]))
-                        spotlight->CastSpell(spotlight, SPELL_SUMMON_ASTROMANCER_PRIEST);
-
-                    if (Creature* spotlight = ObjectAccessor::GetCreature(*me, _spotlightsGuidVector[2]))
-                        spotlight->CastSpell(spotlight, SPELL_SUMMON_ASTROMANCER_PRIEST);
+                    for (std::size_t i = 0; i < _spotlightsGuidVector.size() && i < SpotlightSummonSpells.size(); ++i)
+                        if (Creature* spotlight = ObjectAccessor::GetCreature(*me, _spotlightsGuidVector[i]))
+                            spotlight->CastSpell(spotlight, SpotlightSummonSpells[i]);
 
                     me->SetReactState(REACT_AGGRESSIVE);
 
@@ -289,7 +292,7 @@ struct boss_high_astromancer_solarian : public BossAI
 
                     events.ScheduleEvent(EVENT_SPLIT_1, 70s);
                     break;
-
+                }
                 // Transition
                 case EVENT_TRANSITION_1:
                     me->SetReactState(REACT_PASSIVE);
