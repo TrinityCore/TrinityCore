@@ -15,464 +15,423 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Astromancer
-SD%Complete: 80
-SDComment:
-SDCategory: Tempest Keep, The Eye
-EndScriptData */
+/*
+ * Combat timers requires to be revisited
+ * Everything related to split requires sniff verification, maybe something is missing or implemented wrongly
+ * Solarian should have big aggro radius
+ * Can transition start while in split phase? What should happen? Currently prevented
+ * Boss does arcane melee damage, is this correct?
+ */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
-#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "TemporarySummon.h"
 #include "the_eye.h"
 
-enum Yells
+enum SolarianTexts
 {
     SAY_AGGRO                           = 0,
-    SAY_SUMMON1                         = 1,
-    SAY_SUMMON2                         = 2,
-    SAY_KILL                            = 3,
-    SAY_DEATH                           = 4,
-    SAY_VOIDA                           = 5,
-    SAY_VOIDB                           = 6
+    SAY_DEATH                           = 1,
+    SAY_SLAY                            = 2,
+    SAY_SUMMON                          = 3,
+    SAY_VOID_1                          = 4,
+    SAY_VOID_2                          = 5
 };
 
-enum Spells
+enum SolarianSpells
 {
+    // Phase 1
     SPELL_ARCANE_MISSILES               = 33031,
-    SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
-    SPELL_WRATH_OF_THE_ASTROMANCER_DOT  = 42784,
     SPELL_BLINDING_LIGHT                = 33009,
-    SPELL_FEAR                          = 34322,
+    SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
+
+    // Split
+    SPELL_ASTROMANCER_SPLIT_LARGE_1     = 33189,
+    SPELL_ASTROMANCER_SPLIT_LARGE_2     = 33281,
+    SPELL_ASTROMANCER_SPLIT_LARGE_3     = 33282,
+    SPELL_ASTROMANCER_SPLIT_LARGE_4     = 33347,
+    SPELL_ASTROMANCER_SPLIT_LARGE_5     = 33348,
+    SPELL_ASTROMANCER_SPLIT_LARGE_6     = 33349,
+    SPELL_ASTROMANCER_SPLIT_LARGE_7     = 33350,
+    SPELL_ASTROMANCER_SPLIT_LARGE_8     = 33351,
+    SPELL_ASTROMANCER_SPLIT_SMALL_1     = 33352,
+    SPELL_ASTROMANCER_SPLIT_SMALL_2     = 33353,
+    SPELL_ASTROMANCER_SPLIT_SMALL_3     = 33354,
+    SPELL_ASTROMANCER_SPLIT_SMALL_4     = 33355,
+
+    SPELL_SUMMON_ASTROMANCER_ADDS       = 33362,
+    SPELL_SUMMON_ASTROMANCER_SOLARIAN   = 33366,
+    SPELL_SUMMON_ASTROMANCER_PRIEST     = 33367,
+
+    // Phase 2
+    SPELL_SOLARIAN_TRANSFORM            = 39117,
+    SPELL_PSYCHIC_SCREAM                = 34322,
     SPELL_VOID_BOLT                     = 39329,
 
-    SPELL_SPOTLIGHT                     = 25824,
-
-    SPELL_SOLARIUM_GREAT_HEAL           = 33387,
-    SPELL_SOLARIUM_HOLY_SMITE           = 25054,
-    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390
+    // Solarium Priest
+    SPELL_HOLY_SMITE                    = 25054,
+    SPELL_GREAT_HEAL                    = 33387,
+    SPELL_ARCANE_TORRENT                = 33390
 };
 
-enum Creatures
+enum SolarianEvents
 {
-    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
+    // Phase 1
+    EVENT_ARCANE_MISSILES               = 1,
+    EVENT_BLINDING_LIGHT,
+    EVENT_WRATH_OF_THE_ASTROMANCER,
 
-    NPC_SOLARIUM_AGENT                  = 18925,
-    NPC_SOLARIUM_PRIEST                 = 18806
+    // Split
+    EVENT_SPLIT_1,
+    EVENT_SPLIT_2,
+    EVENT_SPLIT_3,
+    EVENT_SPLIT_4,
+    EVENT_SPLIT_5,
+    EVENT_SPLIT_6,
+
+    // Transition
+    EVENT_TRANSITION_1,
+    EVENT_TRANSITION_2,
+
+    // Phase 2
+    EVENT_PSYCHIC_SCREAM,
+    EVENT_VOID_BOLT
 };
 
-enum Models
+enum SolarianMisc
 {
-    MODEL_HUMAN                         = 18239,
-    MODEL_VOIDWALKER                    = 18988
+    NPC_SPOTLIGHT                       = 18928,
+    VOIDWALKER_ARMOR                    = 31000
 };
 
-enum Misc
+static constexpr std::array<uint32, 4> SplitLargeRadiusSpells1 =
 {
-    WV_ARMOR                            = 31000
+    SPELL_ASTROMANCER_SPLIT_LARGE_1,
+    SPELL_ASTROMANCER_SPLIT_LARGE_2,
+    SPELL_ASTROMANCER_SPLIT_LARGE_3,
+    SPELL_ASTROMANCER_SPLIT_LARGE_4
 };
 
-const float CENTER_X                    = 432.909f;
-const float CENTER_Y                    = -373.424f;
-const float CENTER_Z                    = 17.9608f;
-const float CENTER_O                    = 1.06421f;
-const float SMALL_PORTAL_RADIUS         = 12.6f;
-const float LARGE_PORTAL_RADIUS         = 26.0f;
-const float PORTAL_Z                    = 17.005f;
+static constexpr std::array<uint32, 4> SplitLargeRadiusSpells2 =
+{
+    SPELL_ASTROMANCER_SPLIT_LARGE_5,
+    SPELL_ASTROMANCER_SPLIT_LARGE_6,
+    SPELL_ASTROMANCER_SPLIT_LARGE_7,
+    SPELL_ASTROMANCER_SPLIT_LARGE_8
+};
 
-/* not used                        // x,          y,      z,         o
-static float SolarianPos[4] = {432.909f, -373.424f, 17.9608f, 1.06421f};
-*/
+static constexpr std::array<uint32, 4> SplitSmallRadiusSpells =
+{
+    SPELL_ASTROMANCER_SPLIT_SMALL_1,
+    SPELL_ASTROMANCER_SPLIT_SMALL_2,
+    SPELL_ASTROMANCER_SPLIT_SMALL_3,
+    SPELL_ASTROMANCER_SPLIT_SMALL_4
+};
 
+static constexpr std::array<uint32, 3> SpotlightSummonSpells =
+{
+    SPELL_SUMMON_ASTROMANCER_SOLARIAN,
+    SPELL_SUMMON_ASTROMANCER_PRIEST,
+    SPELL_SUMMON_ASTROMANCER_PRIEST
+};
+
+// 18805 - High Astromancer Solarian
 struct boss_high_astromancer_solarian : public BossAI
 {
-    boss_high_astromancer_solarian(Creature* creature) : BossAI(creature, DATA_SOLARIAN)
-    {
-        Initialize();
-
-        defaultarmor = creature->GetArmor();
-        memset(Portals, 0, sizeof(Portals));
-    }
-
-    void Initialize()
-    {
-        ArcaneMissiles_Timer = 2000;
-        m_uiWrathOfTheAstromancer_Timer = 15000;
-        BlindingLight_Timer = 41000;
-        Fear_Timer = 20000;
-        VoidBolt_Timer = 10000;
-        Phase1_Timer = 50000;
-        Phase2_Timer = 10s;
-        Phase3_Timer = 15s;
-        AppearDelay_Timer = 2s;
-        BlindingLight = false;
-        AppearDelay = false;
-        Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
-        Phase = 1;
-    }
-
-    uint8 Phase;
-
-    uint32 ArcaneMissiles_Timer;
-    uint32 m_uiWrathOfTheAstromancer_Timer;
-    uint32 BlindingLight_Timer;
-    uint32 Fear_Timer;
-    uint32 VoidBolt_Timer;
-    uint32 Phase1_Timer;
-    Milliseconds Phase2_Timer;
-    Milliseconds Phase3_Timer;
-    Milliseconds AppearDelay_Timer;
-    uint32 defaultarmor;
-    uint32 Wrath_Timer;
-
-    float Portals[3][3];
-
-    bool AppearDelay;
-    bool BlindingLight;
+    boss_high_astromancer_solarian(Creature* creature) : BossAI(creature, DATA_SOLARIAN),
+        _defaultArmor(creature->GetArmor()), _isSecondPhaseStarted(false), _isSplitInProgress(false) { }
 
     void Reset() override
     {
-        Initialize();
         _Reset();
-        me->SetArmor(defaultarmor);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
+        me->SetArmor(_defaultArmor);
         me->SetVisible(true);
-        me->SetDisplayId(MODEL_HUMAN);
+        me->SetReactState(REACT_AGGRESSIVE);
 
-    }
+        ///! HACK: Boss can throw main target in the air, this eventually causes health regen since boss
+        /// can't reach target. For now we prevent health regeneration completely. Find a better solution
+        me->SetRegenerateHealth(false);
+        me->SetFullHealth();
 
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_KILL);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        me->SetDisplayId(MODEL_HUMAN);
-        Talk(SAY_DEATH);
-        _JustDied();
+        _spotlightsGuidVector.clear();
+        _isSecondPhaseStarted = false;
+        _isSplitInProgress = false;
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         me->CallForHelp(120.0f);
+
+        events.ScheduleEvent(EVENT_ARCANE_MISSILES, 0s);
+        events.ScheduleEvent(EVENT_BLINDING_LIGHT, 30s);
+        events.ScheduleEvent(EVENT_WRATH_OF_THE_ASTROMANCER, 20s, 30s);
+        events.ScheduleEvent(EVENT_SPLIT_1, 50s);
     }
 
-    void SummonMinion(uint32 entry, float x, float y, float z)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-        if (Summoned)
+        if (!_isSecondPhaseStarted && !_isSplitInProgress && me->HealthBelowPctDamaged(20, damage))
         {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                Summoned->AI()->AttackStart(target);
+            _isSecondPhaseStarted = true;
+            events.ScheduleEvent(EVENT_TRANSITION_1, 0s);
 
-            summons.Summon(Summoned);
+            events.CancelEvent(EVENT_ARCANE_MISSILES);
+            events.CancelEvent(EVENT_BLINDING_LIGHT);
+            events.CancelEvent(EVENT_WRATH_OF_THE_ASTROMANCER);
+            events.CancelEvent(EVENT_SPLIT_1);
         }
     }
 
-    float Portal_X(float radius)
+    void JustSummoned(Creature* summon) override
     {
-        if (urand(0, 1))
-            radius = -radius;
+        // Do not engage summons
+        summons.Summon(summon);
 
-        return radius * (float)(rand32() % 100) / 100.0f + CENTER_X;
+        if (summon->GetEntry() == NPC_SPOTLIGHT)
+            _spotlightsGuidVector.push_back(summon->GetGUID());
     }
 
-    float Portal_Y(float x, float radius)
+    void KilledUnit(Unit* /*victim*/) override
     {
-        float z = RAND(1.0f, -1.0f);
+        Talk(SAY_SLAY);
+    }
 
-        return (z*std::sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+
+        me->RemoveAurasDueToSpell(SPELL_SOLARIAN_TRANSFORM);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
-        if (AppearDelay)
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            me->StopMoving();
-            me->AttackStop();
-            if (AppearDelay_Timer <= Milliseconds(diff))
+            switch (eventId)
             {
-                AppearDelay = false;
-                if (Phase == 2)
-                {
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                // Phase 1 (Looks like combat timers keep tick while in split phase, boss just doesn't cast spells)
+                case EVENT_ARCANE_MISSILES:
+                    if (me->GetReactState() != REACT_PASSIVE)
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                            DoCast(target, SPELL_ARCANE_MISSILES);
+                    events.Repeat(3600ms);
+                    break;
+                case EVENT_BLINDING_LIGHT:
+                    if (me->GetReactState() != REACT_PASSIVE)
+                        DoCastSelf(SPELL_BLINDING_LIGHT);
+                    events.Repeat(30s);
+                    break;
+                case EVENT_WRATH_OF_THE_ASTROMANCER:
+                    if (me->GetReactState() != REACT_PASSIVE)
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                            DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER);
+                    events.Repeat(10s, 20s);
+                    break;
+
+                // Split
+                case EVENT_SPLIT_1:
+                    _isSplitInProgress = true;
+                    me->SetReactState(REACT_PASSIVE);
+                    me->NearTeleportTo(me->GetHomePosition());
+                    events.ScheduleEvent(EVENT_SPLIT_2, 1s);
+                    break;
+                case EVENT_SPLIT_2:
+                    _spotlightsGuidVector.clear();
+                    DoCastSelf(Trinity::Containers::SelectRandomContainerElement(SplitSmallRadiusSpells));
+                    DoCastSelf(Trinity::Containers::SelectRandomContainerElement(SplitLargeRadiusSpells1));
+                    DoCastSelf(Trinity::Containers::SelectRandomContainerElement(SplitLargeRadiusSpells2));
+                    events.ScheduleEvent(EVENT_SPLIT_3, 1s);
+                    break;
+                case EVENT_SPLIT_3:
+                    Talk(SAY_SUMMON);
+                    events.ScheduleEvent(EVENT_SPLIT_4, 1s);
+                    break;
+                case EVENT_SPLIT_4:
                     me->SetVisible(false);
-                }
-                AppearDelay_Timer = 2s;
-            }
-            else
-                AppearDelay_Timer -= Milliseconds(diff);
-        }
-        if (Phase == 1)
-        {
-            if (BlindingLight_Timer <= diff)
-            {
-                BlindingLight = true;
-                BlindingLight_Timer = 45000;
-            }
-            else
-                BlindingLight_Timer -= diff;
-
-            if (Wrath_Timer <= diff)
-            {
-                me->InterruptNonMeleeSpells(false);
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
-                    DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
-                Wrath_Timer = 20000 + rand32() % 5000;
-            }
-            else
-                Wrath_Timer -= diff;
-
-            if (ArcaneMissiles_Timer <= diff)
-            {
-                if (BlindingLight)
+                    events.ScheduleEvent(EVENT_SPLIT_5, 4s);
+                    break;
+                case EVENT_SPLIT_5:
+                    for (ObjectGuid guid : _spotlightsGuidVector)
+                        if (Creature* spotlight = ObjectAccessor::GetCreature(*me, guid))
+                            spotlight->CastSpell(spotlight, SPELL_SUMMON_ASTROMANCER_ADDS);
+                    events.ScheduleEvent(EVENT_SPLIT_6, 15s);
+                    break;
+                case EVENT_SPLIT_6:
                 {
-                    DoCastVictim(SPELL_BLINDING_LIGHT);
-                    BlindingLight = false;
+                    // We become visible here because otherwise spell below will not hit Solarian
+                    me->SetVisible(true);
+
+                    Trinity::Containers::RandomShuffle(_spotlightsGuidVector);
+
+                    for (std::size_t i = 0; i < _spotlightsGuidVector.size() && i < SpotlightSummonSpells.size(); ++i)
+                        if (Creature* spotlight = ObjectAccessor::GetCreature(*me, _spotlightsGuidVector[i]))
+                            spotlight->CastSpell(spotlight, SpotlightSummonSpells[i]);
+
+                    me->SetReactState(REACT_AGGRESSIVE);
+
+                    _isSplitInProgress = false;
+
+                    events.ScheduleEvent(EVENT_SPLIT_1, 70s);
+                    break;
                 }
-                else
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
-                        if (!me->HasInArc(2.5f, target))
-                            target = me->GetVictim();
+                // Transition
+                case EVENT_TRANSITION_1:
+                    me->SetReactState(REACT_PASSIVE);
+                    me->SetArmor(VOIDWALKER_ARMOR);
+                    DoCastSelf(SPELL_SOLARIAN_TRANSFORM);
+                    Talk(SAY_VOID_1);
+                    events.ScheduleEvent(EVENT_TRANSITION_2, 2s);
+                    break;
+                case EVENT_TRANSITION_2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    Talk(SAY_VOID_2);
+                    events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 10s, 20s);
+                    events.ScheduleEvent(EVENT_VOID_BOLT, 8s, 12s);
+                    break;
 
-                        DoCast(target, SPELL_ARCANE_MISSILES);
-                    }
-                }
-                ArcaneMissiles_Timer = 3000;
+                // Phase 2
+                case EVENT_PSYCHIC_SCREAM:
+                    DoCastSelf(SPELL_PSYCHIC_SCREAM);
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_VOID_BOLT:
+                    DoCastVictim(SPELL_VOID_BOLT);
+                    events.Repeat(8s, 12s);
+                    break;
+                default:
+                    break;
             }
-            else
-                ArcaneMissiles_Timer -= diff;
 
-            if (m_uiWrathOfTheAstromancer_Timer <= diff)
-            {
-                me->InterruptNonMeleeSpells(false);
-                //Target the tank ?
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER);
-                        m_uiWrathOfTheAstromancer_Timer = 25000;
-                    }
-                    else
-                        m_uiWrathOfTheAstromancer_Timer = 1000;
-                }
-            }
-            else
-                m_uiWrathOfTheAstromancer_Timer -= diff;
-
-            //Phase1_Timer
-            if (Phase1_Timer <= diff)
-            {
-                Phase = 2;
-                Phase1_Timer = 50000;
-                //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
-                me->GetMotionMaster()->Clear();
-                me->UpdatePosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
-                for (uint8 i = 0; i <= 2; ++i)
-                {
-                    if (!i)
-                    {
-                        Portals[i][0] = Portal_X(SMALL_PORTAL_RADIUS);
-                        Portals[i][1] = Portal_Y(Portals[i][0], SMALL_PORTAL_RADIUS);
-                        Portals[i][2] = CENTER_Z;
-                    }
-                    else
-                    {
-                        Portals[i][0] = Portal_X(LARGE_PORTAL_RADIUS);
-                        Portals[i][1] = Portal_Y(Portals[i][0], LARGE_PORTAL_RADIUS);
-                        Portals[i][2] = PORTAL_Z;
-                    }
-                }
-                if ((std::abs(Portals[2][0] - Portals[1][0]) < 7) && (std::abs(Portals[2][1] - Portals[1][1]) < 7))
-                {
-                    int i = 1;
-                    if (std::abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
-                        i = -1;
-                    Portals[2][0] = Portals[2][0] + 7 * i;
-                    Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
-                }
-                for (int i = 0; i <= 2; ++i)
-                {
-                    if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700ms))
-                    {
-                        Summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                        Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
-                    }
-                }
-                AppearDelay = true;
-            }
-            else
-                Phase1_Timer -= diff;
-        }
-        else if (Phase == 2)
-        {
-            //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
-            me->AttackStop();
-            me->StopMoving();
-            if (Phase2_Timer <= Milliseconds(diff))
-            {
-                Phase = 3;
-                for (int i=0; i <= 2; ++i)
-                    for (int j=1; j <= 4; j++)
-                        SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
-
-                Talk(SAY_SUMMON1);
-                Phase2_Timer = 10s;
-            }
-            else
-                Phase2_Timer -= Milliseconds(diff);
-        }
-        else if (Phase == 3)
-        {
-            me->AttackStop();
-            me->StopMoving();
-            //Check Phase3_Timer
-            if (Phase3_Timer <= Milliseconds(diff))
-            {
-                Phase = 1;
-                //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
-                int i = rand32() % 3;
-                me->GetMotionMaster()->Clear();
-                me->UpdatePosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
-
-                for (int j=0; j <= 2; j++)
-                    if (j != i)
-                        SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
-
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                me->SetVisible(true);
-
-                Talk(SAY_SUMMON2);
-                AppearDelay = true;
-                Phase3_Timer = 15s;
-            }
-            else
-                Phase3_Timer -= Milliseconds(diff);
-        }
-        else if (Phase == 4)
-        {
-            //Fear_Timer
-            if (Fear_Timer <= diff)
-            {
-                DoCast(me, SPELL_FEAR);
-                Fear_Timer = 20000;
-            }
-            else
-                Fear_Timer -= diff;
-            //VoidBolt_Timer
-            if (VoidBolt_Timer <= diff)
-            {
-                DoCastVictim(SPELL_VOID_BOLT);
-                VoidBolt_Timer = 10000;
-            }
-            else
-                VoidBolt_Timer -= diff;
-        }
-
-        //When Solarian reaches 20% she will transform into a huge void walker.
-        if (Phase != 4 && me->HealthBelowPct(20))
-        {
-            Phase = 4;
-            //To make sure she wont be invisible or not selecatble
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            me->SetVisible(true);
-            Talk(SAY_VOIDA);
-            Talk(SAY_VOIDB);
-            me->SetArmor(WV_ARMOR);
-            me->SetDisplayId(MODEL_VOIDWALKER);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    uint32 _defaultArmor;
+    bool _isSecondPhaseStarted;
+    bool _isSplitInProgress;
+    GuidVector _spotlightsGuidVector;
 };
 
+// 18806 - Solarium Priest
 struct npc_solarium_priest : public ScriptedAI
 {
-    npc_solarium_priest(Creature* creature) : ScriptedAI(creature)
+    npc_solarium_priest(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void InitializeAI() override
     {
-        Initialize();
-        instance = creature->GetInstanceScript();
+        me->SetCorpseDelay(1, true);
+        ScriptedAI::InitializeAI();
     }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        healTimer = 9000;
-        holysmiteTimer = 1;
-        aoesilenceTimer = 15000;
+        DoZoneInCombat();
+
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+            AddThreat(target, 100000.0f);
+
+        if (Creature* solarian = _instance->GetCreature(DATA_SOLARIAN))
+            solarian->AI()->JustSummoned(me);
     }
-
-    InstanceScript* instance;
-
-    uint32 healTimer;
-    uint32 holysmiteTimer;
-    uint32 aoesilenceTimer;
 
     void Reset() override
     {
-        Initialize();
+        _scheduler.CancelAll();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override { }
+    void AttackStart(Unit* who) override
+    {
+        ScriptedAI::AttackStartCaster(who, 25.0f);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler
+            .SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(0s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_HOLY_SMITE);
+                task.Repeat(3s, 5s);
+            })
+            .Schedule(10s, 15s, [this](TaskContext task)
+            {
+                if (Unit* target = DoSelectLowestHpFriendly(100.0f))
+                    DoCast(target, SPELL_GREAT_HEAL);
+                task.Repeat(10s, 15s);
+            })
+            .Schedule(10s, 20s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_ARCANE_TORRENT);
+                task.Repeat(10s, 20s);
+            });
+    }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
 
-        if (healTimer <= diff)
+        _scheduler.Update(diff, [this]
         {
-            Unit* target = nullptr;
-            switch (urand(0, 1))
-            {
-                case 0:
-                    target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SOLARIAN));
-                    break;
-                case 1:
-                    target = me;
-                    break;
-            }
-
-            if (target)
-            {
-                DoCast(target, SPELL_SOLARIUM_GREAT_HEAL);
-                healTimer = 9000;
-            }
-        }
-        else
-            healTimer -= diff;
-
-        if (holysmiteTimer <= diff)
-        {
-            DoCastVictim(SPELL_SOLARIUM_HOLY_SMITE);
-            holysmiteTimer = 4000;
-        }
-        else
-            holysmiteTimer -= diff;
-
-        if (aoesilenceTimer <= diff)
-        {
-            DoCastVictim(SPELL_SOLARIUM_ARCANE_TORRENT);
-            aoesilenceTimer = 13000;
-        }
-        else
-            aoesilenceTimer -= diff;
-
-        DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
+        });
     }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
+};
+
+// 18925 - Solarium Agent
+struct npc_solarium_agent : public ScriptedAI
+{
+    npc_solarium_agent(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(1, true);
+        ScriptedAI::InitializeAI();
+    }
+
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+            AddThreat(target, 100000.0f);
+
+        if (Creature* solarian = _instance->GetCreature(DATA_SOLARIAN))
+            solarian->AI()->JustSummoned(me);
+    }
+
+private:
+    InstanceScript* _instance;
 };
 
 // 42783 - Wrath of the Astromancer
@@ -480,19 +439,17 @@ class spell_astromancer_wrath_of_the_astromancer : public AuraScript
 {
     PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        // Final heal only on duration end
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
-        Unit* target = GetUnitOwner();
-        target->CastSpell(target, GetEffectInfo(EFFECT_1).CalcValue(), false);
+        GetTarget()->CastSpell(GetTarget(), uint32(GetEffectInfo(EFFECT_1).CalcValue()), true);
     }
 
     void Register() override
@@ -505,5 +462,6 @@ void AddSC_boss_high_astromancer_solarian()
 {
     RegisterTheEyeCreatureAI(boss_high_astromancer_solarian);
     RegisterTheEyeCreatureAI(npc_solarium_priest);
+    RegisterTheEyeCreatureAI(npc_solarium_agent);
     RegisterSpellScript(spell_astromancer_wrath_of_the_astromancer);
 }
