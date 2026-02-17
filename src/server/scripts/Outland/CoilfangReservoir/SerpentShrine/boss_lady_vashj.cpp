@@ -163,12 +163,12 @@ enum VashjCreatures
 
 enum VashjPaths
 {
-    PATH_SPOREBAT_INTRO_1                = 7,
-    PATH_SPOREBAT_INTRO_2                = 8,
-    PATH_SPOREBAT_INTRO_3                = 9,
-    PATH_SPOREBAT_LOOP_1                 = 10,
-    PATH_SPOREBAT_LOOP_2                 = 11,
-    PATH_SPOREBAT_LOOP_3                 = 12
+    PATH_SPOREBAT_INTRO_1                = 17712002,
+    PATH_SPOREBAT_INTRO_2                = 17712010,
+    PATH_SPOREBAT_INTRO_3                = 17712018,
+    PATH_SPOREBAT_LOOP_1                 = 17712026,
+    PATH_SPOREBAT_LOOP_2                 = 17712034,
+    PATH_SPOREBAT_LOOP_3                 = 17712042
 };
 
 enum VashjMisc
@@ -316,7 +316,10 @@ struct boss_lady_vashj : public BossAI
             {
                 _generatorsDeactivatedCount++;
 
-                me->SetHealth(me->GetHealth() - me->GetMaxHealth() * .05f);
+                if (me->HealthAbovePct(5))
+                    me->SetHealth(me->GetHealth() - me->CountPctFromMaxHealth(5));
+                else
+                    me->SetHealth(1);
 
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT, 0);
 

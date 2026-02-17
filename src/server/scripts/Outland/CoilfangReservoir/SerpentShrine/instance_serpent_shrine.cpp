@@ -26,7 +26,6 @@ EndScriptData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
@@ -61,13 +60,13 @@ enum Misc
 5 - Lady Vashj Event
 */
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ },
     { 0,                       0               } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_BRIDGE_PART_1,           DATA_BRIDGE_PART_1      },
     { GO_BRIDGE_PART_2,           DATA_BRIDGE_PART_2      },
