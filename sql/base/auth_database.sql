@@ -1342,7 +1342,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,697),
 (196,698),
 (196,699),
-(196,700),
 (196,701),
 (196,702),
 (196,703),
@@ -2169,7 +2168,6 @@ INSERT INTO `rbac_permissions` VALUES
 (697,'Command: reload spell_pet_auras'),
 (698,'Command: character changeaccount'),
 (699,'Command: reload spell_proc'),
-(700,'Command: reload spell_scripts'),
 (701,'Command: reload spell_target_position'),
 (702,'Command: reload spell_threats'),
 (703,'Command: reload spell_group_stack_rules'),
@@ -2533,7 +2531,8 @@ INSERT INTO `updates` VALUES
 ('2024_09_26_00_auth.sql','E37C3997FD7851EA360774AC568912846C448272','ARCHIVED','2024-09-26 18:27:26',0),
 ('2024_11_22_00_auth.sql','F2C1D1572A3968E9E9D778EF7DC82778DF3EF887','ARCHIVED','2024-11-22 23:18:14',0),
 ('2025_02_14_00_auth.sql','4A30E92FF519BB41C520CDBF90019291217C26A2','ARCHIVED','2025-02-14 17:20:00',0),
-('2025_10_21_00_auth.sql','1A221989F98337CB285B4328E791F5531CFD2454','ARCHIVED','2025-10-21 18:16:45',0);
+('2025_10_21_00_auth.sql','1A221989F98337CB285B4328E791F5531CFD2454','ARCHIVED','2025-10-21 18:16:45',0),
+('2026_01_12_00_auth.sql','91644588146896CA04E6B8FEDEB34CF4FEB64EEF','RELEASED','2026-01-12 21:26:18',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

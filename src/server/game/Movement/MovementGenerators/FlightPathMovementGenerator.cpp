@@ -58,16 +58,17 @@ bool FlightPathMovementGenerator::GetResetPosition(Unit* /*owner*/, float& x, fl
     return true;
 }
 
-void FlightPathMovementGenerator::DoInitialize(Player* owner)
+bool FlightPathMovementGenerator::DoInitialize(Player* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    DoReset(owner);
+    bool returnValue = DoReset(owner);
     InitEndGridInfo();
+    return returnValue;
 }
 
-void FlightPathMovementGenerator::DoReset(Player* owner)
+bool FlightPathMovementGenerator::DoReset(Player* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -80,7 +81,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     if (currentNodeId == end)
     {
         TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {}", owner->GetDebugInfo());
-        return;
+        return false;
     }
 
     Movement::MoveSplineInit init(owner);
@@ -95,6 +96,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     init.SetFly();
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
     init.Launch();
+    return true;
 }
 
 bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)

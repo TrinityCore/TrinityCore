@@ -15,366 +15,377 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Wailing Caverns
-SD%Complete: 95
-SDComment: Need to add skill usage for Disciple of Naralex
-SDCategory: Wailing Caverns
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "TemporarySummon.h"
 #include "wailing_caverns.h"
 
-/*######
-## npc_disciple_of_naralex
-######*/
+/*
+ * Spawns are supposed to be pooled, NYI
+ * Some spawns attack on spawn, some moves to position, NYI, all attacks on spawn currently
+ * This is based on Cata sniffs and WotLK classic video, timers were changed in Cata and requires to be revisited
+ */
 
-enum Enums
+enum DiscipleTexts
 {
-    SAY_AT_LAST                   = 0,
-    SAY_MAKE_PREPARATIONS         = 1,
-    SAY_TEMPLE_OF_PROMISE         = 2,
-    SAY_MUST_CONTINUE             = 3,
-    SAY_BANISH_THE_SPIRITS        = 4,
-    SAY_CAVERNS_PURIFIED          = 5,
-    SAY_BEYOND_THIS_CORRIDOR      = 6,
-    SAY_EMERALD_DREAM             = 7,
-    EMOTE_AWAKENING_RITUAL        = 8,
-    EMOTE_TROUBLED_SLEEP          = 0,
-    EMOTE_WRITHE_IN_AGONY         = 1,
-    EMOTE_HORRENDOUS_VISION       = 2,
-    SAY_MUTANUS_THE_DEVOURER      = 9,
-    SAY_I_AM_AWAKE                = 3,
-    SAY_NARALEX_AWAKES            = 10,
-    SAY_THANK_YOU                 = 4,
-    SAY_FAREWELL                  = 5,
-    SAY_ATTACKED                  = 11,
+    // Disciple
+    SAY_ALL_DONE                  = 0,
+    SAY_PROGRESS_1                = 1,
+    SAY_PROGRESS_2                = 2,
+    SAY_PROGRESS_3                = 3,
+    SAY_PROGRESS_4                = 4,
+    SAY_PROGRESS_5                = 5,
+    SAY_PROGRESS_6                = 6,
+    SAY_PROGRESS_7                = 7,
+    SAY_PROGRESS_8                = 8,
+    SAY_PROGRESS_9                = 9,
+    SAY_AGGRO                     = 10,
 
-    GOSSIP_OPTION_LET_EVENT_BEGIN = 201,
-    NPC_TEXT_NARALEX_SLEEPS_AGAIN = 698,
-    NPC_TEXT_FANGLORDS_ARE_DEAD   = 699,
-
-    SPELL_MARK_OF_THE_WILD_RANK_2 = 5232,
-    SPELL_SERPENTINE_CLEANSING    = 6270,
-    SPELL_NARALEXS_AWAKENING      = 6271,
-    SPELL_FLIGHT_FORM             = 33943,
-
-    NPC_DEVIATE_RAVAGER           = 3636,
-    NPC_DEVIATE_VIPER             = 5755,
-    NPC_DEVIATE_MOCCASIN          = 5762,
-    NPC_NIGHTMARE_ECTOPLASM       = 5763,
-    NPC_MUTANUS_THE_DEVOURER      = 3654,
-
-    PATH_ESCORT_NARALEX_DISCIPLE  = 29426,
+    // Naralex
+    EMOTE_AWAKENING_1             = 0,
+    EMOTE_AWAKENING_2             = 1,
+    EMOTE_AWAKENING_3             = 2,
+    SAY_AWAKENING_4               = 3,
+    SAY_AWAKENING_5               = 4,
+    SAY_AWAKENING_6               = 5
 };
 
-class npc_disciple_of_naralex : public CreatureScript
+enum DiscipleSpells
 {
-public:
-    npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
+    SPELL_MARK_OF_THE_WILD        = 5232,
+    SPELL_SERPENTINE_CLEANSING    = 6270,
+    SPELL_NARALEXS_AWAKENING      = 6271,
+    SPELL_OWL_FORM                = 8153,
 
-    struct npc_disciple_of_naralexAI : public EscortAI
+    SPELL_SLEEP                   = 1090,
+    SPELL_DRUIDS_POTION           = 8141
+};
+
+enum DiscipleEvents
+{
+    EVENT_PROGRESS_1              = 1,
+    EVENT_PROGRESS_2,
+    EVENT_PROGRESS_3,
+    EVENT_PROGRESS_4,
+    EVENT_PROGRESS_5,
+    EVENT_PROGRESS_6,
+    EVENT_PROGRESS_7,
+    EVENT_PROGRESS_8,
+    EVENT_PROGRESS_9,
+    EVENT_PROGRESS_10,
+    EVENT_PROGRESS_11,
+    EVENT_PROGRESS_12,
+    EVENT_PROGRESS_13,
+    EVENT_PROGRESS_14,
+    EVENT_PROGRESS_15,
+    EVENT_PROGRESS_16,
+    EVENT_PROGRESS_17,
+    EVENT_PROGRESS_18,
+    EVENT_PROGRESS_19,
+    EVENT_PROGRESS_20,
+    EVENT_PROGRESS_21,
+    EVENT_PROGRESS_22,
+    EVENT_PROGRESS_23,
+    EVENT_PROGRESS_24,
+    EVENT_PROGRESS_25,
+    EVENT_PROGRESS_26,
+    EVENT_PROGRESS_27,
+
+    EVENT_SLEEP,
+    EVENT_DRUIDS_POTION
+};
+
+enum DisciplePaths
+{
+    PATH_PROGRESS_1               = 367800,
+    PATH_PROGRESS_2               = 367801,
+    PATH_PROGRESS_3               = 367802,
+    PATH_PROGRESS_4               = 367803,
+    PATH_PROGRESS_5               = 367804,
+    PATH_NARALEX                  = 367900
+};
+
+enum DiscipleSummonGroups
+{
+    SUMMON_GROUP_1                = 0,
+    SUMMON_GROUP_2                = 1,
+    SUMMON_GROUP_3                = 2,
+    SUMMON_GROUP_4                = 3,
+    SUMMON_GROUP_5                = 4
+};
+
+enum DiscipleMisc
+{
+    GOSSIP_MENU_EVENT             = 202
+};
+
+// 3678 - Disciple of Naralex
+struct npc_disciple_of_naralex : public ScriptedAI
+{
+    npc_disciple_of_naralex(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void Reset() override
     {
-        npc_disciple_of_naralexAI(Creature* creature) : EscortAI(creature)
+        _combatEvents.Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        _combatEvents.ScheduleEvent(EVENT_SLEEP, 5s, 10s);
+        _combatEvents.ScheduleEvent(EVENT_DRUIDS_POTION, 5s, 10s);
+
+        if (roll_chance_i(30))
+            Talk(SAY_AGGRO, who);
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        summoned->AI()->AttackStart(me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ALL_DONE)
+            Talk(SAY_ALL_DONE);
+    }
+
+    void WaypointPathEnded(uint32/* waypointId*/, uint32 pathId) override
+    {
+        switch (pathId)
         {
-            instance = creature->GetInstanceScript();
-            eventTimer = 0;
-            currentEvent = 0;
-            eventProgress = 0;
-            me->setActive(true);
-            me->SetFarVisible(true);
-            me->SetImmuneToPC(false);
+            case PATH_PROGRESS_1:
+                _events.ScheduleEvent(EVENT_PROGRESS_4, 1s);
+                break;
+            case PATH_PROGRESS_2:
+                _events.ScheduleEvent(EVENT_PROGRESS_8, 0s);
+                break;
+            case PATH_PROGRESS_3:
+                _events.ScheduleEvent(EVENT_PROGRESS_12, 1s);
+                break;
+            case PATH_PROGRESS_4:
+                _events.ScheduleEvent(EVENT_PROGRESS_14, 1s);
+                break;
+            case PATH_PROGRESS_5:
+                _events.ScheduleEvent(EVENT_PROGRESS_27, 0s);
+                break;
+            default:
+                break;
         }
+    }
 
-        uint32 eventTimer;
-        uint32 currentEvent;
-        uint32 eventProgress;
-        InstanceScript* instance;
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!me->IsInCombat())
         {
-            switch (waypointId)
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                case 4:
-                    eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART1;
-                    instance->SetData(TYPE_NARALEX_PART1, IN_PROGRESS);
-                    break;
-                case 5:
-                    Talk(SAY_MUST_CONTINUE);
-                    instance->SetData(TYPE_NARALEX_PART1, DONE);
-                    break;
-                case 11:
-                    eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART2;
-                    instance->SetData(TYPE_NARALEX_PART2, IN_PROGRESS);
-                    break;
-                case 19:
-                    Talk(SAY_BEYOND_THIS_CORRIDOR);
-                    break;
-                case 24:
-                    eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART3;
-                    instance->SetData(TYPE_NARALEX_PART3, IN_PROGRESS);
-                    break;
-            }
-        }
-
-        void Reset() override
-        {
-
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            Talk(SAY_ATTACKED, who);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_NARALEX_EVENT, FAIL);
-            instance->SetData(TYPE_NARALEX_PART1, FAIL);
-            instance->SetData(TYPE_NARALEX_PART2, FAIL);
-            instance->SetData(TYPE_NARALEX_PART3, FAIL);
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-             summoned->AI()->AttackStart(me);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (currentEvent != TYPE_NARALEX_PART3)
-                EscortAI::UpdateAI(diff);
-
-            if (eventTimer <= diff)
-            {
-                eventTimer = 0;
-                if (instance->GetData(currentEvent) == IN_PROGRESS)
+                switch (eventId)
                 {
-                    switch (currentEvent)
-                    {
-                        case TYPE_NARALEX_PART1:
-                            if (eventProgress == 1)
-                            {
-                                ++eventProgress;
-                                Talk(SAY_TEMPLE_OF_PROMISE);
-                                me->SummonCreature(NPC_DEVIATE_RAVAGER, -82.1763f, 227.874f, -93.3233f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
-                                me->SummonCreature(NPC_DEVIATE_RAVAGER, -72.9506f, 216.645f, -93.6756f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
-                            }
+                    case EVENT_PROGRESS_1:
+                        me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                        _events.ScheduleEvent(EVENT_PROGRESS_2, 10s);
                         break;
-                        case TYPE_NARALEX_PART2:
-                            if (eventProgress == 1)
-                            {
-                                ++eventProgress;
-                                Talk(SAY_BANISH_THE_SPIRITS);
-                                DoCast(me, SPELL_SERPENTINE_CLEANSING);
-                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(false);
-                                eventTimer = 30000;
-                                me->SummonCreature(NPC_DEVIATE_VIPER, -61.5261f, 273.676f, -92.8442f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
-                                me->SummonCreature(NPC_DEVIATE_VIPER, -58.4658f, 280.799f, -92.8393f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
-                                me->SummonCreature(NPC_DEVIATE_VIPER, -50.002f,  278.578f, -92.8442f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
-                            }
-                            else
-                            if (eventProgress == 2)
-                            {
-                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(true);
-                                Talk(SAY_CAVERNS_PURIFIED);
-                                instance->SetData(TYPE_NARALEX_PART2, DONE);
-                                if (me->HasAura(SPELL_SERPENTINE_CLEANSING))
-                                    me->RemoveAura(SPELL_SERPENTINE_CLEANSING);
-                            }
+                    case EVENT_PROGRESS_2:
+                        Talk(SAY_PROGRESS_1);
+                        _events.ScheduleEvent(EVENT_PROGRESS_3, 3500ms);
                         break;
-                        case TYPE_NARALEX_PART3:
-                            if (eventProgress == 1)
-                            {
-                                ++eventProgress;
-                                eventTimer = 4000;
-                                me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                Talk(SAY_EMERALD_DREAM);
-                            }
-                            else
-                            if (eventProgress == 2)
-                            {
-                                ++eventProgress;
-                                eventTimer = 15000;
-                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(false);
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
-                                Talk(EMOTE_AWAKENING_RITUAL);
-                            }
-                            else
-                            if (eventProgress == 3)
-                            {
-                                ++eventProgress;
-                                eventTimer = 15000;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->AI()->Talk(EMOTE_TROUBLED_SLEEP);
-                                me->SummonCreature(NPC_DEVIATE_MOCCASIN, 135.943f, 199.701f, -103.529f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_DEVIATE_MOCCASIN, 151.08f,  221.13f,  -103.609f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_DEVIATE_MOCCASIN, 128.007f, 227.428f, -97.421f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                            }
-                            else
-                            if (eventProgress == 4)
-                            {
-                                ++eventProgress;
-                                eventTimer = 30000;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->AI()->Talk(EMOTE_WRITHE_IN_AGONY);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 133.413f, 207.188f, -102.469f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 142.857f, 218.645f, -102.905f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 105.102f, 227.211f, -102.752f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 153.372f, 235.149f, -102.826f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 149.524f, 251.113f, -102.558f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 136.208f, 266.466f, -102.977f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                                me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 126.167f, 274.759f, -102.962f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15s);
-                            }
-                            else
-                            if (eventProgress == 5)
-                            {
-                                ++eventProgress;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->AI()->Talk(EMOTE_HORRENDOUS_VISION);
-                                if (Creature* mutanus = me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min))
-                                    Talk(SAY_MUTANUS_THE_DEVOURER, mutanus);
+                    case EVENT_PROGRESS_3:
+                        me->GetMotionMaster()->MovePath(PATH_PROGRESS_1, false);
+                        break;
 
-                                instance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
-                            }
-                            else
-                            if (eventProgress == 6 && instance->GetData(TYPE_MUTANUS_THE_DEVOURER) == DONE)
-                            {
-                                ++eventProgress;
-                                eventTimer = 3000;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                {
-                                    if (me->HasAura(SPELL_NARALEXS_AWAKENING))
-                                        me->RemoveAura(SPELL_NARALEXS_AWAKENING);
-                                    naralex->SetStandState(UNIT_STAND_STATE_STAND);
-                                    naralex->AI()->Talk(SAY_I_AM_AWAKE);
-                                }
-                                Talk(SAY_NARALEX_AWAKES);
-                            }
-                            else
-                            if (eventProgress == 7)
-                            {
-                                ++eventProgress;
-                                eventTimer = 6000;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->AI()->Talk(SAY_THANK_YOU);
-                            }
-                            else
-                            if (eventProgress == 8)
-                            {
-                                ++eventProgress;
-                                eventTimer = 8000;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                {
-                                    naralex->AI()->Talk(SAY_FAREWELL);
-                                    naralex->AddAura(SPELL_FLIGHT_FORM, naralex);
-                                }
-                                me->SetStandState(UNIT_STAND_STATE_STAND);
-                                me->AddAura(SPELL_FLIGHT_FORM, me);
-                            }
-                            else
-                            if (eventProgress == 9)
-                            {
-                                ++eventProgress;
-                                eventTimer = 1500;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->GetMotionMaster()->MovePoint(25, naralex->GetPositionX(), naralex->GetPositionY(), naralex->GetPositionZ());
-                            }
-                            else
-                            if (eventProgress == 10)
-                            {
-                                ++eventProgress;
-                                eventTimer = 2500;
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                {
-                                    naralex->GetMotionMaster()->MovePoint(0, 117.095512f, 247.107971f, -96.167870f);
-                                    naralex->GetMotionMaster()->MovePoint(1, 90.388809f, 276.135406f, -83.389801f);
-                                }
-                                me->GetMotionMaster()->MovePoint(26, 117.095512f, 247.107971f, -96.167870f);
-                                me->GetMotionMaster()->MovePoint(27, 144.375443f, 281.045837f, -82.477135f);
-                            }
-                            else
-                            if (eventProgress == 11)
-                            {
-                                if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
-                                    naralex->SetVisible(false);
-                                me->SetVisible(false);
-                                instance->SetData(TYPE_NARALEX_PART3, DONE);
-                            }
+                    case EVENT_PROGRESS_4:
+                        Talk(SAY_PROGRESS_2);
+                        _events.ScheduleEvent(EVENT_PROGRESS_5, 7s);
+                        break;
+                    case EVENT_PROGRESS_5:
+                        me->SummonCreatureGroup(SUMMON_GROUP_1);
+                        _events.ScheduleEvent(EVENT_PROGRESS_6, 10s);
+                        break;
+                    case EVENT_PROGRESS_6:
+                        me->SetFacingTo(5.742133140563964843f);
+                        Talk(SAY_PROGRESS_3);
+                        _events.ScheduleEvent(EVENT_PROGRESS_7, 3s);
+                        break;
+                    case EVENT_PROGRESS_7:
+                        me->GetMotionMaster()->MovePath(PATH_PROGRESS_2, false);
+                        break;
+
+                    case EVENT_PROGRESS_8:
+                        DoCastSelf(SPELL_SERPENTINE_CLEANSING);
+                        Talk(SAY_PROGRESS_4);
+                        _events.ScheduleEvent(EVENT_PROGRESS_9, 18s);
+                        break;
+                    case EVENT_PROGRESS_9:
+                        me->SummonCreatureGroup(SUMMON_GROUP_2);
+                        _events.ScheduleEvent(EVENT_PROGRESS_10, 12s);
+                        break;
+                    case EVENT_PROGRESS_10:
+                        Talk(SAY_PROGRESS_5);
+                        _events.ScheduleEvent(EVENT_PROGRESS_11, 5s);
+                        break;
+                    case EVENT_PROGRESS_11:
+                        me->GetMotionMaster()->MovePath(PATH_PROGRESS_3, false);
+                        break;
+
+                    case EVENT_PROGRESS_12:
+                        Talk(SAY_PROGRESS_6);
+                        _events.ScheduleEvent(EVENT_PROGRESS_13, 5s);
+                        break;
+                    case EVENT_PROGRESS_13:
+                        me->GetMotionMaster()->MovePath(PATH_PROGRESS_4, false);
+                        break;
+
+                    case EVENT_PROGRESS_14:
+                        Talk(SAY_PROGRESS_7);
+                        _events.ScheduleEvent(EVENT_PROGRESS_15, 5s);
+                        break;
+                    case EVENT_PROGRESS_15:
+                        DoCastSelf(SPELL_NARALEXS_AWAKENING);
+                        Talk(SAY_PROGRESS_8);
+                        _events.ScheduleEvent(EVENT_PROGRESS_16, 4s);
+                        break;
+                    case EVENT_PROGRESS_16:
+                        me->SummonCreatureGroup(SUMMON_GROUP_3);
+                        _events.ScheduleEvent(EVENT_PROGRESS_17, 15s);
+                        break;
+                    case EVENT_PROGRESS_17:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->AI()->Talk(EMOTE_AWAKENING_1);
+                        _events.ScheduleEvent(EVENT_PROGRESS_18, 25s);
+                        break;
+                    case EVENT_PROGRESS_18:
+                        me->SummonCreatureGroup(SUMMON_GROUP_4);
+                        _events.ScheduleEvent(EVENT_PROGRESS_19, 20s);
+                        break;
+                    case EVENT_PROGRESS_19:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->AI()->Talk(EMOTE_AWAKENING_2);
+                        _events.ScheduleEvent(EVENT_PROGRESS_20, 30s);
+                        break;
+                    case EVENT_PROGRESS_20:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->AI()->Talk(EMOTE_AWAKENING_3);
+                        me->SummonCreatureGroup(SUMMON_GROUP_5);
+                        _events.ScheduleEvent(EVENT_PROGRESS_21, 25s);
+                        break;
+                    case EVENT_PROGRESS_21:
+                    {
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                        {
+                            naralex->SetStandState(UNIT_STAND_STATE_STAND);
+                            naralex->AI()->Talk(SAY_AWAKENING_4);
+                        }
+                        _events.ScheduleEvent(EVENT_PROGRESS_22, 3s);
                         break;
                     }
+                    case EVENT_PROGRESS_22:
+                        me->RemoveAurasDueToSpell(SPELL_NARALEXS_AWAKENING);
+                        Talk(SAY_PROGRESS_9);
+                        _events.ScheduleEvent(EVENT_PROGRESS_23, 3s);
+                        break;
+                    case EVENT_PROGRESS_23:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->AI()->Talk(SAY_AWAKENING_5);
+                        _events.ScheduleEvent(EVENT_PROGRESS_24, 6s);
+                        break;
+                    case EVENT_PROGRESS_24:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->AI()->Talk(SAY_AWAKENING_6);
+                        _events.ScheduleEvent(EVENT_PROGRESS_25, 3s);
+                        break;
+                    case EVENT_PROGRESS_25:
+                        DoCastSelf(SPELL_OWL_FORM);
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->CastSpell(naralex, SPELL_OWL_FORM);
+                        me->SetFaction(FACTION_FRIENDLY);
+                        _events.ScheduleEvent(EVENT_PROGRESS_26, 8s);
+                        break;
+                    case EVENT_PROGRESS_26:
+                    {
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                        {
+                            naralex->SetDisableGravity(true);
+                            naralex->GetMotionMaster()->MovePath(PATH_NARALEX, false);
+                        }
+                        me->SetDisableGravity(true);
+                        me->GetMotionMaster()->MovePath(PATH_PROGRESS_5, false);
+                        break;
+                    }
+
+                    case EVENT_PROGRESS_27:
+                        if (Creature* naralex = _instance->GetCreature(DATA_NARALEX))
+                            naralex->DespawnOrUnsummon();
+                        me->DespawnOrUnsummon();
+                        break;
+                    default:
+                        break;
                 }
-            } else eventTimer -= diff;
+            }
         }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        if (!UpdateVictim())
+            return;
+
+        _combatEvents.Update(diff);
+
+        while (uint32 eventId = _combatEvents.ExecuteEvent())
         {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            switch (eventId)
             {
-                CloseGossipMenuFor(player);
-                if (instance)
-                    instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
-
-                Talk(SAY_MAKE_PREPARATIONS);
-
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
-                me->SetImmuneToPC(false);
-
-                LoadPath(PATH_ESCORT_NARALEX_DISCIPLE);
-                Start(false, player->GetGUID());
-                SetDespawnAtFar(false);
-                SetDespawnAtEnd(false);
+                case EVENT_SLEEP:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_SLEEP);
+                    _combatEvents.Repeat(20s, 30s);
+                    break;
+                case EVENT_DRUIDS_POTION:
+                    if (HealthBelowPct(80))
+                        DoCastSelf(SPELL_DRUIDS_POTION);
+                    _combatEvents.Repeat(10s, 15s);
+                    break;
+                default:
+                    break;
             }
-            return true;
         }
 
-        bool OnGossipHello(Player* player) override
-        {
-            DoCast(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
-            if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
-                (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
-            {
-                InitGossipMenuFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN);
-                AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, me->GetGUID());
-
-                if (!instance->GetData(TYPE_NARALEX_YELLED))
-                {
-                    Talk(SAY_AT_LAST);
-                    instance->SetData(TYPE_NARALEX_YELLED, 1);
-                }
-            }
-            else
-            {
-                SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, me->GetGUID());
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetWailingCavernsAI<npc_disciple_of_naralexAI>(creature);
+        DoMeleeAttackIfReady();
     }
+
+    bool OnGossipHello(Player* player) override
+    {
+        DoCast(player, SPELL_MARK_OF_THE_WILD);
+
+        if (_instance->GetBossState(DATA_LORD_COBRAHN) == DONE && _instance->GetBossState(DATA_LORD_PYTHAS) == DONE
+            && _instance->GetBossState(DATA_LADY_ANACONDRA) == DONE && _instance->GetBossState(DATA_LORD_SERPENTIS) == DONE)
+        {
+            player->PrepareGossipMenu(me, GOSSIP_MENU_EVENT, true);
+            player->SendPreparedGossip(me);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        CloseGossipMenuFor(player);
+        _events.ScheduleEvent(EVENT_PROGRESS_1, 0s);
+
+        return false;
+    }
+
+private:
+    EventMap _events;
+    EventMap _combatEvents;
+    InstanceScript* _instance;
 };
 
 void AddSC_wailing_caverns()
 {
-    new npc_disciple_of_naralex();
+    RegisterWailingCavernsCreatureAI(npc_disciple_of_naralex);
 }

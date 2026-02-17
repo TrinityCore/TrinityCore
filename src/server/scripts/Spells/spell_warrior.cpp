@@ -71,7 +71,8 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374,
     SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_T10_MELEE_4P_BONUS                = 70847,
-    SPELL_WARRIOR_INTERVENE_THREAT                  = 59667
+    SPELL_WARRIOR_INTERVENE_THREAT                  = 59667,
+    SPELL_WARRIOR_WARRIORS_WRATH                    = 21887
 };
 
 enum WarriorSpellIcons
@@ -913,6 +914,27 @@ class spell_warr_vigilance_trigger : public SpellScript
     }
 };
 
+// 21977 - Warrior's Wrath
+class spell_warr_warriors_wrath : public SpellScript
+{
+    PrepareSpellScript(spell_warr_warriors_wrath);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_WARRIORS_WRATH });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_WARRIORS_WRATH, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_warriors_wrath::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -943,4 +965,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vigilance);
     RegisterSpellScript(spell_warr_vigilance_redirect_threat);
     RegisterSpellScript(spell_warr_vigilance_trigger);
+    RegisterSpellScript(spell_warr_warriors_wrath);
 }
