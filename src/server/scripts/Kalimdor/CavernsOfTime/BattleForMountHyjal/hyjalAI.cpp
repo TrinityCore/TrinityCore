@@ -521,10 +521,6 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             case FROST_WYRM:
             case GIANT_INFERNAL:
             case FEL_STALKER:
-            case RAGE_WINTERCHILL:
-            case ANETHERON:
-            case KAZROGAL:
-            case AZGALOR:
                 ENSURE_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
                 break;
         }

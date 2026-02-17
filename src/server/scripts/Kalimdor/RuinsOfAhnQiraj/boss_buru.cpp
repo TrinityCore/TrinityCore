@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -232,7 +231,7 @@ struct npc_buru_egg : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
+        if (Creature* buru = _instance->GetCreature(DATA_BURU))
             if (!buru->IsInCombat())
                 buru->AI()->AttackStart(who);
     }

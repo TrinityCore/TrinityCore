@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 #include "IPLocation.h"
 #include "IoContext.h"
+#include "IpBanCheckConnectionInitializer.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
@@ -199,21 +200,23 @@ void AccountInfo::LoadResult(Field* fields)
     Utf8ToUpperOnlyLatin(Login);
 }
 
-AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-    _timeout(*underlying_stream().get_executor().target<boost::asio::io_context::executor_type>()),
+AuthSession::AuthSession(Trinity::Net::IoContextTcpSocket&& socket) : Socket(std::move(socket)),
+    _timeout(underlying_stream().get_executor()),
     _status(STATUS_CHALLENGE), _locale(LOCALE_enUS), _os(0), _build(0), _expversion(0), _timezoneOffset(0min)
 {
 }
 
 void AuthSession::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    TC_LOG_TRACE("session", "Accepted connection from {}", ip_address);
+    // build initializer chain
+    std::array<std::shared_ptr<Trinity::Net::SocketConnectionInitializer>, 3> initializers =
+    { {
+        std::make_shared<Trinity::Net::IpBanCheckConnectionInitializer<AuthSession>>(this),
+        std::make_shared<Trinity::Net::ReadConnectionInitializer<AuthSession>>(this),
+    } };
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->setString(0, ip_address);
-
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
+    Trinity::Net::SocketConnectionInitializer::SetupChain(initializers)->Start();
+    SetTimeout();
 }
 
 bool AuthSession::Update()
@@ -226,36 +229,7 @@ bool AuthSession::Update()
     return true;
 }
 
-void AuthSession::CheckIpCallback(PreparedQueryResult result)
-{
-    if (result)
-    {
-        bool banned = false;
-        do
-        {
-            Field* fields = result->Fetch();
-            if (fields[0].GetUInt64() != 0)
-                banned = true;
-
-        } while (result->NextRow());
-
-        if (banned)
-        {
-            ByteBuffer pkt;
-            pkt << uint8(AUTH_LOGON_CHALLENGE);
-            pkt << uint8(0x00);
-            pkt << uint8(WOW_FAIL_BANNED);
-            SendPacket(pkt);
-            TC_LOG_DEBUG("session", "[AuthSession::CheckIpCallback] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
-            return;
-        }
-    }
-
-    AsyncRead();
-    SetTimeout();
-}
-
-void AuthSession::ReadHandler()
+Trinity::Net::SocketReadCallbackResult AuthSession::ReadHandler()
 {
     MessageBuffer& packet = GetReadBuffer();
     while (packet.GetActiveSize())
@@ -265,7 +239,7 @@ void AuthSession::ReadHandler()
         if (!itr || _status != itr->status)
         {
             CloseSocket();
-            return;
+            return Trinity::Net::SocketReadCallbackResult::Stop;
         }
 
         std::size_t size = itr->packetSize;
@@ -279,7 +253,7 @@ void AuthSession::ReadHandler()
             if (size > MAX_ACCEPTED_CHALLENGE_SIZE)
             {
                 CloseSocket();
-                return;
+                return Trinity::Net::SocketReadCallbackResult::Stop;
             }
         }
 
@@ -289,14 +263,19 @@ void AuthSession::ReadHandler()
         if (!itr->handler(this))
         {
             CloseSocket();
-            return;
+            return Trinity::Net::SocketReadCallbackResult::Stop;
         }
 
         packet.ReadCompleted(size);
         SetTimeout();
     }
 
-    AsyncRead();
+    return Trinity::Net::SocketReadCallbackResult::KeepReading;
+}
+
+void AuthSession::QueueQuery(QueryCallback&& queryCallback)
+{
+    _queryProcessor.AddCallback(std::move(queryCallback));
 }
 
 void AuthSession::SendPacket(ByteBuffer& packet)
@@ -334,7 +313,7 @@ bool AuthSession::HandleLogonChallenge()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->setStringView(0, login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+    QueueQuery(LoginDatabase.AsyncQuery(stmt)
         .WithPreparedCallback([this](PreparedQueryResult result) { LogonChallengeCallback(std::move(result)); }));
     return true;
 }
@@ -546,7 +525,7 @@ bool AuthSession::HandleLogonProof()
         stmt->setStringView(3, ClientBuild::ToCharArray(_os).data());
         stmt->setInt16(4, _timezoneOffset.count());
         stmt->setString(5, _accountInfo.Login);
-        _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+        QueueQuery(LoginDatabase.AsyncQuery(stmt)
             .WithPreparedCallback([this, M2 = Trinity::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey)](PreparedQueryResult const&)
         {
             // Finish SRP6 and send the final result to the client
@@ -665,7 +644,7 @@ bool AuthSession::HandleReconnectChallenge()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
     stmt->setStringView(0, login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+    QueueQuery(LoginDatabase.AsyncQuery(stmt)
         .WithPreparedCallback([this](PreparedQueryResult result) { ReconnectChallengeCallback(std::move(result)); }));
     return true;
 }
@@ -748,7 +727,7 @@ bool AuthSession::HandleRealmList()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_CHARACTER_COUNTS);
     stmt->setUInt32(0, _accountInfo.Id);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
+    QueueQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
     _status = STATUS_WAITING_FOR_REALM_LIST;
     return true;
 }
@@ -922,7 +901,7 @@ void AuthSession::SetTimeout()
 
     _timeout.async_wait([selfRef = weak_from_this()](boost::system::error_code const& error)
     {
-        std::shared_ptr<AuthSession> self = selfRef.lock();
+        std::shared_ptr<AuthSession> self = static_pointer_cast<AuthSession>(selfRef.lock());
         if (!self)
             return;
 
