@@ -3613,47 +3613,47 @@ UF::UpdateFieldFlag Player::GetUpdateFieldFlagsFor(Player const* target) const
     return flags;
 }
 
-void Player::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Player::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_unitData->WriteCreate(*data, flags, this, target);
-    m_playerData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_unitData->WriteCreate(flags, data, target, this);
+    m_playerData->WriteCreate(flags, data, target, this);
     if (target == this)
-        m_activePlayerData->WriteCreate(*data, flags, this, target);
+        m_activePlayerData->WriteCreate(flags, data, target, this);
 }
 
-void Player::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Player::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask() & ~(uint32(target != this) << TYPEID_ACTIVE_PLAYER));
+    data << uint32(m_values.GetChangedObjectTypeMask() & ~(uint32(target != this) << TYPEID_ACTIVE_PLAYER));
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_UNIT))
-        m_unitData->WriteUpdate(*data, flags, this, target);
+        m_unitData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_PLAYER))
-        m_playerData->WriteUpdate(*data, flags, this, target);
+        m_playerData->WriteUpdate(flags, data, target, this);
 
     if (target == this && m_values.HasChanged(TYPEID_ACTIVE_PLAYER))
-        m_activePlayerData->WriteUpdate(*data, flags, this, target);
+        m_activePlayerData->WriteUpdate(flags, data, target, this);
 }
 
-void Player::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Player::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_UNIT);
     valuesMask.Set(TYPEID_PLAYER);
 
-    *data << uint32(valuesMask.GetBlock(0));
+    data << uint32(valuesMask.GetBlock(0));
 
     UF::UnitData::Mask mask;
-    m_unitData->AppendAllowedFieldsMaskForFlag(mask, flags);
-    m_unitData->WriteUpdate(*data, mask, true, this, target);
+    UF::UnitData::AppendAllowedFieldsMaskForFlag(mask, flags);
+    m_unitData->WriteUpdate(mask, data, target, this, true);
 
     UF::PlayerData::Mask mask2;
-    m_playerData->AppendAllowedFieldsMaskForFlag(mask2, flags);
-    m_playerData->WriteUpdate(*data, mask2, true, this, target);
+    UF::PlayerData::AppendAllowedFieldsMaskForFlag(mask2, flags);
+    m_playerData->WriteUpdate(mask2, data, target, this, true);
 }
 
 void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -3666,12 +3666,12 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
         valuesMask.Set(TYPEID_OBJECT);
 
     UF::UnitData::Mask unitMask = requestedUnitMask;
-    m_unitData->FilterDisallowedFieldsMaskForFlag(unitMask, flags);
+    UF::UnitData::FilterDisallowedFieldsMaskForFlag(unitMask, flags);
     if (unitMask.IsAnySet())
         valuesMask.Set(TYPEID_UNIT);
 
     UF::PlayerData::Mask playerMask = requestedPlayerMask;
-    m_playerData->FilterDisallowedFieldsMaskForFlag(playerMask, flags);
+    UF::PlayerData::FilterDisallowedFieldsMaskForFlag(playerMask, flags);
     if (playerMask.IsAnySet())
         valuesMask.Set(TYPEID_PLAYER);
 
@@ -3681,20 +3681,20 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_UNIT])
-        m_unitData->WriteUpdate(buffer, unitMask, true, this, target);
+        m_unitData->WriteUpdate(unitMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_PLAYER])
-        m_playerData->WriteUpdate(buffer, playerMask, true, this, target);
+        m_playerData->WriteUpdate(playerMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_ACTIVE_PLAYER])
-        m_activePlayerData->WriteUpdate(buffer, requestedActivePlayerMask, true, this, target);
+        m_activePlayerData->WriteUpdate(requestedActivePlayerMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -3725,11 +3725,11 @@ void Player::DestroyForPlayer(Player const* target) const
     }
 }
 
-void Player::ClearUpdateMask(bool remove)
+void Player::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Player::m_playerData);
     m_values.ClearChangesMask(&Player::m_activePlayerData);
-    Unit::ClearUpdateMask(remove);
+    Unit::ClearValuesChangesMask();
 }
 
 bool Player::HasSpell(uint32 spell) const
@@ -5333,6 +5333,9 @@ void Player::UpdateRating(CombatRating cr)
         if (aurEff->GetMiscValue() & (1 << cr))
             amount += int32(CalculatePct(amount, aurEff->GetAmount()));
 
+    if (cr == CR_PARRY)
+        amount += m_baseRatingValue[CR_CRIT_MELEE] * (GetTotalAuraMultiplier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING) - 1.0f);
+
     if (amount < 0)
         amount = 0;
 
@@ -5370,6 +5373,7 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateCritPercentage(BASE_ATTACK);
                 UpdateCritPercentage(OFF_ATTACK);
             }
+            UpdateRating(CR_PARRY);
             break;
         case CR_CRIT_RANGED:
             if (affectStats)
@@ -5721,7 +5725,7 @@ void Player::InitializeSkillFields()
         {
             SetSkillLineId(i, skillLine->ID);
             SetSkillStartingRank(i, 1);
-            mSkillStatus.insert(SkillStatusMap::value_type(skillLine->ID, SkillStatusData(i, SKILL_UNCHANGED)));
+            mSkillStatus.try_emplace(skillLine->ID, i, SKILL_UNCHANGED);
             if (++i >= PLAYER_MAX_SKILLS)
                 break;
         }
@@ -5876,7 +5880,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
     else
     {
         // We are about to learn a skill that has been added outside of normal circumstances (Game Master command, scripts etc.)
-        uint8 skillSlot = 0;
+        uint32 skillSlot = 0;
 
         // Find a free skill slot
         for (uint32 i = 0; i < PLAYER_MAX_SKILLS; ++i)
@@ -5935,7 +5939,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
 
         UpdateSkillEnchantments(id, 0, newVal);
 
-        mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(skillSlot, SKILL_NEW)));
+        mSkillStatus.try_emplace(id, skillSlot, SKILL_NEW);
 
         if (newVal)
         {
@@ -7442,6 +7446,21 @@ bool Player::HasCurrency(uint32 id, uint32 amount) const
     return itr != _currencyStorage.end() && itr->second.Quantity >= amount;
 }
 
+void Player::SetCurrencyFlagsFromClient(uint32 id, CurrencyDbFlags flags)
+{
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return;
+
+    CurrencyDbFlags newValue = (flags & CurrencyDbFlags::ClientFlags) | (itr->second.Flags & ~CurrencyDbFlags::ClientFlags);
+    if (itr->second.Flags == newValue)
+        return;
+
+    itr->second.Flags = newValue;
+    if (itr->second.state != PLAYERCURRENCY_NEW)
+        itr->second.state = PLAYERCURRENCY_CHANGED;
+}
+
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
@@ -7963,10 +7982,10 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
                 UpdateStatBuffMod(STAT_INTELLECT);
                 break;
-            // case ITEM_MOD_SPIRIT:                           //modify spirit
-            //     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
-            //     ApplyStatBuffMod(STAT_SPIRIT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_SPIRIT, BASE_PCT_EXCLUDE_CREATE)), apply);
-            //     break;
+            case ITEM_MOD_SPIRIT:                           //modify spirit
+                HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
+                UpdateStatBuffMod(STAT_SPIRIT);
+                break;
             case ITEM_MOD_STAMINA:                          //modify stamina
             {
                 if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(itemLevel))
@@ -11811,6 +11830,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::SecondaryItemModifiedAppearanceID), pItem->GetVisibleSecondaryModifiedAppearanceId(this));
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemAppearanceModID), pItem->GetVisibleAppearanceModId(this));
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemVisual), pItem->GetVisibleItemVisual(this));
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemModifiedAppearanceID), pItem->GetVisibleModifiedAppearanceId(this));
     }
     else
     {
@@ -11818,6 +11838,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::SecondaryItemModifiedAppearanceID), 0);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemAppearanceModID), 0);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemVisual), 0);
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemModifiedAppearanceID), 0);
     }
 }
 
@@ -13467,11 +13488,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(enchant_amount), apply);
                             UpdateStatBuffMod(STAT_INTELLECT);
                             break;
-                        // case ITEM_MOD_SPIRIT:
-                        //     TC_LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
-                        //     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
-                        //     ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
-                        //     break;
+                        case ITEM_MOD_SPIRIT:
+                            TC_LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
+                            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
+                            UpdateStatBuffMod(STAT_SPIRIT);
+                            break;
                         case ITEM_MOD_STAMINA:
                             TC_LOG_DEBUG("entities.player.items", "+ {} STAMINA", enchant_amount);
                             HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
@@ -21480,21 +21501,23 @@ void Player::_SaveCharacterBankTabSettings(CharacterDatabaseTransaction trans) c
 
 void Player::outDebugValues() const
 {
-    if (!sLog->ShouldLog("entities.unit", LOG_LEVEL_DEBUG))
+    Log* log = sLog;
+    Logger const* logger = log->GetEnabledLogger("entities.unit", LOG_LEVEL_DEBUG);
+    if (!logger)
         return;
 
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "AGILITY is: \t\t{}\t\tSTRENGTH is: \t\t{}", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "INTELLECT is: \t\t{}", GetStat(STAT_INTELLECT));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "STAMINA is: \t\t{}", GetStat(STAT_STAMINA));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "Armor is: \t\t{}\t\tBlock is: \t\t{}", GetArmor(), *m_activePlayerData->BlockPercentage);
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "HolyRes is: \t\t{}\t\tFireRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "NatureRes is: \t\t{}\t\tFrostRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_NATURE), GetResistance(SPELL_SCHOOL_MASK_FROST));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "ShadowRes is: \t\t{}\t\tArcaneRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_SHADOW), GetResistance(SPELL_SCHOOL_MASK_ARCANE));
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_DAMAGE is: \t\t{}\tMAX_DAMAGE is: \t\t{}", *m_unitData->MinDamage, *m_unitData->MaxDamage);
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_OFFHAND_DAMAGE is: \t{}\tMAX_OFFHAND_DAMAGE is: \t{}", *m_unitData->MinOffHandDamage, *m_unitData->MaxOffHandDamage);
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "MIN_RANGED_DAMAGE is: \t{}\tMAX_RANGED_DAMAGE is: \t{}", *m_unitData->MinRangedDamage, *m_unitData->MaxRangedDamage);
-    sLog->OutMessage("entities.unit", LOG_LEVEL_DEBUG, "ATTACK_TIME is: \t{}\t\tRANGE_ATTACK_TIME is: \t{}", GetBaseAttackTime(BASE_ATTACK), GetBaseAttackTime(RANGED_ATTACK));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "AGILITY is: \t\t{}\t\tSTRENGTH is: \t\t{}", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "INTELLECT is: \t\t{}\t\tSPIRIT is: \t\t{}", GetStat(STAT_INTELLECT), GetStat(STAT_SPIRIT));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "STAMINA is: \t\t{}", GetStat(STAT_STAMINA));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "Armor is: \t\t{}\t\tBlock is: \t\t{}", GetArmor(), *m_activePlayerData->BlockPercentage);
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "HolyRes is: \t\t{}\t\tFireRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "NatureRes is: \t\t{}\t\tFrostRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_NATURE), GetResistance(SPELL_SCHOOL_MASK_FROST));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "ShadowRes is: \t\t{}\t\tArcaneRes is: \t\t{}", GetResistance(SPELL_SCHOOL_MASK_SHADOW), GetResistance(SPELL_SCHOOL_MASK_ARCANE));
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "MIN_DAMAGE is: \t\t{}\tMAX_DAMAGE is: \t\t{}", *m_unitData->MinDamage, *m_unitData->MaxDamage);
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "MIN_OFFHAND_DAMAGE is: \t{}\tMAX_OFFHAND_DAMAGE is: \t{}", *m_unitData->MinOffHandDamage, *m_unitData->MaxOffHandDamage);
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "MIN_RANGED_DAMAGE is: \t{}\tMAX_RANGED_DAMAGE is: \t{}", *m_unitData->MinRangedDamage, *m_unitData->MaxRangedDamage);
+    log->OutMessageTo(logger, "entities.unit", LOG_LEVEL_DEBUG, "ATTACK_TIME is: \t{}\t\tRANGE_ATTACK_TIME is: \t{}", GetBaseAttackTime(BASE_ATTACK), GetBaseAttackTime(RANGED_ATTACK));
 }
 
 /*********************************************************/
@@ -26926,9 +26949,11 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '{}' ({}, Race: {}, Class: {}) has forbidden skill {} for his race/class combination",
                     GetName(), GetGUID().ToString(), uint32(race), uint32(GetClass()), skill);
 
-                mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(mSkillStatus.size(), SKILL_DELETED)));
+                mSkillStatus.try_emplace(skill, mSkillStatus.size(), SKILL_DELETED);
                 continue;
             }
+
+            uint16 step = 0;
 
             // set fixed skill ranges
             switch (GetSkillRangeType(rcEntry))
@@ -26942,24 +26967,31 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 case SKILL_RANGE_LEVEL:
                     max = GetMaxSkillValueForLevel();
                     break;
+                case SKILL_RANGE_RANK:
+                {
+                    SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID);
+                    auto tierItr = std::ranges::find(tier->Value, max);
+                    if (tierItr != std::ranges::end(tier->Value))
+                        step = std::ranges::distance(std::ranges::begin(tier->Value), tierItr) + 1;
+                    break;
+                }
                 default:
                     break;
             }
 
             auto skillItr = mSkillStatus.find(skill);
             if (skillItr == mSkillStatus.end())
-                skillItr = mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(mSkillStatus.size(), SKILL_UNCHANGED))).first;
-
-            uint16 step = 0;
+                skillItr = mSkillStatus.try_emplace(skill, mSkillStatus.size(), SKILL_UNCHANGED).first;
 
             if (SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillID))
             {
-                if (skillLine->CategoryID == SKILL_CATEGORY_SECONDARY)
+                if (!step && skillLine->CategoryID == SKILL_CATEGORY_SECONDARY)
                     step = max / 75;
 
                 if (skillLine->CategoryID == SKILL_CATEGORY_PROFESSION)
                 {
-                    step = max / 75;
+                    if (!step)
+                        step = max / 75;
 
                     if (!skillLine->ParentSkillLineID)
                     {
@@ -26972,6 +27004,13 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
 
             SetSkillLineId(skillItr->second.pos, skill);
+
+            if (!value)
+            {
+                skillItr->second.uState = SKILL_DELETED;
+                continue;
+            }
+
             SetSkillStep(skillItr->second.pos, step);
             SetSkillRank(skillItr->second.pos, value);
             SetSkillStartingRank(skillItr->second.pos, 1);
@@ -26991,7 +27030,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
         // enable parent skill line if missing
         SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
-        if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && GetSkillStep(skillEntry->ParentSkillLineID) < skillEntry->ParentTierIndex)
+        if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0 && int32(GetSkillStep(skillEntry->ParentSkillLineID)) < skillEntry->ParentTierIndex)
             if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, GetRace(), GetClass()))
                 if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(GetPureSkillValue(skillEntry->ParentSkillLineID), 1), tier->GetValueForTierIndex(skillEntry->ParentTierIndex - 1));
@@ -27000,12 +27039,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
         {
             for (auto childItr = childSkillLines->begin(); childItr != childSkillLines->end() && mSkillStatus.size() < PLAYER_MAX_SKILLS; ++childItr)
             {
-                if (mSkillStatus.find((*childItr)->ID) == mSkillStatus.end())
+                if (!mSkillStatus.contains((*childItr)->ID))
                 {
                     uint32 pos = mSkillStatus.size();
                     SetSkillLineId(pos, (*childItr)->ID);
                     SetSkillStartingRank(pos, 1);
-                    mSkillStatus.insert(SkillStatusMap::value_type((*childItr)->ID, SkillStatusData(pos, SKILL_UNCHANGED)));
+                    mSkillStatus.try_emplace((*childItr)->ID, pos, SKILL_UNCHANGED);
                 }
             }
         }

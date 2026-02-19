@@ -639,8 +639,9 @@ class spell_pri_abyssal_reverie : public SpellScript
 };
 
 // 17 - Power Word: Shield
-// 139 - Renew
 // 2061 - Flash Heal
+// 200829 - Plea
+// 47750 - Penance
 // 194509 - Power Word: Radiance
 class spell_pri_atonement_effect : public SpellScript
 {

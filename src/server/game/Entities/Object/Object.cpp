@@ -61,12 +61,21 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
+struct Object::ObjectFragmentInfoInitializer
+{
+    ObjectFragmentInfoInitializer()
+    {
+        WowCS::EntityFragmentInfos::Register(WowCS::EntityFragment::CGObject,
+            &Object::BuildObjectFragmentCreate, &Object::BuildObjectFragmentUpdate,
+            &Object::IsObjectFragmentChanged, &Object::ClearObjectFragmentChanged);
+    }
+} static InitObjectFragment;
+
 Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
 
-    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false,
-        &Object::BuildObjectFragmentCreate, &Object::BuildObjectFragmentUpdate, &Object::IsObjectFragmentChanged);
+    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false, this);
 }
 
 Object::~Object() = default;
@@ -94,14 +103,14 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buf, flags);
-    BuildValuesUpdateWithFlag(&buf, flags, target);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buf, flags);
+    BuildValuesUpdateWithFlag(flags, buf, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
 
-void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer& data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
     uint8 contentsChangedMask = 0;
     for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
@@ -113,35 +122,39 @@ void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* da
             contentsChangedMask |= m_entityFragments.Updateable.Masks[i];
     }
 
-    *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
-    *data << uint8(false);                                  // m_entityFragments.IdsChanged
-    *data << uint8(contentsChangedMask);
+    data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
+    data << uint8(false);                                  // m_entityFragments.IdsChanged
+    data << uint8(contentsChangedMask);
 }
 
-void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const
-{
-    *data << uint32(0);
-}
-
-void Object::ClearUpdateMask(bool remove)
+void Object::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Object::m_objectData);
-    BaseEntity::ClearUpdateMask(remove);
 }
 
-void Object::BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+void Object::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag /*flags*/, ByteBuffer& data, Player const* /*target*/) const
 {
-    static_cast<Object const*>(entity)->BuildValuesCreate(&data, flags, target);
+    data << uint32(0);
 }
 
-void Object::BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+void Object::BuildObjectFragmentCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* /*entity*/)
 {
-    static_cast<Object const*>(entity)->BuildValuesUpdate(&data, flags, target);
+    static_cast<Object const*>(rawFragmentData)->BuildValuesCreate(flags, data, target);
 }
 
-bool Object::IsObjectFragmentChanged(BaseEntity const* entity)
+void Object::BuildObjectFragmentUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* /*entity*/)
 {
-    return entity->m_values.GetChangedObjectTypeMask() != 0;
+    static_cast<Object const*>(rawFragmentData)->BuildValuesUpdate(flags, data, target);
+}
+
+bool Object::IsObjectFragmentChanged(void const* rawFragmentData)
+{
+    return static_cast<Object const*>(rawFragmentData)->m_values.GetChangedObjectTypeMask() != 0;
+}
+
+void Object::ClearObjectFragmentChanged(void const* rawFragmentData)
+{
+    const_cast<Object*>(static_cast<Object const*>(rawFragmentData))->ClearValuesChangesMask();
 }
 
 std::string Object::GetDebugInfo() const
@@ -157,7 +170,7 @@ void MovementInfo::OutDebug()
     TC_LOG_DEBUG("misc", "{}", guid.ToString());
     TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(MovementFlags(flags)), flags);
     TC_LOG_DEBUG("misc", "flags2 {} ({})", Movement::MovementFlags_ToString(MovementFlags2(flags2)), flags2);
-    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags2);
+    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags3);
     TC_LOG_DEBUG("misc", "time {} current time {}", time, getMSTime());
     TC_LOG_DEBUG("misc", "position: `{}`", pos.ToString());
     if (!transport.guid.IsEmpty())

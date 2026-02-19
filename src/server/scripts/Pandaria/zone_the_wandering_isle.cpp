@@ -46,6 +46,31 @@ namespace Spells
     static constexpr uint32 CurseOfTheCrocodile = 102942;
     static constexpr uint32 RideVehiclePole = 102717;
     static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
+
+    // Only the Worthy Shall Pass
+    static constexpr uint32 FireCrashCover = 108149;
+    static constexpr uint32 FireCrashInvis = 108150;
+    static constexpr uint32 FireCrashPhaseShift = 102515;
+    static constexpr uint32 FlyingShadowKick = 108936;
+    static constexpr uint32 FlyingShadowKickJump = 108943;
+    static constexpr uint32 FeetOfFury = 108958;
+    static constexpr uint32 FeetOfFuryDamage = 108957;
+}
+
+namespace Quests
+{
+    static constexpr uint32 OnlyTheWorthyShallPass = 29421;
+}
+
+namespace Creatures
+{
+    static constexpr uint32 MasterLiFei = 54135;
+    static constexpr uint32 MasterLiFeiCombat = 54734;
+}
+
+namespace Talks
+{
+    static constexpr uint32 LiFeiDefeat = 0;
 }
 
 enum TraineeMisc
@@ -1298,6 +1323,175 @@ public:
         return true;
     }
 };
+
+// 54135 - Master Li Fei
+struct npc_li_fei : public ScriptedAI
+{
+    npc_li_fei(Creature* creature) : ScriptedAI(creature) {}
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == Quests::OnlyTheWorthyShallPass)
+            player->CastSpell(player, Spells::FireCrashCover);
+    }
+};
+
+// 102499 - Fire Crash
+class spell_fire_crash : public SpellScript
+{
+    static constexpr Position PlayerJumpPos = { 1351.3334f, 3939.0347f, 109.32395f, 6.00115f };
+
+    void SetDest(SpellDestination& dest) const
+    {
+        dest.Relocate(PlayerJumpPos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_fire_crash::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+// 54734 - Master Li Fei (combat)
+struct npc_li_fei_combat : public ScriptedAI
+{
+    npc_li_fei_combat(Creature* creature) : ScriptedAI(creature), _defeatTriggered(false) {}
+
+    enum Events
+    {
+        EVENT_FEET_OF_FURY = 1,
+        EVENT_SHADOW_KICK,
+    };
+
+    void Reset() override
+    {
+        _defeatTriggered = false;
+    }
+
+    void JustEngagedWith(Unit* /*attacker*/) override
+    {
+        _events.ScheduleEvent(EVENT_FEET_OF_FURY, 6s);
+        _events.ScheduleEvent(EVENT_SHADOW_KICK, 10s);
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo*/) override
+    {
+        if (!_defeatTriggered && me->HealthBelowPctDamaged(50, damage))
+        {
+            _defeatTriggered = true;
+            me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+
+            Creature* liFei = me->FindNearestCreatureWithOptions(15.0f, { .CreatureId = Creatures::MasterLiFei, .IgnorePhases = true });
+            if (!liFei)
+                return;
+
+            for (ObjectGuid const& guid : me->GetTapList())
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, guid);
+                if (!player)
+                    continue;
+
+                player->KilledMonsterCredit(Creatures::MasterLiFeiCombat, ObjectGuid::Empty);
+                player->RemoveAurasDueToSpell(Spells::FireCrashCover);
+                player->RemoveAurasDueToSpell(Spells::FireCrashInvis);
+                player->RemoveAurasDueToSpell(Spells::FireCrashPhaseShift);
+            }
+
+            liFei->AI()->Talk(Talks::LiFeiDefeat, attacker);
+
+            EnterEvadeMode();
+        }
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        Player* player = victim->ToPlayer();
+        if (!player)
+            return;
+
+        player->FailQuest(Quests::OnlyTheWorthyShallPass);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FEET_OF_FURY:
+                    DoCastVictim(Spells::FeetOfFury);
+
+                    _events.ScheduleEvent(EVENT_FEET_OF_FURY, 12s);
+                    break;
+                case EVENT_SHADOW_KICK:
+                    DoCastVictim(Spells::FlyingShadowKick);
+
+                    _events.ScheduleEvent(EVENT_SHADOW_KICK, 15s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _defeatTriggered;
+};
+
+// 108958 - Feet of Fury
+class spell_feet_of_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ Spells::FeetOfFuryDamage });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+        target->CastSpell(target->GetVictim(), Spells::FeetOfFuryDamage, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_feet_of_fury::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 108936 - Flying Shadow Kick
+class spell_flying_shadow_kick : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ Spells::FlyingShadowKickJump });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), Spells::FlyingShadowKickJump, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
 };
 
 void AddSC_zone_the_wandering_isle()
@@ -1331,4 +1525,10 @@ void AddSC_zone_the_wandering_isle()
     new at_singing_pools_transform_base<Spells::CurseOfTheCrocodile>("at_singing_pools_transform_crocodile");
     new at_singing_pools_transform_base<Spells::CurseOfTheCrane>("at_singing_pools_transform_crane");
     new at_singing_pools_transform_base<Spells::CurseOfTheTurtle>("at_singing_pools_transform_turtle");
+
+    RegisterCreatureAI(npc_li_fei);
+    RegisterSpellScript(spell_fire_crash);
+    RegisterCreatureAI(npc_li_fei_combat);
+    RegisterSpellScript(spell_feet_of_fury);
+    RegisterSpellScript(spell_flying_shadow_kick);
 }
