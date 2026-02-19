@@ -344,6 +344,15 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
         return;
     }
 
+    if (movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE) && movement->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
+    {
+        if (!movement->Initialize(_owner))
+        {
+            delete movement;
+            return;
+        }
+    }
+
     if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, movement, slot]()
@@ -1189,7 +1198,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                 }
                 else
                 {
-                    auto itr = std::find_if(_generators.begin(), _generators.end(), [movement](MovementGenerator const* a) -> bool
+                    auto itr = std::ranges::find_if(_generators, [movement](MovementGenerator const* a) -> bool
                     {
                         return a->Priority == movement->Priority && a->Mode == movement->Mode;
                     });
@@ -1201,8 +1210,16 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
             else
                 _defaultGenerator->Deactivate(_owner);
 
-            _generators.emplace(movement);
-            AddBaseUnitState(movement);
+            if (!movement->HasFlag(MOVEMENTGENERATOR_FLAG_IMMEDIATE))
+            {
+                _generators.emplace(movement);
+                AddBaseUnitState(movement);
+            }
+            else
+            {
+                movement->Finalize(_owner, true, true);
+                delete movement;
+            }
             break;
         default:
             break;

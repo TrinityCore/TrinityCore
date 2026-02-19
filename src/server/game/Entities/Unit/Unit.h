@@ -1918,7 +1918,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtDisengage() {}
 
     private:
-
+        friend class ImmediateMovementGenerator; // for UpdateSplineMovement
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
         void InterruptMovementBasedAuras();

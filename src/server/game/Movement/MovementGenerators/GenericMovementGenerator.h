@@ -48,4 +48,23 @@ class GenericMovementGenerator : public MovementGenerator
         TimeTracker _duration;
 };
 
+class ImmediateMovementGenerator : public MovementGenerator
+{
+public:
+    explicit ImmediateMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id);
+
+    bool Initialize(Unit* owner) override;
+
+    bool Reset(Unit* /*owner*/) override { return true; }
+    bool Update(Unit* /*owner*/, uint32 /*diff*/) override { return true; }
+    void Deactivate(Unit* /*owner*/) override { }
+    void Finalize(Unit* owner, bool active, bool movementInform) override;
+    MovementGeneratorType GetMovementGeneratorType() const override { return _type; }
+
+private:
+    std::function<void(Movement::MoveSplineInit& init)> _splineInit;
+    MovementGeneratorType _type;
+    uint32 _pointId;
+};
+
 #endif
