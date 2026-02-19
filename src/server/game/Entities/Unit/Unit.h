@@ -1986,7 +1986,7 @@ class TC_GAME_API Unit : public WorldObject
         void AtEndOfEncounter(EncounterType type);
 
     private:
-
+        friend class ImmediateMovementGenerator; // for UpdateSplineMovement
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
         void SendFlightSplineSyncUpdate();
