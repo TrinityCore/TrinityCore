@@ -469,6 +469,7 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         // methods usable only after spell targets have been fully selected
         int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
+        int32 GetUnitTargetIndexForEffect(ObjectGuid const& target, SpellEffIndex effect) const;
         int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
 
