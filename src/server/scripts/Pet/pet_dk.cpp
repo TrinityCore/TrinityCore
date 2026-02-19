@@ -28,12 +28,25 @@
 
 enum DeathKnightSpells
 {
+    SPELL_DK_BIRTH                  = 1217740,
     SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
     SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
     SPELL_DK_DISMISS_GARGOYLE       = 50515,
     SPELL_DK_SANCTUARY              = 54661,
+};
 
-    SPELL_DK_BIRTH                  = 1217740
+// 28017 - Bloodworm
+struct npc_pet_dk_bloodworm : public AggressorAI
+{
+    npc_pet_dk_bloodworm(Creature* creature) : AggressorAI(creature) { }
+
+    bool CanAIAttack(Unit const* target) const override
+    {
+        Unit* owner = me->GetOwner();
+        if (owner && !target->IsInCombatWith(owner))
+            return false;
+        return AggressorAI::CanAIAttack(target);
+    }
 };
 
 struct npc_pet_dk_ebon_gargoyle : CasterAI
@@ -109,8 +122,6 @@ struct npc_pet_dk_risen_ghoul : public AggressorAI
 
     bool CanAIAttack(Unit const* target) const override
     {
-        if (!target)
-            return false;
         Unit* owner = me->GetOwner();
         if (owner && !target->IsInCombatWith(owner))
             return false;
@@ -123,25 +134,9 @@ struct npc_pet_dk_risen_ghoul : public AggressorAI
     }
 };
 
-// 28017 - Bloodworm
-struct npc_pet_dk_bloodworm : public AggressorAI
-{
-    npc_pet_dk_bloodworm(Creature* creature) : AggressorAI(creature) { }
-
-    bool CanAIAttack(Unit const* target) const override
-    {
-        if (!target)
-            return false;
-        Unit* owner = me->GetOwner();
-        if (owner && !target->IsInCombatWith(owner))
-            return false;
-        return AggressorAI::CanAIAttack(target);
-    }
-};
-
 void AddSC_deathknight_pet_scripts()
 {
+    RegisterCreatureAI(npc_pet_dk_bloodworm);
     RegisterCreatureAI(npc_pet_dk_ebon_gargoyle);
     RegisterCreatureAI(npc_pet_dk_risen_ghoul);
-    RegisterCreatureAI(npc_pet_dk_bloodworm);
 }
