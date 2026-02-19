@@ -742,63 +742,6 @@ class spell_warr_frenzied_enrage : public SpellScript
     }
 };
 
-// 335082 - frenzy
-class spell_warr_frenzy : public AuraScript
-{
-public:
-    void SetTargetGUID(ObjectGuid const& guid) { _targetGUID = guid; }
-    ObjectGuid const& GetTargetGUID() const { return _targetGUID; }
-
-private:
-    void Register() override { }
-
-    ObjectGuid _targetGUID;
-};
-
-// 335077 - Frenzy (attached to 184367 - Rampage)
-class spell_warr_frenzy_rampage : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_FRENZY_BUFF, SPELL_WARRIOR_FRENZY_TALENT });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->HasAura(SPELL_WARRIOR_FRENZY_TALENT);
-    }
-
-    void HandleAfterCast(SpellEffIndex /*effIndex*/) const
-    {
-        Unit* caster = GetCaster();
-        Unit* hitUnit = GetHitUnit();
-
-        if (hitUnit != GetExplTargetUnit())
-            return;
-
-        caster->CastSpell(nullptr, SPELL_WARRIOR_FRENZY_BUFF, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
-
-        if (Aura* frenzyAura = caster->GetAura(SPELL_WARRIOR_FRENZY_BUFF))
-        {
-            if (spell_warr_frenzy* script = frenzyAura->GetScript<spell_warr_frenzy>())
-            {
-                if (!script->GetTargetGUID().IsEmpty() && script->GetTargetGUID() != hitUnit->GetGUID())
-                    frenzyAura->SetStackAmount(1);
-
-                script->SetTargetGUID(hitUnit->GetGUID());
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_frenzy_rampage::HandleAfterCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 392792 - Frothing Berserker
 class spell_warr_frothing_berserker : public AuraScript
 {
@@ -1909,8 +1852,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
-    RegisterSpellScript(spell_warr_frenzy);
-    RegisterSpellScript(spell_warr_frenzy_rampage);
     RegisterSpellScript(spell_warr_frothing_berserker);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
