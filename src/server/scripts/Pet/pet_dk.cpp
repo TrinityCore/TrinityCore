@@ -32,7 +32,7 @@ enum DeathKnightSpells
     SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
     SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
     SPELL_DK_DISMISS_GARGOYLE       = 50515,
-    SPELL_DK_SANCTUARY              = 54661,
+    SPELL_DK_SANCTUARY              = 54661
 };
 
 // 28017 - Bloodworm
