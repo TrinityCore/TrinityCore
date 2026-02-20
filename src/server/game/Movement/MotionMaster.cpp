@@ -1043,7 +1043,7 @@ void MotionMaster::MoveFace(WorldObject const* object, uint32 id /*= EVENT_FACE*
     std::function<void(Movement::MoveSplineInit&)> initializer = [owner = _owner, object](Movement::MoveSplineInit& init)
     {
         init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
-        init.SetFacing(owner->GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
+        init.SetFacing(owner->GetAbsoluteAngle(object));    // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
     };
 
     Add(new ImmediateMovementGenerator(std::move(initializer), FACE_MOTION_TYPE, id));
@@ -1057,7 +1057,7 @@ void MotionMaster::MoveFace(float orientation, uint32 id /*= EVENT_FACE*/)
     {
         init.MoveTo(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), false);
         if (owner->GetTransport())
-            init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
+            init.DisableTransportPathTransformations();     // It makes no sense to target global orientation
         init.SetFacing(orientation);
     };
 

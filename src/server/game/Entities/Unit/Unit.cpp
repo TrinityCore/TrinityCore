@@ -13245,22 +13245,22 @@ void Unit::SetInFront(WorldObject const* target)
         SetOrientation(GetAbsoluteAngle(target));
 }
 
-void Unit::SetFacingTo(float ori, bool force/* = true*/, uint32 id/* = EVENT_FACE*/)
+void Unit::SetFacingTo(float ori, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    GetMotionMaster()->MoveFace(ori, id);
+    GetMotionMaster()->MoveFace(ori, movementId);
 }
 
-void Unit::SetFacingToObject(WorldObject const* object, bool force/* = true*/, uint32 id/* = EVENT_FACE*/)
+void Unit::SetFacingToObject(WorldObject const* object, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    GetMotionMaster()->MoveFace(object, id);
+    GetMotionMaster()->MoveFace(object, movementId);
 }
 
 bool Unit::SetWalk(bool enable)
