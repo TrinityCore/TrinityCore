@@ -13248,7 +13248,7 @@ void Unit::SetInFront(WorldObject const* target)
 void Unit::SetFacingTo(float ori, bool force/* = true*/, uint32 id/* = EVENT_FACE*/)
 {
     // do not face when already moving
-    if (!force && (!IsStopped() || !movespline->Finalized() || GetMotionMaster()->GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST))
+    if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
     GetMotionMaster()->MoveFace(ori, id);
@@ -13257,7 +13257,7 @@ void Unit::SetFacingTo(float ori, bool force/* = true*/, uint32 id/* = EVENT_FAC
 void Unit::SetFacingToObject(WorldObject const* object, bool force/* = true*/, uint32 id/* = EVENT_FACE*/)
 {
     // do not face when already moving
-    if (!force && (!IsStopped() || !movespline->Finalized() || GetMotionMaster()->GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST))
+    if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
     GetMotionMaster()->MoveFace(object, id);
