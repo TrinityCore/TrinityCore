@@ -27,7 +27,6 @@
 template<class T>
 ConfusedMovementGenerator<T>::ConfusedMovementGenerator() : _timer(0), _reference(0.f, 0.f, 0.f)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_HIGHEST;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_CONFUSED;

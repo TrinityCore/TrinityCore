@@ -41,7 +41,6 @@ FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed,
     _endMapId = 0;
     _preloadTargetNode = 0;
 
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_IN_FLIGHT;

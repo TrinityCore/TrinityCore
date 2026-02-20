@@ -31,7 +31,6 @@ RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Mil
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : _timer(0), _speed(speed), _speedSelectionMode(speedSelectionMode), _wanderDistance(distance), _wanderSteps(0)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
