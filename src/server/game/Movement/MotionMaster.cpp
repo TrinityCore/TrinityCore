@@ -416,14 +416,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
                 DirectClearDefault();
             break;
         case MOTION_SLOT_ACTIVE:
-            do
-            {
-                auto itr = std::ranges::find(_generators, type,
-                    [](MovementGenerator const* a) { return a->GetMovementGeneratorType(); });
-                if (itr == _generators.end())
-                    break;
-                Remove(itr, GetCurrentMovementGenerator() == *itr, false);
-            } while (true);
+            DirectClear([type](MovementGenerator const* a) { return a->GetMovementGeneratorType() == type; });
             break;
         default:
             break;
@@ -492,11 +485,7 @@ void MotionMaster::Clear(MovementGeneratorPriority priority)
     if (Empty())
         return;
 
-    std::function<bool(MovementGenerator*)> criteria = [priority](MovementGenerator* a) -> bool
-    {
-        return a->Priority == priority;
-    };
-    DirectClear(criteria);
+    DirectClear([priority](MovementGenerator const* a) { return a->Priority == priority; });
 }
 
 void MotionMaster::PropagateSpeedChange()
@@ -1115,15 +1104,11 @@ void MotionMaster::DirectClearDefault()
 
 void MotionMaster::DirectClear(std::function<bool(MovementGenerator*)> const& filter)
 {
+    MovementGenerator const* top = GetCurrentMovementGenerator();
     for (auto itr = _generators.begin(); itr != _generators.end();)
     {
         if (filter(*itr))
-        {
-            MovementGenerator const* top = GetCurrentMovementGenerator(); // erase may change top, get fresh value on every removal
-            MovementGenerator* movement = *itr;
-            itr = _generators.erase(itr);
-            Delete(movement, movement == top, false);
-        }
+            Remove(itr, *itr == top, false);
         else
             ++itr;
     }
