@@ -27,7 +27,6 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
     GenericMovementGeneratorArgs&& args)
     : _splineInit(std::move(initializer)), _type(type), _pointId(id), _durationTracksSpline(true), _arrivalSpellId(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
@@ -115,7 +114,6 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
 ImmediateMovementGenerator::ImmediateMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id)
     : _splineInit(std::move(initializer)), _type(type), _pointId(id)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_IMMEDIATE;
     BaseUnitState = 0;
