@@ -135,15 +135,12 @@ class TC_GAME_API MotionMaster
         void Remove(MovementGenerator* movement, MovementSlot slot = MOTION_SLOT_ACTIVE);
         // Removes first found movement
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
-        void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorMode mode = MOTION_MODE_DEFAULT);
+        void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE);
         // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear();
         // Removes all movements for the given MovementSlot
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
         void Clear(MovementSlot slot);
-        // Removes all movements with the given MovementGeneratorMode
-        // NOTE: MOTION_SLOT_DEFAULT wont be affected
-        void Clear(MovementGeneratorMode mode);
         // Removes all movements with the given MovementGeneratorPriority
         // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear(MovementGeneratorPriority priority);
@@ -196,7 +193,7 @@ class TC_GAME_API MotionMaster
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
         typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
-        typedef std::multiset<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
+        typedef std::set<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
         typedef std::unordered_multimap<uint32, MovementGenerator const*> MotionMasterUnitStatesContainer;
 
         void AddFlag(uint8 const flag) { _flags |= flag; }
@@ -204,7 +201,7 @@ class TC_GAME_API MotionMaster
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
         void ResolveDelayedActions();
-        void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
+        void Remove(MotionMasterContainer::iterator& iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
         void DirectInitialize();
         void DirectClear();

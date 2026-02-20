@@ -48,7 +48,7 @@ enum MovementGeneratorFlags : uint16
 class TC_GAME_API MovementGenerator
 {
     public:
-        MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
+        MovementGenerator() : Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
         virtual ~MovementGenerator();
 
         // on top first update
@@ -77,7 +77,6 @@ class TC_GAME_API MovementGenerator
 
         virtual std::string GetDebugInfo() const;
 
-        uint8 Mode;
         uint8 Priority;
         uint16 Flags;
         uint32 BaseUnitState;

@@ -28,7 +28,6 @@
 
 SplineChainMovementGenerator::SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), _nextIndex(0), _nextFirstWP(0), _msToNext(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
@@ -36,7 +35,6 @@ SplineChainMovementGenerator::SplineChainMovementGenerator(uint32 id, std::vecto
 
 SplineChainMovementGenerator::SplineChainMovementGenerator(SplineChainResumeInfo const& info) : _id(info.PointID), _chain(*info.Chain), _chainSize(info.Chain->size()), _walk(info.IsWalkMode), _nextIndex(info.SplineIndex), _nextFirstWP(info.PointIndex), _msToNext(info.TimeToNext)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
 
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
