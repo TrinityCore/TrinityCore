@@ -1571,7 +1571,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     DisableSpline();
     GetMotionMaster()->Remove(EFFECT_MOTION_TYPE);
-    GetMotionMaster()->Remove(FACE_MOTION_TYPE);
 
     if (Transport* transport = GetTransport())
     {
