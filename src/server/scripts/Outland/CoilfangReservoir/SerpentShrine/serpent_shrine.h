@@ -42,23 +42,40 @@ enum SSBosses
 
 enum SSDataTypes
 {
-    DATA_CANSTARTPHASE3             = 1,
     DATA_CARIBDIS                   = 2,
     DATA_KARATHRESS                 = 3,
-    DATA_LADYVASHJ                  = 5,
     DATA_SHARKKIS                   = 6,
-    DATA_SHIELDGENERATOR1           = 7,
-    DATA_SHIELDGENERATOR2           = 8,
-    DATA_SHIELDGENERATOR3           = 9,
-    DATA_SHIELDGENERATOR4           = 10,
     DATA_THELURKERBELOW             = 11,
     DATA_TIDALVESS                  = 12,
     DATA_LEOTHERAS                  = 14,
     DATA_LEOTHERAS_EVENT_STARTER    = 15,
-    DATA_CONTROL_CONSOLE            = 16,
     DATA_STRANGE_POOL               = 17,
     DATA_WATER                      = 18,
     DATA_TRASH                      = 19,
+
+    DATA_BRIDGE_PART_1,
+    DATA_BRIDGE_PART_2,
+    DATA_BRIDGE_PART_3,
+    DATA_SHIELD_GENERATOR_1,
+    DATA_SHIELD_GENERATOR_2,
+    DATA_SHIELD_GENERATOR_3,
+    DATA_SHIELD_GENERATOR_4
+};
+
+enum SSCreatureIds
+{
+    NPC_LADY_VASHJ                  = 21212
+};
+
+enum SSGameObjectIds
+{
+    GO_BRIDGE_PART_1                = 184203,
+    GO_BRIDGE_PART_2                = 184204,
+    GO_BRIDGE_PART_3                = 184205,
+    GO_SHIELD_GENERATOR_1           = 185051,
+    GO_SHIELD_GENERATOR_2           = 185052,
+    GO_SHIELD_GENERATOR_3           = 185053,
+    GO_SHIELD_GENERATOR_4           = 185054
 };
 
 template <class AI, class T>

@@ -44,6 +44,7 @@ enum MovementGeneratorType : uint8
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
+    FACE_MOTION_TYPE                = 19,
     MAX_MOTION_TYPE                          // SKIP
 };
 
@@ -62,17 +63,11 @@ constexpr bool CanStopMovementForSpellCasting(MovementGeneratorType type)
     return true;
 }
 
-enum MovementGeneratorMode : uint8
-{
-    MOTION_MODE_DEFAULT = 0,
-    MOTION_MODE_OVERRIDE
-};
-
 enum MovementGeneratorPriority : uint8
 {
-    MOTION_PRIORITY_NONE = 0,
-    MOTION_PRIORITY_NORMAL,
-    MOTION_PRIORITY_HIGHEST
+    MOTION_PRIORITY_NONE    = 0,
+    MOTION_PRIORITY_NORMAL  = 64,
+    MOTION_PRIORITY_HIGHEST = 128
 };
 
 enum MovementSlot : uint8

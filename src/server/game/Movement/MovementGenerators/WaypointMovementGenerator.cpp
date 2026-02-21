@@ -30,7 +30,6 @@
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
@@ -40,7 +39,6 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& pat
 {
     _path = &path;
 
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;

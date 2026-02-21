@@ -17,28 +17,47 @@
 
 #include "ScriptMgr.h"
 #include "molten_core.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
+#include <algorithm>
 
-Position const SummonPositions[10] =
+static constexpr ObjectData creatureData[] =
 {
-    {737.850f, -1145.35f, -120.288f, 4.71368f},
-    {744.162f, -1151.63f, -119.726f, 4.58204f},
-    {751.247f, -1152.82f, -119.744f, 4.49673f},
-    {759.206f, -1155.09f, -120.051f, 4.30104f},
-    {755.973f, -1152.33f, -120.029f, 4.25588f},
-    {731.712f, -1147.56f, -120.195f, 4.95955f},
-    {726.499f, -1149.80f, -120.156f, 5.24055f},
-    {722.408f, -1152.41f, -120.029f, 5.33087f},
-    {718.994f, -1156.36f, -119.805f, 5.75738f},
-    {838.510f, -829.840f, -232.000f, 2.00000f},
+    { NPC_MAJORDOMO_EXECUTUS,  BOSS_MAJORDOMO_EXECUTUS },
+    { NPC_RAGNAROS,            BOSS_RAGNAROS },
+    { 0,                       0                       } // END
 };
 
-Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
-Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
+static constexpr ObjectData gameObjectData[] =
+{
+    { GO_RUNE_OF_KORO,         DATA_RUNE_OF_KORO  },
+    { GO_RUNE_OF_ZETH,         DATA_RUNE_OF_ZETH  },
+    { GO_RUNE_OF_MAZJ,         DATA_RUNE_OF_MAZJ  },
+    { GO_RUNE_OF_THERI,        DATA_RUNE_OF_THERI },
+    { GO_RUNE_OF_BLAZ,         DATA_RUNE_OF_BLAZ  },
+    { GO_RUNE_OF_KRESS,        DATA_RUNE_OF_KRESS },
+    { GO_RUNE_OF_MOHN,         DATA_RUNE_OF_MOHN  },
+    { 0,                       0                  } // END
+};
+
+struct MoltenCoreRuneInfo
+{
+    uint32 RuneData, BossId;
+};
+
+static constexpr MoltenCoreRuneInfo MoltenCoreRunes[] =
+{
+    { DATA_RUNE_OF_KRESS, BOSS_MAGMADAR },
+    { DATA_RUNE_OF_MOHN,  BOSS_GEHENNAS },
+    { DATA_RUNE_OF_BLAZ,  BOSS_GARR },
+    { DATA_RUNE_OF_MAZJ,  BOSS_SHAZZRAH },
+    { DATA_RUNE_OF_ZETH,  BOSS_BARON_GEDDON },
+    { DATA_RUNE_OF_KORO,  BOSS_SULFURON_HARBINGER },
+    { DATA_RUNE_OF_THERI, BOSS_GOLEMAGG_THE_INCINERATOR }
+};
 
 class instance_molten_core : public InstanceMapScript
 {
@@ -50,77 +69,30 @@ class instance_molten_core : public InstanceMapScript
             instance_molten_core_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(MAX_ENCOUNTER);
-                _executusSchedule = false;
-                _ragnarosAddDeaths = 0;
+                SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, gameObjectData);
+
+                ShouldSpawnMajordomoExecutus = false;
             }
 
             void OnPlayerEnter(Player* /*player*/) override
             {
-                if (_executusSchedule)
-                    SummonMajordomoExecutus();
+                if (ShouldSpawnMajordomoExecutus)
+                    SpawnMajordomoExecutus();
             }
 
-            void OnCreatureCreate(Creature* creature) override
+            void OnUnitDeath(Unit* unit) override
             {
-                switch (creature->GetEntry())
+                switch (unit->GetEntry())
                 {
-                    case NPC_GOLEMAGG_THE_INCINERATOR:
-                        _golemaggTheIncineratorGUID = creature->GetGUID();
-                        break;
-                    case NPC_MAJORDOMO_EXECUTUS:
-                        _majordomoExecutusGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_CACHE_OF_THE_FIRELORD:
-                        _cacheOfTheFirelordGUID = go->GetGUID();
+                    case NPC_FLAMEWAKER_HEALER:
+                    case NPC_FLAMEWAKER_ELITE:
+                        if (Creature* majordomo = GetCreature(BOSS_MAJORDOMO_EXECUTUS))
+                            majordomo->AI()->DoAction(ACTION_FLAMEWAKER_DIES);
                         break;
                     default:
                         break;
                 }
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                if (type == DATA_RAGNAROS_ADDS)
-                {
-                    if (data == 1)
-                        ++_ragnarosAddDeaths;
-                    else if (data == 0)
-                        _ragnarosAddDeaths = 0;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_RAGNAROS_ADDS:
-                        return _ragnarosAddDeaths;
-                }
-
-                return 0;
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case BOSS_GOLEMAGG_THE_INCINERATOR:
-                        return _golemaggTheIncineratorGUID;
-                    case BOSS_MAJORDOMO_EXECUTUS:
-                        return _majordomoExecutusGUID;
-                }
-
-                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 bossId, EncounterState state) override
@@ -128,39 +100,57 @@ class instance_molten_core : public InstanceMapScript
                 if (!InstanceScript::SetBossState(bossId, state))
                     return false;
 
-                if (state == DONE && bossId < BOSS_MAJORDOMO_EXECUTUS)
-                    if (CheckMajordomoExecutus())
-                        SummonMajordomoExecutus();
+                switch (bossId)
+                {
+                    case BOSS_MAGMADAR:
+                    case BOSS_GEHENNAS:
+                    case BOSS_GARR:
+                    case BOSS_SHAZZRAH:
+                    case BOSS_BARON_GEDDON:
+                    case BOSS_SULFURON_HARBINGER:
+                    case BOSS_GOLEMAGG_THE_INCINERATOR:
+                        if (state == DONE)
+                        {
+                            auto runeItr = std::ranges::find(MoltenCoreRunes, bossId, &MoltenCoreRuneInfo::BossId);
+                            if (runeItr != std::ranges::end(MoltenCoreRunes))
+                            {
+                                if (GameObject* rune = GetGameObject(runeItr->RuneData))
+                                {
+                                    rune->SetGoState(GO_STATE_READY);
+                                    rune->SetLootState(GO_JUST_DEACTIVATED);
+                                }
+                            }
+                        }
+                        break;
+                    case BOSS_MAJORDOMO_EXECUTUS:
+                        if (state == DONE)
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_CACHE);
+                        break;
+                    default:
+                        break;
+                }
 
-                if (bossId == BOSS_MAJORDOMO_EXECUTUS && state == DONE)
-                    DoRespawnGameObject(_cacheOfTheFirelordGUID, 7_days);
+                if (state == DONE && bossId < BOSS_MAJORDOMO_EXECUTUS)
+                    if (CanSpawnMajordomoExecutus())
+                        SpawnMajordomoExecutus();
 
                 return true;
             }
 
-            void SummonMajordomoExecutus()
+            void SpawnMajordomoExecutus()
             {
-                _executusSchedule = false;
-                if (!_majordomoExecutusGUID.IsEmpty())
-                    return;
+                ShouldSpawnMajordomoExecutus = false;
 
                 if (GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
                 {
-                    instance->SummonCreature(NPC_MAJORDOMO_EXECUTUS, SummonPositions[0]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_HEALER, SummonPositions[1]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_HEALER, SummonPositions[2]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_HEALER, SummonPositions[3]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_HEALER, SummonPositions[4]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_ELITE, SummonPositions[5]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_ELITE, SummonPositions[6]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_ELITE, SummonPositions[7]);
-                    instance->SummonCreature(NPC_FLAMEWAKER_ELITE, SummonPositions[8]);
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_MAJORDOMO, true);
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_FLAMEWAKERS, true);
                 }
-                else if (TempSummon* summon = instance->SummonCreature(NPC_MAJORDOMO_EXECUTUS, RagnarosTelePos))
-                    summon->AI()->DoAction(ACTION_START_RAGNAROS_ALT);
+                else
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_MAJORDOMO_ALT, true);
             }
 
-            bool CheckMajordomoExecutus() const
+            bool CanSpawnMajordomoExecutus() const
             {
                 if (GetBossState(BOSS_RAGNAROS) == DONE)
                     return false;
@@ -174,16 +164,12 @@ class instance_molten_core : public InstanceMapScript
 
             void ReadSaveDataMore(std::istringstream& /*data*/) override
             {
-                if (CheckMajordomoExecutus())
-                    _executusSchedule = true;
+                if (CanSpawnMajordomoExecutus())
+                    ShouldSpawnMajordomoExecutus = true;
             }
 
-        private:
-            ObjectGuid _golemaggTheIncineratorGUID;
-            ObjectGuid _majordomoExecutusGUID;
-            ObjectGuid _cacheOfTheFirelordGUID;
-            bool  _executusSchedule;
-            uint8 _ragnarosAddDeaths;
+        protected:
+            bool ShouldSpawnMajordomoExecutus;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
