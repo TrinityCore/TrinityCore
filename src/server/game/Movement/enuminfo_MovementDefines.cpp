@@ -56,7 +56,7 @@ TC_API_EXPORT EnumText EnumUtils<MovementGeneratorType>::ToString(MovementGenera
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<MovementGeneratorType>::Count() { return 19; }
+TC_API_EXPORT size_t EnumUtils<MovementGeneratorType>::Count() { return 20; }
 
 template <>
 TC_API_EXPORT MovementGeneratorType EnumUtils<MovementGeneratorType>::FromIndex(size_t index)
