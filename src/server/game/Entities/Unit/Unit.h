@@ -1227,8 +1227,8 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool updateAnimTier = true);
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float const ori, bool force = true);
-        void SetFacingToObject(WorldObject const* object, bool force = true);
+        void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
+        void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
 
         void BuildHeartBeatMsg(WorldPacket* data) const;
 
