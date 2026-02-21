@@ -277,7 +277,7 @@ std::weak_ptr<DynamicTileBuilder::AsyncTileResult> DynamicTileBuilder::BuildTile
     std::vector<std::shared_ptr<GameObjectModel const>> gameObjectModelReferences; // hold strong refs to models
     for (GameObjectModel const* gameObjectModel : m_map->GetGameObjectModelsInGrid(tileX, tileY))
     {
-        if (!gameObjectModel->IsMapObject() || !gameObjectModel->IsIncludedInNavMesh())
+        if (!gameObjectModel->IsIncludedInNavMesh())
             continue;
 
         std::shared_ptr<VMAP::WorldModel const> worldModel = gameObjectModel->GetWorldModel();
