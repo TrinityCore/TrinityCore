@@ -162,10 +162,10 @@ public:
     }
 
 private:
-    // perfect hash function for all valid values of eAuthCmd
+    // perfect hash function for all valid client to server values of eAuthCmd
     inline static constexpr std::size_t GetOpcodeArrayIndex(eAuthCmd c)
     {
-        return (c & 0x7) + ((c & 0x10) >> 2) + ((c & 0x20) >> 5);
+        return (c & 0x7) + ((c & 0x10) >> 2) - ((c & 0x20) >> 5);
     }
 
     constexpr void InitializeHandler(eAuthCmd cmd, AuthStatus status, std::size_t packetSize, bool (*handler)(AuthSession*))
@@ -173,7 +173,7 @@ private:
         _handlers[GetOpcodeArrayIndex(cmd)] = { .cmd = cmd, .status = status, .packetSize = packetSize, .handler = handler, };
     }
 
-    std::array<AuthHandler, 10> _handlers;
+    std::array<AuthHandler, 8> _handlers;
 } inline constexpr Handlers;
 
 void AccountInfo::LoadResult(Field* fields)
@@ -209,7 +209,7 @@ AuthSession::AuthSession(Trinity::Net::IoContextTcpSocket&& socket) : Socket(std
 void AuthSession::Start()
 {
     // build initializer chain
-    std::array<std::shared_ptr<Trinity::Net::SocketConnectionInitializer>, 3> initializers =
+    std::array<std::shared_ptr<Trinity::Net::SocketConnectionInitializer>, 2> initializers =
     { {
         std::make_shared<Trinity::Net::IpBanCheckConnectionInitializer<AuthSession>>(this),
         std::make_shared<Trinity::Net::ReadConnectionInitializer<AuthSession>>(this),
