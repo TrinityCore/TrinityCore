@@ -534,6 +534,13 @@ bool MotionMaster::StopOnDeath()
     return true;
 }
 
+void MotionMaster::InterruptOnTeleport()
+{
+    if (MovementGenerator* top = GetCurrentMovementGenerator())
+        if (!top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_FINALIZED))
+            top->Deactivate(_owner); // only deactivate top, don't remove it. non-resumable generators will clean up themselves on next update
+}
+
 void MotionMaster::MoveIdle()
 {
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);

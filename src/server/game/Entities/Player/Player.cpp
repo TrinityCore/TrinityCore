@@ -1570,7 +1570,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     DisableSpline();
-    GetMotionMaster()->Remove(EFFECT_MOTION_TYPE);
+    GetMotionMaster()->InterruptOnTeleport();
 
     if (Transport* transport = GetTransport())
     {
@@ -1622,10 +1622,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet MSG_MOVE_TELEPORT_ACK
-        SetSemaphoreTeleportNear(true);
+        SetSemaphoreTeleportNear(IsMovedByClient());
         // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
             SendTeleportPacket(m_teleport_dest, (options & TELE_TO_TRANSPORT_TELEPORT) != 0);
+
+        if (!IsBeingTeleportedNear()) // update position immediately if we will not be waiting for client ACK
+            UpdatePosition(m_teleport_dest, true);
     }
     else
     {
