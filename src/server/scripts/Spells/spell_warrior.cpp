@@ -128,6 +128,11 @@ enum WarriorMisc
     SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
+namespace Warrior::SpellLabels
+{
+    static constexpr uint32 ThunderBlast = 3159;
+}
+
 static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spell const* triggeringSpell)
 {
     SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, difficulty);
@@ -782,6 +787,21 @@ class spell_warr_frothing_berserker : public AuraScript
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorFury>, EFFECT_1, SPELL_AURA_DUMMY);
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorProtection>, EFFECT_2, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_warr_frothing_berserker::HandleProc, EFFECT_ALL, SPELL_AURA_DUMMY);
+    }
+};
+
+// 438590 - Keep Your Feet on the Ground
+class spell_warr_keep_your_feet_on_the_ground : public AuraScript
+{
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        return spellInfo->HasLabel(Warrior::SpellLabels::ThunderBlast);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_keep_your_feet_on_the_ground::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1864,6 +1884,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_intimidating_shout_menace_knock_back);
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
+    RegisterSpellScript(spell_warr_keep_your_feet_on_the_ground);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_overpowering_finish);
     RegisterSpellScript(spell_warr_pain_and_gain_heal);
