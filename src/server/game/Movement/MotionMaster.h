@@ -152,6 +152,7 @@ class TC_GAME_API MotionMaster
         void PropagateSpeedChange();
         bool GetDestination(float &x, float &y, float &z);
         bool StopOnDeath();
+        void InterruptOnTeleport();
 
         void MoveIdle();
         void MoveTargetedHome();
