@@ -1674,7 +1674,7 @@ public:
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        caster->CastSpell(target, GravityLapseSpells[std::min(_targetCount, GravityLapseSpells.size())], true);
+        caster->CastSpell(target, GravityLapseSpells[std::min(_targetCount, GravityLapseSpells.size() - 1)], true);
         target->CastSpell(target, SPELL_GRAVITY_LAPSE_FLIGHT_AURA, true);
         target->CastSpell(target, SPELL_GRAVITY_LAPSE_PERIODIC, true);
         _targetCount++;
