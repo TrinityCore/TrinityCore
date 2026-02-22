@@ -841,9 +841,11 @@ class TC_GAME_API Spell
             uint64 TimeDelay = 0ULL;
             int32 Damage = 0;
             int32 Healing = 0;
+            bool Positive = true;
 
             SpellMissInfo MissCondition = SPELL_MISS_NONE;
             SpellMissInfo ReflectResult = SPELL_MISS_NONE;
+            uint32 ReflectingSpellId = 0;
 
             bool IsAlive = false;
             bool IsCrit = false;
@@ -852,7 +854,6 @@ class TC_GAME_API Spell
             DiminishingGroup DRGroup = DIMINISHING_NONE;
             int32 AuraDuration = 0;
             int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
-            bool Positive = true;
             UnitAura* HitAura = nullptr;
             ProcFlagsHit ProcHitMask = { };
 

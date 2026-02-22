@@ -20,7 +20,7 @@
 #include "ScriptMgr.h"
 #include "aberrus_the_shadowed_crucible.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_KAZZARA_THE_HELLFORGED,              DATA_KAZZARA_THE_HELLFORGED         },
     { BOSS_SHADOWFLAME_AMALGAMATION,            DATA_THE_AMALGAMATION_CHAMBER       },
@@ -32,22 +32,19 @@ ObjectData const creatureData[] =
     { BOSS_ECHO_OF_NELTHARION,                  DATA_ECHO_OF_NELTHARION             },
     { BOSS_SCALECOMMANDER_SARKARETH,            DATA_SCALECOMMANDER_SARKARETH       },
     { NPC_SCALECOMMANDER_SARKARETH_AT_KAZZARA,  DATA_SARKARETH_AT_KAZZARA           },
-    { 0,                                        0                                   }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_KAZZARA_DOOR, DATA_KAZZARA_THE_HELLFORGED,  EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,               0,                            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-ObjectData const objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_KAZZARA_GATE, DATA_KAZZARA_GATE },
-    { 0,               0                 }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_KAZZARA_THE_HELLFORGED,      {{ 2688 }} },
     { DATA_THE_AMALGAMATION_CHAMBER,    {{ 2687 }} },

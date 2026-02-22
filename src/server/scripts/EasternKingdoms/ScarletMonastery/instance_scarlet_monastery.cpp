@@ -30,7 +30,7 @@ Position const EarthBunnySpawnPosition = { 1765.28f, 1347.46f, 18.55f, 6.17f };
 Position const HeadlessHorsemanSpawnPosition = { 1765.00f, 1347.00f, 15.00f };
 Position const HeadlessHorsemanHeadSpawnPosition = { 1788.54f, 1348.05f, 18.88f }; // Guessed
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_HEADLESS_HORSEMAN_HEAD, DATA_HORSEMAN_HEAD     },
     { NPC_HEADLESS_HORSEMAN,      DATA_HEADLESS_HORSEMAN },
@@ -40,15 +40,13 @@ ObjectData const creatureData[] =
     { NPC_MOGRAINE,               DATA_MOGRAINE          },
     { NPC_VORREL,                 DATA_VORREL            },
     { NPC_WHITEMANE,              DATA_WHITEMANE         },
-    { 0,                          0                      } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_PUMPKIN_SHRINE,        DATA_PUMPKIN_SHRINE        },
     { GO_HIGH_INQUISITORS_DOOR, DATA_HIGH_INQUISITORS_DOOR },
     { GO_LOOSELY_TURNED_SOIL,   DATA_LOOSELY_TURNED_SOIL   },
-    { 0,                        0                          } // END
 };
 
 static constexpr DungeonEncounterData Encounters[] =

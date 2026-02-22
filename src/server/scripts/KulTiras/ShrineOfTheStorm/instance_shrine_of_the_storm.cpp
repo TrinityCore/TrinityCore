@@ -27,7 +27,7 @@ static BossBoundaryData const boundaries =
     { DATA_LORD_STORMSONG, new ZRangeBoundary(146.85f, 157.03f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_AQUSIRR,                    DATA_AQUSIRR                     },
     { BOSS_BROTHER_IRONHULL,           DATA_BROTHER_IRONHULL            },
@@ -36,10 +36,9 @@ ObjectData const creatureData[] =
     { BOSS_VOLZITH_THE_WHISPERER,      DATA_VOLZITH_THE_WHISPERER       },
     { NPC_LORD_STORMSONG_BROTHER_PIKE, DATA_LORD_STORMSONG_BROTHER_PIKE },
     { NPC_LORD_STORMSONG_REXXAR,       DATA_LORD_STORMSONG_REXXAR       },
-    { 0,                               0                                }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_AQUSIRR,               {{ 2130 }} },
     { DATA_TIDESAGE_COUNCIL,      {{ 2131 }} },
@@ -59,7 +58,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadBossBoundaries(boundaries);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
 
             _lordStormsongIntroState = NOT_STARTED;
