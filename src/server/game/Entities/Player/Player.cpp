@@ -22507,35 +22507,16 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     CastSpell(this, 836, true);                             // LOGINEFFECT
 
-    // set some aura effects that send packet to player client after add player to map
-    // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply
-    // same auras state lost at far teleport, send it one more time in this case also
-    static const AuraType auratypes[] =
-    {
-        SPELL_AURA_TRANSFORM,    SPELL_AURA_WATER_WALK,
-        SPELL_AURA_FEATHER_FALL, SPELL_AURA_HOVER,                     SPELL_AURA_SAFE_FALL,
-        SPELL_AURA_FLY,          SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED, SPELL_AURA_NONE
-    };
-    for (AuraType const* itr = &auratypes[0]; itr && itr[0] != SPELL_AURA_NONE; ++itr)
-    {
-        Unit::AuraEffectList const& auraList = GetAuraEffectsByType(*itr);
-        if (!auraList.empty())
-            auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
-    }
-
-    if (HasAuraType(SPELL_AURA_MOD_STUN))
-        SetRooted(true);
-
     WorldPacket setCompoundState(SMSG_MULTIPLE_MOVES, 100);
     setCompoundState << uint32(0); // size placeholder
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
-    if (HasAuraType(SPELL_AURA_MOD_ROOT))
+    if (HasAuraType(SPELL_AURA_MOD_STUN) || HasAuraType(SPELL_AURA_MOD_ROOT))
     {
         setCompoundState << uint8(2 + GetPackGUID().size() + 4);
         setCompoundState << uint16(SMSG_FORCE_MOVE_ROOT);
         setCompoundState << GetPackGUID();
-        setCompoundState << uint32(0);          //! movement counter
+        setCompoundState << uint32(GetMovementCounterAndInc());
     }
 
     if (HasAuraType(SPELL_AURA_FEATHER_FALL))
@@ -22543,7 +22524,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         setCompoundState << uint8(2 + GetPackGUID().size() + 4);
         setCompoundState << uint16(SMSG_MOVE_FEATHER_FALL);
         setCompoundState << GetPackGUID();
-        setCompoundState << uint32(0);          //! movement counter0
+        setCompoundState << uint32(GetMovementCounterAndInc());
     }
 
     if (HasAuraType(SPELL_AURA_WATER_WALK))
@@ -22551,7 +22532,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         setCompoundState << uint8(2 + GetPackGUID().size() + 4);
         setCompoundState << uint16(SMSG_MOVE_WATER_WALK);
         setCompoundState << GetPackGUID();
-        setCompoundState << uint32(0);          //! movement counter0
+        setCompoundState << uint32(GetMovementCounterAndInc());
     }
 
     if (HasAuraType(SPELL_AURA_HOVER))
@@ -22559,7 +22540,15 @@ void Player::SendInitialPacketsAfterAddToMap()
         setCompoundState << uint8(2 + GetPackGUID().size() + 4);
         setCompoundState << uint16(SMSG_MOVE_SET_HOVER);
         setCompoundState << GetPackGUID();
-        setCompoundState << uint32(0);          //! movement counter0
+        setCompoundState << uint32(GetMovementCounterAndInc());
+    }
+
+    if (HasAuraType(SPELL_AURA_FLY) || HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+    {
+        setCompoundState << uint8(2 + GetPackGUID().size() + 4);
+        setCompoundState << uint16(SMSG_MOVE_SET_CAN_FLY);
+        setCompoundState << GetPackGUID();
+        setCompoundState << uint32(GetMovementCounterAndInc());
     }
 
     if (setCompoundState.size() > 4)
