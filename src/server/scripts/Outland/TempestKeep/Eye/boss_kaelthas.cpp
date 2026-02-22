@@ -1674,7 +1674,7 @@ public:
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        caster->CastSpell(target, GravityLapseSpells[_targetCount], true);
+        caster->CastSpell(target, GravityLapseSpells[std::min(_targetCount, GravityLapseSpells.size())], true);
         target->CastSpell(target, SPELL_GRAVITY_LAPSE_FLIGHT_AURA, true);
         target->CastSpell(target, SPELL_GRAVITY_LAPSE_PERIODIC, true);
         _targetCount++;
@@ -1686,7 +1686,7 @@ public:
     }
 
 private:
-    uint8 _targetCount;
+    std::size_t _targetCount;
 };
 
 // 34480 - Gravity Lapse
@@ -1702,12 +1702,7 @@ class spell_kaelthas_gravity_lapse_periodic : public AuraScript
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
-
-        float z = target->GetPositionZ();
-        float floor = target->GetMap()->GetHeight(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-
-        /// @todo: Player should cast this spell if he's on the ground, not if above the ground. Doesn't work always with 0.5f check for unknown reason
-        if (fabs(z - floor) < 5.0f)
+        if (!target->IsFlying() || std::abs(target->GetPositionZ() - target->GetFloorZ()) < 0.5f)
             target->CastSpell(target, SPELL_GRAVITY_LAPSE_KNOCK_BACK, true);
     }
 
@@ -1981,9 +1976,9 @@ class spell_kaelthas_nether_vapor_lightning : public AuraScript
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    void OnPeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget()->GetNearPosition(10.0f, frand(0.0f, float(M_PI) + (float(M_PI)))), uint32(GetEffectInfo(EFFECT_0).CalcValue()));
+        GetTarget()->CastSpell(GetTarget()->GetNearPosition(10.0f, frand(0.0f, 2.0f * float(M_PI))), aurEff->GetAmount());
     }
 
     void Register() override
@@ -2006,17 +2001,14 @@ class spell_kaelthas_nether_beam : public SpellScript
     {
         if (Creature* caster = GetCaster()->ToCreature())
         {
-            std::list<Unit*> targets;
+            std::vector<Unit*> targets;
             for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
-            {
-                Unit* target = ref->GetVictim();
-                targets.push_back(target);
-            }
+                targets.push_back(ref->GetVictim());
 
             Trinity::Containers::RandomResize(targets, 5);
 
-            for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                caster->CastSpell(*itr, SPELL_NETHER_BEAM_CHAIN, true);
+            for (Unit* target : targets)
+                caster->CastSpell(target, SPELL_NETHER_BEAM_CHAIN, true);
         }
     }
 
