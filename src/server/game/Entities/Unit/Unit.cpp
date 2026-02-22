@@ -12821,14 +12821,15 @@ bool Unit::CanSwim() const
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
-    DisableSpline();
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = ToPlayer())
     {
         WorldLocation target(GetMapId(), pos);
-        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | (casting ? TELE_TO_SPELL : 0));
+        player->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | (casting ? TELE_TO_SPELL : 0));
     }
     else
     {
+        DisableSpline();
+        GetMotionMaster()->InterruptOnTeleport();
         SendTeleportPacket(pos);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
@@ -12865,7 +12866,7 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 
     WorldPacket moveUpdateTeleport(MSG_MOVE_TELEPORT, 38);
     moveUpdateTeleport << GetPackGUID();
-    Unit* broadcastSource = this;
+    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
 
     if (IsMovedByClient())
     {
@@ -12876,13 +12877,11 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
         Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveTeleport);
         playerMover->SendDirectMessage(&moveTeleport);
 
-        broadcastSource = playerMover;
+        // Broadcast the packet to everyone except self.
+        SendMessageToSet(&moveUpdateTeleport, playerMover);
     }
-
-    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
-
-    // Broadcast the packet to everyone except self.
-    broadcastSource->SendMessageToSet(&moveUpdateTeleport, false);
+    else
+        SendMessageToSet(&moveUpdateTeleport, true);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
