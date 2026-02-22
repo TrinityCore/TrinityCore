@@ -35,10 +35,6 @@
  * Visual effect of Pure Nether Beam doesn't stop. Looks like client bug, saw same in WoTLK classic
  * Drowned emote during transition doesn't trigger, not set manually in sniffs (doesn't work if set manually either way). From my observation this boss has
    different bugs in different expansions. Something is fixed in one and is broken in another
- * Critical bug: If Gravity Lapse occurs when player has Arcane Disruption debuff, teleport from Gravity Lapse bugs player's position. As result,
-   player's position will kinda stuck. Distance command will always return same position no matter where you are. You will be not able to loot Kael'thas because
-   you're kinda far away from the corpse. Even leaving instance through portal in impossible. Teleporting to another map fixes this bug. Currently
-   Arcane Disruption is disabled in phase 5 completely
  */
 
 #include "ScriptMgr.h"
@@ -605,6 +601,7 @@ struct boss_kaelthas : public BossAI
                 events.CancelEvent(EVENT_NETHER_BEAM);
                 events.ScheduleEvent(EVENT_FIREBALL, 0s);
                 events.ScheduleEvent(EVENT_FLAME_STRIKE, 20s, 30s);
+                events.ScheduleEvent(EVENT_ARCANE_DISRUPTION, 20s, 30s);
                 events.ScheduleEvent(EVENT_SUMMON_PHOENIX, 45s, 55s);
                 events.ScheduleEvent(EVENT_STAGE_GRAVITY, 55s);
                 break;
