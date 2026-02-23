@@ -2063,17 +2063,15 @@ class spell_dh_shift : public SpellScript
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
-        if (WorldLocation const* pos = GetExplTargetDest())
-        {
-            Unit* caster = GetCaster();
+        Unit* caster = GetCaster();
+        WorldLocation const& target = *GetHitDest();
 
-            CastSpellExtraArgs args;
-            args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
-            args.TriggeringSpell = GetSpell();
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringSpell = GetSpell();
 
-            caster->CastSpell(pos->GetPosition(), SPELL_DH_SHIFT_VISUAL_DEST, args);
-            caster->CastSpell(pos->GetPosition(), SPELL_DH_SHIFT_CHARGE, args);
-        }
+        caster->CastSpell(target, SPELL_DH_SHIFT_VISUAL_DEST, args);
+        caster->CastSpell(target, SPELL_DH_SHIFT_CHARGE, args);
     }
 
     void Register() override
