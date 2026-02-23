@@ -257,7 +257,8 @@ UPDATE `spell_learn_spell` s
 JOIN `tmp_profession_header_map` m
   ON m.`entry` = s.`entry`
  AND m.`SpellID` = s.`SpellID`
-SET s.`Active` = m.`Active`;
+SET s.`Active` = m.`Active`
+WHERE s.`Active` <> m.`Active`;
 
 INSERT INTO `spell_learn_spell` (`entry`, `SpellID`, `Active`)
 SELECT m.`entry`, m.`SpellID`, m.`Active`
