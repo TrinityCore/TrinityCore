@@ -22,16 +22,15 @@
 #include "CreatureAI.h"
 #include "InstanceScript.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_KRIKTHIR_DOOR,     DATA_KRIKTHIR,                  EncounterDoorBehavior::OpenWhenDone },
     { GO_ANUBARAK_DOOR_1,   DATA_ANUBARAK,                  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ANUBARAK_DOOR_2,   DATA_ANUBARAK,                  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ANUBARAK_DOOR_3,   DATA_ANUBARAK,                  EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                    0,                              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_KRIKTHIR,        DATA_KRIKTHIR        },
     { NPC_HADRONOX,        DATA_HADRONOX        },
@@ -39,14 +38,12 @@ ObjectData const creatureData[] =
     { NPC_WATCHER_NARJIL,  DATA_WATCHER_GASHRA  },
     { NPC_WATCHER_GASHRA,  DATA_WATCHER_SILTHIK },
     { NPC_WATCHER_SILTHIK, DATA_WATCHER_NARJIL  },
-    { 0,                   0                    } // END
 };
 
-ObjectData const gameobjectData[] =
+static constexpr ObjectData gameobjectData[] =
 {
     { GO_ANUBARAK_DOOR_1, DATA_ANUBARAK_WALL   },
     { GO_ANUBARAK_DOOR_3, DATA_ANUBARAK_WALL_2 },
-    { 0,                  0                    } // END
 };
 
 BossBoundaryData const boundaries =
@@ -56,7 +53,7 @@ BossBoundaryData const boundaries =
     { DATA_ANUBARAK, new CircleBoundary(Position(550.6178f, 253.5917f), 26.0f) }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_KRIKTHIR, {{ 1971 }} },
     { DATA_HADRONOX, {{ 1972 }} },

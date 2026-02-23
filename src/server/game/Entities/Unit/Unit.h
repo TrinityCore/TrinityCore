@@ -567,6 +567,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 resist;
     bool   periodicLog;
     uint32 blocked;
+    uint32 reflectingSpellId;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
@@ -1881,7 +1882,7 @@ class TC_GAME_API Unit : public WorldObject
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
 
         void DestroyForPlayer(Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void ClearValuesChangesMask() override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
