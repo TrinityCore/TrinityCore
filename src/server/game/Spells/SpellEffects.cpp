@@ -3972,7 +3972,7 @@ void Spell::EffectCharge()
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         // not all charge effects used in negative spells
-        if (m_spellInfo->HasAttribute(SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT) && unitCaster->IsValidAttackTarget(unitTarget))
             unitCaster->Attack(unitTarget, true);
 
         if (effectInfo->TriggerSpell)

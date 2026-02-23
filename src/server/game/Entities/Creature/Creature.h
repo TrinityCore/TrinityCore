@@ -492,11 +492,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         UF::OptionalUpdateField<UF::VendorData, int32(WowCS::EntityFragment::FVendor_C), 0> m_vendorData;
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
 
     public:
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
 
@@ -512,8 +512,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         };
 
     protected:
-        void ClearUpdateMask(bool remove) override;
-
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
 

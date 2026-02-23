@@ -1318,8 +1318,6 @@ namespace UF
         template<std::size_t Bits>
         friend class HasChangesMask;
 
-        friend class UpdateFieldHolder;
-
     public:
         template<typename T>
         bool Is() const { return std::holds_alternative<T>(_value); }

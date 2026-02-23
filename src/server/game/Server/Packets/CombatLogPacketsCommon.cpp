@@ -33,6 +33,11 @@ void SpellCastLogData::Initialize(Unit const* unit)
     AttackPower = unit->GetTotalAttackPowerValue(unit->GetClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
     SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
     Armor = unit->GetArmor();
+    if (Player const* player = unit->ToPlayer())
+    {
+        Versatility = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) * 100.0f;
+        Avoidance = player->GetRatingBonusValue(CR_AVOIDANCE) * 100.0f;
+    }
     PowerData.emplace_back(int32(unit->GetPowerType()), unit->GetPower(unit->GetPowerType()), int32(0));
 }
 
@@ -44,6 +49,11 @@ void SpellCastLogData::Initialize(Spell const* spell)
         AttackPower = unitCaster->GetTotalAttackPowerValue(unitCaster->GetClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
         SpellPower = unitCaster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
         Armor = unitCaster->GetArmor();
+        if (Player const* player = unitCaster->ToPlayer())
+        {
+            Versatility = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) * 100.0f;
+            Avoidance = player->GetRatingBonusValue(CR_AVOIDANCE) * 100.0f;
+        }
         Powers primaryPowerType = unitCaster->GetPowerType();
         bool primaryPowerAdded = false;
         for (SpellPowerCost const& cost : spell->GetPowerCost())
@@ -161,8 +171,9 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogDat
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
     data << int32(spellCastLogData.Armor);
-    data << int32(spellCastLogData.Unknown_1105_1);
-    data << int32(spellCastLogData.Unknown_1105_2);
+    data << int32(spellCastLogData.Versatility);
+    data << int32(spellCastLogData.Avoidance);
+    data << Bits<1>(spellCastLogData.HideFromCombatLog);
     data << BitsSize<9>(spellCastLogData.PowerData);
     data.FlushBits();
 
