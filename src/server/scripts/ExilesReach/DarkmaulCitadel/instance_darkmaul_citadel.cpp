@@ -15,27 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
-#include "CreatureAI.h"
-#include "InstanceScript.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "darkmaul_citadel.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_TUNK,     DATA_TUNK     },
     { BOSS_GORGROTH, DATA_GORGROTH },
     { BOSS_RAVNYR,   DATA_RAVNYR   },
-    { 0,             0             }  // END
 };
 
-static DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_TEMP_DOOR, DATA_TUNK, EncounterDoorBehavior::OpenWhenDone },
-    { 0,            0,         EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_TUNK,   {{ 2325 }} },
     { DATA_RAVNYR, {{ 2326 }} }
@@ -52,7 +48,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
         }

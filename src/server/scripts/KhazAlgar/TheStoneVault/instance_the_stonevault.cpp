@@ -27,25 +27,23 @@ BossBoundaryData const boundaries =
     { DATA_EDNA, new CircleBoundary({ 0.0f, 0.0f }, 58.0f)}
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_EDNA,                DATA_EDNA                },
     { BOSS_SKARMORAX,           DATA_SKARMORAK           },
     { BOSS_SPEAKER_DORLITA,     DATA_SPEAKER_DORLITA     },
     { BOSS_SPEAKER_BROKK,       DATA_SPEAKER_BROKK       },
     { BOSS_VOID_SPEAKER_EIRICH, DATA_VOID_SPEAKER_EIRICH },
-    { 0,                        0                        }  // END
 };
 
-static DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_FOUNDRY_DOOR_ENTRANCE,             DATA_EDNA,  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_FOUNDRY_DOOR_TOWARDS_SKARMORAK,    DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
     { GO_FOUNDRY_DOOR_TOWARDS_MACHINISTS,   DATA_EDNA,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                    0,          EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_EDNA,                {{ 2854 }} },
     { DATA_SKARMORAK,           {{ 2880 }} },
@@ -66,7 +64,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
