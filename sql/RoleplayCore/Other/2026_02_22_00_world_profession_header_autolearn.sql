@@ -6,7 +6,7 @@ CREATE TEMPORARY TABLE `tmp_profession_header_map` (
     `SpellID` INT UNSIGNED NOT NULL,
     `Active` TINYINT UNSIGNED NOT NULL DEFAULT 1,
     PRIMARY KEY (`entry`, `SpellID`)
-) ENGINE=Memory;
+) ENGINE=InnoDB;
 
 INSERT INTO `tmp_profession_header_map` (`entry`, `SpellID`, `Active`) VALUES
     (264211,195095,1),
@@ -253,9 +253,18 @@ INSERT INTO `tmp_profession_header_map` (`entry`, `SpellID`, `Active`) VALUES
     (195125,265856,1),
     (265856,195125,1);
 
+UPDATE `spell_learn_spell` s
+JOIN `tmp_profession_header_map` m
+  ON m.`entry` = s.`entry`
+ AND m.`SpellID` = s.`SpellID`
+SET s.`Active` = m.`Active`;
+
 INSERT INTO `spell_learn_spell` (`entry`, `SpellID`, `Active`)
 SELECT m.`entry`, m.`SpellID`, m.`Active`
 FROM `tmp_profession_header_map` m
-ON DUPLICATE KEY UPDATE `Active` = VALUES(`Active`);
+LEFT JOIN `spell_learn_spell` s
+  ON s.`entry` = m.`entry`
+ AND s.`SpellID` = m.`SpellID`
+WHERE s.`entry` IS NULL;
 
 DROP TEMPORARY TABLE `tmp_profession_header_map`;

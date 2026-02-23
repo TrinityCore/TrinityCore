@@ -5,7 +5,7 @@ CREATE TEMPORARY TABLE `tmp_prof_skill_to_header` (
     `skill_line` SMALLINT UNSIGNED NOT NULL,
     `header_spell` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`skill_line`, `header_spell`)
-) ENGINE=Memory;
+) ENGINE=InnoDB;
 
 INSERT INTO `tmp_prof_skill_to_header` (`skill_line`, `header_spell`) VALUES
     (2259,195095),
@@ -47,7 +47,7 @@ CREATE TEMPORARY TABLE `tmp_prof_source_to_header` (
     `source_spell` INT UNSIGNED NOT NULL,
     `header_spell` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`source_spell`, `header_spell`)
-) ENGINE=Memory;
+) ENGINE=InnoDB;
 
 INSERT INTO `tmp_prof_source_to_header` (`source_spell`, `header_spell`) VALUES
     (264211,195095),
@@ -300,7 +300,7 @@ CREATE TEMPORARY TABLE `tmp_gather_header_alias` (
     `base_spell` INT UNSIGNED NOT NULL,
     `alias_spell` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`base_spell`, `alias_spell`)
-) ENGINE=Memory;
+) ENGINE=InnoDB;
 
 INSERT INTO `tmp_gather_header_alias` (`base_spell`, `alias_spell`) VALUES
     (195114,265820),
