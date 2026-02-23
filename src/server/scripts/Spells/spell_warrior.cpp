@@ -53,8 +53,8 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_DEFT_EXPERIENCE                   = 383295,
-    SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_ENRAGE                            = 184362,
+    SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
     SPELL_WARRIOR_FRENZY_TALENT                     = 335077,
     SPELL_WARRIOR_FRENZY_BUFF                       = 335082,
@@ -712,16 +712,17 @@ class spell_warr_execute : public SpellScript
             { SPELL_WARRIOR_SUDDEN_DEATH, EFFECT_0 },
             { spellInfo->Id, EFFECT_0 }
         }) && ValidateSpellInfo({
+            SPELL_WARRIOR_SUDDEN_DEATH_BUFF,
             spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
     }
 
     Optional<int32> GetSuddenDeathRageCost() const
     {
-        if (Aura const* suddenDeathTalentAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH))
-            if (Aura* suddenDeathAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH_BUFF))
-                if (GetSpell()->m_appliedMods.contains(suddenDeathAura))
-                    return suddenDeathTalentAura->GetEffect(EFFECT_0)->CalculateAmount(GetCaster()) * 10;
+        if (Aura* suddenDeathAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH_BUFF))
+            if (GetSpell()->m_appliedMods.contains(suddenDeathAura))
+                if (AuraEffect const* suddenDeathTalentAura = GetCaster()->GetAuraEffect(SPELL_WARRIOR_SUDDEN_DEATH, EFFECT_0))
+                    return suddenDeathTalentAura->GetAmount() * 10;
 
         return {};
     }
@@ -740,16 +741,15 @@ class spell_warr_execute : public SpellScript
         PreventHitDefaultEffect(spellEffIndex);
 
         // Can't use SpellInfo::CalcPowerCost here since Sudden Death modifies the costs so it's free.
-        std::pair<int32, int32> powerCosts = GetRageCost();
+        auto [baseCost, optionalCost] = GetRageCost();
         int32 rageSpent = GetSpell()->GetPowerTypeCostAmount(POWER_RAGE).value_or(0);
 
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(spellEffIndex).TriggerSpell, CastSpellExtraArgsInit
-        {
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(spellEffIndex).TriggerSpell, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
             .CustomArg = TriggerArgs{
-                .BaseRageCost = powerCosts.first,
-                .OptionalRageCost = powerCosts.second,
+                .BaseRageCost = baseCost,
+                .OptionalRageCost = optionalCost,
                 .DamageRageSpent = GetSuddenDeathRageCost().value_or(rageSpent),
                 .RefundRage = CalculatePct(rageSpent, GetEffectInfo(EFFECT_1).CalcValue())
             }
