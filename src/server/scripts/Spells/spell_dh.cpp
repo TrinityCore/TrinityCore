@@ -196,6 +196,8 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOULS_VENGEANCE             = 204254,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SHEAR_PASSIVE                         = 203783,
+    SPELL_DH_SHIFT_VISUAL_DEST                     = 1234818,
+    SPELL_DH_SHIFT_CHARGE                          = 1242880,
     SPELL_DH_SIGIL_OF_CHAINS                       = 202138,
     SPELL_DH_SIGIL_OF_CHAINS_GRIP                  = 208674,
     SPELL_DH_SIGIL_OF_CHAINS_JUMP                  = 208674,
@@ -2051,6 +2053,33 @@ using at_dh_shattered_souls_vengeance_demon = at_dh_shattered_souls<SPELL_DH_CON
 using at_dh_shattered_souls_vengeance_lesser = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_VENGEANCE_LESSER>;
 using at_dh_shattered_souls_vengeance_shattered = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_VENGEANCE_SHATTERED>;
 
+// 1234796 - Shift
+class spell_dh_shift : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SHIFT_VISUAL_DEST, SPELL_DH_SHIFT_CHARGE });
+    }
+
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        WorldLocation const& target = *GetHitDest();
+
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringSpell = GetSpell();
+
+        caster->CastSpell(target, SPELL_DH_SHIFT_VISUAL_DEST, args);
+        caster->CastSpell(target, SPELL_DH_SHIFT_CHARGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dh_shift::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 207407 - Soul Carver
 class spell_dh_soul_carver : public SpellScript
 {
@@ -2571,6 +2600,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterAreaTriggerAI(at_dh_shattered_souls_vengeance_demon);
     RegisterAreaTriggerAI(at_dh_shattered_souls_vengeance_lesser);
     RegisterAreaTriggerAI(at_dh_shattered_souls_vengeance_shattered);
+    RegisterSpellScript(spell_dh_shift);
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_sigil_of_flame);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
