@@ -1,6 +1,5 @@
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warr_bladestorm_brutal_finish');
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(227847,'spell_warr_bladestorm_brutal_finish'), -- Brutal Finish
 (446035,'spell_warr_bladestorm_brutal_finish'); -- Brutal Finish
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (446918);
