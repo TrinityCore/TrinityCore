@@ -2535,50 +2535,6 @@ class spell_warr_wirlwind_dmg : public SpellScript
 };
 
 
-// 163201  - Execute
-// 217955  - Execute
-// 281000  - Execute
-class spell_warr_execute : public SpellScript
-{
-    float m_powerTaken = 0.f;
-
-    void HandleAfterHit()
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (Unit* target = GetHitUnit())
-            if (target->IsAlive() && caster)
-                caster->ModifyPower(POWER_RAGE, CalculatePct(m_powerTaken, GetEffectInfo(EFFECT_1).BasePoints));
-
-        caster->Variables.Remove("spell_warr_execute_damages::multiplier");
-        caster->RemoveAurasDueToSpell(SPELL_WARRIOR_SUDDEN_DEATH);
-    }
-
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_warr_execute::HandleAfterHit);
-    }
-};
-
-
-// 260798  - Executes damages
-class spell_warr_execute_damages : public SpellScript
-{
-    void HandleDamage(SpellEffIndex /*effIndex*/)
-    {
-        float damageMultiplier = GetCaster()->Variables.GetValue<float>("spell_warr_execute_damages::multiplier", 1.f);
-        SetHitDamage(GetHitDamage() * damageMultiplier);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_execute_damages::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-
 //385952 - Shield Charge
 class spell_warr_shiel_charge : public SpellScript
 {
