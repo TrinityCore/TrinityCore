@@ -347,18 +347,18 @@ class spell_warr_bladestorm_brutal_finish : public AuraScript
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* target = GetTarget();
-        if (!target->HasAura(SPELL_WARRIOR_BRUTAL_FINISH_TALENT))
+        Unit* caster = GetCaster();
+        if (!caster->HasAura(SPELL_WARRIOR_BRUTAL_FINISH_TALENT))
             return;
 
-        target->CastSpell(target, SPELL_WARRIOR_BRUTAL_FINISH_BUFF, CastSpellExtraArgsInit{
+        caster->CastSpell(caster, SPELL_WARRIOR_BRUTAL_FINISH_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
             });
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_warr_bladestorm_brutal_finish::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warr_bladestorm_brutal_finish::HandleEffectRemove, EFFECT_2, SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
