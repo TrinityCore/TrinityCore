@@ -35,7 +35,7 @@ enum STBossIds
     BOSS_ATALALARION            = 7,
     BOSS_EVENT_ELITE_TROLLS     = 8,
 
-    MAX_ENCOUNTER
+    MAX_ENCOUNTER,
 };
 
 enum STCreatureIds
@@ -54,24 +54,52 @@ enum STCreatureIds
     NPC_HUKKU                   = 5715,
     NPC_ZUL_LOR                 = 5716,
     NPC_MIJAN                   = 5717,
+    NPC_HAKKARI_MINION          = 8437,
+    NPC_HAKKARI_BLOODKEEPER     = 8438,
+    NPC_SHADE_OF_HAKKAR         = 8440,
+    NPC_NIGHTMARE_SUPPRESSOR    = 8497,
 };
 
 enum STGameObjectIds
 {
-    GO_ATALAI_STATUE1 = 148830,
-    GO_ATALAI_STATUE2 = 148831,
-    GO_ATALAI_STATUE3 = 148832,
-    GO_ATALAI_STATUE4 = 148833,
-    GO_ATALAI_STATUE5 = 148834,
-    GO_ATALAI_STATUE6 = 148835,
-    GO_ATALAI_LIGHT1  = 148883,
-    GO_ATALAI_LIGHT2  = 148937,
-    GO_FORCEFIELD     = 149431,
+    GO_ETERNAL_FLAME_1           = 148418,
+    GO_ETERNAL_FLAME_2           = 148419,
+    GO_ETERNAL_FLAME_3           = 148420,
+    GO_ETERNAL_FLAME_4           = 148421,
+    GO_ATALAI_STATUE1            = 148830,
+    GO_ATALAI_STATUE2            = 148831,
+    GO_ATALAI_STATUE3            = 148832,
+    GO_ATALAI_STATUE4            = 148833,
+    GO_ATALAI_STATUE5            = 148834,
+    GO_ATALAI_STATUE6            = 148835,
+    GO_ATALAI_LIGHT1             = 148883,
+    GO_ATALAI_LIGHT2             = 148937,
+    GO_EVIL_GOD_SUMMONING_CIRCLE = 148998,
+    GO_FORCEFIELD                = 149431,
+    GO_AVATAR_OF_HAKKAR_DOOR     = 149432,
 };
 
 enum STEvents
 {
-    EVENT_STATE = 1
+    EVENT_STATE          = 1,
+    DATA_ETERNAL_FLAME,
+    DATA_SHADE_OF_HAKKAR
+};
+
+enum STInstanceTexts
+{
+    // Shade of Hakkar
+    SAY_SPAWN_SHADE           = 0,
+    SAY_ETHERNAL_FLAME_SHADE1,
+    SAY_ETHERNAL_FLAME_SHADE2,
+    SAY_ETHERNAL_FLAME_SHADE3,
+};
+
+enum STShareActions
+{
+    ACTION_FIGHT_STATE_AVATAR        = -1,
+    ACTION_CAST_SUPPRESSOR_NIGHTMARE = -2,
+    ACTION_REMOVE_SUPPRESSOR         = -3
 };
 
 enum STShareSpells
@@ -79,6 +107,11 @@ enum STShareSpells
     SPELL_SUPPRESSION      = 12623,
     SPELL_GREEN_CHANNELING = 13540
 };
+
+struct Position;
+
+// Defined in sunken_temple.cpp
+extern Position const AvatarHakkarSpawnPos;
 
 template <class AI, class T>
 inline AI* GetSunkenTempleAI(T* obj)
