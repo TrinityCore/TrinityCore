@@ -1542,6 +1542,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!ne.minMaxRepeat.repeatMin && !ne.minMaxRepeat.repeatMax)
                 ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
 
+            if (e.event.event_flags != 0 && (e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) != 0)
+                ne.event_flags |= SMART_EVENT_FLAG_WHILE_CHARMED;
+
             SmartAction ac = SmartAction();
             ac.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
             ac.timeEvent.id = e.action.timeEvent.id;
