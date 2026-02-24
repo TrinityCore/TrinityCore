@@ -937,15 +937,15 @@ void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitM
 
     UndoActions(unit);
 
+    // OnUnitExit script can despawn this areatrigger or teleport player to a different map
+    if (!IsInWorld() || !IsInMap(unit))
+        return;
+
     // OnUnitExit script can teleport player to another map, causing it to attempt to exit the areatrigger again (from Unit::ExitAllAreaTriggers)
     unit->ExitAreaTrigger(this);
 
     if (canTriggerOnExit)
         _ai->OnUnitExit(unit, exitMode);
-
-    // OnUnitExit script can despawn this areatrigger or teleport player to a different map
-    if (!IsInWorld() || !IsInMap(unit))
-        return;
 }
 
 void AreaTrigger::HandleUnitExit(Unit* unit)
