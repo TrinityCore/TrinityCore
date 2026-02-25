@@ -414,7 +414,7 @@ public:
 
             if (id == 1)
             {
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                     PlayerGUID.Clear();
 
                 me->DespawnOrUnsummon(1ms);
@@ -430,7 +430,7 @@ public:
                     if (FlyTimer <= diff)
                     {
                         Tapped = false;
-                        if (PlayerGUID)
+                        if (!PlayerGUID.IsEmpty())
                         {
                             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                             if (player && player->GetQuestStatus(QUEST_THE_FORCE_OF_NELTHARAKU) == QUEST_STATUS_INCOMPLETE)
@@ -491,7 +491,9 @@ enum Earthmender
     SPELL_HEALING_WAVE          = 12491,
 
     QUEST_ESCAPE_COILSCAR       = 10451,
-    NPC_COILSKAR_ASSASSIN       = 21044
+    NPC_COILSKAR_ASSASSIN       = 21044,
+
+    PATH_ESCORT_WILDA           = 168218,
 };
 
 class npc_earthmender_wilda : public CreatureScript
@@ -636,7 +638,8 @@ public:
                 Talk(SAY_WIL_START, player);
                 me->SetFaction(FACTION_EARTHEN_RING);
 
-                Start(false, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_WILDA);
+                Start(false, player->GetGUID(), quest);
             }
         }
     };
@@ -1220,7 +1223,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
             if (WaveCount < 3)//1-3 Wave
             {
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
@@ -1235,7 +1238,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
             if (WavesInfo[WaveCount].CreatureId == 22076) // Torloth
             {
                 ENSURE_AI(npc_torloth_the_magnificent::npc_torloth_the_magnificentAI, Spawn->AI())->LordIllidanGUID = me->GetGUID();
-                if (PlayerGUID)
+                if (!PlayerGUID.IsEmpty())
                     ENSURE_AI(npc_torloth_the_magnificent::npc_torloth_the_magnificentAI, Spawn->AI())->AggroTargetGUID = PlayerGUID;
             }
         }

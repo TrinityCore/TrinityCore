@@ -290,6 +290,8 @@ public:
 ## npc_demolitionist_legoso
 ######*/
 
+static constexpr uint32 PATH_ESCORT_LEGOSO = 143858;
+
 class npc_demolitionist_legoso : public CreatureScript
 {
 public:
@@ -307,7 +309,8 @@ public:
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
                 SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
-                Start(true, true, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_LEGOSO);
+                Start(true, player->GetGUID(), quest);
             }
         }
 

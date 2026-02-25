@@ -162,7 +162,7 @@ struct boss_omor_the_unscarred : public BossAI
                     OrbitalStrike_Timer = 14000 + rand32() % 2000;
                     PlayerGUID = temp->GetGUID();
 
-                    if (PlayerGUID)
+                    if (!PlayerGUID.IsEmpty())
                         CanPullBack = true;
                 }
             }

@@ -219,7 +219,7 @@ class TC_GAME_API Object
         Object();
 
         void _InitValues();
-        void _Create(ObjectGuid::LowType guidlow, uint32 entry, HighGuid guidhigh);
+        void _Create(ObjectGuid const& guid);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         [[nodiscard]] bool _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
@@ -341,7 +341,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void Update(uint32 /*time_diff*/) { }
 
-        void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
         void AddToWorld() override;
         void RemoveFromWorld() override;
 

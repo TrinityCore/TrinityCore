@@ -508,7 +508,6 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         creature->SetWalk(false);
-        ENSURE_AI(hyjal_trashAI, creature->AI())->SetRun();
         creature->setActive(true);
         creature->SetFarVisible(true);
         switch (entry)
@@ -522,10 +521,6 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             case FROST_WYRM:
             case GIANT_INFERNAL:
             case FEL_STALKER:
-            case RAGE_WINTERCHILL:
-            case ANETHERON:
-            case KAZROGAL:
-            case AZGALOR:
                 ENSURE_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
                 break;
         }
@@ -628,7 +623,7 @@ void hyjalAI::Retreat()
         instance->SetData(DATA_ALLIANCE_RETREAT, 1);
         AddWaypoint(0, JainaWPs[0][0], JainaWPs[0][1], JainaWPs[0][2]);
         AddWaypoint(1, JainaWPs[1][0], JainaWPs[1][1], JainaWPs[1][2]);
-        Start(false, false);
+        Start(false);
         SetDespawnAtEnd(false);//move to center of alliance base
     }
     if (Faction == 1)
@@ -642,7 +637,7 @@ void hyjalAI::Retreat()
             DummyGuid = JainaDummy->GetGUID();
         }
         AddWaypoint(0, JainaDummySpawn[1][0], JainaDummySpawn[1][1], JainaDummySpawn[1][2]);
-        Start(false, false);
+        Start(false);
         SetDespawnAtEnd(false);//move to center of alliance base
     }
     SpawnVeins();
@@ -824,7 +819,7 @@ void hyjalAI::UpdateAI(uint32 diff)
     {
         for (uint8 i = 0; i < 2; ++i)
         {
-            if (BossGUID[i])
+            if (!BossGUID[i].IsEmpty())
             {
                 Unit* unit = ObjectAccessor::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->IsAlive()))
@@ -939,7 +934,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
             DoCast(me, SPELL_MASS_TELEPORT, false);
-        if (me->GetEntry() == THRALL && DummyGuid)
+        if (me->GetEntry() == THRALL && !DummyGuid.IsEmpty())
         {
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {

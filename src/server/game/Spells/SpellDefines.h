@@ -169,8 +169,11 @@ enum TriggerCastFlags : uint32
 
     // debug flags (used with .cast triggered commands)
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //! Will ignore equipped item requirements
+    TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //! Will ignore most target checks (mostly DBC target checks)
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
+
+DEFINE_ENUM_FLAG(TriggerCastFlags);
 
 enum SpellCastTargetFlags : uint32
 {

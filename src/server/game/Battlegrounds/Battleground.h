@@ -342,7 +342,7 @@ class TC_GAME_API Battleground
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
-        typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
+        typedef std::map<ObjectGuid, BattlegroundScore*> BattlegroundScoreMap;
 
         void StartBattleground();
 

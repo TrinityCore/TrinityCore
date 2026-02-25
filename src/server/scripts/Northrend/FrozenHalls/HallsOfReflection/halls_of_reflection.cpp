@@ -2148,23 +2148,6 @@ enum EscapeEvents
     EVENT_LUMBERING_ABOMINATION_CLEAVE
 };
 
-class HoRStartMovementEvent : public BasicEvent
-{
-    public:
-        explicit HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-        {
-            _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = _owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                _owner->AI()->AttackStart(target);
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
 struct npc_escape_event_trash : public ScriptedAI
 {
     npc_escape_event_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -2217,7 +2200,7 @@ class npc_raging_ghoul : public CreatureScript
                 me->CastSpell(me, SPELL_RAGING_GHOUL_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s);
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2283,7 +2266,7 @@ class npc_risen_witch_doctor : public CreatureScript
                 me->CastSpell(me, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s);
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2877,7 +2860,7 @@ class spell_hor_quel_delars_will : public SpellScript
         PreventHitDefaultEffect(effIndex);
 
         // dummy spell consumes reagent, don't ignore it
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
     }
 
     void Register() override

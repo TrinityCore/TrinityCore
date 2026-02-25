@@ -15,11 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires update
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "razorfen_downs.h"
 
-enum Say
+enum MordreshTexts
 {
     SAY_OOC_1               = 0,
     SAY_OOC_2               = 1,
@@ -27,113 +31,102 @@ enum Say
     SAY_AGGRO               = 3
 };
 
-enum Spells
+enum MordreshSpells
 {
     SPELL_FIREBALL          = 12466,
     SPELL_FIRE_NOVA         = 12470
 };
 
-enum Events
+enum MordreshEvents
 {
     EVENT_OOC_1            = 1,
-    EVENT_OOC_2            = 2,
-    EVENT_OOC_3            = 3,
-    EVENT_OOC_4            = 4,
-    EVENT_FIREBALL         = 5,
-    EVENT_FIRE_NOVA        = 6
+    EVENT_OOC_2,
+    EVENT_OOC_3,
+    EVENT_OOC_4,
+
+    EVENT_FIREBALL,
+    EVENT_FIRE_NOVA
 };
 
-class boss_mordresh_fire_eye : public CreatureScript
+// 7357 - Mordresh Fire Eye
+struct boss_mordresh_fire_eye : public BossAI
 {
-public:
-    boss_mordresh_fire_eye() : CreatureScript("boss_mordresh_fire_eye") { }
+    boss_mordresh_fire_eye(Creature* creature) : BossAI(creature, DATA_MORDRESH_FIRE_EYE) { }
 
-    struct boss_mordresh_fire_eyeAI : public BossAI
+    void Reset() override
     {
-        boss_mordresh_fire_eyeAI(Creature* creature) : BossAI(creature, DATA_MORDRESH_FIRE_EYE) { }
+        _Reset();
+        events.ScheduleEvent(EVENT_OOC_1, 10s);
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.Reset();
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_FIREBALL, 0s);
+        events.ScheduleEvent(EVENT_FIRE_NOVA, 8s, 12s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        if (!UpdateVictim())
         {
-            _Reset();
-            events.ScheduleEvent(EVENT_OOC_1, 10s);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            events.Reset();
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_FIREBALL, 100ms);
-            events.ScheduleEvent(EVENT_FIRE_NOVA, 8s, 12s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (!UpdateVictim())
-            {
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_OOC_1:
-                            Talk(SAY_OOC_1);
-                            events.ScheduleEvent(EVENT_OOC_2, 8s);
-                            break;
-                        case EVENT_OOC_2:
-                            Talk(SAY_OOC_2);
-                            events.ScheduleEvent(EVENT_OOC_3, 3s);
-                            break;
-                        case EVENT_OOC_3:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                            events.ScheduleEvent(EVENT_OOC_4, 6s);
-                            break;
-                        case EVENT_OOC_4:
-                            Talk(SAY_OOC_3);
-                            events.ScheduleEvent(EVENT_OOC_1, 14s);
-                            break;
-                    }
-                }
-                return;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_FIREBALL:
-                        DoCastVictim(SPELL_FIREBALL);
-                        events.ScheduleEvent(EVENT_FIREBALL, 2400ms, 3800ms);
+                    case EVENT_OOC_1:
+                        Talk(SAY_OOC_1);
+                        events.ScheduleEvent(EVENT_OOC_2, 8s);
                         break;
-                    case EVENT_FIRE_NOVA:
-                        DoCast(me, SPELL_FIRE_NOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, 11s, 16s);
+                    case EVENT_OOC_2:
+                        Talk(SAY_OOC_2);
+                        events.ScheduleEvent(EVENT_OOC_3, 3s);
+                        break;
+                    case EVENT_OOC_3:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                        events.ScheduleEvent(EVENT_OOC_4, 6s);
+                        break;
+                    case EVENT_OOC_4:
+                        Talk(SAY_OOC_3);
+                        events.ScheduleEvent(EVENT_OOC_1, 14s);
                         break;
                 }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
             }
-            DoMeleeAttackIfReady();
+            return;
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetRazorfenDownsAI<boss_mordresh_fire_eyeAI>(creature);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIREBALL:
+                    DoCastVictim(SPELL_FIREBALL);
+                    events.Repeat(2400ms, 3800ms);
+                    break;
+                case EVENT_FIRE_NOVA:
+                    DoCastSelf(SPELL_FIRE_NOVA);
+                    events.Repeat(11s, 16s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_mordresh_fire_eye()
 {
-    new boss_mordresh_fire_eye();
+    RegisterRazorfenDownsCreatureAI(boss_mordresh_fire_eye);
 }

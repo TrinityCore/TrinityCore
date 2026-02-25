@@ -336,9 +336,12 @@ class go_acherus_soul_prison : public GameObjectScript
             bool OnGossipHello(Player* player) override
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
-                    if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
+                {
+                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
+                    if (!prisonerGUID.IsEmpty())
                         if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                             ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+                }
 
                 return false;
             }

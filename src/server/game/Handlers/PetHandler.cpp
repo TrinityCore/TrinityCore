@@ -271,7 +271,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
         {
             Unit* unit_target = nullptr;
 
-            if (guid2)
+            if (!guid2.IsEmpty())
                 unit_target = ObjectAccessor::GetUnit(*_player, guid2);
 
             // do not cast unknown spells

@@ -28,7 +28,6 @@
 
 SplineChainMovementGenerator::SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), _nextIndex(0), _nextFirstWP(0), _msToNext(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
@@ -36,7 +35,6 @@ SplineChainMovementGenerator::SplineChainMovementGenerator(uint32 id, std::vecto
 
 SplineChainMovementGenerator::SplineChainMovementGenerator(SplineChainResumeInfo const& info) : _id(info.PointID), _chain(*info.Chain), _chainSize(info.Chain->size()), _walk(info.IsWalkMode), _nextIndex(info.SplineIndex), _nextFirstWP(info.PointIndex), _msToNext(info.TimeToNext)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
 
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
@@ -50,6 +48,8 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* owner, float velocity,
 {
     uint32 nodeCount = path.size();
     ASSERT(nodeCount > 1, "SplineChainMovementGenerator::SendPathSpline: Every path must have source & destination (size > 1)! (%s)", owner->GetGUID().ToString().c_str());
+
+    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(owner);
     if (nodeCount > 2)
@@ -81,7 +81,7 @@ void SplineChainMovementGenerator::SendSplineFor(Unit* owner, uint32 index, uint
     }
 }
 
-void SplineChainMovementGenerator::Initialize(Unit* owner)
+bool SplineChainMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -89,20 +89,20 @@ void SplineChainMovementGenerator::Initialize(Unit* owner)
     if (!_chainSize)
     {
         TC_LOG_ERROR("movement", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! ({})", owner->GetGUID().ToString());
-        return;
+        return false;
     }
 
     if (_nextIndex >= _chainSize)
     {
         TC_LOG_WARN("movement", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize ({})", owner->GetGUID().ToString());
         _msToNext = 0;
-        return;
+        return false;
     }
 
     if (_nextFirstWP) // this is a resumed movegen that has to start with a partial spline
     {
         if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
-            return;
+            return false;
 
         SplineChainLink const& thisLink = _chain[_nextIndex];
         if (_nextFirstWP >= thisLink.Points.size())
@@ -111,7 +111,6 @@ void SplineChainMovementGenerator::Initialize(Unit* owner)
             _nextFirstWP = thisLink.Points.size() - 1;
         }
 
-        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
         Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
         SendPathSpline(owner, thisLink.Velocity, partial);
 
@@ -133,14 +132,15 @@ void SplineChainMovementGenerator::Initialize(Unit* owner)
         if (_nextIndex >= _chainSize)
             _msToNext = 0;
     }
+    return true;
 }
 
-void SplineChainMovementGenerator::Reset(Unit* owner)
+bool SplineChainMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
     owner->StopMoving();
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool SplineChainMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -174,7 +174,11 @@ bool SplineChainMovementGenerator::Update(Unit* owner, uint32 diff)
         }
     }
     else
+    {
         _msToNext -= diff;
+        if (owner->movespline->Finalized())
+            owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+    }
 
     return true;
 }

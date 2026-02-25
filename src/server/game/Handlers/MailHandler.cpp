@@ -83,7 +83,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
     {
         TC_LOG_INFO("network", "Player {} is sending mail to {} (GUID: non-existing!) with subject {} "
             "and body {} includes {} items, {} copper and {} COD copper with StationeryID = {}, PackageID = {}",
-            GetPlayerInfo(), sendMail.Info.Target, sendMail.Info.Subject, sendMail.Info.Body,
+            GetPlayerInfo(), sendMail.Info.Target, std::string_view(sendMail.Info.Subject), std::string_view(sendMail.Info.Body),
             sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
@@ -107,8 +107,8 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
     TC_LOG_INFO("network", "Player {} is sending mail to {} ({}) with subject {} and body {} "
         "including {} items, {} copper and {} COD copper with StationeryID = {}, PackageID = {}",
-        GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), sendMail.Info.Subject,
-        sendMail.Info.Body, sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
+        GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), std::string_view(sendMail.Info.Subject),
+        std::string_view(sendMail.Info.Body), sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
 
     if (player->GetGUID() == receiverGuid)
     {
@@ -245,8 +245,8 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
                 {
                     if (log)
                     {
-                        sLog->OutCommand(GetAccountId(), "GM {} (GUID: {}) (Account: {}) mail item: {} (Entry: {} Count: {}) "
-                            "to: {} ({}) (Account: {})", GetPlayerName(), GetGUIDLow(), GetAccountId(),
+                        sLog->OutCommand(GetAccountId(), "GM {} ({}) (Account: {}) mail item: {} (Entry: {} Count: {}) "
+                            "to: {} ({}) (Account: {})", GetPlayerName(), _player->GetGUID().ToString(), GetAccountId(),
                             item->GetTemplate()->Name1, item->GetEntry(), item->GetCount(),
                             mailInfo.Target, receiverGuid.ToString(), receiverAccountId);
                     }
@@ -268,8 +268,8 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
             if (log && mailInfo.SendMoney > 0)
             {
-                sLog->OutCommand(GetAccountId(), "GM {} (GUID: {}) (Account: {}) mail money: {} to: {} ({}) (Account: {})",
-                    GetPlayerName(), GetGUIDLow(), GetAccountId(), mailInfo.SendMoney, mailInfo.Target, receiverGuid.ToString(), receiverAccountId);
+                sLog->OutCommand(GetAccountId(), "GM {} ({}) (Account: {}) mail money: {} to: {} ({}) (Account: {})",
+                    GetPlayerName(), _player->GetGUID().ToString(), GetAccountId(), mailInfo.SendMoney, mailInfo.Target, receiverGuid.ToString(), receiverAccountId);
             }
         }
 
@@ -440,7 +440,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            ObjectGuid sender_guid(HighGuid::Player, m->sender);
+            ObjectGuid sender_guid = ObjectGuid::Create<HighGuid::Player>(m->sender);
             Player* receiver = ObjectAccessor::FindConnectedPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -588,7 +588,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
         bodyItem->SetText(m->body);
 
     if (m->messageType == MAIL_NORMAL)
-        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HighGuid::Player, m->sender));
+        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
 
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
@@ -621,7 +621,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMail
         result.NextMailTime = 0.0f;
 
         time_t now = GameTime::GetGameTime();
-        std::set<uint32> sentSenders;
+        std::set<ObjectGuid::LowType> sentSenders;
         for (Mail* m : _player->GetMails())
         {
             // must be not checked yet

@@ -223,24 +223,6 @@ struct AreaGroupEntry
     uint32 NextAreaID;                                      // 7 index of next group
 };
 
-struct AreaPOIEntry
-{
-    uint32 ID;                                              // 0
-    uint32 Importance;                                      // 1
-    uint32 Icon[9];                                         // 2-10
-    uint32 FactionID;                                       // 11
-    DBCPosition3D Pos;                                      // 12-14
-    uint32 ContinentID;                                     // 15
-    //uint32 Flags;                                         // 16
-    uint32 AreaID;                                          // 17
-    //char const* Name[16];                                 // 18-33
-    //uint32 Name_lang_mask;                                // 34
-    //char const* Description[16];                          // 35-50
-    //uint32 Description_lang_mask;                         // 51
-    uint32 WorldStateID;                                    // 52
-    //uint32 WorldMapLink;                                  // 53
-};
-
 struct AreaTriggerEntry
 {
     uint32 ID;                                              // 0
@@ -1011,6 +993,18 @@ struct LFGDungeonEntry
 
     // Helpers
     uint32 Entry() const { return ID + (TypeID << 24); }
+};
+
+struct LFGDungeonExpansionEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 LfgID;                                           // 1
+    uint32 ExpansionLevel;                                  // 2
+    //uint32 RandomID;                                      // 3
+    uint32 HardLevelMin;                                    // 4
+    uint32 HardLevelMax;                                    // 5
+    //uint32 TargetLevelMin;                                // 6
+    //uint32 TargetLevelMax;                                // 7
 };
 
 struct LightEntry

@@ -1201,11 +1201,33 @@ class spell_bem_q10720_poison_keg : public SpellScript
 
 enum BombingRun
 {
+    SPELL_FEL_FLAK_FIRE       = 40075,
     SPELL_FLAK_CANNON_TRIGGER = 40110,
     SPELL_CHOOSE_LOC          = 40056,
     SPELL_AGGRO_CHECK         = 40112,
 
     NPC_FEL_CANNON2           = 23082
+};
+
+// 40109 - Knockdown Fel Cannon: The Bolt
+class spell_bem_kfc_the_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_bem_kfc_the_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEL_FLAK_FIRE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FEL_FLAK_FIRE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_kfc_the_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 40113 - Knockdown Fel Cannon: The Aggro Check Aura
@@ -1308,6 +1330,118 @@ class spell_bem_check_fly_mount : public SpellScript
     }
 };
 
+enum ApexisSwiftness
+{
+    SPELL_APEXIS_VIBRATIONS               = 40623,
+    SPELL_APEXIS_EMANATIONS               = 40625,
+    SPELL_APEXIS_ENLIGHTENMENT            = 40626,
+    SPELL_SWIFTNESS_APEXIS_VIBRATIONS     = 40624,
+    SPELL_SWIFTNESS_APEXIS_EMANATIONS     = 40627,
+    SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT  = 40628
+};
+
+// 40623 - Apexis Vibrations
+// 40625 - Apexis Emanations
+// 40626 - Apexis Enlightenment
+class spell_bem_apexis_swiftness : public AuraScript
+{
+    PrepareAuraScript(spell_bem_apexis_swiftness);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SWIFTNESS_APEXIS_VIBRATIONS,
+            SPELL_SWIFTNESS_APEXIS_EMANATIONS,
+            SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT
+        });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        switch (GetId())
+        {
+            case SPELL_APEXIS_VIBRATIONS:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_VIBRATIONS);
+                break;
+            case SPELL_APEXIS_EMANATIONS:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_EMANATIONS);
+                break;
+            case SPELL_APEXIS_ENLIGHTENMENT:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bem_apexis_swiftness::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 10525: Vision Guide
+######*/
+
+enum VisionGuide
+{
+    SPELL_VISION_GUIDE     = 36573
+};
+
+// 36587 - Vision Guide
+class spell_bem_vision_guide : public AuraScript
+{
+    PrepareAuraScript(spell_bem_vision_guide);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VISION_GUIDE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_VISION_GUIDE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bem_vision_guide::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 10714: On Spirit's Wings
+######*/
+
+enum OnSpiritsWings
+{
+    SPELL_REXXARS_BIRD_EFFECT   = 39074
+};
+
+// 38173 - Summon Spirit
+class spell_bem_summon_spirit : public SpellScript
+{
+    PrepareSpellScript(spell_bem_summon_spirit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_REXXARS_BIRD_EFFECT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        // This spell script requires sniff verification
+        GetCaster()->CastSpell(GetCaster(), SPELL_REXXARS_BIRD_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_summon_spirit::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1324,9 +1458,13 @@ void AddSC_blades_edge_mountains()
     RegisterSpellScript(spell_bem_coax_marmot);
     RegisterSpellScript(spell_bem_charm_rexxars_rodent);
     RegisterSpellScript(spell_bem_q10720_poison_keg);
+    RegisterSpellScript(spell_bem_kfc_the_bolt);
     RegisterSpellScript(spell_bem_aggro_check_aura);
     RegisterSpellScript(spell_bem_aggro_check);
     RegisterSpellScript(spell_bem_aggro_burst);
     RegisterSpellScript(spell_bem_choose_loc);
     RegisterSpellScript(spell_bem_check_fly_mount);
+    RegisterSpellScript(spell_bem_apexis_swiftness);
+    RegisterSpellScript(spell_bem_vision_guide);
+    RegisterSpellScript(spell_bem_summon_spirit);
 }

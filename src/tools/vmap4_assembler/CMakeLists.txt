@@ -10,8 +10,6 @@
 
 set(PRIVATE_SOURCES VMapAssembler.cpp)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
 
 target_link_libraries(vmap4assembler
@@ -22,9 +20,9 @@ target_link_libraries(vmap4assembler
     zlib)
 
 set_target_properties(vmap4assembler
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    FOLDER "tools")
 
 if(UNIX)
   install(TARGETS vmap4assembler DESTINATION bin)

@@ -17,8 +17,40 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ruins_of_ahnqiraj.h"
+#include <algorithm>
+
+static constexpr ObjectData creatureData[] =
+{
+    { NPC_KURINAXX,        DATA_KURINNAXX    },
+    { NPC_RAJAXX,          DATA_RAJAXX       },
+    { NPC_MOAM,            DATA_MOAM         },
+    { NPC_BURU,            DATA_BURU         },
+    { NPC_AYAMISS,         DATA_AYAMISS      },
+    { NPC_OSSIRIAN,        DATA_OSSIRIAN     },
+    { NPC_ANDOROV,         DATA_ANDOROV      },
+    { 0,                   0                 } // END
+};
+
+struct RajaxxWave
+{
+    std::string_view StringId;
+    int32 BossActionIdOnClear;
+};
+
+static constexpr std::array<RajaxxWave, 7> RajaxxWaves =
+{{
+    { "GeneralRajaxxWave1", 0 },
+    { "GeneralRajaxxWave2", ACTION_WAVE_STARTS_3 },
+    { "GeneralRajaxxWave3", ACTION_WAVE_STARTS_4 },
+    { "GeneralRajaxxWave4", ACTION_WAVE_STARTS_5 },
+    { "GeneralRajaxxWave5", ACTION_WAVE_STARTS_6 },
+    { "GeneralRajaxxWave6", ACTION_WAVE_STARTS_7 },
+    { "GeneralRajaxxWave7", ACTION_RAJAXX_ENTER }
+}};
 
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
@@ -30,31 +62,45 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             instance_ruins_of_ahnqiraj_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(NUM_ENCOUNTER);
+                SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
+
+                AndorovEventState = NOT_STARTED;
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
-                switch (creature->GetEntry())
+                InstanceScript::OnCreatureCreate(creature);
+
+                auto rajaxxWave = std::ranges::find_if(RajaxxWaves, [creature](std::string_view stringId) { return creature->HasStringId(stringId); }, &RajaxxWave::StringId);
+                if (rajaxxWave != RajaxxWaves.end())
+                    WaveGuidList[std::ranges::distance(RajaxxWaves.begin(), rajaxxWave)].insert(creature->GetGUID());
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                InstanceScript::OnUnitDeath(unit);
+
+                if (unit->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                auto rajaxxWave = std::ranges::find_if(RajaxxWaves, [creature = unit->ToCreature()](std::string_view stringId) { return creature->HasStringId(stringId); }, &RajaxxWave::StringId);
+                if (rajaxxWave != RajaxxWaves.end())
                 {
-                    case NPC_KURINAXX:
-                        _kurinaxxGUID = creature->GetGUID();
-                        break;
-                    case NPC_RAJAXX:
-                        _rajaxxGUID = creature->GetGUID();
-                        break;
-                    case NPC_MOAM:
-                        _moamGUID = creature->GetGUID();
-                        break;
-                    case NPC_BURU:
-                        _buruGUID = creature->GetGUID();
-                        break;
-                    case NPC_AYAMISS:
-                        _ayamissGUID = creature->GetGUID();
-                        break;
-                    case NPC_OSSIRIAN:
-                        _ossirianGUID = creature->GetGUID();
-                        break;
+                    std::ptrdiff_t waveIndex = std::ranges::distance(RajaxxWaves.begin(), rajaxxWave);
+                    if (WaveGuidList[waveIndex].erase(unit->GetGUID()) && WaveGuidList[waveIndex].empty())
+                    {
+                        // start next wave
+                        if (waveIndex + 1 < std::ranges::ssize(WaveGuidList))
+                            for (ObjectGuid guid : WaveGuidList[waveIndex + 1])
+                                if (Creature* creature = instance->GetCreature(guid))
+                                    if (creature->IsAlive() && !creature->IsInCombat())
+                                        creature->AI()->DoZoneInCombat();
+
+                        if (rajaxxWave->BossActionIdOnClear)
+                            if (Creature* rajaxx = GetCreature(DATA_RAJAXX))
+                                rajaxx->AI()->DoAction(rajaxxWave->BossActionIdOnClear);
+                    }
                 }
             }
 
@@ -63,46 +109,79 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 if (!InstanceScript::SetBossState(bossId, state))
                     return false;
 
+                switch (bossId)
+                {
+                    case DATA_KURINNAXX:
+                        if (state == DONE)
+                        {
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_ANDOROV);
+
+                            if (Creature* ossirian = GetCreature(DATA_OSSIRIAN))
+                                ossirian->AI()->DoAction(ACTION_KURINNAXX_DEFEATED);
+                        }
+                        break;
+                    case DATA_RAJAXX:
+                        if (state == DONE)
+                        {
+                            /// @todo: This part requires additional research. Here we check if Andorov's event was started
+                            /// and only then change it to finished to enable vendor. Otherwise players can complete
+                            /// Rajaxx's encounter without Andorov and then talk to him to buy items, doubt that should happen
+                            if (GetData(DATA_ANDOROV_EVENT_STATE) == IN_PROGRESS)
+                            {
+                                SetData(DATA_ANDOROV_EVENT_STATE, DONE);
+
+                                if (Creature* andorov = GetCreature(DATA_ANDOROV))
+                                    andorov->AI()->DoAction(ACTION_RAJAXX_DEFEATED);
+                            }
+                        }
+                        break;
+                }
+
                 return true;
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                if (type == DATA_ANDOROV_EVENT_STATE)
+                {
+                    AndorovEventState = data;
+                    if (data == IN_PROGRESS)
+                    {
+                        // Wave 1
+                        for (ObjectGuid guid : WaveGuidList[0])
+                            if (Creature* creature = instance->GetCreature(guid))
+                                if (creature->IsAlive() && !creature->IsInCombat())
+                                    creature->AI()->DoZoneInCombat();
+                    }
+                }
+            }
+
+            uint32 GetData(uint32 type) const override
+            {
+                if (type == DATA_ANDOROV_EVENT_STATE)
+                    return AndorovEventState;
+
+                return 0;
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_PARALYZED)
-                    _paralyzedGUID = data;
+                    ParalyzedGUID = data;
             }
 
             ObjectGuid GetGuidData(uint32 type) const override
             {
-                switch (type)
-                {
-                    case DATA_KURINNAXX:
-                        return _kurinaxxGUID;
-                    case DATA_RAJAXX:
-                        return _rajaxxGUID;
-                    case DATA_MOAM:
-                        return _moamGUID;
-                    case DATA_BURU:
-                        return _buruGUID;
-                    case DATA_AYAMISS:
-                        return _ayamissGUID;
-                    case DATA_OSSIRIAN:
-                        return _ossirianGUID;
-                    case DATA_PARALYZED:
-                        return _paralyzedGUID;
-                }
+                if (type == DATA_PARALYZED)
+                    return ParalyzedGUID;
 
                 return ObjectGuid::Empty;
             }
 
-        private:
-            ObjectGuid _kurinaxxGUID;
-            ObjectGuid _rajaxxGUID;
-            ObjectGuid _moamGUID;
-            ObjectGuid _buruGUID;
-            ObjectGuid _ayamissGUID;
-            ObjectGuid _ossirianGUID;
-            ObjectGuid _paralyzedGUID;
+        protected:
+            uint8 AndorovEventState;
+            GuidSet WaveGuidList[7];
+            ObjectGuid ParalyzedGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

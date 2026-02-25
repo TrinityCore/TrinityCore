@@ -24,19 +24,18 @@
 
 GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id) : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
-void GenericMovementGenerator::Initialize(Unit* owner)
+bool GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED) && !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING)) // Resume spline is not supported
     {
         RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
         AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-        return;
+        return false;
     }
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
@@ -45,11 +44,12 @@ void GenericMovementGenerator::Initialize(Unit* owner)
     Movement::MoveSplineInit init(owner);
     _splineInit(init);
     _duration.Reset(init.Launch());
+    return _duration.GetExpiry() > 0ms;
 }
 
-void GenericMovementGenerator::Reset(Unit* owner)
+bool GenericMovementGenerator::Reset(Unit* owner)
 {
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -89,4 +89,34 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
         if (creature->AI())
             creature->AI()->MovementInform(_type, _pointId);
     }
+}
+
+ImmediateMovementGenerator::ImmediateMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id)
+    : _splineInit(std::move(initializer)), _type(type), _pointId(id)
+{
+    Priority = MOTION_PRIORITY_NORMAL;
+    Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_IMMEDIATE;
+    BaseUnitState = 0;
+}
+
+bool ImmediateMovementGenerator::Initialize(Unit* owner)
+{
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+
+    Movement::MoveSplineInit init(owner);
+    _splineInit(init);
+    int32 duration = init.Launch();
+    if (duration <= 0)
+        return false;
+
+    owner->UpdateSplineMovement(duration); // immediately consume the entire spline
+    return true;
+}
+
+void ImmediateMovementGenerator::Finalize(Unit* owner, bool /*active*/, bool /*movementInform*/)
+{
+    if (Creature* creature = owner->ToCreature())
+        if (creature->AI())
+            creature->AI()->MovementInform(_type, _pointId);
 }
