@@ -1124,6 +1124,9 @@ void Player::Heartbeat()
 {
     Unit::Heartbeat();
 
+    // ZoneId and AreaId depending updats and mechanics (e.g. Resting, spell_area, phasing)
+    UpdateZoneAndArea();
+
     // Group update
     SendUpdateToOutOfRangeGroupMembers();
 
@@ -7531,6 +7534,30 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
     }
 
     return zone;
+}
+
+void Player::UpdateZoneAndArea()
+{
+    // On zone update tick check if we are still in an inn if we are supposed to be in one
+    if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN))
+    {
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(_restMgr->GetInnTriggerID());
+        if (!atEntry || !IsInAreaTriggerRadius(atEntry))
+            _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
+    }
+
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone, newarea);
+
+    if (m_zoneUpdateId != newzone)
+        UpdateZone(newzone, newarea);                // also update area
+    else
+    {
+        // use area updates as well
+        // needed for free far all arenas for example
+        if (m_areaUpdateId != newarea)
+            UpdateArea(newarea);
+    }
 }
 
 void Player::UpdateArea(uint32 newArea)
