@@ -34,6 +34,9 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "TaskScheduler.h"
 
 enum WarriorSpells
 {
@@ -48,6 +51,9 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
+    SPELL_WARRIOR_CHAMPIONS_SPEAR_AURA              = 376080,
+    SPELL_WARRIOR_CHAMPIONS_SPEAR_CHAIN_VISUAL      = 376085,
+    SPELL_WARRIOR_CHAMPIONS_SPEAR_PULL              = 376084,
     SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
@@ -452,6 +458,57 @@ class spell_warr_charge_effect : public SpellScript
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_warr_charge_effect::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
     }
+};
+
+// 376079 - Champion's Spear
+struct at_warr_champions_spear : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(1s, [this](TaskContext task)
+            {
+                Unit* caster = at->GetCaster();
+                if (!caster)
+                {
+                    task.Repeat(1s);
+                    return;
+                }
+
+                Position const center = at->GetPosition();
+
+                for (ObjectGuid const& guid : at->GetInsideUnits())
+                {
+                    Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+                    if (!unit)
+                        continue;
+
+                    if (!unit->HasAura(SPELL_WARRIOR_CHAMPIONS_SPEAR_AURA, caster->GetGUID()))
+                        continue;
+
+                    unit->CastSpell(center, SPELL_WARRIOR_CHAMPIONS_SPEAR_PULL,
+                        CastSpellExtraArgsInit{
+                            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                        });
+
+                    unit->CastSpell(center, SPELL_WARRIOR_CHAMPIONS_SPEAR_CHAIN_VISUAL,
+                        CastSpellExtraArgsInit{
+                            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                        });
+                }
+
+                task.Repeat(1s);
+            });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 23881 - Bloodthirst
@@ -1951,6 +2008,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
+    RegisterAreaTriggerAI(at_warr_champions_spear);
     RegisterSpellScript(spell_warr_cold_steel_hot_blood_bloodthirst);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
