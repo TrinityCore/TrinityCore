@@ -55,4 +55,4 @@ CREATE TABLE `server_settings`  (
     `setting_name` VARCHAR(50) NOT NULL,
     `setting_value` VARCHAR(255) NOT NULL,
     PRIMARY KEY (`setting_name`)
-); ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;

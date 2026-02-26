@@ -324,6 +324,7 @@ CREATE TABLE `vehicle_poi_type`  (
 -- ----------------------------
 -- Table structure for sound_ambience
 -- ----------------------------
+DROP TABLE IF EXISTS `sound_ambience`;
 CREATE TABLE `sound_ambience`  (
   `ID` int UNSIGNED NOT NULL DEFAULT 0,
   `Flags` int NOT NULL DEFAULT 0,
@@ -343,6 +344,7 @@ CREATE TABLE `sound_ambience`  (
 -- ----------------------------
 -- Table structure for zone_music
 -- ----------------------------
+DROP TABLE IF EXISTS `zone_music`;
 CREATE TABLE `zone_music`  (
   `ID` int UNSIGNED NOT NULL DEFAULT 0,
   `SetName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
@@ -359,28 +361,30 @@ CREATE TABLE `zone_music`  (
 -- ----------------------------
 -- Table structure for zone_music_locale
 -- ----------------------------
+DROP TABLE IF EXISTS `zone_music_locale`;
 CREATE TABLE `zone_music_locale`  (
   `ID` int UNSIGNED NOT NULL DEFAULT 0,
   `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `SetName_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
   `VerifiedBuild` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`, `locale`, `VerifiedBuild`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic PARTITION BY LIST COLUMNS (`locale`)
-PARTITIONS 10
-(PARTITION `deDE` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `esES` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `esMX` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `frFR` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `itIT` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `koKR` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `ptBR` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `ruRU` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `zhCN` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 ,
-PARTITION `zhTW` ENGINE = InnoDB MAX_ROWS = 0 MIN_ROWS = 0 );
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+/*!50500 PARTITION BY LIST  COLUMNS(locale)
+(PARTITION deDE VALUES IN ('deDE') ENGINE = InnoDB,
+ PARTITION esES VALUES IN ('esES') ENGINE = InnoDB,
+ PARTITION esMX VALUES IN ('esMX') ENGINE = InnoDB,
+ PARTITION frFR VALUES IN ('frFR') ENGINE = InnoDB,
+ PARTITION itIT VALUES IN ('itIT') ENGINE = InnoDB,
+ PARTITION koKR VALUES IN ('koKR') ENGINE = InnoDB,
+ PARTITION ptBR VALUES IN ('ptBR') ENGINE = InnoDB,
+ PARTITION ruRU VALUES IN ('ruRU') ENGINE = InnoDB,
+ PARTITION zhCN VALUES IN ('zhCN') ENGINE = InnoDB,
+ PARTITION zhTW VALUES IN ('zhTW') ENGINE = InnoDB) */;
 
 -- ----------------------------
 -- Table structure for npc_sounds
 -- ----------------------------
+DROP TABLE IF EXISTS `npc_sounds`;
 CREATE TABLE `npc_sounds` (
 	`ID` INT(10) UNSIGNED NOT NULL,
 	`hello` INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -394,6 +398,7 @@ CREATE TABLE `npc_sounds` (
 -- ----------------------------
 -- Table structure for item_display_info
 -- ----------------------------
+DROP TABLE IF EXISTS `item_display_info`;
 CREATE TABLE `item_display_info` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `GeosetGroupOverride` int NOT NULL DEFAULT '0',
@@ -433,6 +438,7 @@ CREATE TABLE `item_display_info` (
 -- ----------------------------
 -- Table structure for chr_race_racial_ability
 -- ----------------------------
+DROP TABLE IF EXISTS `chr_race_racial_ability`;
 CREATE TABLE `chr_race_racial_ability` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text,
@@ -445,6 +451,7 @@ CREATE TABLE `chr_race_racial_ability` (
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `chr_race_racial_ability_locale`;
 CREATE TABLE `chr_race_racial_ability_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `locale` varchar(4) NOT NULL,
@@ -469,6 +476,7 @@ CREATE TABLE `chr_race_racial_ability_locale` (
 --
 -- Table structure for global_strings
 --
+DROP TABLE IF EXISTS `global_strings`;
 CREATE TABLE `global_strings` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `BaseTag` text,
@@ -478,6 +486,7 @@ CREATE TABLE `global_strings` (
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `global_strings_locale`;
 CREATE TABLE `global_strings_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `locale` varchar(4) NOT NULL,
