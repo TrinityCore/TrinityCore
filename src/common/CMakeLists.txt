@@ -57,6 +57,12 @@ target_include_directories(common
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
+if(TARGET jemalloc)
+  target_link_libraries(common
+    PUBLIC
+      jemalloc)
+endif()
+
 target_link_libraries(common
   PRIVATE
     trinity-core-interface
@@ -71,7 +77,6 @@ target_link_libraries(common
     openssl
     valgrind
     threads
-    jemalloc
     openssl_ed25519
     short_alloc)
 
