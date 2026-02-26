@@ -32,7 +32,7 @@
 5 - Kil'Jaeden
 */
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_FIRE_BARRIER,     DATA_FELMYST,  EncounterDoorBehavior::OpenWhenDone },
     { GO_MURUS_GATE_1,     DATA_MURU,     EncounterDoorBehavior::OpenWhenNotInProgress },
@@ -40,10 +40,9 @@ DoorData const doorData[] =
     { GO_BOSS_COLLISION_1, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_BOSS_COLLISION_2, DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_FORCE_FIELD,      DATA_KALECGOS, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                   0,             EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_KALECGOS,               DATA_KALECGOS_DRAGON      },
     { NPC_KALECGOS_HUMAN,         DATA_KALECGOS_HUMAN       },
@@ -58,7 +57,6 @@ ObjectData const creatureData[] =
     { NPC_KILJAEDEN_CONTROLLER,   DATA_KILJAEDEN_CONTROLLER },
     { NPC_ANVEENA,                DATA_ANVEENA              },
     { NPC_KALECGOS_KJ,            DATA_KALECGOS_KJ          },
-    { 0,                          0                         } // END
 };
 
 BossBoundaryData const boundaries =
@@ -66,7 +64,7 @@ BossBoundaryData const boundaries =
     { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0f), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_KALECGOS, {{ 724 }} },
     { DATA_BRUTALLUS, {{ 725 }} },
@@ -88,7 +86,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
             }
