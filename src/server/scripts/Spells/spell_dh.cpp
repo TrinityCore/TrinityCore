@@ -239,6 +239,7 @@ enum DemonHunterSpells
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
     SPELL_DH_VOIDBLADE_CHARGE                      = 1241285,
     SPELL_DH_VOIDBLADE_DAMAGE                      = 1245414,
+    SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
     SPELL_DH_WAVE_OF_DEBILITATION_SLOW             = 453263,
 };
@@ -2414,6 +2415,51 @@ class spell_dh_unhindered_assault : public AuraScript
     }
 };
 
+// 198813 - Vengeful Retreat
+class spell_dh_vengeful_retreat_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_VENGEFUL_BONDS });
+    }
+
+    void HandleVengefulBonds(std::list<WorldObject*>& targets)
+    {
+        if (!GetCaster()->HasAura(SPELL_DH_VENGEFUL_BONDS))
+            targets.clear();
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dh_vengeful_retreat_damage::HandleVengefulBonds, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+// 452409 - Violent Transformation
+class spell_dh_violent_transformation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_VENGEANCE_DEMON_HUNTER, SPELL_DH_FEL_DEVASTATION, SPELL_DH_IMMOLATION_AURA });
+    }
+
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SIGIL_OF_FLAME, GetCastDifficulty())->ChargeCategoryId);
+
+        if (target->HasAura(SPELL_DH_VENGEANCE_DEMON_HUNTER))
+            target->GetSpellHistory()->ResetCooldown(SPELL_DH_FEL_DEVASTATION, true);
+        else
+            target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_IMMOLATION_AURA, GetCastDifficulty())->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_violent_transformation::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1245412 - Voidblade
 class spell_dh_voidblade : public SpellScript
 {
@@ -2459,48 +2505,26 @@ class spell_dh_voidblade_charge : public SpellScript
     }
 };
 
-// 198813 - Vengeful Retreat
-class spell_dh_vengeful_retreat_damage : public SpellScript
+// 473728 - Void Ray
+class spell_dh_void_ray : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_VENGEFUL_BONDS });
+        return ValidateSpellInfo({ SPELL_DH_VOID_RAY_DAMAGE });
     }
 
-    void HandleVengefulBonds(std::list<WorldObject*>& targets)
+    void HandleEffectPeriodic(AuraEffect const* aurEff) const
     {
-        if (!GetCaster()->HasAura(SPELL_DH_VENGEFUL_BONDS))
-            targets.clear();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(nullptr, SPELL_DH_VOID_RAY_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dh_vengeful_retreat_damage::HandleVengefulBonds, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-    }
-};
-
-// 452409 - Violent Transformation
-class spell_dh_violent_transformation : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_VENGEANCE_DEMON_HUNTER, SPELL_DH_FEL_DEVASTATION, SPELL_DH_IMMOLATION_AURA });
-    }
-
-    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
-    {
-        Unit* target = GetTarget();
-        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SIGIL_OF_FLAME, GetCastDifficulty())->ChargeCategoryId);
-
-        if (target->HasAura(SPELL_DH_VENGEANCE_DEMON_HUNTER))
-            target->GetSpellHistory()->ResetCooldown(SPELL_DH_FEL_DEVASTATION, true);
-        else
-            target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_IMMOLATION_AURA, GetCastDifficulty())->ChargeCategoryId);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dh_violent_transformation::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_void_ray::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -2615,6 +2639,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_violent_transformation);
     RegisterSpellScript(spell_dh_voidblade);
     RegisterSpellScript(spell_dh_voidblade_charge);
+    RegisterSpellScript(spell_dh_void_ray);
     RegisterSpellScript(spell_dh_wave_of_debilitation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
