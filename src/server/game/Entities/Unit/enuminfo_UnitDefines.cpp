@@ -174,8 +174,8 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_VENDOR_REAGENT: return { "UNIT_NPC_FLAG_VENDOR_REAGENT", "is vendor (reagents)", "100%" };
         case UNIT_NPC_FLAG_REPAIR: return { "UNIT_NPC_FLAG_REPAIR", "can repair", "100%" };
         case UNIT_NPC_FLAG_FLIGHTMASTER: return { "UNIT_NPC_FLAG_FLIGHTMASTER", "is flight master", "100%" };
-        case UNIT_NPC_FLAG_SPIRITHEALER: return { "UNIT_NPC_FLAG_SPIRITHEALER", "is spirit healer", "guessed" };
-        case UNIT_NPC_FLAG_SPIRITGUIDE: return { "UNIT_NPC_FLAG_SPIRITGUIDE", "is spirit guide", "guessed" };
+        case UNIT_NPC_FLAG_SPIRIT_HEALER: return { "UNIT_NPC_FLAG_SPIRIT_HEALER", "is spirit healer", "" };
+        case UNIT_NPC_FLAG_AREA_SPIRIT_HEALER: return { "UNIT_NPC_FLAG_AREA_SPIRIT_HEALER", "is area spirit healer", "" };
         case UNIT_NPC_FLAG_INNKEEPER: return { "UNIT_NPC_FLAG_INNKEEPER", "is innkeeper", "" };
         case UNIT_NPC_FLAG_BANKER: return { "UNIT_NPC_FLAG_BANKER", "is banker", "100%" };
         case UNIT_NPC_FLAG_PETITIONER: return { "UNIT_NPC_FLAG_PETITIONER", "handles guild/arena petitions", "100% 0xC0000 = guild petitions, 0x40000 = arena team petitions" };
@@ -213,8 +213,8 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 11: return UNIT_NPC_FLAG_VENDOR_REAGENT;
         case 12: return UNIT_NPC_FLAG_REPAIR;
         case 13: return UNIT_NPC_FLAG_FLIGHTMASTER;
-        case 14: return UNIT_NPC_FLAG_SPIRITHEALER;
-        case 15: return UNIT_NPC_FLAG_SPIRITGUIDE;
+        case 14: return UNIT_NPC_FLAG_SPIRIT_HEALER;
+        case 15: return UNIT_NPC_FLAG_AREA_SPIRIT_HEALER;
         case 16: return UNIT_NPC_FLAG_INNKEEPER;
         case 17: return UNIT_NPC_FLAG_BANKER;
         case 18: return UNIT_NPC_FLAG_PETITIONER;
@@ -249,8 +249,8 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
         case UNIT_NPC_FLAG_VENDOR_REAGENT: return 11;
         case UNIT_NPC_FLAG_REPAIR: return 12;
         case UNIT_NPC_FLAG_FLIGHTMASTER: return 13;
-        case UNIT_NPC_FLAG_SPIRITHEALER: return 14;
-        case UNIT_NPC_FLAG_SPIRITGUIDE: return 15;
+        case UNIT_NPC_FLAG_SPIRIT_HEALER: return 14;
+        case UNIT_NPC_FLAG_AREA_SPIRIT_HEALER: return 15;
         case UNIT_NPC_FLAG_INNKEEPER: return 16;
         case UNIT_NPC_FLAG_BANKER: return 17;
         case UNIT_NPC_FLAG_PETITIONER: return 18;

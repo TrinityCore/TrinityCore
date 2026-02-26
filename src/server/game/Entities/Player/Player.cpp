@@ -4359,6 +4359,8 @@ void Player::BuildPlayerRepop()
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
+    SetAreaSpiritHealer(nullptr);
+
     WorldPackets::Misc::DeathReleaseLoc packet;
     packet.MapID = -1;
     GetSession()->SendPacket(packet.Write());
@@ -26609,6 +26611,39 @@ std::string Player::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Unit::GetDebugInfo();
     return sstr.str();
+}
+
+void Player::SetAreaSpiritHealer(Creature* creature)
+{
+    if (!creature)
+    {
+        _areaSpiritHealerGUID = ObjectGuid::Empty;
+        RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+        return;
+    }
+
+    if (!creature->IsAreaSpiritHealer())
+        return;
+
+    _areaSpiritHealerGUID = creature->GetGUID();
+    CastSpell(nullptr, SPELL_WAITING_FOR_RESURRECT);
+}
+
+void Player::SendAreaSpiritHealerTime(Unit* spiritHealer) const
+{
+    int32 timeLeft = 0;
+    if (Spell* spell = spiritHealer->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+        timeLeft = spell->GetTimer();
+
+    SendAreaSpiritHealerTime(spiritHealer->GetGUID(), timeLeft);
+}
+
+void Player::SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const
+{
+    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
+    areaSpiritHealerTime.HealerGuid = spiritHealerGUID;
+    areaSpiritHealerTime.TimeLeft = timeLeft;
+    SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
 GameClient* Player::GetGameClient() const
