@@ -142,7 +142,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       # Add the module name to STATIC_SCRIPT_MODULES
       list(APPEND STATIC_SCRIPT_MODULES ${SCRIPT_MODULE})
       # Add the module content to the whole static module
-      CollectAndAddSourceFiles(scripts ${SCRIPT_MODULE_PATH})
+      CollectAndAddSourceFiles(scripts ${SCRIPT_MODULE_PATH} HEADER_VISIBILITY PRIVATE)
     endif()
   elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "dynamic")
     # Generate an own dynamic module which is loadable on runtime
@@ -153,7 +153,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
     list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
     # Create the script module project
     add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED)
-    CollectAndAddSourceFiles(${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_MODULE_PATH})
+    CollectAndAddSourceFiles(${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_MODULE_PATH} HEADER_VISIBILITY PRIVATE)
     target_sources(${SCRIPT_MODULE_PROJECT_NAME}
       PUBLIC
         FILE_SET HEADERS FILES ScriptLoader.h

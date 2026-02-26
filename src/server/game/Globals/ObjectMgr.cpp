@@ -6916,13 +6916,19 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
             parentEntry = nullptr;
     }
 
+    if (!graveyard && !sMapStore.LookupEntry(MapId)->IsBattlegroundOrArena())
+    {
+        if (zoneId != 0)
+            TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, team);
+
+        graveyard = GetDefaultGraveyard(team);
+    }
+
     return graveyard;
 }
 
 WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation const& location, uint32 team, WorldObject* conditionObject, uint32 zoneId) const
 {
-    float x, y, z;
-    location.GetPosition(x, y, z);
     uint32 MapId = location.GetMapId();
 
     // Simulate std. algorithm:
@@ -6935,22 +6941,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
     GraveyardMapBounds range = GraveyardStore.equal_range(zoneId);
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
-    // not need to check validity of map object; MapId _MUST_ be valid here
-    if (range.first == range.second && !mapEntry->IsBattlegroundOrArena())
-    {
-        if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
-            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, team);
-        return GetDefaultGraveyard(team);
-    }
-
     // at corpse map
-    bool foundNear = false;
-    float distNear = 10000;
+    Optional<float> distNear;
     WorldSafeLocsEntry const* entryNear = nullptr;
 
     // at entrance map for corpse map
-    bool foundEntr = false;
-    float distEntr = 10000;
+    Optional<float> distEntr;
     WorldSafeLocsEntry const* entryEntr = nullptr;
 
     // some where other
@@ -7008,19 +7004,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->Loc.GetPositionX() - mapEntry->Corpse.X) * (entry->Loc.GetPositionX() - mapEntry->Corpse.X)
-                + (entry->Loc.GetPositionY() - mapEntry->Corpse.Y) * (entry->Loc.GetPositionY() - mapEntry->Corpse.Y);
-            if (foundEntr)
+            float dist2 = entry->Loc.GetExactDist2dSq(mapEntry->Corpse.X, mapEntry->Corpse.Y);
+            if (!distEntr || dist2 < *distEntr)
             {
-                if (dist2 < distEntr)
-                {
-                    distEntr = dist2;
-                    entryEntr = entry;
-                }
-            }
-            else
-            {
-                foundEntr = true;
                 distEntr = dist2;
                 entryEntr = entry;
             }
@@ -7028,20 +7014,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->Loc.GetPositionX() - x) * (entry->Loc.GetPositionX() - x)
-                + (entry->Loc.GetPositionY() - y) * (entry->Loc.GetPositionY() - y)
-                + (entry->Loc.GetPositionZ() - z) * (entry->Loc.GetPositionZ() - z);
-            if (foundNear)
+            float dist2 = entry->Loc.GetExactDistSq(location);
+            if (!distNear || dist2 < *distNear)
             {
-                if (dist2 < distNear)
-                {
-                    distNear = dist2;
-                    entryNear = entry;
-                }
-            }
-            else
-            {
-                foundNear = true;
                 distNear = dist2;
                 entryNear = entry;
             }

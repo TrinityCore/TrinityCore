@@ -1061,7 +1061,10 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
 
         if (m_goTemplateAddon->AIAnimKitID)
+        {
+            m_updateFlag.AnimKit = true;
             _animKitId = m_goTemplateAddon->AIAnimKitID;
+        }
     }
 
     SetEntry(goInfo->entry);
@@ -1172,7 +1175,10 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
 
         if (gameObjectAddon->AIAnimKitID)
+        {
+            m_updateFlag.AnimKit = true;
             _animKitId = gameObjectAddon->AIAnimKitID;
+        }
     }
 
     if (uint32 vignetteId = GetGOInfo()->GetSpawnVignette())

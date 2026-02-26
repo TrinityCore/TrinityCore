@@ -274,23 +274,37 @@ void DynamicTileBuilder::Update(Milliseconds diff)
 
 std::weak_ptr<DynamicTileBuilder::AsyncTileResult> DynamicTileBuilder::BuildTile(uint32 terrainMapId, uint32 tileX, uint32 tileY)
 {
-    std::vector<std::shared_ptr<GameObjectModel const>> gameObjectModelReferences; // hold strong refs to models
+    struct GameObjectModelWorkData
+    {
+        explicit GameObjectModelWorkData(std::shared_ptr<VMAP::WorldModel const> worldModel, G3D::Vector3 const& position, float scale,
+            G3D::Quat const& rotation, GameObjectModel const* gameObject) : WorldModel(std::move(worldModel)), Position(position),
+            Rotation(rotation), Scale(scale), GameObject(gameObject) { }
+
+        std::shared_ptr<VMAP::WorldModel const> WorldModel;
+        G3D::Vector3 Position;
+        G3D::Quat Rotation;
+        float Scale;
+        GameObjectModel const* GameObject;
+    };
+
+    std::vector<GameObjectModelWorkData> modelSpawns;
     for (GameObjectModel const* gameObjectModel : m_map->GetGameObjectModelsInGrid(tileX, tileY))
     {
-        if (!gameObjectModel->IsMapObject() || !gameObjectModel->IsIncludedInNavMesh())
+        if (!gameObjectModel->IsIncludedInNavMesh())
             continue;
 
         std::shared_ptr<VMAP::WorldModel const> worldModel = gameObjectModel->GetWorldModel();
         if (!worldModel)
             continue;
 
-        gameObjectModelReferences.emplace_back(worldModel, gameObjectModel);
+        modelSpawns.emplace_back(std::move(worldModel), gameObjectModel->GetPosition(),
+            gameObjectModel->GetScale(), gameObjectModel->GetRotation(), gameObjectModel);
     }
 
-    TileCacheKey cacheKey{ .TerrainMapId = terrainMapId, .X = tileX, .Y = tileY, .CachedHash = 0, .Objects = std::vector<TileCacheKeyObject>(gameObjectModelReferences.size()) };
-    for (std::size_t i = 0; i < gameObjectModelReferences.size(); ++i)
+    TileCacheKey cacheKey{ .TerrainMapId = terrainMapId, .X = tileX, .Y = tileY, .CachedHash = 0, .Objects = std::vector<TileCacheKeyObject>(modelSpawns.size()) };
+    for (std::size_t i = 0; i < modelSpawns.size(); ++i)
     {
-        GameObjectModel const* gameObjectModel = gameObjectModelReferences[i].get();
+        GameObjectModel const* gameObjectModel = modelSpawns[i].GameObject;
         TileCacheKeyObject& object = cacheKey.Objects[i];
         object.DisplayId = gameObjectModel->GetDisplayId();
         object.Scale = int16(gameObjectModel->GetScale() * 1024.0f);
@@ -314,7 +328,7 @@ std::weak_ptr<DynamicTileBuilder::AsyncTileResult> DynamicTileBuilder::BuildTile
         return itr->second.Data;
 
     itr->second.Data = std::make_shared<AsyncTileResult>();
-    tileCache->StartTask([result = itr->second.Data, hash = cacheKey.CachedHash, selfRef = weak_from_this(), terrainMapId, tileX, tileY, gameObjectModelReferences = std::move(gameObjectModelReferences)]() mutable
+    tileCache->StartTask([result = itr->second.Data, hash = cacheKey.CachedHash, selfRef = weak_from_this(), terrainMapId, tileX, tileY, modelSpawns = std::move(modelSpawns)]() mutable
     {
         auto isReadyGuard = Trinity::make_unique_ptr_with_deleter<SetAsyncCallbackReady>(result.get());
 
@@ -338,15 +352,15 @@ std::weak_ptr<DynamicTileBuilder::AsyncTileResult> DynamicTileBuilder::BuildTile
         // get model data
         self->m_terrainBuilder.loadVMap(terrainMapId, tileX, tileY, meshData, vmapManager.get());
 
-        for (std::shared_ptr<GameObjectModel const> const& gameObjectModel : gameObjectModelReferences)
+        for (GameObjectModelWorkData const& model : modelSpawns)
         {
-            G3D::Vector3 position = gameObjectModel->GetPosition();
+            G3D::Vector3 position = model.Position;
             position.x = -position.x;
             position.y = -position.y;
 
-            G3D::Matrix3 invRotation = (G3D::Quat(0, 0, 1, 0) * gameObjectModel->GetRotation()).toRotationMatrix().inverse();
+            G3D::Matrix3 invRotation = (G3D::Quat(0, 0, 1, 0) * model.Rotation).toRotationMatrix().inverse();
 
-            self->m_terrainBuilder.loadVMapModel(gameObjectModel->GetWorldModel().get(), position, invRotation, gameObjectModel->GetScale(),
+            self->m_terrainBuilder.loadVMapModel(model.WorldModel.get(), position, invRotation, model.Scale,
                 meshData, vmapManager.get());
         }
 

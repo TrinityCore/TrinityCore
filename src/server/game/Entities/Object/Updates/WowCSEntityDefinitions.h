@@ -163,12 +163,12 @@ struct FragmentSerializationTraits
 {
     static void BuildCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
     {
-        static_cast<FragmentData const*>(rawFragmentData)->WriteCreate(flags, data, target, reinterpret_cast<FragmentData::OwnerObject const*>(baseEntity));
+        static_cast<FragmentData const*>(rawFragmentData)->WriteCreate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
     }
 
     static void BuildUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
     {
-        static_cast<FragmentData const*>(rawFragmentData)->WriteUpdate(flags, data, target, reinterpret_cast<FragmentData::OwnerObject const*>(baseEntity));
+        static_cast<FragmentData const*>(rawFragmentData)->WriteUpdate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
     }
 
     static bool IsChanged(void const* rawFragmentData)
