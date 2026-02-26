@@ -1,6 +1,7 @@
 CREATE TABLE `account_warband_groups` (
   `id` bigint(20) unsigned NOT NULL,
   `accountId` int(10) unsigned NOT NULL,
+  `realmId` int(10) unsigned NOT NULL DEFAULT '1',
   `orderIndex` tinyint(3) unsigned NOT NULL,
   `name` varchar(257) NOT NULL,
   `warbandSceneId` int(10) unsigned NOT NULL DEFAULT '0',
