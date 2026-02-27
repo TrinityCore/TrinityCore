@@ -567,6 +567,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 resist;
     bool   periodicLog;
     uint32 blocked;
+    uint32 reflectingSpellId;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;

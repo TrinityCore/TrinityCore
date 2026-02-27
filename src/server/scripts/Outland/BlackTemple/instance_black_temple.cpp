@@ -24,7 +24,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_NAJENTUS_GATE,         DATA_HIGH_WARLORD_NAJENTUS, EncounterDoorBehavior::OpenWhenDone },
     { GO_NAJENTUS_GATE,         DATA_SUPREMUS,              EncounterDoorBehavior::OpenWhenNotInProgress },
@@ -38,7 +38,6 @@ DoorData const doorData[] =
     { GO_COUNCIL_DOOR_2,        DATA_ILLIDARI_COUNCIL,      EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ILLIDAN_DOOR_R,        DATA_ILLIDAN_STORMRAGE,     EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ILLIDAN_DOOR_L,        DATA_ILLIDAN_STORMRAGE,     EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                        0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 BossBoundaryData const boundaries =
@@ -56,7 +55,7 @@ BossBoundaryData const boundaries =
     { DATA_ILLIDAN_STORMRAGE,     new EllipseBoundary(Position(694.8f, 309.0f), 80.0f , 95.0f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_HIGH_WARLORD_NAJENTUS,        DATA_HIGH_WARLORD_NAJENTUS      },
     { NPC_SUPREMUS,                     DATA_SUPREMUS                   },
@@ -77,18 +76,16 @@ ObjectData const creatureData[] =
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
     { NPC_MAIEV_SHADOWSONG,             DATA_MAIEV                      },
     { NPC_RELIQUARY_COMBAT_TRIGGER,     DATA_RELIQUARY_COMBAT_TRIGGER   },
-    { 0,                                0                               } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_ILLIDAN_GATE,                DATA_GO_ILLIDAN_GATE          },
     { GO_DEN_OF_MORTAL_DOOR,          DATA_GO_DEN_OF_MORTAL_DOOR    },
     { GO_ILLIDAN_MUSIC_CONTROLLER,    DATA_ILLIDAN_MUSIC_CONTROLLER },
-    { 0,                              0                             } //END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_HIGH_WARLORD_NAJENTUS, {{ 601 }} },
     { DATA_SUPREMUS, {{ 602 }} },
