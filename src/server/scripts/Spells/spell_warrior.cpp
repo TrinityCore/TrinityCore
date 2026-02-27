@@ -2037,7 +2037,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
-    RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_surge_of_adrenaline);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
