@@ -1026,21 +1026,27 @@ class spell_dh_demon_spikes : public SpellScript
 
 struct spell_dh_shattered_souls_base_lesser
 {
+    static constexpr std::array<DemonHunterSpells, 2> DevourerSpells = { SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_LEFT };
+    static constexpr std::array<DemonHunterSpells, 2> HavocSpells = { SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT };
+    static constexpr std::array<DemonHunterSpells, 2> VengeanceSpells = { SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT, SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT };
+
     static bool Validate()
     {
-        return SpellScriptBase::ValidateSpellInfo({
-            SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT,
-            SPELL_DH_SHATTERED_SOUL_LESSER_LEFT,
-            SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT,
-            SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT
-        });
+        return SpellScriptBase::ValidateSpellInfo(DevourerSpells)
+            && SpellScriptBase::ValidateSpellInfo(HavocSpells)
+            && SpellScriptBase::ValidateSpellInfo(VengeanceSpells);
     }
 
     static void CreateFragments(Unit* source, Unit* dh, int32 count)
     {
-        std::array<DemonHunterSpells, 2> spells = dh->IsPlayer() && dh->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::DemonHunterHavoc
-            ? std::array{ SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT }
-            : std::array{ SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT, SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT };
+        std::span<DemonHunterSpells const> spells = HavocSpells;
+        if (Player* player = dh->ToPlayer())
+        {
+            if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterDevourer)
+                spells = DevourerSpells;
+            else if (player->GetPrimarySpecialization() ==  ChrSpecialization::DemonHunterVengeance)
+                spells = VengeanceSpells;
+        }
 
         for (int32 i = 0; i < count; ++i)
             source->CastSpell(dh, Trinity::Containers::SelectRandomContainerElement(spells), TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -1999,20 +2005,22 @@ class spell_dh_shattered_souls_devourer : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_LEFT });
+        return spell_dh_shattered_souls_base_lesser::Validate();
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(),
-            Trinity::Containers::SelectRandomContainerElement(std::array{ SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_LEFT }), CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = eventInfo.GetProcSpell()
-        });
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), 1);
     }
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dh_shattered_souls_devourer::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_devourer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -2029,7 +2037,7 @@ class spell_dh_shattered_souls_devourer_dummy : public SpellScript
     {
         GetCaster()->CastSpell(GetHitDest()->GetPosition(), SPELL_DH_SOUL_FRAGMENT_DEVOURER, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_originalCastId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -2039,31 +2047,10 @@ class spell_dh_shattered_souls_devourer_dummy : public SpellScript
     }
 };
 
-// 1223445 - Shattered Souls and 1223448 - Shattered Souls
-class spell_dh_shattered_souls_devourer_missile : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEVOURER_DUMMY });
-    }
-
-    void HandleHit(SpellEffIndex /*effIndex*/) const
-    {
-        if (Unit* target = GetExplTargetUnit())
-            target->CastSpell(GetHitDest()->GetPosition(), SPELL_DH_SHATTERED_SOULS_DEVOURER_DUMMY, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringSpell = GetSpell()
-            });
-    }
-
-    void Register() override
-    {
-        OnEffectLaunch += SpellEffectFn(spell_dh_shattered_souls_devourer_missile::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 209651 - Shattered Souls
 // 210038 - Shatter Soul
+// 1223445 - Shattered Souls
+// 1223448 - Shattered Souls
 class spell_dh_shattered_souls_trigger : public SpellScript
 {
 public:
@@ -2725,13 +2712,13 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_shattered_restoration);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_havoc", SPELL_DH_SHATTERED_SOULS_HAVOC);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_vengeance", SPELL_DH_SHATTER_SOUL);
+    RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_devourer_trigger", SPELL_DH_SHATTERED_SOULS_DEVOURER_DUMMY, 0);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_havoc_trigger", SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER, SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_havoc_trigger_lesser", SPELL_DH_SHATTERED_SOULS_HAVOC_LESSER_TRIGGER, 0);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_vengeance_trigger", SPELL_DH_SHATTERED_SOULS_V_SHATTERED_TRIGGER, SPELL_DH_SHATTERED_SOULS_V_DEMON_TRIGGER);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_vengeance_trigger_lesser", SPELL_DH_SHATTERED_SOUL, 0);
     RegisterSpellScript(spell_dh_shattered_souls_devourer);
     RegisterSpellScript(spell_dh_shattered_souls_devourer_dummy);
-    RegisterSpellScript(spell_dh_shattered_souls_devourer_missile);
     RegisterAreaTriggerAI(at_dh_shattered_souls_devourer);
     RegisterAreaTriggerAI(at_dh_shattered_souls_havoc_demon);
     RegisterAreaTriggerAI(at_dh_shattered_souls_havoc_lesser);
