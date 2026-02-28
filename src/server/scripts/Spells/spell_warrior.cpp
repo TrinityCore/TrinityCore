@@ -1354,11 +1354,10 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
             || caster->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
     }
 
-    void CheckResetCooldown(SpellEffIndex /*effIndex*/)
+    void CheckResetCooldown(SpellEffIndex /*effIndex*/) const
     {
-        _resetCooldown = false;
         // it is currently impossible to have Wrath and Fury without having Improved Raging Blow, but we will check it anyway
-        Unit const* caster = GetCaster();
+        Unit* caster = GetCaster();
         int32 value = 0;
         if (caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
             value = GetEffectValue();
@@ -1367,30 +1366,23 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
             value += auraEffect->GetAmount();
 
         if (roll_chance_i(value))
-            _resetCooldown = true;
-    }
-
-    void HandleResetCooldown() const
-    {
-        if (!_resetCooldown)
-            return;
-
-        Unit* caster = GetCaster();
-
-        caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
-        caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
+        {
+            // HACK: Delay cast to prevent current spell from consuming SPELL_WARRIOR_ALWAYS_ANGRY charge
+            caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_originalCastId, chargeCategoryId = GetSpellInfo()->ChargeCategoryId]()
+            {
+                caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                    .OriginalCastId = originalCastId
+                    });
+                caster->GetSpellHistory()->RestoreCharge(chargeCategoryId);
+            }, 0ms);
+        }
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_raging_blow_cooldown_reset::CheckResetCooldown, EFFECT_0, SPELL_EFFECT_DUMMY);
-        AfterCast += SpellCastFn(spell_warr_raging_blow_cooldown_reset::HandleResetCooldown);
     }
-
-    bool _resetCooldown = false;
 };
 
 // 97462 - Rallying Cry
