@@ -5445,7 +5445,7 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     // Odyn's Fury
     ApplySpellFix({ 385060, 385061, 385062 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->_LoadSqrtTargetLimit(5, 0, 385059, EFFECT_5, {}, {});
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 385059, EFFECT_5, {}, {});
     });
 
     // Flame Patch
@@ -5455,9 +5455,9 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     });
 
     // Flamestrike
-    ApplySpellFix({ 2120 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 2120, 1254851 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_2, {}, {});
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_1, {}, {});
     });
 
     // Meteor

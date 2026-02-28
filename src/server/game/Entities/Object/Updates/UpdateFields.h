@@ -252,15 +252,17 @@ struct UnitChannel : public IsUpdateFieldStructureTag
     bool operator!=(UnitChannel const& right) const { return !(*this == right); }
 };
 
-struct VisibleItem : public IsUpdateFieldStructureTag, public HasChangesMask<8>
+struct VisibleItem : public IsUpdateFieldStructureTag, public HasChangesMask<10>
 {
-    UpdateField<bool, 0, 1> Field_10;
-    UpdateField<bool, 0, 2> Field_11;
+    UpdateField<bool, 0, 1> HasTransmog;
+    UpdateField<bool, 0, 2> HasIllusion;
     UpdateField<int32, 0, 3> ItemID;
     UpdateField<int32, 0, 4> SecondaryItemModifiedAppearanceID;
     UpdateField<int32, 0, 5> ConditionalItemAppearanceID;
     UpdateField<uint16, 0, 6> ItemAppearanceModID;
     UpdateField<uint16, 0, 7> ItemVisual;
+    UpdateField<uint32, 0, 8> ItemModifiedAppearanceID;
+    UpdateField<uint8, 0, 9> Field_18;
 
     using OwnerObject = Unit;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Unit const* owner) const;
@@ -1257,6 +1259,7 @@ struct TransmogOutfitMetadata : public IsUpdateFieldStructureTag
     uint32 TransmogOutfitID = 0;
     uint8 StampedOptionMainHand = 0;
     uint8 StampedOptionOffHand = 0;
+    float CostMod = 0.0f;                                                       // Used only with SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST
 
     using OwnerObject = Player;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const;
@@ -1813,15 +1816,16 @@ struct ConversationActor : public IsUpdateFieldStructureTag
     bool operator!=(ConversationActor const& right) const { return !(*this == right); }
 };
 
-struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMask<8>
 {
     UpdateField<bool, 0, 1> DontPlayBroadcastTextSounds;
-    UpdateField<std::vector<UF::ConversationLine>, 0, 2> Lines;
-    DynamicUpdateField<UF::ConversationActor, 0, 3> Actors;
-    UpdateField<int32, 0, 4> LastLineEndTime;
+    UpdateField<bool, 0, 2> Field_33;                                           // UNK: Prevents line lookup from succeeding
+    UpdateField<std::vector<UF::ConversationLine>, 0, 3> Lines;
+    DynamicUpdateField<UF::ConversationActor, 0, 4> Actors;
+    UpdateField<int32, 0, 5> LastLineEndTime;
     struct LastLineEndTimeTag : ViewerDependentValueTag<int32> {};
-    UpdateField<uint32, 0, 5> Progress;
-    UpdateField<uint32, 0, 6> Flags;
+    UpdateField<uint32, 0, 6> Progress;
+    UpdateField<uint32, 0, 7> Flags;
 
     using OwnerObject = Conversation;
     void WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, ByteBuffer& data, Player const* receiver, Conversation const* owner) const;
@@ -2187,8 +2191,8 @@ struct PlayerInitiativeTaskInfo : public IsUpdateFieldStructureTag, public HasCh
 
 struct NICompletedMilestoneEntry : public IsUpdateFieldStructureTag
 {
-    uint32 MilestoneID = 0;
     int64 AwardDate = 0;
+    uint32 MilestoneID = 0;
 
     using OwnerObject = Player;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const;
