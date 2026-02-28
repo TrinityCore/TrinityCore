@@ -1367,15 +1367,11 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
 
         if (roll_chance_i(value))
         {
-            // HACK: Delay cast to prevent current spell from consuming SPELL_WARRIOR_ALWAYS_ANGRY charge
-            caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_originalCastId, chargeCategoryId = GetSpellInfo()->ChargeCategoryId]()
-            {
-                caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
-                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                    .OriginalCastId = originalCastId
-                    });
-                caster->GetSpellHistory()->RestoreCharge(chargeCategoryId);
-            }, 0ms);
+            caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+            caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
         }
     }
 
