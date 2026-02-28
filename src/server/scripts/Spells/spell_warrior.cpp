@@ -1354,7 +1354,7 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
             || caster->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
     }
 
-    void CheckResetCooldown(SpellEffIndex /*effIndex*/) const
+    void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
     {
         // it is currently impossible to have Wrath and Fury without having Improved Raging Blow, but we will check it anyway
         Unit* caster = GetCaster();
@@ -1377,7 +1377,7 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_raging_blow_cooldown_reset::CheckResetCooldown, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_raging_blow_cooldown_reset::HandleResetCooldown, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1600,29 +1600,29 @@ class spell_warr_sudden_death : public AuraScript
 };
 
 // 1265359 - Surge of Adrenaline (talent) - attached to 280270 (Always Angry)
-class spell_warr_surge_of_adrenaline : public AuraScript
+class spell_warr_surge_of_adrenaline : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT });
     }
 
-    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    bool Load() override
     {
-        Unit* target = GetTarget();
+        return GetCaster()->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
+    }
 
-        if (!target->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT))
-            return;
-
-        target->CastSpell(nullptr, SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, CastSpellExtraArgsInit{
+    void TriggerBuff() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
+            .TriggeringSpell = GetSpell()
         });
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_warr_surge_of_adrenaline::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterCast += SpellCastFn(spell_warr_surge_of_adrenaline::TriggerBuff);
     }
 };
 
