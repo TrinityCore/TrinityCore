@@ -37,6 +37,7 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_ALWAYS_ANGRY                      = 280270,
     SPELL_WARRIOR_AVATAR                            = 107574,
     SPELL_WARRIOR_BLADESTORM                        = 227847,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
@@ -108,6 +109,8 @@ enum WarriorSpells
     SPELL_WARRIOR_STRATEGIST                        = 384041,
     SPELL_WARRIOR_SUDDEN_DEATH                      = 29725,
     SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
+    SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT        = 1265359,
+    SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC          = 1265560,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
@@ -1339,14 +1342,16 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_RAGING_BLOW })
+        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_RAGING_BLOW, SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT, SPELL_WARRIOR_ALWAYS_ANGRY })
             && ValidateSpellEffect({{ SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0 }});
     }
 
     bool Load() override
     {
         Unit const* caster = GetCaster();
-        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || caster->HasAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0);
+        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW)
+            || caster->HasAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0)
+            || caster->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
     }
 
     void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
@@ -1361,7 +1366,13 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
             value += auraEffect->GetAmount();
 
         if (roll_chance_i(value))
+        {
+            caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
             caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
+        }
     }
 
     void Register() override
@@ -1585,6 +1596,33 @@ class spell_warr_sudden_death : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1265359 - Surge of Adrenaline (talent) - attached to 280270 (Always Angry)
+class spell_warr_surge_of_adrenaline : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
+    }
+
+    void TriggerBuff() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warr_surge_of_adrenaline::TriggerBuff);
     }
 };
 
@@ -1987,6 +2025,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
+    RegisterSpellScript(spell_warr_surge_of_adrenaline);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
