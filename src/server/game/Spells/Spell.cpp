@@ -3868,6 +3868,30 @@ void Spell::_cast(bool skipCheck)
         if (Creature* creatureCaster = m_caster->ToCreature())
             creatureCaster->ReleaseSpellFocus(this);
 
+    if (m_originalCaster)
+    {
+        // Handle procs on cast
+        ProcFlagsInit procAttacker = m_procAttacker;
+        if (!procAttacker)
+            procAttacker = FinalizeDataForTriggerSystem(IsPositive()).first;
+
+        procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
+
+        ProcFlagsHit hitMask = m_hitMask;
+        if (!(hitMask & PROC_HIT_CRITICAL))
+            hitMask |= PROC_HIT_NORMAL;
+
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
+            m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
+
+        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+
+        // Call CreatureAI hook OnSpellCast
+        if (Creature* caster = m_originalCaster->ToCreature())
+            if (caster->IsAIEnabled())
+                caster->AI()->OnSpellCast(GetSpellInfo());
+    }
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_delayMoment && !m_spellInfo->IsChanneled())
     {
@@ -3922,30 +3946,6 @@ void Spell::_cast(bool skipCheck)
     }
 
     SetExecutedCurrently(false);
-
-    if (!m_originalCaster)
-        return;
-
-    // Handle procs on cast
-    ProcFlagsInit procAttacker = m_procAttacker;
-    if (!procAttacker)
-        procAttacker = FinalizeDataForTriggerSystem(IsPositive()).first;
-
-    procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
-
-    ProcFlagsHit hitMask = m_hitMask;
-    if (!(hitMask & PROC_HIT_CRITICAL))
-        hitMask |= PROC_HIT_NORMAL;
-
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
-        m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
-
-    Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
-
-    // Call CreatureAI hook OnSpellCast
-    if (Creature* caster = m_originalCaster->ToCreature())
-        if (caster->IsAIEnabled())
-            caster->AI()->OnSpellCast(GetSpellInfo());
 }
 
 template <class Container>
