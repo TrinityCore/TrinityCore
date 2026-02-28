@@ -615,6 +615,16 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_OWNER_OR_SUMMONER:
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.owner.useCharmerOrOwner);
             break;
+        case SMART_TARGET_SUMMONED_ENTRY:
+            if (!IsCreatureValid(e, e.target.summonedEntry.entry))
+                return false;
+            if (e.target.summonedEntry.summoner > 1)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid summoner {}, skipped.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.summonedEntry.summoner);
+                return false;
+            }
+            break;
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
@@ -1116,6 +1126,7 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
             case SMART_TARGET_FARTHEST: return sizeof(SmartTarget::farthest);
             case SMART_TARGET_VEHICLE_PASSENGER: return sizeof(SmartTarget::vehicle);
             case SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT: return sizeof(SmartTarget::goClosest);
+            case SMART_TARGET_SUMMONED_ENTRY: return sizeof(SmartTarget::summonedEntry);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using a target with no unused params specified in SmartAIMgr::CheckUnusedTargetParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
