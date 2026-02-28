@@ -53,6 +53,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
+    SPELL_WARRIOR_CRASHING_THUNDER                  = 436707,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_DEFT_EXPERIENCE                   = 383295,
     SPELL_WARRIOR_ENRAGE                            = 184362,
@@ -64,6 +65,7 @@ enum WarriorSpells
     SPELL_WARRIOR_FRESH_MEAT_TALENT                 = 215568,
     SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE       = 392793,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
+    SPELL_WARRIOR_FURY_WARRIOR                      = 137050,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
@@ -90,6 +92,7 @@ enum WarriorSpells
     SPELL_WARRIOR_OVERPOWER                         = 7384,
     SPELL_WARRIOR_OVERPOWERING_FINISH               = 400205,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
+    SPELL_WARRIOR_PROTECTION_WARRIOR                = 137048,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
@@ -117,6 +120,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
     SPELL_WARRIOR_TAUNT                             = 355,
+    SPELL_WARRIOR_THUNDER_BLAST                     = 435615,
     SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
@@ -1804,7 +1808,62 @@ class spell_warr_tenderize : public AuraScript
     }
 };
 
+// 435607 - Thunder Blast
+class spell_warr_thunder_blast : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_BLAST });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(nullptr, SPELL_WARRIOR_THUNDER_BLAST, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_thunder_blast::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_thunder_blast::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 435222 - Thunder Blast (Rage generation)
+class spell_warr_thunder_blast_energize : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_PROTECTION_WARRIOR, SPELL_WARRIOR_FURY_WARRIOR, SPELL_WARRIOR_CRASHING_THUNDER });
+    }
+
+    void HandleEnergize(SpellEffIndex effIndex)
+    {
+        Unit const* caster = GetCaster();
+        if (caster->HasAura(SPELL_WARRIOR_PROTECTION_WARRIOR))
+            return;
+
+        if (caster->HasAura(SPELL_WARRIOR_FURY_WARRIOR) && caster->HasAura(SPELL_WARRIOR_CRASHING_THUNDER))
+            return;
+
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_blast_energize::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
 // 6343 - Thunder Clap
+// 435222 - Thunder Blast
 class spell_warr_thunder_clap : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1827,6 +1886,7 @@ class spell_warr_thunder_clap : public SpellScript
 };
 
 // 6343 - Thunder Clap (Rend)
+// 435222 - Thunder Blast (Rend)
 class spell_warr_thunder_clap_rend : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2090,6 +2150,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
+    RegisterSpellScript(spell_warr_thunder_blast);
+    RegisterSpellScript(spell_warr_thunder_blast_energize);
     RegisterSpellScript(spell_warr_thunder_clap);
     RegisterSpellScript(spell_warr_thunder_clap_rend);
     RegisterSpellScript(spell_warr_titanic_rage);
