@@ -90,6 +90,7 @@ enum WarriorSpells
     SPELL_WARRIOR_OVERPOWER                         = 7384,
     SPELL_WARRIOR_OVERPOWERING_FINISH               = 400205,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
+    SPELL_WARRIOR_RAMPAGING_RUIN                    = 1265357,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
@@ -1467,6 +1468,42 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
+// 1265357 - Rampaging Ruin (attached to 184367 - Rampage)
+class spell_warr_rampaging_ruin : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RAMPAGING_RUIN, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA });
+    }
+
+    void HandleSingleTarget(SpellEffIndex effIndex)
+    {
+        Unit const* caster = GetCaster();
+        if (caster->HasAura(SPELL_WARRIOR_RAMPAGING_RUIN) && caster->HasAura(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleCone(SpellEffIndex effIndex)
+    {
+        Unit const* caster = GetCaster();
+        if (!caster->HasAura(SPELL_WARRIOR_RAMPAGING_RUIN) || !caster->HasAura(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_rampaging_ruin::HandleSingleTarget, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_rampaging_ruin::HandleSingleTarget, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_rampaging_ruin::HandleSingleTarget, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_rampaging_ruin::HandleSingleTarget, EFFECT_4, SPELL_EFFECT_TRIGGER_SPELL);
+
+        OnEffectLaunch += SpellEffectFn(spell_warr_rampaging_ruin::HandleCone, EFFECT_5, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunch += SpellEffectFn(spell_warr_rampaging_ruin::HandleCone, EFFECT_6, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunch += SpellEffectFn(spell_warr_rampaging_ruin::HandleCone, EFFECT_7, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunch += SpellEffectFn(spell_warr_rampaging_ruin::HandleCone, EFFECT_8, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 // 275339 - (attached to 46968 - Shockwave)
 class spell_warr_rumbling_earth : public SpellScript
 {
@@ -2078,6 +2115,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
     RegisterSpellScript(spell_warr_rallying_cry);
+    RegisterSpellScript(spell_warr_rampaging_ruin);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);

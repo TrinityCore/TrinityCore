@@ -5490,6 +5490,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_1, {}, {});
     });
 
+    // Rampaging Ruin
+    ApplySpellFix({ 1265579, 1265580, 1265581, 1265582 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 1265357, EFFECT_0, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
