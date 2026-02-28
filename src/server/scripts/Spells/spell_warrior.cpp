@@ -1157,6 +1157,70 @@ class spell_warr_improved_whirlwind : public SpellScript
     }
 };
 
+/**
+ * 85739 - Whirlwind Cleave aura, attached to the following spells:
+ *
+ * 1464 - Slam
+ * 1715 - Hamstring
+ * 23881 - Bloodthirst
+ * 23922 - Shield Slam
+ * 34428 - Victory Rush
+ * 85384 - Raging Blow
+ * 96103 - Raging Blow
+ * 100130 - Furious Slash
+ * 163558 - Execute Off-Hand
+ * 184707 - Rampage
+ * 184709 - Rampage
+ * 201363 - Rampage
+ * 201364 - Rampage
+ * 202168 - Impending Victory
+ * 218617 - Rampage
+ * 260798 - Execute
+ * 280772 - Siegebreaker
+ * 280849 - Execute
+ * 317483 - Condemn (Venthyr)
+ * 317488 - Condemn (Venthyr)
+ * 317489 - Condemn Off-Hand (Venthyr)
+ * 335096 - Bloodbath
+ * 335098 - Crushing Blow
+ * 335100 - Crushing Blow
+ * 394062 - Rend
+ * 394063 - Rend
+ * 396718 - Onslaught
+ * 463815 - Arms Execute FX Test
+ * 463816 - Fury Execute FX Test
+ * 463817 - Fury Execute Off-Hand FX Test
+ * 1269383 - Heroic Strike
+ */
+class spell_warr_improved_whirlwind_cleave : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, EFFECT_0 } })
+            && spellInfo->IsAffected(SPELLFAMILY_WARRIOR, sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, DIFFICULTY_NONE)->GetEffect(EFFECT_0).SpellClassMask);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        int32 const targetIndex = GetUnitTargetIndexForEffect(victim->GetGUID(), spellEffectInfo.EffectIndex);
+        if (targetIndex == 0)
+            return; // nothing to do, it's the first target
+
+        if (AuraEffect const* damageEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, EFFECT_1))
+            ApplyPct(pctMod, damageEffect->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_improved_whirlwind_cleave::CalculateDamage);
+    }
+};
+
 // 3411 - Intervene
 class spell_warr_intervene : public SpellScript
 {
@@ -2064,6 +2128,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap_damage);
     RegisterSpellScript(spell_warr_impending_victory);
     RegisterSpellScript(spell_warr_improved_whirlwind);
+    RegisterSpellScript(spell_warr_improved_whirlwind_cleave);
     RegisterSpellScript(spell_warr_intervene);
     RegisterSpellScript(spell_warr_intervene_charge);
     RegisterSpellScript(spell_warr_intimidating_shout);
