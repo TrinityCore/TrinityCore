@@ -39,7 +39,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Util.h"
-#include "WorldPacket.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <cstdarg>
 
@@ -665,12 +665,9 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     }
 }
 
-void Battleground::UpdateWorldState(uint32 variable, uint32 value)
+void Battleground::UpdateWorldState(int32 worldStateId, int32 value, bool hidden /*= false*/)
 {
-    WorldPackets::WorldState::UpdateWorldState worldstate;
-    worldstate.VariableID = variable;
-    worldstate.Value = value;
-    SendPacketToAll(worldstate.Write());
+    sWorldStateMgr->SetValue(worldStateId, value, hidden, GetBgMap());
 }
 
 void Battleground::EndBattleground(uint32 winner)

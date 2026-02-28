@@ -24,7 +24,6 @@
 #include "ScriptedCreature.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "WorldStatePackets.h"
 
 void BattlegroundICScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {
@@ -211,7 +210,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
             {
                 factionReinforcements[nodePoint[i].faction] += 1;
                 RewardHonorToTeam(RESOURCE_HONOR_AMOUNT, nodePoint[i].faction == TEAM_ALLIANCE ? ALLIANCE : HORDE);
-                UpdateWorldState((nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[nodePoint[i].faction]);
+                UpdateWorldState((nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_ALLIANCE_REINFORCEMENTS : BG_IC_HORDE_REINFORCEMENTS), factionReinforcements[nodePoint[i].faction]);
             }
         }
         resourceTimer = IC_RESOURCE_TIME;
@@ -288,23 +287,6 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
             && GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
-}
-
-void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT_SET, 1);
-    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT_SET, 1);
-    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT, factionReinforcements[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT, factionReinforcements[TEAM_HORDE]);
-
-    for (uint8 itr = 0; itr < MAX_FORTRESS_GATES_SPAWNS; ++itr)
-    {
-        int32 worldState = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[itr].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[itr].entry)] == BG_IC_GATE_DESTROYED ? true : false));
-        packet.Worldstates.emplace_back(worldState, 1);
-    }
-
-    for (uint8 itr = 0; itr < MAX_NODE_TYPES; ++itr)
-        packet.Worldstates.emplace_back(nodePoint[itr].worldStates[nodePoint[itr].nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()
@@ -411,7 +393,7 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
     factionReinforcements[player->GetTeamId()] -= 1;
 
-    UpdateWorldState((player->GetTeamId() == TEAM_ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[player->GetTeamId()]);
+    UpdateWorldState((player->GetTeamId() == TEAM_ALLIANCE ? BG_IC_ALLIANCE_REINFORCEMENTS : BG_IC_HORDE_REINFORCEMENTS), factionReinforcements[player->GetTeamId()]);
 
     // we must end the battleground
     if (factionReinforcements[player->GetTeamId()] < 1)
@@ -512,7 +494,7 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     else if (node->gameobject_entry == node->banners[BANNER_H_CONTESTED])
         node->nodeState = NODE_STATE_CONFLICT_H;
 
-    uint32 worldstate = node->worldStates[node->nodeState];
+    int32 worldstate = node->worldStates[node->nodeState];
 
     // with this we are sure we dont bug the client
     for (uint8 i = 0; i < 5; ++i)
@@ -797,8 +779,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 {
     GateStatus[GetGateIDFromEntry(go->GetEntry())] = BG_IC_GATE_DESTROYED;
-    uint32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
-    uint32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);
+    int32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
+    int32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);
     if (uws_open)
     {
         UpdateWorldState(uws_close, 0);

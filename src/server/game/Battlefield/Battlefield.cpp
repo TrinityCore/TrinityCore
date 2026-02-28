@@ -342,11 +342,10 @@ void Battlefield::EndBattle(bool endByTimer)
     if (!endByTimer)
         SetDefenderTeam(GetAttackerTeam());
 
-    OnBattleEnd(endByTimer);
-
     // Reset battlefield timer
     m_Timer = m_NoWarBattleTime;
-    SendInitWorldStatesToAll();
+
+    OnBattleEnd(endByTimer);
 }
 
 void Battlefield::DoPlaySoundToAll(uint32 soundID)
@@ -446,25 +445,6 @@ void Battlefield::SendWarning(uint8 id, WorldObject const* target /*= nullptr*/)
 {
     if (Creature* stalker = GetCreature(StalkerGuid))
         sCreatureTextMgr->SendChat(stalker, id, target);
-}
-
-void Battlefield::SendInitWorldStatesTo(Player* player)
-{
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.MapID = m_MapId;
-    packet.ZoneID = m_ZoneId;
-    packet.AreaID = player->GetAreaId();
-    FillInitialWorldStates(packet);
-
-    player->SendDirectMessage(packet.Write());
-}
-
-void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)
-{
-    for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
-        for (auto itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                player->SendUpdateWorldState(field, value);
 }
 
 void Battlefield::RegisterZone(uint32 zoneId)
