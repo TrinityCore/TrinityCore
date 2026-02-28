@@ -1322,7 +1322,7 @@ class spell_warr_meat_cleaver_damage_bonus : public SpellScript
 protected:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({{ SPELL_WARRIOR_MEAT_CLEAVER_TALENT, EFFECT_0 }, { SPELL_WARRIOR_MEAT_CLEAVER_TALENT, EFFECT_1 }});
+        return ValidateSpellEffect({{ SPELL_WARRIOR_MEAT_CLEAVER_TALENT, EFFECT_1 } });
     }
 
     bool Load() override
