@@ -881,8 +881,10 @@ void VisibleItem::WriteCreate(ByteBuffer& data, Player const* receiver, Unit con
     data << int32(ConditionalItemAppearanceID);
     data << uint16(ItemAppearanceModID);
     data << uint16(ItemVisual);
-    data.WriteBit(Field_10);
-    data.WriteBit(Field_11);
+    data << uint32(ItemModifiedAppearanceID);
+    data << uint8(Field_18);
+    data.WriteBit(HasTransmog);
+    data.WriteBit(HasIllusion);
     data.FlushBits();
 }
 
@@ -892,17 +894,17 @@ void VisibleItem::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player c
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 8);
+    data.WriteBits(changesMask.GetBlock(0), 10);
 
     if (changesMask[0])
     {
         if (changesMask[1])
         {
-            data.WriteBit(Field_10);
+            data.WriteBit(HasTransmog);
         }
         if (changesMask[2])
         {
-            data.WriteBit(Field_11);
+            data.WriteBit(HasIllusion);
         }
     }
     data.FlushBits();
@@ -928,19 +930,29 @@ void VisibleItem::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player c
         {
             data << uint16(ItemVisual);
         }
+        if (changesMask[8])
+        {
+            data << uint32(ItemModifiedAppearanceID);
+        }
+        if (changesMask[9])
+        {
+            data << uint8(Field_18);
+        }
     }
     data.FlushBits();
 }
 
 void VisibleItem::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_10);
-    Base::ClearChangesMask(Field_11);
+    Base::ClearChangesMask(HasTransmog);
+    Base::ClearChangesMask(HasIllusion);
     Base::ClearChangesMask(ItemID);
     Base::ClearChangesMask(SecondaryItemModifiedAppearanceID);
     Base::ClearChangesMask(ConditionalItemAppearanceID);
     Base::ClearChangesMask(ItemAppearanceModID);
     Base::ClearChangesMask(ItemVisual);
+    Base::ClearChangesMask(ItemModifiedAppearanceID);
+    Base::ClearChangesMask(Field_18);
     _changesMask.ResetAll();
 }
 
@@ -5230,6 +5242,7 @@ void TransmogOutfitMetadata::WriteCreate(ByteBuffer& data, Player const* receive
     data << uint32(TransmogOutfitID);
     data << uint8(StampedOptionMainHand);
     data << uint8(StampedOptionOffHand);
+    data << float(CostMod);
     data.WriteBit(Locked);
     data.FlushBits();
 }
@@ -5240,6 +5253,7 @@ void TransmogOutfitMetadata::WriteUpdate(bool ignoreChangesMask, ByteBuffer& dat
     data << uint32(TransmogOutfitID);
     data << uint8(StampedOptionMainHand);
     data << uint8(StampedOptionOffHand);
+    data << float(CostMod);
     data.WriteBit(Locked);
     data.FlushBits();
     data.FlushBits();
@@ -5251,7 +5265,8 @@ bool TransmogOutfitMetadata::operator==(TransmogOutfitMetadata const& right) con
         && SituationTrigger == right.SituationTrigger
         && TransmogOutfitID == right.TransmogOutfitID
         && StampedOptionMainHand == right.StampedOptionMainHand
-        && StampedOptionOffHand == right.StampedOptionOffHand;
+        && StampedOptionOffHand == right.StampedOptionOffHand
+        && CostMod == right.CostMod;
 }
 
 void Research::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const
@@ -8907,6 +8922,7 @@ void ConversationData::WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlag
         (*Lines)[i].WriteCreate(data, receiver, owner);
     }
     data.WriteBit(DontPlayBroadcastTextSounds);
+    data.WriteBit(Field_33);
     data << uint32(Actors.size());
     data << uint32(Flags);
     for (uint32 i = 0; i < Actors.size(); ++i)
@@ -8923,7 +8939,7 @@ void ConversationData::WriteUpdate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlag
 
 void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player const* receiver, Conversation const* owner, bool ignoreNestedChangesMask) const
 {
-    data.WriteBits(changesMask.GetBlock(0), 7);
+    data.WriteBits(changesMask.GetBlock(0), 8);
 
     if (changesMask[0])
     {
@@ -8932,6 +8948,10 @@ void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Pl
             data.WriteBit(DontPlayBroadcastTextSounds);
         }
         if (changesMask[2])
+        {
+            data.WriteBit(Field_33);
+        }
+        if (changesMask[3])
         {
             data.WriteBits(Lines->size(), 32);
             for (uint32 i = 0; i < Lines->size(); ++i)
@@ -8943,7 +8963,7 @@ void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Pl
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[3])
+        if (changesMask[4])
         {
             if (!ignoreNestedChangesMask)
                 Actors.WriteUpdateMask(data);
@@ -8954,7 +8974,7 @@ void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Pl
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[3])
+        if (changesMask[4])
         {
             for (uint32 i = 0; i < Actors.size(); ++i)
             {
@@ -8964,15 +8984,15 @@ void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Pl
                 }
             }
         }
-        if (changesMask[4])
+        if (changesMask[5])
         {
             data << int32(ViewerDependentValue<LastLineEndTimeTag>::GetValue(this, receiver, owner));
         }
-        if (changesMask[5])
+        if (changesMask[6])
         {
             data << uint32(Progress);
         }
-        if (changesMask[6])
+        if (changesMask[7])
         {
             data << uint32(Flags);
         }
@@ -8983,6 +9003,7 @@ void ConversationData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Pl
 void ConversationData::ClearChangesMask()
 {
     Base::ClearChangesMask(DontPlayBroadcastTextSounds);
+    Base::ClearChangesMask(Field_33);
     Base::ClearChangesMask(Lines);
     Base::ClearChangesMask(Actors);
     Base::ClearChangesMask(LastLineEndTime);
@@ -10346,20 +10367,20 @@ void PlayerInitiativeTaskInfo::ClearChangesMask()
 
 void NICompletedMilestoneEntry::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const
 {
-    data << uint32(MilestoneID);
     data << int64(AwardDate);
+    data << uint32(MilestoneID);
 }
 
 void NICompletedMilestoneEntry::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, Player const* owner) const
 {
-    data << uint32(MilestoneID);
     data << int64(AwardDate);
+    data << uint32(MilestoneID);
 }
 
 bool NICompletedMilestoneEntry::operator==(NICompletedMilestoneEntry const& right) const
 {
-    return MilestoneID == right.MilestoneID
-        && AwardDate == right.AwardDate;
+    return AwardDate == right.AwardDate
+        && MilestoneID == right.MilestoneID;
 }
 
 void NICompletedInitiativesEntry::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const

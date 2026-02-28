@@ -143,7 +143,7 @@ inline void WriteSetFieldUpdate(SetUpdateFieldBase<T> const& set, bool ignoreCha
 {
     data << uint8(ignoreChangesMask ? 1 : 0);
     if (ignoreChangesMask)
-        UF::WriteSetFieldCreate(set, data, owner, receiver);
+        UF::WriteSetFieldCreate(set, data, receiver, owner);
     else
     {
         uint16 changesCount = 0;

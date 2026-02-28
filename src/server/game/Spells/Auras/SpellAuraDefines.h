@@ -739,7 +739,7 @@ enum AuraType : uint32
     SPELL_AURA_652                                          = 652,
     SPELL_AURA_653                                          = 653,
     SPELL_AURA_654                                          = 654,
-    SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST           = 655,
+    SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST              = 655,
 
     TOTAL_AURAS
 };
