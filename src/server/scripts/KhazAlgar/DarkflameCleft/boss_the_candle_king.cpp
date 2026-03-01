@@ -244,7 +244,7 @@ class spell_the_candle_king_eerie_molds_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-    	Unit* target = GetHitUnit();
+        Unit* target = GetHitUnit();
         target->CastSpell(target, SPELL_EERIE_MOLDS_SUMMON, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
@@ -488,17 +488,17 @@ struct at_the_candle_king_candlelight : AreaTriggerAI
 
 void AddSC_boss_the_candle_king()
 {
-	RegisterDarkflameCleftCreatureAI(boss_the_candle_king);
+    RegisterDarkflameCleftCreatureAI(boss_the_candle_king);
 
     RegisterSpellScript(spell_the_candle_king_eerie_molds_clone_summoner);
-	RegisterSpellScript(spell_the_candle_king_eerie_molds_selector);
+    RegisterSpellScript(spell_the_candle_king_eerie_molds_selector);
     RegisterSpellScript(spell_the_candle_king_throw_darkflame_selector);
     RegisterSpellScript(spell_the_candle_king_throw_darkflame_missile);
     RegisterSpellScript(spell_the_candle_king_cursed_wax);
     RegisterSpellScript(spell_the_candle_king_darkflame_pickaxe_selector);
     RegisterSpellScript(spell_the_candle_king_darkflame_pickaxe_cast);
 
-	RegisterAreaTriggerAI(at_the_candle_king_cursed_wax);
+    RegisterAreaTriggerAI(at_the_candle_king_cursed_wax);
     RegisterAreaTriggerAI(at_the_candle_king_molten_wax);
     RegisterAreaTriggerAI(at_the_candle_king_candlelight);
 }
