@@ -3404,8 +3404,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
     }
 
     if (Player* player = ToPlayer())
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+    {
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleGameobjectsOrSpellClicks();
+
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_AURA, aura->GetId(), 0, aura->GetCaster());
+    }
 }
 
 // removes aura application from lists and unapplies effects
