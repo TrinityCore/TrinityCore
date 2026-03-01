@@ -1983,8 +1983,8 @@ public:
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        caster->CastSpell(GetHitUnit(), SPELL_PRIEST_POWER_WORD_RADIANCE, CastSpellExtraArgsInit{
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_RADIANCE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_POWER_COST
                 | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .CustomArg = TriggerArgs{ .EffectivenessPct = GetEffectInfo(EFFECT_1).CalcValue(caster, &GetSpellValue()->EffectBasePoints[EFFECT_1], target) }
