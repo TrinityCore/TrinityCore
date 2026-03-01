@@ -442,23 +442,18 @@ void WorldSession::HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems c
         return;
     }
 
-    // collect junk items first - can't modify inventory while iterating
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    // collect junk items first
     std::vector<Item*> junkItems;
     _player->ForEachItem(ItemSearchLocation::Inventory, [this, &junkItems](Item* item)
     {
         if (item->GetQuality() != ITEM_QUALITY_POOR)
             return ItemSearchCallbackResult::Continue;
 
-        if (item->GetSellPrice(_player) == 0)
-            return ItemSearchCallbackResult::Continue;
-
         if (item->IsRefundable())
-            return ItemSearchCallbackResult::Continue;
-
-        if (_player->GetLootGUID() == item->GetGUID())
-            return ItemSearchCallbackResult::Continue;
-
-        if (item->IsNotEmptyBag())
             return ItemSearchCallbackResult::Continue;
 
         // check per-bag junk sell exclusion
@@ -475,31 +470,20 @@ void WorldSession::HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems c
                 return ItemSearchCallbackResult::Continue;
         }
 
-        junkItems.push_back(item);
+        Optional<SellResult> sellError = _player->CanSellItemToVendor(item, item->GetCount());
+        if (!sellError)
+            junkItems.push_back(item);
+
         return ItemSearchCallbackResult::Continue;
     });
 
-    for (Item* item : junkItems)
-    {
-        uint32 sellPrice = item->GetSellPrice(_player);
+    auto itr = junkItems.begin();
+    auto end = junkItems.end();
+    Optional<SellResult> sellError;
 
-        uint64 money = uint64(sellPrice) * item->GetCount();
-
-        using BuybackStorageType = std::remove_cvref_t<decltype(_player->m_activePlayerData->BuybackPrice[0])>;
-        if (money > std::numeric_limits<BuybackStorageType>::max())
-            continue;
-
-        if (!_player->ModifyMoney(money))
-            continue;
-
-        _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
-        _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
-
-        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-        _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
-        RemoveItemFromUpdateQueueOf(item, _player);
-        _player->AddItemToBuyBackSlot(item);
-    }
+    // stop on first sell failure (gold cap reached)
+    for (; itr != end && !sellError; ++itr)
+        sellError = _player->SellItemToVendor(*itr, (*itr)->GetCount());
 }
 
 void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
