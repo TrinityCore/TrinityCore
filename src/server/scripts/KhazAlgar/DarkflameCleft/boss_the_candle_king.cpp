@@ -88,7 +88,6 @@ struct boss_the_candle_king : public BossAI
         instance->SetBossState(DATA_THE_CANDLE_KING, DONE);
 
         RemoveWaxStatues();
-        RemoveWaxChunks();
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -101,35 +100,16 @@ struct boss_the_candle_king : public BossAI
         _EnterEvadeMode();
         _DespawnAtEvade();
         RemoveWaxStatues();
-        RemoveWaxChunks();
     }
 
     void RemoveWaxStatues()
     {
         std::list<Creature*> waxStatues;
-        Trinity::AllCreaturesOfEntryInRange checker(me, NPC_WAX_STATUE, 200.0f);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, waxStatues, checker);
-        Cell::VisitAllObjects(me, searcher, 200.0f);
-
-        if (waxStatues.empty())
-            return;
+        GetCreatureListWithEntryInGrid(waxStatues, me, NPC_WAX_STATUE, 200.0f);
+        GetCreatureListWithEntryInGrid(waxStatues, me, NPC_WAX_CHUNK, 200.0f);
 
         for (Creature* waxStatue : waxStatues)
             waxStatue->DespawnOrUnsummon();
-    }
-
-    void RemoveWaxChunks()
-    {
-        std::list<Creature*> waxChunks;
-        Trinity::AllCreaturesOfEntryInRange checker(me, NPC_WAX_CHUNK, 200.0f);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, waxChunks, checker);
-        Cell::VisitAllObjects(me, searcher, 200.0f);
-
-        if (waxChunks.empty())
-            return;
-
-        for (Creature* waxChunk : waxChunks)
-            waxChunk->DespawnOrUnsummon();
     }
 
     void KilledUnit(Unit* victim) override
@@ -393,9 +373,9 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
 
         targets.remove(GetCaster());
 
-        auto closestTargetItr = std::ranges::min_element(targets, [caster = GetCaster()](WorldObject const* left, WorldObject const* right)
+        auto closestTargetItr = std::ranges::min_element(targets, std::ranges::less(), [caster = GetCaster()](WorldObject const* obj)
         {
-            return caster->GetDistance(left->GetPosition()) < caster->GetDistance(right->GetPosition());
+            return caster->GetDistance(obj > GetPosition());
         });
 
         if (closestTargetItr == targets.end())
@@ -418,7 +398,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, closestTarget, GetSpell()), 300ms);
+        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, GetHitUnit()->GetGUID(), GetSpell()->m_castId), 300ms);
     }
 
     void Register() override
