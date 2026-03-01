@@ -114,7 +114,7 @@ struct boss_the_candle_king : public BossAI
             return;
 
         for (Creature* waxStatue : waxStatues)
-            waxStatue->DespawnOrUnsummon();        
+            waxStatue->DespawnOrUnsummon();
     }
 
     void RemoveWaxChunks()
