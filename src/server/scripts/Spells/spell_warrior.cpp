@@ -49,6 +49,7 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_ALWAYS_ANGRY                      = 280270,
     SPELL_WARRIOR_AVATAR                            = 107574,
     SPELL_WARRIOR_BLADESTORM                        = 227847,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
@@ -60,6 +61,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
+    SPELL_WARRIOR_CRASHING_THUNDER_TALENT           = 436707,
     SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
@@ -92,6 +94,7 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
+    SPELL_WARRIOR_MEAT_CLEAVER_TALENT               = 280392,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_OVERPOWER                         = 7384,
@@ -119,6 +122,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SUDDEN_DEATH                      = 29725,
     SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 52437,
     SPELL_WARRIOR_SWEEPING_STRIKES                  = 260708,
+    SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT        = 1265359,
+    SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC          = 1265560,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
@@ -1450,6 +1455,63 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
     }
 };
 
+// 280392 - Meat Cleaver (attached to 199667 - Whirlwind, 44949 - Whirlwind Off-Hand, 199852 - Whirlwind, 199851 - Whirlwind Off-Hand)
+class spell_warr_meat_cleaver_damage_bonus : public SpellScript
+{
+protected:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({{ SPELL_WARRIOR_MEAT_CLEAVER_TALENT, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_MEAT_CLEAVER_TALENT);
+    }
+
+    void HandleDamageBonus(SpellEffectInfo const& spellEffectInfo, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit const* caster = GetCaster();
+        Aura const* meatCleaver = caster->GetAura(SPELL_WARRIOR_MEAT_CLEAVER_TALENT);
+        if (!meatCleaver)
+            return;
+
+        AuraEffect const* minTargetCount = meatCleaver->GetEffect(EFFECT_1);
+        if (!minTargetCount)
+            return;
+
+        int64 const targetCount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+
+        if (targetCount < minTargetCount->GetAmount())
+            return;
+
+        if (AuraEffect const* aurEff = meatCleaver->GetEffect(EFFECT_0))
+            AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_meat_cleaver_damage_bonus::HandleDamageBonus);
+    }
+};
+
+// 280392 - Meat Cleaver (attached to 6343 - Thunder Clap)
+// 280392 - Meat Cleaver (attached to 435222 - Thunder Blast)
+class spell_warr_meat_cleaver_damage_bonus_thunder_clap : public spell_warr_meat_cleaver_damage_bonus
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spell_warr_meat_cleaver_damage_bonus::Validate(spellInfo)
+            && ValidateSpellInfo({ SPELL_WARRIOR_CRASHING_THUNDER_TALENT });
+    }
+
+    bool Load() override
+    {
+        return spell_warr_meat_cleaver_damage_bonus::Load()
+            && GetCaster()->HasAura(SPELL_WARRIOR_CRASHING_THUNDER_TALENT);
+    }
+};
+
 // 12294 - Mortal Strike
 class spell_warr_mortal_strike : public SpellScript
 {
@@ -1478,14 +1540,16 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_RAGING_BLOW })
+        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_RAGING_BLOW, SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT, SPELL_WARRIOR_ALWAYS_ANGRY })
             && ValidateSpellEffect({{ SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0 }});
     }
 
     bool Load() override
     {
         Unit const* caster = GetCaster();
-        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || caster->HasAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0);
+        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW)
+            || caster->HasAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0)
+            || caster->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
     }
 
     void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
@@ -1500,7 +1564,13 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
             value += auraEffect->GetAmount();
 
         if (roll_chance_i(value))
+        {
+            caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
             caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
+        }
     }
 
     void Register() override
@@ -1724,6 +1794,33 @@ class spell_warr_sudden_death : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1265359 - Surge of Adrenaline (talent) - attached to 280270 (Always Angry)
+class spell_warr_surge_of_adrenaline : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_SURGE_OF_ADRENALINE_TALENT);
+    }
+
+    void TriggerBuff() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_SURGE_OF_ADRENALINE_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warr_surge_of_adrenaline::TriggerBuff);
     }
 };
 
@@ -2777,6 +2874,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_intimidating_shout_menace_knock_back);
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
+    RegisterSpellScript(spell_warr_meat_cleaver_damage_bonus);
+    RegisterSpellScript(spell_warr_meat_cleaver_damage_bonus_thunder_clap);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_overpowering_finish);
     RegisterSpellScript(spell_warr_pain_and_gain_heal);
@@ -2791,6 +2890,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
     RegisterSpellScript(spell_warr_sudden_death);
+    RegisterSpellScript(spell_warr_surge_of_adrenaline);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
