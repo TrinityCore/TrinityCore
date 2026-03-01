@@ -339,11 +339,13 @@ class spell_the_candle_king_darkflame_pickaxe_selector : public SpellScript
 class DarkflamePickaxeDamageEvent : public BasicEvent
 {
 public:
-    explicit DarkflamePickaxeDamageEvent(Unit* caster, WorldObject* target, Spell* triggeringSpell) : _caster(caster), _target(target), _triggeringSpell(triggeringSpell) { }
+    explicit DarkflamePickaxeDamageEvent(Unit* caster, ObjectGuid const& target, Spell* triggeringSpell) : _caster(caster), _target(target), _triggeringSpell(triggeringSpell) { }
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
-        _caster->CastSpell(_target, SPELL_DARKFLAME_PICKAXE_DAMAGE, CastSpellExtraArgsInit{
+        Unit* target = ObjectAccessor::GetUnit(*_caster, _target);
+
+        _caster->CastSpell(target, SPELL_DARKFLAME_PICKAXE_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = _triggeringSpell
         });
@@ -352,7 +354,7 @@ public:
 
 private:
     Unit* _caster;
-    WorldObject* _target;
+    ObjectGuid _target;
     Spell* _triggeringSpell;
 };
 
@@ -375,7 +377,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
 
         auto closestTargetItr = std::ranges::min_element(targets, std::ranges::less(), [caster = GetCaster()](WorldObject const* obj)
         {
-            return caster->GetDistance(obj > GetPosition());
+            return caster->GetDistance(obj->GetPosition());
         });
 
         if (closestTargetItr == targets.end())
@@ -398,7 +400,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, GetHitUnit()->GetGUID(), GetSpell()->m_castId), 300ms);
+        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, GetHitUnit()->GetGUID(), GetSpell()), 300ms);
     }
 
     void Register() override
