@@ -179,14 +179,6 @@ enum HodirActions
     ACTION_PLAYER_IS_FROZEN                      = 4
 };
 
-enum HodirDataTypes
-{
-    DATA_CHEESE_THE_FREEZE                       = 29612962,
-    DATA_GETTING_COLD_IN_HERE                    = 29672968,
-    DATA_THIS_CACHE_WAS_RARE                     = 31823184,
-    DATA_I_HAVE_THE_COOLEST_FRIENDS              = 29632965
-};
-
 Position const SummonPositions[8] =
 {
     { 1983.75f, -243.36f, 432.767f, 1.57f }, // Field Medic Penny    &&  Battle-Priest Eliza
@@ -217,10 +209,10 @@ struct boss_hodir : public BossAI
     boss_hodir(Creature* creature) : BossAI(creature, DATA_HODIR)
     {
         _isDefeated = false;
-        _gettingColdInHere = true;
-        _cheeseTheFreeze = true;
-        _iHaveTheCoolestFriends = true;
-        _thisCacheWasRare = true;
+        _gettingColdInHereFailed = false;
+        _cheeseTheFreezeFailed = false;
+        _iHaveTheCoolestFriendsFailed = false;
+        _thisCacheWasRareFailed = false;
     }
 
     void JustAppeared() override
@@ -259,17 +251,17 @@ struct boss_hodir : public BossAI
                     DoZoneInCombat();
                 break;
             case ACTION_COOLEST_FRIEND_DIES:
-                _iHaveTheCoolestFriends = false;
+                _iHaveTheCoolestFriendsFailed = true;
                 break;
             case ACTION_BITING_COLD_TOO_MUCH_STACKS:
-                _gettingColdInHere = false;
+                _gettingColdInHereFailed = true;
                 break;
             case ACTION_PLAYER_IS_FROZEN:
-                _cheeseTheFreeze = false;
+                _cheeseTheFreezeFailed = true;
                 break;
             case ACTION_CACHE_SHATTERED:
                 Talk(EMOTE_SHATTER);
-                _thisCacheWasRare = false;
+                _thisCacheWasRareFailed = true;
                 break;
             case ACTION_FLASH_FREEZE_FINISHED:
                 events.ScheduleEvent(EVENT_FLASH_FREEZE_FINISHED_1, 0s);
@@ -281,16 +273,17 @@ struct boss_hodir : public BossAI
 
     uint32 GetData(uint32 type) const override
     {
+        // TODO: Replace with real worldstates
         switch (type)
         {
-            case DATA_CHEESE_THE_FREEZE:
-                return _cheeseTheFreeze ? 1 : 0;
-            case DATA_GETTING_COLD_IN_HERE:
-                return _gettingColdInHere ? 1 : 0;
-            case DATA_THIS_CACHE_WAS_RARE:
-                return _thisCacheWasRare ? 1 : 0;
-            case DATA_I_HAVE_THE_COOLEST_FRIENDS:
-                return _iHaveTheCoolestFriends ? 1 : 0;
+            case WORLD_STATE_HODIR_CHEESE_THE_FREEZE_FAILED:
+                return _cheeseTheFreezeFailed ? 1 : 0;
+            case WORLD_STATE_HODIR_GETTING_COLD_FAILED:
+                return _gettingColdInHereFailed ? 1 : 0;
+            case WORLD_STATE_HODIR_THIS_CACHE_WAS_RARE_FAILED:
+                return _thisCacheWasRareFailed ? 1 : 0;
+            case WORLD_STATE_HODIR_COOLEST_FRIENDS_FAILED:
+                return _iHaveTheCoolestFriendsFailed ? 1 : 0;
         }
 
         return 0;
@@ -477,10 +470,10 @@ struct boss_hodir : public BossAI
 
 private:
     bool _isDefeated;
-    bool _gettingColdInHere;
-    bool _cheeseTheFreeze;
-    bool _iHaveTheCoolestFriends;
-    bool _thisCacheWasRare;
+    bool _gettingColdInHereFailed;
+    bool _cheeseTheFreezeFailed;
+    bool _iHaveTheCoolestFriendsFailed;
+    bool _thisCacheWasRareFailed;
     EventMap _epilogueEvents;
 };
 
@@ -1230,7 +1223,7 @@ public:
 
     bool OnCheck(Player* /*player*/, Unit* target) override
     {
-        return target && target->GetAI() && target->GetAI()->GetData(DATA_CHEESE_THE_FREEZE);
+        return target && target->GetAI() && !target->GetAI()->GetData(WORLD_STATE_HODIR_CHEESE_THE_FREEZE_FAILED);
     }
 };
 
@@ -1241,7 +1234,7 @@ public:
 
     bool OnCheck(Player* /*player*/, Unit* target) override
     {
-        return target && target->GetAI() && target->GetAI()->GetData(DATA_GETTING_COLD_IN_HERE);
+        return target && target->GetAI() && !target->GetAI()->GetData(WORLD_STATE_HODIR_GETTING_COLD_FAILED);
     }
 };
 
@@ -1252,7 +1245,7 @@ public:
 
     bool OnCheck(Player* /*player*/, Unit* target) override
     {
-        return target && target->GetAI() && target->GetAI()->GetData(DATA_THIS_CACHE_WAS_RARE);
+        return target && target->GetAI() && !target->GetAI()->GetData(WORLD_STATE_HODIR_THIS_CACHE_WAS_RARE_FAILED);
     }
 };
 
@@ -1263,7 +1256,7 @@ public:
 
     bool OnCheck(Player* /*player*/, Unit* target) override
     {
-        return target && target->GetAI() && target->GetAI()->GetData(DATA_I_HAVE_THE_COOLEST_FRIENDS);
+        return target && target->GetAI() && !target->GetAI()->GetData(WORLD_STATE_HODIR_COOLEST_FRIENDS_FAILED);
     }
 };
 
