@@ -1217,7 +1217,10 @@ class spell_dru_galactic_guardian_moonfire : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        if (m_scriptSpellId == SPELL_DRUID_MOONFIRE)
+            OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleEnergize, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 
     int32 _rageAmount = 0;
