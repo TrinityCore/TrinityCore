@@ -123,10 +123,21 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::scoped_lock<std
     Optional<BigNumber> currentValue = GetHexFromConfig(info.configKey, info.bits);
 
     // verify digest
-    if (
-        ((!oldDigest) != (!currentValue)) || // there is an old digest, but no current secret (or vice versa)
-        (oldDigest && !Trinity::Crypto::Argon2::Verify(currentValue->AsHexStr(), *oldDigest)) // there is an old digest, and the current secret does not match it
-        )
+    bool digestMismatch = false;
+    if (oldDigest && currentValue)
+    {
+        // Extract hex string first to avoid holding references during Argon2::Verify
+        std::string currentHexStr = currentValue->AsHexStr();
+        if (!Trinity::Crypto::Argon2::Verify(currentHexStr, *oldDigest))
+            digestMismatch = true;
+    }
+    else if ((!oldDigest) != (!currentValue))
+    {
+        // there is an old digest, but no current secret (or vice versa)
+        digestMismatch = true;
+    }
+
+    if (digestMismatch)
     {
         if (info.owner != OWNER)
         {
@@ -142,11 +153,16 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::scoped_lock<std
         if (oldDigest && info.oldKey) // there is an old digest, so there might be an old secret (if possible)
         {
             oldSecret = GetHexFromConfig(info.oldKey, info.bits);
-            if (oldSecret && !Trinity::Crypto::Argon2::Verify(oldSecret->AsHexStr(), *oldDigest))
+            if (oldSecret)
             {
-                TC_LOG_MESSAGE_BODY("server.loading", errorLevel, "Invalid value for '{}' specified - this is not actually the secret previously used in your auth DB.", info.oldKey);
-                _secrets[i].state = Secret::LOAD_FAILED;
-                return;
+                // Extract hex string first to avoid holding references during Argon2::Verify
+                std::string oldSecretHexStr = oldSecret->AsHexStr();
+                if (!Trinity::Crypto::Argon2::Verify(oldSecretHexStr, *oldDigest))
+                {
+                    TC_LOG_MESSAGE_BODY("server.loading", errorLevel, "Invalid value for '{}' specified - this is not actually the secret previously used in your auth DB.", info.oldKey);
+                    _secrets[i].state = Secret::LOAD_FAILED;
+                    return;
+                }
             }
         }
 

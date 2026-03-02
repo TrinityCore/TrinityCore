@@ -39,6 +39,15 @@
 
 /*static*/ bool Trinity::Crypto::Argon2::Verify(std::string const& password, std::string const& hash)
 {
+    // Validate input parameters to prevent crashes from null pointers or invalid formats
+    if (hash.empty() || password.empty())
+        return false;
+
+    // Verify hash format starts with "$argon2id$"
+    // Argon2id hash format: $argon2id$v=19$m=65536,t=3,p=4$salt$hash
+    if (hash.find("$argon2id$") != 0)
+        return false;
+
     int status = argon2id_verify(hash.c_str(), password.c_str(), password.length());
     return (status == ARGON2_OK);
 }
