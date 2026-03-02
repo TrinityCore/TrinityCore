@@ -46,6 +46,10 @@ enum DeathKnightSpells
     SPELL_DK_BLINDING_SLEET_SLOW                = 317898,
     SPELL_DK_BLOOD                              = 137008,
     SPELL_DK_BLOODDRINKER_DEBUFF                = 458687,
+    SPELL_DK_BLOOD_BOND_PERIODIC                = 1267044,
+    SPELL_DK_BLOOD_BOND_TALENT                  = 1267028,
+    SPELL_DK_BLOOD_BOND_GHOUL_HEALTH_PCT        = 1267032,
+    SPELL_DK_BLOOD_BOND_PLAYER_HEAL_PCT         = 1277365,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
@@ -72,6 +76,7 @@ enum DeathKnightSpells
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_SCYTHE                       = 207230,
     SPELL_DK_FROST_SHIELD                       = 207203,
+    SPELL_DK_GHOUL_BIRTH                        = 1217759,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
@@ -273,6 +278,35 @@ class spell_dk_army_transform : public SpellScript
     }
 };
 
+// 1217740 - Birth (used by ghoul on spawn)
+class spell_dk_birth : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_GHOUL_BIRTH, SPELL_DK_BLOOD_BOND_TALENT, SPELL_DK_BLOOD_BOND_PERIODIC });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* owner = GetCaster()->GetOwner();
+
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringSpell = GetSpell();
+
+        caster->CastSpell(caster, SPELL_DK_GHOUL_BIRTH, args);
+
+        if (owner->HasAura(SPELL_DK_BLOOD_BOND_TALENT))
+            caster->CastSpell(caster, SPELL_DK_BLOOD_BOND_PERIODIC, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_birth::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 207167 - Blinding Sleet
 class spell_dk_blinding_sleet : public AuraScript
 {
@@ -335,6 +369,35 @@ class spell_dk_blood_boil : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_dk_blood_boil::HandleEffect);
+    }
+};
+
+// 1267044 - Blood Bond
+class spell_dk_blood_bond_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_BOND_TALENT, SPELL_DK_BLOOD_BOND_PLAYER_HEAL_PCT, SPELL_DK_BLOOD_BOND_GHOUL_HEALTH_PCT });
+    }
+
+    void HandleDummyTick(AuraEffect const* aurEff) const
+    {
+        Unit* owner = GetTarget()->GetOwner();
+        Unit* target = GetTarget();
+        SpellInfo const* bloodBondTalent = sSpellMgr->AssertSpellInfo(SPELL_DK_BLOOD_BOND_TALENT, GetCastDifficulty());
+        if (owner->GetHealthPct() >= bloodBondTalent->GetEffect(EFFECT_0).CalcValue(owner))
+            return;
+
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringAura = aurEff;
+        target->CastSpell(target, SPELL_DK_BLOOD_BOND_GHOUL_HEALTH_PCT, args);
+        owner->CastSpell(owner, SPELL_DK_BLOOD_BOND_PLAYER_HEAL_PCT, args);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_blood_bond_periodic::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1436,9 +1499,11 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dk_apply_bone_shield, "spell_dk_marrowrend_apply_bone_shield", EFFECT_2);
     RegisterSpellScriptWithArgs(spell_dk_apply_bone_shield, "spell_dk_deaths_caress_apply_bone_shield", EFFECT_2);
     RegisterSpellScript(spell_dk_army_transform);
+    RegisterSpellScript(spell_dk_birth);
     RegisterSpellScript(spell_dk_blinding_sleet);
     RegisterSpellScript(spell_dk_blooddrinker);
     RegisterSpellScript(spell_dk_blood_boil);
+    RegisterSpellScript(spell_dk_blood_bond_periodic);
     RegisterSpellScript(spell_dk_brittle);
     RegisterSpellScript(spell_dk_crimson_scourge);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);

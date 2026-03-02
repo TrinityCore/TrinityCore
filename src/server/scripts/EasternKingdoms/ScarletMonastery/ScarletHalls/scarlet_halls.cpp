@@ -19,21 +19,19 @@
 #include "ScriptMgr.h"
 #include "scarlet_halls.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_HOUNDMASTER_BRAUN,   DATA_HOUNDMASTER_BRAUN      },
     { BOSS_ARMSMASTER_HARLAN,   DATA_ARMSMASTER_HARLAN      },
     { BOSS_FLAMEWEAVER_KOEGLER, DATA_FLAMEWEAVER_KOEGLER    },
-    { 0,                        0                           } // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_HERODS_DOOR_HARLAN_ENCOUNTER_ENTRANCE, DATA_ARMSMASTER_HARLAN, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                                        0,                      EncounterDoorBehavior::OpenWhenNotInProgress } //End
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_HOUNDMASTER_BRAUN,   {{ 1422 }} },
     { DATA_ARMSMASTER_HARLAN,   {{ 1421 }} },
@@ -51,7 +49,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
         }

@@ -653,10 +653,10 @@ enum SkillUpdateState
 
 struct SkillStatusData
 {
-    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
+    SkillStatusData(uint32 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
     {
     }
-    uint8 pos;
+    uint32 pos;
     SkillUpdateState uState;
 };
 
@@ -1582,6 +1582,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool IsUsingTwoHandedWeaponInOneHand() const;
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false, uint32 dungeonEncounterId = 0);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot);
+        Optional<SellResult> CanSellItemToVendor(Item const* item, uint32 amount) const;
+        Optional<SellResult> SellItemToVendor(Item* item, uint32 amount);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
