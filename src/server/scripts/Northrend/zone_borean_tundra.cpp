@@ -415,40 +415,6 @@ private:
     ObjectGuid _mammothGUID;
 };
 
-enum red_dragonblood
-{
-    SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
-    SPELL_SUBDUED = 46675
-};
-
-// 46620 - Red Dragonblood
-class spell_red_dragonblood : public AuraScript
-{
-    PrepareAuraScript(spell_red_dragonblood);
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
-            return;
-
-        Creature* owner = GetOwner()->ToCreature();
-        owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
-        owner->CombatStop(true);
-        owner->GetMotionMaster()->Clear();
-        owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
-        owner->CastSpell(owner, SPELL_SUBDUED, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-        owner->SetFaction(FACTION_FRIENDLY);
-        owner->SetImmuneToAll(true);
-        owner->DespawnOrUnsummon(3min);
-    }
-
-    void Register()
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 /*######
 ## Valiance Keep Cannoneer script to activate cannons
 ######*/
@@ -2104,6 +2070,120 @@ class spell_borean_tundra_re_cursive_transmatter_injection : public SpellScript
     }
 };
 
+/*######
+## Quest 11919, 11940: Drake Hunt
+######*/
+
+enum DrakeHunt
+{
+    SPELL_RED_DRAGONBLOOD             = 46620,
+    SPELL_CAPTURE_TRIGGER             = 46673,
+    SPELL_DRAKE_TURN_IN               = 46696,
+    SPELL_DRAKE_HATCHLING_SUBDUED     = 46691,
+    SPELL_ROPE_BEAM                   = 46674
+};
+
+// 46607 - Drake Harpoon
+class spell_borean_tundra_drake_harpoon : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_harpoon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RED_DRAGONBLOOD });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_RED_DRAGONBLOOD, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_borean_tundra_drake_harpoon::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46620 - Red Dragonblood
+class spell_borean_tundra_red_dragonblood : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_red_dragonblood);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CAPTURE_TRIGGER });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_CAPTURE_TRIGGER, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_red_dragonblood::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46691 - Drake Hatchling Subdued
+class spell_borean_tundra_drake_hatchling_subdued : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_hatchling_subdued);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_TURN_IN });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* creature = caster->ToCreature())
+                    creature->DespawnOrUnsummon();
+        }
+
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT)
+        {
+            if (Unit* caster = GetCaster())
+                GetTarget()->CastSpell(caster, SPELL_DRAKE_TURN_IN, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_drake_hatchling_subdued::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46693 - Strip Auras
+class spell_borean_tundra_strip_auras : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_strip_auras);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_HATCHLING_SUBDUED, SPELL_ROPE_BEAM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_DRAKE_HATCHLING_SUBDUED);
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ROPE_BEAM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_strip_auras::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -2111,7 +2191,6 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_arcane_chains_character_force_cast);
     RegisterGameObjectAI(go_caribou_trap);
     RegisterGameObjectAI(go_mammoth_trap);
-    RegisterSpellScript(spell_red_dragonblood);
     RegisterCreatureAI(npc_valiance_keep_cannoneer);
     RegisterCreatureAI(npc_hidden_cultist);
     RegisterCreatureAI(npc_thassarian);
@@ -2142,4 +2221,8 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
     RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
     RegisterSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
+    RegisterSpellScript(spell_borean_tundra_drake_harpoon);
+    RegisterSpellScript(spell_borean_tundra_red_dragonblood);
+    RegisterSpellScript(spell_borean_tundra_drake_hatchling_subdued);
+    RegisterSpellScript(spell_borean_tundra_strip_auras);
 }
