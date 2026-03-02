@@ -1405,8 +1405,8 @@ class spell_warr_kill_or_be_killed_warrior : public AuraScript
                     .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
                 });
 
-                if (target->GetHealthPct() < static_cast<float>(aurEff->GetAmount()))
-                    GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()));
+                if (target->HealthBelowPct(aurEff->GetAmount()))
+                    target->SetHealth(target->CountPctFromMaxHealth(aurEff->GetAmount()));
                 break;
             default:
                 break;
