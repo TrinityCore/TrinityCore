@@ -137,6 +137,11 @@ void SellItem::Read()
     _worldPacket >> Amount;
 }
 
+void SellAllJunkItems::Read()
+{
+    _worldPacket >> VendorGUID;
+}
+
 WorldPacket const* ItemTimeUpdate::Write()
 {
     _worldPacket << ItemGuid;
