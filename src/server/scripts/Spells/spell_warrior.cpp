@@ -84,6 +84,11 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
+    SPELL_WARRIOR_KILL_OR_BE_KILLED_COOLDOWN        = 1265598,
+    SPELL_WARRIOR_KILL_OR_BE_KILLED_FULFILLED       = 1265645,
+    SPELL_WARRIOR_KILL_OR_BE_KILLED_INSTAKILL       = 1265646,
+    SPELL_WARRIOR_KILL_OR_BE_KILLED_PROC            = 1265600,
+    SPELL_WARRIOR_KILL_OR_BE_KILLED_TARGET          = 1265641,
     SPELL_WARRIOR_MEAT_CLEAVER_TALENT               = 280392,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
@@ -1316,6 +1321,104 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
     }
 };
 
+// 1265361 - Kill or Be Killed
+class spell_warr_kill_or_be_killed : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_KILL_OR_BE_KILLED_COOLDOWN, SPELL_WARRIOR_KILL_OR_BE_KILLED_PROC, SPELL_WARRIOR_KILL_OR_BE_KILLED_TARGET });
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        Unit* target = GetTarget();
+
+        if (target->HasAura(SPELL_WARRIOR_KILL_OR_BE_KILLED_PROC))
+            return;
+
+        if (target->HasAura(SPELL_WARRIOR_KILL_OR_BE_KILLED_COOLDOWN))
+        {
+            absorbAmount = 0;
+            return;
+        }
+
+        CastSpellExtraArgs castArgs = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        };
+
+        SpellCastResult result = target->CastSpell(dmgInfo.GetAttacker(), SPELL_WARRIOR_KILL_OR_BE_KILLED_TARGET, castArgs);
+        if (result != SPELL_FAILED_SUCCESS)
+        {
+            absorbAmount = 0;
+            return;
+        }
+
+        target->CastSpell(nullptr, SPELL_WARRIOR_KILL_OR_BE_KILLED_PROC, castArgs);
+
+        target->CastSpell(nullptr, SPELL_WARRIOR_KILL_OR_BE_KILLED_COOLDOWN, castArgs);
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_warr_kill_or_be_killed::HandleAbsorb, EFFECT_0);
+    }
+};
+
+// 1265641 - Kill or Be Killed (target)
+class spell_warr_kill_or_be_killed_target : public AuraScript
+{
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
+    {
+        Unit* caster = aurEff->GetCaster();
+        if (!caster || !caster->IsAlive())
+            return;
+
+        caster->RemoveAurasDueToSpell(SPELL_WARRIOR_KILL_OR_BE_KILLED_PROC);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_kill_or_be_killed_target::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1265600 - Kill or Be Killed (warrior)
+class spell_warr_kill_or_be_killed_warrior : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_KILL_OR_BE_KILLED_FULFILLED, SPELL_WARRIOR_KILL_OR_BE_KILLED_INSTAKILL });
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        switch (GetTargetApplication()->GetRemoveMode())
+        {
+            case AURA_REMOVE_BY_EXPIRE:
+                target->CastSpell(nullptr, SPELL_WARRIOR_KILL_OR_BE_KILLED_INSTAKILL, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                });
+                break;
+            case AURA_REMOVE_BY_DEFAULT:
+                target->CastSpell(nullptr, SPELL_WARRIOR_KILL_OR_BE_KILLED_FULFILLED, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                });
+
+                if (target->GetHealthPct() < static_cast<float>(aurEff->GetAmount()))
+                    GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()));
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warr_kill_or_be_killed_warrior::OnRemove, EFFECT_4, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 280392 - Meat Cleaver (attached to 199667 - Whirlwind, 44949 - Whirlwind Off-Hand, 199852 - Whirlwind, 199851 - Whirlwind Off-Hand)
 class spell_warr_meat_cleaver_damage_bonus : public SpellScript
 {
@@ -2070,6 +2173,9 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_intimidating_shout_menace_knock_back);
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
+    RegisterSpellScript(spell_warr_kill_or_be_killed);
+    RegisterSpellScript(spell_warr_kill_or_be_killed_target);
+    RegisterSpellScript(spell_warr_kill_or_be_killed_warrior);
     RegisterSpellScript(spell_warr_meat_cleaver_damage_bonus);
     RegisterSpellScript(spell_warr_meat_cleaver_damage_bonus_thunder_clap);
     RegisterSpellScript(spell_warr_mortal_strike);
