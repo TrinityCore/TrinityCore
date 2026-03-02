@@ -120,14 +120,13 @@ enum COSMisc
     WAVE_SALRAMM        = 10
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_EXIT_GATE,       DATA_MAL_GANIS, EncounterDoorBehavior::OpenWhenDone },
-    { 0,                  0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MEATHOOK, {{ 2002 }} },
     { DATA_SALRAMM, {{ 2004 }} },
@@ -168,11 +167,11 @@ COSProgressStates GetStableStateFor(COSProgressStates const state)
     }
 }
 
-static Position const CorruptorPos = { 2331.642f, 1273.273f, 132.9524f, 3.717551f };
-static Position const GuardianPos = { 2321.489f, 1268.383f, 132.8507f, 0.418879f };
-static Position const CorruptorRiftPos = { 2443.626f, 1280.450f, 133.0066f, 1.727876f };
+static constexpr Position CorruptorPos = { 2331.642f, 1273.273f, 132.9524f, 3.717551f };
+static constexpr Position GuardianPos = { 2321.489f, 1268.383f, 132.8507f, 0.418879f };
+static constexpr Position CorruptorRiftPos = { 2443.626f, 1280.450f, 133.0066f, 1.727876f };
 
-static std::array<std::array<uint32, MAX_SPAWNS_PER_WAVE>, NUM_SCOURGE_WAVES> const HeroicWaves =
+static constexpr std::array<std::array<uint32, MAX_SPAWNS_PER_WAVE>, NUM_SCOURGE_WAVES> HeroicWaves =
 {
     {
         { { NPC_DEVOURING_GHOUL, NPC_DEVOURING_GHOUL, NPC_DEVOURING_GHOUL                                      } }, // wave 1
@@ -194,7 +193,7 @@ struct WaveLocation
     std::array<Position, MAX_SPAWNS_PER_WAVE> SpawnPoints;
 };
 
-static const std::array<WaveLocation, WAVE_LOC_MAX - WAVE_LOC_MIN + 1> WaveLocations =
+static constexpr std::array<WaveLocation, WAVE_LOC_MAX - WAVE_LOC_MIN + 1> WaveLocations =
 {
     {
         { // King's Square

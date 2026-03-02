@@ -27,22 +27,20 @@ BossBoundaryData const boundaries =
     { BOSS_SPORECALLER_ZANCHA,   new ZRangeBoundary(35.240f, 26.790f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_ELDER_LEAXA,             DATA_ELDER_LEAXA            },
     { BOSS_SPORECALLER_ZANCHA,      DATA_SPORECALLER_ZANCHA     },
     { BOSS_CRAGMAW_THE_INFESTED,    DATA_CRAGMAW_THE_INFESTED   },
     { BOSS_UNBOUND_ABOMINATION,     DATA_UNBOUND_ABOMINATION    },
-    { 0,                            0                           }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_WALL_DOOR_SHORTCUT_ENTRANCE,        DATA_SPORECALLER_ZANCHA,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                     0,                        EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_ELDER_LEAXA,             {{ 2111 }} },
     { DATA_CRAGMAW_THE_INFESTED,    {{ 2118 }} },
@@ -61,7 +59,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);

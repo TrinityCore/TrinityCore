@@ -3581,12 +3581,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask)
 
     if (Player* player = ToPlayer())
     {
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleObjectInteractions(false, true, false, false);
 
-        player->FailCriteria(CriteriaFailEvent::GainAura, aurApp->GetBase()->GetId());
-        player->StartCriteria(CriteriaStartEvent::GainAura, aurApp->GetBase()->GetId());
-        player->UpdateCriteria(CriteriaType::GainAura, aurApp->GetBase()->GetId());
+        player->FailCriteria(CriteriaFailEvent::GainAura, aura->GetId());
+        player->StartCriteria(CriteriaStartEvent::GainAura, aura->GetId());
+        player->UpdateCriteria(CriteriaType::GainAura, aura->GetId(), 0, 0, caster);
     }
 }
 
@@ -3731,8 +3731,8 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
         m_modAuras[aurEff->GetAuraType()].push_front(aurEff);
         if (Player* player = ToPlayer())
         {
-            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
             player->FailCriteria(CriteriaFailEvent::GainAuraEffect, aurEff->GetAuraType());
+            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
         }
     }
     else

@@ -448,6 +448,7 @@ namespace WorldPackets
         class RepairItem;
         class ReadItem;
         class SellItem;
+        class SellAllJunkItems;
         class SplitItem;
         class SwapInvItem;
         class SwapItem;
@@ -1535,7 +1536,8 @@ class TC_GAME_API WorldSession
         void HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem);
         void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem);
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
-        void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
+        void HandleSellItemOpcode(WorldPackets::Item::SellItem const& sellItem);
+        void HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems const& sellAllJunkItems);
         void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet);

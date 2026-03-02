@@ -29,16 +29,14 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 #include "SpellAuras.h"
-#include "TemporarySummon.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, EncounterDoorBehavior::OpenWhenDone },
     { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, EncounterDoorBehavior::OpenWhenDone },
-    { 0,                               0,               EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_NETHEKURSE, {{ 1936 }} },
     { DATA_PORUNG, {{ 1935 }} },

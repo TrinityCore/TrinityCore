@@ -26,23 +26,21 @@ BossBoundaryData const boundaries =
     { DATA_SHADE_OF_MEDIVH, new CircleBoundary(Position(-4599.149902f, -2517.947266f, 2876.506836f), 35.0f) },
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_MAIDEN_OF_VIRTUE_RTK, DATA_MAIDEN_OF_VIRTUE_RTK },
     { BOSS_THE_CURATOR_RTK,      DATA_THE_CURATOR_RTK      },
     { BOSS_MANA_DEVOURER,        DATA_MANA_DEVOURER        },
-    { 0,                         0                         }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_STRANGE_WALL,        DATA_THE_CURATOR_RTK, EncounterDoorBehavior::OpenWhenDone          },
     { GO_SUSPICIOUS_BOOKCASE, DATA_SHADE_OF_MEDIVH, EncounterDoorBehavior::OpenWhenDone          },
     { GO_MEDIVH_DOOR,         DATA_SHADE_OF_MEDIVH, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                      0,                    EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_OPERA_HALL,           {{ 1957 }} },
     { DATA_MAIDEN_OF_VIRTUE_RTK, {{ 1954 }} },
@@ -66,7 +64,7 @@ class instance_return_to_karazhan : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);

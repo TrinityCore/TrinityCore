@@ -19,21 +19,19 @@
 #include "ScriptMgr.h"
 #include "ruby_life_pools.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_MELIDRUSSA_CHILLWORN,    DATA_MELIDRUSSA_CHILLWORN          },
     { BOSS_KOKIA_BLAZEHOOF,         DATA_KOKIA_BLAZEHOOF               },
     { BOSS_KYRAKKA,                 DATA_KYRAKKA_AND_ERKHART_STORMVEIN },
-    { 0,                            0                                  }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_FIRE_WALL,    DATA_KOKIA_BLAZEHOOF,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,               0,                     EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MELIDRUSSA_CHILLWORN, {{ 2609 }} },
     { DATA_KOKIA_BLAZEHOOF, {{ 2606 }} },
@@ -51,7 +49,7 @@ class instance_ruby_life_pools : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
             }

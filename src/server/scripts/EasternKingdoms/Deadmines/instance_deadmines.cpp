@@ -19,7 +19,7 @@
 #include "deadmines.h"
 #include "InstanceScript.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_GLUBTOK,              BOSS_GLUBTOK            },
     { NPC_HELIX_GEARBREAKER,    BOSS_HELIX_GEARBREAKER  },
@@ -27,19 +27,17 @@ ObjectData const creatureData[] =
     { NPC_ADMIRAL_RIPSNARL,     BOSS_ADMIRAL_RIPSNARL   },
     { NPC_CAPTAIN_COOKIE,       BOSS_CAPTAIN_COOKIE     },
     { NPC_VANESSA_VAN_CLEEF,    BOSS_VANESSA_VANCLEEF   },
-    { 0,                        0                       } // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_FACTORY_DOOR,      BOSS_GLUBTOK,           EncounterDoorBehavior::OpenWhenDone             },
     { GO_MAST_ROOM_DOOR,    BOSS_HELIX_GEARBREAKER, EncounterDoorBehavior::OpenWhenDone             },
     { GO_HEAVY_DOOR,        BOSS_HELIX_GEARBREAKER, EncounterDoorBehavior::OpenWhenNotInProgress    },
     { GO_FOUNDRY_DOOR,      BOSS_FOE_REAPER_5000,   EncounterDoorBehavior::OpenWhenDone             },
-    { 0,                    0,                      EncounterDoorBehavior::OpenWhenDone             } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_GLUBTOK,             {{ 2976, 2981 }}  },
     { BOSS_HELIX_GEARBREAKER,   {{ 2977, 2982 }}  },
@@ -60,7 +58,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
         }
