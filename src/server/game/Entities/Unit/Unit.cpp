@@ -3404,8 +3404,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
     }
 
     if (Player* player = ToPlayer())
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+    {
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleGameobjectsOrSpellClicks();
+
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_AURA, aura->GetId(), 0, aura->GetCaster());
+    }
 }
 
 // removes aura application from lists and unapplies effects
@@ -12821,14 +12825,15 @@ bool Unit::CanSwim() const
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
-    DisableSpline();
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = ToPlayer())
     {
         WorldLocation target(GetMapId(), pos);
-        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | (casting ? TELE_TO_SPELL : 0));
+        player->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | (casting ? TELE_TO_SPELL : 0));
     }
     else
     {
+        DisableSpline();
+        GetMotionMaster()->InterruptOnTeleport();
         SendTeleportPacket(pos);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
@@ -12865,7 +12870,7 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 
     WorldPacket moveUpdateTeleport(MSG_MOVE_TELEPORT, 38);
     moveUpdateTeleport << GetPackGUID();
-    Unit* broadcastSource = this;
+    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
 
     if (IsMovedByClient())
     {
@@ -12876,13 +12881,11 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
         Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveTeleport);
         playerMover->SendDirectMessage(&moveTeleport);
 
-        broadcastSource = playerMover;
+        // Broadcast the packet to everyone except self.
+        SendMessageToSet(&moveUpdateTeleport, playerMover);
     }
-
-    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
-
-    // Broadcast the packet to everyone except self.
-    broadcastSource->SendMessageToSet(&moveUpdateTeleport, false);
+    else
+        SendMessageToSet(&moveUpdateTeleport, true);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
@@ -13245,35 +13248,22 @@ void Unit::SetInFront(WorldObject const* target)
         SetOrientation(GetAbsoluteAngle(target));
 }
 
-void Unit::SetFacingTo(float ori, bool force)
+void Unit::SetFacingTo(float ori, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !GetTransGUID().IsEmpty())
-        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
-    init.SetFacing(ori);
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(ori, movementId);
 }
 
-void Unit::SetFacingToObject(WorldObject const* object, bool force)
+void Unit::SetFacingToObject(WorldObject const* object, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(object, movementId);
 }
 
 bool Unit::SetWalk(bool enable)

@@ -1436,7 +1436,7 @@ public:
         // prevent generation all items with itemset field value '0'
         if (*itemSetId == 0)
         {
-            handler->PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemSetId);
+            handler->PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, *itemSetId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1477,7 +1477,7 @@ public:
 
         if (!found)
         {
-            handler->PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemSetId);
+            handler->PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, *itemSetId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1545,7 +1545,7 @@ public:
         SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillId);
         if (!skillLine)
         {
-            handler->PSendSysMessage(LANG_INVALID_SKILL_ID, skillId);
+            handler->PSendSysMessage(LANG_INVALID_SKILL_ID, *skillId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1563,7 +1563,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skillId, targetHasSkill ? target->GetSkillStep(skillId) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skillId, skillLine->DisplayName[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, *skillId, skillLine->DisplayName[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 

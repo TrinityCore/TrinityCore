@@ -94,7 +94,7 @@ struct AchievementCriteriaEntry
         uint32 QuestID;
 
         // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET        = 28
-        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2       = 69
+        // ACHIEVEMENT_CRITERIA_TYPE_GAIN_AURA              = 69
         // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL             = 29
         // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2            = 110
         // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL            = 34

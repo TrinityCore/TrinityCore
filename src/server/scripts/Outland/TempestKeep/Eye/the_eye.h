@@ -23,7 +23,7 @@
 #define TheEyeScriptName "instance_the_eye"
 #define DataHeader "TE"
 
-uint32 const EncounterCount = 4;
+constexpr uint32 EncounterCount = 4;
 
 enum TEDataTypes
 {
@@ -34,14 +34,14 @@ enum TEDataTypes
     DATA_KAELTHAS                       = 3,
 
     // Additional Data
-    DATA_CAPERNIAN                      = 4,
-    DATA_SANGUINAR                      = 5,
-    DATA_TELONICUS                      = 6,
-    DATA_THALADRED                      = 7,
+    DATA_CAPERNIAN,
+    DATA_SANGUINAR,
+    DATA_TELONICUS,
+    DATA_THALADRED,
 
-    DATA_KAEL_STATUE_LEFT               = 8,
-    DATA_KAEL_STATUE_RIGHT              = 9,
-    DATA_TEMPEST_BRIDGE_WINDOW          = 10
+    DATA_KAEL_STATUE_LEFT,
+    DATA_KAEL_STATUE_RIGHT,
+    DATA_TEMPEST_BRIDGE_WINDOW
 };
 
 enum TECreatureIds

@@ -190,7 +190,7 @@ enum AchievementCriteriaTypes : uint8
     ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL           = 66,
     ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY                    = 67,
     ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT                = 68,
-    ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2              = 69,
+    ACHIEVEMENT_CRITERIA_TYPE_GAIN_AURA                     = 69,
     ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL              = 70,
     ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT            = 72,
     /// @todo 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
