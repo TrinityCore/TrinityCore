@@ -1029,11 +1029,70 @@ struct CorruptionEffectsEntry
     int32 Flags;
 };
 
+struct CraftingDataEntry
+{
+    uint32 ID;
+    int32 Type;
+    int32 CraftingDifficultyID;
+    int32 CraftedItemID;
+    int32 ItemBonusTreeID;
+    int32 CraftingDifficulty;
+    float Field_10_0_0_44649_005;
+    float CraftSkillBonusPercent;
+    float ReCraftSkillBonusPercent;
+    float InspirationSkillBonusPercent;
+    float Field_10_0_0_44649_009;
+    float Field_10_0_0_45141_011;
+    int32 FirstCraftFlagQuestID;
+    int32 FirstCraftTreasureID;
+    int32 Field_10_2_5_52432_014;
+    int32 CraftedTreasureID;
+};
+
+struct CraftingDataItemQualityEntry
+{
+    uint32 ID;
+    int32 ItemID;
+    int32 CraftingDataID;
+};
+
+struct CraftingDifficultyEntry
+{
+    uint32 ID;
+    float MaxRandomSkillBonusPercent;
+    float CraftSkillBonusPercent;
+    float ReCraftSkillBonusPercent;
+    float InspirationSkillBonusPercent;
+    float Field_10_0_0_44649_004;
+    int32 ConcentrationSkillCurveID;
+    int32 ConcentrationDifficultyCurveID;
+};
+
+struct CraftingDifficultyQualityEntry
+{
+    uint32 ID;
+    int32 Order;
+    int32 CraftingQualityID;
+    float QualityPercentage;
+    float Field_10_0_0_44895_004;
+    int32 CraftingDifficultyID;
+};
+
 struct CraftingQualityEntry
 {
     uint32 ID;
     int32 QualityTier;
     int32 CraftingQualityAtlasSetID;
+};
+
+struct CraftingReagentQualityEntry
+{
+    uint32 ID;
+    int32 OrderIndex;
+    int32 ItemID;
+    float MaxDifficultyAdjustment;
+    float ReagentEffectPct;
+    int32 ModifiedCraftingCategoryID;
 };
 
 //struct CreatureDifficultyEntry
@@ -3015,11 +3074,61 @@ struct MawPowerEntry
     int32 MawPowerRarityID;
 };
 
+struct MCRSlotXMCRCategoryEntry
+{
+    uint32 ID;
+    int32 ModifiedCraftingCategoryID;
+    int32 Order;
+    int32 ModifiedCraftingReagentSlotID;
+};
+
 struct ModifiedCraftingItemEntry
 {
     uint32 ID;
     int32 ModifiedCraftingReagentItemID;
     int32 CraftingQualityID;
+};
+
+struct ModifiedCraftingCategoryEntry
+{
+    uint32 ID;
+    LocalizedString DisplayName;
+    LocalizedString Description;
+    int32 Field_9_0_1_33978_001;
+    float MatQualityWeight;
+    int32 Field_10_0_0_44649_004;
+};
+
+struct ModifiedCraftingReagentItemEntry
+{
+    uint32 ID;
+    LocalizedString Description;
+    int32 ModifiedCraftingCategoryID;
+    int32 ItemBonusTreeID;
+    int32 Flags;
+    int32 Field_9_1_0_38511_004;
+    int32 ItemContextOffset;
+};
+
+struct ModifiedCraftingReagentSlotEntry
+{
+    LocalizedString Name;
+    uint32 ID;
+    int32 Field_9_0_1_33978_001;
+    int32 PlayerConditionID;
+    int32 ReagentType;
+    int8 Field_10_0_2_46091_005;
+};
+
+struct ModifiedCraftingSpellSlotEntry
+{
+    uint32 ID;
+    int32 SpellID;
+    int32 Slot;
+    int32 ModifiedCraftingReagentSlotID;
+    int32 Field_9_0_1_35679_003;
+    int32 ReagentCount;
+    int32 ReagentReCraftCount;
 };
 
 struct ModifierTreeEntry

@@ -29,6 +29,7 @@
 #include "CombatPackets.h"
 #include "Common.h"
 #include "Conversation.h"
+#include "Crafting.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureTextMgr.h"
@@ -376,7 +377,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //285 SPELL_EFFECT_MODIFY_KEYSTONE_2
     &Spell::EffectGrantBattlePetExperience,                 //286 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
     &Spell::EffectNULL,                                     //287 SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL
-    &Spell::EffectNULL,                                     //288 SPELL_EFFECT_CRAFT_ITEM
+    &Spell::EffectCraftItem,                                //288 SPELL_EFFECT_CRAFT_ITEM
     &Spell::EffectModifyAuraStacks,                         //289 SPELL_EFFECT_MODIFY_AURA_STACKS
     &Spell::EffectModifyCooldown,                           //290 SPELL_EFFECT_MODIFY_COOLDOWN
     &Spell::EffectModifyCooldowns,                          //291 SPELL_EFFECT_MODIFY_COOLDOWNS
@@ -1365,10 +1366,10 @@ void Spell::EffectHealthLeech()
     }
 }
 
-void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const* bonusListIDs /*= nullptr*/)
+Item* Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const* bonusListIDs /*= nullptr*/, bool update /*= true*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
+        return nullptr;
 
     Player* player = unitTarget->ToPlayer();
 
@@ -1377,7 +1378,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     if (!pProto)
     {
         player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
+        return nullptr;
     }
 
     uint32 num_to_add = damage;
@@ -1433,31 +1434,35 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
         {
             // if not created by another reason from full inventory or unique items amount limitation
             player->SendEquipError(msg, nullptr, nullptr, newitemid);
-            return;
+            return nullptr;
         }
     }
 
-    if (num_to_add)
+    if (!num_to_add)
+        return nullptr;
+
+    // create the new item and store it
+    Item* item = player->StoreNewItem(dest, newitemid, update, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs);
+    if (item)
     {
-        // create the new item and store it
-        if (Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomBonusListId(newitemid), GuidSet(), context, bonusListIDs))
-        {
-            // set the "Crafted by ..." property of the item
-            if (pItem->GetTemplate()->HasSignature())
-                pItem->SetCreator(player->GetGUID());
+        // set the "Crafted by ..." property of the item
+        if (item->GetTemplate()->HasSignature())
+            item->SetCreator(player->GetGUID());
 
-            // send info to the client
-            player->SendNewItem(pItem, num_to_add, true, true);
+        // send info to the client
+        if (update)
+            player->SendNewItem(item, num_to_add, true, true);
 
-            if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
-                if (Guild* guild = player->GetGuild())
-                    guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
-        }
-
-        // we succeeded in creating at least one item, so a levelup is possible
-        if (!m_CastItem)
-            player->UpdateCraftSkill(m_spellInfo);
+        if (item->GetQuality() > ITEM_QUALITY_EPIC || (item->GetQuality() == ITEM_QUALITY_EPIC && item->GetItemLevel(player) >= MinNewsItemLevel))
+            if (Guild* guild = player->GetGuild())
+                guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
     }
+
+    // we succeeded in creating at least one item, so a levelup is possible
+    if (!m_CastItem)
+        player->UpdateCraftSkill(m_spellInfo);
+
+    return item;
 }
 
 void Spell::EffectCreateItem()
@@ -6098,6 +6103,28 @@ void Spell::EffectLearnTransmogIllusion()
         return;
 
     player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
+}
+
+void Spell::EffectCraftItem()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* playerCaster = m_caster->ToPlayer();
+    if (!playerCaster)
+        return;
+
+    if (m_targets.ModifiedCraftingReagents.empty())
+    {
+        SendCastResult(SpellCastResult::SPELL_FAILED_NEED_MORE_ITEMS);
+        return;
+    }
+
+    Crafting craftingInstance = Crafting(playerCaster, this);
+    SpellCastResult result = craftingInstance.DoCraft(effectInfo->MiscValue);
+
+    if (result != SpellCastResult::SPELL_CAST_OK)
+        SendCastResult(result);
 }
 
 void Spell::EffectModifyAuraStacks()
