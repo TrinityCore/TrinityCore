@@ -179,10 +179,11 @@ static const char *from_base64(void *dst, size_t *dst_len, const char *src) {
         acc_len += 6;
         if (acc_len >= 8) {
             acc_len -= 8;
-            if ((len++) >= *dst_len) {
+            if (len >= *dst_len) {
                 return NULL;
             }
             *buf++ = (acc >> acc_len) & 0xFF;
+            len++;
         }
     }
 
