@@ -1164,6 +1164,11 @@ class spell_dru_galactic_guardian : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_GALACTIC_GUARDIAN_AURA });
     }
 
+    bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
@@ -1180,8 +1185,43 @@ class spell_dru_galactic_guardian : public AuraScript
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_galactic_guardian::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_galactic_guardian::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+};
+
+// 213708 - Galactic Guardian (Aura)
+// Triggered by 8921 - Moonfire and 164812 - Moonfire (Damage)
+class spell_dru_galactic_guardian_moonfire : public SpellScript
+{
+    bool Load() override
+    {
+        if (AuraEffect const* galactic = GetCaster()->GetAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_0))
+        {
+            _rageAmount = galactic->GetAmount();
+            _damagePct = GetCaster()->GetAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_2)->GetAmount();
+            return true;
+        }
+        return false;
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/)
+    {
+        SetEffectValue(_rageAmount);
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), _damagePct));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+    int32 _rageAmount = 0;
+    int32 _damagePct = 0;
 };
 
 // 774 - Rejuvenation
@@ -3094,6 +3134,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_flower_walk_heal);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
+    RegisterSpellScript(spell_dru_galactic_guardian_moonfire);
     RegisterSpellScript(spell_dru_germination);
     RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
