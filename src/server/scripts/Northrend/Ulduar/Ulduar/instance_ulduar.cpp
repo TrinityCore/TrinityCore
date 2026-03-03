@@ -404,22 +404,6 @@ class instance_ulduar : public InstanceMapScript
                 uint32 entry = data->id;
                 switch (entry)
                 {
-                    case NPC_EIVI_NIGHTFEATHER:
-                        return TeamInInstance == HORDE ? NPC_TOR_GREYCLOUD : NPC_EIVI_NIGHTFEATHER;
-                    case NPC_ELLIE_NIGHTFEATHER:
-                        return TeamInInstance == HORDE ? NPC_KAR_GREYCLOUD : NPC_ELLIE_NIGHTFEATHER;
-                    case NPC_ELEMENTALIST_MAHFUUN:
-                        return TeamInInstance == HORDE ? NPC_SPIRITWALKER_TARA : NPC_ELEMENTALIST_MAHFUUN;
-                    case NPC_ELEMENTALIST_AVUUN:
-                        return TeamInInstance == HORDE ? NPC_SPIRITWALKER_YONA : NPC_ELEMENTALIST_AVUUN;
-                    case NPC_MISSY_FLAMECUFFS:
-                        return TeamInInstance == HORDE ? NPC_AMIRA_BLAZEWEAVER : NPC_MISSY_FLAMECUFFS;
-                    case NPC_SISSY_FLAMECUFFS:
-                        return TeamInInstance == HORDE ? NPC_VEESHA_BLAZEWEAVER : NPC_SISSY_FLAMECUFFS;
-                    case NPC_FIELD_MEDIC_PENNY:
-                        return TeamInInstance == HORDE ? NPC_BATTLE_PRIEST_ELIZA : NPC_FIELD_MEDIC_PENNY;
-                    case NPC_FIELD_MEDIC_JESSI:
-                        return TeamInInstance == HORDE ? NPC_BATTLE_PRIEST_GINA : NPC_FIELD_MEDIC_JESSI;
                     case NPC_MERCENARY_CAPTAIN_H:
                         return TeamInInstance == HORDE ? NPC_MERCENARY_CAPTAIN_A : NPC_MERCENARY_CAPTAIN_H;
                     case NPC_MERCENARY_SOLDIER_H:
@@ -855,6 +839,13 @@ class instance_ulduar : public InstanceMapScript
                         return illusion;
                     case DATA_KEEPERS_COUNT:
                         return keepersCount;
+                    case WORLD_STATE_ULDUAR_TEAM_IN_INSTANCE:
+                        switch (TeamInInstance)
+                        {
+                            default: return 0;
+                            case ALLIANCE: return 1;
+                            case HORDE: return 2;
+                        }
                     default:
                         break;
                 }

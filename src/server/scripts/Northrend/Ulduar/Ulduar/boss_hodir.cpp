@@ -29,7 +29,6 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -37,6 +36,7 @@
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
+#include <span>
 
 enum HodirTexts
 {
@@ -191,7 +191,7 @@ Position const SummonPositions[8] =
     { 1976.60f, -233.53f, 432.767f, 1.57f }  // Sissy Flamecuffs     &&  Veesha Blazeweaver
 };
 
-static constexpr std::array<uint32, 8> CoolestFriendsEntries =
+static constexpr std::array<uint32, 8> CoolestFriendsEntriesAlliance =
 {
     NPC_FIELD_MEDIC_PENNY,
     NPC_EIVI_NIGHTFEATHER,
@@ -201,6 +201,18 @@ static constexpr std::array<uint32, 8> CoolestFriendsEntries =
     NPC_ELLIE_NIGHTFEATHER,
     NPC_ELEMENTALIST_AVUUN,
     NPC_SISSY_FLAMECUFFS
+};
+
+static constexpr std::array<uint32, 8> CoolestFriendsEntriesHorde =
+{
+    NPC_BATTLE_PRIEST_ELIZA,
+    NPC_TOR_GREYCLOUD,
+    NPC_SPIRITWALKER_TARA,
+    NPC_AMIRA_BLAZEWEAVER,
+    NPC_BATTLE_PRIEST_GINA,
+    NPC_KAR_GREYCLOUD,
+    NPC_SPIRITWALKER_YONA,
+    NPC_VEESHA_BLAZEWEAVER
 };
 
 // 32845 - Hodir
@@ -217,8 +229,12 @@ struct boss_hodir : public BossAI
 
     void JustAppeared() override
     {
-        for (uint8 i = 0; i < RAID_MODE(4, 8); ++i)
-            me->SummonCreature(CoolestFriendsEntries[i], SummonPositions[i], TEMPSUMMON_MANUAL_DESPAWN);
+        int32 count = RAID_MODE(4, 8);
+        std::span<uint32 const> entries = instance->GetData(WORLD_STATE_ULDUAR_TEAM_IN_INSTANCE) == 2
+            ? CoolestFriendsEntriesHorde
+            : CoolestFriendsEntriesAlliance;
+        for (int32 i = 0; i < count; ++i)
+            me->SummonCreature(entries[i], SummonPositions[i], TEMPSUMMON_MANUAL_DESPAWN);
     }
 
     void JustEngagedWith(Unit* who) override
