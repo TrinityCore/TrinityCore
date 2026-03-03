@@ -153,3 +153,31 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 17 AND `SourceEntry` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (17,0,46607,0,0,31,1,3,26127,0,0,0,0,'',"Group 0: Spell 'Drake Harpoon' targets creature 'Nexus Drake Hatchling'"),
 (17,0,46607,0,0,1,1,46675,0,0,1,0,0,'',"Group 0: Spell 'Drake Harpoon' can be used if target does not have aura 'Subdued'");
+
+-- The Power of the Elements (11893)
+DELETE FROM `creature_template_spell` WHERE `CreatureID` = 25987;
+
+UPDATE `creature_template` SET `unit_flags` = 768, `AIName` = 'SmartAI' WHERE `entry` = 25987;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 25987 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(25987,0,0,0,11,0,100,0,0,0,0,0,0,11,46373,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Windsoul Totem - On Spawn - Cast 'Windsoul Totem Periodic'"),
+(25987,0,1,0,8,0,100,0,46376,0,0,0,0,11,46378,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Windsoul Totem - On Spellhit 'Airy Soul' - Cast 'Windsoul Credt'");
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 24601 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(24601,0,0,0,0,0,100,0,10000,20000,10000,20000,0,11,50375,0,0,0,0,0,2,0,0,0,0,0,0,0,0,"Steam Rager - In Combat - Cast 'Steam Blast'"),
+(24601,0,1,0,6,0,100,0,0,0,0,0,0,11,46376,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Steam Rager - On Death - Cast 'Airy Soul'");
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 24601 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(22,2,24601,0,0,1,1,46374,0,0,0,0,0,"","Group 0: Execute SAI (Action 1) if creature does have aura 'Windsoul Totem Aura'");
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 46376;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,46376,0,0,31,0,3,25987,0,0,0,0,"","Group 0: Spell 'Airy Soul' (Effect 0) targets creature 'Windsoul Totem'");
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_windsoul_totem_aura';
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId` = 25987;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
+(25987,1,1,1,1,0,0,NULL);

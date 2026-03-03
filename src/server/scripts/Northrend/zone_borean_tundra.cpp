@@ -1210,29 +1210,6 @@ private:
     EventMap _events;
 };
 
-enum WindsoulTotemAura
-{
-    SPELL_WINDSOUL_CREDT = 46378
-};
-
-// 46374 - Windsoul Totem Aura
-class spell_windsoul_totem_aura : public AuraScript
-{
-    PrepareAuraScript(spell_windsoul_totem_aura);
-
-    void OnRemove(AuraEffect const*, AuraEffectHandleModes)
-    {
-        if (GetTarget()->isDead())
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(nullptr, SPELL_WINDSOUL_CREDT);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 enum BloodsporeRuination
 {
     NPC_BLOODMAGE_LAURITH   = 25381,
@@ -2197,7 +2174,6 @@ void AddSC_borean_tundra()
     RegisterCreatureAI(npc_general_arlos);
     RegisterCreatureAI(npc_leryssa);
     RegisterCreatureAI(npc_counselor_talbot);
-    RegisterSpellScript(spell_windsoul_totem_aura);
     RegisterSpellScript(spell_q11719_bloodspore_ruination_45997);
     RegisterCreatureAI(npc_bloodmage_laurith);
     RegisterSpellScript(spell_borean_tundra_shortening_blaster);
