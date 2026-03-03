@@ -145,6 +145,7 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     WorldPackets::System::MirrorVarSingle vars[] =
     {
         { "raidLockoutExtendEnabled"sv, "1"sv },
+        { "sellAllJunkEnabled"sv, "1"sv },
         { "bypassItemLevelScalingCode"sv, "0"sv },
         { "shop2Enabled"sv, "0"sv },
         { "bpayStoreEnable"sv, "0"sv },

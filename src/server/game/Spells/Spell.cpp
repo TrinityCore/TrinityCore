@@ -534,7 +534,11 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_castFlagsEx = 0;
 
     if (IsIgnoringCooldowns())
+    {
         m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
+        if (m_spellInfo->ChargeCategoryId)
+            m_castFlagsEx |= CAST_FLAG_EX_DONT_CONSUME_CHARGES;
+    }
 
     if (_triggeredCastFlags & TRIGGERED_SUPPRESS_CASTER_ANIM)
         m_castFlagsEx |= CAST_FLAG_EX_SUPPRESS_CASTER_ANIM;
@@ -2363,6 +2367,31 @@ void Spell::prepareDataForTriggerSystem()
     }
 }
 
+std::pair<ProcFlagsInit /*attacker*/, ProcFlagsInit /*victim*/> Spell::FinalizeDataForTriggerSystem(bool positive) const
+{
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+    {
+        if (positive)
+            return { PROC_FLAG_DEAL_HELPFUL_PERIODIC, PROC_FLAG_TAKE_HELPFUL_PERIODIC };
+        else
+            return { PROC_FLAG_DEAL_HARMFUL_PERIODIC, PROC_FLAG_TAKE_HARMFUL_PERIODIC };
+    }
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
+    {
+        if (positive)
+            return { PROC_FLAG_DEAL_HELPFUL_ABILITY, PROC_FLAG_TAKE_HELPFUL_ABILITY };
+        else
+            return { PROC_FLAG_DEAL_HARMFUL_ABILITY, PROC_FLAG_TAKE_HARMFUL_ABILITY };
+    }
+    else
+    {
+        if (positive)
+            return { PROC_FLAG_DEAL_HELPFUL_SPELL, PROC_FLAG_TAKE_HELPFUL_SPELL };
+        else
+            return { PROC_FLAG_DEAL_HARMFUL_SPELL, PROC_FLAG_TAKE_HARMFUL_SPELL };
+    }
+}
+
 void Spell::CleanupTargetList()
 {
     m_UniqueTargetInfo.clear();
@@ -2824,51 +2853,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 }
             }
 
-            switch (spell->m_spellInfo->DmgClass)
-            {
-                case SPELL_DAMAGE_CLASS_NONE:
-                case SPELL_DAMAGE_CLASS_MAGIC:
-                    if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-                    {
-                        if (positive)
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-                            procVictim |= PROC_FLAG_TAKE_HELPFUL_PERIODIC;
-                        }
-                        else
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-                            procVictim |= PROC_FLAG_TAKE_HARMFUL_PERIODIC;
-                        }
-                    }
-                    else if (spell->m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
-                    {
-                        if (positive)
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
-                            procVictim |= PROC_FLAG_TAKE_HELPFUL_ABILITY;
-                        }
-                        else
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
-                            procVictim |= PROC_FLAG_TAKE_HARMFUL_ABILITY;
-                        }
-                    }
-                    else
-                    {
-                        if (positive)
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
-                            procVictim |= PROC_FLAG_TAKE_HELPFUL_SPELL;
-                        }
-                        else
-                        {
-                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
-                            procVictim |= PROC_FLAG_TAKE_HARMFUL_SPELL;
-                        }
-                    }
-                    break;
-            }
+            std::tie(procAttacker, procVictim) = spell->FinalizeDataForTriggerSystem(positive);
         }
 
         // All calculated do it!
@@ -3883,6 +3868,30 @@ void Spell::_cast(bool skipCheck)
         if (Creature* creatureCaster = m_caster->ToCreature())
             creatureCaster->ReleaseSpellFocus(this);
 
+    if (m_originalCaster)
+    {
+        // Handle procs on cast
+        ProcFlagsInit procAttacker = m_procAttacker;
+        if (!procAttacker)
+            procAttacker = FinalizeDataForTriggerSystem(IsPositive()).first;
+
+        procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
+
+        ProcFlagsHit hitMask = m_hitMask;
+        if (!(hitMask & PROC_HIT_CRITICAL))
+            hitMask |= PROC_HIT_NORMAL;
+
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
+            m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
+
+        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+
+        // Call CreatureAI hook OnSpellCast
+        if (Creature* caster = m_originalCaster->ToCreature())
+            if (caster->IsAIEnabled())
+                caster->AI()->OnSpellCast(GetSpellInfo());
+    }
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_delayMoment && !m_spellInfo->IsChanneled())
     {
@@ -3937,52 +3946,6 @@ void Spell::_cast(bool skipCheck)
     }
 
     SetExecutedCurrently(false);
-
-    if (!m_originalCaster)
-        return;
-
-    // Handle procs on cast
-    ProcFlagsInit procAttacker = m_procAttacker;
-    if (!procAttacker)
-    {
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-        }
-        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
-        }
-        else
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
-        }
-    }
-
-    procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
-
-    ProcFlagsHit hitMask = m_hitMask;
-    if (!(hitMask & PROC_HIT_CRITICAL))
-        hitMask |= PROC_HIT_NORMAL;
-
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
-        m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
-
-    Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
-
-    // Call CreatureAI hook OnSpellCast
-    if (Creature* caster = m_originalCaster->ToCreature())
-        if (caster->IsAIEnabled())
-            caster->AI()->OnSpellCast(GetSpellInfo());
 }
 
 template <class Container>
@@ -4227,29 +4190,7 @@ void Spell::_handle_finish_phase()
 
     ProcFlagsInit procAttacker = m_procAttacker;
     if (!procAttacker)
-    {
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-        }
-        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
-        }
-        else
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
-        }
-    }
+        procAttacker = FinalizeDataForTriggerSystem(IsPositive()).first;
 
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, m_procSpellType, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
 }
@@ -4793,8 +4734,8 @@ void Spell::SendSpellStart()
         && std::ranges::any_of(m_powerCost, [](SpellPowerCost const& cost) { return cost.Power != POWER_HEALTH; }))
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if (HasPowerTypeCost(POWER_RUNES))
-        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
+    if (m_fromClient)
+        castFlags |= CAST_FLAG_FROM_CLIENT;
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION) && m_casttime && m_caster->IsUnit())
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
@@ -4896,16 +4837,13 @@ void Spell::SendSpellGo()
         && (m_caster->ToPlayer()->GetClass() == CLASS_DEATH_KNIGHT)
         && HasPowerTypeCost(POWER_RUNES)
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_COST))
-    {
-        castFlags |= CAST_FLAG_NO_GCD; // not needed, but it's being sent according to sniffs
         castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
-    }
 
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
 
-    if (!m_spellInfo->StartRecoveryTime)
-        castFlags |= CAST_FLAG_NO_GCD;
+    if (m_fromClient)
+        castFlags |= CAST_FLAG_FROM_CLIENT;
 
     WorldPackets::Spells::SpellGo packet;
     WorldPackets::Spells::SpellCastData& castData = packet.Cast;
@@ -8407,7 +8345,7 @@ bool Spell::IsChannelActive() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    if (IsTriggered() || m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
+    if (IsTriggered() || !m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat) || m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
         return false;
 
     if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_DOESNT_RESET_SWING_TIMER_IF_INSTANT))
