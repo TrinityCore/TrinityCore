@@ -9492,7 +9492,7 @@ uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /
     if (location.HasFlag(ItemSearchLocation::Inventory))
     {
         uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < inventoryEnd; ++i)
+        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < inventoryEnd; ++i)
             if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeSlotCount;
 
@@ -11097,7 +11097,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     // in specific slot
     if (bag != NULL_BAG && slot != NULL_SLOT)
     {
-        if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
+        if (bag == INVENTORY_SLOT_BAG_0 && slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
         {
             if (!pItem->IsBag())
                 return EQUIP_ERR_WRONG_SLOT;
@@ -23671,6 +23671,77 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             guild->AddGuildNews(GUILD_NEWS_ITEM_PURCHASED, GetGUID(), 0, item);
 
     return crItem->maxcount != 0;
+}
+
+Optional<SellResult> Player::CanSellItemToVendor(Item const* item, uint32 amount) const
+{
+    // prevent sell not owner item
+    if (GetGUID() != item->GetOwnerGUID())
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    // prevent sell non empty bag by drag-and-drop at vendor's item list
+    if (item->IsNotEmptyBag())
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    // prevent sell currently looted item
+    if (GetLootGUID() == item->GetGUID())
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    // prevent sell more items that exist in stack (possible only not from client)
+    if (amount > item->GetCount())
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    uint32 sellPrice = item->GetSellPrice(this);
+    if (sellPrice <= 0)
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    uint64 money = uint64(sellPrice) * amount;
+
+    using BuybackStorageType = std::remove_cvref_t<decltype(m_activePlayerData->BuybackPrice[0])>;
+    if (money > std::numeric_limits<BuybackStorageType>::max()) // ensure sell price * amount doesn't overflow buyback price
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    return { };
+}
+
+Optional<SellResult> Player::SellItemToVendor(Item* item, uint32 amount)
+{
+    uint64 money = uint64(item->GetSellPrice(this)) * amount;
+
+    if (!ModifyMoney(money)) // ensure player doesn't exceed gold limit
+        return SELL_ERR_CANT_SELL_ITEM;
+
+    UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
+    UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
+
+    if (amount < item->GetCount()) // need split items
+    {
+        Item* pNewItem = item->CloneItem(amount, this);
+        if (!pNewItem)
+        {
+            TC_LOG_ERROR("network", "Player::SellItemToVendor - could not create clone of item {}; count = {}", item->GetEntry(), amount);
+            return SELL_ERR_CANT_SELL_ITEM;
+        }
+
+        item->SetCount(item->GetCount() - amount);
+        ItemRemovedQuestCheck(item->GetEntry(), amount);
+        if (IsInWorld())
+            item->SendUpdateToPlayer(this);
+        item->SetState(ITEM_CHANGED, this);
+
+        AddItemToBuyBackSlot(pNewItem);
+        if (IsInWorld())
+            pNewItem->SendUpdateToPlayer(this);
+    }
+    else
+    {
+        RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+        ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+        RemoveItemFromUpdateQueueOf(item, this);
+        AddItemToBuyBackSlot(item);
+    }
+
+    return { };
 }
 
 uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const

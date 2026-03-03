@@ -22,8 +22,6 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapUtils.h"
-#include "MoveSplineInitArgs.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Spline.h"
@@ -331,29 +329,27 @@ void TransportMgr::LoadTransportSpawns()
 class SplineRawInitializer
 {
 public:
-    SplineRawInitializer(Movement::PointsArray& points) : _points(points) { }
+    SplineRawInitializer(std::vector<TaxiPathNodeEntry const*> const& points) : _points(points) { }
 
-    void operator()(uint8& mode, bool& cyclic, Movement::PointsArray& points, int& lo, int& hi) const
+    void operator()(uint8& mode, bool& cyclic, std::vector<Movement::Vector3>& points, int& lo, int& hi) const
     {
         mode = Movement::SplineBase::ModeCatmullrom;
         cyclic = false;
-        points.assign(_points.begin(), _points.end());
+        points.resize(_points.size());
+        std::ranges::transform(_points, points.begin(), [](TaxiPathNodeEntry const* node) { return Movement::Vector3(node->Loc.X, node->Loc.Y, node->Loc.Z); });
         lo = 1;
         hi = points.size() - 2;
     }
 
-    Movement::PointsArray& _points;
+    std::vector<TaxiPathNodeEntry const*> const& _points;
 };
 
 static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>* outEvents, std::vector<TaxiPathNodeEntry const*> const& pathPoints, std::vector<TaxiPathNodeEntry const*> const& pauses,
     std::vector<TaxiPathNodeEntry const*> const& events, GameObjectTemplate const* goInfo, uint32& totalTime)
 {
-    Movement::PointsArray splinePath;
-    std::transform(pathPoints.begin(), pathPoints.end(), std::back_inserter(splinePath), [](TaxiPathNodeEntry const* node) { return Movement::Vector3(node->Loc.X, node->Loc.Y, node->Loc.Z); });
-    SplineRawInitializer initer(splinePath);
     leg->Spline = std::make_unique<TransportSpline>();
     leg->Spline->set_steps_per_segment(20);
-    leg->Spline->init_spline_custom(initer);
+    leg->Spline->init_spline_custom(SplineRawInitializer(pathPoints));
     leg->Spline->initLengths();
 
     leg->Segments.resize(pauses.size() + 1);
@@ -511,6 +507,9 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     {
         if (node->ContinentID != leg->MapId || prevNodeWasTeleport)
         {
+            if (prevNodeWasTeleport && !pathPoints.empty())
+                pathPoints.push_back(pathPoints.back());
+
             InitializeLeg(leg, &transport->Events, pathPoints, pauses, events, goInfo, totalTime);
 
             leg = &transport->PathLegs.emplace_back();
@@ -521,13 +520,13 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         }
 
         prevNodeWasTeleport = (node->Flags & TAXI_PATH_NODE_FLAG_TELEPORT) != 0;
-        pathPoints.push_back(node);
-        if (node->Flags & TAXI_PATH_NODE_FLAG_STOP)
+        if (!pathPoints.empty() && node->Flags & TAXI_PATH_NODE_FLAG_STOP)
             pauses.push_back(node);
 
         if (node->ArrivalEventID || node->DepartureEventID)
             events.push_back(node);
 
+        pathPoints.push_back(node);
         transport->MapIds.insert(node->ContinentID);
     }
 
