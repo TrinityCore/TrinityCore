@@ -74,6 +74,7 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPROVED_EXECUTE_ARMS             = 316405,
     SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
     SPELL_WARRIOR_IMPROVED_WHIRLWIND                = 12950,
+    SPELL_WARRIOR_INDOMITABLE_HEAL                  = 316643,
     SPELL_WARRIOR_INTERVENE_CHARGE                  = 316531,
     SPELL_WARRIOR_INTERVENE_AURA                    = 147833,
     SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE     = 316595,
@@ -1163,6 +1164,60 @@ class spell_warr_improved_whirlwind : public SpellScript
     }
 };
 
+// 202095 - Indomitable
+class spell_warr_indomitable : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_INDOMITABLE_HEAL })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 }, { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura()
+            && spellInfo->GetEffect(EFFECT_1).IsAura();
+    }
+
+    bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        _rageAccumulator += procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0);
+        return _rageAccumulator >= GetEffect(EFFECT_1)->GetAmount();
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+
+        int32 threshold = GetEffect(EFFECT_1)->GetAmount();
+        if (threshold <= 0)
+            return;
+
+        int32 healPct = GetEffect(EFFECT_0)->GetAmount() / 10;
+        AuraEffect const* aurEff = GetEffect(EFFECT_0);
+
+        while (_rageAccumulator >= threshold)
+        {
+            _rageAccumulator -= threshold;
+
+            target->CastSpell(target, SPELL_WARRIOR_INDOMITABLE_HEAL, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff,
+                .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, healPct } }
+                });
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mpc_warr_indomitable::CheckProc);
+        OnProc += AuraProcFn(spell_mpc_warr_indomitable::HandleProc);
+    }
+
+private:
+    int32 _rageAccumulator = 0;
+};
+
 // 3411 - Intervene
 class spell_warr_intervene : public SpellScript
 {
@@ -2204,6 +2259,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap_damage);
     RegisterSpellScript(spell_warr_impending_victory);
     RegisterSpellScript(spell_warr_improved_whirlwind);
+    RegisterSpellScript(spell_warr_indomitable);
     RegisterSpellScript(spell_warr_intervene);
     RegisterSpellScript(spell_warr_intervene_charge);
     RegisterSpellScript(spell_warr_intimidating_shout);
