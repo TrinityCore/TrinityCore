@@ -181,3 +181,65 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_windsoul_totem_aura
 DELETE FROM `creature_template_movement` WHERE `CreatureId` = 25987;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
 (25987,1,1,1,1,0,0,NULL);
+
+-- The Hunt is On (11794)
+UPDATE `creature` SET `spawntimesecs` = 30 WHERE `id` IN (25827,25248,25828);
+
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (25827,25248,25828);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (25827,25248,25828) AND `source_type` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2582700,2524800,2582800) AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(25827,0,0,0,37,0,100,0,0,0,0,0,0,116,5,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Tom Hegger - On AI Initialize - Set Corpse Delay"),
+(25827,0,1,0,11,0,100,0,0,0,0,0,0,11,46077,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Tom Hegger - On Spawn - Cast 'Shroud of the Death Cultist'"),
+(25827,0,2,0,62,0,100,0,9217,0,0,0,0,80,2582700,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Tom Hegger - On Gossip Option 0 Selected - Run Script"),
+
+(2582700,9,0,0,0,0,100,0,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Tom Hegger - On Script - Close Gossip"),
+(2582700,9,1,0,0,0,100,0,3000,3000,0,0,0,83,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Tom Hegger - On Script - Remove NPC Flag Gossip"),
+(2582700,9,2,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Tom Hegger - On Script - Say Line 0"),
+(2582700,9,3,0,0,0,100,0,3500,3500,0,0,0,2,14,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Tom Hegger - On Script - Set Faction 14"),
+(2582700,9,4,0,0,0,100,0,0,0,0,0,0,49,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Tom Hegger - On Script - Start Attack"),
+
+(25248,0,0,0,37,0,100,0,0,0,0,0,0,116,5,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On AI Initialize - Set Corpse Delay"),
+(25248,0,1,0,11,0,100,0,0,0,0,0,0,11,46077,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Spawn - Cast 'Shroud of the Death Cultist'"),
+(25248,0,2,0,62,0,100,0,9218,0,0,0,0,80,2524800,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Gossip Option 0 Selected - Run Script"),
+
+(2524800,9,0,0,0,0,100,0,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Close Gossip"),
+(2524800,9,1,0,0,0,100,0,2000,2000,0,0,0,83,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Remove NPC Flag Gossip"),
+(2524800,9,2,0,0,0,100,0,0,0,0,0,0,17,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Set Emote State 0"),
+(2524800,9,3,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Say Line 0"),
+(2524800,9,4,0,0,0,100,0,6000,6000,0,0,0,66,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Set Orientation Invoker"),
+(2524800,9,5,0,0,0,100,0,0,0,0,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Say Line 1"),
+(2524800,9,6,0,0,0,100,0,2000,2000,0,0,0,2,14,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Set Faction 14"),
+(2524800,9,7,0,0,0,100,0,0,0,0,0,0,49,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"\"Salty\" John Thorpe - On Script - Start Attack"),
+
+(25828,0,0,0,37,0,100,0,0,0,0,0,0,116,5,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Mitchells - On AI Initialize - Set Corpse Delay"),
+(25828,0,1,0,11,0,100,0,0,0,0,0,0,11,46077,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Mitchells - On Spawn - Cast 'Shroud of the Death Cultist'"),
+(25828,0,2,0,62,0,100,0,9219,0,0,0,0,80,2582800,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Mitchells - On Gossip Option 0 Selected - Run Script"),
+
+(2582800,9,0,0,0,0,100,0,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Guard Mitchells - On Script - Close Gossip"),
+(2582800,9,1,0,0,0,100,0,3000,3000,0,0,0,83,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Mitchells - On Script - Remove NPC Flag Gossip"),
+(2582800,9,2,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Guard Mitchells - On Script - Say Line 0"),
+(2582800,9,3,0,0,0,100,0,6000,6000,0,0,0,2,1988,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Guard Mitchells - On Script - Set Faction 1988"),
+(2582800,9,4,0,0,0,100,0,0,0,0,0,0,49,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Guard Mitchells - On Script - Start Attack");
+
+DELETE FROM `creature_text` WHERE `CreatureID` IN (25827,25248,25828);
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(25827,0,0,"You don't know who you're messing with, $c!  Death beckons!",12,0,100,0,0,0,25246,0,"Tom Hegger"),
+
+(25248,0,0,"Well...",12,0,100,0,0,0,25243,0,"\"Salty\" John Thorpe"),
+(25248,1,0,"I suppose this is it, then?  I won't go down quietly!",12,0,100,0,0,0,25244,0,"\"Salty\" John Thorpe"),
+
+(25828,0,0,"Finally!  This charade is over... Arthas give me strength!",12,0,100,0,0,0,25245,0,"Guard Mitchells");
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` IN (9217,9218,9219);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,9217,0,0,0,47,0,11794,10,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player has taken quest 'The Hunt is On'"),
+(15,9217,0,0,0,1,0,46078,0,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player does have aura 'Righteous Vision'"),
+
+(15,9218,0,0,0,47,0,11794,10,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player has taken quest 'The Hunt is On'"),
+(15,9218,0,0,0,1,0,46078,0,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player does have aura 'Righteous Vision'"),
+
+(15,9219,0,0,0,47,0,11794,10,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player has taken quest 'The Hunt is On'"),
+(15,9219,0,0,0,1,0,46078,0,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player does have aura 'Righteous Vision'");
+
+UPDATE `gossip_menu_option` SET `OptionType` = 1, `OptionNpcFlag` = 1 WHERE `MenuID` IN (9217,9218,9219) AND `OptionType` = 0;
