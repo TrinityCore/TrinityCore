@@ -60,4 +60,4 @@ struct go_master_surveyor : public GameObjectAI
 void AddSC_frostfire_ridge()
 {
     RegisterGameObjectAI(go_master_surveyor);
-};
+}

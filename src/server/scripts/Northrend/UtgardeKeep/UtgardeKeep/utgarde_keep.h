@@ -78,7 +78,7 @@ enum UKGameObjectIds
 
 struct ForgeInfo
 {
-    ForgeInfo() : Event(NOT_STARTED) { };
+    ForgeInfo() : Event(NOT_STARTED) { }
 
     ObjectGuid AnvilGUID;
     ObjectGuid BellowGUID;
