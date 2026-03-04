@@ -9349,8 +9349,9 @@ void Unit::AtEnterCombat()
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
         if (spell->getState() == SPELL_STATE_PREPARING
             && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL)
-            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat))
-            InterruptNonMeleeSpells(false);
+            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat)
+            && !spell->m_spellInfo->HasAura(SPELL_AURA_MOUNTED)) // for some reason mounts are not interrupted by entering combat even with both interrupt flag and attribute
+            InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnteringCombat);
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_ENTER_COMBAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
