@@ -26,7 +26,7 @@ class Map;
 class TC_GAME_API GridState
 {
     public:
-        virtual ~GridState() { };
+        virtual ~GridState() { }
         virtual void Update(Map &, NGridType&, GridInfo &, uint32 t_diff) const = 0;
 };
 

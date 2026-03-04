@@ -48,7 +48,7 @@ bool IsInLocalNetwork(boost::asio::ip::address const& clientAddress)
     }
 
     return false;
-};
+}
 
 bool IsInNetwork(boost::asio::ip::network_v4 const& network, boost::asio::ip::address_v4 const& clientAddress)
 {

@@ -29,6 +29,6 @@ namespace TaxiPathGraph
     void Initialize();
     std::size_t GetCompleteNodeRoute(TaxiNodesEntry const* from, TaxiNodesEntry const* to, Player const* player, std::vector<uint32>& shortestPath);
     void GetReachableNodesMask(TaxiNodesEntry const* from, TaxiMask* mask);
-};
+}
 
 #endif    /* TAXIPATHGRAPH_HPP */

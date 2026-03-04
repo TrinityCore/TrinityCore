@@ -363,7 +363,7 @@ struct npc_ruby_emerald_amber_drake : public VehicleAI
                     break;
             }
         }
-    };
+    }
 
 private:
     InstanceScript* _instance;
