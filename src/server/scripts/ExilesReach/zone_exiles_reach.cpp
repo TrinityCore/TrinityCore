@@ -1030,7 +1030,7 @@ CreatureAI* CaptainGarrickAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 enum SpellCrashLandedData
 {
@@ -1276,7 +1276,7 @@ CreatureAI* CaptainGarrickBeachAISelector(Creature* creature)
         }
     }
     return new npc_captain_garrick_beach(creature);
-};
+}
 
 CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
 {
@@ -1291,7 +1291,7 @@ CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
         }
     }
     return new npc_warlord_grimaxe_beach(creature);
-};
+}
 
 enum HealedByLeaderBeachData
 {
@@ -1365,14 +1365,14 @@ CreatureAI* HealedByLeaderAllianceAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_survivors_healed_by_leader_beach_private<PATH_LONG_BEACH, 16 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* HealedByLeaderHordeAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_healed_by_leader_beach_private<PATH_SHORT_BEACH, 9 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum ExilesReachAllianceSurvivorsBeachData
 {
@@ -1626,7 +1626,7 @@ CreatureAI* BoBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* MithdranBeachStandingAISelector(Creature* creature)
 {
@@ -1642,7 +1642,7 @@ CreatureAI* MithdranBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
 {
@@ -1658,28 +1658,28 @@ CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
     }
 
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* KeeLaBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* BjornBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_BJORN_STOUTHANDS_STANDING, 4 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_AUSTIN_HUXWORTH_STANDING, 5 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum LostExpeditionFollowerData
 {
@@ -3364,7 +3364,7 @@ CreatureAI* SparringPartnerEnhancedCombatTrainingSelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 struct at_aggro_radius_check_enhanced_combat_tactics : AreaTriggerAI
 {
@@ -4118,7 +4118,7 @@ CreatureAI* HuxsworthBriarpatchSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
 {
@@ -4133,7 +4133,7 @@ CreatureAI* DawntrackerBriarpatchSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 // 316840 - Tutorial - Health (DNT)
 class spell_tutorial_health_dnt_proc_aura : public AuraScript
@@ -4869,7 +4869,7 @@ CreatureAI* LindieSpringstockSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* CorkFizzlepopSelector(Creature* creature)
 {
@@ -4882,7 +4882,7 @@ CreatureAI* CorkFizzlepopSelector(Creature* creature)
         }
     }
     return new NullCreatureAI(creature);
-};
+}
 
 enum CopterRideData
 {
@@ -5128,7 +5128,7 @@ CreatureAI* ChoppyBoosterSelector(Creature* creature)
             return new npc_choppy_booster_scout(creature);
     }
     return new NullCreatureAI(creature);
-};
+}
 
 // 167909 - Won'sa
 // 167910 - Bo
@@ -5151,7 +5151,7 @@ CreatureAI* HordeCrewPlainsSelector(Creature* creature)
         return new npc_horde_crew_plains_private(creature);
 
     return new NullCreatureAI(creature);
-};
+}
 
 static constexpr Position CopterCloneSpawnPosition = { 100.583f, -2417.87f, 90.268f, 0.0f };
 
@@ -6418,7 +6418,7 @@ CreatureAI* PrisonerQ55879Selector(Creature* creature)
         return new npc_prisoner_q55879_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum TheReDeather
 {
@@ -6793,7 +6793,7 @@ CreatureAI* BjornRuinsSelector(Creature* creature)
         return new npc_bjorn_stouthands_q55965_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum LanaRunToPit
 {
@@ -6857,7 +6857,7 @@ CreatureAI* LanaRuinsSelector(Creature* creature)
         return new npc_lana_jordan_q59948_private(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 enum CompanionRunToPit
 {
@@ -6910,7 +6910,7 @@ CreatureAI* AlariaRuinsSelector(Creature* creature)
         return new npc_companion_q55965_q59948_private<PATH_ALARIA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 CreatureAI* WansaRuinsSelector(Creature* creature)
 {
@@ -6918,7 +6918,7 @@ CreatureAI* WansaRuinsSelector(Creature* creature)
         return new npc_companion_q55965_q59948_private<PATH_WONSA_RUN_TO_PIT>(creature);
     else
         return new NullCreatureAI(creature);
-};
+}
 
 void AddSC_zone_exiles_reach()
 {
@@ -7049,4 +7049,4 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &LanaRuinsSelector>("npc_lana_jordan_q59948");
     new FactoryCreatureScript<CreatureAI, &AlariaRuinsSelector>("npc_alaria_q55965");
     new FactoryCreatureScript<CreatureAI, &WansaRuinsSelector>("npc_wonsa_q59948");
-};
+}
