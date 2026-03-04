@@ -140,10 +140,10 @@ enum WarriorMisc
     SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
-namespace Warrior::SpellLabels
+enum WarriorSpellLabels
 {
-    static constexpr uint32 ThunderBlast = 3159;
-}
+    SPELL_LABEL_THUNDER_BLAST   = 3159
+};
 
 static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spell const* triggeringSpell)
 {
@@ -911,10 +911,10 @@ class spell_warr_frothing_berserker : public AuraScript
 // 438590 - Keep Your Feet on the Ground
 class spell_warr_keep_your_feet_on_the_ground : public AuraScript
 {
-    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        return spellInfo->HasLabel(Warrior::SpellLabels::ThunderBlast);
+        return spellInfo->HasLabel(SPELL_LABEL_THUNDER_BLAST);
     }
 
     void Register() override
