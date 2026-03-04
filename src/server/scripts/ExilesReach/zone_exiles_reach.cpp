@@ -3361,9 +3361,6 @@ CreatureAI* SparringPartnerEnhancedCombatTrainingSelector(Creature* creature)
         default:
             return new NullCreatureAI(creature);
     }
-    if (creature->IsPrivateObject())
-        return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
-    return new NullCreatureAI(creature);
 }
 
 struct at_aggro_radius_check_enhanced_combat_tactics : AreaTriggerAI
