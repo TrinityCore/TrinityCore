@@ -49,10 +49,10 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
-    SPELL_WARRIOR_CRASHING_THUNDER_TALENT           = 436707,
     SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
+    SPELL_WARRIOR_CRASHING_THUNDER                  = 436707,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_DEFT_EXPERIENCE                   = 383295,
     SPELL_WARRIOR_ENRAGE                            = 184362,
@@ -123,6 +123,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TACTICIAN_ACTION_BUTTON_GLOW      = 199854,
     SPELL_WARRIOR_TAUNT                             = 355,
+    SPELL_WARRIOR_THUNDER_BLAST                     = 435615,
     SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
@@ -1551,13 +1552,13 @@ class spell_warr_meat_cleaver_damage_bonus_thunder_clap : public spell_warr_meat
     bool Validate(SpellInfo const* spellInfo) override
     {
         return spell_warr_meat_cleaver_damage_bonus::Validate(spellInfo)
-            && ValidateSpellInfo({ SPELL_WARRIOR_CRASHING_THUNDER_TALENT });
+            && ValidateSpellInfo({ SPELL_WARRIOR_CRASHING_THUNDER });
     }
 
     bool Load() override
     {
         return spell_warr_meat_cleaver_damage_bonus::Load()
-            && GetCaster()->HasAura(SPELL_WARRIOR_CRASHING_THUNDER_TALENT);
+            && GetCaster()->HasAura(SPELL_WARRIOR_CRASHING_THUNDER);
     }
 };
 
@@ -2028,7 +2029,51 @@ class spell_warr_tenderize : public AuraScript
     }
 };
 
+// 435607 - Thunder Blast
+class spell_warr_thunder_blast : public SpellScript
+{
+    static void PreventDefaultTargetObject(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        // unused effects
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_thunder_blast::PreventDefaultTargetObject, EFFECT_1, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_thunder_blast::PreventDefaultTargetObject, EFFECT_2, TARGET_UNIT_CASTER);
+    }
+};
+
+class spell_warr_thunder_blast_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_BLAST });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(nullptr, SPELL_WARRIOR_THUNDER_BLAST, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_thunder_blast_aura::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_thunder_blast_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 6343 - Thunder Clap
+// 435222 - Thunder Blast
 class spell_warr_thunder_clap : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2051,6 +2096,7 @@ class spell_warr_thunder_clap : public SpellScript
 };
 
 // 6343 - Thunder Clap (Rend)
+// 435222 - Thunder Blast (Rend)
 class spell_warr_thunder_clap_rend : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2320,6 +2366,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
+    RegisterSpellAndAuraScriptPair(spell_warr_thunder_blast, spell_warr_thunder_blast_aura);
     RegisterSpellScript(spell_warr_thunder_clap);
     RegisterSpellScript(spell_warr_thunder_clap_rend);
     RegisterSpellScript(spell_warr_titanic_rage);
