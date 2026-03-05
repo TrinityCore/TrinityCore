@@ -131,8 +131,8 @@ enum ArchimondeMisc
     NPC_DOOMFIRE_SPIRIT              = 18104
 };
 
-Position const EpiloguePosition = { 5600.375f, -3458.6353f, 1577.3046f, 0.0f };
-Position const NordrassilPosition = { 5503.713f, -3523.436f, 1608.781f, 0.0f };
+static Position const EpiloguePosition = { 5600.375f, -3458.6353f, 1577.3046f, 0.0f };
+static Position const NordrassilPosition = { 5503.713f, -3523.436f, 1608.781f, 0.0f };
 
 // 17968 - Archimonde
 struct boss_archimonde : public BossAI
@@ -215,9 +215,7 @@ struct boss_archimonde : public BossAI
     void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && who != me)
-        {
-            damage = me->GetHealth() -1;
-        }
+            damage = me->GetHealth() - 1;
 
         if (!_isEpilogueStarted && me->HealthBelowPctDamaged(10, damage))
         {
@@ -478,7 +476,7 @@ struct npc_doomfire_spirit : public ScriptedAI
         _scheduler.Schedule(0s, [this](TaskContext task)
         {
             Position pos = me->GetPosition();
-            float orientation = Position::NormalizeOrientation(me->GetOrientation() + RAND(0, -1, 1) * 0.785402f);
+            float orientation = Position::NormalizeOrientation(me->GetOrientation() + RAND(0.0f, -1.0f, 1.0f) * static_cast<float>(M_PI_4));
             me->MovePositionToFirstCollision(pos, 8.0f, orientation);
             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), orientation);
             task.Repeat(1200ms);
@@ -507,8 +505,8 @@ struct npc_ancient_wisp : public ScriptedAI
 
     void JustAppeared() override
     {
-        if (me->IsSummon())
-            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Unit* summoner = summon->GetSummonerUnit())
                 AttackStart(summoner);
     }
 
