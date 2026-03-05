@@ -1492,7 +1492,7 @@ class spell_flying_shadow_kick : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
-};
+}
 
 // 108897 - Pandaren Faction Choice
 class spell_pandaren_faction_choice : public SpellScript

@@ -4748,7 +4748,7 @@ T GetEntry(std::unordered_map<uint32, T> const& map, CriteriaTreeEntry const* tr
         return nullptr;
 
     return itr->second;
-};
+}
 
 void CriteriaMgr::LoadCriteriaList()
 {

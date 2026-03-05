@@ -183,7 +183,7 @@ CreatureAI* VereesaWindrunnerOztanIsleAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_vereesa_windrunner_oztan_isle_private(creature);
     return new npc_vereesa_windrunner_oztan_isle(creature);
-};
+}
 
 // 27493 - Conversation: Vereesas Tale
 class conversation_vereesas_tale : public ConversationAI
