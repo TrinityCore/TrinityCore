@@ -51,8 +51,7 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_FREEDOM            = 1044,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
-    SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE     = 204054,
-    SPELL_PALADIN_CONSECRATED_GROUND_SLOW        = 204242,
+    SPELL_PALADIN_CONSECRATION_DEBUFF            = 204242,
     SPELL_PALADIN_CONSECRATION                   = 26573,
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
@@ -427,7 +426,7 @@ class spell_pal_consecration : public AuraScript
             SPELL_PALADIN_CONSECRATION_DAMAGE,
             // validate for areatrigger_pal_consecration
             SPELL_PALADIN_CONSECRATION_PROTECTION_AURA,
-            SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE,
+            SPELL_PALADIN_CONSECRATED_GROUND_TALENT,
             SPELL_PALADIN_CONSECRATED_GROUND_SLOW
         });
     }
@@ -448,7 +447,7 @@ class spell_pal_consecration : public AuraScript
 //  9228 - AreaTriggerId
 struct areatrigger_pal_consecration : AreaTriggerAI
 {
-    areatrigger_pal_consecration(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    areatrigger_pal_consecration(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -458,9 +457,9 @@ struct areatrigger_pal_consecration : AreaTriggerAI
             if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::PaladinProtection)
                 caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_AURA);
 
+            // 204054 - Consecrated Ground slow is handled by DBC and needs no further checks
             if (caster->IsValidAttackTarget(unit))
-                if (caster->HasAura(SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE))
-                    caster->CastSpell(unit, SPELL_PALADIN_CONSECRATED_GROUND_SLOW);
+                caster->CastSpell(unit, SPELL_PALADIN_CONSECRATION_DEBUFF);
         }
     }
 
@@ -469,7 +468,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
         if (at->GetCasterGuid() == unit->GetGUID())
             unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
 
-        unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATED_GROUND_SLOW, at->GetCasterGuid());
+        unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_DEBUFF, at->GetCasterGuid());
     }
 };
 
