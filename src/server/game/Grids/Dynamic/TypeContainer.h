@@ -24,7 +24,7 @@
  */
 
 #include "Define.h"
-#include <type_traits>
+#include "Types.h"
 
 template <template <typename> typename UnderlyingContainer, typename... Types>
 struct TypeListContainerStorage
@@ -63,7 +63,7 @@ struct TypeListContainer
     TypeListContainerStorage<UnderlyingContainer, Types...> Data;
 
     template <typename ObjectType>
-    static constexpr bool TypeExists = std::disjunction_v<std::is_same<ObjectType, Types>...>;
+    static constexpr bool TypeExists = Trinity::has_type_in_list_v<ObjectType, Types...>;
 
     template <typename ObjectType>
     using ValueType = typename UnderlyingContainer<ObjectType>::ValueType;
