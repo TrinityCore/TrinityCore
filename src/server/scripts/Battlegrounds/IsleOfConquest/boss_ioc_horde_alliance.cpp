@@ -53,7 +53,7 @@ struct boss_ioc_horde_alliance : public ScriptedAI
         me->GetCreatureListWithEntryInGrid(guardsList, _npcGuard, 100.0f);
         for (std::list<Creature*>::const_iterator itr = guardsList.begin(); itr != guardsList.end(); ++itr)
             (*itr)->Respawn();
-    };
+    }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
