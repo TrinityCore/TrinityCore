@@ -426,8 +426,7 @@ class spell_pal_consecration : public AuraScript
             SPELL_PALADIN_CONSECRATION_DAMAGE,
             // validate for areatrigger_pal_consecration
             SPELL_PALADIN_CONSECRATION_PROTECTION_AURA,
-            SPELL_PALADIN_CONSECRATED_GROUND_TALENT,
-            SPELL_PALADIN_CONSECRATED_GROUND_SLOW
+            SPELL_PALADIN_CONSECRATION_DEBUFF
         });
     }
 
