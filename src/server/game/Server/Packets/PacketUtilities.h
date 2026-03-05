@@ -20,7 +20,7 @@
 
 #include "ByteBuffer.h"
 #include "Duration.h"
-#include "Tuples.h"
+#include "Types.h"
 #include <short_alloc/short_alloc.h>
 #include <string_view>
 #include <ctime>
@@ -65,24 +65,19 @@ namespace WorldPackets
 
     namespace Strings
     {
-        struct RawBytes { static bool Validate(std::string_view /*value*/) { return true; } };
-        template<std::size_t MaxBytesWithoutNullTerminator>
-        struct ByteSize { static bool Validate(std::string_view value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
-        struct Utf8 { static bool Validate(std::string_view value); };
-        struct Hyperlinks { static bool Validate(std::string_view value); };
-        struct NoHyperlinks { static bool Validate(std::string_view value); };
+        struct RawBytes { static void Validate(std::string_view /*value*/) { } };
+        struct ByteSize { static void Validate(std::string_view value, std::size_t maxSize); };
+        struct Utf8 { static void Validate(std::string_view value); };
+        struct Hyperlinks { static void Validate(std::string_view value); };
+        struct NoHyperlinks { static void Validate(std::string_view value); };
     }
 
     /**
      * Utility class for automated prevention of invalid strings in client packets
      */
-    template<std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
+    template <std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
     class String
     {
-        using ValidatorList = std::conditional_t<!Trinity::has_type<Strings::RawBytes, std::tuple<Validators...>>::value,
-            std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Strings::Utf8, Validators...>,
-            std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Validators...>>;
-
     public:
         bool empty() const { return _storage.empty(); }
         std::size_t length() const { return _storage.length(); }
@@ -132,15 +127,14 @@ namespace WorldPackets
         }
 
     private:
-        static bool Validate(std::string_view value)
+        static void Validate(std::string_view value)
         {
-            return ValidateNth(value, std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
-        }
+            Strings::ByteSize::Validate(value, MaxBytesWithoutNullTerminator);
 
-        template<std::size_t... indexes>
-        static bool ValidateNth(std::string_view value, std::index_sequence<indexes...>)
-        {
-            return (std::tuple_element_t<indexes, ValidatorList>::Validate(value) && ...);
+            if constexpr (!Trinity::has_type_in_list_v<Strings::RawBytes, Validators...> && !Trinity::has_type_in_list_v<Strings::Utf8, Validators...>)
+                Strings::Utf8::Validate(value);
+
+            (Validators::Validate(value), ...);
         }
 
         std::string _storage;
