@@ -49,7 +49,6 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
-    SPELL_WARRIOR_CRASHING_THUNDER_TALENT           = 436707,
     SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
@@ -65,7 +64,6 @@ enum WarriorSpells
     SPELL_WARRIOR_FRESH_MEAT_TALENT                 = 215568,
     SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE       = 392793,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
-    SPELL_WARRIOR_FURY_WARRIOR                      = 137050,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
@@ -97,7 +95,6 @@ enum WarriorSpells
     SPELL_WARRIOR_OVERPOWER                         = 7384,
     SPELL_WARRIOR_OVERPOWERING_FINISH               = 400205,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
-    SPELL_WARRIOR_PROTECTION_WARRIOR                = 137048,
     SPELL_WARRIOR_RAMPAGING_RUIN                    = 1265357,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
@@ -1555,13 +1552,13 @@ class spell_warr_meat_cleaver_damage_bonus_thunder_clap : public spell_warr_meat
     bool Validate(SpellInfo const* spellInfo) override
     {
         return spell_warr_meat_cleaver_damage_bonus::Validate(spellInfo)
-            && ValidateSpellInfo({ SPELL_WARRIOR_CRASHING_THUNDER_TALENT });
+            && ValidateSpellInfo({ SPELL_WARRIOR_CRASHING_THUNDER });
     }
 
     bool Load() override
     {
         return spell_warr_meat_cleaver_damage_bonus::Load()
-            && GetCaster()->HasAura(SPELL_WARRIOR_CRASHING_THUNDER_TALENT);
+            && GetCaster()->HasAura(SPELL_WARRIOR_CRASHING_THUNDER);
     }
 };
 
@@ -2033,7 +2030,22 @@ class spell_warr_tenderize : public AuraScript
 };
 
 // 435607 - Thunder Blast
-class spell_warr_thunder_blast : public AuraScript
+class spell_warr_thunder_blast : public SpellScript
+{
+    static void PreventDefaultTargetObject(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        // unused effects
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_thunder_blast::PreventDefaultTargetObject, EFFECT_1, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_thunder_blast::PreventDefaultTargetObject, EFFECT_2, TARGET_UNIT_CASTER);
+    }
+};
+
+class spell_warr_thunder_blast_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2055,34 +2067,8 @@ class spell_warr_thunder_blast : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_thunder_blast::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectProc += AuraEffectProcFn(spell_warr_thunder_blast::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 435222 - Thunder Blast (Rage generation)
-class spell_warr_thunder_blast_energize : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_PROTECTION_WARRIOR, SPELL_WARRIOR_FURY_WARRIOR, SPELL_WARRIOR_CRASHING_THUNDER });
-    }
-
-    void HandleEnergize(SpellEffIndex effIndex)
-    {
-        Unit const* caster = GetCaster();
-        if (caster->HasAura(SPELL_WARRIOR_PROTECTION_WARRIOR))
-            return;
-
-        if (caster->HasAura(SPELL_WARRIOR_FURY_WARRIOR) && caster->HasAura(SPELL_WARRIOR_CRASHING_THUNDER))
-            return;
-
-        PreventHitDefaultEffect(effIndex);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_blast_energize::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_thunder_blast_aura::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_thunder_blast_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2380,8 +2366,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
-    RegisterSpellScript(spell_warr_thunder_blast);
-    RegisterSpellScript(spell_warr_thunder_blast_energize);
+    RegisterSpellAndAuraScriptPair(spell_warr_thunder_blast, spell_warr_thunder_blast_aura);
     RegisterSpellScript(spell_warr_thunder_clap);
     RegisterSpellScript(spell_warr_thunder_clap_rend);
     RegisterSpellScript(spell_warr_titanic_rage);
