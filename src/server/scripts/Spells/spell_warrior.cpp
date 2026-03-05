@@ -140,6 +140,11 @@ enum WarriorMisc
     SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
+enum WarriorSpellLabels
+{
+    SPELL_LABEL_THUNDER_BLAST   = 3159
+};
+
 static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spell const* triggeringSpell)
 {
     SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, difficulty);
@@ -903,6 +908,21 @@ class spell_warr_frothing_berserker : public AuraScript
     }
 };
 
+// 438590 - Keep Your Feet on the Ground
+class spell_warr_keep_your_feet_on_the_ground : public AuraScript
+{
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        return spellInfo->HasLabel(SPELL_LABEL_THUNDER_BLAST);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_keep_your_feet_on_the_ground::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 400205 - Overpowering Finish (attached to 7384 - Overpower)
 class spell_warr_overpowering_finish : public SpellScript
 {
@@ -1160,6 +1180,70 @@ class spell_warr_improved_whirlwind : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_improved_whirlwind::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/**
+ * 85739 - Whirlwind Cleave aura, attached to the following spells:
+ *
+ * 1464 - Slam
+ * 1715 - Hamstring
+ * 23881 - Bloodthirst
+ * 23922 - Shield Slam
+ * 34428 - Victory Rush
+ * 85384 - Raging Blow
+ * 96103 - Raging Blow
+ * 100130 - Furious Slash
+ * 163558 - Execute Off-Hand
+ * 184707 - Rampage
+ * 184709 - Rampage
+ * 201363 - Rampage
+ * 201364 - Rampage
+ * 202168 - Impending Victory
+ * 218617 - Rampage
+ * 260798 - Execute
+ * 280772 - Siegebreaker
+ * 280849 - Execute
+ * 317483 - Condemn (Venthyr)
+ * 317488 - Condemn (Venthyr)
+ * 317489 - Condemn Off-Hand (Venthyr)
+ * 335096 - Bloodbath
+ * 335098 - Crushing Blow
+ * 335100 - Crushing Blow
+ * 394062 - Rend
+ * 394063 - Rend
+ * 396718 - Onslaught
+ * 463815 - Arms Execute FX Test
+ * 463816 - Fury Execute FX Test
+ * 463817 - Fury Execute Off-Hand FX Test
+ * 1269383 - Heroic Strike
+ */
+class spell_warr_improved_whirlwind_cleave : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, EFFECT_1 } })
+            && spellInfo->IsAffected(SPELLFAMILY_WARRIOR, sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, DIFFICULTY_NONE)->GetEffect(EFFECT_0).SpellClassMask);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        int32 const targetIndex = GetUnitTargetIndexForEffect(victim->GetGUID(), spellEffectInfo.EffectIndex);
+        if (targetIndex == 0)
+            return; // nothing to do, it's the first target
+
+        if (AuraEffect const* damageEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, EFFECT_1))
+            ApplyPct(pctMod, damageEffect->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_improved_whirlwind_cleave::CalculateDamage);
     }
 };
 
@@ -2204,12 +2288,14 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap_damage);
     RegisterSpellScript(spell_warr_impending_victory);
     RegisterSpellScript(spell_warr_improved_whirlwind);
+    RegisterSpellScript(spell_warr_improved_whirlwind_cleave);
     RegisterSpellScript(spell_warr_intervene);
     RegisterSpellScript(spell_warr_intervene_charge);
     RegisterSpellScript(spell_warr_intimidating_shout);
     RegisterSpellScript(spell_warr_intimidating_shout_menace_knock_back);
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
+    RegisterSpellScript(spell_warr_keep_your_feet_on_the_ground);
     RegisterSpellScript(spell_warr_kill_or_be_killed);
     RegisterSpellScript(spell_warr_kill_or_be_killed_target);
     RegisterSpellScript(spell_warr_kill_or_be_killed_warrior);

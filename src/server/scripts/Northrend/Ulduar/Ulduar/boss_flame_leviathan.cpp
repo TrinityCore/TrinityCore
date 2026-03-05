@@ -1628,7 +1628,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector() { };
+        explicit FlameLeviathanPursuedTargetSelector() { }
 
         bool operator()(WorldObject* target) const
         {

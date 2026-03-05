@@ -162,7 +162,7 @@ struct boss_cragmaw_the_infested : public BossAI
     {
         if (spell->Id == SPELL_TANTRUM_INITIAL)
             me->SetReactState(REACT_AGGRESSIVE);
-    };
+    }
 
     void UpdateAI(uint32 diff) override
     {
