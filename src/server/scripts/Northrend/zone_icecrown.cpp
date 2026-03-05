@@ -412,9 +412,16 @@ struct npc_blessed_banner : public ScriptedAI
 
     void MoveInLineOfSight(Unit* /*who*/) override { }
 
-    void JustSummoned(Creature* Summoned) override
+    void JustSummoned(Creature* summon) override
     {
-        Summons.Summon(Summoned);
+        Summons.Summon(summon);
+        if (summon->GetEntry() == NPC_SCOURGE_DRUDGE || summon->GetEntry() == NPC_REANIMATED_CAPTAIN || summon->GetEntry() == NPC_HIDEOUS_PLAGEBRINGER || summon->GetEntry() == NPC_HALOF_THE_DEATHBRINGER)
+        {
+            summon->SetHomePosition(DalforsPos[2]);
+            summon->SetReactState(REACT_PASSIVE);
+            summon->EngageWithTarget(me);
+            SetAggressiveStateAfter(2s, summon, true);
+        }
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -567,36 +574,16 @@ struct npc_blessed_banner : public ScriptedAI
                         if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
                             LK->AI()->Talk(LK_TALK_3);
                     }
-                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason3Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
+                    DoSummon(NPC_SCOURGE_DRUDGE, Mason3Pos[0]);
                     if (urand(0, 1) == 0)
                     {
-                        if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason1Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
-                        if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason2Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
+                        DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason1Pos[0]);
+                        DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason2Pos[0]);
                     }
                     else
                     {
-                        if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason1Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
-                        if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason2Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
+                        DoSummon(NPC_REANIMATED_CAPTAIN, Mason1Pos[0]);
+                        DoSummon(NPC_REANIMATED_CAPTAIN, Mason2Pos[0]);
                     }
 
                     PhaseCount++;
@@ -611,22 +598,14 @@ struct npc_blessed_banner : public ScriptedAI
                 {
                     if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
                         LK->AI()->Talk(LK_TALK_4);
-                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason1Pos[0]))
-                    {
-                        tempsum->SetHomePosition(DalforsPos[2]);
-                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                    }
-                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason2Pos[0]))
-                    {
-                        tempsum->SetHomePosition(DalforsPos[2]);
-                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                    }
+
+                    DoSummon(NPC_SCOURGE_DRUDGE, Mason1Pos[0]);
+                    DoSummon(NPC_SCOURGE_DRUDGE, Mason2Pos[0]);
+
                     if (Creature* tempsum = DoSummon(NPC_HALOF_THE_DEATHBRINGER, DalforsPos[0]))
                     {
                         HalofSpawned = true;
                         guidHalof = tempsum->GetGUID();
-                        tempsum->SetHomePosition(DalforsPos[2]);
-                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
                     }
                 }
                 break;
