@@ -531,13 +531,15 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
     /* the client data has been verified. let's do the actual change now */
     movementInfo.time = AdjustClientMovementTime(movementInfo.time);
-
     mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
 
     float newSpeedRate = speedSent / (mover->IsControlledByPlayer() ? playerBaseMoveSpeed[move_type] : baseMoveSpeed[move_type]);
     mover->SetSpeedRateReal(move_type, newSpeedRate);
     MovementPacketSender::SendSpeedChangeToObservers(mover, move_type, speedSent);
+
+    // Update position after updating known serverside speed
+    // this can interrupt aura granting us the speed boost so it needs see updated value in Unit::m_speed_rate
+    mover->UpdatePosition(movementInfo.pos);
 }
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)

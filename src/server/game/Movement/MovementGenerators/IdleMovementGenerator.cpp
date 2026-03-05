@@ -26,7 +26,6 @@
 
 IdleMovementGenerator::IdleMovementGenerator()
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZED;
     BaseUnitState = 0;
@@ -66,7 +65,6 @@ MovementGeneratorType IdleMovementGenerator::GetMovementGeneratorType() const
 
 RotateMovementGenerator::RotateMovementGenerator(uint32 id, uint32 time, RotateDirection direction) : _id(id), _duration(time), _maxDuration(time), _direction(direction)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROTATING;
@@ -143,7 +141,6 @@ MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const
 
 DistractMovementGenerator::DistractMovementGenerator(uint32 timer, float orientation) : _timer(timer), _orientation(orientation), _originalOrientation(0.f)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_DISTRACTED;

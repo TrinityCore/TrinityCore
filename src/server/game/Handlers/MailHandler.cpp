@@ -83,7 +83,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
     {
         TC_LOG_INFO("network", "Player {} is sending mail to {} (GUID: non-existing!) with subject {} "
             "and body {} includes {} items, {} copper and {} COD copper with StationeryID = {}, PackageID = {}",
-            GetPlayerInfo(), sendMail.Info.Target, sendMail.Info.Subject, sendMail.Info.Body,
+            GetPlayerInfo(), sendMail.Info.Target, std::string_view(sendMail.Info.Subject), std::string_view(sendMail.Info.Body),
             sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
@@ -107,8 +107,8 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
     TC_LOG_INFO("network", "Player {} is sending mail to {} ({}) with subject {} and body {} "
         "including {} items, {} copper and {} COD copper with StationeryID = {}, PackageID = {}",
-        GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), sendMail.Info.Subject,
-        sendMail.Info.Body, sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
+        GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), std::string_view(sendMail.Info.Subject),
+        std::string_view(sendMail.Info.Body), sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID, sendMail.Info.PackageID);
 
     if (player->GetGUID() == receiverGuid)
     {
