@@ -4189,38 +4189,26 @@ class spell_pri_searing_light : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SEARING_LIGHT_DAMAGE });
     }
 
-    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
-        if (!caster || !target)
+        DamageInfo* dmgInfo = eventInfo.GetDamageInfo();
+        if (!caster || !target || !dmgInfo || !dmgInfo->GetDamage())
             return;
 
-        caster->CastSpell(target, SPELL_PRIEST_SEARING_LIGHT_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        SpellInfo const* dotInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SEARING_LIGHT_DAMAGE, GetCastDifficulty());
+        int32 ticks = dotInfo->GetDuration() / dotInfo->GetEffect(EFFECT_0).ApplyAuraPeriod;
+
+        int32 dotDmg = CalculatePct(dmgInfo->GetDamage(), aurEff->GetAmount());
+        dotDmg /= ticks;
+
+        caster->CastSpell(target, SPELL_PRIEST_SEARING_LIGHT_DAMAGE, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).AddSpellBP0(dotDmg));
     }
 
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_searing_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 1280134 - Searing Light (Damage)
-class spell_pri_searing_light_damage : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PRIEST_SEARING_LIGHT_DAMAGE });
-    }
-
-    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectProcFn(spell_pri_searing_light::HandleEffectProc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
