@@ -129,7 +129,7 @@ CreatureAI* FrightendWoodsmanAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_drustvar_frightend_woodsman_private(creature);
     return new npc_drustvar_frightend_woodsman(creature);
-};
+}
 
 void AddSC_drustvar_chapter_3_an_airtight_alibi()
 {

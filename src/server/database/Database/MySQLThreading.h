@@ -25,6 +25,6 @@ namespace MySQL
     TC_DATABASE_API void Library_Init();
     TC_DATABASE_API void Library_End();
     TC_DATABASE_API uint32 GetLibraryVersion();
-};
+}
 
 #endif

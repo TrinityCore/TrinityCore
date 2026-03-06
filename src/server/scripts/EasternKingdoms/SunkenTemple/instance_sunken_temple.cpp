@@ -191,7 +191,7 @@ public:
                 }
                 break;
              }
-         };
+         }
 
         void UseStatue(GameObject* go)
         {
