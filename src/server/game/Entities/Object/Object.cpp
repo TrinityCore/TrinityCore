@@ -2575,7 +2575,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE)) && unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2))
         return false;
 
-    if (unitTarget && unitTarget->IsUninteractible())
+    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR11_CAN_ASSIST_UNINTERACTIBLE)) && unitTarget && unitTarget->IsUninteractible())
         return false;
 
     // check flags for negative spells
