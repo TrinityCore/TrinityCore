@@ -550,7 +550,7 @@ class boss_hodir : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<boss_hodirAI>(creature);
-        };
+        }
 };
 
 class npc_icicle : public CreatureScript
@@ -603,7 +603,7 @@ class npc_icicle : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_icicleAI>(creature);
-        };
+        }
 };
 
 class npc_snowpacked_icicle : public CreatureScript
@@ -648,7 +648,7 @@ class npc_snowpacked_icicle : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_snowpacked_icicleAI>(creature);
-        };
+        }
 };
 
 class npc_hodir_priest : public CreatureScript
@@ -732,7 +732,7 @@ class npc_hodir_priest : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_hodir_priestAI>(creature);
-        };
+        }
 };
 
 class npc_hodir_shaman : public CreatureScript
@@ -798,7 +798,7 @@ class npc_hodir_shaman : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_hodir_shamanAI>(creature);
-        };
+        }
 };
 
 class npc_hodir_druid : public CreatureScript
@@ -863,7 +863,7 @@ class npc_hodir_druid : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_hodir_druidAI>(creature);
-        };
+        }
 };
 
 class npc_hodir_mage : public CreatureScript
@@ -948,7 +948,7 @@ class npc_hodir_mage : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_hodir_mageAI>(creature);
-        };
+        }
 };
 
 class npc_toasty_fire : public CreatureScript
@@ -982,7 +982,7 @@ class npc_toasty_fire : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<npc_toasty_fireAI>(creature);
-        };
+        }
 };
 
 // 62038 - Biting Cold

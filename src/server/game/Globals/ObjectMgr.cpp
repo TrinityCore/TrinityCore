@@ -3063,7 +3063,7 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
     }
 
     return 5 * uint32(round(18.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty));
-};
+}
 
 struct ItemSpecStats
 {
@@ -10132,7 +10132,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     }
     while (result->NextRow());
 
-    for (uint8 unitLevel = 1; unitLevel <= DEFAULT_MAX_LEVEL + 3; ++unitLevel)
+    uint32 maxLevel = GetMaxLevelForExpansion(CURRENT_EXPANSION);
+    for (uint8 unitLevel = 1; unitLevel <= maxLevel + 3; ++unitLevel)
     {
         for (uint8 unitClass = 1; unitClass <= MAX_UNIT_CLASSES; ++unitClass)
         {
