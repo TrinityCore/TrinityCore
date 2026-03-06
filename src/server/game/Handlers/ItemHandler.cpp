@@ -427,6 +427,65 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem const& sell
         _player->SendSellError(*sellResult, creature, sellItem.ItemGUID);
 }
 
+void WorldSession::HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems const& sellAllJunkItems)
+{
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(sellAllJunkItems.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    if (!creature)
+    {
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty);
+        return;
+    }
+
+    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    {
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, ObjectGuid::Empty);
+        return;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    // collect junk items first
+    std::vector<Item*> junkItems;
+    _player->ForEachItem(ItemSearchLocation::Inventory, [this, &junkItems](Item* item)
+    {
+        if (item->GetQuality() != ITEM_QUALITY_POOR)
+            return ItemSearchCallbackResult::Continue;
+
+        if (item->IsRefundable())
+            return ItemSearchCallbackResult::Continue;
+
+        // check per-bag junk sell exclusion
+        if (item->GetBagSlot() == INVENTORY_SLOT_BAG_0)
+        {
+            if (_player->IsBackpackSellJunkDisabled())
+                return ItemSearchCallbackResult::Continue;
+        }
+        else
+        {
+            uint32 bagIndex = item->GetBagSlot() - INVENTORY_SLOT_BAG_START;
+            if (bagIndex < _player->m_activePlayerData->BagSlotFlags.size()
+                && _player->GetBagSlotFlags(bagIndex).HasFlag(BagSlotFlags::ExcludeJunkSell))
+                return ItemSearchCallbackResult::Continue;
+        }
+
+        Optional<SellResult> sellError = _player->CanSellItemToVendor(item, item->GetCount());
+        if (!sellError)
+            junkItems.push_back(item);
+
+        return ItemSearchCallbackResult::Continue;
+    });
+
+    auto itr = junkItems.begin();
+    auto end = junkItems.end();
+    Optional<SellResult> sellError;
+
+    // stop on first sell failure (gold cap reached)
+    for (; itr != end && !sellError; ++itr)
+        sellError = _player->SellItemToVendor(*itr, (*itr)->GetCount());
+}
+
 void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUYBACK_ITEM: Vendor {}, Slot: {}", packet.VendorGUID.ToString(), packet.Slot);

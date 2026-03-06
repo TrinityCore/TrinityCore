@@ -67,7 +67,7 @@ class TC_GAME_API Weather
     public:
 
         Weather(uint32 zoneId, WeatherData const* weatherChances);
-        ~Weather() { };
+        ~Weather() { }
 
         bool Update(uint32 diff);
         bool ReGenerate();
@@ -79,7 +79,7 @@ class TC_GAME_API Weather
 
         WeatherState GetWeatherState() const;
         /// For which zone is this weather?
-        uint32 GetZone() const { return m_zone; };
+        uint32 GetZone() const { return m_zone; }
         uint32 GetScriptId() const { return m_weatherChances->ScriptId; }
 
     private:

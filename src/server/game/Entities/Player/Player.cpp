@@ -1339,6 +1339,9 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
     }
     else
     {
+        if (IsBeingTeleportedFar())
+            return false;
+
         if (GetClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
         {
             SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_UNIQUE_MESSAGE, 1);
@@ -1367,11 +1370,11 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
         SetSemaphoreTeleportNear(false);
         //setup delayed teleport flag
         SetDelayedTeleportFlag(IsCanDelayTeleport());
+        SetSemaphoreTeleportFar(true);
         //if teleport spell is cast in Unit::Update() func
         //then we need to delay it until update process will be finished
         if (IsHasDelayedTeleport())
         {
-            SetSemaphoreTeleportFar(true);
             //lets save teleport destination for player
             m_teleport_dest = teleportLocation;
             m_teleport_options = options;
