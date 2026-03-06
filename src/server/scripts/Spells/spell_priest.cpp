@@ -4217,24 +4217,18 @@ class spell_pri_searing_light : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_SEARING_LIGHT_DAMAGE });
+        return ValidateSpellEffect({ { SPELL_PRIEST_SEARING_LIGHT_DAMAGE, EFFECT_0 } });
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetActionTarget();
-        DamageInfo* dmgInfo = eventInfo.GetDamageInfo();
-        if (!caster || !target || !dmgInfo || !dmgInfo->GetDamage())
-            return;
+        int32 dotDmg = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+        dotDmg /= sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SEARING_LIGHT_DAMAGE, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount();
 
-        SpellInfo const* dotInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SEARING_LIGHT_DAMAGE, GetCastDifficulty());
-        int32 ticks = dotInfo->GetDuration() / dotInfo->GetEffect(EFFECT_0).ApplyAuraPeriod;
-
-        int32 dotDmg = CalculatePct(dmgInfo->GetDamage(), aurEff->GetAmount());
-        dotDmg /= ticks;
-
-        caster->CastSpell(target, SPELL_PRIEST_SEARING_LIGHT_DAMAGE, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).AddSpellBP0(dotDmg));
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PRIEST_SEARING_LIGHT_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, dotDmg } }
+        });
     }
 
     void Register() override
