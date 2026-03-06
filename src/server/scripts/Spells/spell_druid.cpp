@@ -121,6 +121,7 @@ enum DruidSpells
     SPELL_DRUID_LUNAR_BEAM_HEAL                = 204069,
     SPELL_DRUID_LUNAR_BEAM_DAMAGE              = 414613,
     SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
+    SPELL_DRUID_LUNAR_WRATH                    = 1253600,
     SPELL_DRUID_MAIM_STUN                      = 203123,
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MANGLE_TALENT                  = 231064,
@@ -137,6 +138,7 @@ enum DruidSpells
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_PULVERIZE                      = 80313,
     SPELL_DRUID_RAKE_STUN                      = 163505,
+    SPELL_DRUID_RED_MOON                       = 1252871,
     SPELL_DRUID_REGROWTH                       = 8936,
     SPELL_DRUID_REJUVENATION                   = 774,
     SPELL_DRUID_REJUVENATION_GERMINATION       = 155777,
@@ -1161,26 +1163,24 @@ class spell_dru_galactic_guardian : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_GALACTIC_GUARDIAN_AURA });
+        return ValidateSpellInfo({ SPELL_DRUID_GALACTIC_GUARDIAN_AURA, SPELL_DRUID_LUNAR_WRATH, SPELL_DRUID_RED_MOON });
     }
 
-    bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
-        {
-            Unit* target = GetTarget();
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
 
-            // free automatic moonfire on target
-            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE_DAMAGE, TRIGGERED_FULL_MASK | TRIGGERED_SUPPRESS_CASTER_ANIM);
+        // free automatic moonfire on target
+        caster->CastSpell(target, SPELL_DRUID_MOONFIRE_DAMAGE, TRIGGERED_FULL_MASK | TRIGGERED_SUPPRESS_CASTER_ANIM);
 
-            // Cast aura
-            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTIC_GUARDIAN_AURA, true);
-        }
+        // Cast aura
+        caster->CastSpell(target, caster->HasSpell(SPELL_DRUID_RED_MOON) ? SPELL_DRUID_LUNAR_WRATH : SPELL_DRUID_GALACTIC_GUARDIAN_AURA, true);
     }
 
     void Register() override
@@ -1190,41 +1190,29 @@ class spell_dru_galactic_guardian : public AuraScript
     }
 };
 
-// 213708 - Galactic Guardian (Aura)
-// Triggered by 8921 - Moonfire and 164812 - Moonfire (Damage)
+// 213708 - Galactic Guardian (attached to 164812 - Moonfire)
 class spell_dru_galactic_guardian_moonfire : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_2 } });
+    }
+
     bool Load() override
     {
-        if (AuraEffect const* galactic = GetCaster()->GetAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_0))
-        {
-            _rageAmount = galactic->GetAmount();
-            _damagePct = GetCaster()->GetAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_2)->GetAmount();
-            return true;
-        }
-        return false;
+        return GetCaster()->HasAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_2);
     }
 
-    void HandleEnergize(SpellEffIndex /*effIndex*/)
+    void CalculateDamage(SpellEffectInfo const& /*effectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
-        SetEffectValue(_rageAmount);
-    }
-
-    void HandleDamage(SpellEffIndex /*effIndex*/)
-    {
-        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), _damagePct));
+        if (AuraEffect const* galactic = GetCaster()->GetAuraEffect(SPELL_DRUID_GALACTIC_GUARDIAN_AURA, EFFECT_2))
+            AddPct(pctMod, galactic->GetAmount());
     }
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_DRUID_MOONFIRE)
-            OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleEnergize, EFFECT_1, SPELL_EFFECT_ENERGIZE);
-        else
-            OnEffectHitTarget += SpellEffectFn(spell_dru_galactic_guardian_moonfire::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_dru_galactic_guardian_moonfire::CalculateDamage);
     }
-
-    int32 _rageAmount = 0;
-    int32 _damagePct = 0;
 };
 
 // 774 - Rejuvenation
@@ -1580,6 +1568,29 @@ class spell_dru_lunar_inspiration : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1253600 - Lunar Wrath
+class spell_dru_lunar_wrath : public AuraScript
+{
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& procEvent)
+    {
+        if (procEvent.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE) <= 0)
+            return false;
+
+        Unit* caster = procEvent.GetActor();
+        Unit* result = nullptr;
+        Trinity::UnitAuraCheck check(true, SPELL_DRUID_RED_MOON, caster->GetGUID());
+        Trinity::UnitSearcher searcher(caster, result, check);
+        Cell::VisitAllObjects(caster, searcher, 40.0f);
+
+        return result != nullptr;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_lunar_wrath::CheckProc);
     }
 };
 
@@ -3151,6 +3162,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lifebloom);
     RegisterAreaTriggerAI(at_dru_lunar_beam);
     RegisterSpellScript(spell_dru_lunar_inspiration);
+    RegisterSpellScript(spell_dru_lunar_wrath);
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_maim);
     RegisterSpellScript(spell_dru_mangle);
