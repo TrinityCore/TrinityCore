@@ -28,6 +28,8 @@
 #include "ScriptedGossip.h"
 #include "PassiveAI.h"
 #include "ObjectAccessor.h"
+#include "Vehicle.h"
+#include "WaypointManager.h"
 
 namespace Scripts::Kalimdor::Durotar
 {
@@ -1298,6 +1300,154 @@ class spell_teleport_timer_horde : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer_horde::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
+
+enum NorthwatchCaravan
+{
+    SPELL_DESPAWN_PASSENEGERS_2_3_4 = 49133,
+    SPELL_EJECT_ALL_PASSENGERS = 73690,
+    SPELL_COSMETIC_EXPLOSION = 60081,
+
+    NPC_NORTHWATCH_LUG_DWARF = 39249,
+    NPC_NORTHWATCH_SUPPLY_CRATE = 39251
+};
+
+// 73690 From Passenger - Eject All Passengers
+class spell_from_passenger_eject_all_passengers : public SpellScript
+{
+    void HandleEffect(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        if (Vehicle* vehicle = caster->GetVehicle())
+            vehicle->RemoveAllPassengers();
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_from_passenger_eject_all_passengers::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 49133 Despawn Passengers 2, 3, 4
+class spell_despawn_passengers_2_3_4 : public SpellScript
+{
+    void HandleEffect(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        if (Vehicle* vehicle = caster->GetVehicleKit())
+        {
+            for (uint32 i = 0; i < 4; ++i)
+            {
+                if (Unit* passenger = vehicle->GetPassenger(i))
+                    if (Creature* creature = passenger->ToCreature())
+                        creature->DespawnOrUnsummon();
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_despawn_passengers_2_3_4::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 39319, 39244, 39318 - Northwatch Caravan
+class npc_northwatch_caravan : public ScriptedAI
+{
+public:
+    npc_northwatch_caravan(Creature* creature) : ScriptedAI(creature), lastPointIndex(0) {}
+
+    void InitializeAI() override
+    {
+        uint32 waypointEntry = me->GetEntry() * 100;
+        WaypointPath const* path = sWaypointMgr->GetPath(waypointEntry);
+
+        if (!path)
+            return;
+
+        lastPointIndex = path->Nodes.size();
+
+        me->GetMotionMaster()->MovePath(waypointEntry, false, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+    }
+
+    void MovementInform(uint32 movementType, uint32 pointId) override
+    {
+        if (movementType == WAYPOINT_MOTION_TYPE && pointId == lastPointIndex)
+        {
+            DoCastSelf(SPELL_DESPAWN_PASSENEGERS_2_3_4);
+        }
+    }
+
+    void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
+    {
+        if (!apply)
+        { 
+            me->DespawnOrUnsummon(1200ms);
+
+            if (who->GetEntry() == NPC_NORTHWATCH_SUPPLY_CRATE)
+            {
+                who->CastSpell(who, SPELL_COSMETIC_EXPLOSION, true);
+            }
+            else if (seatId == 0 && who->GetEntry() == NPC_NORTHWATCH_LUG_DWARF)
+            {
+                who->KillSelf();
+            }
+        }
+    }
+
+private:
+    uint32 lastPointIndex;
+};
+
+// 39245, 39249, 39251 - Northwatch Caravan Passengers
+class npc_northwatch_caravan_passenger : public ScriptedAI
+{
+public:
+    npc_northwatch_caravan_passenger(Creature* creature) : ScriptedAI(creature), exitedVehicle(false) {}
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (exitedVehicle)
+            ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (exitedVehicle)
+            ScriptedAI::UpdateAI(diff);
+    }
+
+    void MovementInform(uint32 movementType, uint32 pointId) override
+    {
+        if (movementType == EFFECT_MOTION_TYPE && pointId == EVENT_VEHICLE_EXIT)
+            exitedVehicle = true;
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        DoCastSelf(SPELL_EJECT_ALL_PASSENGERS);
+        me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+
+        if (me->GetEntry() == NPC_NORTHWATCH_SUPPLY_CRATE)
+        {
+            me->DespawnOrUnsummon(24s);
+            me->SetReactState(REACT_PASSIVE);
+        }
+        else
+        {
+            me->DespawnOrUnsummon(90s);
+        }
+    }
+
+private:
+    bool exitedVehicle;
+};
 }
 
 void AddSC_durotar()
@@ -1307,6 +1457,12 @@ void AddSC_durotar()
     new npc_lazy_peon();
     RegisterSpellScript(spell_voodoo);
     RegisterCreatureAI(npc_mithaka);
+
+    // Northwatch Caravan
+    RegisterCreatureAI(npc_northwatch_caravan);
+    RegisterCreatureAI(npc_northwatch_caravan_passenger);
+    RegisterSpellScript(spell_from_passenger_eject_all_passengers);
+    RegisterSpellScript(spell_despawn_passengers_2_3_4);
 
     // Echo Isles
     RegisterSpellScript(spell_durotar_summon_zuni);
