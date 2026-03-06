@@ -223,6 +223,7 @@ enum PriestSpells
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
     SPELL_PRIEST_SEARING_LIGHT                      = 1280131,
     SPELL_PRIEST_SEARING_LIGHT_DAMAGE               = 1280134,
+    SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE         = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
@@ -1186,7 +1187,7 @@ Optional<uint32> GetSpellToCast(uint32 spellId)
         case SPELL_PRIEST_HOLY_WORD_CHASTISE:
         case SPELL_PRIEST_MINDGAMES:
         case SPELL_PRIEST_MINDGAMES_VENTHYR:
-            return SPELL_PRIEST_SEARING_LIGHT;
+            return SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE;
         case SPELL_PRIEST_HOLY_NOVA:
             return SPELL_PRIEST_LIGHT_ERUPTION;
         default:
