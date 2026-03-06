@@ -33,7 +33,7 @@ class TC_GAME_API MapUpdater
     public:
 
         MapUpdater() : _cancelationToken(false), pending_requests(0) {}
-        ~MapUpdater() { };
+        ~MapUpdater() { }
 
         friend class MapUpdateRequest;
 
