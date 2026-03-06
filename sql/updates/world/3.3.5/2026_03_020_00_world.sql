@@ -243,3 +243,38 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,9219,0,0,0,1,0,46078,0,0,0,0,0,'',"Group 0: Show Gossip Option 0 if player does have aura 'Righteous Vision'");
 
 UPDATE `gossip_menu_option` SET `OptionType` = 1, `OptionNpcFlag` = 1 WHERE `MenuID` IN (9217,9218,9219) AND `OptionType` = 0;
+
+-- Abduction (11590)
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (25316,25474);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (25316,25474) AND `source_type` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2531600,2547400) AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(25316,0,0,0,0,0,100,0,3000,4000,3000,4000,0,11,9672,0,0,0,0,0,2,0,0,0,0,0,0,0,0,"Beryl Sorcerer - In Combat - Cast 'Frostbolt'"),
+(25316,0,1,0,2,0,100,1,0,25,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Beryl Sorcerer - Between 0-25% Health - Say Line 0 (No Repeat)"),
+(25316,0,2,0,8,0,100,1,45611,0,0,0,0,80,2531600,2,0,0,0,0,1,0,0,0,0,0,0,0,0,"Beryl Sorcerer - On Spellhit 'Arcane Chains' - Run Script (No Repeat)"),
+
+(2531600,9,0,0,0,0,100,0,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Beryl Sorcerer - On Script - Set Reactstate Passive"),
+(2531600,9,1,0,0,0,100,0,3000,3000,0,0,0,11,45625,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Beryl Sorcerer - On Script - Cast 'Arcane Chains: Character Force Cast'"),
+(2531600,9,2,0,0,0,100,0,0,0,0,0,0,33,25474,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Beryl Sorcerer - On Script - Quest Credit 'Abduction'"),
+(2531600,9,3,0,0,0,100,0,1500,1500,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Beryl Sorcerer - On Script - Despawn Instant"),
+
+(25474,0,0,0,11,0,100,0,0,0,0,0,0,80,2547400,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captured Beryl Sorcerer - On Spawn - Run Script"),
+
+(2547400,9,0,0,0,0,100,0,0,0,0,0,0,11,45632,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Captured Beryl Sorcerer - On Script - Cast 'Enslaved Arcane Chains: Character Force Cast'"),
+(2547400,9,1,0,0,0,100,0,0,0,0,0,0,8,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captured Beryl Sorcerer - On Script - Set Reactstate Defensive"),
+(2547400,9,2,0,0,0,100,0,0,0,0,0,0,29,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Captured Beryl Sorcerer - On Script - Start Follow Owner");
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 25316;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(25316,0,0,"%s can now be captured.",16,0,100,0,0,0,24694,0,"Beryl Sorcerer");
+
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_borean_tundra_arcane_chains_character_force_cast' WHERE `ScriptName` = 'spell_arcane_chains_character_force_cast';
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_borean_tundra_abduction_quest_completion';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45651, 'spell_borean_tundra_abduction_quest_completion');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 45651;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,45651,0,0,31,0,3,25474,0,0,0,0,"","Group 0: Spell 'Abduction: Quest Completion' targets creature 'Captured Beryl Sorcerer'"),
+(13,1,45651,0,0,33,0,1,3,0,0,0,0,"","Group 0: Spell 'Abduction: Quest Completion' targets creature 'Captured Beryl Sorcerer' if owned by spell caster");
