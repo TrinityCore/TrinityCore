@@ -813,6 +813,7 @@ class TC_GAME_API Spell
         ProcFlagsHit m_hitMask;
         ProcFlagsSpellType m_procSpellType;   // for finish procs
         void prepareDataForTriggerSystem();
+        std::pair<ProcFlagsInit /*attacker*/, ProcFlagsInit /*victim*/> FinalizeDataForTriggerSystem(bool positive) const;
 
         // *****************************************
         // Spell target subsystem

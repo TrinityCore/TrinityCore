@@ -104,7 +104,7 @@ enum Expansions
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_THE_WAR_WITHIN
+#define CURRENT_EXPANSION EXPANSION_MIDNIGHT
 
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
