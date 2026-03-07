@@ -39,11 +39,6 @@ EndScriptData */
 4 - Archimonde event
 */
 
-enum Yells
-{
-    YELL_ARCHIMONDE_INTRO = 8
-};
-
 ObjectData const creatureData[] =
 {
     { RAGE_WINTERCHILL,   DATA_RAGEWINTERCHILL    },
@@ -54,7 +49,6 @@ ObjectData const creatureData[] =
     { JAINA,              DATA_JAINAPROUDMOORE    },
     { THRALL,             DATA_THRALL             },
     { TYRANDE,            DATA_TYRANDEWHISPERWIND },
-    { NPC_CHANNEL_TARGET, DATA_CHANNEL_TARGET     },
     { 0,                  0                       } // END
 };
 
@@ -80,8 +74,6 @@ public:
             Trash = 0;
             hordeRetreat = 0;
             allianceRetreat = 0;
-
-            ArchiYell = false;
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -191,12 +183,7 @@ public:
                         {
                             archimonde->SetVisible(true);
                             archimonde->SetReactState(REACT_AGGRESSIVE);
-
-                            if (!ArchiYell)
-                            {
-                                ArchiYell = true;
-                                archimonde->AI()->Talk(YELL_ARCHIMONDE_INTRO);
-                            }
+                            archimonde->AI()->DoAction(ACTION_ARCHIMONDE_INTRO);
                         }
                     }
                     break;
@@ -235,7 +222,6 @@ public:
             uint32 hordeRetreat;
             uint32 allianceRetreat;
             uint32 RaidDamage;
-            bool ArchiYell;
     };
 };
 
