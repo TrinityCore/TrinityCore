@@ -444,7 +444,7 @@ class spell_pal_consecration : public AuraScript
 //  9228 - AreaTriggerId
 struct areatrigger_pal_consecration : AreaTriggerAI
 {
-    areatrigger_pal_consecration(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
     {
