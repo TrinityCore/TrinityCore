@@ -1049,12 +1049,18 @@ class spell_pal_judgment : public SpellScript
         });
     }
 
-    void HandleOnCast()
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_PALADIN_JUDGMENT_RANK_3);
+    }
+
+    void HandleOnCast() const
     {
         Unit* caster = GetCaster();
-
-        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_RANK_3))
-            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, GetSpell());
+        caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
