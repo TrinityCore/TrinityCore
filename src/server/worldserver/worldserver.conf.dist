@@ -907,9 +907,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     80
+#        Default:     90
 
-MaxPlayerLevel = 80
+MaxPlayerLevel = 90
 
 #
 #    MinDualSpecLevel
@@ -1419,7 +1419,7 @@ BirthdayTime = 1222964635
 #
 #
 
- CacheDataQueries = 1
+CacheDataQueries = 1
 
 #
 #   FeatureSystem.CharacterUndelete.Enabled

@@ -57,6 +57,8 @@ enum WarriorSpells
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_BOUNDING_STRIDE_AURA              = 202163,
     SPELL_WARRIOR_BOUNDING_STRIDE                   = 202164,
+    SPELL_WARRIOR_BRUTAL_FINISH_BUFF                = 446918,
+    SPELL_WARRIOR_BRUTAL_FINISH_TALENT              = 446085,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
@@ -477,6 +479,33 @@ class spell_warr_bloodthirst : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst::CastHeal, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
         OnHit += SpellHitFn(spell_warr_bloodthirst::HandleOnHit);
+    }
+};
+
+// 446085 - Brutal Finish (attached to 446035 - Bladestorm)
+class spell_warr_brutal_finish : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_BRUTAL_FINISH_TALENT, SPELL_WARRIOR_BRUTAL_FINISH_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_WARRIOR_BRUTAL_FINISH_TALENT);
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetTarget();
+        caster->CastSpell(caster, SPELL_WARRIOR_BRUTAL_FINISH_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warr_brutal_finish::HandleEffectRemove, EFFECT_2, SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -3120,6 +3149,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_ashen_juggernaut);
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
+    RegisterSpellScript(spell_warr_brutal_finish);
     RegisterSpellScript(spell_warr_brutal_vitality);
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);

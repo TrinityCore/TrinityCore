@@ -48,6 +48,8 @@ enum PriestSpells
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
     SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
     SPELL_PRIEST_APOTHEOSIS                         = 200183,
+    SPELL_PRIEST_ARCHANGEL                          = 197862,
+    SPELL_PRIEST_ARCHANGEL_AURA                     = 81700,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
     SPELL_PRIEST_ASSURED_SAFETY                     = 440766,
     SPELL_PRIEST_ATONEMENT                          = 81749,
@@ -220,7 +222,9 @@ enum PriestSpells
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
-    SPELL_PRIEST_SEARING_LIGHT                      = 196811,
+    SPELL_PRIEST_SEARING_LIGHT                      = 1280131,
+    SPELL_PRIEST_SEARING_LIGHT_DAMAGE               = 1280134,
+    SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE         = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
@@ -522,6 +526,34 @@ class spell_pri_aq_3p_bonus : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_aq_3p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 197862 - Archangel (attached to 472433 - Evangelism)
+class spell_pri_archangel : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ARCHANGEL, SPELL_PRIEST_ARCHANGEL_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_ARCHANGEL);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PRIEST_ARCHANGEL_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CASTER_AURASTATE | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_pri_archangel::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1182,7 +1214,7 @@ Optional<uint32> GetSpellToCast(uint32 spellId)
         case SPELL_PRIEST_HOLY_WORD_CHASTISE:
         case SPELL_PRIEST_MINDGAMES:
         case SPELL_PRIEST_MINDGAMES_VENTHYR:
-            return SPELL_PRIEST_SEARING_LIGHT;
+            return SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE;
         case SPELL_PRIEST_HOLY_NOVA:
             return SPELL_PRIEST_LIGHT_ERUPTION;
         default:
@@ -4222,6 +4254,31 @@ class spell_pri_sanctuary_absorb : public AuraScript
     }
 };
 
+// 1280131 - Searing Light
+class spell_pri_searing_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_SEARING_LIGHT_DAMAGE, EFFECT_0 } });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        int32 dotDmg = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+        dotDmg /= sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SEARING_LIGHT_DAMAGE, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount();
+
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PRIEST_SEARING_LIGHT_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, dotDmg } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_searing_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // Smite - 585
 class spell_pri_sanctuary_trigger : public SpellScript
 {
@@ -5854,6 +5911,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
+    RegisterSpellScript(spell_pri_archangel);
     RegisterSpellScript(spell_pri_assured_safety);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_effect);
@@ -5957,6 +6015,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_rhapsody);
     RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);
+    RegisterSpellScript(spell_pri_searing_light);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_covenant);
