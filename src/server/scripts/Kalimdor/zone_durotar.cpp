@@ -1382,7 +1382,7 @@ public:
     void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
     {
         if (!apply)
-        { 
+        {
             me->DespawnOrUnsummon(1200ms);
 
             if (who->GetEntry() == NPC_NORTHWATCH_SUPPLY_CRATE)
