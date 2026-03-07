@@ -110,7 +110,8 @@ enum class SpellAuraInterruptFlags : uint32
     Summon                      = 0x40000000,
     LeavingCombat               = 0x80000000,
 
-    NOT_VICTIM                  = (HostileActionReceived | Damage | NonPeriodicDamage)
+    NOT_VICTIM                  = HostileActionReceived | Damage | NonPeriodicDamage,
+    AnyDamageMask               = Damage | NonPeriodicDamage | DamageCancelsScript
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags);

@@ -101,9 +101,7 @@ enum PaladinSpells
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988, // Serverside
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
-    SPELL_PALADIN_JUDGMENT_PROT_RET_R3           = 315867,
+    SPELL_PALADIN_JUDGMENT_RANK_3                = 315867,
     SPELL_PALADIN_LIGHT_HAMMER_COSMETIC          = 122257,
     SPELL_PALADIN_LIGHT_HAMMER_DAMAGE            = 114919,
     SPELL_PALADIN_LIGHT_HAMMER_HEALING           = 119952,
@@ -1044,27 +1042,28 @@ class spell_pal_judgment : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PALADIN_JUDGMENT_PROT_RET_R3,
-            SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER,
-            SPELL_PALADIN_JUDGMENT_HOLY_R3,
-            SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF
+            SPELL_PALADIN_JUDGMENT_RANK_3,
+            SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER
         });
     }
 
-    void HandleOnHit()
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_PALADIN_JUDGMENT_RANK_3);
+    }
+
+    void HandleOnCast() const
     {
         Unit* caster = GetCaster();
-
-        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_PROT_RET_R3))
-            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, GetSpell());
-
-        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_HOLY_R3))
-            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF, GetSpell());
+        caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pal_judgment::HandleOnHit);
+        OnCast += SpellCastFn(spell_pal_judgment::HandleOnCast);
     }
 };
 

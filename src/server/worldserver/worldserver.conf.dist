@@ -799,6 +799,8 @@ CharacterCreating.Disabled = 0
 #                     65536 - (Disabled, Dracthyr Alliance)
 #                     131072 - (Disabled, Earthen Horde)
 #                     262144 - (Disabled, Earthen Alliance)
+#                     524288 - (Disabled, Haranir Horde)
+#                     1048576 - (Disabled, Haranir Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)
@@ -898,9 +900,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     80
+#        Default:     90
 
-MaxPlayerLevel = 80
+MaxPlayerLevel = 90
 
 #
 #    MinDualSpecLevel
@@ -1397,7 +1399,7 @@ BirthdayTime = 1222964635
 #
 #
 
- CacheDataQueries = 1
+CacheDataQueries = 1
 
 #
 #   FeatureSystem.CharacterUndelete.Enabled
