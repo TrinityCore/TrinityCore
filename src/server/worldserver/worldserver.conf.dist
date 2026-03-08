@@ -808,6 +808,8 @@ CharacterCreating.Disabled = 0
 #                     65536 - (Disabled, Dracthyr Alliance)
 #                     131072 - (Disabled, Earthen Horde)
 #                     262144 - (Disabled, Earthen Alliance)
+#                     524288 - (Disabled, Haranir Horde)
+#                     1048576 - (Disabled, Haranir Alliance)
 #                     2097152 - (Disabled, Worgen)
 #                     8388608 - (Disabled, Pandaren Neutral)
 #                     16777216 - (Disabled, Pandaren Alliance)

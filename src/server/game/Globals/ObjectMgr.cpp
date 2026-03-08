@@ -3964,12 +3964,12 @@ void ObjectMgr::LoadPlayerInfo()
             if (!items)
                 continue;
 
-            for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+            for (ChrRacesEntry const* race : sChrRacesStore)
             {
-                if (!characterLoadout->RaceMask.HasRace(raceIndex))
+                if (!characterLoadout->RaceMask.HasRace(race->ID))
                     continue;
 
-                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(characterLoadout->ChrClassID) }))
+                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race->ID), Classes(characterLoadout->ChrClassID) }))
                 {
                     playerInfo->itemContext = ItemContext(characterLoadout->ItemContext);
 
@@ -4023,14 +4023,14 @@ void ObjectMgr::LoadPlayerInfo()
                 Field* fields = result->Fetch();
 
                 uint32 current_race = fields[0].GetUInt8();
-                if (current_race >= MAX_RACES)
+                if (!sChrRacesStore.HasRecord(current_race))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo_item` table, ignoring.", current_race);
                     continue;
                 }
 
                 uint32 current_class = fields[1].GetUInt8();
-                if (current_class >= MAX_CLASSES)
+                if (!sChrClassesStore.HasRecord(current_class))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo_item` table, ignoring.", current_class);
                     continue;
@@ -4055,9 +4055,9 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!current_race || !current_class)
                 {
                     uint32 min_race = current_race ? current_race : 1;
-                    uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
+                    uint32 max_race = current_race ? current_race + 1 : sChrRacesStore.GetNumRows();
                     uint32 min_class = current_class ? current_class : 1;
-                    uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
+                    uint32 max_class = current_class ? current_class + 1 : sChrClassesStore.GetNumRows();
                     for (uint32 r = min_race; r < max_race; ++r)
                         for (uint32 c = min_class; c < max_class; ++c)
                             PlayerCreateInfoAddItemHelper(r, c, item_id, amount);
@@ -4080,11 +4080,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         for (SkillRaceClassInfoEntry const* rcInfo : sSkillRaceClassInfoStore)
             if (rcInfo->Availability == 1)
-                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
-                    if (rcInfo->RaceMask.IsEmpty() || rcInfo->RaceMask.HasRace(raceIndex))
+                for (ChrRacesEntry const* race : sChrRacesStore)
+                    if (rcInfo->RaceMask.IsEmpty() || rcInfo->RaceMask.HasRace(race->ID))
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                             if (rcInfo->ClassMask == -1 || rcInfo->ClassMask == 0 || ((1 << (classIndex - 1)) & rcInfo->ClassMask))
-                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
+                                if (PlayerInfo* playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race->ID), Classes(classIndex) }))
                                     playerInfo->skills.push_back(rcInfo);
 
         TC_LOG_INFO("server.loading", ">> Loaded player create skills in {} ms", GetMSTimeDiffToNow(oldMSTime));
@@ -4124,15 +4124,15 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+                for (ChrRacesEntry const* race : sChrRacesStore)
                 {
-                    if (raceMask.IsEmpty() || raceMask.HasRace(raceIndex))
+                    if (raceMask.IsEmpty() || raceMask.HasRace(race->ID))
                     {
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
+                                if (PlayerInfo* playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, {Races(race->ID), Classes(classIndex)}))
                                 {
                                     playerInfo->customSpells.push_back(spellId);
                                     ++count;
@@ -4191,15 +4191,15 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+                for (ChrRacesEntry const* race : sChrRacesStore)
                 {
-                    if (raceMask.IsEmpty() || raceMask.HasRace(raceIndex))
+                    if (raceMask.IsEmpty() || raceMask.HasRace(race->ID))
                     {
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
+                                if (PlayerInfo* playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race->ID), Classes(classIndex) }))
                                 {
                                     playerInfo->castSpells[playerCreateMode].push_back(spellId);
                                     ++count;
@@ -4235,14 +4235,14 @@ void ObjectMgr::LoadPlayerInfo()
                 Field* fields = result->Fetch();
 
                 uint32 current_race = fields[0].GetUInt8();
-                if (current_race >= MAX_RACES)
+                if (!sChrRacesStore.HasRecord(current_race))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo_action` table, ignoring.", current_race);
                     continue;
                 }
 
                 uint32 current_class = fields[1].GetUInt8();
-                if (current_class >= MAX_CLASSES)
+                if (!sChrClassesStore.HasRecord(current_class))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo_action` table, ignoring.", current_class);
                     continue;
@@ -4264,10 +4264,15 @@ void ObjectMgr::LoadPlayerInfo()
     {
         struct RaceStats
         {
+            Races Race;
             std::array<int16, MAX_STATS> StatModifier = { };
+
+            explicit RaceStats(Races race) : Race(race) { }
+            std::strong_ordering operator<=>(RaceStats const& right) const { return Race <=> right.Race; }
+            bool operator==(RaceStats const& right) const { return Race == right.Race; }
         };
 
-        std::array<RaceStats, MAX_RACES> raceStatModifiers = { };
+        Trinity::Containers::FlatSet<RaceStats> raceStatModifiers;
 
         uint32 oldMSTime = getMSTime();
 
@@ -4284,14 +4289,15 @@ void ObjectMgr::LoadPlayerInfo()
             Field* fields = raceStatsResult->Fetch();
 
             uint32 current_race = fields[0].GetUInt8();
-            if (current_race >= MAX_RACES)
+            if (!sChrRacesStore.HasRecord(current_race))
             {
                 TC_LOG_ERROR("sql.sql", "Wrong race {} in `player_racestats` table, ignoring.", current_race);
                 continue;
             }
 
+            RaceStats& stats = *raceStatModifiers.emplace(Races(current_race)).first;
             for (uint32 i = 0; i < MAX_STATS; ++i)
-                raceStatModifiers[current_race].StatModifier[i] = fields[i + 1].GetInt16();
+                stats.StatModifier[i] = fields[i + 1].GetInt16();
 
         } while (raceStatsResult->NextRow());
 
@@ -4311,7 +4317,7 @@ void ObjectMgr::LoadPlayerInfo()
             Field* fields = result->Fetch();
 
             uint32 current_class = fields[0].GetUInt8();
-            if (current_class >= MAX_CLASSES)
+            if (!sChrClassesStore.HasRecord(current_class))
             {
                 TC_LOG_ERROR("sql.sql", "Wrong class {} in `player_classlevelstats` table, ignoring.", current_class);
                 continue;
@@ -4328,16 +4334,16 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            for (std::size_t race = 0; race < raceStatModifiers.size(); ++race)
+            for (RaceStats const& raceStats : raceStatModifiers)
             {
-                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(current_class) }))
+                if (PlayerInfo* playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { raceStats.Race, Classes(current_class) }))
                 {
                     if (!playerInfo->levelInfo)
                         playerInfo->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
 
                     PlayerLevelInfo& levelInfo = playerInfo->levelInfo[current_level - 1];
                     for (uint8 i = 0; i < MAX_STATS; ++i)
-                        levelInfo.stats[i] = fields[i + 2].GetInt32() + raceStatModifiers[race].StatModifier[i];
+                        levelInfo.stats[i] = fields[i + 2].GetInt32() + raceStats.StatModifier[i];
                 }
             }
 
@@ -4346,64 +4352,24 @@ void ObjectMgr::LoadPlayerInfo()
         while (result->NextRow());
 
         // Fill gaps and check integrity
-        for (uint8 race = 0; race < MAX_RACES; ++race)
+        for (auto const& [raceClass, playerInfo] : _playerInfo)
         {
-            // skip non existed races
-            if (!sChrRacesStore.LookupEntry(race))
-                continue;
+            auto [race, class_] = raceClass;
 
-            for (uint8 class_ = 0; class_ < MAX_CLASSES; ++class_)
+            // fatal error if no level 1 data
+            if (!playerInfo->levelInfo || playerInfo->levelInfo[0].stats[0] == 0)
             {
-                // skip non existed classes
-                if (!sChrClassesStore.LookupEntry(class_))
-                    continue;
+                TC_LOG_ERROR("sql.sql", "Race {} Class {} Level 1 does not have stats data!", race, class_);
+                ABORT();
+            }
 
-                auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
-                if (!playerInfo)
-                    continue;
-
-                // skip expansion races if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_BURNING_CRUSADE && (race == RACE_BLOODELF || race == RACE_DRAENEI))
-                    continue;
-
-                // skip expansion classes if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_WRATH_OF_THE_LICH_KING && class_ == CLASS_DEATH_KNIGHT)
-                    continue;
-
-                // skip expansion races if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_CATACLYSM && (race == RACE_GOBLIN || race == RACE_WORGEN))
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_MISTS_OF_PANDARIA && (race == RACE_PANDAREN_NEUTRAL || race == RACE_PANDAREN_HORDE || race == RACE_PANDAREN_ALLIANCE))
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && (class_ == CLASS_EVOKER || race == RACE_DRACTHYR_ALLIANCE || race == RACE_DRACTHYR_HORDE))
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_WAR_WITHIN && (race == RACE_EARTHEN_DWARF_HORDE || race == RACE_EARTHEN_DWARF_ALLIANCE))
-                    continue;
-
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_MIDNIGHT && (race == RACE_HARRONIR_HORDE || race == RACE_HARRONIR_ALLIANCE))
-                    continue;
-
-                // fatal error if no level 1 data
-                if (!playerInfo->levelInfo || playerInfo->levelInfo[0].stats[0] == 0)
+            // fill level gaps
+            for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            {
+                if (playerInfo->levelInfo[level].stats[0] == 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Race {} Class {} Level 1 does not have stats data!", race, class_);
-                    ABORT();
-                }
-
-                // fill level gaps
-                for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-                {
-                    if (playerInfo->levelInfo[level].stats[0] == 0)
-                    {
-                        TC_LOG_ERROR("sql.sql", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
-                        playerInfo->levelInfo[level] = playerInfo->levelInfo[level - 1];
-                    }
+                    TC_LOG_ERROR("sql.sql", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
+                    playerInfo->levelInfo[level] = playerInfo->levelInfo[level - 1];
                 }
             }
         }
@@ -4488,10 +4454,10 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
 {
-    if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
+    if (level < 1)
         return;
 
-    PlayerInfo const* pInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, {Races(race), Classes(class_)});
+    PlayerInfo const* pInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
     if (!pInfo)
         return;
 
@@ -10896,10 +10862,6 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
-    if (race >= MAX_RACES)
-        return nullptr;
-    if (class_ >= MAX_CLASSES)
-        return nullptr;
     return Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
 }
 
