@@ -41,6 +41,13 @@ struct QuestLineStats { uint32 Completed = 0; uint32 Total = 0; };
 TC_GAME_API QuestLineStats GetQuestLineStatsForPlayer(uint32 questLineId, Player const* player);
 
 TC_GAME_API void SkipQuestLineForPlayer(uint32 questLineId, Player* player);
+
+// Campaign
+TC_GAME_API bool IsCampaignCompletedByPlayer(uint32 campaignId, Player const* player);
+
+TC_GAME_API bool IsCampaignQuestStatusVisibleForPlayer(uint32 questId, Player const* player);
+
+TC_GAME_API void SkipCampaignForPlayer(uint32 campaignId, Player* player);
 }
 
 #endif // TRINITYCORE_CAMPAIGN_MGR_H

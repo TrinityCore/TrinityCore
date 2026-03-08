@@ -3998,6 +3998,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (referencePlayer->m_activePlayerData->TimerunningSeasonID != int32(reqValue))
                 return false;
             break;
+        case ModifierTreeType::PlayerHasCompletedCampaign: // 388
+            if (!QuestMgr::IsCampaignCompletedByPlayer(reqValue, referencePlayer))
+                return false;
+            break;
         case ModifierTreeType::TargetCreatureClassificationEqual: // 389
         {
             Creature const* targetCreature = Object::ToCreature(ref);
