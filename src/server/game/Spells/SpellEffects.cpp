@@ -63,6 +63,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestMgr.h"
 #include "ReputationMgr.h"
 #include "RestMgr.h"
 #include "SceneObject.h"
@@ -399,7 +400,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //309 SPELL_EFFECT_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //310 SPELL_EFFECT_310
-    &Spell::EffectNULL,                                     //311 SPELL_EFFECT_ENSURE_WORLD_LOADED
+    &Spell::EffectSkipQuestLine,                            //311 SPELL_EFFECT_SKIP_QUESTLINE
     &Spell::EffectNULL,                                     //312 SPELL_EFFECT_312
     &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
@@ -6252,6 +6253,18 @@ void Spell::EffectUpdateInteractions()
         return;
 
     target->UpdateVisibleObjectInteractions(true, false, true, true);
+}
+
+void Spell::EffectSkipQuestLine()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    QuestMgr::SkipQuestLineForPlayer(effectInfo->MiscValue, target);
 }
 
 void Spell::EffectLearnWarbandScene()

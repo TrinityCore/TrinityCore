@@ -82,6 +82,7 @@
 #include "Player.h"
 #include "PlayerDump.h"
 #include "PoolMgr.h"
+#include "QuestMgr.h"
 #include "QuestPools.h"
 #include "RealmList.h"
 #include "ScenarioMgr.h"
@@ -1579,6 +1580,7 @@ bool World::SetInitialWorldSettings()
     WeatherMgr::LoadWeatherData();
 
     TC_LOG_INFO("server.loading", "Loading Quests...");
+    QuestMgr::Load();
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
 
     TC_LOG_INFO("server.loading", "Checking Quest Disables");

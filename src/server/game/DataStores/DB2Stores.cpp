@@ -519,7 +519,6 @@ namespace
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
-    std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -1496,14 +1495,6 @@ void DB2Manager::IndexLoadedStores()
                 _pvpTalentSlotUnlock[i] = talentUnlock;
             }
         }
-    }
-
-    {
-        for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-            _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
-
-        for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
-            std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -2945,11 +2936,6 @@ int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) cons
             ++slots;
 
     return slots;
-}
-
-std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_questsByQuestLine, questLineId);
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const

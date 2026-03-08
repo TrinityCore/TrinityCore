@@ -16148,10 +16148,10 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
     return result;
 }
 
-void Player::SkipQuests(std::vector<uint32> const& questIds)
+void Player::SkipQuests(std::span<uint32 const> questIds)
 {
     bool updateVisibility = false;
-    for (uint32 const& questId : questIds)
+    for (uint32 questId : questIds)
     {
         Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
         if (!quest)

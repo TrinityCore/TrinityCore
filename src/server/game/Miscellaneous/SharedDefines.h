@@ -1650,7 +1650,7 @@ enum SpellEffectName
     SPELL_EFFECT_CANCEL_PRELOAD_WORLD               = 308,
     SPELL_EFFECT_PRELOAD_WORLD                      = 309,
     SPELL_EFFECT_310                                = 310,
-    SPELL_EFFECT_ENSURE_WORLD_LOADED                = 311,
+    SPELL_EFFECT_SKIP_QUESTLINE                     = 311,
     SPELL_EFFECT_312                                = 312,
     SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
     SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID

@@ -3486,6 +3486,8 @@ struct QuestLineXQuestEntry
     uint32 OrderIndex;
     int32 Flags;
     int32 Unknown1110;
+
+    bool HasFlag(QuestLineXQuestFlags flag) const { return EnumFlag(static_cast<QuestLineXQuestFlags>(Flags)).HasFlag(flag); }
 };
 
 struct QuestMoneyRewardEntry

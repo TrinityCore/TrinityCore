@@ -2280,6 +2280,13 @@ enum PrestigeLevelInfoFlags : uint8
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
+enum class QuestLineXQuestFlags : int32
+{
+    IgnoreForCompletion = 0x01
+};
+
+DEFINE_ENUM_FLAG(QuestLineXQuestFlags);
+
 enum QuestPackageFilter
 {
     QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION    = 0,    // Players can select this quest reward if it matches their selected loot specialization
