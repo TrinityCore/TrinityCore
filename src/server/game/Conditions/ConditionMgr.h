@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Hash.h"
+#include "StringFormatFwd.h"
 #include <array>
 #include <memory>
 #include <string>
@@ -287,8 +288,13 @@ struct TC_GAME_API Condition
     uint32 GetSearcherTypeMaskForCondition() const;
     bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId || ScriptId; }
     uint32 GetMaxAvailableConditionTargets() const;
+};
 
-    std::string ToString(bool ext = false) const; /// For logging purpose
+template <>
+struct fmt::formatter<Condition, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    static auto format(Condition const& condition, FormatContext& ctx) -> decltype(ctx.out());
 };
 
 typedef std::vector<Condition> ConditionContainer;
@@ -364,7 +370,7 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
         static void LogUselessConditionValue(Condition const* cond, uint8 index, uint32 value);
-        static void LogUselessConditionValue(Condition const* cond, uint8 index, std::string_view value);
+        static void LogUselessConditionValue(Condition const* cond, uint8 index, std::string const& value);
 
         void Clean(); // free up resources
 
