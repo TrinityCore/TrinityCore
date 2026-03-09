@@ -1783,17 +1783,19 @@ class spell_borean_tundra_drake_hatchling_subdued : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+        switch (GetTargetApplication()->GetRemoveMode())
         {
-            if (Unit* caster = GetCaster())
-                if (Creature* creature = caster->ToCreature())
+            case AURA_REMOVE_BY_DEFAULT:
+                if (Unit* caster = GetCaster())
+                    GetTarget()->CastSpell(caster, SPELL_DRAKE_TURN_IN, true);
+                break;
+            case AURA_REMOVE_BY_EXPIRE:
+            case AURA_REMOVE_BY_DEATH:
+                if (Creature* creature = Object::ToCreature(GetCaster()))
                     creature->DespawnOrUnsummon();
-        }
-
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT)
-        {
-            if (Unit* caster = GetCaster())
-                GetTarget()->CastSpell(caster, SPELL_DRAKE_TURN_IN, true);
+                break;
+            default:
+                break;
         }
     }
 
