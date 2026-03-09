@@ -2151,9 +2151,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
     {
         case CONDITION_NONE:
         {
-            if (!cond->ScriptId)
+            if (!cond->NegativeCondition && !cond->ScriptId)
             {
-                TC_LOG_ERROR("sql.sql", "{} must have a `ScriptName` in `condition` table, ignoring.", *cond);
+                TC_LOG_ERROR("sql.sql", "{} must have `NegativeCondition` or `ScriptName` in `condition` table, ignoring.", *cond);
                 return false;
             }
             break;
