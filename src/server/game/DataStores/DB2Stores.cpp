@@ -1861,6 +1861,9 @@ void DB2Manager::LoadHotfixData(uint32 localeMask)
 {
     uint32 oldMSTime = getMSTime();
 
+    // Clear existing hotfix data before reloading
+    _hotfixData.clear();
+
     QueryResult result = HotfixDatabase.Query("SELECT Id, UniqueId, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
 
     if (!result)

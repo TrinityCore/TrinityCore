@@ -38,10 +38,31 @@ DB2StorageBase::~DB2StorageBase()
     delete[] _indexTable;
 }
 
+bool DB2StorageBase::HasRecord(uint32 id) const
+{
+    auto snapshot = std::atomic_load(&_snapshot);
+    return snapshot && id < snapshot->TableSize && snapshot->IndexTable[id] != nullptr;
+}
+
+uint32 DB2StorageBase::GetNumRows() const
+{
+    auto snapshot = std::atomic_load(&_snapshot);
+    return snapshot ? snapshot->TableSize : 0;
+}
+
+void DB2StorageBase::EraseRecord(uint32 id)
+{
+    if (id < _indexTableSize)
+        _indexTable[id] = nullptr;
+    // Commit snapshot to make change visible to readers
+    CommitSnapshot();
+}
+
 void DB2StorageBase::WriteRecord(uint32 id, LocaleConstant locale, ByteBuffer& buffer) const
 {
-    ASSERT(id < _indexTableSize);
-    char const* entry = ASSERT_NOTNULL(_indexTable[id]);
+    auto snapshot = std::atomic_load(&_snapshot);
+    ASSERT(snapshot && id < snapshot->TableSize);
+    char const* entry = ASSERT_NOTNULL(snapshot->IndexTable[id]);
 
     if (!_loadInfo->Meta->HasIndexFieldInData())
         entry += 4;
@@ -85,6 +106,23 @@ void DB2StorageBase::WriteRecord(uint32 id, LocaleConstant locale, ByteBuffer& b
     }
 }
 
+void DB2StorageBase::CommitSnapshot()
+{
+    if (!_indexTable || _indexTableSize == 0)
+        return;
+
+    // Create a COPY of the index table for the snapshot
+    // This ensures readers have a consistent view even if _indexTable is reallocated
+    char** snapshotTable = new char* [_indexTableSize];
+    memcpy(snapshotTable, _indexTable, _indexTableSize * sizeof(char*));
+
+    // Create new snapshot (takes ownership of snapshotTable)
+    auto newSnapshot = std::make_shared<DB2IndexTableSnapshot>(snapshotTable, _indexTableSize, _minId);
+
+    // Atomically replace the snapshot (old snapshot will be deleted when no longer referenced)
+    std::atomic_store(&_snapshot, newSnapshot);
+}
+
 void DB2StorageBase::Load(std::string const& path, LocaleConstant locale)
 {
     DB2FileLoader db2;
@@ -105,6 +143,9 @@ void DB2StorageBase::Load(std::string const& path, LocaleConstant locale)
         _stringPool.push_back(stringBlock);
 
     db2.AutoProduceRecordCopies(_indexTableSize, _indexTable, _dataTable);
+
+    // Commit snapshot to make data visible to readers
+    CommitSnapshot();
 }
 
 void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant locale)
@@ -122,15 +163,23 @@ void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant loc
     if (_loadInfo->GetStringFieldCount(true))
         if (char* stringBlock = db2.AutoProduceStrings(_indexTable, _indexTableSize, locale))
             _stringPool.push_back(stringBlock);
+
+    // No need to commit snapshot - strings are stored separately
+    // and the index table pointers haven't changed
 }
 
 void DB2StorageBase::LoadFromDB()
 {
     DB2DatabaseLoader loader(_fileName, _loadInfo);
 
+    // Note: loader.Load may reallocate _indexTable, which invalidates old pointers
+    // But we use snapshots - readers use a COPY of the table, so they're safe
     _dataTableEx[0] = loader.Load(false, _indexTableSize, _indexTable, _stringPool, _minId);
     _dataTableEx[1] = loader.Load(true, _indexTableSize, _indexTable, _stringPool, _minId);
     _stringPool.shrink_to_fit();
+
+    // Commit snapshot to make data visible to readers
+    CommitSnapshot();
 }
 
 void DB2StorageBase::LoadStringsFromDB(LocaleConstant locale)
@@ -142,4 +191,7 @@ void DB2StorageBase::LoadStringsFromDB(LocaleConstant locale)
     loader.LoadStrings(false, locale, _indexTableSize, _indexTable, _stringPool);
     loader.LoadStrings(true, locale, _indexTableSize, _indexTable, _stringPool);
     _stringPool.shrink_to_fit();
+
+    // Commit snapshot after strings are updated
+    CommitSnapshot();
 }
