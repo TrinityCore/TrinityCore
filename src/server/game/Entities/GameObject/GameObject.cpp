@@ -1087,7 +1087,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
             SetGoAnimProgress(animProgress);
-            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock);
+            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, std::max(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock));
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
         {
@@ -1443,7 +1443,7 @@ void GameObject::Update(uint32 diff)
                                 break;
                             case GAMEOBJECT_TYPE_FISHINGHOLE:
                                 // Initialize a new max fish count on respawn
-                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock);
+                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, std::max(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock));
                                 break;
                             default:
                                 break;
