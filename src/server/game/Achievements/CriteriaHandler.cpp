@@ -40,6 +40,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestMgr.h"
 #include "RBAC.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -3277,15 +3278,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerIsOnQuestInQuestline: // 236
         {
-            bool isOnQuest = false;
-            if (std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue))
-            {
-                isOnQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-                {
-                    return referencePlayer->FindQuestSlot(questLineQuest->QuestID) < MAX_QUEST_LOG_SIZE;
-                });
-            }
-            if (!isOnQuest)
+            if (!QuestMgr::IsQuestLineQuestActiveForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
@@ -3312,52 +3305,26 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerCanAcceptQuestInQuestline: // 240
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            bool canTakeQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-            {
-                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
-                    return referencePlayer->CanTakeQuest(quest, false);
-                return false;
-            });
-            if (!canTakeQuest)
+            if (!QuestMgr::IsQuestLineQuestAvailableForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestline: // 241
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
+            if (!QuestMgr::IsQuestLineCompletedByPlayer(reqValue, referencePlayer))
                 return false;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (!referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestlineQuestCount: // 242
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            uint32 completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (completedQuests < reqValue)
+            if (QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer).Completed < reqValue)
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedPercentageOfQuestline: // 243
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests || questLineQuests->empty())
-                return false;
-            std::size_t completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (GetPctOf(completedQuests, questLineQuests->size()) < reqValue)
+            QuestMgr::QuestLineStats questLineStats = QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer);
+            if (GetPctOf(questLineStats.Completed, questLineStats.Total) < reqValue)
                 return false;
             break;
         }
@@ -4029,6 +3996,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerIsInTimerunningSeason: // 386
             if (referencePlayer->m_activePlayerData->TimerunningSeasonID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerHasCompletedCampaign: // 388
+            if (!QuestMgr::IsCampaignCompletedByPlayer(reqValue, referencePlayer))
                 return false;
             break;
         case ModifierTreeType::TargetCreatureClassificationEqual: // 389

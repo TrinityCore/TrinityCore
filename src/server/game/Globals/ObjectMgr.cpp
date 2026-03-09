@@ -59,6 +59,7 @@
 #include "QueryPackets.h"
 #include "QueryResultStructured.h"
 #include "QuestDef.h"
+#include "QuestMgr.h"
 #include "Random.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -11809,7 +11810,7 @@ void ObjectMgr::LoadUiMapQuestLines()
             continue;
         }
 
-        if (!sDB2Manager.GetQuestsForQuestLine(questLineId))
+        if (QuestMgr::GetQuestsForQuestLine(questLineId).empty())
         {
             TC_LOG_ERROR("sql.sql", "Table `ui_map_quest_line` references empty or non-existing questline {}, skipped", questLineId);
             continue;

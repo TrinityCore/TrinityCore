@@ -571,6 +571,34 @@ struct BroadcastTextDurationEntry
     uint32 BroadcastTextID;
 };
 
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Stalled;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 SortAsNormalQuest;
+    int32 UseMinimalHeader;
+
+    bool HasFlag(CampaignFlags flag) const { return EnumFlag(static_cast<CampaignFlags>(Flags)).HasFlag(flag); }
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_CategoriesEntry
 {
     uint32 ID;
@@ -3723,6 +3751,8 @@ struct QuestLineXQuestEntry
     uint32 OrderIndex;
     int32 Flags;
     int32 Unknown1110;
+
+    bool HasFlag(QuestLineXQuestFlags flag) const { return EnumFlag(static_cast<QuestLineXQuestFlags>(Flags)).HasFlag(flag); }
 };
 
 struct QuestMoneyRewardEntry

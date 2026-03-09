@@ -35,6 +35,7 @@
 #include "PlayerChoice.h"
 #include "PoolMgr.h"
 #include "QuestDef.h"
+#include "QuestMgr.h"
 #include "QuestPackets.h"
 #include "QuestPools.h"
 #include "ReputationMgr.h"
@@ -855,12 +856,12 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
     {
         for (uint32 questLineId : *questLines)
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(questLineId);
-            if (!questLineQuests)
+            std::span<QuestLineXQuestEntry const* const> questLineQuests = QuestMgr::GetQuestsForQuestLine(questLineId);
+            if (questLineQuests.empty())
                 continue;
 
             bool isQuestLineCompleted = true;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
+            for (QuestLineXQuestEntry const* questLineQuest : questLineQuests)
             {
                 if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
                 {
