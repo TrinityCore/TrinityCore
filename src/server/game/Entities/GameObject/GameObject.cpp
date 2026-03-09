@@ -343,7 +343,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
             SetGoAnimProgress(animprogress);
-            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+            if (GetGOInfo()->fishinghole.minSuccessOpens <= GetGOInfo()->fishinghole.maxSuccessOpens)
+                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
             m_goValue.Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
@@ -615,7 +616,8 @@ void GameObject::Update(uint32 diff)
                                 break;
                             case GAMEOBJECT_TYPE_FISHINGHOLE:
                                 // Initialize a new max fish count on respawn
-                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+                                if (GetGOInfo()->fishinghole.minSuccessOpens <= GetGOInfo()->fishinghole.maxSuccessOpens)
+                                    m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
                                 break;
                             default:
                                 break;
