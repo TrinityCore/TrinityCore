@@ -49,7 +49,6 @@ EndScriptData */
 #include "RBAC.h"
 #include "RolePlay.h"
 #include "SmartEnum.h"
-#include "SpellMgr.h"
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -117,10 +116,10 @@ public:
 
         static ChatCommandTable npcCommandTable =
         {
-            { "add", npcAddCommandTable },
-            { "set", npcSetCommandTable },
-            { "equip", npcEquipCommandTable },
-            { "unequip", npcUnequipCommandTable },
+            { "add",            npcAddCommandTable                                                                         },
+            { "set",            npcSetCommandTable                                                                         },
+            { "equip",          npcEquipCommandTable                                                                       },
+            { "unequip",        npcUnequipCommandTable                                                                     },
             { "info",           HandleNpcInfoCommand,              rbac::RBAC_PERM_COMMAND_NPC_INFO,           Console::No },
             { "near",           HandleNpcNearCommand,              rbac::RBAC_PERM_COMMAND_NPC_NEAR,           Console::No },
             { "move",           HandleNpcMoveCommand,              rbac::RBAC_PERM_COMMAND_NPC_MOVE,           Console::No },
@@ -141,7 +140,7 @@ public:
         };
         static ChatCommandTable commandTable =
         {
-            { "npc", npcCommandTable },
+            { "npc",            npcCommandTable                                                                            },
         };
         return commandTable;
     }

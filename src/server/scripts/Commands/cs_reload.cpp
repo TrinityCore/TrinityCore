@@ -62,10 +62,7 @@ EndScriptData */
 #include "PacketUtilities.h"
 #include "WorldSocket.h"
 #include "ClientConfigPackets.h"
-#include "WorldSession.h"
 #include "WorldPacket.h"
-#include "WorldSocket.h"
-#include "ObjectAccessor.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DynamicObject.h"
@@ -506,9 +503,18 @@ public:
         {
             for (auto e : map->GetCreatureBySpawnIdStore())
             {
-                auto const& outfit = e.second->GetOutfit();
-                if (outfit && outfit->GetId())
-                    e.second->SetDisplayId(outfit->GetId());
+                // Get current outfit from creature
+                std::shared_ptr<CreatureOutfit> const& oldOutfit = e.second->GetOutfit();
+                if (!oldOutfit || !oldOutfit->GetId())
+                    continue;
+
+                // Get updated outfit from ObjectMgr by outfit ID
+                std::shared_ptr<CreatureOutfit> const& newOutfit = sObjectMgr->GetOutfit(oldOutfit->GetId());
+                if (newOutfit)
+                {
+                    // Update creature with new outfit (this will also update displayId)
+                    e.second->SetOutfit(newOutfit);
+                }
             }
         });
 
