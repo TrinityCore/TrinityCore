@@ -35,140 +35,6 @@
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 
- /*######
- ## Quest 11590: Abduction
- ######*/
-
-// NPC 25316: Beryl Sorcerer
-enum BerylSorcerer
-{
-    EVENT_FROSTBOLT                                = 1,
-    EVENT_ARCANE_CHAINS,
-
-    NPC_LIBRARIAN_DONATHAN                         = 25262,
-    NPC_CAPTURED_BERLY_SORCERER                    = 25474,
-
-    SPELL_FROSTBOLT                                = 9672,
-    SPELL_ARCANE_CHAINS                            = 45611,
-    SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST       = 45625,
-    SPELL_ARCANE_CHAINS_SUMMON_CHAINED_MAGE_HUNTER = 45626,
-    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF             = 45631,
-    SPELL_ARCANE_CHAINS_CHANNEL_II                 = 45735
-};
-
-struct npc_beryl_sorcerer : public ScriptedAI
-{
-    npc_beryl_sorcerer(Creature* creature) : ScriptedAI(creature), _chainsCast(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_AGGRESSIVE);
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        if (me->IsValidAttackTarget(who))
-            AttackStart(who);
-
-        _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
-    }
-
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-    {
-        if (_chainsCast)
-            return;
-
-        if (spellInfo->Id == SPELL_ARCANE_CHAINS && caster->IsPlayer())
-        {
-            _playerGUID = caster->GetGUID();
-            _chainsCast = true;
-            _events.ScheduleEvent(EVENT_ARCANE_CHAINS, 4s);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_FROSTBOLT:
-                    DoCastVictim(SPELL_FROSTBOLT);
-                    _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
-                    break;
-                case EVENT_ARCANE_CHAINS:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        me->CastSpell(player, SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST);
-                        player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
-                    }
-                    me->DespawnOrUnsummon();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        DoMeleeAttackIfReady();
-    }
-private:
-    EventMap _events;
-    bool _chainsCast;
-    ObjectGuid _playerGUID;
-};
-
-// NPC 25474: Captured Beryl Sorcerer
-struct npc_captured_beryl_sorcerer : public FollowerAI
-{
-    npc_captured_beryl_sorcerer(Creature* creature) : FollowerAI(creature) { }
-
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_DEFENSIVE);
-        me->SetImmuneToAll(true);
-        if (TempSummon const* tempSummon = me->ToTempSummon())
-        {
-            if (Player* summoner = Object::ToPlayer(tempSummon->GetSummoner()))
-            {
-                summoner->CastSpell(summoner, SPELL_ARCANE_CHAINS_CHANNEL_II);
-                StartFollow(summoner);
-            }
-        }
-    }
-
-    void MoveInLineOfSight(Unit* who) override
-    {
-        FollowerAI::MoveInLineOfSight(who);
-
-        if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-        {
-            SetFollowComplete();
-            me->DespawnOrUnsummon();
-        }
-    }
-};
-
-// Spell 45625: - Arcane Chains: Character Force Cast
-class spell_arcane_chains_character_force_cast : public SpellScript
-{
-    PrepareSpellScript(spell_arcane_chains_character_force_cast);
-
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
-    {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_ARCANE_CHAINS_SUMMON_CHAINED_MAGE_HUNTER); // Player cast back 45626 on npc
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_arcane_chains_character_force_cast::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 /*######
 ## Quest 11865: Unfit for Death
 ######*/
@@ -415,40 +281,6 @@ private:
     ObjectGuid _mammothGUID;
 };
 
-enum red_dragonblood
-{
-    SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
-    SPELL_SUBDUED = 46675
-};
-
-// 46620 - Red Dragonblood
-class spell_red_dragonblood : public AuraScript
-{
-    PrepareAuraScript(spell_red_dragonblood);
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
-            return;
-
-        Creature* owner = GetOwner()->ToCreature();
-        owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
-        owner->CombatStop(true);
-        owner->GetMotionMaster()->Clear();
-        owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
-        owner->CastSpell(owner, SPELL_SUBDUED, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-        owner->SetFaction(FACTION_FRIENDLY);
-        owner->SetImmuneToAll(true);
-        owner->DespawnOrUnsummon(3min);
-    }
-
-    void Register()
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 /*######
 ## Valiance Keep Cannoneer script to activate cannons
 ######*/
@@ -494,208 +326,6 @@ struct npc_valiance_keep_cannoneer : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-    }
-};
-
-/*######
-## npc_hidden_cultist
-######*/
-
-enum HiddenCultist
-{
-    SPELL_SHROUD_OF_THE_DEATH_CULTIST           = 46077, //not working
-    SPELL_RIGHTEOUS_VISION                      = 46078, //player aura
-
-    QUEST_THE_HUNT_IS_ON                        = 11794,
-
-    GOSSIP_TEXT_SALTY_JOHN_THORPE               = 12529,
-    GOSSIP_TEXT_GUARD_MITCHELSS                 = 12530,
-    GOSSIP_TEXT_TOM_HEGGER                      = 12528,
-
-    NPC_TOM_HEGGER                              = 25827,
-    NPC_SALTY_JOHN_THORPE                       = 25248,
-    NPC_GUARD_MITCHELLS                         = 25828,
-
-    SAY_HIDDEN_CULTIST_1                        = 0,
-    SAY_HIDDEN_CULTIST_2                        = 1,
-    SAY_HIDDEN_CULTIST_3                        = 2,
-    SAY_HIDDEN_CULTIST_4                        = 3,
-
-    GOSSIP_ITEM_TOM_HEGGER_MENUID               = 9217, //What do you know about the Cult of the Damned?
-    GOSSIP_ITEM_GUARD_MITCHELLS_MENUID          = 9219, //How long have you worked for the Cult of the Damned?
-    GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID        = 9218, //I have a reason to believe you're involved in the cultist activity
-    GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID         = 0
-};
-
-struct npc_hidden_cultist : public ScriptedAI
-{
-    npc_hidden_cultist(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-        uiEmoteState = creature->GetEmoteState();
-        uiNpcFlags = creature->GetNpcFlags();
-    }
-
-    void Initialize()
-    {
-        uiEventTimer = 0;
-        uiEventPhase = 0;
-
-        uiPlayerGUID.Clear();
-    }
-
-    Emote uiEmoteState;
-    NPCFlags uiNpcFlags;
-
-    uint32 uiEventTimer;
-    uint8 uiEventPhase;
-
-    ObjectGuid uiPlayerGUID;
-
-    void Reset() override
-    {
-        if (uiEmoteState)
-            me->SetEmoteState(uiEmoteState);
-
-        if (uiNpcFlags)
-            me->ReplaceAllNpcFlags(uiNpcFlags);
-
-        Initialize();
-
-        DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
-
-        me->RestoreFaction();
-    }
-
-    void DoAction(int32 /*iParam*/) override
-    {
-        me->StopMoving();
-        me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
-        me->SetEmoteState(EMOTE_ONESHOT_NONE);
-        if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-            me->SetFacingToObject(player);
-        uiEventTimer = 3000;
-        uiEventPhase = 1;
-    }
-
-    void AttackPlayer()
-    {
-        me->SetFaction(FACTION_MONSTER);
-        if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-            AttackStart(player);
-    }
-
-    void UpdateAI(uint32 uiDiff) override
-    {
-        if (uiEventTimer && uiEventTimer <= uiDiff)
-        {
-            switch (uiEventPhase)
-            {
-                case 1:
-                    switch (me->GetEntry())
-                    {
-                        case NPC_SALTY_JOHN_THORPE:
-                            Talk(SAY_HIDDEN_CULTIST_1);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                        case NPC_GUARD_MITCHELLS:
-                            Talk(SAY_HIDDEN_CULTIST_2);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                        case NPC_TOM_HEGGER:
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-                                Talk(SAY_HIDDEN_CULTIST_3, player);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                    }
-                    break;
-                case 2:
-                    switch (me->GetEntry())
-                    {
-                        case NPC_SALTY_JOHN_THORPE:
-                            Talk(SAY_HIDDEN_CULTIST_4);
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-                                me->SetFacingToObject(player);
-                            uiEventTimer = 3000;
-                            uiEventPhase = 3;
-                            break;
-                        case NPC_GUARD_MITCHELLS:
-                        case NPC_TOM_HEGGER:
-                            AttackPlayer();
-                            uiEventPhase = 0;
-                            break;
-                    }
-                    break;
-                case 3:
-                    if (me->GetEntry() == NPC_SALTY_JOHN_THORPE)
-                    {
-                        AttackPlayer();
-                        uiEventPhase = 0;
-                    }
-                    break;
-            }
-        }else uiEventTimer -= uiDiff;
-
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-
-    bool OnGossipHello(Player* player) override
-    {
-        uint32 uiGossipText = 0;
-        uint32 charGossipItem = 0;
-
-        switch (me->GetEntry())
-        {
-            case NPC_TOM_HEGGER:
-                uiGossipText = GOSSIP_TEXT_TOM_HEGGER;
-                charGossipItem = GOSSIP_ITEM_TOM_HEGGER_MENUID;
-                break;
-            case NPC_SALTY_JOHN_THORPE:
-                uiGossipText = GOSSIP_TEXT_SALTY_JOHN_THORPE;
-                charGossipItem = GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID;
-                break;
-            case NPC_GUARD_MITCHELLS:
-                uiGossipText = GOSSIP_TEXT_GUARD_MITCHELSS;
-                charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS_MENUID;
-                break;
-            default:
-                return false;
-        }
-
-        InitGossipMenuFor(player, charGossipItem);
-        if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, charGossipItem, GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        if (me->IsVendor())
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, uiGossipText, me->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-    {
-        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-        ClearGossipMenuFor(player);
-
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            CloseGossipMenuFor(player);
-            uiPlayerGUID = player->GetGUID();
-            DoAction(1);
-        }
-
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(me->GetGUID());
-
-        return true;
     }
 };
 
@@ -1242,29 +872,6 @@ struct npc_counselor_talbot : public ScriptedAI
 
 private:
     EventMap _events;
-};
-
-enum WindsoulTotemAura
-{
-    SPELL_WINDSOUL_CREDT = 46378
-};
-
-// 46374 - Windsoul Totem Aura
-class spell_windsoul_totem_aura : public AuraScript
-{
-    PrepareAuraScript(spell_windsoul_totem_aura);
-
-    void OnRemove(AuraEffect const*, AuraEffectHandleModes)
-    {
-        if (GetTarget()->isDead())
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(nullptr, SPELL_WINDSOUL_CREDT);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
 };
 
 enum BloodsporeRuination
@@ -2104,21 +1711,173 @@ class spell_borean_tundra_re_cursive_transmatter_injection : public SpellScript
     }
 };
 
+/*######
+## Quest 11919, 11940: Drake Hunt
+######*/
+
+enum DrakeHunt
+{
+    SPELL_RED_DRAGONBLOOD             = 46620,
+    SPELL_CAPTURE_TRIGGER             = 46673,
+    SPELL_DRAKE_TURN_IN               = 46696,
+    SPELL_DRAKE_HATCHLING_SUBDUED     = 46691,
+    SPELL_ROPE_BEAM                   = 46674
+};
+
+// 46607 - Drake Harpoon
+class spell_borean_tundra_drake_harpoon : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_harpoon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RED_DRAGONBLOOD });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_RED_DRAGONBLOOD, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_borean_tundra_drake_harpoon::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46620 - Red Dragonblood
+class spell_borean_tundra_red_dragonblood : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_red_dragonblood);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CAPTURE_TRIGGER });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_CAPTURE_TRIGGER, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_red_dragonblood::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46691 - Drake Hatchling Subdued
+class spell_borean_tundra_drake_hatchling_subdued : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_hatchling_subdued);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_TURN_IN });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        switch (GetTargetApplication()->GetRemoveMode())
+        {
+            case AURA_REMOVE_BY_DEFAULT:
+                if (Unit* caster = GetCaster())
+                    GetTarget()->CastSpell(caster, SPELL_DRAKE_TURN_IN, true);
+                break;
+            case AURA_REMOVE_BY_EXPIRE:
+            case AURA_REMOVE_BY_DEATH:
+                if (Creature* creature = Object::ToCreature(GetCaster()))
+                    creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_drake_hatchling_subdued::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46693 - Strip Auras
+class spell_borean_tundra_strip_auras : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_strip_auras);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_HATCHLING_SUBDUED, SPELL_ROPE_BEAM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_DRAKE_HATCHLING_SUBDUED);
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ROPE_BEAM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_strip_auras::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11590: Abduction
+######*/
+
+// 45625 - Arcane Chains: Character Force Cast
+class spell_borean_tundra_arcane_chains_character_force_cast : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_arcane_chains_character_force_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_arcane_chains_character_force_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45651 - Abduction: Quest Completion
+class spell_borean_tundra_abduction_quest_completion : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_abduction_quest_completion);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitUnit()->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_abduction_quest_completion::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
-    RegisterCreatureAI(npc_beryl_sorcerer);
-    RegisterCreatureAI(npc_captured_beryl_sorcerer);
-    RegisterSpellScript(spell_arcane_chains_character_force_cast);
     RegisterGameObjectAI(go_caribou_trap);
     RegisterGameObjectAI(go_mammoth_trap);
-    RegisterSpellScript(spell_red_dragonblood);
     RegisterCreatureAI(npc_valiance_keep_cannoneer);
-    RegisterCreatureAI(npc_hidden_cultist);
     RegisterCreatureAI(npc_thassarian);
     RegisterCreatureAI(npc_general_arlos);
     RegisterCreatureAI(npc_leryssa);
     RegisterCreatureAI(npc_counselor_talbot);
-    RegisterSpellScript(spell_windsoul_totem_aura);
     RegisterSpellScript(spell_q11719_bloodspore_ruination_45997);
     RegisterCreatureAI(npc_bloodmage_laurith);
     RegisterSpellScript(spell_borean_tundra_shortening_blaster);
@@ -2142,4 +1901,10 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
     RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
     RegisterSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
+    RegisterSpellScript(spell_borean_tundra_drake_harpoon);
+    RegisterSpellScript(spell_borean_tundra_red_dragonblood);
+    RegisterSpellScript(spell_borean_tundra_drake_hatchling_subdued);
+    RegisterSpellScript(spell_borean_tundra_strip_auras);
+    RegisterSpellScript(spell_borean_tundra_arcane_chains_character_force_cast);
+    RegisterSpellScript(spell_borean_tundra_abduction_quest_completion);
 }
