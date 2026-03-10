@@ -882,6 +882,15 @@ void CollectionMgr::SendFavoriteAppearances() const
         if (state != CollectionItemState::Removed)
             accountTransmogUpdate.FavoriteAppearances.push_back(itemModifiedAppearanceId);
 
+    // Populate NewAppearances with all known ItemModifiedAppearanceIDs
+    // The 12.0.1 client uses this to populate the Items tab in the transmog UI
+    std::size_t id = _appearances->find_first();
+    while (id != boost::dynamic_bitset<uint32>::npos)
+    {
+        accountTransmogUpdate.NewAppearances.push_back(static_cast<uint32>(id));
+        id = _appearances->find_next(id);
+    }
+
     _owner->SendPacket(accountTransmogUpdate.Write());
 }
 

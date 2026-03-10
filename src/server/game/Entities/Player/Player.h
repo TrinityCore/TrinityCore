@@ -336,7 +336,8 @@ enum ActionButtonType
     ACTION_BUTTON_CMACRO    = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
     ACTION_BUTTON_COMPANION = 0x50,
     ACTION_BUTTON_MOUNT     = 0x60,
-    ACTION_BUTTON_ITEM      = 0x80
+    ACTION_BUTTON_ITEM      = 0x80,
+    ACTION_BUTTON_TRANSMOG_OUTFIT = 0x90
 };
 
 enum class HonorGainSource : uint8
@@ -3051,6 +3052,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+
+        EquipmentSetContainer const& GetEquipmentSets() const { return _equipmentSets; }
 
     protected:
         // Gamemaster whisper whitelist

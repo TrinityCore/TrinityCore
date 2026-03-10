@@ -834,6 +834,10 @@ namespace WorldPackets
     namespace Transmogrification
     {
         class TransmogrifyItems;
+        class TransmogOutfitUpdateSlots;
+        class TransmogOutfitNew;
+        class TransmogOutfitUpdateInfo;
+        class ClearNewAppearance;
     }
 
     namespace Vehicle
@@ -1813,6 +1817,10 @@ class TC_GAME_API WorldSession
 
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
+        void HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrification::TransmogOutfitUpdateSlots& packet);
+        void HandleTransmogOutfitNew(WorldPackets::Transmogrification::TransmogOutfitNew& packet);
+        void HandleTransmogOutfitUpdateInfo(WorldPackets::Transmogrification::TransmogOutfitUpdateInfo& packet);
+        void HandleClearNewAppearance(WorldPackets::Transmogrification::ClearNewAppearance& packet);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);

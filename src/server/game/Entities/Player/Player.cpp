@@ -6240,6 +6240,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) co
         case ACTION_BUTTON_MACRO:
         case ACTION_BUTTON_EQSET:
         case ACTION_BUTTON_DROPDOWN:
+        case ACTION_BUTTON_TRANSMOG_OUTFIT:
             break;
         default:
             TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Unknown action type {}", type);
@@ -12150,6 +12151,16 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemAppearanceModID), pItem->GetVisibleAppearanceModId(this));
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemVisual), pItem->GetVisibleItemVisual(this));
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemModifiedAppearanceID), pItem->GetVisibleModifiedAppearanceId(this));
+
+        // HasTransmog: true if the item has a transmog appearance modifier set (per-spec or all-specs)
+        bool hasTransmog = pItem->GetModifier(AppearanceModifierSlotBySpec[GetActiveTalentGroup()]) != 0
+            || pItem->GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS) != 0;
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasTransmog), hasTransmog);
+
+        // HasIllusion: true if the item has an illusion enchant modifier set (per-spec or all-specs)
+        bool hasIllusion = pItem->GetModifier(IllusionModifierSlotBySpec[GetActiveTalentGroup()]) != 0
+            || pItem->GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS) != 0;
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasIllusion), hasIllusion);
     }
     else
     {
@@ -12158,6 +12169,8 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemAppearanceModID), 0);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemVisual), 0);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemModifiedAppearanceID), 0);
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasTransmog), false);
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasIllusion), false);
     }
 }
 
@@ -17936,6 +17949,163 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult result)
     //    appearance5, appearance6, appearance7, appearance8, appearance9, appearance10, appearance11, appearance12, appearance13, appearance14, appearance15, appearance16,
     //              22            23               24              25
     //    appearance17, appearance18, mainHandEnchant, offHandEnchant FROM character_transmog_outfits WHERE guid = ? ORDER BY setindex
+
+    // Always initialize TransmogMetadata with defaults matching retail sniff
+    {
+        auto metaField = m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TransmogMetadata);
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::CostMod), 1.0f);
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::Locked), false);
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::SituationTrigger), uint8(2));
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::TransmogOutfitID), uint32(1));
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::StampedOptionMainHand), uint8(2));
+        SetUpdateFieldValue(metaField.ModifyValue(&UF::TransmogOutfitMetadata::StampedOptionOffHand), uint8(0));
+    }
+
+    // Build the 30-slot layout matching retail sniff exactly
+    // Slots 0-11: base armor slots (Slot=equipmentSlot, SlotOption=0)
+    // Slots 12-20: Slot=12 (MainHand) with weapon sub-slot SlotOptions: 1,6,2,3,7,8,9,10,11
+    // Slots 21-29: Slot=13 (OffHand) with weapon sub-slot SlotOptions: 1,6,7,5,4,8,9,10,11
+    struct SlotDef { int8 slot; uint8 slotOption; uint8 equipSlot; };
+    static const SlotDef fullSlotLayout[30] =
+    {
+        // Base armor slots (12) — slot IDs and ORDER match client expectations
+        // Equipment slot mapping corrected for TWW
+        { 0,  0, EQUIPMENT_SLOT_HEAD },
+        { 1,  0, EQUIPMENT_SLOT_SHOULDERS },
+        { 2,  0, EQUIPMENT_SLOT_SHOULDERS },   // Secondary shoulder (right side)
+        { 6,  0, EQUIPMENT_SLOT_BODY },         // Slot 6 = Shirt
+        { 4,  0, EQUIPMENT_SLOT_CHEST },
+        { 9,  0, EQUIPMENT_SLOT_WAIST },        // Slot 9 = Belt
+        { 10, 0, EQUIPMENT_SLOT_LEGS },          // Slot 10 = Pants
+        { 11, 0, EQUIPMENT_SLOT_FEET },          // Slot 11 = Boots
+        { 7,  0, EQUIPMENT_SLOT_WRISTS },        // Slot 7 = Wrists
+        { 8,  0, EQUIPMENT_SLOT_HANDS },         // Slot 8 = Gloves
+        { 3,  0, EQUIPMENT_SLOT_BACK },          // Slot 3 = Cloak
+        { 5,  0, EQUIPMENT_SLOT_TABARD },        // Slot 5 = Tabard
+        // MainHand weapon sub-slots (9): Slot=12
+        { 12, 1,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 6,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 2,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 3,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 7,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 8,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 9,  EQUIPMENT_SLOT_MAINHAND },
+        { 12, 10, EQUIPMENT_SLOT_MAINHAND },
+        { 12, 11, EQUIPMENT_SLOT_MAINHAND },
+        // OffHand weapon sub-slots (9): Slot=13
+        { 13, 1,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 6,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 7,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 5,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 4,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 8,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 9,  EQUIPMENT_SLOT_OFFHAND },
+        { 13, 10, EQUIPMENT_SLOT_OFFHAND },
+        { 13, 11, EQUIPMENT_SLOT_OFFHAND },
+    };
+
+    // Helper lambda to populate 30 slots on a given DynamicUpdateField setter
+    auto populateSlots = [this](auto& slotsSetter, const SlotDef* layout, uint32 count)
+    {
+        for (uint32 i = 0; i < count; ++i)
+        {
+            auto slotRef = AddDynamicUpdateFieldValue(slotsSetter);
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::Slot).SetValue(int8(layout[i].slot));
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::SlotOption).SetValue(uint8(layout[i].slotOption));
+
+            // For base armor slots (SlotOption=0), fill with equipped item appearance
+            // For weapon sub-slots with SlotOption=1, fill with the equipped weapon appearance
+            // For other sub-slots (SlotOption >= 2), set AppearanceDisplayType based on retail pattern
+            uint32 appearanceId = 0;
+            uint8 displayType = 0;
+            uint8 illusionDisplayType = 0;
+
+            if (layout[i].slotOption == 0)
+            {
+                // Base armor slot - show equipped item
+                Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, layout[i].equipSlot);
+                if (pItem)
+                {
+                    appearanceId = pItem->GetVisibleModifiedAppearanceId(this);
+                    displayType = 1; // 1 = from outfit
+                }
+            }
+            else if (layout[i].slotOption == 1)
+            {
+                // Primary weapon sub-slot - show equipped weapon
+                Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, layout[i].equipSlot);
+                if (pItem)
+                {
+                    appearanceId = pItem->GetVisibleModifiedAppearanceId(this);
+                    displayType = 2; // 2 = equipped item (current)
+                    illusionDisplayType = 2;
+                }
+            }
+            else if (layout[i].slotOption >= 8)
+            {
+                // Hidden/disabled sub-slots (8,9,10,11)
+                displayType = 4;
+                illusionDisplayType = 4;
+            }
+
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::ItemModifiedAppearanceID).SetValue(appearanceId);
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::AppearanceDisplayType).SetValue(displayType);
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::SpellItemEnchantmentID).SetValue(uint32(0));
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::IllusionDisplayType).SetValue(illusionDisplayType);
+            slotRef.ModifyValue(&UF::TransmogOutfitSlotData::Flags).SetValue(uint32(0));
+        }
+    };
+
+    // Create a default TransmogOutfits entry (Key=1) so ViewedOutfit.Id=1 references something valid
+    {
+        auto outfitSetter = m_values.ModifyValue(&Player::m_activePlayerData)
+            .ModifyValue(&UF::ActivePlayerData::TransmogOutfits, uint32(1));
+
+        SetUpdateFieldValue(outfitSetter.ModifyValue(&UF::TransmogOutfitData::Id), uint32(1));
+        SetUpdateFieldValue(outfitSetter.ModifyValue(&UF::TransmogOutfitData::Flags), uint32(0));
+
+        // OutfitInfo
+        auto outfitInfo = outfitSetter.ModifyValue(&UF::TransmogOutfitData::OutfitInfo);
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SetType), uint8(1));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Name), std::string("Outfit 1"));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Icon), uint32(134400));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SituationsEnabled), true);
+
+        // Situations (retail has 5 entries)
+        static const uint32 situationIDs[] = { 1, 3, 13, 18, 20 };
+        auto sitSetter = outfitSetter.ModifyValue(&UF::TransmogOutfitData::Situations);
+        for (uint32 sitId : situationIDs)
+        {
+            auto sit = AddDynamicUpdateFieldValue(sitSetter);
+            sit.ModifyValue(&UF::TransmogOutfitSituationInfo::SituationID).SetValue(sitId);
+            sit.ModifyValue(&UF::TransmogOutfitSituationInfo::SpecID).SetValue(uint32(0));
+            sit.ModifyValue(&UF::TransmogOutfitSituationInfo::LoadoutID).SetValue(uint32(0));
+            sit.ModifyValue(&UF::TransmogOutfitSituationInfo::EquipmentSetID).SetValue(uint32(0));
+        }
+
+        // Populate 30 slots on the outfit
+        auto slotsSetter = outfitSetter.ModifyValue(&UF::TransmogOutfitData::Slots);
+        populateSlots(slotsSetter, fullSlotLayout, 30);
+    }
+
+    // Initialize ViewedOutfit with Id=1 referencing the default outfit, and the same 30 slot layout
+    {
+        auto viewedOutfit = m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ViewedOutfit);
+        SetUpdateFieldValue(viewedOutfit.ModifyValue(&UF::TransmogOutfitData::Id), uint32(1));
+        SetUpdateFieldValue(viewedOutfit.ModifyValue(&UF::TransmogOutfitData::Flags), uint32(0));
+
+        // OutfitInfo (SetType=0 for the "viewed/active" outfit per sniff)
+        auto outfitInfo = viewedOutfit.ModifyValue(&UF::TransmogOutfitData::OutfitInfo);
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SetType), uint8(0));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Name), std::string("Default"));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Icon), uint32(134400));
+        SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SituationsEnabled), true);
+
+        // Populate ViewedOutfit with the same 30 slots
+        auto slotsSetter = viewedOutfit.ModifyValue(&UF::TransmogOutfitData::Slots);
+        populateSlots(slotsSetter, fullSlotLayout, 30);
+    }
+
     if (!result)
         return;
 
@@ -17962,6 +18132,88 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult result)
             continue;
 
         _equipmentSets[eqSet.Data.Guid] = eqSet;
+
+        // Also restore UpdateField TransmogOutfits entry for purchased outfits (SetID >= 2)
+        if (eqSet.Data.SetID >= 2)
+        {
+            uint32 setId = eqSet.Data.SetID;
+            auto outfitSetter = m_values.ModifyValue(&Player::m_activePlayerData)
+                .ModifyValue(&UF::ActivePlayerData::TransmogOutfits, setId);
+
+            SetUpdateFieldValue(outfitSetter.ModifyValue(&UF::TransmogOutfitData::Id), setId);
+            SetUpdateFieldValue(outfitSetter.ModifyValue(&UF::TransmogOutfitData::Flags), uint32(0));
+
+            // OutfitInfo
+            auto outfitInfo = outfitSetter.ModifyValue(&UF::TransmogOutfitData::OutfitInfo);
+            SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SetType), uint8(1));
+            SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Name), eqSet.Data.SetName);
+
+            // Parse icon from SetIcon string
+            uint32 iconId = 134400; // fallback
+            try { iconId = std::stoul(eqSet.Data.SetIcon); } catch (...) {}
+            SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::Icon), iconId);
+            SetUpdateFieldValue(outfitInfo.ModifyValue(&UF::TransmogOutfitDataInfo::SituationsEnabled), true);
+
+            // Situations
+            static const uint32 situationIDs[] = { 1, 3, 13, 18, 20 };
+            auto sitSetter = outfitSetter.ModifyValue(&UF::TransmogOutfitData::Situations);
+            for (uint32 sitId : situationIDs)
+            {
+                auto sit = AddDynamicUpdateFieldValue(sitSetter);
+                sit.ModifyValue(&UF::TransmogOutfitSituationInfo::SituationID).SetValue(sitId);
+                sit.ModifyValue(&UF::TransmogOutfitSituationInfo::SpecID).SetValue(uint32(0));
+                sit.ModifyValue(&UF::TransmogOutfitSituationInfo::LoadoutID).SetValue(uint32(0));
+                sit.ModifyValue(&UF::TransmogOutfitSituationInfo::EquipmentSetID).SetValue(uint32(0));
+            }
+
+            // Populate 30 slots from saved appearances
+            auto slotsSetter = outfitSetter.ModifyValue(&UF::TransmogOutfitData::Slots);
+            for (uint32 i = 0; i < 30; ++i)
+            {
+                auto slotRef = AddDynamicUpdateFieldValue(slotsSetter);
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::Slot).SetValue(int8(fullSlotLayout[i].slot));
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::SlotOption).SetValue(uint8(fullSlotLayout[i].slotOption));
+
+                uint32 appearanceId = 0;
+                uint32 enchantId = 0;
+                uint8 displayType = 0;
+                uint8 illusionDisplayType = 0;
+
+                if (fullSlotLayout[i].slotOption == 0)
+                {
+                    // Armor slot — read from saved appearances
+                    appearanceId = eqSet.Data.Appearances[fullSlotLayout[i].equipSlot];
+                    if (appearanceId)
+                        displayType = 1;
+                }
+                else if (fullSlotLayout[i].slotOption == 1)
+                {
+                    // Primary weapon sub-slot
+                    appearanceId = eqSet.Data.Appearances[fullSlotLayout[i].equipSlot];
+                    if (appearanceId)
+                    {
+                        displayType = 2;
+                        illusionDisplayType = 2;
+                    }
+                    // Enchant (illusion) for this weapon
+                    if (fullSlotLayout[i].equipSlot == EQUIPMENT_SLOT_MAINHAND)
+                        enchantId = eqSet.Data.Enchants[0];
+                    else if (fullSlotLayout[i].equipSlot == EQUIPMENT_SLOT_OFFHAND)
+                        enchantId = eqSet.Data.Enchants[1];
+                }
+                else if (fullSlotLayout[i].slotOption >= 8)
+                {
+                    displayType = 4;
+                    illusionDisplayType = 4;
+                }
+
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::ItemModifiedAppearanceID).SetValue(appearanceId);
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::AppearanceDisplayType).SetValue(displayType);
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::SpellItemEnchantmentID).SetValue(enchantId);
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::IllusionDisplayType).SetValue(illusionDisplayType);
+                slotRef.ModifyValue(&UF::TransmogOutfitSlotData::Flags).SetValue(uint32(0));
+            }
+        }
     } while (result->NextRow());
 }
 
