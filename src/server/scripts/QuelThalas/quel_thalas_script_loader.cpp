@@ -28,5 +28,4 @@ void AddQuelThalasScripts()
 	// Murder Row
 	AddSC_boss_kystia_manaheart();
 	AddSC_instance_murder_row();
-
 }
