@@ -53,7 +53,7 @@ namespace WorldPackets
             int32 AllowedMinLevel = 0;
             int32 AllowedMaxLevel = 0;
             int32 NumChoices = 0;
-            int32 StaticType = 0;
+            int8 StaticType = 0;
             uint32 Muid = 0;
             std::array<std::string, 10> Choicetext;
         };

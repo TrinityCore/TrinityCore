@@ -23,14 +23,13 @@
 #include "Map.h"
 #include "shadow_labyrinth.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_REFECTORY_DOOR,        DATA_BLACKHEART_THE_INCITER,    EncounterDoorBehavior::OpenWhenDone },
     { GO_SCREAMING_HALL_DOOR,   DATA_GRANDMASTER_VORPIL,        EncounterDoorBehavior::OpenWhenDone },
-    { 0,                        0,                              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_AMBASSADOR_HELLMAW, {{ 1908 }} },
     { DATA_BLACKHEART_THE_INCITER, {{ 1909 }} },

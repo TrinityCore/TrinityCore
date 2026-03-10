@@ -8,18 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
+add_executable(mapextractor)
 
-add_executable(mapextractor
-  ${PRIVATE_SOURCES}
-)
-
-target_include_directories(mapextractor
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
+CollectAndAddSourceFiles(
+  mapextractor
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(mapextractor
   PRIVATE
@@ -27,13 +20,7 @@ target_link_libraries(mapextractor
   PUBLIC
     extractor_common)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
-
 target_include_directories(mapextractor
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

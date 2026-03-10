@@ -214,11 +214,7 @@ private:
     void UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
-    CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
-    {
-        _categoryCooldowns.erase(itr->second.CategoryId);
-        return _spellCooldowns.erase(itr);
-    }
+    CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr);
 
     void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection) const;
 

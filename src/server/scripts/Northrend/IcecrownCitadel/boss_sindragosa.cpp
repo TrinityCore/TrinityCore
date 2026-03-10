@@ -648,7 +648,7 @@ struct npc_spinestalker : public ScriptedAI
         // Increase add count
         if (!me->isDead())
         {
-            _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+            _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             Reset();
         }
     }
@@ -670,7 +670,7 @@ struct npc_spinestalker : public ScriptedAI
     void JustAppeared() override
     {
         ScriptedAI::JustAppeared();
-        _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+        _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -773,7 +773,7 @@ struct npc_rimefang_icc : public ScriptedAI
         // Increase add count
         if (!me->isDead())
         {
-            _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+            _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             Reset();
         }
     }
@@ -795,7 +795,7 @@ struct npc_rimefang_icc : public ScriptedAI
     void JustAppeared() override
     {
         ScriptedAI::JustAppeared();
-        _instance->SetGuidData(DATA_SINDRAGOSA_FROSTWYRMS, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+        _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -929,7 +929,7 @@ struct npc_sindragosa_trash : public ScriptedAI
         if (!me->isDead())
         {
             if (me->GetEntry() == NPC_FROSTWING_WHELP)
-                _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData64(_frostwyrmId, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             Reset();
         }
     }
@@ -952,7 +952,7 @@ struct npc_sindragosa_trash : public ScriptedAI
 
         // Increase add count
         if (me->GetEntry() == NPC_FROSTWING_WHELP)
-            _instance->SetGuidData(_frostwyrmId, ObjectGuid::Create<HighGuid::Creature>(631, me->GetEntry(), me->GetSpawnId()));  // this cannot be in Reset because reset also happens on evade
+            _instance->SetData64(_frostwyrmId, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
     }
 
     void SetData(uint32 type, uint32 data) override

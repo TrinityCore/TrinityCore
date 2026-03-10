@@ -1757,17 +1757,40 @@ class spell_sha_lava_surge : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE, SPELL_SHAMAN_IGNEOUS_POTENTIAL });
     }
 
-    bool CheckProcChance(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    bool CheckProcChance(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        int32 procChance = aurEff->GetAmount();
+        Unit* caster = GetTarget();
+        float flameShocks = 0.0f;
+        auto work = [&, shaman = caster->GetGUID()](Unit const* target)
+        {
+            if (target->HasAuraEffect(SPELL_SHAMAN_FLAME_SHOCK, EFFECT_1, shaman))
+                flameShocks += 1.0f;
+        };
+        Trinity::UnitWorker worker(caster, work);
+        Cell::VisitAllObjects(caster, worker, 100.0f);
+
+        // Proc uptime is not supposed to scale with the number of applied flame shocks
+        _normalizedTicks += 1.0f / flameShocks;
+
+        // first 6 ticks after last proc fail to prevent overwriting
+        if (_normalizedTicks < 6.0f)
+            return false;
+
+        float procChance = aurEff->GetAmount();
         if (AuraEffect const* igneousPotential = GetTarget()->GetAuraEffect(SPELL_SHAMAN_IGNEOUS_POTENTIAL, EFFECT_0))
             procChance += igneousPotential->GetAmount();
 
-        return roll_chance_i(procChance);
+        float missChance = std::max(100 - procChance, 0.0f) / 100.0f;
+
+        procChance = (1.0f - std::pow(missChance, _normalizedTicks)) * 100.0f;
+
+        return roll_chance_f(procChance);
     }
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
     {
+        _normalizedTicks = 0.0f;
+
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
@@ -1777,6 +1800,8 @@ class spell_sha_lava_surge : public AuraScript
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_lava_surge::CheckProcChance, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+    float _normalizedTicks = 0.0f;
 };
 
 // 77762 - Lava Surge
@@ -2923,7 +2948,8 @@ class spell_sha_t8_elemental_4p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ELECTRIFIED });
+        return ValidateSpellEffect({ { SPELL_SHAMAN_ELECTRIFIED, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_ELECTRIFIED, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -2934,11 +2960,10 @@ class spell_sha_t8_elemental_4p_bonus : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_ELECTRIFIED, GetCastDifficulty());
+        SpellEffectInfo const& dotEffect = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_ELECTRIFIED, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
@@ -2961,7 +2986,8 @@ class spell_sha_t9_elemental_4p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE });
+        return ValidateSpellEffect({ { SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -2972,11 +2998,10 @@ class spell_sha_t9_elemental_4p_bonus : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, GetCastDifficulty());
+        SpellEffectInfo const& dotEffect = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
@@ -3031,7 +3056,8 @@ class spell_sha_t10_restoration_4p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_CHAINED_HEAL });
+        return ValidateSpellEffect({ { SPELL_SHAMAN_CHAINED_HEAL, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_CHAINED_HEAL, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -3042,11 +3068,10 @@ class spell_sha_t10_restoration_4p_bonus : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_CHAINED_HEAL, GetCastDifficulty());
+        SpellEffectInfo const& dotEffect = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_CHAINED_HEAL, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();

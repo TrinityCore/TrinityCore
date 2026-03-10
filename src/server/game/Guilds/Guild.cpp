@@ -1362,13 +1362,11 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.GuildClubMemberID = Battlenet::Services::Clubs::CreateClubMemberId(member.GetGUID());
 
         memberData.Authenticated = false;
-        memberData.SorEligible = false;
 
         memberData.Name = member.GetName();
         memberData.Note = member.GetPublicNote();
         if (sendOfficerNote)
             memberData.OfficerNote = member.GetOfficerNote();
-
     }
 
     roster.WelcomeText = m_motd;
@@ -1378,7 +1376,7 @@ void Guild::HandleRoster(WorldSession* session)
     session->SendPacket(roster.Write());
 }
 
-void Guild::SendQueryResponse(WorldSession* session)
+void Guild::HandleQuery(WorldSession* session)
 {
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
@@ -1526,7 +1524,7 @@ void Guild::HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo)
 
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS); // "Guild Emblem saved."
 
-        SendQueryResponse(session);
+        HandleQuery(session);
     }
 }
 
@@ -1803,7 +1801,7 @@ void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
         SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_PERMISSIONS);
     else if (Member* member = GetMember(guid))
     {
-        std::string name = member->GetName();
+        std::string_view name = member->GetName();
 
         // Guild masters cannot be removed
         if (member->IsRank(GuildRankId::GuildMaster))
@@ -1842,7 +1840,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool 
     // Promoted player must be a member of guild
     else if (Member* member = GetMember(guid))
     {
-        std::string name = member->GetName();
+        std::string_view name = member->GetName();
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {

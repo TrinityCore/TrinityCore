@@ -176,10 +176,7 @@ void EscortAI::UpdateAI(uint32 diff)
                         TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: reached end of waypoints, despawning at end ({})", me->GetGUID().ToString());
                         if (_returnToStart)
                         {
-                            Position respawnPosition;
-                            float orientation = 0.f;
-                            me->GetRespawnPosition(respawnPosition.m_positionX, respawnPosition.m_positionY, respawnPosition.m_positionZ, &orientation);
-                            respawnPosition.SetOrientation(orientation);
+                            Position respawnPosition = me->GetRespawnPosition();
                             me->GetMotionMaster()->MovePoint(POINT_HOME, respawnPosition);
                             TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition.ToString(), me->GetGUID().ToString());
                         }
@@ -260,8 +257,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointNode& waypoint = _path.Nodes.emplace_back(id, x, y, z, orientation, waitTime);
-    waypoint.MoveType = run ? WaypointMoveType::Run : WaypointMoveType::Walk;
+    _path.Nodes.emplace_back(id, x, y, z, orientation, waitTime, run ? WaypointMoveType::Run : WaypointMoveType::Walk);
 }
 
 void EscortAI::ResetPath()

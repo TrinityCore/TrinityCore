@@ -160,7 +160,8 @@ uint32 ClubService::HandleGetMembers(club::v1::client::GetMembersRequest const* 
 
         clubMember->set_presence_level(club::v1::client::PresenceLevel::PRESENCE_LEVEL_RICH);
         clubMember->set_whisper_level(club::v1::client::WhisperLevel::WHISPER_LEVEL_OPEN);
-        clubMember->set_note(member.GetPublicNote());
+        std::string_view publicNote = member.GetPublicNote();
+        clubMember->set_note(publicNote.data(), publicNote.size());
         clubMember->set_active(member.IsOnline());
     }
 

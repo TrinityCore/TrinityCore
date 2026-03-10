@@ -51,25 +51,23 @@ BossBoundaryData const boundaries =
     )},
 };
 
-constexpr ObjectData creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_PRIESTESS_ALUNZA, DATA_PRIESTESS_ALUNZA  },
     { BOSS_VOLKAAL,          DATA_VOLKAAL           },
     { BOSS_REZAN,            DATA_REZAN             },
     { BOSS_YAZMA,            DATA_YAZMA             },
-    { 0,                     0                      }  // END
 };
 
-constexpr DoorData doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_VOLKAAL_DOOR_1, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_VOLKAAL_DOOR_2, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_VOLKAAL_DOOR_3, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_VOLKAAL_DOOR_4, DATA_VOLKAAL, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                 0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-constexpr DungeonEncounterData encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_PRIESTESS_ALUNZA, {{ 2084 }} },
     { DATA_VOLKAAL,          {{ 2085 }} },
@@ -88,7 +86,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);

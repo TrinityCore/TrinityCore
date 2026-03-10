@@ -49,8 +49,10 @@ void efPRINTC( unsigned int cond, const char* format, ... );
 #define efDEBUGC( cond, format, args... ) \
 	{}
 #else
-#define efDEBUG
-#define efDEBUGC
+#define efDEBUG( ... ) \
+	{}
+#define efDEBUGC( ... ) \
+	{}
 #endif
 
 #endif

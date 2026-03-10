@@ -16,6 +16,7 @@ class WatcherInotify : public Watcher {
 	WatchID InotifyID;
 
 	FileInfo DirInfo;
+	bool syntheticEvents{ false };
 };
 
 } // namespace efsw

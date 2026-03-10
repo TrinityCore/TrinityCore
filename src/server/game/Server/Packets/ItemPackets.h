@@ -145,7 +145,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
             ObjectGuid ItemGUID;
             Optional<ItemPurchaseContents> Contents;
         };
@@ -182,6 +182,16 @@ namespace WorldPackets
             ObjectGuid VendorGUID;
             ObjectGuid ItemGUID;
             uint32 Amount = 0;
+        };
+
+        class SellAllJunkItems final : public ClientPacket
+        {
+        public:
+            explicit SellAllJunkItems(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ALL_JUNK_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
         };
 
         class ItemTimeUpdate final : public ServerPacket

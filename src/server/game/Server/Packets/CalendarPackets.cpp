@@ -40,10 +40,10 @@ ByteBuffer& operator<<(ByteBuffer& data, CalendarSendCalendarEventInfo const& ev
 
 ByteBuffer& operator<<(ByteBuffer& data, CalendarSendCalendarRaidLockoutInfo const& lockoutInfo)
 {
-    data << uint64(lockoutInfo.InstanceID);
     data << int32(lockoutInfo.MapID);
-    data << uint32(lockoutInfo.DifficultyID);
+    data << int16(lockoutInfo.DifficultyID);
     data << int32(lockoutInfo.ExpireTime);
+    data << uint64(lockoutInfo.InstanceID);
 
     return data;
 }
@@ -332,7 +332,7 @@ WorldPacket const* CalendarInviteStatus::Write()
     _worldPacket << InviteGuid;
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
     _worldPacket << ResponseTime;
     _worldPacket << Bits<1>(ClearPending);
@@ -345,7 +345,7 @@ WorldPacket const* CalendarInviteRemoved::Write()
 {
     _worldPacket << InviteGuid;
     _worldPacket << uint64(EventID);
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << Bits<1>(ClearPending);
     _worldPacket.FlushBits();
 
@@ -367,7 +367,7 @@ WorldPacket const* CalendarInviteRemovedAlert::Write()
 {
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
 
     return &_worldPacket;
@@ -427,20 +427,20 @@ WorldPacket const* CalendarCommandResult::Write()
 
 WorldPacket const* CalendarRaidLockoutAdded::Write()
 {
-    _worldPacket << uint64(InstanceID);
     _worldPacket << ServerTime;
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
     _worldPacket << int32(TimeRemaining);
+    _worldPacket << uint64(InstanceID);
 
     return &_worldPacket;
 }
 
 WorldPacket const* CalendarRaidLockoutRemoved::Write()
 {
-    _worldPacket << uint64(InstanceID);
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
+    _worldPacket << uint64(InstanceID);
 
     return &_worldPacket;
 }
@@ -449,7 +449,7 @@ WorldPacket const* CalendarRaidLockoutUpdated::Write()
 {
     _worldPacket << ServerTime;
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
     _worldPacket << int32(OldTimeRemaining);
     _worldPacket << int32(NewTimeRemaining);
 
@@ -472,7 +472,7 @@ WorldPacket const* CalendarInviteStatusAlert::Write()
 {
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
 
     return &_worldPacket;

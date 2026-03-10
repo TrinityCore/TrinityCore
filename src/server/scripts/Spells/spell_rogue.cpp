@@ -70,6 +70,8 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
+    SPELL_ROGUE_LEECHING_POISON_TALENT              = 280716,
+    SPELL_ROGUE_LEECHING_POISON_AURA                = 108211,
     SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
     SPELL_ROGUE_NIGHT_TERRORS                       = 277953,
@@ -140,6 +142,20 @@ Optional<int32> GetFinishingMoveCPCost(Spell const* spell)
 bool IsFinishingMove(Spell const* spell)
 {
     return GetFinishingMoveCPCost(spell).has_value();
+}
+
+static constexpr bool IsLethalPoison(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case SPELL_ROGUE_DEADLY_POISON:
+        case SPELL_ROGUE_WOUND_POISON:
+        case SPELL_ROGUE_INSTANT_POISON:
+        case SPELL_ROGUE_AMPLIFYING_POISON:
+            return true;
+        default:
+            return false;
+    }
 }
 
 // 455143 - Acrobatic Strikes
@@ -716,6 +732,48 @@ class spell_rog_kingsbane : public AuraScript
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_kingsbane::CheckProc, EFFECT_4, SPELL_AURA_PROC_TRIGGER_SPELL);;
+    }
+};
+
+// 2823 - Deadly Poison
+// 8679 - Wound Poison
+// 315584 - Instant Poison
+// 381664 - Amplifying Poison
+class spell_rog_leeching_poison : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_LEECHING_POISON_TALENT, SPELL_ROGUE_LEECHING_POISON_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_LEECHING_POISON_TALENT);
+    }
+
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_LEECHING_POISON_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        bool hasLethalPoisonActive = GetTarget()->HasAura([](Aura const* aura) -> bool
+        {
+            return IsLethalPoison(aura->GetId());
+        });
+
+        if (!hasLethalPoisonActive)
+            GetTarget()->RemoveAurasDueToSpell(SPELL_ROGUE_LEECHING_POISON_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_leeching_poison::HandleOnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_leeching_poison::HandleOnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1525,6 +1583,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_improved_shiv);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_kingsbane);
+    RegisterSpellScript(spell_rog_leeching_poison);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_night_terrors);
     RegisterSpellScript(spell_rog_pickpocket);

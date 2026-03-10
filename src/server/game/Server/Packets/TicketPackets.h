@@ -211,6 +211,15 @@ namespace WorldPackets
             ObjectGuid ArenaTeamID;
         };
 
+        struct SupportTicketHouseInfo
+        {
+            std::string NeighborhoodName;
+            ObjectGuid Unknown_1127_1;
+            ObjectGuid Unknown_1127_2;
+            ObjectGuid Unknown_1127_3;
+            uint8 Unknown_1127_4 = 0;
+        };
+
         class SupportTicketSubmitComplaint final : public ClientPacket
         {
         public:
@@ -235,6 +244,7 @@ namespace WorldPackets
             Optional<SupportTicketVoiceChatInfo> VoiceChatInfo;
             Optional<SupportTicketClubFinderInfo> ClubFinderInfo;
             Optional<SupportTicketArenaTeamInfo> ArenaTeamInfo;
+            Optional<SupportTicketHouseInfo> HouseInfo;
         };
 
         class Complaint final : public ClientPacket

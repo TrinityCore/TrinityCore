@@ -73,6 +73,18 @@ namespace WorldPackets
             uint32 Serial = 0;
         };
 
+        class LogDisconnect final : public EarlyProcessClientPacket<LogDisconnect>
+        {
+        public:
+            explicit LogDisconnect(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_LOG_DISCONNECT, std::move(packet)) { }
+
+            uint32 Reason = 0;
+
+        private:
+            friend EarlyProcessClientPacket;
+            void Read() override;
+        };
+
         class AuthChallenge final : public ServerPacket
         {
         public:
@@ -257,6 +269,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Key = 0;
+            uint32 NativeRealmAddress = 0;
+            uint32 Key3 = 0;
             ConnectToSerial Serial = ConnectToSerial::None;
             ConnectPayload Payload;
             uint8 Con = 0;
@@ -271,6 +285,8 @@ namespace WorldPackets
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
+            uint32 NativeRealmAddress = 0;
+            uint32 Key3 = 0;
             std::array<uint8, 32> LocalChallenge = { };
             std::array<uint8, DigestLength> Digest = { };
 

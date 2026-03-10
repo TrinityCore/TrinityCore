@@ -68,6 +68,7 @@ enum MageSpells
     SPELL_MAGE_FIRE_BLAST                        = 108853,
     SPELL_MAGE_FIRESTARTER                       = 205026,
     SPELL_MAGE_FLAMESTRIKE                       = 2120,
+    SPELL_MAGE_FLAME_ACCELERANT                  = 453283,
     SPELL_MAGE_FLAME_PATCH_AREATRIGGER           = 205470,
     SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
     SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
@@ -812,6 +813,26 @@ class spell_mage_fire_blast : public SpellScript
     }
 };
 
+// 453282 - Flame Accelerant
+class spell_mage_flame_accelerant : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAME_ACCELERANT });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MAGE_FLAME_ACCELERANT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_flame_accelerant::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 205029 - Flame On
 class spell_mage_flame_on : public AuraScript
 {
@@ -1271,7 +1292,9 @@ class spell_mage_ignite : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IGNITE, SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE });
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE })
+            && ValidateSpellEffect({ { SPELL_MAGE_IGNITE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -1283,14 +1306,13 @@ class spell_mage_ignite : public AuraScript
     {
         PreventDefaultAction();
 
-        SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty());
+        SpellEffectInfo const& igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 pct = aurEff->GetAmount();
 
-        ASSERT(igniteDot->GetMaxTicks() > 0);
         if (spell_mage_hot_streak_ignite_marker::IsActive(eventInfo.GetProcSpell()))
             pct *= 2;
 
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot.GetPeriodicTickCount());
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
@@ -2116,6 +2138,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_fire_blast);
+    RegisterSpellScript(spell_mage_flame_accelerant);
     RegisterSpellScript(spell_mage_flame_on);
     RegisterSpellScript(spell_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_flame_patch);

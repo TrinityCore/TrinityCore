@@ -49,7 +49,9 @@ enum RTKCreatureIds
 
 enum RTKGameObjectsIds
 {
-    GO_STRANGE_WALL =  266508
+    GO_STRANGE_WALL        = 266508,
+    GO_SUSPICIOUS_BOOKCASE = 266510,
+    GO_MEDIVH_DOOR         = 266846
 };
 
 template <class AI, class T>

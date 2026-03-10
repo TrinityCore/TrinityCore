@@ -203,7 +203,7 @@ namespace WorldPackets
             uint32 NumFollowerActivationsRemaining = 0;
             uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
             int32 MinAutoTroopLevel = 0;
-            std::vector<GarrisonPlotInfo*> Plots;
+            std::vector<GarrisonPlotInfo const*> Plots;
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;
             std::vector<GarrisonFollower const*> AutoTroops;

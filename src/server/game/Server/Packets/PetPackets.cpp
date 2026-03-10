@@ -84,7 +84,7 @@ WorldPacket const* PetUnlearnedSpells::Write()
 
 WorldPacket const* PetNameInvalid::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << RenameData.PetGUID;
     _worldPacket << int32(RenameData.PetNumber);
 
@@ -189,8 +189,8 @@ WorldPacket const* SetPetSpecialization::Write()
 
 WorldPacket const* PetActionFeedback::Write()
 {
+    _worldPacket << int32(Response);
     _worldPacket << int32(SpellID);
-    _worldPacket << uint8(Response);
 
     return &_worldPacket;
 }
@@ -205,7 +205,7 @@ WorldPacket const* PetActionSound::Write()
 
 WorldPacket const* PetTameFailure::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
 
     return &_worldPacket;
 }

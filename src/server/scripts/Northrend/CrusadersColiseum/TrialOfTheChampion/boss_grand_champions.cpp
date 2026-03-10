@@ -638,7 +638,7 @@ public:
         {
             DoCast(me, SPELL_EARTH_SHIELD);
             DoCast(who, SPELL_HEX_OF_MENDING);
-        };
+        }
 
         void JustReachedHome() override
         {

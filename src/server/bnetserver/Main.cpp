@@ -83,10 +83,12 @@ void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceSta
 
 bool StartDB();
 void StopDB();
-void SignalHandler(std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
+void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
+
+std::atomic<bool> Stopped;
 
 int main(int argc, char** argv)
 {
@@ -203,6 +205,14 @@ int main(int argc, char** argv)
 
     std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
+    auto ioContextWork = boost::asio::make_work_guard(ioContext->get_executor());
+
+    std::thread ioContextThread(&Trinity::Asio::IoContext::run, ioContext.get());
+
+    auto threadJoinHandle = Trinity::make_unique_ptr_with_deleter<[](std::thread* t) { t->join(); }>(&ioContextThread);
+
+    auto ioContextWorkGuardHandle = Trinity::make_unique_ptr_with_deleter<[](auto* wg) { wg->reset(); }>(&ioContextWork);
+
     Trinity::Net::ScanLocalNetworks();
 
     std::string httpBindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -236,7 +246,7 @@ int main(int argc, char** argv)
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    if (!sSessionMgr.StartNetwork(*ioContext, bindIp, bnport))
+    if (!sSessionMgr.StartNetwork(*ioContext, bindIp, bnport, 1))
     {
         TC_LOG_ERROR("server.bnetserver", "Failed to initialize network");
         return 1;
@@ -245,14 +255,11 @@ int main(int argc, char** argv)
     auto sSessionMgrHandle = Trinity::make_unique_ptr_with_deleter<&Battlenet::SessionManager::StopNetwork>(&sSessionMgr);
 
     // Set signal handlers
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
+    boost::asio::basic_signal_set<Trinity::Asio::IoContext::Executor> signals(*ioContext, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
-    signals.async_wait([ioContextRef = std::weak_ptr(ioContext)](boost::system::error_code const& error, int signalNumber) mutable
-    {
-        SignalHandler(std::move(ioContextRef), error, signalNumber);
-    });
+    signals.async_wait(SignalHandler);
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.bnetserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -287,15 +294,10 @@ int main(int argc, char** argv)
     }
 #endif
 
-    // Start the io service worker loop
-    ioContext->run();
-
-    banExpiryCheckTimer->cancel();
-    dbPingTimer->cancel();
+    while (!Stopped)
+        std::this_thread::sleep_for(50ms);
 
     TC_LOG_INFO("server.bnetserver", "Halting process...");
-
-    signals.cancel();
 
     return 0;
 }
@@ -325,11 +327,10 @@ void StopDB()
     MySQL::Library_End();
 }
 
-void SignalHandler(std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int /*signalNumber*/)
+void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
 {
     if (!error)
-        if (std::shared_ptr<Trinity::Asio::IoContext> ioContext = ioContextRef.lock())
-            ioContext->stop();
+        Stopped = true;
 }
 
 void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error)

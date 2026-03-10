@@ -148,7 +148,7 @@ struct boss_lava_guard_gordoth : public BossAI
 
         me->SetAIAnimKitId(ANIMKIT_GORDOTH_NONE);
         DoCastSelf(SPELL_JAIL_BREAK);
-        me->GetMotionMaster()->MoveJumpWithGravity(GordothJumpPos, 50.0f, 55.5477f, POINT_JUMP, GordothJumpPos.GetOrientation());
+        me->GetMotionMaster()->MoveJump(POINT_JUMP, GordothJumpPos, 50.0f, 4.0f);
 
         scheduler.Schedule(30ms, [this](TaskContext /*task*/)
         {
@@ -166,6 +166,7 @@ struct boss_lava_guard_gordoth : public BossAI
         {
             DoCast(SPELL_GROUND_SLAM);
             me->SetHomePosition(GordothJumpPos);
+            me->SetFacingTo(GordothJumpPos.GetOrientation());
 
             std::vector<GameObject*> labVialsList;
             GetGameObjectListWithEntryInGrid(labVialsList, me, GO_LAB_VIAL, 25.0f);

@@ -162,7 +162,7 @@ bool FileWatcherKqueue::isAddingWatcher() const {
 
 void FileWatcherKqueue::watch() {
 	if ( NULL == mThread ) {
-		mThread = new Thread( &FileWatcherKqueue::run, this );
+		mThread = new Thread([this]{run();});
 		mThread->launch();
 	}
 }

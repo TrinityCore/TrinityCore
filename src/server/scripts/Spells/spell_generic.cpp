@@ -440,6 +440,12 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
         { RACE_VULPERA, { 94999, 95001 } },
         { RACE_MAGHAR_ORC, { 88420, 88410 } },
         { RACE_MECHAGNOME, { 94998, 95000 } },
+        { RACE_DRACTHYR_ALLIANCE, { 112794, 112793 } },
+        { RACE_DRACTHYR_HORDE, { 112796, 112795 } },
+        { RACE_EARTHEN_DWARF_HORDE, { 118113, 118114 } },
+        { RACE_EARTHEN_DWARF_ALLIANCE, { 118111, 118112 } },
+        { RACE_HARANIR_ALLIANCE, { 140501, 140500 } },
+        { RACE_HARANIR_HORDE, { 140503, 140502 } },
     };
 
     inline static std::vector<uint32> RacialSkills;
@@ -4762,7 +4768,7 @@ class spell_summon_battle_pet : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_summon_battle_pet::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_summon_battle_pet::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 

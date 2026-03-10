@@ -23,7 +23,6 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpNetwork.h"
-#include "IteratorPair.h"
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "SslContext.h"
@@ -40,6 +39,33 @@ LoginRESTService& LoginRESTService::Instance()
 
 bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int32 threadCount)
 {
+    Trinity::Net::Resolver resolver(ioContext);
+
+    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"sv, "127.0.0.1");
+
+    std::ranges::transform(resolver.ResolveAll(_externalHostname, ""),
+        std::back_inserter(_addresses),
+        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
+
+    if (_addresses.empty())
+    {
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.ExternalAddress {}", _externalHostname);
+        return false;
+    }
+
+    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"sv, "127.0.0.1");
+    _firstLocalAddressIndex = _addresses.size();
+
+    std::ranges::transform(resolver.ResolveAll(_localHostname, ""),
+        std::back_inserter(_addresses),
+        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
+
+    if (_addresses.size() == _firstLocalAddressIndex)
+    {
+        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.LocalAddress {}", _localHostname);
+        return false;
+    }
+
     if (!HttpService::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
@@ -75,35 +101,7 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
         return HandlePostRefreshLoginTicket(std::move(session), context);
     });
 
-    _bindIP = bindIp;
     _port = port;
-
-    Trinity::Net::Resolver resolver(ioContext);
-
-    _externalHostname = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress"sv, "127.0.0.1");
-
-    std::ranges::transform(resolver.ResolveAll(_externalHostname, ""),
-        std::back_inserter(_addresses),
-        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
-
-    if (_addresses.empty())
-    {
-        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.ExternalAddress {}", _externalHostname);
-        return false;
-    }
-
-    _localHostname = sConfigMgr->GetStringDefault("LoginREST.LocalAddress"sv, "127.0.0.1");
-    _firstLocalAddressIndex = _addresses.size();
-
-    std::ranges::transform(resolver.ResolveAll(_localHostname, ""),
-        std::back_inserter(_addresses),
-        [](boost::asio::ip::tcp::endpoint const& endpoint) { return endpoint.address(); });
-
-    if (_addresses.size() == _firstLocalAddressIndex)
-    {
-        TC_LOG_ERROR("server.http.login", "Could not resolve LoginREST.LocalAddress {}", _localHostname);
-        return false;
-    }
 
     // set up form inputs
     JSON::Login::FormInput* input;
@@ -129,10 +127,6 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
 
     MigrateLegacyPasswordHashes();
 
-    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
-    {
-        OnSocketOpen(std::move(sock), threadIndex);
-    });
     return true;
 }
 

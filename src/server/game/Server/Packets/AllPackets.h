@@ -46,6 +46,7 @@
 #include "GarrisonPackets.h"
 #include "GuildPackets.h"
 #include "HotfixPackets.h"
+#include "HousingPackets.h"
 #include "InspectPackets.h"
 #include "InstancePackets.h"
 #include "ItemPackets.h"
@@ -79,7 +80,6 @@
 #include "TransmogrificationPackets.h"
 #include "VehiclePackets.h"
 #include "VignettePackets.h"
-#include "WardenPackets.h"
 #include "WhoPackets.h"
 #include "WorldStatePackets.h"
 

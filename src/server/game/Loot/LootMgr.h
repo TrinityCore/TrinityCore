@@ -87,7 +87,6 @@ class TC_GAME_API LootStore
         uint32 LoadAndCollectLootIds(LootIdSet& lootIdSet);
         void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& lootIdSet) const;
-        void ReportNonExistingId(uint32 lootId) const;
         void ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const;
 
         bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.contains(loot_id); }

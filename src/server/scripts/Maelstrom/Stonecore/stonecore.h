@@ -76,10 +76,10 @@ enum SCMisc
     CREATURE_FORMATION_MILLHOUSE_EVENT_LAST_GROUP = 340492,
 };
 
-template<typename AI>
-inline AI* GetStonecoreAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetStonecoreAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SCScriptName);
+    return GetInstanceAI<AI>(obj, SCScriptName);
 }
 
 #endif // DEF_STONECORE

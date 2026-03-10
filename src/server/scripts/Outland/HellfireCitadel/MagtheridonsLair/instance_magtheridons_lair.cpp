@@ -28,21 +28,19 @@ BossBoundaryData const boundaries =
     { DATA_MAGTHERIDON, new CircleBoundary(Position(-18.70f, 2.24f), 52.30f) }
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_MAGTHERIDON_DOOR,      DATA_MAGTHERIDON,           EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                        0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_MAGTHERIDON,          DATA_MAGTHERIDON    },
     { NPC_WORLD_TRIGGER,        DATA_WORLD_TRIGGER  },
-    { 0,                        0                   } // END
 
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_MAGTHERIDON_HALL,          DATA_MAGTHERIDON_HALL       },
     { GO_MAGTHERIDON_COLUMN_0,      DATA_MAGTHERIDON_COLUMN_0   },
@@ -51,10 +49,9 @@ ObjectData const gameObjectData[] =
     { GO_MAGTHERIDON_COLUMN_3,      DATA_MAGTHERIDON_COLUMN_3   },
     { GO_MAGTHERIDON_COLUMN_4,      DATA_MAGTHERIDON_COLUMN_4   },
     { GO_MAGTHERIDON_COLUMN_5,      DATA_MAGTHERIDON_COLUMN_5   },
-    { 0,                            0                           } //END
 };
 
-static MLDataTypes const collapseObjectDatas[] =
+static constexpr MLDataTypes collapseObjectDatas[] =
 {
     DATA_MAGTHERIDON_COLUMN_0,
     DATA_MAGTHERIDON_COLUMN_1,
@@ -64,7 +61,7 @@ static MLDataTypes const collapseObjectDatas[] =
     DATA_MAGTHERIDON_COLUMN_5,
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MAGTHERIDON, {{ 651 }} }
 };

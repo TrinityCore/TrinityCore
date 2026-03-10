@@ -24,7 +24,11 @@ namespace {
 const ::google::protobuf::Descriptor* MessageId_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MessageId_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ExternalMessageId_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ExternalMessageId_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* TypingIndicator_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* ExternalMessagePlatform_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* MessageOrigin_descriptor_ = NULL;
 
 }  // namespace
@@ -36,9 +40,11 @@ void protobuf_AssignDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
       "api/common/v1/message_types.proto");
   GOOGLE_CHECK(file != NULL);
   MessageId_descriptor_ = file->message_type(0);
-  static const int MessageId_offsets_[2] = {
+  static const int MessageId_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, epoch_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, position_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, origin_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MessageId, external_message_id_),
   };
   MessageId_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -51,8 +57,28 @@ void protobuf_AssignDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MessageId));
+  ExternalMessageId_descriptor_ = file->message_type(1);
+  static const int ExternalMessageId_offsets_[5] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, platform_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, creator_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, creator_display_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, platform_data_),
+  };
+  ExternalMessageId_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ExternalMessageId_descriptor_,
+      ExternalMessageId::default_instance_,
+      ExternalMessageId_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ExternalMessageId, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ExternalMessageId));
   TypingIndicator_descriptor_ = file->enum_type(0);
-  MessageOrigin_descriptor_ = file->enum_type(1);
+  ExternalMessagePlatform_descriptor_ = file->enum_type(1);
+  MessageOrigin_descriptor_ = file->enum_type(2);
 }
 
 namespace {
@@ -67,6 +93,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MessageId_descriptor_, &MessageId::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ExternalMessageId_descriptor_, &ExternalMessageId::default_instance());
 }
 
 }  // namespace
@@ -74,6 +102,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
   delete MessageId::default_instance_;
   delete MessageId_reflection_;
+  delete ExternalMessageId::default_instance_;
+  delete ExternalMessageId_reflection_;
 }
 
 void protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
@@ -82,17 +112,34 @@ void protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::v2::protobuf_AddDesc_api_2fcommon_2fv2_2fattribute_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n!api/common/v1/message_types.proto\022\014bgs"
-    ".protocol\",\n\tMessageId\022\r\n\005epoch\030\001 \001(\004\022\020\n"
-    "\010position\030\002 \001(\004*4\n\017TypingIndicator\022\020\n\014TY"
-    "PING_START\020\000\022\017\n\013TYPING_STOP\020\001*E\n\rMessage"
-    "Origin\022\031\n\025MESSAGE_ORIGIN_PLAYER\020\000\022\031\n\025MES"
-    "SAGE_ORIGIN_SYSTEM\020\001B\002H\002", 224);
+    ".protocol\032#api/common/v2/attribute_types"
+    ".proto\032%global_extensions/field_options."
+    "proto\"\217\001\n\tMessageId\022\r\n\005epoch\030\001 \001(\004\022\020\n\010po"
+    "sition\030\002 \001(\004\022#\n\006origin\030\003 \001(\rB\023\202\371+\017*\rMess"
+    "ageOrigin\022<\n\023external_message_id\030\004 \001(\0132\037"
+    ".bgs.protocol.ExternalMessageId\"\342\001\n\021Exte"
+    "rnalMessageId\022/\n\010platform\030\001 \001(\rB\035\202\371+\031*\027E"
+    "xternalMessagePlatform\022\031\n\002id\030\002 \001(\tB\r\212\371+\t"
+    "\"\007\n\005\010\001\020\200\002\022!\n\ncreator_id\030\003 \001(\tB\r\212\371+\t\"\007\n\005\010"
+    "\001\020\200\002\022+\n\024creator_display_name\030\004 \001(\tB\r\212\371+\t"
+    "\"\007\n\005\010\001\020\200\002\0221\n\rplatform_data\030\005 \003(\0132\032.bgs.p"
+    "rotocol.v2.Attribute*4\n\017TypingIndicator\022"
+    "\020\n\014TYPING_START\020\000\022\017\n\013TYPING_STOP\020\001*d\n\027Ex"
+    "ternalMessagePlatform\022\"\n\036EXTERNAL_MESSAG"
+    "E_PLATFORM_NONE\020\000\022%\n!EXTERNAL_MESSAGE_PL"
+    "ATFORM_DISCORD\020\001*a\n\rMessageOrigin\022\031\n\025MES"
+    "SAGE_ORIGIN_PLAYER\020\000\022\031\n\025MESSAGE_ORIGIN_S"
+    "YSTEM\020\001\022\032\n\026MESSAGE_ORIGIN_DISCORD\020\002B\002H\002", 759);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/common/v1/message_types.proto", &protobuf_RegisterTypes);
   MessageId::default_instance_ = new MessageId();
+  ExternalMessageId::default_instance_ = new ExternalMessageId();
   MessageId::default_instance_->InitAsDefaultInstance();
+  ExternalMessageId::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto);
 }
 
@@ -116,6 +163,20 @@ bool TypingIndicator_IsValid(int value) {
   }
 }
 
+const ::google::protobuf::EnumDescriptor* ExternalMessagePlatform_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ExternalMessagePlatform_descriptor_;
+}
+bool ExternalMessagePlatform_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
 const ::google::protobuf::EnumDescriptor* MessageOrigin_descriptor() {
   protobuf_AssignDescriptorsOnce();
   return MessageOrigin_descriptor_;
@@ -124,6 +185,7 @@ bool MessageOrigin_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:
+    case 2:
       return true;
     default:
       return false;
@@ -135,6 +197,8 @@ bool MessageOrigin_IsValid(int value) {
 #ifndef _MSC_VER
 const int MessageId::kEpochFieldNumber;
 const int MessageId::kPositionFieldNumber;
+const int MessageId::kOriginFieldNumber;
+const int MessageId::kExternalMessageIdFieldNumber;
 #endif  // !_MSC_VER
 
 MessageId::MessageId()
@@ -144,6 +208,7 @@ MessageId::MessageId()
 }
 
 void MessageId::InitAsDefaultInstance() {
+  external_message_id_ = const_cast< ::bgs::protocol::ExternalMessageId*>(&::bgs::protocol::ExternalMessageId::default_instance());
 }
 
 MessageId::MessageId(const MessageId& from)
@@ -157,6 +222,8 @@ void MessageId::SharedCtor() {
   _cached_size_ = 0;
   epoch_ = GOOGLE_ULONGLONG(0);
   position_ = GOOGLE_ULONGLONG(0);
+  origin_ = 0u;
+  external_message_id_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -167,6 +234,7 @@ MessageId::~MessageId() {
 
 void MessageId::SharedDtor() {
   if (this != default_instance_) {
+    delete external_message_id_;
   }
 }
 
@@ -201,6 +269,95 @@ void MessageId::Swap(MessageId* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = MessageId_descriptor_;
   metadata.reflection = MessageId_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ExternalMessageId::kPlatformFieldNumber;
+const int ExternalMessageId::kIdFieldNumber;
+const int ExternalMessageId::kCreatorIdFieldNumber;
+const int ExternalMessageId::kCreatorDisplayNameFieldNumber;
+const int ExternalMessageId::kPlatformDataFieldNumber;
+#endif  // !_MSC_VER
+
+ExternalMessageId::ExternalMessageId()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.ExternalMessageId)
+}
+
+void ExternalMessageId::InitAsDefaultInstance() {
+}
+
+ExternalMessageId::ExternalMessageId(const ExternalMessageId& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.ExternalMessageId)
+}
+
+void ExternalMessageId::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  platform_ = 0u;
+  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  creator_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  creator_display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ExternalMessageId::~ExternalMessageId() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.ExternalMessageId)
+  SharedDtor();
+}
+
+void ExternalMessageId::SharedDtor() {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete id_;
+  }
+  if (creator_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete creator_id_;
+  }
+  if (creator_display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete creator_display_name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void ExternalMessageId::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ExternalMessageId::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ExternalMessageId_descriptor_;
+}
+
+const ExternalMessageId& ExternalMessageId::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+ExternalMessageId* ExternalMessageId::default_instance_ = NULL;
+
+ExternalMessageId* ExternalMessageId::New() const {
+  return new ExternalMessageId;
+}
+
+void ExternalMessageId::Swap(ExternalMessageId* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata ExternalMessageId::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ExternalMessageId_descriptor_;
+  metadata.reflection = ExternalMessageId_reflection_;
   return metadata;
 }
 

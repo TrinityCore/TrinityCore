@@ -37,6 +37,13 @@ struct SmoothPhasingInfo
 class TC_GAME_API SmoothPhasing
 {
 public:
+    SmoothPhasing();
+    SmoothPhasing(SmoothPhasing const&);
+    SmoothPhasing(SmoothPhasing&&) noexcept;
+    SmoothPhasing& operator=(SmoothPhasing const&);
+    SmoothPhasing& operator=(SmoothPhasing&&) noexcept;
+    ~SmoothPhasing();
+
     void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo const& info);
     void ClearViewerDependentInfo(ObjectGuid seer);
 

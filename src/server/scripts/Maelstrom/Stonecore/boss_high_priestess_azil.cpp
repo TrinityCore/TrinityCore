@@ -221,7 +221,7 @@ class boss_high_priestess_azil : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_MOVE:
-                            me->GetMotionMaster()->MoveJump(GroundPos, me->GetSpeed(MOVE_FLIGHT), 1.918408f, POINT_INTRO_MOVE);
+                            me->GetMotionMaster()->MoveJump(POINT_INTRO_MOVE, GroundPos, 5.0f, {}, 3.0f);
                             break;
                         case EVENT_CURSE_OF_BLOOD:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))

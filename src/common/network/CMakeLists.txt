@@ -8,22 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(network
-  ${PRIVATE_SOURCES})
+add_library(network)
 
-CollectIncludeDirectories(
+CollectAndAddSourceFiles(
+  network
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
+  EXCLUDE
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 target_include_directories(network
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

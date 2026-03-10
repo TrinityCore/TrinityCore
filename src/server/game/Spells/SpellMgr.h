@@ -272,7 +272,8 @@ DEFINE_ENUM_FLAG(ProcAttributes);
                                PROC_ATTR_REQ_POWER_COST         | \
                                PROC_ATTR_REQ_SPELLMOD           | \
                                PROC_ATTR_USE_STACKS_FOR_CHARGES | \
-                               PROC_ATTR_REDUCE_PROC_60)
+                               PROC_ATTR_REDUCE_PROC_60         | \
+                               PROC_ATTR_CANT_PROC_FROM_ITEM_CAST)
 
 struct SpellProcEntry
 {

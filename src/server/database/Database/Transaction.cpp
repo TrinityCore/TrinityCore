@@ -24,7 +24,7 @@
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
-#include <cstring>
+#include <utility>
 
 std::mutex TransactionTask::_deadlockLock;
 
@@ -73,7 +73,7 @@ bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<Transaction
         }();
 
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-        std::lock_guard<std::mutex> lock(_deadlockLock);
+        std::scoped_lock lock(_deadlockLock);
 
         for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
@@ -94,7 +94,7 @@ bool TransactionTask::Execute(MySQLConnection* conn, std::shared_ptr<Transaction
 
 int TransactionTask::TryExecute(MySQLConnection* conn, std::shared_ptr<TransactionBase> trans)
 {
-    return conn->ExecuteTransaction(trans);
+    return conn->ExecuteTransaction(std::move(trans));
 }
 
 bool TransactionCallback::InvokeIfReady()

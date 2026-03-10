@@ -19,6 +19,7 @@
 #define TRINITYCORE_PLAYER_CHOICE_H
 
 #include "Define.h"
+#include "Duration.h"
 #include "EnumFlag.h"
 #include "Optional.h"
 #include <algorithm>

@@ -175,7 +175,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void InvitePlayersInZoneToWar();
 
         /// Called when a Unit is kill in battlefield zone
-        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { };
+        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { }
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
@@ -235,7 +235,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
-        void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
+        void SetGraveyardNumber(uint32 number);
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
@@ -281,7 +281,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void HideNpc(Creature* creature);
         void ShowNpc(Creature* creature, bool aggressive);
 
-        GraveyardVect GetGraveyardVector() const { return m_GraveyardList; }
+        GraveyardVect const& GetGraveyardVector() const { return m_GraveyardList; }
 
         uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }

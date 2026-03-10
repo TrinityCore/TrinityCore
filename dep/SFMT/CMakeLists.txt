@@ -9,31 +9,37 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(SFMT_SOURCES
-  SFMT.c
-  SFMT.h
-  SFMT-alti.h
-  SFMT-common.h
-  SFMT-neon.h
-  SFMT-params.h
-  SFMT-params607.h
-  SFMT-params1279.h
-  SFMT-params2281.h
-  SFMT-params4253.h
-  SFMT-params11213.h
-  SFMT-params19937.h
-  SFMT-params44497.h
-  SFMT-params86243.h
-  SFMT-params132049.h
-  SFMT-params216091.h
-  SFMT-sse2.h
-  SFMT-sse2-msc.h)
+add_library(sfmt STATIC)
 
-add_library(sfmt STATIC ${SFMT_SOURCES})
+target_sources(sfmt
+  PRIVATE
+    SFMT.c)
 
-target_include_directories(sfmt
-  INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+target_sources(sfmt
+  PUBLIC
+    FILE_SET HEADERS
+    FILES
+      SFMT.h
+      SFMT-params.h
+      SFMT-params607.h
+      SFMT-params1279.h
+      SFMT-params2281.h
+      SFMT-params4253.h
+      SFMT-params11213.h
+      SFMT-params19937.h
+      SFMT-params44497.h
+      SFMT-params86243.h
+      SFMT-params132049.h
+      SFMT-params216091.h
+  PRIVATE
+    FILE_SET sfmt_private_headers
+    TYPE HEADERS
+    FILES
+      SFMT-alti.h
+      SFMT-common.h
+      SFMT-neon.h
+      SFMT-sse2.h
+      SFMT-sse2-msc.h)
 
 # using the standard Mersenne exponent 19937
 target_compile_definitions(sfmt PUBLIC SFMT_MEXP=19937)

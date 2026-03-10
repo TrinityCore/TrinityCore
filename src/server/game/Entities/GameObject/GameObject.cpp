@@ -105,6 +105,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
 
     memcpy(stats.Data.data(), raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
     stats.ContentTuningId = ContentTuningId;
+    stats.RequiredLevel = RequiredLevel;
 
     queryTemp.Write();
     queryTemp.ShrinkToFit();
@@ -322,7 +323,7 @@ public:
             }
 
             dst = dst * pathRotation;
-            dst += PositionToVector3(&_owner.GetStationaryPosition());
+            dst += PositionToVector3(_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
         }
@@ -418,12 +419,7 @@ public:
     void UpdatePassengerPositions()
     {
         for (WorldObject* passenger : _passengers)
-        {
-            float x, y, z, o;
-            passenger->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
-            CalculatePassengerPosition(x, y, z, &o);
-            UpdatePassengerPosition(_owner.GetMap(), passenger, x, y, z, o, true);
-        }
+            UpdatePassengerPosition(_owner.GetMap(), passenger, _owner.GetPositionWithOffset(passenger->m_movementInfo.transport.pos), true);
     }
 
     uint32 GetTransportPeriod() const
@@ -434,16 +430,16 @@ public:
         return 1;
     }
 
-    std::vector<uint32> const* GetPauseTimes() const
+    std::span<uint32 const> GetPauseTimes() const
     {
-        return &_stopFrames;
+        return _stopFrames;
     }
 
     ObjectGuid GetTransportGUID() const override { return _owner.GetGUID(); }
 
     float GetTransportOrientation() const override { return _owner.GetOrientation(); }
 
-    void AddPassenger(WorldObject* passenger) override
+    void AddPassenger(WorldObject* passenger, Position const& offset) override
     {
         if (!_owner.IsInWorld())
             return;
@@ -452,6 +448,7 @@ public:
         {
             passenger->SetTransport(this);
             passenger->m_movementInfo.transport.guid = GetTransportGUID();
+            passenger->m_movementInfo.transport.pos = offset;
             TC_LOG_DEBUG("entities.transport", "Object {} boarded transport {}.", passenger->GetName(), _owner.GetName());
         }
     }
@@ -471,14 +468,14 @@ public:
         return this;
     }
 
-    void CalculatePassengerPosition(float& x, float& y, float& z, float* o) const override
+    Position GetPositionWithOffset(Position const& offset) const override
     {
-        TransportBase::CalculatePassengerPosition(x, y, z, o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+        return _owner.GetPositionWithOffset(offset);
     }
 
-    void CalculatePassengerOffset(float& x, float& y, float& z, float* o) const override
+    Position GetPositionOffsetTo(Position const& endPos) const override
     {
-        TransportBase::CalculatePassengerOffset(x, y, z, o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+        return _owner.GetPositionOffsetTo(endPos);
     }
 
     int32 GetMapIdForSpawning() const override
@@ -837,9 +834,8 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
+    m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
-    m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag.Stationary = true;
@@ -872,7 +868,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 GameObject::~GameObject()
 {
     delete m_AI;
-    delete m_model;
 }
 
 void GameObject::AIM_Destroy()
@@ -1028,7 +1023,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         m_updateFlag.ServerTime = true;
     }
 
-    Object::_Create(guid);
+    _Create(guid);
 
     m_goInfo = goInfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(entry);
@@ -1066,7 +1061,10 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
 
         if (m_goTemplateAddon->AIAnimKitID)
+        {
+            m_updateFlag.AnimKit = true;
             _animKitId = m_goTemplateAddon->AIAnimKitID;
+        }
     }
 
     SetEntry(goInfo->entry);
@@ -1177,7 +1175,10 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
 
         if (gameObjectAddon->AIAnimKitID)
+        {
+            m_updateFlag.AnimKit = true;
             _animKitId = gameObjectAddon->AIAnimKitID;
+        }
     }
 
     if (uint32 vignetteId = GetGOInfo()->GetSpawnVignette())
@@ -1561,7 +1562,7 @@ void GameObject::Update(uint32 diff)
                         m_loot->Update();
 
                         // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                        if (GetGOInfo()->chest.consumable == 0 && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
+                        if (!GetGOInfo()->IsDespawnAtAction() && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
                         {
                             m_restockTime = 0;
                             m_lootState = GO_READY;
@@ -2626,7 +2627,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                 if (info->GetLootId())
                 {
                     Group const* group = player->GetGroup();
-                    bool groupRules = group && info->chest.usegrouplootrules;
+                    bool groupRules = group && info->IsUsingGroupLootRules();
 
                     Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
                     m_loot.reset(loot);
@@ -3242,7 +3243,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
 
-            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.SitAnimKit);
+            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.CustomSitAnimKit);
             return;
         }
         case GAMEOBJECT_TYPE_NEW_FLAG:
@@ -3748,7 +3749,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -3796,7 +3796,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = 0;
                 SetGoAnimProgress(0);
             }
-            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -3817,7 +3816,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         }
     }
@@ -3882,7 +3880,7 @@ void GameObject::OnLootRelease(Player* looter)
         case GAMEOBJECT_TYPE_CHEST:
         {
             GameObjectTemplate const* goInfo = GetGOInfo();
-            if (!goInfo->chest.consumable && goInfo->chest.chestPersonalLoot)
+            if (!goInfo->IsDespawnAtAction() && goInfo->chest.chestPersonalLoot)
             {
                 DespawnForPlayer(looter, goInfo->chest.chestRestockTime
                     ? Seconds(goInfo->chest.chestRestockTime)
@@ -4011,15 +4009,43 @@ void GameObject::UpdateModel()
 {
     if (!IsInWorld())
         return;
+    bool modelCollisionEnabled;
     if (m_model)
+    {
+        modelCollisionEnabled = m_model->IsCollisionEnabled();
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
+    }
+    else
+        modelCollisionEnabled = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
+
     RemoveFlag(GO_FLAG_MAP_OBJECT);
-    delete m_model;
-    m_model = nullptr;
+    std::unique_ptr<GameObjectModel> oldModel = std::exchange(m_model, nullptr);
+
     CreateModel();
     if (m_model)
+    {
         GetMap()->InsertGameObjectModel(*m_model);
+        if (modelCollisionEnabled)
+            m_model->EnableCollision(modelCollisionEnabled);
+    }
+
+    switch (GetGoType())
+    {
+        // Only update navmesh when display id changes and not on spawn
+        // default state of destructible buildings is intended to be baked in the mesh produced by mmaps_generator
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_TRAPDOOR:
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+        case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+            if (m_model)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*m_model, GetPhaseShift());
+            else if (oldModel)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*oldModel, GetPhaseShift());
+            break;
+        default:
+            break;
+    }
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
@@ -4054,21 +4080,21 @@ GameObject* GameObject::GetLinkedTrap()
     return ObjectAccessor::GetGameObject(*this, m_linkedTrap);
 }
 
-void GameObject::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void GameObject::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_gameObjectData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_gameObjectData->WriteCreate(flags, data, target, this);
 }
 
-void GameObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void GameObject::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_GAMEOBJECT))
-        m_gameObjectData->WriteUpdate(*data, flags, this, target);
+        m_gameObjectData->WriteUpdate(flags, data, target, this);
 }
 
 void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -4085,14 +4111,14 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_GAMEOBJECT])
-        m_gameObjectData->WriteUpdate(buffer, requestedGameObjectMask, true, this, target);
+        m_gameObjectData->WriteUpdate(requestedGameObjectMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -4110,18 +4136,19 @@ void GameObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* p
     player->SendDirectMessage(&packet);
 }
 
-void GameObject::ClearUpdateMask(bool remove)
+void GameObject::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&GameObject::m_gameObjectData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }
 
-std::vector<uint32> const* GameObject::GetPauseTimes() const
+std::span<uint32 const> GameObject::GetPauseTimes() const
 {
+    std::span<uint32 const> result;
     if (GameObjectType::Transport const* transport = dynamic_cast<GameObjectType::Transport const*>(m_goTypeImpl.get()))
-        return transport->GetPauseTimes();
+        result = transport->GetPauseTimes();
 
-    return nullptr;
+    return result;
 }
 
 void GameObject::SetPathProgressForClient(float progress)
@@ -4129,22 +4156,12 @@ void GameObject::SetPathProgressForClient(float progress)
     m_transportPathProgress = progress;
 }
 
-void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const
+Position GameObject::GetRespawnPosition() const
 {
     if (m_goData)
-    {
-        if (ori)
-            m_goData->spawnPoint.GetPosition(x, y, z, *ori);
-        else
-            m_goData->spawnPoint.GetPosition(x, y, z);
-    }
-    else
-    {
-        if (ori)
-            GetPosition(x, y, z, *ori);
-        else
-            GetPosition(x, y, z);
-    }
+        return m_goData->spawnPoint;
+
+    return GetPosition();
 }
 
 TransportBase const* GameObject::ToTransportBase() const
@@ -4242,6 +4259,8 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
         _animKitId = animKitId;
     else
         _animKitId = 0;
+
+    m_updateFlag.AnimKit = _animKitId != 0;
 
     WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
     activateAnimKit.ObjectGUID = GetGUID();
@@ -4506,6 +4525,7 @@ public:
     bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
     G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     G3D::Quat GetRotation() const override { return G3D::Quat(_owner->GetLocalRotation().x, _owner->GetLocalRotation().y, _owner->GetLocalRotation().z, _owner->GetLocalRotation().w); }
+    int64 GetPackedRotation() const override { return _owner->GetPackedLocalRotation(); }
     float GetScale() const override { return _owner->GetObjectScale(); }
     void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
@@ -4545,8 +4565,20 @@ void GameObject::CreateModel()
         if (m_model->IsMapObject())
             SetFlag(GO_FLAG_MAP_OBJECT);
 
-        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
-            m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+        switch (GetGoType())
+        {
+            case GAMEOBJECT_TYPE_DOOR:
+                m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+                break;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            case GAMEOBJECT_TYPE_TRAPDOOR:
+            case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+                m_model->IncludeInNavMesh(true);
+                break;
+            default:
+                break;
+        }
     }
 }
 

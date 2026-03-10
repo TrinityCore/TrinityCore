@@ -129,6 +129,12 @@
 #  define TC_GAME_API TC_API_IMPORT
 #endif
 
+#ifdef TRINITY_API_EXPORT_MMAPS_COMMON
+#  define TC_MMAPS_COMMON_API TC_API_EXPORT
+#else
+#  define TC_MMAPS_COMMON_API TC_API_IMPORT
+#endif
+
 #define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)
 

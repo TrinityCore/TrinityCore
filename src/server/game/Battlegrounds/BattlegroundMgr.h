@@ -126,10 +126,11 @@ class TC_GAME_API BattlegroundMgr
         void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundBracketId bracket_id);
         uint32 GetPrematureFinishTime() const;
 
-        void ToggleArenaTesting();
+        // Return whether toggling was successful. In case of a non-existing battlemasterListId, or this battlemasterListId is not an arena, this would return false.
+        bool ToggleArenaTesting(uint32 battlemasterListId);
         void ToggleTesting();
 
-        bool isArenaTesting() const { return m_ArenaTesting; }
+        bool isArenaTesting() const { return m_ArenaTesting != 0; }
         bool isTesting() const { return m_Testing; }
 
         static bool IsRandomBattleground(uint32 battlemasterListId);
@@ -162,6 +163,8 @@ class TC_GAME_API BattlegroundMgr
         void LoadBattlegroundScriptTemplate();
         BattlegroundScriptTemplate const* FindBattlegroundScriptTemplate(uint32 mapId, BattlegroundTypeId bgTypeId) const;
 
+        static void QueuePlayerForArena(Player const* player, uint8 teamSize, uint8 roles);
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
@@ -185,7 +188,7 @@ class TC_GAME_API BattlegroundMgr
         std::vector<ScheduledQueueUpdate> m_QueueUpdateScheduler;
         uint32 m_NextRatedArenaUpdate;
         uint32 m_UpdateTimer;
-        bool   m_ArenaTesting;
+        uint32 m_ArenaTesting;
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;
 

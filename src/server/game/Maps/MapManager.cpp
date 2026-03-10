@@ -163,7 +163,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
     if (!entry)
         return nullptr;
 
-    std::unique_lock<std::shared_mutex> lock(_mapsLock);
+    std::scoped_lock lock(_mapsLock);
 
     Map* map = nullptr;
     uint32 newInstanceId = 0;                       // instanceId of the resulting map

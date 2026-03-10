@@ -156,19 +156,19 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
     {
         return static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
             && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None;
-    });
+    }, [](auto const& pair) -> UF::TraitConfig const& { return pair.second.value; });
     if (configCount >= TraitMgr::MAX_COMBAT_TRAIT_CONFIGS)
         return;
 
     auto findFreeLocalIdentifier = [&]()
     {
         int32 index = 1;
-        while (_player->m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& traitConfig)
+        while (_player->m_activePlayerData->TraitConfigs.FindIf([&](UF::TraitConfig const& traitConfig)
         {
             return static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
                 && traitConfig.ChrSpecializationID == int32(_player->GetPrimarySpecialization())
                 && traitConfig.LocalIdentifier == index;
-        }) >= 0)
+        }).first)
             ++index;
 
         return index;
@@ -228,12 +228,12 @@ void WorldSession::HandleClassTalentsSetStarterBuildActive(WorldPackets::Traits:
         auto findFreeLocalIdentifier = [&]()
         {
             int32 index = 1;
-            while (_player->m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& traitConfig)
+            while (_player->m_activePlayerData->TraitConfigs.FindIf([&](UF::TraitConfig const& traitConfig)
             {
                 return static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
                     && traitConfig.ChrSpecializationID == int32(_player->GetPrimarySpecialization())
                     && traitConfig.LocalIdentifier == index;
-            }) >= 0)
+            }).first)
                 ++index;
 
             return index;

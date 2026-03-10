@@ -22,9 +22,8 @@ void WorldSession::HandleCommerceTokenGetLog(WorldPackets::Token::CommerceTokenG
 {
     WorldPackets::Token::CommerceTokenGetLogResponse response;
 
-    /// @todo: 6.x fix implementation
     response.ClientToken = commerceTokenGetLog.ClientToken;
-    response.Result = TOKEN_RESULT_SUCCESS;
+    response.Result = TOKEN_RESULT_ERROR_DISABLED;
 
     SendPacket(response.Write());
 }
@@ -33,11 +32,9 @@ void WorldSession::HandleCommerceTokenGetMarketPrice(WorldPackets::Token::Commer
 {
     WorldPackets::Token::CommerceTokenGetMarketPriceResponse response;
 
-    /// @todo: 6.x fix implementation
-    response.PriceGuarantee = 300000000;
+    response.Price = 0;
     response.ClientToken = commerceTokenGetMarketPrice.ClientToken;
-    response.ServerToken = TOKEN_RESULT_SUCCESS;
-    //packet.ReadUInt32("UnkInt32");
+    response.Result = TOKEN_RESULT_ERROR_DISABLED;
 
     SendPacket(response.Write());
 }

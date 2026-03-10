@@ -261,6 +261,8 @@ public:
     bool IsAreaAuraEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
+    uint32 GetPeriodicTickCount() const;
+
     int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
     int32 CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
@@ -341,6 +343,7 @@ class TC_GAME_API SpellInfo
         uint32 AttributesEx13 = 0;
         uint32 AttributesEx14 = 0;
         uint32 AttributesEx15 = 0;
+        uint32 AttributesEx16 = 0;
         uint32 AttributesCu = 0;
         std::bitset<MAX_SPELL_EFFECTS> NegativeEffects;
         uint64 Stances = 0;
@@ -420,7 +423,6 @@ class TC_GAME_API SpellInfo
         {
             uint32 MinScalingLevel = 0;
             uint32 MaxScalingLevel = 0;
-            uint32 ScalesFromItemLevel = 0;
         } Scaling;
 
         uint32 ExplicitTargetMask = 0;
@@ -464,6 +466,7 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
         bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellAttr15 attribute) const { return !!(AttributesEx15 & attribute); }
+        bool HasAttribute(SpellAttr16 attribute) const { return !!(AttributesEx16 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
         bool CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget, bool ignoreImmunity = false) const;
@@ -553,8 +556,6 @@ class TC_GAME_API SpellInfo
         int32 CalcDuration(WorldObject const* caster = nullptr) const;
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
-
-        uint32 GetMaxTicks() const;
 
         uint32 CalcCastTime(Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;

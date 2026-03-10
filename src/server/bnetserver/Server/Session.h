@@ -20,8 +20,8 @@
 
 #include "AsyncCallbackProcessor.h"
 #include "ClientBuildInfo.h"
+#include "DatabaseEnvFwd.h"
 #include "Duration.h"
-#include "QueryResult.h"
 #include "Realm.h"
 #include "Socket.h"
 #include "SslStream.h"
@@ -65,10 +65,8 @@ using namespace bgs::protocol;
 
 namespace Battlenet
 {
-    class Session final : public Trinity::Net::Socket<Trinity::Net::SslStream<>>
+    class Session final : public std::enable_shared_from_this<Session>
     {
-        using BaseSocket = Socket<Trinity::Net::SslStream<>>;
-
     public:
         struct LastPlayedCharacterInfo
         {
@@ -113,8 +111,12 @@ namespace Battlenet
         explicit Session(Trinity::Net::IoContextTcpSocket&& socket);
         ~Session();
 
-        void Start() override;
-        bool Update() override;
+        void Start();
+        bool Update();
+        boost::asio::ip::address const& GetRemoteIpAddress() const { return _socket->GetRemoteIpAddress(); }
+        bool IsOpen() const { return _socket->IsOpen(); }
+        void CloseSocket() { return _socket->CloseSocket(); }
+        void DelayedCloseSocket() { return _socket->DelayedCloseSocket(); }
 
         uint32 GetAccountId() const { return _accountInfo->Id; }
         uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }
@@ -142,7 +144,7 @@ namespace Battlenet
 
         std::string GetClientInfo() const;
 
-        Trinity::Net::SocketReadCallbackResult ReadHandler() override;
+        Trinity::Net::SocketReadCallbackResult ReadHandler();
 
     protected:
         bool ReadHeaderLengthHandler();
@@ -162,6 +164,10 @@ namespace Battlenet
         uint32 GetRealmList(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
         uint32 JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
 
+        using Socket = Trinity::Net::Socket<Trinity::Net::SslStream<>>;
+
+        static std::shared_ptr<Socket> CreateSocket(Trinity::Net::IoContextTcpSocket&& socket);
+        std::shared_ptr<Socket> _socket;
         MessageBuffer _headerLengthBuffer;
         MessageBuffer _headerBuffer;
         MessageBuffer _packetBuffer;

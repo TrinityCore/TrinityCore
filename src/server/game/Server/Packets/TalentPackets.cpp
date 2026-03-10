@@ -61,6 +61,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentGroupInfo const& talentGro
     if (!talentGroupInfo.GlyphIDs.empty())
         data.append(talentGroupInfo.GlyphIDs.data(), talentGroupInfo.GlyphIDs.size());
 
+    data.WriteBit(talentGroupInfo.Unused1125);
+    data.FlushBits();
+
     return data;
 }
 
@@ -99,7 +102,7 @@ WorldPacket const* UpdateTalentData::Write()
             _worldPacket << talent;
 
         for (uint32 talent : talentGroupInfo.GlyphIDs)
-            _worldPacket << uint16(talent);
+            _worldPacket << uint32(talent);
     }
 
     return &_worldPacket;

@@ -62,6 +62,7 @@ namespace WorldPackets
             std::vector<uint16> GlyphIDs;
             int8 Role = 0;
             int32 PrimarySpecialization = 0;
+            bool Unused1125 = false;
         };
 
         struct ClassicTalentInfoUpdate

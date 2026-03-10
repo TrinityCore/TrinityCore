@@ -40,6 +40,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestMgr.h"
 #include "RBAC.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -2087,7 +2088,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
-            if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
+            if (referencePlayer->GetMap()->GetDifficultyID() != int32(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerLevelEqualOrGreaterThan: // 69
@@ -3090,7 +3091,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             Scenario const* scenario = referencePlayer->GetScenario();
             if (!scenario)
                 return false;
-            if (scenario->GetEntry()->Type != reqValue)
+            if (scenario->GetEntry()->Type != int32(reqValue))
                 return false;
             break;
         }
@@ -3277,15 +3278,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerIsOnQuestInQuestline: // 236
         {
-            bool isOnQuest = false;
-            if (std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue))
-            {
-                isOnQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-                {
-                    return referencePlayer->FindQuestSlot(questLineQuest->QuestID) < MAX_QUEST_LOG_SIZE;
-                });
-            }
-            if (!isOnQuest)
+            if (!QuestMgr::IsQuestLineQuestActiveForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
@@ -3312,52 +3305,26 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerCanAcceptQuestInQuestline: // 240
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            bool canTakeQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-            {
-                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
-                    return referencePlayer->CanTakeQuest(quest, false);
-                return false;
-            });
-            if (!canTakeQuest)
+            if (!QuestMgr::IsQuestLineQuestAvailableForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestline: // 241
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
+            if (!QuestMgr::IsQuestLineCompletedByPlayer(reqValue, referencePlayer))
                 return false;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (!referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestlineQuestCount: // 242
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            uint32 completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (completedQuests < reqValue)
+            if (QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer).Completed < reqValue)
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedPercentageOfQuestline: // 243
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests || questLineQuests->empty())
-                return false;
-            std::size_t completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (GetPctOf(completedQuests, questLineQuests->size()) < reqValue)
+            QuestMgr::QuestLineStats questLineStats = QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer);
+            if (GetPctOf(questLineStats.Completed, questLineStats.Total) < reqValue)
                 return false;
             break;
         }
@@ -3511,7 +3478,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerLevelWithinContentTuning: // 268
         {
             uint8 level = referencePlayer->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
             {
                 if (secondaryAsset)
                     return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
@@ -3524,7 +3491,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref || !ref->IsUnit())
                 return false;
             uint8 level = ref->ToUnit()->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
             {
                 if (secondaryAsset)
                     return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
@@ -3544,7 +3511,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerLevelWithinOrAboveContentTuning: // 272
         {
             uint8 level = referencePlayer->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
                 return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
             return false;
         }
@@ -3553,7 +3520,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref || !ref->IsUnit())
                 return false;
             uint8 level = ref->ToUnit()->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
                 return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
             return false;
         }
@@ -3700,7 +3667,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return referencePlayer->m_activePlayerData->RuneforgePowers[block] & (1 << bit);
         }
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304
-            if (!(referencePlayer->m_playerData->CtrOptions->ConditionalFlags & 1))
+            if (referencePlayer->m_playerData->CtrOptions->ConditionalFlags.empty() || !(referencePlayer->m_playerData->CtrOptions->ConditionalFlags[0] & 1))
                 return false;
             break;
         case ModifierTreeType::IsRaFRecruit: // 305
@@ -3874,21 +3841,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfig: // 340
         {
-            auto hasTraitNodeEntry = [referencePlayer, reqValue]()
+            auto hasTraitNodeEntry = [referencePlayer, reqValue]
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(reqValue))
                             return true;
-                }
+
                 return false;
             }();
             if (!hasTraitNodeEntry)
@@ -3899,19 +3859,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             auto traitNodeEntryRank = [referencePlayer, secondaryAsset]() -> Optional<uint16>
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(secondaryAsset))
                             return traitEntry.Rank;
-                }
+
                 return {};
             }();
             if (!traitNodeEntryRank || traitNodeEntryRank < int32(reqValue))
@@ -3943,18 +3896,18 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
-            auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
+            uint32 traitNodeEntryRankCount = [referencePlayer, secondaryAsset]
             {
                 uint32 ranks = 0;
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                for (auto const& [_, traitConfig] : referencePlayer->m_activePlayerData->TraitConfigs)
                 {
-                    if (TraitConfigType(*traitConfig.Type) != TraitConfigType::Profession)
+                    if (TraitConfigType(*traitConfig.value.Type) != TraitConfigType::Profession)
                         continue;
 
-                    if (*traitConfig.SkillLineID != int32(secondaryAsset))
+                    if (*traitConfig.value.SkillLineID != int32(secondaryAsset))
                         continue;
 
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                    for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
                         if (sTraitNodeEntryStore.AssertEntry(traitEntry.TraitNodeEntryID)->GetNodeEntryType() == TraitNodeEntryType::ProfPath)
                             ranks += traitEntry.Rank + traitEntry.GrantedRanks;
                 }
@@ -4025,7 +3978,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
         {
-            int32 traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIndexIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
+            int32 const* traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
             {
                 if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat
                     && (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
@@ -4036,11 +3989,19 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     return traitSubTree.TraitSubTreeID == int32(reqValue) && traitSubTree.Active;
                 }) >= 0;
-            });
-            if (traitConfigWithSubtree < 0)
+            }).first;
+            if (!traitConfigWithSubtree)
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerIsInTimerunningSeason: // 386
+            if (referencePlayer->m_activePlayerData->TimerunningSeasonID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerHasCompletedCampaign: // 388
+            if (!QuestMgr::IsCampaignCompletedByPlayer(reqValue, referencePlayer))
+                return false;
+            break;
         case ModifierTreeType::TargetCreatureClassificationEqual: // 389
         {
             Creature const* targetCreature = Object::ToCreature(ref);
@@ -4070,6 +4031,16 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInGuild: // 404
             if (!referencePlayer->GetGuildId())
                 return false;
+            break;
+        case ModifierTreeType::PlayerMoneyIsRelOp: // 417
+            switch (reqValue)
+            {
+                case 1: if (referencePlayer->GetMoney() <= secondaryAsset) return false; break;
+                case 2: if (referencePlayer->GetMoney() >= secondaryAsset) return false; break;
+                case 3: if (referencePlayer->GetMoney() < secondaryAsset) return false; break;
+                case 4: if (referencePlayer->GetMoney() > secondaryAsset) return false; break;
+                default: if (referencePlayer->GetMoney() != secondaryAsset) return false; break;
+            }
             break;
         default:
             return false;
@@ -4748,7 +4719,7 @@ T GetEntry(std::unordered_map<uint32, T> const& map, CriteriaTreeEntry const* tr
         return nullptr;
 
     return itr->second;
-};
+}
 
 void CriteriaMgr::LoadCriteriaList()
 {

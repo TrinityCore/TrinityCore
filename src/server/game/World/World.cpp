@@ -69,7 +69,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MapUtils.h"
@@ -82,6 +82,7 @@
 #include "Player.h"
 #include "PlayerDump.h"
 #include "PoolMgr.h"
+#include "QuestMgr.h"
 #include "QuestPools.h"
 #include "RealmList.h"
 #include "ScenarioMgr.h"
@@ -99,8 +100,7 @@
 #include "Unit.h"
 #include "UpdateTime.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
-#include "WardenCheckMgr.h"
+#include "VMapManager.h"
 #include "WaypointManager.h"
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
@@ -188,7 +188,6 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
-    MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
 }
@@ -270,7 +269,7 @@ std::vector<std::string> const& World::GetMotd() const
 void World::TriggerGuidWarning()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     time_t gameTime = GameTime::GetGameTime();
     time_t today = (gameTime / DAY) * DAY;
@@ -289,7 +288,7 @@ void World::TriggerGuidWarning()
 void World::TriggerGuidAlert()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     DoGuidAlertRestart();
     _guidAlert = true;
@@ -664,7 +663,6 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "ShowKickInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_KICK_IN_WORLD },
         { .Name = "ShowMuteInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_MUTE_IN_WORLD },
         { .Name = "ShowBanInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_BAN_IN_WORLD },
-        { .Name = "Warden.Enabled"sv, .DefaultValue = false, .Index = CONFIG_WARDEN_ENABLED },
         { .Name = "FeatureSystem.CharacterUndelete.Enabled"sv, .DefaultValue = false, .Index = CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED },
         { .Name = "DBC.EnforceItemAttributes"sv, .DefaultValue = true, .Index = CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES },
         { .Name = "InstancesResetAnnounce"sv, .DefaultValue = false, .Index = CONFIG_INSTANCES_RESET_ANNOUNCE },
@@ -748,7 +746,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "CharacterCreating.MinLevelForDemonHunter"sv, .DefaultValue = 0, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER },
         { .Name = "CharacterCreating.MinLevelForEvoker"sv, .DefaultValue = 50, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER },
         { .Name = "SkipCinematics"sv, .DefaultValue = 0, .Index = CONFIG_SKIP_CINEMATICS, .Min = 0, .Max = 2 },
-        { .Name = "MaxPlayerLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
+        { .Name = "MaxPlayerLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
         { .Name = "MinDualSpecLevel"sv, .DefaultValue = 40, .Index = CONFIG_MIN_DUALSPEC_LEVEL },
         { .Name = "StartPlayerLevel"sv, .DefaultValue = 1, .Index = CONFIG_START_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartDeathKnightPlayerLevel"sv, .DefaultValue = 8, .Index = CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL, .Min = 1 },
@@ -758,7 +756,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "Currency.ResetHour"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_HOUR, .Min = 0, .Max = 23 },
         { .Name = "Currency.ResetDay"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_DAY, .Min = 0, .Max = 6 },
         { .Name = "Currency.ResetInterval"sv, .DefaultValue = 7, .Index = CONFIG_CURRENCY_RESET_INTERVAL, .Min = 1 },
-        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
+        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
         { .Name = "RecruitAFriend.MaxDifference"sv, .DefaultValue = 4, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE },
         { .Name = "ResetSchedule.WeekDay"sv, .DefaultValue = 2, .Index = CONFIG_RESET_SCHEDULE_WEEK_DAY, .Min = 0, .Max = 6 },
         { .Name = "ResetSchedule.Hour"sv, .DefaultValue = 8, .Index = CONFIG_RESET_SCHEDULE_HOUR, .Min = 0, .Max = 23 },
@@ -860,13 +858,6 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "PvPToken.ItemCount"sv, .DefaultValue = 1, .Index = CONFIG_PVP_TOKEN_COUNT, .Min = 1 },
         { .Name = "MapUpdate.Threads"sv, .DefaultValue = 1, .Index = CONFIG_NUMTHREADS, .Min = 1 },
         { .Name = "Command.LookupMaxResults"sv, .DefaultValue = 0, .Index = CONFIG_MAX_RESULTS_LOOKUP_COMMANDS },
-        { .Name = "Warden.NumInjectionChecks"sv, .DefaultValue = 9, .Index = CONFIG_WARDEN_NUM_INJECT_CHECKS },
-        { .Name = "Warden.NumLuaSandboxChecks"sv, .DefaultValue = 1, .Index = CONFIG_WARDEN_NUM_LUA_CHECKS },
-        { .Name = "Warden.NumClientModChecks"sv, .DefaultValue = 1, .Index = CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS },
-        { .Name = "Warden.BanDuration"sv, .DefaultValue = 86400, .Index = CONFIG_WARDEN_CLIENT_BAN_DURATION },
-        { .Name = "Warden.ClientCheckHoldOff"sv, .DefaultValue = 30, .Index = CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF },
-        { .Name = "Warden.ClientCheckFailAction"sv, .DefaultValue = 0, .Index = CONFIG_WARDEN_CLIENT_FAIL_ACTION },
-        { .Name = "Warden.ClientResponseDelay"sv, .DefaultValue = 600, .Index = CONFIG_WARDEN_CLIENT_RESPONSE_DELAY },
         { .Name = "FeatureSystem.CharacterUndelete.Cooldown"sv, .DefaultValue = 2592000, .Index = CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN },
         { .Name = "DungeonFinder.OptionsMask"sv, .DefaultValue = 1, .Index = CONFIG_LFG_OPTIONSMASK },
         { .Name = "Account.PasswordChangeSecurity"sv, .DefaultValue = 0, .Index = CONFIG_ACC_PASSCHANGESEC },
@@ -1207,7 +1198,8 @@ void World::LoadConfigSettings(bool reload)
 
     _gameRules =
     {
-        { .Rule = ::GameRule::TransmogEnabled, .Value = true }
+        { .Rule = ::GameRule::TransmogEnabled, .Value = true },
+        { .Rule = ::GameRule::HousingEnabled, .Value = true }
     };
 
     if (reload)
@@ -1248,7 +1240,7 @@ bool World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
+    VMAP::VMapManager* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
     vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
     vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
@@ -1356,7 +1348,7 @@ bool World::SetInitialWorldSettings()
 
     vmmgr2->InitializeThreadUnsafe(mapData);
 
-    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    MMAP::MMapManager* mmmgr = MMAP::MMapManager::instance();
     mmmgr->InitializeThreadUnsafe(mapData);
 
     ///- Initialize static helper structures
@@ -1588,6 +1580,7 @@ bool World::SetInitialWorldSettings()
     WeatherMgr::LoadWeatherData();
 
     TC_LOG_INFO("server.loading", "Loading Quests...");
+    QuestMgr::Load();
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
 
     TC_LOG_INFO("server.loading", "Checking Quest Disables");
@@ -2034,13 +2027,6 @@ bool World::SetInitialWorldSettings()
     ///- Initialize Battlefield
     TC_LOG_INFO("server.loading", "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
-
-    ///- Initialize Warden
-    TC_LOG_INFO("server.loading", "Loading Warden Checks...");
-    sWardenCheckMgr->LoadWardenChecks();
-
-    TC_LOG_INFO("server.loading", "Loading Warden Action Overrides...");
-    sWardenCheckMgr->LoadWardenOverrides();
 
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query

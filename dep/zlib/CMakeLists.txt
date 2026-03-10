@@ -22,28 +22,43 @@ if(UNIX)
         "${ZLIB_INCLUDE_DIRS}")
 else()
   # Use the bundled source on windows
-  SET(zlib_STAT_SRCS
-    adler32.c
-    compress.c
-    crc32.c
-    deflate.c
-    infback.c
-    inffast.c
-    inflate.c
-    inftrees.c
-    trees.c
-    uncompr.c
-    zutil.c
-  )
+  add_library(zlib STATIC)
 
-  add_library(zlib STATIC
-    ${zlib_STAT_SRCS})
+  target_sources(zlib
+    PRIVATE
+      adler32.c
+      compress.c
+      crc32.c
+      deflate.c
+      infback.c
+      inffast.c
+      inflate.c
+      inftrees.c
+      trees.c
+      uncompr.c
+      zutil.c)
+
+  target_sources(zlib
+    PUBLIC
+      FILE_SET HEADERS
+      FILES
+        zlib.h
+    PRIVATE
+      FILE_SET zlib_private_headers
+      TYPE HEADERS
+      FILES
+        crc32.h
+        deflate.h
+        gzguts.h
+        inffast.h
+        inffixed.h
+        inflate.h
+        inftrees.h
+        trees.h
+        zconf.h
+        zutil.h)
 
   set_target_properties(zlib PROPERTIES LINKER_LANGUAGE CXX)
-
-  target_include_directories(zlib
-    PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_link_libraries(zlib
     PRIVATE

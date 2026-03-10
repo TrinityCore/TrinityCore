@@ -381,7 +381,7 @@ class spell_rappelling_rope : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_rappelling_rope::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_rappelling_rope::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 

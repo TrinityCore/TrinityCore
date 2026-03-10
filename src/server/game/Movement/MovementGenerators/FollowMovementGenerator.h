@@ -33,7 +33,7 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
 {
     public:
         explicit FollowMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle, Optional<Milliseconds> duration,
-            bool ignoreTargetWalk = false, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            bool ignoreTargetWalk = false, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         ~FollowMovementGenerator();
 
         void Initialize(Unit*) override;

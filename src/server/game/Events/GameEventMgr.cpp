@@ -1698,7 +1698,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     for (uint8 i = 0; i < stageIndex; ++i)
         stageOffset += Hours(holiday->Duration[i]);
 
-    switch (holiday->CalendarFilterType)
+    switch (static_cast<std::make_signed_t<decltype(holiday->CalendarFilterType)>>(holiday->CalendarFilterType))
     {
         case -1: // Yearly
             event.occurence = YEAR / MINUTE; // Not all too useful

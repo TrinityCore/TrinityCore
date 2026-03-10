@@ -24,32 +24,46 @@ namespace Scripting::v2
 {
 class ActionBase;
 
+template <typename T>
+struct ActionResultValueHolder
+{
+    ActionBase& Action;
+    T Result = { };
+};
+
 void MarkActionCompleted(ActionBase& action);
 
 template <typename T>
 class ActionResultSetter
 {
 public:
-    explicit ActionResultSetter(std::shared_ptr<ActionBase> action, T* result) : _action(std::move(action)), _result(result) { }
+    ActionResultSetter() = default;
+
+    explicit ActionResultSetter(std::shared_ptr<ActionResultValueHolder<T>>&& action) : _action(std::move(action)) { }
 
     void SetResult(T result)
     {
-        if (std::shared_ptr<ActionBase> ptr = _action.lock())
+        if (std::shared_ptr<ActionResultValueHolder<T>> ptr = _action.lock())
         {
-            *_result = std::move(result);
-            MarkActionCompleted(*ptr);
+            ptr->Result = result;
+            MarkActionCompleted(ptr->Action);
         }
     }
 
+    explicit operator bool() const { return !_action.expired(); }
+
+    void Reset() { _action.reset(); }
+
 private:
-    std::weak_ptr<ActionBase> _action;
-    T* _result;
+    std::weak_ptr<ActionResultValueHolder<T>> _action;
 };
 
 template <>
 class ActionResultSetter<void>
 {
 public:
+    ActionResultSetter() = default;
+
     explicit ActionResultSetter(std::shared_ptr<ActionBase> action) : _action(std::move(action)) { }
 
     void SetResult()
@@ -57,6 +71,10 @@ public:
         if (std::shared_ptr<ActionBase> ptr = _action.lock())
             MarkActionCompleted(*ptr);
     }
+
+    explicit operator bool() const { return !_action.expired(); }
+
+    void Reset() { _action.reset(); }
 
 private:
     std::weak_ptr<ActionBase> _action;

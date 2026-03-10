@@ -293,7 +293,7 @@ WorldPacket const* MailQueryNextTimeResult::Write()
         _worldPacket << entry.SenderGuid;
         _worldPacket << float(entry.TimeLeft);
         _worldPacket << int32(entry.AltSenderID);
-        _worldPacket << int8(entry.AltSenderType);
+        _worldPacket << int32(entry.AltSenderType);
         _worldPacket << int32(entry.StationeryID);
     }
 

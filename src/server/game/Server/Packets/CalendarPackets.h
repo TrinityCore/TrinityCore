@@ -173,10 +173,10 @@ namespace WorldPackets
 
         struct CalendarSendCalendarRaidLockoutInfo
         {
-            uint64 InstanceID = 0;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 ExpireTime = 0;
+            uint64 InstanceID = 0;
         };
 
         struct CalendarSendCalendarEventInfo
@@ -293,7 +293,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             uint64 EventID = 0;
             uint8 Status = 0;
             bool ClearPending = false;
@@ -311,7 +311,7 @@ namespace WorldPackets
 
             ObjectGuid InviteGuid;
             uint64 EventID = 0;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             bool ClearPending = false;
         };
 
@@ -337,7 +337,7 @@ namespace WorldPackets
 
             uint64 EventID = 0;
             WowTime Date;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             uint8 Status = 0;
         };
 
@@ -448,7 +448,7 @@ namespace WorldPackets
 
             int32 MapID = 0;
             bool Extend = false;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
         };
 
         class CalendarModeratorStatusQuery final : public ClientPacket
@@ -485,7 +485,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 InstanceID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 TimeRemaining = 0;
             WowTime ServerTime;
             int32 MapID = 0;
@@ -500,7 +500,7 @@ namespace WorldPackets
 
             uint64 InstanceID = 0;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
         };
 
         class CalendarRaidLockoutUpdated final : public ServerPacket
@@ -512,7 +512,7 @@ namespace WorldPackets
 
             WowTime ServerTime;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 NewTimeRemaining = 0;
             int32 OldTimeRemaining = 0;
         };
@@ -543,7 +543,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 EventID = 0;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             WowTime Date;
             uint8 Status = 0;
         };

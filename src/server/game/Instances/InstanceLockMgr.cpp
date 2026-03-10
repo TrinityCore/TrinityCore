@@ -280,7 +280,7 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     InstanceLock* instanceLock = FindActiveInstanceLock(playerGuid, entries, true, true);
     if (!instanceLock)
     {
-        std::unique_lock<std::shared_mutex> guard(_locksMutex);
+        std::scoped_lock guard(_locksMutex);
 
         // Move lock from temporary storage if it exists there
         // This is to avoid destroying expired locks before any boss is killed in a fresh lock
@@ -323,7 +323,7 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
                 GetNextResetTime(entries), updateEvent.InstanceId);
 
         {
-            std::unique_lock<std::shared_mutex> guard(_locksMutex);
+            std::scoped_lock guard(_locksMutex);
 
             _instanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
         }

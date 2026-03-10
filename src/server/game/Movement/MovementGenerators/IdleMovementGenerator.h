@@ -44,7 +44,7 @@ class RotateMovementGenerator : public MovementGenerator
 
         explicit RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,
             Optional<float> turnSpeed, Optional<float> totalTurnAngle,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult);
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;

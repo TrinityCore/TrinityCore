@@ -60,9 +60,9 @@ endif()
 if(WITH_COREDEBUG)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      -g3)
+      -g3 -glldb)
 
-  message(STATUS "Clang: Debug-flags set (-g3)")
+  message(STATUS "Clang: Debug-flags set (-g3 -glldb)")
 endif()
 
 if(ASAN)

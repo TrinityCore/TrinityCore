@@ -25,20 +25,14 @@ BossBoundaryData const boundaries =
     { DATA_YMIRON, new CircleBoundary({ 7382.8168f, 7300.5527f }, 55.0f)}
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_YMIRON,                              DATA_YMIRON             },
     { BOSS_HARBARON,                            DATA_HARBARON           },
     { BOSS_HELYA,                               DATA_HELYA              },
-    { 0,                                        0                       }  // END
 };
 
-DoorData const doorData[] =
-{
-    { 0,                                        0,              EncounterDoorBehavior::OpenWhenNotInProgress }  // END
-};
-
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_YMIRON,      {{ 1822 }} },
     { DATA_HARBARON,    {{ 1823 }} },
@@ -56,8 +50,8 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
-            LoadDoorData(doorData);
+            LoadObjectData(creatureData, {});
+            //LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }

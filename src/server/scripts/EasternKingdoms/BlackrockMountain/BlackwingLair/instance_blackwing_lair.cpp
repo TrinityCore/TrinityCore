@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -25,7 +26,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  EncounterDoorBehavior::OpenWhenDone },
     { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, EncounterDoorBehavior::OpenWhenDone },
@@ -35,10 +36,9 @@ DoorData const doorData[] =
     { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               EncounterDoorBehavior::OpenWhenDone },
     { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             EncounterDoorBehavior::OpenWhenDone },
     { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                         0,                            EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_RAZORGORE,       DATA_RAZORGORE_THE_UNTAMED  },
     { NPC_VAELASTRAZ,      DATA_VAELASTRAZ_THE_CORRUPT },
@@ -49,16 +49,14 @@ ObjectData const creatureData[] =
     { NPC_CHROMAGGUS,      DATA_CHROMAGGUS             },
     { NPC_NEFARIAN,        DATA_NEFARIAN               },
     { NPC_VICTOR_NEFARIUS, DATA_LORD_VICTOR_NEFARIUS   },
-    { 0,                   0                           } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_CHROMAGGUS_DOOR,             DATA_GO_CHROMAGGUS_DOOR },
-    { 0,                              0                       } //END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_RAZORGORE_THE_UNTAMED, {{ 610 }} },
     { DATA_VAELASTRAZ_THE_CORRUPT, {{ 611 }} },
@@ -70,19 +68,19 @@ DungeonEncounterData const encounters[] =
     { DATA_NEFARIAN, {{ 617 }} }
 };
 
-Position const SummonPosition[8] =
+static constexpr Position SummonPosition[8] =
 {
-    {-7661.207520f, -1043.268188f, 407.199554f, 6.280452f},
-    {-7644.145020f, -1065.628052f, 407.204956f, 0.501492f},
-    {-7624.260742f, -1095.196899f, 407.205017f, 0.544694f},
-    {-7608.501953f, -1116.077271f, 407.199921f, 0.816443f},
-    {-7531.841797f, -1063.765381f, 407.199615f, 2.874187f},
-    {-7547.319336f, -1040.971924f, 407.205078f, 3.789175f},
-    {-7568.547852f, -1013.112488f, 407.204926f, 3.773467f},
-    {-7584.175781f, -989.6691289f, 407.199585f, 4.527447f},
+    { -7661.207520f, -1043.268188f, 407.199554f, 6.280452f },
+    { -7644.145020f, -1065.628052f, 407.204956f, 0.501492f },
+    { -7624.260742f, -1095.196899f, 407.205017f, 0.544694f },
+    { -7608.501953f, -1116.077271f, 407.199921f, 0.816443f },
+    { -7531.841797f, -1063.765381f, 407.199615f, 2.874187f },
+    { -7547.319336f, -1040.971924f, 407.205078f, 3.789175f },
+    { -7568.547852f, -1013.112488f, 407.204926f, 3.773467f },
+    { -7584.175781f, -989.6691289f, 407.199585f, 4.527447f },
 };
 
-uint32 const Entry[5] = {12422, 12458, 12416, 12420, 12459};
+static constexpr uint32 Entry[5] = {12422, 12458, 12416, 12420, 12459};
 
 class instance_blackwing_lair : public InstanceMapScript
 {
@@ -272,7 +270,7 @@ public:
                 {
                     case EVENT_RAZOR_SPAWN:
                         for (uint8 i = urand(2, 5); i > 0; --i)
-                            if (Creature* summon = instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
+                            if (Creature* summon = instance->SummonCreature(Trinity::Containers::SelectRandomContainerElement(Entry), Trinity::Containers::SelectRandomContainerElement(SummonPosition)))
                                 summon->AI()->DoZoneInCombat();
                         _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 12s, 17s);
                         break;

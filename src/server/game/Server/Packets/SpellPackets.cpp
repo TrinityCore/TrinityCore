@@ -97,6 +97,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << int32(auraData.ContentTuningID);
     data << auraData.DstLocation;
     data << OptionalInit(auraData.CastUnit);
+    data << OptionalInit(auraData.CastItem);
     data << OptionalInit(auraData.Duration);
     data << OptionalInit(auraData.Remaining);
     data << OptionalInit(auraData.TimeMod);
@@ -109,6 +110,9 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
+
+    if (auraData.CastItem)
+        data << *auraData.CastItem;
 
     if (auraData.Duration)
         data << uint32(*auraData.Duration);
@@ -162,17 +166,17 @@ ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
 
 ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
 {
-    buffer.ResetBitPos();
+    buffer >> targetData.Flags;
+    buffer >> targetData.Unit;
+    buffer >> targetData.Item;
+    buffer >> targetData.HousingGUID;
 
-    buffer >> Bits<28>(targetData.Flags);
+    buffer >> Bits<1>(targetData.HousingIsResident);
     buffer >> OptionalInit(targetData.SrcLocation);
     buffer >> OptionalInit(targetData.DstLocation);
     buffer >> OptionalInit(targetData.Orientation);
     buffer >> OptionalInit(targetData.MapID);
     buffer >> SizedString::BitsSize<7>(targetData.Name);
-
-    buffer >> targetData.Unit;
-    buffer >> targetData.Item;
 
     if (targetData.SrcLocation)
         buffer >> *targetData.SrcLocation;
@@ -201,9 +205,9 @@ ByteBuffer& operator>>(ByteBuffer& buffer, MissileTrajectoryRequest& trajectory)
 
 ByteBuffer& operator>>(ByteBuffer& data, SpellCraftingReagent& optionalReagent)
 {
-    data >> optionalReagent.ItemID;
-    data >> optionalReagent.DataSlotIndex;
+    data >> optionalReagent.Slot;
     data >> optionalReagent.Quantity;
+    data >> optionalReagent.Reagent;
     data >> OptionalInit(optionalReagent.Source);
     if (optionalReagent.Source)
         data >> *optionalReagent.Source;
@@ -222,33 +226,36 @@ ByteBuffer& operator>>(ByteBuffer& data, SpellExtraCurrencyCost& extraCurrencyCo
 ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
 {
     buffer >> request.CastID;
+    buffer >> request.SendCastFlags;
     buffer >> request.Misc[0];
     buffer >> request.Misc[1];
+    buffer >> request.Misc[2];
     buffer >> request.SpellID;
     buffer >> request.Visual;
     buffer >> request.MissileTrajectory;
     buffer >> request.CraftingNPC;
-    buffer >> Size<uint32>(request.OptionalCurrencies);
-    buffer >> Size<uint32>(request.OptionalReagents);
-    buffer >> Size<uint32>(request.RemovedModifications);
-    buffer >> request.CraftingFlags;
+    buffer >> Size<uint32>(request.ExtraCurrencyCosts);
+    buffer >> Size<uint32>(request.CraftingReagents);
+    buffer >> Size<uint32>(request.RemovedReagents);
+    buffer >> request.CraftingCastFlags;
 
-    for (SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
+    for (SpellExtraCurrencyCost& optionalCurrency : request.ExtraCurrencyCosts)
         buffer >> optionalCurrency;
 
-    buffer >> Bits<6>(request.SendCastFlags);
+    buffer >> request.Target;
+
+    buffer.ResetBitPos();
     buffer >> OptionalInit(request.MoveUpdate);
     buffer >> BitsSize<2>(request.Weight);
     buffer >> OptionalInit(request.CraftingOrderID);
-    buffer >> request.Target;
+
+    for (SpellCraftingReagent& optionalReagent : request.CraftingReagents)
+        buffer >> optionalReagent;
 
     if (request.CraftingOrderID)
         buffer >> *request.CraftingOrderID;
 
-    for (SpellCraftingReagent& optionalReagent : request.OptionalReagents)
-        buffer >> optionalReagent;
-
-    for (SpellCraftingReagent& optionalReagent : request.RemovedModifications)
+    for (SpellCraftingReagent& optionalReagent : request.RemovedReagents)
         buffer >> optionalReagent;
 
     if (request.MoveUpdate)
@@ -302,16 +309,18 @@ ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
 {
-    data << Bits<28>(spellTargetData.Flags);
+    data << uint32(spellTargetData.Flags);
+    data << spellTargetData.Unit;
+    data << spellTargetData.Item;
+    data << spellTargetData.HousingGUID;
+
+    data << Bits<1>(spellTargetData.HousingIsResident);
     data << OptionalInit(spellTargetData.SrcLocation);
     data << OptionalInit(spellTargetData.DstLocation);
     data << OptionalInit(spellTargetData.Orientation);
     data << OptionalInit(spellTargetData.MapID);
     data << SizedString::BitsSize<7>(spellTargetData.Name);
     data.FlushBits();
-
-    data << spellTargetData.Unit;
-    data << spellTargetData.Item;
 
     if (spellTargetData.SrcLocation)
         data << *spellTargetData.SrcLocation;
@@ -382,7 +391,7 @@ ByteBuffer& operator<<(ByteBuffer& data, CreatureImmunities const& immunities)
 ByteBuffer& operator<<(ByteBuffer& data, SpellHealPrediction const& spellPred)
 {
     data << int32(spellPred.Points);
-    data << uint8(spellPred.Type);
+    data << uint32(spellPred.Type);
     data << spellPred.BeaconGUID;
 
     return data;
@@ -510,6 +519,7 @@ WorldPacket const* SpellFailure::Write()
     _worldPacket << int32(SpellID);
     _worldPacket << Visual;
     _worldPacket << uint16(Reason);
+    _worldPacket << FailedBy;
 
     return &_worldPacket;
 }
@@ -521,6 +531,7 @@ WorldPacket const* SpellFailedOther::Write()
     _worldPacket << uint32(SpellID);
     _worldPacket << Visual;
     _worldPacket << uint8(Reason);
+    _worldPacket << FailedBy;
 
     return &_worldPacket;
 }
@@ -533,6 +544,7 @@ WorldPacket const* CastFailed::Write()
     _worldPacket << int32(Reason);
     _worldPacket << int32(FailedArg1);
     _worldPacket << int32(FailedArg2);
+    _worldPacket << FailedBy;
 
     return &_worldPacket;
 }
@@ -805,9 +817,9 @@ WorldPacket const* PlaySpellVisual::Write()
     _worldPacket << TargetPosition;
     _worldPacket << uint32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
-    _worldPacket << uint16(HitReason);
-    _worldPacket << uint16(MissReason);
-    _worldPacket << uint16(ReflectStatus);
+    _worldPacket << uint8(HitReason);
+    _worldPacket << uint8(MissReason);
+    _worldPacket << uint8(ReflectStatus);
     _worldPacket << float(LaunchDelay);
     _worldPacket << float(MinDuration);
     _worldPacket << Bits<1>(SpeedAsTime);
@@ -887,6 +899,8 @@ WorldPacket const* SpellChannelUpdate::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(TimeRemaining);
+    _worldPacket << FailedBy;
+
     return &_worldPacket;
 }
 
@@ -928,7 +942,7 @@ WorldPacket const* SpellEmpowerUpdate::Write()
     _worldPacket << TimeRemaining;
     _worldPacket << Size<uint32>(StageDurations);
     _worldPacket << uint8(Status);
-    _worldPacket.FlushBits();
+    _worldPacket << FailedBy;
 
     for (Duration<Milliseconds, uint32> stageDuration : StageDurations)
         _worldPacket << stageDuration;

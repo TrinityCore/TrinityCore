@@ -18,7 +18,6 @@
 #include "Timezone.h"
 #include "Hash.h"
 #include "MapUtils.h"
-#include "Tuples.h"
 #include <algorithm>
 #include <array>
 #include <unordered_map>
@@ -46,7 +45,7 @@ std::unordered_map<uint32, Minutes, std::identity> InitTimezoneHashDb()
         std::chrono::sys_info sysInfo = zone.get_info(dummmy);
         Minutes offsetMinutes = std::chrono::duration_cast<Minutes>(sysInfo.offset);
         std::string offsetStr = Trinity::ToString(offsetMinutes.count());
-        hashToOffset.emplace(Trinity::HashFnv1a(offsetStr), offsetMinutes);
+        hashToOffset.emplace(Trinity::HashFnv1a<uint32>::GetHash(offsetStr), offsetMinutes);
     }
 
 #else
@@ -170,7 +169,7 @@ std::string GetSystemZoneName()
 std::string_view FindClosestClientSupportedTimezone(std::string_view currentTimezone, Minutes currentTimezoneOffset)
 {
     // try exact match
-    auto itr = std::ranges::find(_clientSupportedTimezones, currentTimezone, Trinity::TupleElement<1>);
+    auto itr = std::ranges::find(_clientSupportedTimezones, currentTimezone, Trinity::Containers::MapValue);
     if (itr != _clientSupportedTimezones.end())
         return itr->second;
 

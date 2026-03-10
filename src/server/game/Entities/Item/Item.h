@@ -60,6 +60,7 @@ extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 struct BonusData
 {
     uint32 Quality;
+    uint32 ItemLevel;
     int32 ItemLevelBonus;
     int32 RequiredLevel;
     int32 ItemStatType[MAX_ITEM_PROTO_STATS];
@@ -80,11 +81,22 @@ struct BonusData
     int32 AzeriteTierUnlockSetId;
     uint32 Suffix;
     int32 RequiredLevelCurve;
+    uint16 PvpItemLevel;
+    int16 PvpItemLevelBonus;
+    uint32 ItemLevelOffsetCurveId;
+    uint32 ItemLevelOffsetItemLevel;
+    uint32 ItemLevelOffset;
+    uint32 ItemSquishEraID;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
+    uint32 LimitCategory;
     bool CanDisenchant;
     bool CanScrap;
+    bool CanSalvage;
+    bool CanRecraft;
     bool HasFixedLevel;
+    bool CannotTradeBindOnPickup;
+    bool IgnoreSquish;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
@@ -100,7 +112,11 @@ private:
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
         int32 RequiredLevelCurvePriority;
+        int32 ItemLevelPriority;
+        int32 PvpItemLevelPriority;
+        int32 BondingPriority;
         bool HasQualityBonus;
+        bool HasItemLimitCategory;
     } _state;
 };
 
@@ -232,8 +248,8 @@ class TC_GAME_API Item : public Object
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans);
 
-        Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
-        Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
+        Bag* ToBag() { return IsBag() ? reinterpret_cast<Bag*>(this) : nullptr; }
+        Bag const* ToBag() const { return IsBag() ? reinterpret_cast<Bag const*>(this) : nullptr; }
         AzeriteItem* ToAzeriteItem() { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem*>(this) : nullptr; }
         AzeriteItem const* ToAzeriteItem() const { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem const*>(this) : nullptr; }
         AzeriteEmpoweredItem* ToAzeriteEmpoweredItem() { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem*>(this) : nullptr; }
@@ -347,6 +363,7 @@ class TC_GAME_API Item : public Object
         static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
         std::span<ItemEffectEntry const* const> GetEffects() const { return { _bonusData.Effects.data(), _bonusData.EffectCount }; }
+        uint32 GetItemLimitCategory() const { return _bonusData.LimitCategory; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
@@ -370,12 +387,12 @@ class TC_GAME_API Item : public Object
 
     protected:
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const final;
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ItemData::Mask const& requestedItemMask, Player const* target) const;
 

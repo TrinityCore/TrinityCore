@@ -16,24 +16,6 @@
  */
 
 #include "SessionManager.h"
-#include "Util.h"
-
-bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
-{
-    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
-        return false;
-
-    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
-    {
-        OnSocketOpen(std::move(sock), threadIndex);
-    });
-    return true;
-}
-
-Trinity::Net::NetworkThread<Battlenet::Session>* Battlenet::SessionManager::CreateThreads() const
-{
-    return new Trinity::Net::NetworkThread<Session>[GetNetworkThreadCount()];
-}
 
 Battlenet::SessionManager& Battlenet::SessionManager::Instance()
 {

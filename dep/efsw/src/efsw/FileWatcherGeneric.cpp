@@ -101,7 +101,7 @@ void FileWatcherGeneric::removeWatch( WatchID watchid ) {
 
 void FileWatcherGeneric::watch() {
 	if ( NULL == mThread ) {
-		mThread = new Thread( &FileWatcherGeneric::run, this );
+		mThread = new Thread([this]{run();});
 		mThread->launch();
 	}
 }

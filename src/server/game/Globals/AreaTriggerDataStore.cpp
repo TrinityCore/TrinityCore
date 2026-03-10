@@ -34,10 +34,10 @@ struct std::hash<AreaTriggerId>
 {
     std::size_t operator()(AreaTriggerId const& value) const noexcept
     {
-        size_t hashVal = 0;
-        Trinity::hash_combine(hashVal, value.Id);
-        Trinity::hash_combine(hashVal, value.IsCustom);
-        return hashVal;
+        Trinity::HashFnv1a<> hash;
+        hash.UpdateData(value.Id);
+        hash.UpdateData(value.IsCustom);
+        return hash.Value;
     }
 };
 
