@@ -54,4 +54,102 @@ WorldPacket const* AccountTransmogUpdate::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator>>(ByteBuffer& data, TransmogOutfitSlot& slot)
+{
+    data >> slot.Slot;
+    data >> slot.SlotOption;
+    data >> slot.ItemModifiedAppearanceID;
+    data >> slot.AppearanceDisplayType;
+    data >> slot.SpellItemEnchantmentID;
+    data >> slot.IllusionDisplayType;
+    data >> slot.Flags;
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TransmogOutfitSlot const& slot)
+{
+    data << slot.Slot;
+    data << slot.SlotOption;
+    data << slot.ItemModifiedAppearanceID;
+    data << slot.AppearanceDisplayType;
+    data << slot.SpellItemEnchantmentID;
+    data << slot.IllusionDisplayType;
+    data << slot.Flags;
+    return data;
+}
+
+void TransmogOutfitUpdateSlots::Read()
+{
+    _worldPacket >> OutfitID;
+    uint32 slotCount;
+    _worldPacket >> slotCount;
+    _worldPacket >> Npc;
+
+    // Skip 8 bytes of extra header between GUID and slot data
+    _worldPacket.rpos(_worldPacket.rpos() + 8);
+
+    uint32 clampedSlotCount = std::min(slotCount, MAX_OUTFIT_SLOTS);
+    Slots.resize(clampedSlotCount);
+    for (uint32 i = 0; i < clampedSlotCount; ++i)
+    {
+        _worldPacket >> Slots[i];
+    }
+    // 1 trailing byte remains in the packet (boolean flag, unused)
+}
+
+
+WorldPacket const* TransmogOutfitSlotsUpdated::Write()
+{
+    _worldPacket << OutfitID;
+    _worldPacket << uint32(Slots.size());
+    for (TransmogOutfitSlot const& slot : Slots)
+        _worldPacket << slot;
+
+    return &_worldPacket;
+}
+
+void TransmogOutfitNew::Read()
+{
+    _worldPacket >> Npc;
+
+    // Skip 2 unknown header bytes (index/flags)
+    _worldPacket.rpos(_worldPacket.rpos() + 2);
+
+    _worldPacket >> Icon;
+
+    // Name length is encoded as uint16 with high bit as a flag
+    uint16 nameInfo;
+    _worldPacket >> nameInfo;
+    uint16 nameLength = nameInfo & 0x7FFF;
+    Name = _worldPacket.ReadString(nameLength);
+}
+
+void ClearNewAppearance::Read()
+{
+    _worldPacket >> ItemModifiedAppearanceID;
+}
+
+void TransmogOutfitUpdateInfo::Read()
+{
+    _worldPacket >> Npc;
+    _worldPacket >> OutfitID;
+    _worldPacket >> Icon;
+    uint32 nameLength = _worldPacket.ReadBits(7);
+    _worldPacket.ResetBitPos();
+    Name = _worldPacket.ReadString(nameLength);
+    TC_LOG_DEBUG("network", "TransmogOutfitUpdateInfo::Read - Npc={}, OutfitID={}, Icon={}, NameLength={}, Name='{}'", Npc.ToString(), OutfitID, Icon, nameLength, Name);
+}
+
+WorldPacket const* TransmogOutfitInfoUpdated::Write()
+{
+    _worldPacket << OutfitID;
+    return &_worldPacket;
+}
+
+WorldPacket const* TransmogOutfitNewEntryAdded::Write()
+{
+    _worldPacket << OutfitID;
+    return &_worldPacket;
+}
 }

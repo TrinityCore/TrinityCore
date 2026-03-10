@@ -1546,6 +1546,12 @@ void WorldSession::SendFeatureSystemStatus()
         }, gameRule.Value);
     }
 
+    // Force GameRule 109 (TransmogEnabled) to be true for the client UI
+    WorldPackets::System::GameRuleValuePair& transmogRule = features.GameRules.emplace_back();
+    transmogRule.Rule = 109; // TransmogEnabled
+    transmogRule.Value = 1;  // True
+    transmogRule.ValueF = 0.0f;
+
     features.AddonChatThrottle.MaxTries = 10;
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
     features.AddonChatThrottle.UsedTriesPerMessage = 1;
