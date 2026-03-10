@@ -111,36 +111,6 @@ inline constexpr bool IsIndirectFragment(EntityFragment frag)
         || frag == EntityFragment::PlayerInitiativeComponent_C;
 }
 
-template <auto /*FragmentMemberPtr*/>
-struct FragmentSerializationTraits
-{
-};
-
-template <typename Entity, typename Fragment, Fragment Entity::* FragmentData>
-struct FragmentSerializationTraits<FragmentData>
-{
-    static void BuildCreate(BaseEntity const* baseEntity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
-    {
-        Entity const* entity = static_cast<Entity const*>(baseEntity);
-        (entity->*FragmentData)->WriteCreate(data, flags, entity, target);
-    }
-
-    static void BuildUpdate(BaseEntity const* baseEntity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
-    {
-        Entity const* entity = static_cast<Entity const*>(baseEntity);
-        (entity->*FragmentData)->WriteUpdate(data, flags, entity, target);
-    }
-
-    static bool IsChanged(BaseEntity const* baseEntity)
-    {
-        Entity const* entity = static_cast<Entity const*>(baseEntity);
-        return (entity->*FragmentData)->GetChangesMask().IsAnySet();
-    }
-};
-
-using EntityFragmentSerializeFn = void (*)(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
-using EntityFragmentIsChangedFn = bool (*)(BaseEntity const* entity);
-
 struct EntityFragmentsHolder
 {
     std::array<EntityFragment, 8> Ids =
@@ -158,9 +128,7 @@ struct EntityFragmentsHolder
             EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
         };
         std::array<uint8, N> Masks = { };
-        std::array<EntityFragmentSerializeFn, N> SerializeCreate = { };
-        std::array<EntityFragmentSerializeFn, N> SerializeUpdate = { };
-        std::array<EntityFragmentIsChangedFn, N> IsChanged = { };
+        std::array<void const*, N> Data;
     };
 
     UpdateableFragments Updateable;
@@ -171,16 +139,7 @@ struct EntityFragmentsHolder
     uint8 UpdateableCount = 0;
     uint8 ContentsChangedMask = 0;
 
-    void Add(EntityFragment fragment, bool update,
-        EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate, EntityFragmentIsChangedFn isChanged);
-
-    inline void Add(EntityFragment fragment, bool update) { Add(fragment, update, nullptr, nullptr, nullptr); }
-
-    template <typename SerializationTraits>
-    inline void Add(EntityFragment fragment, bool update, SerializationTraits)
-    {
-        Add(fragment, update, &SerializationTraits::BuildCreate, &SerializationTraits::BuildUpdate, &SerializationTraits::IsChanged);
-    }
+    void Add(EntityFragment fragment, bool update, void const* data = nullptr);
 
     void Remove(EntityFragment fragment);
 
@@ -192,6 +151,66 @@ enum class EntityFragmentSerializationType : uint8
     Full    = 0,
     Partial = 1
 };
+
+template <typename T>
+inline void const* GetRawFragmentData(T const& fragmentData)
+{
+    return std::addressof(*fragmentData);
+}
+
+template <typename FragmentData>
+struct FragmentSerializationTraits
+{
+    static void BuildCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
+    {
+        static_cast<FragmentData const*>(rawFragmentData)->WriteCreate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
+    }
+
+    static void BuildUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity)
+    {
+        static_cast<FragmentData const*>(rawFragmentData)->WriteUpdate(flags, data, target, reinterpret_cast<typename FragmentData::OwnerObject const*>(baseEntity));
+    }
+
+    static bool IsChanged(void const* rawFragmentData)
+    {
+        return static_cast<FragmentData const*>(rawFragmentData)->GetChangesMask().IsAnySet();
+    }
+
+    static void ClearChanged(void const* rawFragmentData)
+    {
+        const_cast<FragmentData*>(static_cast<FragmentData const*>(rawFragmentData))->ClearChangesMask();
+    }
+};
+
+using EntityFragmentSerializeFn = void (*)(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* baseEntity);
+using EntityFragmentIsChangedFn = bool (*)(void const* rawFragmentData);
+using EntityFragmentClearChangedFn = void (*)(void const* rawFragmentData);
+
+struct EntityFragmentInfos
+{
+    static constexpr std::size_t N = static_cast<std::size_t>(EntityFragment::End) + 1;
+
+    std::array<EntityFragmentSerializeFn, N> SerializeCreate = { };
+    std::array<EntityFragmentSerializeFn, N> SerializeUpdate = { };
+    std::array<EntityFragmentIsChangedFn, N> IsChanged = { };
+    std::array<EntityFragmentClearChangedFn, N> ClearChanged = { };
+
+    static void Register(EntityFragment fragment,
+        EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate,
+        EntityFragmentIsChangedFn isChanged, EntityFragmentClearChangedFn clearChanged);
+
+    template <typename SerializationTraits>
+    inline static void Register(EntityFragment fragment, SerializationTraits)
+    {
+        EntityFragmentInfos::Register(fragment, &SerializationTraits::BuildCreate, &SerializationTraits::BuildUpdate,
+            &SerializationTraits::IsChanged, &SerializationTraits::ClearChanged);
+    }
+
+private:
+    EntityFragmentInfos();
+};
+
+extern EntityFragmentInfos const* EntityFragmentInfo;
 }
 
 #endif // TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H

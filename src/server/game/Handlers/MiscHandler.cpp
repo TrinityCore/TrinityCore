@@ -1222,3 +1222,8 @@ void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownT
 
     _player->SendDirectMessage(startTimer.Write());
 }
+
+void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags const& setCurrenctFlags)
+{
+    _player->SetCurrencyFlagsFromClient(setCurrenctFlags.CurrencyID, setCurrenctFlags.Flags);
+}

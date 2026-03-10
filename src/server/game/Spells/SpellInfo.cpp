@@ -1240,7 +1240,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 309 SPELL_EFFECT_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 310 SPELL_EFFECT_310
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 311 SPELL_EFFECT_ENSURE_WORLD_LOADED
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 311 SPELL_EFFECT_SKIP_QUESTLINE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 312 SPELL_EFFECT_312
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 314 SPELL_EFFECT_ADD_SOCKET_BONUS
@@ -2418,7 +2418,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
        return SPELL_FAILED_TARGETS_DEAD;
 
     // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
-    if (implicit && HasAttribute(SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS) && !unitTarget->CanFreeMove())
+    if (implicit && HasAttribute(SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS) && unitTarget->HasBreakableByDamageCrowdControlAura())
        return SPELL_FAILED_BAD_TARGETS;
 
     // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
@@ -2763,7 +2763,7 @@ void SpellInfo::_LoadAuraState()
 SpellSpecificType SpellInfo::GetSpellSpecific() const
 {
     return _spellSpecific;
-};
+}
 
 void SpellInfo::_LoadSpellSpecific()
 {

@@ -100,8 +100,6 @@ class TC_GAME_API Object : public BaseEntity
 
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
-        void ClearUpdateMask(bool remove) override;
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
 
@@ -173,17 +171,21 @@ class TC_GAME_API Object : public BaseEntity
     protected:
         Object();
 
-        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
+        virtual void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const = 0;
+        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer& data, EnumFlag<UF::UpdateFieldFlag> flags) const;
+        virtual void ClearValuesChangesMask();
 
     public:
-        virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
+        virtual void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const;
 
     private:
-        static void BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
-        static void BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
-        static bool IsObjectFragmentChanged(BaseEntity const* entity);
+        struct ObjectFragmentInfoInitializer;
+        friend ObjectFragmentInfoInitializer;
+        static void BuildObjectFragmentCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* entity);
+        static void BuildObjectFragmentUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* entity);
+        static bool IsObjectFragmentChanged(void const* rawFragmentData);
+        static void ClearObjectFragmentChanged(void const* rawFragmentData);
 
         struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Object> m_scriptRef;

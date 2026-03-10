@@ -63,6 +63,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestMgr.h"
 #include "ReputationMgr.h"
 #include "RestMgr.h"
 #include "SceneObject.h"
@@ -371,7 +372,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectUnused,                                   //280 SPELL_EFFECT_280
     &Spell::EffectNULL,                                     //281 SPELL_EFFECT_LEARN_SOULBIND_CONDUIT
     &Spell::EffectNULL,                                     //282 SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY
-    &Spell::EffectNULL,                                     //283 SPELL_EFFECT_COMPLETE_CAMPAIGN
+    &Spell::EffectSkipCampaign,                             //283 SPELL_EFFECT_COMPLETE_CAMPAIGN
     &Spell::EffectSendChatMessage,                          //284 SPELL_EFFECT_SEND_CHAT_MESSAGE
     &Spell::EffectNULL,                                     //285 SPELL_EFFECT_MODIFY_KEYSTONE_2
     &Spell::EffectGrantBattlePetExperience,                 //286 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
@@ -399,7 +400,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //309 SPELL_EFFECT_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //310 SPELL_EFFECT_310
-    &Spell::EffectNULL,                                     //311 SPELL_EFFECT_ENSURE_WORLD_LOADED
+    &Spell::EffectSkipQuestLine,                            //311 SPELL_EFFECT_SKIP_QUESTLINE
     &Spell::EffectNULL,                                     //312 SPELL_EFFECT_312
     &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
@@ -3972,7 +3973,7 @@ void Spell::EffectCharge()
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         // not all charge effects used in negative spells
-        if (m_spellInfo->HasAttribute(SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR7_ATTACK_ON_CHARGE_TO_UNIT) && unitCaster->IsValidAttackTarget(unitTarget))
             unitCaster->Attack(unitTarget, true);
 
         if (effectInfo->TriggerSpell)
@@ -6052,6 +6053,18 @@ void Spell::EffectApplyMountEquipment()
     playerTarget->SendDirectMessage(applyMountEquipmentResult.Write());
 }
 
+void Spell::EffectSkipCampaign()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    QuestMgr::SkipCampaignForPlayer(effectInfo->MiscValue, target);
+}
+
 void Spell::EffectSendChatMessage()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -6252,6 +6265,18 @@ void Spell::EffectUpdateInteractions()
         return;
 
     target->UpdateVisibleObjectInteractions(true, false, true, true);
+}
+
+void Spell::EffectSkipQuestLine()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    QuestMgr::SkipQuestLineForPlayer(effectInfo->MiscValue, target);
 }
 
 void Spell::EffectLearnWarbandScene()

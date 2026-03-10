@@ -25,16 +25,15 @@ BossBoundaryData const boundaries =
     { DATA_ROKMORA, new RectangleBoundary(2855.4377f, 2953.1074f, 1360.5552f, 1438.9974f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_ROKMORA,               DATA_ROKMORA               },
     { BOSS_ULAROGG_CRAGSHAPER,    DATA_ULAROGG_CRAGSHAPER    },
     { BOSS_NARAXAS,               DATA_NARAXAS               },
     { BOSS_DARGRUL_THE_UNDERKING, DATA_DARGRUL_THE_UNDERKING },
-    { 0,                          0                          }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_ROKMORA,               {{ 1790 }} },
     { DATA_ULAROGG_CRAGSHAPER,    {{ 1791 }} },
@@ -42,10 +41,9 @@ DungeonEncounterData const encounters[] =
     { DATA_DARGRUL_THE_UNDERKING, {{ 1793 }} },
 };
 
-static DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_MYSTIC_BARRIER, DATA_ROKMORA, EncounterDoorBehavior::OpenWhenDone },
-    { 0,                 0,            EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 class instance_neltharions_lair : public InstanceMapScript
@@ -59,7 +57,7 @@ class instance_neltharions_lair : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);

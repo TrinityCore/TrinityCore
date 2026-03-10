@@ -85,6 +85,8 @@ DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("Battlema
 DB2Storage<BattlemasterListXMapEntry>           sBattlemasterListXMapStore("BattlemasterListXMap.db2", &BattlemasterListXMapLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
+DB2Storage<CampaignEntry>                       sCampaignStore("Campaign.db2", &CampaignLoadInfo::Instance);
+DB2Storage<CampaignXQuestLineEntry>             sCampaignXQuestLineStore("CampaignXQuestLine.db2", &CampaignXQuestLineLoadInfo::Instance);
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
 DB2Storage<ChallengeModeItemBonusOverrideEntry> sChallengeModeItemBonusOverrideStore("ChallengeModeItemBonusOverride.db2", &ChallengeModeItemBonusOverrideLoadInfo::Instance);
@@ -353,6 +355,7 @@ DB2Storage<TaxiPathNodeEntry>                   sTaxiPathNodeStore("TaxiPathNode
 DB2Storage<TotemCategoryEntry>                  sTotemCategoryStore("TotemCategory.db2", &TotemCategoryLoadInfo::Instance);
 DB2Storage<ToyEntry>                            sToyStore("Toy.db2", &ToyLoadInfo::Instance);
 DB2Storage<TraitCondEntry>                      sTraitCondStore("TraitCond.db2", &TraitCondLoadInfo::Instance);
+DB2Storage<TraitCondAccountElementEntry>        sTraitCondAccountElementStore("TraitCondAccountElement.db2", &TraitCondAccountElementLoadInfo::Instance);
 DB2Storage<TraitCostEntry>                      sTraitCostStore("TraitCost.db2", &TraitCostLoadInfo::Instance);
 DB2Storage<TraitCurrencyEntry>                  sTraitCurrencyStore("TraitCurrency.db2", &TraitCurrencyLoadInfo::Instance);
 DB2Storage<TraitCurrencySourceEntry>            sTraitCurrencySourceStore("TraitCurrencySource.db2", &TraitCurrencySourceLoadInfo::Instance);
@@ -518,7 +521,6 @@ namespace
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
-    std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -714,6 +716,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlemasterListXMapStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
+    LOAD_DB2(sCampaignStore);
+    LOAD_DB2(sCampaignXQuestLineStore);
     LOAD_DB2(sCfgCategoriesStore);
     LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sChallengeModeItemBonusOverrideStore);
@@ -982,6 +986,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTotemCategoryStore);
     LOAD_DB2(sToyStore);
     LOAD_DB2(sTraitCondStore);
+    LOAD_DB2(sTraitCondAccountElementStore);
     LOAD_DB2(sTraitCostStore);
     LOAD_DB2(sTraitCurrencyStore);
     LOAD_DB2(sTraitCurrencySourceStore);
@@ -1494,14 +1499,6 @@ void DB2Manager::IndexLoadedStores()
                 _pvpTalentSlotUnlock[i] = talentUnlock;
             }
         }
-    }
-
-    {
-        for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-            _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
-
-        for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
-            std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -2943,11 +2940,6 @@ int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) cons
             ++slots;
 
     return slots;
-}
-
-std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_questsByQuestLine, questLineId);
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const

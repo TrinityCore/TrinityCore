@@ -3752,7 +3752,7 @@ void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
     e.timer = urand(min, max);
-    e.active = e.timer ? false : true;
+    e.active = e.timer == 0;
 }
 
 void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
@@ -3855,20 +3855,6 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         e.timer -= diff;
 }
 
-bool SmartScript::CheckTimer(SmartScriptHolder const& e) const
-{
-    return e.active;
-}
-
-void SmartScript::InstallEvents()
-{
-    if (!mInstallEvents.empty())
-    {
-        mEvents.insert(mEvents.end(), std::move_iterator(mInstallEvents.begin()), std::move_iterator(mInstallEvents.end()));
-        mInstallEvents.clear();
-    }
-}
-
 void SmartScript::RemoveStoredEvent(uint32 id)
 {
     if (!mStoredEvents.empty())
@@ -3932,8 +3918,6 @@ void SmartScript::OnUpdate(uint32 const diff)
 
         return;
     }
-
-    InstallEvents();//before UpdateTimers
 
     if (mEventSortingRequired)
     {
@@ -4220,7 +4204,6 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
         InitTimer(event);//calculate timers for first time use
 
     ProcessEventsFor(SMART_EVENT_AI_INIT);
-    InstallEvents();
     ProcessEventsFor(SMART_EVENT_JUST_CREATED);
     mCounterList.clear();
 }

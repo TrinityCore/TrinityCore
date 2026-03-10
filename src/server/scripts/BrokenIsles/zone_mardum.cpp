@@ -759,7 +759,7 @@ CreatureAI* KaynSunfuryNearLegionBannerAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_kayn_sunfury_ashtongue_intro_private(creature);
     return new npc_kayn_sunfury_ashtongue_intro(creature);
-};
+}
 
 // 1053 - Enter the Illidari: Ashtongue
 class scene_enter_the_illidari_ashtongue : public SceneScript
@@ -829,7 +829,7 @@ CreatureAI* SevisBrightflameAshtongueGatewayAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_sevis_brightflame_ashtongue_gateway_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 200255 - Accepting Felsaber Gift
 class spell_accepting_felsaber_gift : public SpellScript
@@ -934,7 +934,7 @@ CreatureAI* SevisBrightflameCoilskarGatewayAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_sevis_brightflame_coilskar_gateway_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum EyeOnThePrizeData
 {
@@ -1255,7 +1255,7 @@ CreatureAI* CyanaNightglaiveFreedAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_cyana_nightglaive_freed_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 93117 - Izal Whitemoon
 struct npc_izal_whitemoon_freed_private : public ScriptedAI
@@ -1291,7 +1291,7 @@ CreatureAI* IzalWhitemoonFreedAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_izal_whitemoon_freed_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 94400 - Belath Dawnblade
 struct npc_belath_dawnblade_freed_private : public ScriptedAI
@@ -1327,7 +1327,7 @@ CreatureAI* BelathDawnbladeFreedAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_belath_dawnblade_freed_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 93230 - Mannethrel Darkstar
 struct npc_mannethrel_darkstar_freed_private : public ScriptedAI
@@ -1364,7 +1364,7 @@ CreatureAI* MannethrelDarkstarFreedAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_mannethrel_darkstar_freed_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 204711 - Set Them Free: Cyana Nightglaive Freed Kill Credit
 // 204714 - Set Them Free: Izal Whitemoon Freed Kill Credit
@@ -1873,7 +1873,7 @@ CreatureAI* JayceDarkweaverCrypticHollowAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_jayce_darkweaver_cryptic_hollow_private(creature);
     return new npc_jayce_darkweaver_cryptic_hollow(creature);
-};
+}
 
 struct npc_basic_hidden_no_more_private : public ScriptedAI
 {
@@ -1922,7 +1922,7 @@ CreatureAI* BasicHiddenNoMoreAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_basic_hidden_no_more_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 // 101787 - Demon Hunter
 // 101788 - Demon Hunter
@@ -1969,7 +1969,7 @@ CreatureAI* DemonHunterHiddenNoMoreAISelector(Creature* creature)
     if (creature->IsPrivateObject())
         return new npc_demon_hunter_hidden_no_more_private(creature);
     return new NullCreatureAI(creature);
-};
+}
 
 enum FelLordCazaData
 {
@@ -2311,4 +2311,4 @@ void AddSC_zone_mardum()
     RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
     RegisterSpellScript(spell_fel_lord_caza_dies_02);
     RegisterSpellScript(spell_fel_lord_caza_disarmed);
-};
+}

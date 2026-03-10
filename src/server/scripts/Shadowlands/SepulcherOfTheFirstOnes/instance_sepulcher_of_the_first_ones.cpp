@@ -19,11 +19,10 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ScriptMgr.h"
 #include "sepulcher_of_the_first_ones.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     // Anduin Wrynn
     { BOSS_ANDUIN_WRYNN,                        DATA_ANDUIN_WRYNN                   },
@@ -37,7 +36,6 @@ ObjectData const creatureData[] =
     { NPC_BEACON_OF_HOPE,                       DATA_BEACON_OF_HOPE                 },
     { NPC_QUARTERMASTER_RAHM_ANDUIN,            DATA_QUARTERMASTER_RAHM_ANDUIN      },
     { NPC_BOLVAR_FORDRAGON_ANDUIN,              DATA_BOLVAR_FORDRAGON_ANDUIN        },
-    { 0,                                        0                                   }
 };
 
 BossBoundaryData const boundaries =
@@ -45,14 +43,13 @@ BossBoundaryData const boundaries =
     { DATA_ANDUIN_WRYNN,                        new CircleBoundary({ -3825.0601f, -2715.4600f }, 45.0f)},
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GAMEOBJECT_BRIDGE_TO_ANDUIN,              DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenInProgress },
     { GAMEOBJECT_BRIDGE_AFTER_ANDUIN,           DATA_ANDUIN_WRYNN,          EncounterDoorBehavior::OpenWhenNotDone },
-    { 0,                                        0,                          EncounterDoorBehavior::OpenWhenInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_ANDUIN_WRYNN, {{ 2546 }} },
 };
@@ -70,7 +67,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
             LoadBossBoundaries(boundaries);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
 
             AnduinIntroductionState = NOT_STARTED;

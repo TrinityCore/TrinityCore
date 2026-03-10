@@ -67,6 +67,8 @@ TC_GAME_API extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSp
 TC_GAME_API extern DB2Storage<BattlemasterListEntry>                sBattlemasterListStore;
 TC_GAME_API extern DB2Storage<BattlemasterListXMapEntry>            sBattlemasterListXMapStore;
 TC_GAME_API extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
+TC_GAME_API extern DB2Storage<CampaignEntry>                        sCampaignStore;
+TC_GAME_API extern DB2Storage<CampaignXQuestLineEntry>              sCampaignXQuestLineStore;
 TC_GAME_API extern DB2Storage<Cfg_CategoriesEntry>                  sCfgCategoriesStore;
 TC_GAME_API extern DB2Storage<Cfg_RegionsEntry>                     sCfgRegionsStore;
 TC_GAME_API extern DB2Storage<ChallengeModeItemBonusOverrideEntry>  sChallengeModeItemBonusOverrideStore;
@@ -217,6 +219,7 @@ TC_GAME_API extern DB2Storage<PvpTalentSlotUnlockEntry>             sPvpTalentSl
 TC_GAME_API extern DB2Storage<PvpTierEntry>                         sPvpTierStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
 TC_GAME_API extern DB2Storage<QuestInfoEntry>                       sQuestInfoStore;
+TC_GAME_API extern DB2Storage<QuestLineXQuestEntry>                 sQuestLineXQuestStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
@@ -276,6 +279,7 @@ TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesSt
 TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
 TC_GAME_API extern DB2Storage<TaxiPathNodeEntry>                    sTaxiPathNodeStore;
 TC_GAME_API extern DB2Storage<TraitCondEntry>                       sTraitCondStore;
+TC_GAME_API extern DB2Storage<TraitCondAccountElementEntry>         sTraitCondAccountElementStore;
 TC_GAME_API extern DB2Storage<TraitCostEntry>                       sTraitCostStore;
 TC_GAME_API extern DB2Storage<TraitCurrencyEntry>                   sTraitCurrencyStore;
 TC_GAME_API extern DB2Storage<TraitCurrencySourceEntry>             sTraitCurrencySourceStore;
@@ -524,7 +528,6 @@ public:
     static PVPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     uint32 GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const;
     int32 GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) const;
-    std::vector<QuestLineXQuestEntry const*> const* GetQuestsForQuestLine(uint32 questLineId) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);

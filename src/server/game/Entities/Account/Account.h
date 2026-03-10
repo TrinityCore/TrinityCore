@@ -29,8 +29,6 @@ class Account final : public BaseEntity
 public:
     explicit Account(WorldSession* session, ObjectGuid guid, std::string&& name);
 
-    void ClearUpdateMask(bool remove) override;
-
     std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
 
     void BuildUpdate(UpdateDataMapType& data_map) override;

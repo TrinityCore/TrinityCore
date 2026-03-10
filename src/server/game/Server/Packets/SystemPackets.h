@@ -135,7 +135,6 @@ namespace WorldPackets
             int32 CfgRealmRecID                          = 0;
             uint32 CommercePricePollTimeSeconds          = 0;
             int64 RedeemForBalanceAmount                 = 0;
-            uint32 BpayStorePurchaseTimeout              = 0;
             uint32 ClubsPresenceDelay                    = 0;
             uint32 ClubPresenceUnsubscribeDelay          = 0; ///< Timer for updating club presence when communities ui frame is hidden
             uint32 KioskSessionDurationMinutes           = 0;

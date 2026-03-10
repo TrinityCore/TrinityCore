@@ -248,21 +248,21 @@ SpellInfo const* DynamicObject::GetSpellInfo() const
     return sSpellMgr->GetSpellInfo(GetSpellId(), GetMap()->GetDifficultyID());
 }
 
-void DynamicObject::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void DynamicObject::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_dynamicObjectData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_dynamicObjectData->WriteCreate(flags, data, target, this);
 }
 
-void DynamicObject::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void DynamicObject::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_DYNAMICOBJECT))
-        m_dynamicObjectData->WriteUpdate(*data, flags, this, target);
+        m_dynamicObjectData->WriteUpdate(flags, data, target, this);
 }
 
 void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -279,14 +279,14 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_DYNAMICOBJECT])
-        m_dynamicObjectData->WriteUpdate(buffer, requestedDynamicObjectMask, true, this, target);
+        m_dynamicObjectData->WriteUpdate(requestedDynamicObjectMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -304,8 +304,8 @@ void DynamicObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const
     player->SendDirectMessage(&packet);
 }
 
-void DynamicObject::ClearUpdateMask(bool remove)
+void DynamicObject::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&DynamicObject::m_dynamicObjectData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }

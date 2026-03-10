@@ -155,25 +155,25 @@ int64 AzeriteEmpoweredItem::GetRespecCost() const
     return MAX_MONEY_AMOUNT + 1;
 }
 
-void AzeriteEmpoweredItem::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_itemData->WriteCreate(*data, flags, this, target);
-    m_azeriteEmpoweredItemData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_itemData->WriteCreate(flags, data, target, this);
+    m_azeriteEmpoweredItemData->WriteCreate(flags, data, target, this);
 }
 
-void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_ITEM))
-        m_itemData->WriteUpdate(*data, flags, this, target);
+        m_itemData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_AZERITE_EMPOWERED_ITEM))
-        m_azeriteEmpoweredItemData->WriteUpdate(*data, flags, this, target);
+        m_azeriteEmpoweredItemData->WriteUpdate(flags, data, target, this);
 }
 
 void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -185,7 +185,7 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
         valuesMask.Set(TYPEID_OBJECT);
 
     UF::ItemData::Mask itemMask = requestedItemMask;
-    m_itemData->FilterDisallowedFieldsMaskForFlag(itemMask, flags);
+    UF::ItemData::FilterDisallowedFieldsMaskForFlag(itemMask, flags);
     if (itemMask.IsAnySet())
         valuesMask.Set(TYPEID_ITEM);
 
@@ -195,17 +195,17 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_ITEM])
-        m_itemData->WriteUpdate(buffer, itemMask, true, this, target);
+        m_itemData->WriteUpdate(itemMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_AZERITE_EMPOWERED_ITEM])
-        m_azeriteEmpoweredItemData->WriteUpdate(buffer, requestedAzeriteEmpoweredItemMask, true, this, target);
+        m_azeriteEmpoweredItemData->WriteUpdate(requestedAzeriteEmpoweredItemMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -223,10 +223,10 @@ void AzeriteEmpoweredItem::ValuesUpdateForPlayerWithMaskSender::operator()(Playe
     player->SendDirectMessage(&packet);
 }
 
-void AzeriteEmpoweredItem::ClearUpdateMask(bool remove)
+void AzeriteEmpoweredItem::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&AzeriteEmpoweredItem::m_azeriteEmpoweredItemData);
-    Item::ClearUpdateMask(remove);
+    Item::ClearValuesChangesMask();
 }
 
 void AzeriteEmpoweredItem::InitAzeritePowerData()

@@ -27,7 +27,6 @@ static constexpr ObjectData creatureData[] =
     { BOSS_THE_COAGLAMATION,      DATA_THE_COAGLAMATION      },
     { BOSS_IZO_THE_GRAND_SPLICER, DATA_IZO_THE_GRAND_SPLICER },
     { NPC_ORATOR_KRIX_VIZK_CONVO, DATA_ORATOR_CONVO          },
-    { 0,                          0                          }  // END
 };
 
 static constexpr DungeonEncounterData const encounters[] =
@@ -49,7 +48,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
     };

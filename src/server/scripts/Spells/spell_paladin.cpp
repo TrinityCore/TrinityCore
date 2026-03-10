@@ -51,8 +51,7 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_FREEDOM            = 1044,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
-    SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE     = 204054,
-    SPELL_PALADIN_CONSECRATED_GROUND_SLOW        = 204242,
+    SPELL_PALADIN_CONSECRATION_DEBUFF            = 204242,
     SPELL_PALADIN_CONSECRATION                   = 26573,
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
@@ -102,9 +101,7 @@ enum PaladinSpells
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988, // Serverside
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
-    SPELL_PALADIN_JUDGMENT_PROT_RET_R3           = 315867,
+    SPELL_PALADIN_JUDGMENT_RANK_3                = 315867,
     SPELL_PALADIN_LIGHT_HAMMER_COSMETIC          = 122257,
     SPELL_PALADIN_LIGHT_HAMMER_DAMAGE            = 114919,
     SPELL_PALADIN_LIGHT_HAMMER_HEALING           = 119952,
@@ -427,8 +424,7 @@ class spell_pal_consecration : public AuraScript
             SPELL_PALADIN_CONSECRATION_DAMAGE,
             // validate for areatrigger_pal_consecration
             SPELL_PALADIN_CONSECRATION_PROTECTION_AURA,
-            SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE,
-            SPELL_PALADIN_CONSECRATED_GROUND_SLOW
+            SPELL_PALADIN_CONSECRATION_DEBUFF
         });
     }
 
@@ -448,7 +444,7 @@ class spell_pal_consecration : public AuraScript
 //  9228 - AreaTriggerId
 struct areatrigger_pal_consecration : AreaTriggerAI
 {
-    areatrigger_pal_consecration(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -458,9 +454,9 @@ struct areatrigger_pal_consecration : AreaTriggerAI
             if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::PaladinProtection)
                 caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_AURA);
 
+            // 204054 - Consecrated Ground slow is handled by DBC and needs no further checks
             if (caster->IsValidAttackTarget(unit))
-                if (caster->HasAura(SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE))
-                    caster->CastSpell(unit, SPELL_PALADIN_CONSECRATED_GROUND_SLOW);
+                caster->CastSpell(unit, SPELL_PALADIN_CONSECRATION_DEBUFF);
         }
     }
 
@@ -469,7 +465,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
         if (at->GetCasterGuid() == unit->GetGUID())
             unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
 
-        unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATED_GROUND_SLOW, at->GetCasterGuid());
+        unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_DEBUFF, at->GetCasterGuid());
     }
 };
 
@@ -1046,27 +1042,28 @@ class spell_pal_judgment : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PALADIN_JUDGMENT_PROT_RET_R3,
-            SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER,
-            SPELL_PALADIN_JUDGMENT_HOLY_R3,
-            SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF
+            SPELL_PALADIN_JUDGMENT_RANK_3,
+            SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER
         });
     }
 
-    void HandleOnHit()
+    bool Load() override
+    {
+        return GetCaster()->HasSpell(SPELL_PALADIN_JUDGMENT_RANK_3);
+    }
+
+    void HandleOnCast() const
     {
         Unit* caster = GetCaster();
-
-        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_PROT_RET_R3))
-            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, GetSpell());
-
-        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_HOLY_R3))
-            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF, GetSpell());
+        caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pal_judgment::HandleOnHit);
+        OnCast += SpellCastFn(spell_pal_judgment::HandleOnCast);
     }
 };
 

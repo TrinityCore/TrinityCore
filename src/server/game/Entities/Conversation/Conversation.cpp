@@ -369,21 +369,21 @@ uint32 Conversation::GetScriptId() const
     return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
 }
 
-void Conversation::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Conversation::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_conversationData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_conversationData->WriteCreate(flags, data, target, this);
 }
 
-void Conversation::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Conversation::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_CONVERSATION))
-        m_conversationData->WriteUpdate(*data, flags, this, target);
+        m_conversationData->WriteUpdate(flags, data, target, this);
 }
 
 void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -400,14 +400,14 @@ void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obje
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_CONVERSATION])
-        m_conversationData->WriteUpdate(buffer, requestedConversationMask, true, this, target);
+        m_conversationData->WriteUpdate(requestedConversationMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -425,8 +425,8 @@ void Conversation::ValuesUpdateForPlayerWithMaskSender::operator()(Player const*
     player->SendDirectMessage(&packet);
 }
 
-void Conversation::ClearUpdateMask(bool remove)
+void Conversation::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Conversation::m_conversationData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }

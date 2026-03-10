@@ -173,10 +173,10 @@ namespace WorldPackets
 
         struct CalendarSendCalendarRaidLockoutInfo
         {
-            uint64 InstanceID = 0;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 ExpireTime = 0;
+            uint64 InstanceID = 0;
         };
 
         struct CalendarSendCalendarEventInfo

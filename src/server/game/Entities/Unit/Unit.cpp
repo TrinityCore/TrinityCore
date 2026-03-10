@@ -302,7 +302,7 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 
 SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellInfo const* _spellInfo, SpellCastVisual spellVisual, uint32 _schoolMask, ObjectGuid _castId)
     : target(_target), attacker(_attacker), castId(_castId), Spell(_spellInfo), SpellVisual(spellVisual), damage(0), originalDamage(0),
-    schoolMask(_schoolMask), absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), fullBlock(false), preHitHealth(_target->GetHealth())
+    schoolMask(_schoolMask), absorb(0), resist(0), periodicLog(false), blocked(0), reflectingSpellId(0), HitInfo(0), cleanDamage(0), fullBlock(false), preHitHealth(_target->GetHealth())
 {
 }
 
@@ -768,26 +768,32 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag
 
 bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
 {
-    AuraEffectList const& auras = GetAuraEffectsByType(type);
-    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Damage))
+    for (AuraEffect const* aura : GetAuraEffectsByType(type))
+        if ((!excludeAura || excludeAura != aura->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
+            aura->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
             return true;
     return false;
 }
 
-bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) const
+bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel) const
 {
-    uint32 excludeAura = 0;
-    if (Spell* currentChanneledSpell = excludeCasterChannel ? excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL) : nullptr)
-        excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
+    if (!HasInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
+        return false;
 
-    return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
+    uint32 excludeAura = 0;
+    if (excludeCasterChannel)
+        if (Spell const* currentChanneledSpell = excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
+
+    // This function is named after spell attribute it is meant for - SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS
+    // Not checking aura type is not a mistake here
+    for (AuraApplication const* aurApp : m_interruptableAuras)
+        if (!aurApp->IsPositive()
+            && (!excludeAura || excludeAura != aurApp->GetBase()->GetId())
+            && aurApp->GetBase()->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
+            return true;
+
+    return false;
 }
 
 /*static*/ void Unit::DealDamageMods(Unit const* attacker, Unit const* victim, uint32& damage, uint32* absorb)
@@ -2152,7 +2158,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             absorbLog.AbsorbSpellID = absorbAurEff->GetId();
             absorbLog.Absorbed = currentAbsorb;
             absorbLog.OriginalHeal = healInfo.GetOriginalHeal();
-            healInfo.GetTarget()->SendMessageToSet(absorbLog.Write(), true);
+            absorbLog.LogData.Initialize(healInfo.GetTarget());
+            healInfo.GetTarget()->SendCombatLogMessage(&absorbLog);
         }
     }
 }
@@ -3580,12 +3587,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask)
 
     if (Player* player = ToPlayer())
     {
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleObjectInteractions(false, true, false, false);
 
-        player->FailCriteria(CriteriaFailEvent::GainAura, aurApp->GetBase()->GetId());
-        player->StartCriteria(CriteriaStartEvent::GainAura, aurApp->GetBase()->GetId());
-        player->UpdateCriteria(CriteriaType::GainAura, aurApp->GetBase()->GetId());
+        player->FailCriteria(CriteriaFailEvent::GainAura, aura->GetId());
+        player->StartCriteria(CriteriaStartEvent::GainAura, aura->GetId());
+        player->UpdateCriteria(CriteriaType::GainAura, aura->GetId(), 0, 0, caster);
     }
 }
 
@@ -3730,8 +3737,8 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
         m_modAuras[aurEff->GetAuraType()].push_front(aurEff);
         if (Player* player = ToPlayer())
         {
-            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
             player->FailCriteria(CriteriaFailEvent::GainAuraEffect, aurEff->GetAuraType());
+            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
         }
     }
     else
@@ -5547,6 +5554,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     packet.Absorbed = log->absorb;
     packet.Resisted = log->resist;
     packet.ShieldBlock = log->blocked;
+    packet.ReflectingSpellID = log->reflectingSpellId;
     packet.Periodic = log->periodicLog;
     packet.Flags = log->HitInfo;
 
@@ -5639,7 +5647,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     WorldPackets::CombatLog::AttackerStateUpdate packet;
-    packet.HitInfo = damageInfo->HitInfo;
+    packet.Flags = damageInfo->HitInfo;
     packet.AttackerGUID = damageInfo->Attacker->GetGUID();
     packet.VictimGUID = damageInfo->Target->GetGUID();
     packet.Damage = damageInfo->Damage;
@@ -7073,7 +7081,8 @@ int32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, int
 
 int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 {
-    if (Player const* thisPlayer = ToPlayer())
+    Player const* thisPlayer = ToPlayer();
+    if (thisPlayer)
     {
         float overrideSP = thisPlayer->m_activePlayerData->OverrideSpellPowerByAPPercent;
         if (overrideSP > 0.0f)
@@ -7082,13 +7091,12 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
     int32 DoneAdvertisedBenefit = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE, schoolMask);
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (thisPlayer)
     {
         // Base value
-        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+        DoneAdvertisedBenefit += thisPlayer->GetBaseSpellPowerBonus();
 
-        // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (thisPlayer->GetPrimaryStat() == STAT_INTELLECT)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));  // spellpower from intellect
 
         // Damage bonus from stats
@@ -7620,8 +7628,7 @@ int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int3
             return owner->SpellAbsorbBonusDone(victim, spellProto, absorbamount, spellEffectInfo, stack, aurEff);
 
     if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)
-        || spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS)
-        || spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
+        || spellProto->HasAttribute(SPELL_ATTR11_IGNORE_CASTER_ABSORB_MODIFIERS))
         return absorbamount;
 
     int32 doneTotal = 0;
@@ -7691,64 +7698,23 @@ float Unit::SpellAbsorbPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (Player* modOwner = GetSpellModOwner())
         AddPct(doneTotalMod, modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
 
-    if (Player const* thisPlayer = ToPlayer())
-    {
-        float maxModHealingPercentSchool = 0.f;
-        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-            if (spellProto->GetSchoolMask() & (1 << i))
-                maxModHealingPercentSchool = std::max(maxModHealingPercentSchool, thisPlayer->m_activePlayerData->ModHealingDonePercent[i]);
-
-        doneTotalMod *= maxModHealingPercentSchool;
-    }
-    else
-        doneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+    doneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_ABSORB_DONE_PCT);
 
     return doneTotalMod;
 }
 
-int32 Unit::SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 absorbamount) const
+int32 Unit::SpellAbsorbBonusTaken(Unit* /*caster*/, SpellInfo const* spellProto, int32 absorbamount) const
 {
-    bool allowPositive = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS);
-    bool allowNegative = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS) || spellProto->HasAttribute(SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS);
-    if (!allowPositive && !allowNegative)
+    if (spellProto->HasAttribute(SPELL_ATTR11_IGNORE_TARGET_ABSORB_MODIFIERS))
         return absorbamount;
 
+    int32 doneTotal = 0;
     float takenTotalMod = 1.f;
 
-    if (allowNegative)
-    {
-        float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-        if (minval)
-            AddPct(takenTotalMod, minval);
-    }
+    takenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_ABSORB_TAKEN_PCT);
 
-    if (allowPositive)
-    {
-        float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-        if (maxval)
-            AddPct(takenTotalMod, maxval);
-    }
+    float absorb = float(absorbamount + doneTotal) * takenTotalMod;
 
-    if (caster)
-    {
-        takenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto, allowPositive, allowNegative](AuraEffect const* aurEff)
-        {
-            if (caster->GetGUID() != aurEff->GetCasterGUID() || !aurEff->IsAffectingSpell(spellProto))
-                return false;
-
-            if (aurEff->GetAmount() > 0)
-            {
-                if (!allowPositive)
-                    return false;
-            }
-            else if (!allowNegative)
-                return false;
-
-            return true;
-        });
-    }
-
-    float absorb = absorbamount * takenTotalMod;
     return static_cast<int32>(std::round(absorb));
 }
 
@@ -9258,8 +9224,9 @@ void Unit::AtEnterCombat()
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
         if (spell->getState() == SPELL_STATE_PREPARING
             && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL)
-            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat))
-            InterruptNonMeleeSpells(false);
+            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat)
+            && !spell->m_spellInfo->HasAura(SPELL_AURA_MOUNTED)) // for some reason mounts are not interrupted by entering combat even with both interrupt flag and attribute
+            InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnteringCombat);
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_ENTER_COMBAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
@@ -9713,7 +9680,8 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_STAT_STRENGTH:
         case UNIT_MOD_STAT_AGILITY:
         case UNIT_MOD_STAT_STAMINA:
-        case UNIT_MOD_STAT_INTELLECT:      UpdateStats(GetStatByAuraGroup(unitMod));  break;
+        case UNIT_MOD_STAT_INTELLECT:
+        case UNIT_MOD_STAT_SPIRIT:         UpdateStats(GetStatByAuraGroup(unitMod));  break;
 
         case UNIT_MOD_ARMOR:               UpdateArmor();           break;
         case UNIT_MOD_HEALTH:              UpdateMaxHealth();       break;
@@ -9910,6 +9878,7 @@ Stats Unit::GetStatByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_STAT_AGILITY:     stat = STAT_AGILITY;       break;
         case UNIT_MOD_STAT_STAMINA:     stat = STAT_STAMINA;       break;
         case UNIT_MOD_STAT_INTELLECT:   stat = STAT_INTELLECT;     break;
+        case UNIT_MOD_STAT_SPIRIT:      stat = STAT_SPIRIT;        break;
         default:
             break;
     }
@@ -14149,10 +14118,10 @@ void Unit::DestroyForPlayer(Player const* target) const
     WorldObject::DestroyForPlayer(target);
 }
 
-void Unit::ClearUpdateMask(bool remove)
+void Unit::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Unit::m_unitData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }
 
 int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue /*= false*/, int32 miscValue /*= 0*/) const

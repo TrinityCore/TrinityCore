@@ -25,24 +25,22 @@ BossBoundaryData const boundaries =
     { DATA_KING_DEEPBEARD, new CircleBoundary(Position(-3448.65f, 4161.68f, 29.18f), 68.0f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_WARLORD_PARJESH,  DATA_WARLORD_PARJESH  },
     { BOSS_LADY_HATECOIL,    DATA_LADY_HATECOIL    },
     { BOSS_KING_DEEPBEARD,   DATA_KING_DEEPBEARD   },
     { BOSS_SERPENTRIX,       DATA_SERPENTRIX       },
     { BOSS_WRATH_OF_AZSHARA, DATA_WRATH_OF_AZSHARA },
-    { 0,                     0                     }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_WATER_DOOR_1, DATA_KING_DEEPBEARD, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_WATER_DOOR_2, DATA_KING_DEEPBEARD, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,               0,                   EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_WARLORD_PARJESH,  {{ 1810 }} },
     { DATA_LADY_HATECOIL,    {{ 1811 }} },
@@ -62,7 +60,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
             LoadBossBoundaries(boundaries);

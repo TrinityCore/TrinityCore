@@ -486,6 +486,17 @@ int64 SpellScript::GetUnitTargetCountForEffect(SpellEffIndex effect) const
     return m_spell->GetUnitTargetCountForEffect(effect);
 }
 
+int32 SpellScript::GetUnitTargetIndexForEffect(ObjectGuid const& target, SpellEffIndex effect) const
+{
+    if (!IsAfterTargetSelectionPhase())
+    {
+        TC_LOG_ERROR("scripts", "Script: `{}` Spell: `{}`: function SpellScript::GetUnitTargetIndexForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
+            m_scriptName, m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->GetUnitTargetIndexForEffect(target, effect);
+}
+
 int64 SpellScript::GetGameObjectTargetCountForEffect(SpellEffIndex effect) const
 {
     if (!IsAfterTargetSelectionPhase())

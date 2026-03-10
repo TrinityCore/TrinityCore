@@ -78,9 +78,6 @@ namespace UF
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
         inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
 
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
-
         uint32 GetChangedObjectTypeMask() const { return _changesMask; }
 
         bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
@@ -193,7 +190,7 @@ class TC_GAME_API BaseEntity
         virtual void DestroyForPlayer(Player const* target) const;
         void SendOutOfRangeForPlayer(Player const* target) const;
 
-        virtual void ClearUpdateMask(bool remove);
+        void ClearUpdateMask(bool remove);
 
         virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
 
@@ -347,9 +344,9 @@ class TC_GAME_API BaseEntity
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
+        void BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        static void BuildEntityFragments(ByteBuffer& data, std::span<WowCS::EntityFragment const> fragments);
 
         TypeID m_objectTypeId = NUM_CLIENT_OBJECT_TYPES;
         CreateObjectBits m_updateFlag = {};
@@ -423,23 +420,12 @@ inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(Op
 template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
 {
+    static_assert(WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject);
+
     BaseEntity* owner = GetOwner();
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+    _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
 
     (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    BaseEntity* owner = GetOwner();
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-
-    auto& uf = (static_cast<Derived*>(owner)->*field);
-    if (uf.has_value())
-        uf._value->ClearChangesMask();
 }
 
 #endif // TRINITYCORE_BASE_ENTITY_H

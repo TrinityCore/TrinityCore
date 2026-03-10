@@ -571,6 +571,34 @@ struct BroadcastTextDurationEntry
     uint32 BroadcastTextID;
 };
 
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Stalled;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 SortAsNormalQuest;
+    int32 UseMinimalHeader;
+
+    bool HasFlag(CampaignFlags flag) const { return EnumFlag(static_cast<CampaignFlags>(Flags)).HasFlag(flag); }
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_CategoriesEntry
 {
     uint32 ID;
@@ -3486,6 +3514,8 @@ struct QuestLineXQuestEntry
     uint32 OrderIndex;
     int32 Flags;
     int32 Unknown1110;
+
+    bool HasFlag(QuestLineXQuestFlags flag) const { return EnumFlag(static_cast<QuestLineXQuestFlags>(Flags)).HasFlag(flag); }
 };
 
 struct QuestMoneyRewardEntry
@@ -4419,6 +4449,16 @@ struct TraitCondEntry
     EnumFlag<TraitCondFlags> GetFlags() const { return static_cast<TraitCondFlags>(Flags); }
 };
 
+struct TraitCondAccountElementEntry
+{
+    int64 ElementValueInt;
+    uint32 ID;
+    uint32 PlayerDataElementAccountID;
+    uint8 Comparison;
+    int32 Unused1110;
+    int32 PlayerDataElementCharacterID;
+};
+
 struct TraitCostEntry
 {
     char const* InternalName;
@@ -4598,14 +4638,16 @@ struct TraitSystemEntry
 
 struct TraitTreeEntry
 {
+    LocalizedString TitleText;
     uint32 ID;
     uint32 TraitSystemID;
-    int32 Unused1000_1;
+    int32 BaseNodeGroup;
     int32 FirstTraitNodeID;
     int32 PlayerConditionID;
     int32 Flags;
-    float Unused1000_2;
-    float Unused1000_3;
+    float MinZoom;
+    float MaxZoom;
+    int32 UiTextureKitID;
 
     EnumFlag<TraitTreeFlag> GetFlags() const { return static_cast<TraitTreeFlag>(Flags); }
 };

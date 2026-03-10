@@ -199,7 +199,7 @@ struct HeartsbaneTriadSharedAI : public BossAI
     virtual void ScheduleEvents()
     {
         events.ScheduleEvent(EVENT_CHECK_POWER, 1000ms);
-    };
+    }
 
     virtual void HandleDropIris(bool /*skipShieldPhase*/, bool /*skipIrisDrop*/)
     {

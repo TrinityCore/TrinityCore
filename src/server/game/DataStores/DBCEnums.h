@@ -41,17 +41,11 @@ struct DBCPosition3D
 
 enum LevelLimit
 {
-    // Client expected level limitation, like as used in DBC item max levels for "until max player level"
-    // use as default max player level, must be fit max level for used client
-    // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 80,
-
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
-    // also see GT_MAX_LEVEL define
     MAX_LEVEL = 123,
 
     // Server side limitation. Base at used code requirements.
-    // also see MAX_LEVEL and GT_MAX_LEVEL define
+    // also see MAX_LEVEL
     STRONG_MAX_LEVEL = 255,
 };
 
@@ -290,6 +284,14 @@ enum class BattlemasterListFlags : uint32
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
 
+enum class CampaignFlags : int32
+{
+    DontUseJourneyQuestBang = 0x01,
+    IsContainer             = 0x02
+};
+
+DEFINE_ENUM_FLAG(CampaignFlags);
+
 enum class CfgCategoriesCharsets : uint8
 {
     Any     = 0x00,
@@ -431,6 +433,7 @@ enum class ChrSpecialization : uint32
     MonkMistweaver              = 270,
     DemonHunterHavoc            = 577,
     DemonHunterVengeance        = 581,
+    DemonHunterDevourer         = 1480,
     EvokerDevastation           = 1467,
     EvokerPreservation          = 1468,
     EvokerAugmentation          = 1473
@@ -2040,7 +2043,7 @@ enum class ModifierTreeType : int32
     PlayerHasActiveTraitSubTree                                         = 385, // Player has active trait config with {TraitSubTree}
     PlayerIsInTimerunningSeason                                         = 386, // Player is timerunning {TimerunningSeason}
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
-    PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
+    PlayerHasCompletedCampaign                                          = 388, // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
     PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
     PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
@@ -2284,6 +2287,13 @@ enum PrestigeLevelInfoFlags : uint8
 {
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
+
+enum class QuestLineXQuestFlags : int32
+{
+    IgnoreForCompletion = 0x01
+};
+
+DEFINE_ENUM_FLAG(QuestLineXQuestFlags);
 
 enum QuestPackageFilter
 {

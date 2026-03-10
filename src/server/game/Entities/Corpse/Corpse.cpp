@@ -239,21 +239,21 @@ bool Corpse::IsExpired(time_t t) const
         return m_time < t - 3 * DAY;
 }
 
-void Corpse::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Corpse::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_corpseData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_corpseData->WriteCreate(flags, data, target, this);
 }
 
-void Corpse::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Corpse::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_CORPSE))
-        m_corpseData->WriteUpdate(*data, flags, this, target);
+        m_corpseData->WriteUpdate(flags, data, target, this);
 }
 
 void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -270,14 +270,14 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
 
     if (valuesMask[TYPEID_CORPSE])
-        m_corpseData->WriteUpdate(buffer, requestedCorpseMask, true, this, target);
+        m_corpseData->WriteUpdate(requestedCorpseMask, buffer, target, this, true);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -295,8 +295,8 @@ void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* playe
     player->SendDirectMessage(&packet);
 }
 
-void Corpse::ClearUpdateMask(bool remove)
+void Corpse::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Corpse::m_corpseData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }

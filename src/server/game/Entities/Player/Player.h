@@ -653,10 +653,10 @@ enum SkillUpdateState
 
 struct SkillStatusData
 {
-    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
+    SkillStatusData(uint32 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
     {
     }
-    uint8 pos;
+    uint32 pos;
     SkillUpdateState uState;
 };
 
@@ -1543,6 +1543,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetCurrencyWeeklyCap(uint32 id) const;
         uint32 GetCurrencyWeeklyCap(CurrencyTypesEntry const* currency) const;
         bool HasCurrency(uint32 id, uint32 amount) const;
+        void SetCurrencyFlagsFromClient(uint32 id, CurrencyDbFlags flags);
 
         void SetInvSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid); }
 
@@ -1581,6 +1582,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool IsUsingTwoHandedWeaponInOneHand() const;
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false, uint32 dungeonEncounterId = 0);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot);
+        Optional<SellResult> CanSellItemToVendor(Item const* item, uint32 amount) const;
+        Optional<SellResult> SellItemToVendor(Item* item, uint32 amount);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
@@ -1692,7 +1695,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId, bool updateInteractions = true, bool updateGameObjectQuestGiverStatus = false);
         QuestGiverStatus GetQuestDialogStatus(Object const* questGiver) const;
-        void SkipQuests(std::vector<uint32> const& questIds); // removes quest from log, flags rewarded, but does not give any rewards to player
+        void SkipQuests(std::span<uint32 const> questIds); // removes quest from log, flags rewarded, but does not give any rewards to player
         void DespawnPersonalSummonsForQuest(uint32 questId);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -2210,13 +2213,13 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
     protected:
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::UnitData::Mask const& requestedUnitMask,
             UF::PlayerData::Mask const& requestedPlayerMask, UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const;
 

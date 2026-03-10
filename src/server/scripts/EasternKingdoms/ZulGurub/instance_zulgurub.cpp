@@ -20,17 +20,16 @@
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_VENOXIS_COIL,                  DATA_VENOXIS,   EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ARENA_DOOR_1,                  DATA_MANDOKIR,  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_FORCEFIELD,                    DATA_KILNARA,   EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    EncounterDoorBehavior::OpenWhenNotInProgress },
     //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   EncounterStateForOpenDoor::NotInProgress },
-    { 0,                                0,              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_VENOXIS, {{ 1178 }} },
     { DATA_MANDOKIR, {{ 1179 }} },

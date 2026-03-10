@@ -483,8 +483,8 @@ class TC_GAME_API HealInfo
         uint32 GetOriginalHeal() const { return _originalHeal; }
         uint32 GetEffectiveHeal() const { return _effectiveHeal; }
         uint32 GetAbsorb() const { return _absorb; }
-        SpellInfo const* GetSpellInfo() const { return _spellInfo; };
-        SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
+        SpellInfo const* GetSpellInfo() const { return _spellInfo; }
+        SpellSchoolMask GetSchoolMask() const { return _schoolMask; }
 
         uint32 GetHitMask() const;
 };
@@ -567,6 +567,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 resist;
     bool   periodicLog;
     uint32 blocked;
+    uint32 reflectingSpellId;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
@@ -1082,7 +1083,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag128 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
-        bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = nullptr) const;
+        bool HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel = nullptr) const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
@@ -1499,7 +1500,7 @@ class TC_GAME_API Unit : public WorldObject
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);
         void CancelShapeshiftForm(bool onlyTravelShapeshiftForm = false, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false);
-        void CancelTravelShapeshiftForm(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false) { CancelShapeshiftForm(true, removeMode, force); };
+        void CancelTravelShapeshiftForm(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false) { CancelShapeshiftForm(true, removeMode, force); }
 
         bool IsInFeralForm() const;
 
@@ -1881,7 +1882,7 @@ class TC_GAME_API Unit : public WorldObject
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
 
         void DestroyForPlayer(Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void ClearValuesChangesMask() override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();

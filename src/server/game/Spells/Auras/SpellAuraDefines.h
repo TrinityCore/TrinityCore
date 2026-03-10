@@ -505,8 +505,8 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MAX_POWER                                = 418,
     SPELL_AURA_MOD_BASE_MANA_PCT                            = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,
-    SPELL_AURA_MOD_ABSORB_EFFECTS_DONE_PCT                  = 421,  // NYI
-    SPELL_AURA_MOD_ABSORB_EFFECTS_TAKEN_PCT                 = 422,  // NYI
+    SPELL_AURA_MOD_ABSORB_DONE_PCT                          = 421,
+    SPELL_AURA_MOD_ABSORB_TAKEN_PCT                         = 422,
     SPELL_AURA_MOD_MANA_COST_PCT                            = 423,
     SPELL_AURA_CASTER_IGNORE_LOS                            = 424,  // NYI
     SPELL_AURA_425                                          = 425,
@@ -547,7 +547,7 @@ enum AuraType : uint32
     SPELL_AURA_RESET_COOLDOWNS_ON_DUEL_START                = 460,  // NYI
     SPELL_AURA_461                                          = 461,
     SPELL_AURA_MOD_HEALING_AND_ABSORB_FROM_CASTER           = 462,  // NYI
-    SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,  // NYI
+    SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,
     SPELL_AURA_MOD_ATTACK_POWER_OF_BONUS_ARMOR              = 464,  // NYI
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // Affects bonus armor gain from all sources except base stats
@@ -739,7 +739,7 @@ enum AuraType : uint32
     SPELL_AURA_652                                          = 652,
     SPELL_AURA_653                                          = 653,
     SPELL_AURA_654                                          = 654,
-    SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST           = 655,
+    SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST              = 655,
 
     TOTAL_AURAS
 };

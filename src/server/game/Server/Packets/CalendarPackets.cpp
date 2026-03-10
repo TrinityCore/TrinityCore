@@ -40,10 +40,10 @@ ByteBuffer& operator<<(ByteBuffer& data, CalendarSendCalendarEventInfo const& ev
 
 ByteBuffer& operator<<(ByteBuffer& data, CalendarSendCalendarRaidLockoutInfo const& lockoutInfo)
 {
-    data << uint64(lockoutInfo.InstanceID);
     data << int32(lockoutInfo.MapID);
-    data << uint32(lockoutInfo.DifficultyID);
+    data << int16(lockoutInfo.DifficultyID);
     data << int32(lockoutInfo.ExpireTime);
+    data << uint64(lockoutInfo.InstanceID);
 
     return data;
 }
