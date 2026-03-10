@@ -25,7 +25,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "murder_row.h"
 
