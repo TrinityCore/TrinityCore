@@ -25,7 +25,7 @@ void AddSC_instance_murder_row();
 // void Add${NameOfDirectory}Scripts()
 void AddQuelThalasScripts()
 {
-	// Murder Row
-	AddSC_boss_kystia_manaheart();
-	AddSC_instance_murder_row();
+    // Murder Row
+    AddSC_boss_kystia_manaheart();
+    AddSC_instance_murder_row();
 }
