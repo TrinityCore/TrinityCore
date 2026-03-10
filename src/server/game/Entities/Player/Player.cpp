@@ -8527,8 +8527,8 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
 
     WorldPackets::WorldState::InitWorldStates packet;
     packet.MapID = mapId;
-    packet.ZoneID = zoneId;
-    packet.AreaID = areaId;
+    packet.AreaID = zoneId;
+    packet.SubareaID = areaId;
 
     packet.Worldstates.emplace_back(2264, 0); // SCOURGE_EVENT_WORLDSTATE_EASTERN_PLAGUELANDS
     packet.Worldstates.emplace_back(2263, 0); // SCOURGE_EVENT_WORLDSTATE_TANARIS

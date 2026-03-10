@@ -17,15 +17,15 @@
 
 #include "WorldStatePackets.h"
 
-WorldPackets::WorldState::InitWorldStates::InitWorldStates() : ServerPacket(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2) { }
-
-WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
+namespace WorldPackets::WorldState
+{
+WorldPacket const* InitWorldStates::Write()
 {
     _worldPacket.reserve(4 + 4 + 4 + 2 + Worldstates.size() * 8);
 
     _worldPacket << int32(MapID);
-    _worldPacket << int32(ZoneID);
     _worldPacket << int32(AreaID);
+    _worldPacket << int32(SubareaID);
 
     _worldPacket << uint16(Worldstates.size());
     for (WorldStateInfo const& wsi : Worldstates)
@@ -37,10 +37,11 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::WorldState::UpdateWorldState::Write()
+WorldPacket const* UpdateWorldState::Write()
 {
     _worldPacket << int32(VariableID);
     _worldPacket << int32(Value);
 
     return &_worldPacket;
+}
 }

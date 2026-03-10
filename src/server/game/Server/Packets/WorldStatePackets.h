@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WorldStatePackets_h__
-#define WorldStatePackets_h__
+#ifndef TRINITYCORE_WORLD_STATE_PACKETS_H
+#define TRINITYCORE_WORLD_STATE_PACKETS_H
 
 #include "Packet.h"
 
@@ -29,19 +29,20 @@ namespace WorldPackets
         public:
             struct WorldStateInfo
             {
-                WorldStateInfo(int32 variableID, int32 value) : VariableID(variableID), Value(value) { }
+                WorldStateInfo(int32 variableID, int32 value)
+                    : VariableID(variableID), Value(value) { }
 
                 int32 VariableID;
                 int32 Value;
             };
 
-            InitWorldStates();
+            explicit InitWorldStates() : ServerPacket(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2) { }
 
             WorldPacket const* Write() override;
 
-            int32 MapID = 0;
-            int32 ZoneID = 0;
-            int32 AreaID = 0;
+            int32 AreaID    = 0; ///< ZoneId
+            int32 SubareaID = 0; ///< AreaId
+            int32 MapID     = 0; ///< MapId
 
             std::vector<WorldStateInfo> Worldstates;
         };
@@ -59,4 +60,4 @@ namespace WorldPackets
     }
 }
 
-#endif // WorldStatePackets_h__
+#endif // TRINITYCORE_WORLD_STATE_PACKETS_H
