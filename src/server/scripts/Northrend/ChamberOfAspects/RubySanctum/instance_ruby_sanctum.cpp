@@ -23,7 +23,6 @@
 #include "Map.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 
 Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
@@ -195,13 +194,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     return 0;
 
                 return BaltharusSharedHealth;
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
-                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
-                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
             }
 
         protected:

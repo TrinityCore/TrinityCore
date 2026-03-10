@@ -44,6 +44,7 @@ TC_GAME_API char const* GetRaceName(uint8 race, uint8 locale);
 TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
 
 TC_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
+TC_GAME_API bool IsInArea(uint32 objectAreaId, uint32 areaGroupId);
 
 TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 

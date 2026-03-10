@@ -121,18 +121,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 NeedSave = false;
                 CrusadersSpecialState = false;
                 TributeToDedicatedInsanity = false; // NYI, set to true when implement it
+                DoUpdateWorldState(UPDATE_STATE_UI_SHOW, instance->IsHeroic() ? 1 : 0);
             }
 
             void OnPlayerEnter(Player* player) override
             {
-                if (instance->IsHeroic())
-                {
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
-                }
-                else
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
-
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
 
@@ -305,10 +298,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         {
                             --TrialCounter;
                             // decrease attempt counter at wipe
-                            Map::PlayerList const& PlayerList = instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                                if (Player* player = itr->GetSource())
-                                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
+                            DoUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
 
                             // if theres no more attemps allowed
                             if (!TrialCounter)

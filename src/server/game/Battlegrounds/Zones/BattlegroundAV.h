@@ -1343,122 +1343,119 @@ enum BG_AV_States
 
 enum BG_AV_WorldStates
 {
-    AV_Alliance_Score               = 3127,
-    AV_Horde_Score                  = 3128,
-    AV_SHOW_H_SCORE                 = 3133,
-    AV_SHOW_A_SCORE                 = 3134,
-
-/*
-    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused and maybe not a good solution (but give few performance (:)
+    AV_WS_ALLIANCE_REINFORCEMENTS       = 3127,
+    AV_WS_HORDE_REINFORCEMENTS          = 3128,
+    AV_WS_SHOW_HORDE_REINFORCEMENTS     = 3133,
+    AV_WS_SHOW_ALLIANCE_REINFORCEMENTS  = 3134,
 
 // Graves
-
     // Alliance
     //Stormpike first aid station
-    AV_AID_A_C                      = 1325,
-    AV_AID_A_A                      = 1326,
-    AV_AID_H_C                      = 1327,
-    AV_AID_H_A                      = 1328,
+    AV_WS_STORMPIKE_AID_STATION_ALLIANCE_CONTROLLED             = 1325,
+    AV_WS_STORMPIKE_AID_STATION_IN_CONFLICT_ALLIANCE_ATTACKING  = 1326,
+    AV_WS_STORMPIKE_AID_STATION_HORDE_CONTROLLED                = 1327,
+    AV_WS_STORMPIKE_AID_STATION_IN_CONFLICT_HORDE_ATTACKING     = 1328,
     //Stormpike Graveyard
-    AV_PIKEGRAVE_A_C                = 1333,
-    AV_PIKEGRAVE_A_A                = 1335,
-    AV_PIKEGRAVE_H_C                = 1334,
-    AV_PIKEGRAVE_H_A                = 1336,
+    AV_WS_STORMPIKE_GRAVEYARD_ALLIANCE_CONTROLLED               = 1333,
+    AV_WS_STORMPIKE_GRAVEYARD_IN_CONFLICT_ALLIANCE_ATTACKING    = 1335,
+    AV_WS_STORMPIKE_GRAVEYARD_HORDE_CONTROLLED                  = 1334,
+    AV_WS_STORMPIKE_GRAVEYARD_IN_CONFLICT_HORDE_ATTACKING       = 1336,
     //Stoneheart Grave
-    AV_STONEHEART_A_C               = 1302,
-    AV_STONEHEART_A_A               = 1304, //over hc
-    AV_STONEHEART_H_C               = 1301, //over ac
-    AV_STONEHEART_H_A               = 1303, //over aa
+    AV_WS_STONEHEARTH_GRAVEYARD_ALLIANCE_CONTROLLED             = 1302,
+    AV_WS_STONEHEARTH_GRAVEYARD_IN_CONFLICT_ALLIANCE_ATTACKING  = 1304,
+    AV_WS_STONEHEARTH_GRAVEYARD_HORDE_CONTROLLED                = 1301,
+    AV_WS_STONEHEARTH_GRAVEYARD_IN_CONFLICT_HORDE_ATTACKING     = 1303,
     //Neutral
     //Snowfall Grave
-*/
-    AV_SNOWFALL_N                   = 1966 //over aa
-/*
-    AV_SNOWFALL_A_C                 = 1341, //over hc
-    AV_SNOWFALL_A_A                 = 1343, //over ha
-    AV_SNOWFALL_H_C                 = 1342,
-    AV_SNOWFALL_H_A                 = 1344, //over ac
+    AV_WS_SNOWFALL_GRAVEYARD_UNCONTROLLED                       = 1966,
+    AV_WS_SNOWFALL_GRAVEYARD_ALLIANCE_CONTROLLED                = 1341,
+    AV_WS_SNOWFALL_GRAVEYARD_IN_CONFLICT_ALLIANCE_ATTACKING     = 1343,
+    AV_WS_SNOWFALL_GRAVEYARD_HORDE_CONTROLLED                   = 1342,
+    AV_WS_SNOWFALL_GRAVEYARD_IN_CONFLICT_HORDE_ATTACKING        = 1344,
     //Horde
     //Iceblood grave
-    AV_ICEBLOOD_A_C                 = 1346, //over hc
-    AV_ICEBLOOD_A_A                 = 1348, //over ac
-    AV_ICEBLOOD_H_C                 = 1347,
-    AV_ICEBLOOD_H_A                 = 1349, //over aa
+    AV_WS_ICEBLOOD_GRAVEYARD_ALLIANCE_CONTROLLED                = 1346,
+    AV_WS_ICEBLOOD_GRAVEYARD_IN_CONFLICT_ALLIANCE_ATTACKING     = 1348,
+    AV_WS_ICEBLOOD_GRAVEYARD_HORDE_CONTROLLED                   = 1347,
+    AV_WS_ICEBLOOD_GRAVEYARD_IN_CONFLICT_HORDE_ATTACKING        = 1349,
     //Frostwolf Grave
-    AV_FROSTWOLF_A_C                = 1337, //over hc
-    AV_FROSTWOLF_A_A                = 1339, //over ac
-    AV_FROSTWOLF_H_C                = 1338,
-    AV_FROSTWOLF_H_A                = 1340, //over aa
+    AV_WS_FROSTWOLF_GRAVEYARD_ALLIANCE_CONTROLLED               = 1337,
+    AV_WS_FROSTWOLF_GRAVEYARD_IN_CONFLICT_ALLIANCE_ATTACKING    = 1339,
+    AV_WS_FROSTWOLF_GRAVEYARD_HORDE_CONTROLLED                  = 1338,
+    AV_WS_FROSTWOLF_GRAVEYARD_IN_CONFLICT_HORDE_ATTACKING       = 1340,
     //Frostwolf Hut
-    AV_FROSTWOLFHUT_A_C             = 1329, //over hc
-    AV_FROSTWOLFHUT_A_A             = 1331, //over ha
-    AV_FROSTWOLFHUT_H_C             = 1330,
-    AV_FROSTWOLFHUT_H_A             = 1332, //over ac
+    AV_WS_FROSTWOLF_RELIEF_HUT_ALLIANCE_CONTROLLED              = 1329,
+    AV_WS_FROSTWOLF_RELIEF_HUT_IN_CONFLICT_ALLIANCE_ATTACKING   = 1331,
+    AV_WS_FROSTWOLF_RELIEF_HUT_HORDE_CONTROLLED                 = 1330,
+    AV_WS_FROSTWOLF_RELIEF_HUT_IN_CONFLICT_HORDE_ATTACKING      = 1332,
 
 //Towers
     //Alliance
     //Dunbaldar South Bunker
-    AV_DUNS_CONTROLLED              = 1361,
-    AV_DUNS_DESTROYED               = 1370,
-    AV_DUNS_ASSAULTED               = 1378,
+    AV_WS_DUN_BALDAR_SOUTH_BUNKER_ALLIANCE_CONTROLLED               = 1361,
+    AV_WS_DUN_BALDAR_SOUTH_BUNKER_DESTROYED                         = 1370,
+    AV_WS_DUN_BALDAR_SOUTH_BUNKER_IN_CONFLICT_HORDE_ATTACKING       = 1378,
+    AV_WS_DUN_BALDAR_SOUTH_BUNKER_IN_CONFLICT_ALLIANCE_ATTACKING    = 1374, // unused
     //Dunbaldar North Bunker
-    AV_DUNN_CONTROLLED              = 1362,
-    AV_DUNN_DESTROYED               = 1371,
-    AV_DUNN_ASSAULTED               = 1379,
+    AV_WS_DUN_BALDAR_NORTH_BUNKER_ALLIANCE_CONTROLLED               = 1362,
+    AV_WS_DUN_BALDAR_NORTH_BUNKER_DESTROYED                         = 1371,
+    AV_WS_DUN_BALDAR_NORTH_BUNKER_IN_CONFLICT_HORDE_ATTACKING       = 1379,
+    AV_WS_DUN_BALDAR_NORTH_BUNKER_IN_CONFLICT_ALLIANCE_ATTACKING    = 1375, // unused
     //Icewing Bunker
-    AV_ICEWING_CONTROLLED           = 1363,
-    AV_ICEWING_DESTROYED            = 1372,
-    AV_ICEWING_ASSAULTED            = 1380,
+    AV_WS_ICEWING_BUNKER_ALLIANCE_CONTROLLED                        = 1363,
+    AV_WS_ICEWING_BUNKER_DESTROYED                                  = 1372,
+    AV_WS_ICEWING_BUNKER_IN_CONFLICT_HORDE_ATTACKING                = 1380,
+    AV_WS_ICEWING_BUNKER_IN_CONFLICT_ALLIANCE_ATTACKING             = 1376, // unused
     //Stoneheart Bunker
-    AV_STONEH_CONTROLLED            = 1364,
-    AV_STONEH_DESTROYED             = 1373,
-    AV_STONEH_ASSAULTED             = 1381,
+    AV_WS_STONEHEARTH_BUNKER_ALLIANCE_CONTROLLED                    = 1364,
+    AV_WS_STONEHEARTH_BUNKER_DESTROYED                              = 1373,
+    AV_WS_STONEHEARTH_BUNKER_IN_CONFLICT_HORDE_ATTACKING            = 1381,
+    AV_WS_STONEHEARTH_BUNKER_IN_CONFLICT_ALLIANCE_ATTACKING         = 1377, // unused
     //Horde
     //Iceblood Tower
-    AV_ICEBLOOD_CONTROLLED          = 1385,
-    AV_ICEBLOOD_DESTROYED           = 1368,
-    AV_ICEBLOOD_ASSAULTED           = 1390,
+    AV_WS_ICEBLOOD_TOWER_DESTROYED                                  = 1368,
+    AV_WS_ICEBLOOD_TOWER_HORDE_CONTROLLED                           = 1385,
+    AV_WS_ICEBLOOD_TOWER_IN_CONFLICT_ALLIANCE_ATTACKING             = 1390,
+    AV_WS_ICEBLOOD_TOWER_IN_CONFLICT_HORDE_ATTACKING                = 1395, // unused
     //Tower Point
-    AV_TOWERPOINT_CONTROLLED        = 1384,
-    AV_TOWERPOINT_DESTROYED         = 1367, //goes over controlled
-    AV_TOWERPOINT_ASSAULTED         = 1389, //goes over destroyed
+    AV_WS_TOWER_POINT_DESTROYED                                     = 1367,
+    AV_WS_TOWER_POINT_HORDE_CONTROLLED                              = 1384,
+    AV_WS_TOWER_POINT_IN_CONFLICT_ALLIANCE_ATTACKING                = 1389,
+    AV_WS_TOWER_POINT_IN_CONFLICT_HORDE_ATTACKING                   = 1394, // unused
     //Frostwolf West
-    AV_FROSTWOLFW_CONTROLLED        = 1382,
-    AV_FROSTWOLFW_DESTROYED         = 1365, //over controlled
-    AV_FROSTWOLFW_ASSAULTED         = 1387, //over destroyed
+    AV_WS_WEST_FROSTWOLF_TOWER_DESTROYED                            = 1365,
+    AV_WS_WEST_FROSTWOLF_TOWER_HORDE_CONTROLLED                     = 1382,
+    AV_WS_WEST_FROSTWOLF_TOWER_IN_CONFLICT_ALLIANCE_ATTACKING       = 1387,
+    AV_WS_WEST_FROSTWOLF_TOWER_IN_CONFLICT_HORDE_ATTACKING          = 1392, // unused
     //Frostwolf East
-    AV_FROSTWOLFE_CONTROLLED        = 1383,
-    AV_FROSTWOLFE_DESTROYED         = 1366,
-    AV_FROSTWOLFE_ASSAULTED         = 1388,
+    AV_WS_EAST_FROSTWOLF_TOWER_DESTROYED                            = 1366,
+    AV_WS_EAST_FROSTWOLF_TOWER_HORDE_CONTROLLED                     = 1383,
+    AV_WS_EAST_FROSTWOLF_TOWER_IN_CONFLICT_ALLIANCE_ATTACKING       = 1388,
+    AV_WS_EAST_FROSTWOLF_TOWER_IN_CONFLICT_HORDE_ATTACKING          = 1393, // unused
 
-//mines
+//Mines
+    AV_WS_IRONDEEP_MINE_TROGG_CONTROLLED        = 1360,
+    AV_WS_IRONDEEP_MINE_ALLIANCE_CONTROLLED     = 1358,
+    AV_WS_IRONDEEP_MINE_HORDE_CONTROLLED        = 1359,
 
-    AV_N_MINE_N              = 1360,
-    AV_N_MINE_A              = 1358,
-    AV_N_MINE_H              = 1359,
+    AV_WS_COLDTOOTH_MINE_KOBOLD_CONTROLLED      = 1357,
+    AV_WS_COLDTOOTH_MINE_ALLIANCE_CONTROLLED    = 1355,
+    AV_WS_COLDTOOTH_MINE_HORDE_CONTROLLED       = 1356,
 
-    AV_S_MINE_N                     = 1357,
-    AV_S_MINE_A                     = 1355,
-    AV_S_MINE_H                     = 1356,
+//Bosses
+    AV_WS_DREKTHAR_ALIVE    = 601,
+    AV_WS_VANDAAR_ALIVE     = 602,
 
-//towers assaulted by own team (unused)
-    AV_STONEH_UNUSED                = 1377,
-    AV_ICEWING_UNUSED               = 1376,
-    AV_DUNS_UNUSED                  = 1375,
-    AV_DUNN_UNUSED                  = 1374,
-
-    AV_ICEBLOOD_UNUSED              = 1395,
-    AV_TOWERPOINT_UNUSED            = 1394,
-    AV_FROSTWOLFE_UNUSED            = 1393,
-    AV_FROSTWOLFW_UNUSED            = 1392
-*/
+//Captains
+    AV_WS_GALVAGAR_ALIVE    = 1352,
+    AV_WS_BALINDA_ALIVE     = 1351,
 };
 
 //alliance_control neutral_control horde_control
 const uint32 BG_AV_MineWorldStates[2][3] =
 {
-    {1358, 1360, 1359},
-    {1355, 1357, 1356}
+    {AV_WS_IRONDEEP_MINE_ALLIANCE_CONTROLLED, AV_WS_IRONDEEP_MINE_TROGG_CONTROLLED, AV_WS_IRONDEEP_MINE_HORDE_CONTROLLED},
+    {AV_WS_COLDTOOTH_MINE_ALLIANCE_CONTROLLED, AV_WS_COLDTOOTH_MINE_KOBOLD_CONTROLLED, AV_WS_COLDTOOTH_MINE_HORDE_CONTROLLED}
 };
 
 enum BG_AV_QuestIds
@@ -1509,10 +1506,10 @@ struct StaticNodeInfo
 
     struct
     {
-        uint32 AllianceControl;
-        uint32 AllianceAssault;
-        uint32 HordeControl;
-        uint32 HordeAssault;
+        int32 AllianceControl;
+        int32 AllianceAssault;
+        int32 HordeControl;
+        int32 HordeAssault;
     } WorldStateIds;
 };
 
@@ -1680,7 +1677,6 @@ class BattlegroundAV : public Battleground
         void ChangeMineOwner(uint8 mine, uint32 team, bool initial = false);
 
         /*worldstates*/
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendMineWorldStates(uint32 mine);
         void UpdateNodeWorldState(BG_AV_Nodes node);
 
