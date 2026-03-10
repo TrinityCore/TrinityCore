@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h
 #include "SpellScript.h"
 #include "murder_row.h"
 
@@ -37,7 +38,6 @@ namespace KystiaManaheart
         static constexpr uint32 Felshield             = 1217989;
         static constexpr uint32 MirrorImages          = 1264095;
         static constexpr uint32 MirrorImage           = 1264098;
-        static constexpr uint32 Felstorm              = 1264106;
         static constexpr uint32 ChaosBarrage          = 1230298;
         static constexpr uint32 IllicitInfusion       = 1230289;
         static constexpr uint32 IllicitInfusionCast   = 474238;
