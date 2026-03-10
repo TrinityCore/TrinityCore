@@ -16,6 +16,7 @@
  */
 
 #include "WorldSocket.h"
+#include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
@@ -35,7 +36,6 @@
 
 WorldSocket::WorldSocket(Trinity::Net::IoContextTcpSocket&& socket) : BaseSocket(std::move(socket)), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
-    Trinity::Crypto::GetRandomBytes(_authSeed);
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
 
@@ -122,13 +122,15 @@ bool WorldSocket::Update()
 
 void WorldSocket::SendAuthSession()
 {
-    WorldPacket packet(SMSG_AUTH_CHALLENGE, 40);
-    packet << uint32(1);                                    // 1...31
-    packet.append(_authSeed);
+    Trinity::Crypto::GetRandomBytes(_serverChallenge);
+    Trinity::Crypto::GetRandomBytes(_dosChallenge);
 
-    packet.append(Trinity::Crypto::GetRandomBytes<32>());               // new encryption seeds
+    WorldPackets::Auth::AuthChallenge challenge;
+    challenge.Challenge = _serverChallenge;
+    memcpy(challenge.DosChallenge.data(), _dosChallenge.data(), _dosChallenge.size());
+    challenge.DosZeroBits = 1;
 
-    SendPacketAndLogOpcode(packet);
+    SendPacketAndLogOpcode(*challenge.Write());
 }
 
 void WorldSocket::OnClose()
@@ -514,7 +516,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sha.UpdateData(authSession->Account);
     sha.UpdateData(t);
     sha.UpdateData(authSession->LocalChallenge);
-    sha.UpdateData(_authSeed);
+    sha.UpdateData(_serverChallenge);
     sha.UpdateData(account.SessionKey);
     sha.Finalize();
 

@@ -1319,12 +1319,12 @@ enum Opcodes : uint16
     SMSG_CAMERA_SHAKE                               = 0x50A, // uint32 SpellEffectCameraShakes.dbc index, uint32
     SMSG_SOCKET_GEMS_RESULT                         = 0x50B,
     CMSG_SET_CHARACTER_MODEL                        = 0x50C,
-    SMSG_REDIRECT_CLIENT                            = 0x50D, // uint32 ip, uint16 port, uint32 unk, uint8[20] hash (ip + port, seed=sessionkey)
-    CMSG_REDIRECTION_FAILED                         = 0x50E, // something with networking
+    SMSG_CONNECT_TO                                 = 0x50D, // uint32 ip, uint16 port, uint32 unk, uint8[20] hash (ip + port, seed=sessionkey)
+    CMSG_CONNECT_TO_FAILED                          = 0x50E, // something with networking
     SMSG_SUSPEND_COMMS                              = 0x50F,
     CMSG_SUSPEND_COMMS_ACK                          = 0x510,
-    SMSG_FORCE_SEND_QUEUED_PACKETS                  = 0x511,
-    CMSG_REDIRECTION_AUTH_PROOF                     = 0x512,
+    SMSG_RESUME_COMMS                               = 0x511,
+    CMSG_AUTH_CONTINUED_SESSION                     = 0x512,
     CMSG_DROP_NEW_CONNECTION                        = 0x513,
     SMSG_SEND_ALL_COMBAT_LOG                        = 0x514,
     SMSG_OPEN_LFG_DUNGEON_FINDER                    = 0x515,

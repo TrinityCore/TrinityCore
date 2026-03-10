@@ -20,6 +20,7 @@
 
 #include "ARC4.h"
 #include "AuthDefines.h"
+#include <span>
 
 class TC_COMMON_API WorldPacketCrypt
 {
@@ -27,6 +28,7 @@ public:
     WorldPacketCrypt();
 
     void Init(SessionKey const& K);
+    void Init(SessionKey const& K, std::span<uint8 const, 16> serverKey, std::span<uint8 const, 16> clientKey);
     void DecryptRecv(uint8* data, size_t len);
     void EncryptSend(uint8* data, size_t len);
 
