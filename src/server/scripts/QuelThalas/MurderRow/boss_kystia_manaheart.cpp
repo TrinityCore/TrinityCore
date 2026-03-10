@@ -146,7 +146,7 @@ struct boss_kystia_manaheart : public BossAI
     void OnSpellStart(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == KystiaManaheart::Spells::IllicitInfusionCast)
-            Talk(KystiaManaheart::Texts::Destabilized);
+            Talk(KystiaManaheart::Texts::IllicitInfusion);
     }
 
     void EnterEvadeMode(EvadeReason why) override
