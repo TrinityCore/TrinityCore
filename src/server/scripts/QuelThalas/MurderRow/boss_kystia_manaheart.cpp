@@ -29,7 +29,7 @@
 #include "SpellScript.h"
 #include "murder_row.h"
 
-namespace KystiaManaheart
+namespace Scripts::QuelThalas::MurderRow::KystiaManaheart
 {
     namespace Spells
     {
@@ -93,7 +93,6 @@ namespace KystiaManaheart
     {
         static constexpr uint8 PointEscape = 0;
     }
-}
 
 // 234648 - Kystia Manaheart
 struct boss_kystia_manaheart : public BossAI
@@ -102,8 +101,8 @@ struct boss_kystia_manaheart : public BossAI
 
     void JustAppeared() override
     {
-        DoCastSelf(KystiaManaheart::Spells::FelCrazed, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        DoCast(KystiaManaheart::Spells::IllicitInfusionVisual);
+        DoCastSelf(Spells::FelCrazed, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        DoCast(Spells::IllicitInfusionVisual);
     }
 
     void Reset() override
@@ -115,44 +114,44 @@ struct boss_kystia_manaheart : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-        Talk(KystiaManaheart::Texts::Death);
+        Talk(Texts::Death);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_KYSTIA_MANAHEART, DONE);
 
         if (Creature* nibbles = instance->GetCreature(DATA_NIBBLES))
         {
-            nibbles->CastSpell(nibbles, KystiaManaheart::Spells::Escape, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-            nibbles->AI()->Talk(KystiaManaheart::Texts::Escape);
-            nibbles->GetMotionMaster()->MovePoint(KystiaManaheart::Points::PointEscape, KystiaManaheart::Positions::NibblesEscapePosition);
+            nibbles->CastSpell(nibbles, Spells::Escape, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            nibbles->AI()->Talk(Texts::Escape);
+            nibbles->GetMotionMaster()->MovePoint(Points::PointEscape, Positions::NibblesEscapePosition);
         }
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
     {
-        if (spell->Id != KystiaManaheart::Spells::IllicitInfusionCast)
+        if (spell->Id != Spells::IllicitInfusionCast)
             return;
 
         uint8 stackAmount = 3 - _felshieldCount;
         if (stackAmount == 0)
             stackAmount = 1;
 
-        DoCastSelf(KystiaManaheart::Spells::Felshield, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, stackAmount));
+        DoCastSelf(Spells::Felshield, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, stackAmount));
         _felshieldCount++;
 
         if (Creature* nibbles = instance->GetCreature(DATA_NIBBLES))
-            nibbles->CastSpell(nibbles, KystiaManaheart::Spells::IllicitInfusion, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            nibbles->CastSpell(nibbles, Spells::IllicitInfusion, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == KystiaManaheart::Spells::Destabilized)
-            Talk(KystiaManaheart::Texts::Destabilized);
+        if (spellInfo->Id == Spells::Destabilized)
+            Talk(Texts::Destabilized);
     }
 
     void OnSpellStart(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == KystiaManaheart::Spells::IllicitInfusionCast)
-            Talk(KystiaManaheart::Texts::IllicitInfusion);
+        if (spellInfo->Id == Spells::IllicitInfusionCast)
+            Talk(Texts::IllicitInfusion);
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -160,7 +159,7 @@ struct boss_kystia_manaheart : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_KYSTIA_MANAHEART, FAIL);
 
-        Talk(KystiaManaheart::Texts::Wipe);
+        Talk(Texts::Wipe);
 
         summons.DespawnAll();
         _EnterEvadeMode();
@@ -173,7 +172,7 @@ struct boss_kystia_manaheart : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        Talk(KystiaManaheart::Texts::Aggro);
+        Talk(Texts::Aggro);
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         instance->SetBossState(DATA_KYSTIA_MANAHEART, IN_PROGRESS);
@@ -181,11 +180,11 @@ struct boss_kystia_manaheart : public BossAI
         if (Creature* nibbles = instance->GetCreature(DATA_NIBBLES))
             nibbles->AI()->DoZoneInCombat();
 
-        events.ScheduleEvent(KystiaManaheart::Events::ChaosBarrage, 1s);
-        events.ScheduleEvent(KystiaManaheart::Events::MirrorImages, 14s);
+        events.ScheduleEvent(Events::ChaosBarrage, 1s);
+        events.ScheduleEvent(Events::MirrorImages, 14s);
 
         if (IsHeroicOrHigher())
-            events.ScheduleEvent(KystiaManaheart::Events::FelNova, 12s);
+            events.ScheduleEvent(Events::FelNova, 12s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -202,23 +201,23 @@ struct boss_kystia_manaheart : public BossAI
         {
             switch (eventId)
             {
-                case KystiaManaheart::Events::ChaosBarrage:
+                case Events::ChaosBarrage:
                 {
-                    DoCastVictim(KystiaManaheart::Spells::ChaosBarrage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                    DoCastVictim(Spells::ChaosBarrage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                     events.Repeat(3500ms);
                     break;
                 }
-                case KystiaManaheart::Events::MirrorImages:
+                case Events::MirrorImages:
                 {
-                    Talk(KystiaManaheart::Texts::MirrorImages);
-                    DoCastSelf(KystiaManaheart::Spells::MirrorImages, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                    Talk(Texts::MirrorImages);
+                    DoCastSelf(Spells::MirrorImages, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                     events.Repeat(30500ms);
                     break;
                 }
-                case KystiaManaheart::Events::FelNova:
+                case Events::FelNova:
                 {
-                    Talk(KystiaManaheart::Texts::FelNova);
-                    DoCast(KystiaManaheart::Spells::FelNovaSelector);
+                    Talk(Texts::FelNova);
+                    DoCast(Spells::FelNovaSelector);
                     events.Repeat(15s);
                     break;
                 }
@@ -253,7 +252,7 @@ struct boss_kystia_manaheart_nibbles : public BossAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == KystiaManaheart::Points::PointEscape)
+        if (id == Points::PointEscape)
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             me->DespawnOrUnsummon();
@@ -267,9 +266,9 @@ struct boss_kystia_manaheart_nibbles : public BossAI
         if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
             kystia->AI()->DoZoneInCombat();
 
-        events.ScheduleEvent(KystiaManaheart::Events::CheckHealth, 1s);
-        events.ScheduleEvent(KystiaManaheart::Events::FelSpray, 8s);
-        events.ScheduleEvent(KystiaManaheart::Events::CorrodingSpittle, 4500ms);
+        events.ScheduleEvent(Events::CheckHealth, 1s);
+        events.ScheduleEvent(Events::FelSpray, 8s);
+        events.ScheduleEvent(Events::CorrodingSpittle, 4500ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -289,38 +288,38 @@ struct boss_kystia_manaheart_nibbles : public BossAI
         {
             switch (eventId)
             {
-                case KystiaManaheart::Events::FelSpray:
+                case Events::FelSpray:
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, KystiaManaheart::Spells::FelSpray, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-                    Talk(KystiaManaheart::Texts::FelSprayWarning);
+                        DoCast(target, Spells::FelSpray, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                    Talk(Texts::FelSprayWarning);
                     events.Repeat(51s);
                     break;
                 }
-                case KystiaManaheart::Events::CorrodingSpittle:
+                case Events::CorrodingSpittle:
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, KystiaManaheart::Spells::CorrodingSpittle, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                        DoCast(target, Spells::CorrodingSpittle, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                     events.Repeat(14500ms);
                     break;
                 }
-                case KystiaManaheart::Events::CheckHealth:
+                case Events::CheckHealth:
                 {
-                    SpellInfo const* illicitInfusion = sSpellMgr->AssertSpellInfo(KystiaManaheart::Spells::IllicitInfusion, DIFFICULTY_NONE);
+                    SpellInfo const* illicitInfusion = sSpellMgr->AssertSpellInfo(Spells::IllicitInfusion, DIFFICULTY_NONE);
                     if (me->GetHealthPct() < illicitInfusion->GetEffect(EFFECT_0).CalcValue(me))
                     {
-                        me->RemoveAurasDueToSpell(KystiaManaheart::Spells::IllicitInfusion);
+                        me->RemoveAurasDueToSpell(Spells::IllicitInfusion);
                         me->InterruptNonMeleeSpells(true);
                         me->AttackStop();
                         me->SetFaction(FACTION_FRIENDLY);
 
                         if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
                         {
-                            DoCast(kystia, KystiaManaheart::Spells::LightInfusion, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-                            Talk(KystiaManaheart::Texts::LightInfusion);
+                            DoCast(kystia, Spells::LightInfusion, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                            Talk(Texts::LightInfusion);
                         }
 
-                        events.RescheduleEvent(KystiaManaheart::Events::CheckHealth, 15s);
+                        events.RescheduleEvent(Events::CheckHealth, 15s);
                     }
                     events.Repeat(1s);
                     break;
@@ -340,13 +339,13 @@ class spell_kystia_manaheart_light_infusion : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ KystiaManaheart::Spells::Destabilized });
+        return ValidateSpellInfo ({ Spells::Destabilized });
     }
 
     void HandleStun(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, KystiaManaheart::Spells::Destabilized, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, Spells::Destabilized, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -360,13 +359,13 @@ class spell_kystia_manaheart_mirror_images : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ KystiaManaheart::Spells::MirrorImage });
+        return ValidateSpellInfo({ Spells::MirrorImage });
     }
 
     void HandlePeriodicEffect(AuraEffect const* aurEff) const
     {
         if (Unit* target = GetTarget())
-            target->CastSpell(target, KystiaManaheart::Spells::MirrorImage, CastSpellExtraArgsInit{
+            target->CastSpell(target, Spells::MirrorImage, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
             });
@@ -397,12 +396,12 @@ class spell_kystia_manaheart_fel_nova_selector : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ KystiaManaheart::Spells::Blink });
+        return ValidateSpellInfo({ Spells::Blink });
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), KystiaManaheart::Spells::Blink, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), Spells::Blink, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -419,13 +418,13 @@ class spell_kystia_manaheart_blink : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ KystiaManaheart::Spells::FelNova });
+        return ValidateSpellInfo({ Spells::FelNova });
     }
 
     void HandleCast() const
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, KystiaManaheart::Spells::FelNova, CastSpellExtraArgsInit{
+        caster->CastSpell(caster, Spells::FelNova, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -442,7 +441,7 @@ class spell_kystia_manaheart_destabilized : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ KystiaManaheart::Spells::IllicitInfusion });
+        return ValidateSpellInfo({ Spells::IllicitInfusion });
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
@@ -452,7 +451,7 @@ class spell_kystia_manaheart_destabilized : public AuraScript
         if (!caster)
             return;
 
-        GetTarget()->CastSpell(caster, KystiaManaheart::Spells::IllicitInfusionCast, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetTarget()->CastSpell(caster, Spells::IllicitInfusionCast, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -466,7 +465,7 @@ class spell_kystia_manaheart_fel_crazed : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ KystiaManaheart::Spells::Felshield });
+        return ValidateSpellInfo({ Spells::Felshield });
     }
 
     void HandleFelshield(SpellEffIndex effIndex)
@@ -474,7 +473,7 @@ class spell_kystia_manaheart_fel_crazed : public SpellScript
         PreventHitDefaultEffect(effIndex);
 
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, KystiaManaheart::Spells::Felshield, CastSpellExtraArgs()
+        caster->CastSpell(caster, Spells::Felshield, CastSpellExtraArgs()
             .SetTriggerFlags(TRIGGERED_FULL_MASK)
             .SetTriggeringSpell(GetSpell())
             .AddSpellMod(SPELLVALUE_AURA_STACK, 4));
@@ -501,14 +500,15 @@ struct at_kystia_manaheart_fel_spray : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        caster->CastSpell(unit, KystiaManaheart::Spells::FelSprayDamage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(unit, Spells::FelSprayDamage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
-        unit->RemoveAurasDueToSpell(KystiaManaheart::Spells::FelSprayDamage);
+        unit->RemoveAurasDueToSpell(Spells::FelSprayDamage);
     }
 };
+}
 
 void AddSC_boss_kystia_manaheart()
 {
