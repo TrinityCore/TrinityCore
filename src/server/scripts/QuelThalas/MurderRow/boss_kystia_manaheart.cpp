@@ -512,6 +512,8 @@ struct at_kystia_manaheart_fel_spray : AreaTriggerAI
 
 void AddSC_boss_kystia_manaheart()
 {
+    using namespace Scripts::QuelThalas::MurderRow::KystiaManaheart;
+
     RegisterMurderRowCreatureAI(boss_kystia_manaheart);
     RegisterMurderRowCreatureAI(boss_kystia_manaheart_nibbles);
 
