@@ -81,7 +81,7 @@ namespace KystiaManaheart
         // Nibbles
         static constexpr uint8 FelSpray         = 4;
         static constexpr uint8 CorrodingSpittle = 5;
-        static constexpr uint8 CheckHeal        = 6;
+        static constexpr uint8 CheckHealth      = 6;
     }
 
     namespace Positions
@@ -267,7 +267,7 @@ struct boss_kystia_manaheart_nibbles : public BossAI
         if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
             kystia->AI()->DoZoneInCombat();
 
-        events.ScheduleEvent(KystiaManaheart::Events::CheckHeal, 1s);
+        events.ScheduleEvent(KystiaManaheart::Events::CheckHealth, 1s);
         events.ScheduleEvent(KystiaManaheart::Events::FelSpray, 8s);
         events.ScheduleEvent(KystiaManaheart::Events::CorrodingSpittle, 4500ms);
     }
@@ -304,7 +304,7 @@ struct boss_kystia_manaheart_nibbles : public BossAI
                     events.Repeat(14500ms);
                     break;
                 }
-                case KystiaManaheart::Events::CheckHeal:
+                case KystiaManaheart::Events::CheckHealth:
                 {
                     SpellInfo const* illicitInfusion = sSpellMgr->AssertSpellInfo(KystiaManaheart::Spells::IllicitInfusion, DIFFICULTY_NONE);
                     if (me->GetHealthPct() < illicitInfusion->GetEffect(EFFECT_0).CalcValue(me))
@@ -320,7 +320,7 @@ struct boss_kystia_manaheart_nibbles : public BossAI
                             Talk(KystiaManaheart::Texts::LightInfusion);
                         }
 
-                        events.RescheduleEvent(KystiaManaheart::Events::CheckHeal, 15s);
+                        events.RescheduleEvent(KystiaManaheart::Events::CheckHealth, 15s);
                     }
                     events.Repeat(1s);
                     break;
