@@ -63,6 +63,98 @@ namespace WorldPackets
             std::vector<uint32> FavoriteAppearances;
             std::vector<uint32> NewAppearances;
         };
+
+        struct TransmogOutfitSlot
+        {
+            int8 Slot = 0;
+            uint8 SlotOption = 0;
+            uint32 ItemModifiedAppearanceID = 0;
+            uint8 AppearanceDisplayType = 0;
+            uint32 SpellItemEnchantmentID = 0;
+            uint8 IllusionDisplayType = 0;
+            uint32 Flags = 0;
+        };
+
+        class TransmogOutfitUpdateSlots final : public ClientPacket
+        {
+        public:
+            static constexpr uint32 MAX_OUTFIT_SLOTS = 30;
+
+            explicit TransmogOutfitUpdateSlots(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_OUTFIT_UPDATE_SLOTS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 OutfitID = 0;
+            ObjectGuid Npc;
+            std::vector<TransmogOutfitSlot> Slots;
+            uint8 PaymentType = 0;
+        };
+
+        class TransmogOutfitSlotsUpdated final : public ServerPacket
+        {
+        public:
+            explicit TransmogOutfitSlotsUpdated() : ServerPacket(SMSG_TRANSMOG_OUTFIT_SLOTS_UPDATED) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 OutfitID = 0;
+            std::vector<TransmogOutfitSlot> Slots;
+        };
+        class TransmogOutfitNew final : public ClientPacket
+        {
+        public:
+            explicit TransmogOutfitNew(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_OUTFIT_NEW, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Npc;
+            std::string Name;
+            uint32 Icon = 0;
+        };
+
+        class TransmogOutfitUpdateInfo final : public ClientPacket
+        {
+        public:
+            explicit TransmogOutfitUpdateInfo(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_OUTFIT_UPDATE_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Npc;
+            uint64 OutfitID = 0;
+            std::string Name;
+            uint32 Icon = 0;
+        };
+
+        class ClearNewAppearance final : public ClientPacket
+        {
+        public:
+            explicit ClearNewAppearance(WorldPacket&& packet) : ClientPacket(CMSG_CLEAR_NEW_APPEARANCE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ItemModifiedAppearanceID = 0;
+        };
+
+        class TransmogOutfitNewEntryAdded final : public ServerPacket
+        {
+        public:
+            explicit TransmogOutfitNewEntryAdded() : ServerPacket(SMSG_TRANSMOG_OUTFIT_NEW_ENTRY_ADDED) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 OutfitID = 0;
+        };
+
+        class TransmogOutfitInfoUpdated final : public ServerPacket
+        {
+        public:
+            TransmogOutfitInfoUpdated() : ServerPacket(SMSG_TRANSMOG_OUTFIT_INFO_UPDATED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 OutfitID = 0;
+        };
+
     }
 }
 

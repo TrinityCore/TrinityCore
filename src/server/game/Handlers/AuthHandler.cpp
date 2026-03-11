@@ -138,6 +138,12 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
         }, gameRule.Value);
     }
 
+    // Force GameRule 109 (TransmogEnabled) to be true for the client UI
+    WorldPackets::System::GameRuleValuePair& transmogRule = features.GameRules.emplace_back();
+    transmogRule.Rule = 109; // TransmogEnabled
+    transmogRule.Value = 1;  // True
+    transmogRule.ValueF = 0.0f;
+
     features.AvailableGameModeIDs.push_back(8); // GameMode.db2, standard
 
     SendPacket(features.Write());
@@ -158,6 +164,12 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
         { "housingEnableCreateCharterNeighborhood"sv, "0"sv },
         { "housingEnableBuyHouse"sv, "0"sv },
         { "housingMarketEnabled"sv, "0"sv },
+        { "transmogEnableOutfitSlotChanges"sv, "1"sv },
+        { "transmogAllowCanUseEverChanges"sv, "0"sv },
+        { "transmogEnableSystem"sv, "1"sv },
+        { "transmogEnableOutfitPurchases"sv, "1"sv },
+        { "enableTransmogUpdateSituation"sv, "1"sv },
+        { "transmogAllowArtifactOverride"sv, "1"sv },
     };
 
     WorldPackets::System::MirrorVars variables;
