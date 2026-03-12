@@ -62,7 +62,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     recvPacket.rfinish();
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talents::ConfirmRespecWipe& confirmRespecWipe)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
 {
     TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
 

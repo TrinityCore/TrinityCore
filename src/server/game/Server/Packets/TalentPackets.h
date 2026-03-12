@@ -15,14 +15,51 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TalentPackets_h__
-#define TalentPackets_h__
+#ifndef TRINITYCORE_TALENT_PACKETS_H
+#define TRINITYCORE_TALENT_PACKETS_H
 
 #include "ObjectGuid.h"
 #include "Packet.h"
+#include "SharedDefines.h"
+#include <variant>
 
-namespace WorldPackets::Talents
+namespace WorldPackets::Talent
 {
+struct TalentEntry
+{
+    uint32 TalentID = 0;
+    int8 Rank = 0;
+};
+
+struct TalentGroupInfo
+{
+    std::vector<TalentEntry> Talents;
+    std::array<uint16, MAX_GLYPH_SLOT_INDEX> GlyphIDs;
+};
+
+struct TalentInfoUpdate
+{
+    uint32 UnspentTalentPoints = 0;
+    uint8 ActiveGroup = 0;
+    std::vector<TalentGroupInfo> TalentGroups;
+};
+
+struct PetTalentInfoUpdate
+{
+    uint32 UnspentTalentPoints = 0;
+    std::vector<TalentEntry> Talents;
+};
+
+class UpdateTalentData final : public ServerPacket
+{
+public:
+    explicit UpdateTalentData() : ServerPacket(SMSG_TALENTS_INFO, 50) { }
+
+    WorldPacket const* Write() override;
+
+    std::variant<TalentInfoUpdate, PetTalentInfoUpdate> Info;
+};
+
 class RespecWipeConfirm final : public ServerPacket
 {
 public:
@@ -54,6 +91,8 @@ public:
 
     uint8 IsPetTalents = 0;
 };
+
+ByteBuffer& operator<<(ByteBuffer& data, TalentInfoUpdate const& talentInfo);
 }
 
-#endif // TalentPackets_h__
+#endif // TRINITYCORE_TALENT_PACKETS_H

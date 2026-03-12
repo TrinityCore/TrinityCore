@@ -86,6 +86,12 @@ namespace WorldPackets
     {
         struct CharacterCreateInfo;
     }
+
+    namespace Talent
+    {
+        struct PetTalentInfoUpdate;
+        struct TalentInfoUpdate;
+    }
 }
 
 typedef std::deque<Mail*> PlayerMails;
@@ -1224,7 +1230,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyEnchantment(Item* item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
-        void BuildEnchantmentsInfoData(WorldPacket* data);
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
@@ -1501,8 +1506,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 ResetTalentsCost() const;
         void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         void InitTalentForLevel();
-        void BuildPlayerTalentsInfoData(WorldPacket* data);
-        void BuildPetTalentsInfoData(WorldPacket* data);
+        void BuildPlayerTalentsInfoData(WorldPackets::Talent::TalentInfoUpdate& talentInfo);
+        void BuildPetTalentsInfoData(WorldPackets::Talent::PetTalentInfoUpdate& petTalentInfo) const;
         void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRank);

@@ -28,6 +28,7 @@
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "GuildPackets.h"
+#include "InspectPackets.h"
 #include "LFGPackets.h"
 #include "MailPackets.h"
 #include "MiscPackets.h"

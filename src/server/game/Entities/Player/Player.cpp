@@ -3780,7 +3780,7 @@ bool Player::ResetTalents(bool involuntarily /*= false*/)
     SetFreeTalentPoints(talentPointsForLevel);
 
     if (involuntarily)
-        SendDirectMessage(WorldPackets::Talents::InvoluntarilyReset(false).Write());
+        SendDirectMessage(WorldPackets::Talent::InvoluntarilyReset(false).Write());
 
     return true;
 }
@@ -9179,7 +9179,7 @@ void Player::SetBindPoint(ObjectGuid guid) const
 
 void Player::SendTalentWipeConfirm(ObjectGuid trainerGuid) const
 {
-    SendDirectMessage(WorldPackets::Talents::RespecWipeConfirm(trainerGuid, ResetTalentsCost()).Write());
+    SendDirectMessage(WorldPackets::Talent::RespecWipeConfirm(trainerGuid, ResetTalentsCost()).Write());
 }
 
 void Player::ResetPetTalents()
@@ -25275,11 +25275,11 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
     return false;
 }
 
-void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
+void Player::BuildPlayerTalentsInfoData(WorldPackets::Talent::TalentInfoUpdate& talentInfo)
 {
-    *data << uint32(GetFreeTalentPoints());                 // unspentTalentPoints
-    *data << uint8(GetSpecsCount());                        // talent group count (0, 1 or 2)
-    *data << uint8(GetActiveSpec());                        // talent group index (0 or 1)
+    talentInfo.UnspentTalentPoints = GetFreeTalentPoints(); // unspentTalentPoints
+    talentInfo.TalentGroups.resize(GetSpecsCount());        // talent group count (0, 1 or 2)
+    talentInfo.ActiveGroup = GetActiveSpec();               // talent group index (0 or 1)
 
     if (GetSpecsCount())
     {
@@ -25289,9 +25289,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         // loop through all specs (only 1 for now)
         for (uint32 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
         {
-            uint8 talentIdCount = 0;
-            size_t pos = data->wpos();
-            *data << uint8(talentIdCount);                  // [PH], talentIdCount
+            WorldPackets::Talent::TalentGroupInfo& talentGroupInfo = talentInfo.TalentGroups[specIdx];
 
             // find class talent tabs (all players have 3 talent tabs)
             uint32 const* talentTabIds = GetTalentTabPages(GetClass());
@@ -25302,19 +25300,19 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
 
                 for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
                 {
-                    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-                    if (!talentInfo)
+                    TalentEntry const* talent = sTalentStore.LookupEntry(talentId);
+                    if (!talent)
                         continue;
 
                     // skip another tab talents
-                    if (talentInfo->TabID != talentTabId)
+                    if (talent->TabID != talentTabId)
                         continue;
 
                     // find max talent rank (0~4)
                     int8 curtalent_maxrank = -1;
-                    for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+                    for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
                     {
-                        if (talentInfo->SpellRank[rank] && HasTalent(talentInfo->SpellRank[rank], specIdx))
+                        if (talent->SpellRank[rank] && HasTalent(talent->SpellRank[rank], specIdx))
                         {
                             curtalent_maxrank = rank;
                             break;
@@ -25325,40 +25323,23 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                     if (curtalent_maxrank < 0)
                         continue;
 
-                    *data << uint32(talentInfo->ID);  // Talent.dbc
-                    *data << uint8(curtalent_maxrank);      // talentMaxRank (0-4)
-
-                    ++talentIdCount;
+                    talentGroupInfo.Talents.push_back({ .TalentID = talent->ID, .Rank = curtalent_maxrank });
                 }
             }
 
-            data->put<uint8>(pos, talentIdCount);           // put real count
-
-            *data << uint8(MAX_GLYPH_SLOT_INDEX);           // glyphs count
-
             for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-                *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
+                talentGroupInfo.GlyphIDs[i] = GetGlyph(specIdx, i);  // GlyphProperties.dbc
         }
     }
 }
 
-void Player::BuildPetTalentsInfoData(WorldPacket* data)
+void Player::BuildPetTalentsInfoData(WorldPackets::Talent::PetTalentInfoUpdate& petTalentInfo) const
 {
-    uint32 unspentTalentPoints = 0;
-    size_t pointsPos = data->wpos();
-    *data << uint32(unspentTalentPoints);                   // [PH], unspentTalentPoints
-
-    uint8 talentIdCount = 0;
-    size_t countPos = data->wpos();
-    *data << uint8(talentIdCount);                          // [PH], talentIdCount
-
     Pet* pet = GetPet();
     if (!pet)
         return;
 
-    unspentTalentPoints = pet->GetFreeTalentPoints();
-
-    data->put<uint32>(pointsPos, unspentTalentPoints);      // put real points
+    petTalentInfo.UnspentTalentPoints = pet->GetFreeTalentPoints();
 
     CreatureTemplate const* ci = pet->GetCreatureTemplate();
     if (!ci)
@@ -25379,19 +25360,19 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
 
         for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if (!talentInfo)
+            TalentEntry const* talent = sTalentStore.LookupEntry(talentId);
+            if (!talent)
                 continue;
 
             // skip another tab talents
-            if (talentInfo->TabID != talentTabId)
+            if (talent->TabID != talentTabId)
                 continue;
 
             // find max talent rank (0~4)
             int8 curtalent_maxrank = -1;
-            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+            for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
             {
-                if (talentInfo->SpellRank[rank] && pet->HasSpell(talentInfo->SpellRank[rank]))
+                if (talent->SpellRank[rank] && pet->HasSpell(talent->SpellRank[rank]))
                 {
                     curtalent_maxrank = rank;
                     break;
@@ -25402,13 +25383,8 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
             if (curtalent_maxrank < 0)
                 continue;
 
-            *data << uint32(talentInfo->ID);          // Talent.dbc
-            *data << uint8(curtalent_maxrank);              // talentMaxRank (0-4)
-
-            ++talentIdCount;
+            petTalentInfo.Talents.push_back({ .TalentID = talent->ID, .Rank = curtalent_maxrank });
         }
-
-        data->put<uint8>(countPos, talentIdCount);          // put real count
 
         break;
     }
@@ -25416,56 +25392,14 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
 
 void Player::SendTalentsInfoData(bool pet)
 {
-    WorldPacket data(SMSG_TALENTS_INFO, 50);
-    data << uint8(pet ? 1 : 0);
+    WorldPackets::Talent::UpdateTalentData updateTalentData;
+
     if (pet)
-        BuildPetTalentsInfoData(&data);
+        BuildPetTalentsInfoData(updateTalentData.Info.emplace<1>());
     else
-        BuildPlayerTalentsInfoData(&data);
-    SendDirectMessage(&data);
-}
+        BuildPlayerTalentsInfoData(updateTalentData.Info.emplace<0>());
 
-void Player::BuildEnchantmentsInfoData(WorldPacket* data)
-{
-    uint32 slotUsedMask = 0;
-    size_t slotUsedMaskPos = data->wpos();
-    *data << uint32(slotUsedMask);                          // slotUsedMask < 0x80000
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item)
-            continue;
-
-        slotUsedMask |= (1 << i);
-
-        *data << uint32(item->GetEntry());                  // item entry
-
-        uint16 enchantmentMask = 0;
-        size_t enchantmentMaskPos = data->wpos();
-        *data << uint16(enchantmentMask);                   // enchantmentMask < 0x1000
-
-        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
-        {
-            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
-
-            if (!enchId)
-                continue;
-
-            enchantmentMask |= (1 << j);
-
-            *data << uint16(enchId);                        // enchantmentId?
-        }
-
-        data->put<uint16>(enchantmentMaskPos, enchantmentMask);
-
-        *data << int16(item->GetItemRandomPropertyId());                 // Random item property id
-        *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked(); // item creator
-        *data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
-    }
-
-    data->put<uint32>(slotUsedMaskPos, slotUsedMask);
+    SendDirectMessage(updateTalentData.Write());
 }
 
 void Player::SendEquipmentSetList()
