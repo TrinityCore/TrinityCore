@@ -3147,6 +3147,42 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 targets.push_back(target);
             break;
         }
+        case SMART_TARGET_SUMMONED_ENTRY:
+        {
+            Unit* summonerUnit = nullptr;
+            if (e.target.summonedEntry.summoner == 0)
+            {
+                summonerUnit = me ? me->ToUnit() : (go ? go->ToUnit() : nullptr);
+            }
+            else
+            {
+                if (scriptTrigger)
+                    if (Unit* triggerUnit = scriptTrigger->ToUnit())
+                        summonerUnit = triggerUnit;
+            }
+
+            if (!summonerUnit)
+            {
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::GetTargets - SMART_TARGET_SUMMONED_ENTRY: No valid summonerUnit for entry {}", e.entryOrGuid);
+                break;
+            }
+
+            if (summonerUnit->m_Controlled.empty())
+            {
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::GetTargets - SMART_TARGET_SUMMONED_ENTRY: summoner {} has no controlled units", summonerUnit->GetGUID().ToString());
+                break;
+            }
+
+            for (Unit* unit : summonerUnit->m_Controlled)
+            {
+                if (!unit || !unit->IsInWorld())
+                    continue;
+
+                if (unit->GetEntry() == e.target.summonedEntry.entry)
+                    targets.push_back(unit);
+            }
+            break;
+        }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         default:
