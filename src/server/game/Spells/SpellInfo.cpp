@@ -4476,7 +4476,7 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
         return true;
     };
 
-    for (auto itr = _visuals.begin(); itr != _visuals.end(); ++itr)
+    for (auto itr = _visuals.begin(), end = _visuals.end(); itr != end; ++itr)
     {
         if (!canUseSpellVisual(*itr))
             continue;
@@ -4485,9 +4485,9 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
         boost::container::small_vector<SpellXSpellVisualEntry const*, 4> visualCandidates;
         visualCandidates.push_back(*itr);
 
-        for (auto itr2 = itr + 1; itr2 != _visuals.end() && (*itr)->Priority == (*itr2)->Priority ; ++itr2)
-            if (canUseSpellVisual(*itr))
-                visualCandidates.push_back(*itr);
+        for (auto itr2 = itr + 1; itr2 != end && (*itr)->Priority == (*itr2)->Priority; ++itr2)
+            if (canUseSpellVisual(*itr2))
+                visualCandidates.push_back(*itr2);
 
         if (visualCandidates.size() == 1)
             return visualCandidates.front()->ID;    // special case, ignores Probability
