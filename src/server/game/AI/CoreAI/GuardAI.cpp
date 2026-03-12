@@ -50,7 +50,7 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
     return false;
 }
 
-void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
+void GuardAI::EnterEvadeMode(EvadeReason why)
 {
     if (!me->IsAlive())
     {
@@ -66,7 +66,8 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
     me->CombatStop(true);
     EngagementOver();
 
-    me->GetMotionMaster()->MoveTargetedHome();
+    if (why != EVADE_REASON_VEHICLE_EVADE)
+        me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void GuardAI::JustDied(Unit* killer)
