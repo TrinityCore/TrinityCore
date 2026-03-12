@@ -10574,18 +10574,49 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
     {
         GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, myProcAuras, myProcEventInfo);
 
-        // needed for example for Cobra Strikes, pet does the attack, but aura is on owner
         if (Player* modOwner = GetSpellModOwner())
         {
-            if (modOwner != this && spell)
+            if (modOwner != this)
             {
-                AuraApplicationList modAuras;
-                for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                // Needed for examples like Cobra Strikes: pet does the attack, but aura is on owner.
+                if (spell)
                 {
-                    if (spell->m_appliedMods.count(itr->second->GetBase()) != 0)
-                        modAuras.push_front(itr->second);
+                    AuraApplicationList modAuras;
+
+                    for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                    {
+                        if (spell->m_appliedMods.count(itr->second->GetBase()) != 0)
+                            modAuras.push_front(itr->second);
+                    }
+
+                    if (!modAuras.empty())
+                        modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
                 }
-                modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
+
+                SpellInfo const* eventSpellInfo = myProcEventInfo.GetSpellInfo();
+
+                if (eventSpellInfo && GetTypeId() == TYPEID_UNIT && IsControlledByPlayer())
+                {
+                    AuraApplicationList ownerAuras;
+
+                    for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                    {
+                        Aura* ownerAura = itr->second->GetBase();
+
+                        // Already covered by spellmod-specific owner handling above.
+                        if (spell && spell->m_appliedMods.count(ownerAura) != 0)
+                            continue;
+
+                        // Keep forwarding to class-family auras to avoid generic item procs from controlled-unit events.
+                        if (ownerAura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
+                            continue;
+
+                        ownerAuras.push_front(itr->second);
+                    }
+
+                    if (!ownerAuras.empty())
+                        modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &ownerAuras, myProcEventInfo);
+                }
             }
         }
     }
