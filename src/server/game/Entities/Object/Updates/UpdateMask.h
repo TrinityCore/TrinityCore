@@ -19,6 +19,7 @@
 #define UpdateMask_h__
 
 #include "Define.h"
+#include <array>
 #include <cstring> // std::memset
 
 namespace UpdateMaskHelpers

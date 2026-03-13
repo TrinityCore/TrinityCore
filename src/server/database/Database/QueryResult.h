@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include "Hash.h"
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
