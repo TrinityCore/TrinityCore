@@ -10807,8 +10807,11 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
 
 void QuestPOIData::InitializeQueryData()
 {
-    QueryDataBuffer << *this;
-    QueryDataBuffer.shrink_to_fit();
+    ByteBuffer tempBuffer;
+    tempBuffer << *this;
+    tempBuffer.shrink_to_fit();
+
+    QueryDataBuffer = std::move(tempBuffer).Release();
 }
 
 void ObjectMgr::LoadSceneTemplates()

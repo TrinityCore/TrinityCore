@@ -29,6 +29,7 @@
 #include "Totem.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
+#include "WorldPacket.h"
 #include <boost/dynamic_bitset.hpp>
 #include <sstream>
 

@@ -22,10 +22,12 @@
 #include "QuaternionData.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
-#include "WorldPacket.h"
 #include <array>
+#include <memory>
 #include <set>
 #include <string>
+
+class WorldPacket;
 
 struct DestructibleHitpoint
 {
@@ -846,7 +848,7 @@ struct GameObjectTemplate
     std::string AIName;
     uint32 ScriptId;
     std::string StringId;
-    WorldPacket QueryData[TOTAL_LOCALES];
+    std::unique_ptr<WorldPacket[]> QueryData;
 
     // helpers
     bool IsDespawnAtAction() const

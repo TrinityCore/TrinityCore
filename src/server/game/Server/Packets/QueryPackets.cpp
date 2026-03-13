@@ -420,12 +420,10 @@ WorldPacket const* QuestPOIQueryResponse::Write()
     _worldPacket << int32(QuestPOIDataStats.size());
     _worldPacket << int32(QuestPOIDataStats.size());
 
-    bool useCache = sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES);
-
     for (QuestPOIData const* questPOIData : QuestPOIDataStats)
     {
-        if (useCache)
-            _worldPacket.append(questPOIData->QueryDataBuffer);
+        if (!questPOIData->QueryDataBuffer.empty())
+            _worldPacket.append(questPOIData->QueryDataBuffer.data(), questPOIData->QueryDataBuffer.size());
         else
             _worldPacket << *questPOIData;
     }

@@ -25,6 +25,7 @@
 #include "SpellAuras.h"
 #include "UpdateData.h"
 #include "Util.h"
+#include "WorldPacket.h"
 
 SceneObject::SceneObject() : WorldObject(false)
 {
