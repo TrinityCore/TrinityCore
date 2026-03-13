@@ -273,7 +273,7 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
                              Spell* spell, DamageInfo* damageInfo,
                              HealInfo* healInfo) :
     _actor(actor), _actionTarget(actionTarget), _procTarget(procTarget),
-    _typeMask(typeMask), _spellTypeMask(spellTypeMask),
+    _typeMask(typeMask), _extraProcFlags(spell ? spell->GetExtraProcFlags() : PROC_EXTRA_FLAG_NONE), _spellTypeMask(spellTypeMask),
     _spellPhaseMask(spellPhaseMask), _hitMask(hitMask), _spell(spell),
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
@@ -10585,7 +10585,7 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
 
                     for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
                     {
-                        if (spell->m_appliedMods.count(itr->second->GetBase()) != 0)
+                        if (spell->m_appliedMods.contains(itr->second->GetBase()))
                             modAuras.push_front(itr->second);
                     }
 
@@ -10593,9 +10593,7 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
                         modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
                 }
 
-                SpellInfo const* eventSpellInfo = myProcEventInfo.GetSpellInfo();
-
-                if (eventSpellInfo && GetTypeId() == TYPEID_UNIT && IsControlledByPlayer())
+                if ((myProcEventInfo.GetExtraProcFlags() & PROC_EXTRA_FLAG_ALLOW_OWNER_PROC_ON_PET_EVENT) && GetTypeId() == TYPEID_UNIT && IsControlledByPlayer())
                 {
                     AuraApplicationList ownerAuras;
 
@@ -10604,11 +10602,12 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
                         Aura* ownerAura = itr->second->GetBase();
 
                         // Already covered by spellmod-specific owner handling above.
-                        if (spell && spell->m_appliedMods.count(ownerAura) != 0)
+                        if (spell && spell->m_appliedMods.contains(ownerAura))
                             continue;
 
-                        // Keep forwarding to class-family auras to avoid generic item procs from controlled-unit events.
-                        if (ownerAura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
+                        // Keep the controlled unit as the proc actor and only offer owner auras that explicitly opt in.
+                        SpellProcEntry const* ownerProcEntry = sSpellMgr->GetSpellProcEntry(ownerAura->GetSpellInfo());
+                        if (!ownerProcEntry || !(ownerProcEntry->AttributesMask & PROC_ATTR_ALLOW_OWNER_PROC_ON_PET_EVENT))
                             continue;
 
                         ownerAuras.push_front(itr->second);
