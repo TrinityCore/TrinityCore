@@ -74,8 +74,6 @@ class TC_GAME_API Bag : public Item
             void operator()(Player const* player) const;
         };
 
-        std::string GetDebugInfo() const override;
-
         UF::UpdateField<UF::ContainerData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONTAINER> m_containerData;
 
     protected:
