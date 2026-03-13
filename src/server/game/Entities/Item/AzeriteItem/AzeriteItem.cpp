@@ -24,6 +24,7 @@
 #include "GameTime.h"
 #include "Player.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/conversion.hpp>
 

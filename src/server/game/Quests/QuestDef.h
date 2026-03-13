@@ -27,12 +27,12 @@
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UniqueTrackablePtr.h"
-#include "WorldPacket.h"
 #include <bitset>
 #include <unordered_set>
 #include <vector>
 
 class Player;
+class WorldPacket;
 enum Difficulty : int16;
 
 namespace WorldPackets
@@ -778,7 +778,7 @@ class TC_GAME_API Quest
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
-        std::array<WorldPacket, TOTAL_LOCALES> QueryData;
+        std::unique_ptr<WorldPacket[]> QueryData;
 
     private:
         uint32 _rewItemsCount = 0;

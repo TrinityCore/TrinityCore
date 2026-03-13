@@ -78,7 +78,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         Difficulty difficulty = _player->GetMap()->GetDifficultyID();
 
         // Cache only exists for difficulty base
-        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES) && difficulty == DIFFICULTY_NONE)
+        if (ci->QueryData && difficulty == DIFFICULTY_NONE)
             SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
@@ -103,7 +103,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 {
     if (GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(packet.GameObjectID))
     {
-        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        if (info->QueryData)
             SendPacket(&info->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {

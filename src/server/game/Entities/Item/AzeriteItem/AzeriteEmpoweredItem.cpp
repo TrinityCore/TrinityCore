@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Player.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 
 AzeriteEmpoweredItem::AzeriteEmpoweredItem()
 {

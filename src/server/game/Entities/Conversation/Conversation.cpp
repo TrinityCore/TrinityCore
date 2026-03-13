@@ -30,6 +30,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
