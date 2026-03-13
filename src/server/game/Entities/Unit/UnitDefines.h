@@ -248,8 +248,8 @@ enum NPCFlags : uint32
     UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x00000800,       // TITLE is vendor (reagents) DESCRIPTION 100%
     UNIT_NPC_FLAG_REPAIR                = 0x00001000,       // TITLE can repair DESCRIPTION 100%
     UNIT_NPC_FLAG_FLIGHTMASTER          = 0x00002000,       // TITLE is flight master DESCRIPTION 100%
-    UNIT_NPC_FLAG_SPIRITHEALER          = 0x00004000,       // TITLE is spirit healer DESCRIPTION guessed
-    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x00008000,       // TITLE is spirit guide DESCRIPTION guessed
+    UNIT_NPC_FLAG_SPIRIT_HEALER         = 0x00004000,       // TITLE is spirit healer
+    UNIT_NPC_FLAG_AREA_SPIRIT_HEALER    = 0x00008000,       // TITLE is area spirit healer
     UNIT_NPC_FLAG_INNKEEPER             = 0x00010000,       // TITLE is innkeeper
     UNIT_NPC_FLAG_BANKER                = 0x00020000,       // TITLE is banker DESCRIPTION 100%
     UNIT_NPC_FLAG_PETITIONER            = 0x00040000,       // TITLE handles guild/arena petitions DESCRIPTION 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions

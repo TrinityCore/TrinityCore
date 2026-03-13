@@ -639,7 +639,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     m_stringIds[AsUnderlyingType(StringIdType::Template)] = &cInfo->StringId;
 
-    if (IsSpiritGuide() && sWorld->IsFFAPvPRealm())
+    if (IsAreaSpiritHealer() && sWorld->IsFFAPvPRealm())
     {
         // client will only send spirit guide query for units that can assist them
         // for ffa pvp flagged players its only other ffa pvp flagged units
@@ -671,6 +671,9 @@ void Creature::Update(uint32 diff)
 {
     if (IsAIEnabled() && m_triggerJustAppeared && m_deathState != DEAD)
     {
+        if (IsAreaSpiritHealer())
+            CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_AOE, false);
+
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
         m_triggerJustAppeared = false;
@@ -1105,7 +1108,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
 
     LastUsedScriptID = GetScriptId();
 
-    if (IsSpiritHealer() || IsSpiritGuide() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
+    if (IsSpiritHealer() || IsAreaSpiritHealer() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
     {
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
@@ -3301,4 +3304,23 @@ void Creature::ExitVehicle(Position const* /*exitPosition*/)
     // exited position so it won't run away (home) and evade if it's hostile
     if (isInVehicle && IsAlive())
         SetHomePosition(GetPosition());
+}
+
+enum AreaSpiritHealerData
+{
+    NPC_ALLIANCE_GRAVEYARD_TELEPORT     = 26350,
+    NPC_HORDE_GRAVEYARD_TELEPORT        = 26351
+};
+
+void Creature::SummonGraveyardTeleporter()
+{
+    if (!IsAreaSpiritHealer())
+        return;
+
+    uint32 npcEntry = GetFaction() == FACTION_ALLIANCE_GENERIC ? NPC_ALLIANCE_GRAVEYARD_TELEPORT : NPC_HORDE_GRAVEYARD_TELEPORT;
+
+    // maybe NPC is summoned with these spells:
+    // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
+    // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
+    SummonCreature(npcEntry, GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1s, 0, 0);
 }
