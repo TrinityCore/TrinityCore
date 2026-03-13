@@ -573,6 +573,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 cleanDamage;
     bool   fullBlock;
     uint32 preHitHealth;
+    bool   critical;
 };
 
 struct SpellPeriodicAuraLogInfo
@@ -961,7 +962,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetLastDamagedTargetGuid(ObjectGuid guid) { _lastDamagedTargetGuid = guid; }
         ObjectGuid GetLastDamagedTargetGuid() const { return _lastDamagedTargetGuid; }
 
-        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false, bool blocked = false, Spell* spell = nullptr);
+        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, Spell* spell = nullptr);
         void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
