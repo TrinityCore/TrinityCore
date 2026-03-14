@@ -64,6 +64,7 @@ struct SummonPropertiesEntry;
 enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
+enum ProcExtraFlags : uint32;
 enum ProcFlagsHit : uint32;
 enum ProcFlagsSpellType : uint32;
 enum SpellTargetCheckTypes : uint8;
@@ -638,6 +639,9 @@ class TC_GAME_API Spell
             } Raw;
         } m_misc;
         std::any m_customArg;
+
+        ProcExtraFlags m_extraProcFlags;
+
         SpellCastVisual m_SpellVisual;
         SpellCastTargets m_targets;
         SpellCustomErrors m_customError;
@@ -666,6 +670,7 @@ class TC_GAME_API Spell
         bool CanReleaseEmpowerSpell() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
+        ProcExtraFlags GetExtraProcFlags() const { return m_extraProcFlags; }
 
         int32 GetProcChainLength() const { return m_procChainLength; }
 

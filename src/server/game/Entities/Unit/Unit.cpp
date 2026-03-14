@@ -273,7 +273,7 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
                              Spell* spell, DamageInfo* damageInfo,
                              HealInfo* healInfo) :
     _actor(actor), _actionTarget(actionTarget), _procTarget(procTarget),
-    _typeMask(typeMask), _spellTypeMask(spellTypeMask),
+    _typeMask(typeMask), _extraProcFlags(spell ? spell->GetExtraProcFlags() : PROC_EXTRA_FLAG_NONE), _spellTypeMask(spellTypeMask),
     _spellPhaseMask(spellPhaseMask), _hitMask(hitMask), _spell(spell),
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
@@ -10574,18 +10574,48 @@ void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplica
     {
         GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, myProcAuras, myProcEventInfo);
 
-        // needed for example for Cobra Strikes, pet does the attack, but aura is on owner
         if (Player* modOwner = GetSpellModOwner())
         {
-            if (modOwner != this && spell)
+            if (modOwner != this)
             {
-                AuraApplicationList modAuras;
-                for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                // Needed for examples like Cobra Strikes: pet does the attack, but aura is on owner.
+                if (spell)
                 {
-                    if (spell->m_appliedMods.count(itr->second->GetBase()) != 0)
-                        modAuras.push_front(itr->second);
+                    AuraApplicationList modAuras;
+
+                    for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                    {
+                        if (spell->m_appliedMods.contains(itr->second->GetBase()))
+                            modAuras.push_front(itr->second);
+                    }
+
+                    if (!modAuras.empty())
+                        modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
                 }
-                modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
+
+                if ((myProcEventInfo.GetExtraProcFlags() & PROC_EXTRA_FLAG_ALLOW_OWNER_PROC_ON_PET_EVENT) && GetTypeId() == TYPEID_UNIT && IsControlledByPlayer())
+                {
+                    AuraApplicationList ownerAuras;
+
+                    for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                    {
+                        Aura* ownerAura = itr->second->GetBase();
+
+                        // Already covered by spellmod-specific owner handling above.
+                        if (spell && spell->m_appliedMods.contains(ownerAura))
+                            continue;
+
+                        // Keep the controlled unit as the proc actor and only offer owner auras that explicitly opt in.
+                        SpellProcEntry const* ownerProcEntry = sSpellMgr->GetSpellProcEntry(ownerAura->GetSpellInfo());
+                        if (!ownerProcEntry || !(ownerProcEntry->AttributesMask & PROC_ATTR_ALLOW_OWNER_PROC_ON_PET_EVENT))
+                            continue;
+
+                        ownerAuras.push_front(itr->second);
+                    }
+
+                    if (!ownerAuras.empty())
+                        modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &ownerAuras, myProcEventInfo);
+                }
             }
         }
     }

@@ -254,26 +254,28 @@ DEFINE_ENUM_FLAG(ProcFlagsHit);
 
 enum ProcAttributes : uint32
 {
-    PROC_ATTR_NONE                      = 0x0000000,
-    PROC_ATTR_REQ_EXP_OR_HONOR          = 0x0000001, // requires proc target to give exp or honor for aura proc
-    PROC_ATTR_TRIGGERED_CAN_PROC        = 0x0000002, // aura can proc even with triggered spells
-    PROC_ATTR_REQ_POWER_COST            = 0x0000004, // requires triggering spell to have a power cost for aura proc
-    PROC_ATTR_REQ_SPELLMOD              = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
-    PROC_ATTR_USE_STACKS_FOR_CHARGES    = 0x0000010, // consuming proc drops a stack from proccing aura instead of charge
+    PROC_ATTR_NONE                          = 0x0000000,
+    PROC_ATTR_REQ_EXP_OR_HONOR              = 0x0000001, // requires proc target to give exp or honor for aura proc
+    PROC_ATTR_TRIGGERED_CAN_PROC            = 0x0000002, // aura can proc even with triggered spells
+    PROC_ATTR_REQ_POWER_COST                = 0x0000004, // requires triggering spell to have a power cost for aura proc
+    PROC_ATTR_REQ_SPELLMOD                  = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
+    PROC_ATTR_USE_STACKS_FOR_CHARGES        = 0x0000010, // consuming proc drops a stack from proccing aura instead of charge
 
-    PROC_ATTR_REDUCE_PROC_60            = 0x0000080, // aura should have a reduced chance to proc if level of proc Actor > 60
-    PROC_ATTR_CANT_PROC_FROM_ITEM_CAST  = 0x0000100, // do not allow aura proc if proc is caused by a spell casted by item
+    PROC_ATTR_REDUCE_PROC_60                = 0x0000080, // aura should have a reduced chance to proc if level of proc Actor > 60
+    PROC_ATTR_CANT_PROC_FROM_ITEM_CAST      = 0x0000100, // do not allow aura proc if proc is caused by a spell casted by item
+    PROC_ATTR_ALLOW_OWNER_PROC_ON_PET_EVENT = 0x0000200  // Allows this aura to be evaluated on the owner for pet-triggered events that explicitly opt in
 };
 
 DEFINE_ENUM_FLAG(ProcAttributes);
 
-#define PROC_ATTR_ALL_ALLOWED (PROC_ATTR_REQ_EXP_OR_HONOR       | \
-                               PROC_ATTR_TRIGGERED_CAN_PROC     | \
-                               PROC_ATTR_REQ_POWER_COST         | \
-                               PROC_ATTR_REQ_SPELLMOD           | \
-                               PROC_ATTR_USE_STACKS_FOR_CHARGES | \
-                               PROC_ATTR_REDUCE_PROC_60         | \
-                               PROC_ATTR_CANT_PROC_FROM_ITEM_CAST)
+#define PROC_ATTR_ALL_ALLOWED (PROC_ATTR_REQ_EXP_OR_HONOR               | \
+                               PROC_ATTR_TRIGGERED_CAN_PROC             | \
+                               PROC_ATTR_REQ_POWER_COST                 | \
+                               PROC_ATTR_REQ_SPELLMOD                   | \
+                               PROC_ATTR_USE_STACKS_FOR_CHARGES         | \
+                               PROC_ATTR_REDUCE_PROC_60                 | \
+                               PROC_ATTR_CANT_PROC_FROM_ITEM_CAST       | \
+                               PROC_ATTR_ALLOW_OWNER_PROC_ON_PET_EVENT)
 
 struct SpellProcEntry
 {

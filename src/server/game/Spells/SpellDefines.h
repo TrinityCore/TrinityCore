@@ -306,6 +306,14 @@ enum TriggerCastFlags : uint32
 
 DEFINE_ENUM_FLAG(TriggerCastFlags);
 
+enum ProcExtraFlags : uint32
+{
+    PROC_EXTRA_FLAG_NONE                            = 0x00000000,
+    PROC_EXTRA_FLAG_ALLOW_OWNER_PROC_ON_PET_EVENT   = 0x00000001  // Allows a controlled pet spell event to evaluate explicitly marked owner auras
+};
+
+DEFINE_ENUM_FLAG(ProcExtraFlags);
+
 enum SpellCastTargetFlags : uint32
 {
     TARGET_FLAG_NONE            = 0x00000000,
@@ -480,6 +488,7 @@ struct TC_GAME_API CastSpellTargetArg
 struct CastSpellExtraArgsInit
 {
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
+    ProcExtraFlags ExtraProcFlags = PROC_EXTRA_FLAG_NONE;
     Difficulty CastDifficulty = Difficulty(0);
     Item* CastItem = nullptr;
     Spell const* TriggeringSpell = nullptr;
@@ -527,6 +536,7 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     ~CastSpellExtraArgs();
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
+    CastSpellExtraArgs& SetExtraProcFlags(ProcExtraFlags flags) { ExtraProcFlags = flags; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
     CastSpellExtraArgs& SetTriggeringSpell(Spell const* triggeringSpell);
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura) { TriggeringAura = triggeringAura; return *this; }
