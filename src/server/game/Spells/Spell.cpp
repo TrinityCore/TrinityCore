@@ -132,6 +132,9 @@ SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCast
             pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
+    for (WorldPackets::Spells::SpellCraftingReagent const& reagent : spellCastRequest.OptionalReagents)
+        ModifiedCraftingReagents[reagent.DataSlotIndex].push_back(reagent);
+
     SetPitch(spellCastRequest.MissileTrajectory.Pitch);
     SetSpeed(spellCastRequest.MissileTrajectory.Speed);
 
@@ -7603,7 +7606,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                         }
                     }
                 }
-                if (!player->HasItemCount(itemid, itemcount))
+                if (itemcount && !player->HasItemCount(itemid, itemcount))
                 {
                     if (param1)
                         *param1 = itemid;
