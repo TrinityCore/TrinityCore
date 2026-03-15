@@ -1848,7 +1848,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(std::max<int64>(banTime - GameTime::GetGameTime(), 0), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
