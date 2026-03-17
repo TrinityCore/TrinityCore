@@ -488,10 +488,10 @@ class spell_the_lurker_below_spout_periodic : public AuraScript
         switch (GetId())
         {
             case SPELL_SPOUT_LEFT:
-                orientation += 5 * M_PI / 180;
+                orientation += 5 * float(M_PI) / 180;
                 break;
             case SPELL_SPOUT_RIGHT:
-                orientation -= 5 * M_PI / 180;
+                orientation -= 5 * float(M_PI) / 180;
                 break;
             default:
                 break;
