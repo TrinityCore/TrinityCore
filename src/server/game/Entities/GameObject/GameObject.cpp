@@ -2043,7 +2043,7 @@ void GameObject::Use(Unit* user)
 
                 if (Group* group = user->ToPlayer()->GetGroup())
                 {
-                    if (! group->IsMember(ownerGuid))
+                    if (!group->IsMember(ownerGuid))
                         return;
                 }
                 else
