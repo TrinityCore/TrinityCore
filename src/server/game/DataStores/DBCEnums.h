@@ -1193,6 +1193,13 @@ enum class MapFlags2 : uint32
 
 DEFINE_ENUM_FLAG(MapFlags2);
 
+enum class MapFlags3 : uint32
+{
+    IsDelve = 0x00000100,
+};
+
+DEFINE_ENUM_FLAG(MapFlags3);
+
 enum class MapDifficultyFlags : uint8
 {
     LimitToPlayersFromOneRealm              = 0x01,
