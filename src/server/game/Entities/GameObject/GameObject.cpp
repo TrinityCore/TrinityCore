@@ -2035,18 +2035,22 @@ void GameObject::Use(Unit* user)
             if (info->spellcaster.partyOnly)
             {
                 ObjectGuid ownerGuid = GetOwnerGUID();
-                if (!ownerGuid)
+                if (!ownerGuid || !ownerGuid.IsPlayer())
                     return;
 
                 if (user->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                Group* group = user->ToPlayer()->GetGroup();
-                if (!group)
-                    return;
-
-                if (!group->IsMember(ownerGuid))
-                    return;
+                if (Group* group = user->ToPlayer()->GetGroup())
+                {
+                    if (! group->IsMember(ownerGuid))
+                        return;
+                }
+                else
+                {
+                    if (ownerGuid != user->GetGUID())
+                        return;
+                }
             }
 
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
