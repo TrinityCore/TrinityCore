@@ -1072,9 +1072,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     SetDisplayId(goInfo->displayId);
 
-    CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goInfo->type));
+    CreateModel();
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
