@@ -35,8 +35,10 @@ EndContentData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
+#include "Group.h"
 #include "Log.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -462,12 +464,23 @@ class go_soulwell : public GameObjectScript
 
             bool OnGossipHello(Player* player) override
             {
-                Unit* owner = me->GetOwner();
                 if (_stoneSpell == 0 || _stoneId == 0)
                     return true;
 
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
+                ObjectGuid ownerGuid = me->GetOwnerGUID();
+                if (!ownerGuid || !ownerGuid.IsPlayer())
                     return true;
+
+                if (Group* group = player->GetGroup())
+                {
+                    if (!group->IsMember(ownerGuid))
+                        return true;
+                }
+                else
+                {
+                    if (ownerGuid != player->GetGUID())
+                        return true;
+                }
 
                 // Don't try to add a stone if we already have one.
                 if (player->HasItemCount(_stoneId))
@@ -477,7 +490,7 @@ class go_soulwell : public GameObjectScript
                     return true;
                 }
 
-                owner->CastSpell(player, _stoneSpell, true);
+                me->CastSpell(player, _stoneSpell, true);
                 // Item has to actually be created to remove a charge on the well.
                 if (player->HasItemCount(_stoneId))
                     me->AddUse();
