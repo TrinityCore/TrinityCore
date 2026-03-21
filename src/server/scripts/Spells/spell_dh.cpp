@@ -174,6 +174,7 @@ enum DemonHunterSpells
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
     SPELL_DH_RAZOR_SPIKES                          = 210003,
+    SPELL_DH_REAP_DAMAGE                           = 1225823,
     SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
@@ -1818,6 +1819,28 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// 1226019 - Reap
+class spell_dh_reap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_REAP_DAMAGE });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_REAP_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_reap::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 339895 - Repeat Decree (attached to 307046 - Elysian Decree and 389860 - Sigil of Spite)
 class spell_dh_repeat_decree_conduit : public SpellScript
 {
@@ -2705,6 +2728,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
+    RegisterSpellScript(spell_dh_reap);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
