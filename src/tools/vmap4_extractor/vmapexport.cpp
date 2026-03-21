@@ -186,7 +186,7 @@ void ParsMapFiles()
     //char id_filename[64];
     for (unsigned int i=0; i<map_count; ++i)
     {
-        sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
+        snprintf(fn, sizeof(fn), "World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
         if (WDT.init(map_ids[i].id))
         {
