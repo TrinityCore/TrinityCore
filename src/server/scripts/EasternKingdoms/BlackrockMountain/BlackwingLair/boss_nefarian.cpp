@@ -224,6 +224,7 @@ struct boss_victor_nefarius : public BossAI
         if (summon->GetEntry() != NPC_NEFARIAN && summon->GetEntry() != NPC_BONE_CONSTRUCT)
         {
             summon->UpdateEntry(NPC_BONE_CONSTRUCT);
+            summon->SetHomePosition(summon->GetPosition());
             summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetStandState(UNIT_STAND_STATE_DEAD);
