@@ -362,6 +362,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
+    // unsummon pet if player leaves the ground on a flying mount
+    if (plrMover && plrMover->IsMounted())
+    {
+        bool wasFlying = mover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool isNowFlying = movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+
+        if (!wasFlying && isNowFlying)
+            plrMover->UnsummonPetTemporaryIfAny();
+    }
+
     /* process position-change */
     movementInfo.guid = mover->GetGUID();
     movementInfo.time = AdjustClientMovementTime(movementInfo.time);
