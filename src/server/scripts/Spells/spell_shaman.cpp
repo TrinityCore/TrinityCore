@@ -1160,7 +1160,6 @@ class spell_sha_feral_lunge : public SpellScript
     {
         return ValidateSpellInfo(
             {
-                SPELL_SHAMAN_FERAL_LUNGE,
                 SPELL_SHAMAN_FERAL_LUNGE_DAMAGE,
                 SPELL_SHAMAN_GHOST_WOLF
             });
