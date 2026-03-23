@@ -77,6 +77,8 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF         = 408390,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_ENHANCED_ELEMENTS              = 77223,
+    SPELL_SHAMAN_FERAL_LUNGE                    = 196884,
+    SPELL_SHAMAN_FERAL_LUNGE_DAMAGE             = 215802,
     SPELL_SHAMAN_FIRE_NOVA_DAMAGE               = 333977,
     SPELL_SHAMAN_FIRE_NOVA_ENABLER              = 466622,
     SPELL_SHAMAN_FLAME_SHOCK                    = 188389,
@@ -1148,6 +1150,62 @@ struct FireNovaTargetCheck
     bool operator()(Unit const* candidate) const
     {
         return candidate->IsWithinDist3d(Shaman, MaxSearchRange) && candidate->HasAura(SPELL_SHAMAN_FLAME_SHOCK, Shaman->GetGUID());
+    }
+};
+
+// 196884 - Feral Lunge
+class spell_sha_feral_lunge : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_FERAL_LUNGE,
+                SPELL_SHAMAN_FERAL_LUNGE_DAMAGE,
+                SPELL_SHAMAN_GHOST_WOLF
+            });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (!caster->HasAura(SPELL_SHAMAN_GHOST_WOLF))
+            caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_feral_lunge::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 215802 - Feral Lunge Damage
+class spell_sha_feral_lunge_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_FERAL_LUNGE_DAMAGE,
+                SPELL_SHAMAN_GHOST_WOLF
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAura(SPELL_SHAMAN_GHOST_WOLF);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_feral_lunge_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -3459,6 +3517,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_elemental_weapons);
+    RegisterSpellScript(spell_sha_feral_lunge);
+    RegisterSpellScript(spell_sha_feral_lunge_damage);
     RegisterSpellScript(spell_sha_fire_nova);
     RegisterSpellScript(spell_sha_flame_shock_fire_nova_enabler);
     RegisterSpellScript(spell_sha_flametongue_weapon);
