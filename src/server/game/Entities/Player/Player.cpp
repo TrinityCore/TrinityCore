@@ -18214,6 +18214,9 @@ void Player::LoadPet()
         Pet* pet = new Pet(this);
         if (!pet->LoadPetFromDB(this, 0, 0, true))
             delete pet;
+        else if (IsMounted())
+            if (Pet* loadedPet = GetPet())
+                loadedPet->SetUnitFlag(UNIT_FLAG_STUNNED);
     }
 }
 
@@ -25246,6 +25249,9 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     Pet* NewPet = new Pet(this);
     if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
         delete NewPet;
+    else if (IsMounted())
+        if (Pet* pet = GetPet())
+            pet->SetUnitFlag(UNIT_FLAG_STUNNED);
 
     m_temporaryUnsummonedPetNumber = 0;
 }
