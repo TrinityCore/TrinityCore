@@ -178,7 +178,8 @@ void AzeriteEmpoweredItem::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuff
 }
 
 void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask, Player const* target) const
+    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask,
+    Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -200,13 +201,13 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_ITEM])
-        m_itemData->WriteUpdate(itemMask, buffer, target, this, true);
+        m_itemData->WriteUpdate(itemMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_AZERITE_EMPOWERED_ITEM])
-        m_azeriteEmpoweredItemData->WriteUpdate(requestedAzeriteEmpoweredItemMask, buffer, target, this, true);
+        m_azeriteEmpoweredItemData->WriteUpdate(requestedAzeriteEmpoweredItemMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -218,7 +219,8 @@ void AzeriteEmpoweredItem::ValuesUpdateForPlayerWithMaskSender::operator()(Playe
     UpdateData udata(player->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteEmpoweredItemMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteEmpoweredItemMask.GetChangesMask(),
+        player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);

@@ -430,7 +430,8 @@ void AzeriteItem::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffe
 }
 
 void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const
+    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteItemData::Mask const& requestedAzeriteItemMask,
+    Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -454,13 +455,13 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_ITEM])
-        m_itemData->WriteUpdate(itemMask, buffer, target, this, true);
+        m_itemData->WriteUpdate(itemMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_AZERITE_ITEM])
-        m_azeriteItemData->WriteUpdate(azeriteItemMask, buffer, target, this, true);
+        m_azeriteItemData->WriteUpdate(azeriteItemMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -472,7 +473,8 @@ void AzeriteItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* 
     UpdateData udata(player->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteItemMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteItemMask.GetChangesMask(),
+        player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);

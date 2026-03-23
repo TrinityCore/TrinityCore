@@ -460,6 +460,30 @@ LOCK TABLES `battlenet_account_transmog_illusions` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_transmog_outfits`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_transmog_outfits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_transmog_outfits` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `transmogOutfitId` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`battlenetAccountId`,`transmogOutfitId`),
+  CONSTRAINT `fk_battlenet_account_transmog_outfits` FOREIGN KEY (`battlenetAccountId`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_transmog_outfits`
+--
+
+LOCK TABLES `battlenet_account_transmog_outfits` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_transmog_outfits` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_transmog_outfits` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_account_warband_scenes`
 --
 
@@ -1516,7 +1540,14 @@ INSERT INTO `build_auth_key` VALUES
 (66431,'Mac','x64','WoWC',0xA6DEF2B52C483C91534BFA1FF622A694),
 (66431,'Win','A64','WoW',0x76EC3154E6F38F0DB788B47153F12F19),
 (66431,'Win','x64','WoW',0x5CEE32E409DEB66CF3FBC62830FCFC5C),
-(66431,'Win','x64','WoWC',0xC72DF90134ACA394596DFB106682267C);
+(66431,'Win','x64','WoWC',0xC72DF90134ACA394596DFB106682267C),
+(66527,'Mac','A64','WoW',0xF927750F046450185D353A921E06244D),
+(66527,'Mac','A64','WoWC',0x475C0906F09121CB86D2B225BE7F3E6B),
+(66527,'Mac','x64','WoW',0x22AA9B05F64B2117E941E923A5E2452B),
+(66527,'Mac','x64','WoWC',0xF40A1B10E7367BE4B742A9E25CA93DB9),
+(66527,'Win','A64','WoW',0xE928E091C823F9127583959F3E688D2E),
+(66527,'Win','x64','WoW',0xCBAE2BD108168495CCE1AF55F6D050B0),
+(66527,'Win','x64','WoWC',0x949DD36DBB35F4FD024D8F97A5378B19);
 /*!40000 ALTER TABLE `build_auth_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1956,7 +1987,8 @@ INSERT INTO `build_info` VALUES
 (66263,12,0,1,NULL),
 (66337,12,0,1,NULL),
 (66384,12,0,1,NULL),
-(66431,12,0,1,NULL);
+(66431,12,0,1,NULL),
+(66527,12,0,1,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3569,7 +3601,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
   `population` float NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '66431',
+  `gamebuild` int unsigned NOT NULL DEFAULT '66527',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -3584,7 +3616,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1',NULL,NULL,'255.255.255.0',8085,0,0,1,0,0,66431,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1',NULL,NULL,'255.255.255.0',8085,0,0,1,0,0,66527,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -4138,7 +4170,9 @@ INSERT INTO `updates` VALUES
 ('2026_03_05_00_auth.sql','C045AA2BECBC1AA78990904864D8EC59EF488585','RELEASED','2026-03-05 18:28:57',0),
 ('2026_03_10_00_auth.sql','4BB4EBC719F80F7BEA667E6DA49815B358956FEA','RELEASED','2026-03-10 20:42:13',0),
 ('2026_03_14_00_auth.sql','4CE4AF3D9E1BF173832B25F4D1A730A93ED016FA','RELEASED','2026-03-14 12:03:14',0),
-('2026_03_18_00_auth.sql','7A755DADF9AAC9016FD01B26ACEC714FAB5E3269','RELEASED','2026-03-18 12:36:48',0);
+('2026_03_18_00_auth.sql','7A755DADF9AAC9016FD01B26ACEC714FAB5E3269','RELEASED','2026-03-18 12:36:48',0),
+('2026_03_20_00_auth.sql','9083386953291DA3D0634E90D40863F7625FF37E','RELEASED','2026-03-20 01:11:00',0),
+('2026_03_21_00_auth.sql','6D47EFD7FBCD159F5BC5B5A6020E61824280E92A','RELEASED','2026-03-21 00:08:26',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

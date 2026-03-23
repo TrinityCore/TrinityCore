@@ -394,15 +394,16 @@ class TC_GAME_API Item : public Object
     public:
         void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::ItemData::Mask const& requestedItemMask, Player const* target) const;
+            UF::ItemData::Mask const& requestedItemMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Item const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Item const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Item const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::ItemData::Base ItemMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

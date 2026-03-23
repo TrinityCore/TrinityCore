@@ -297,3 +297,49 @@ std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spe
 {
     return (spec->ClassID - 1) * MAX_SPECIALIZATIONS + spec->OrderIndex;
 }
+
+TransmogOutfitSlotOption ItemTemplate::GetWeaponTransmogOutfitSlotOption() const
+{
+    switch (GetClass())
+    {
+        case ITEM_CLASS_WEAPON:
+            switch (GetSubClass())
+            {
+                case ITEM_SUBCLASS_WEAPON_AXE2:
+                case ITEM_SUBCLASS_WEAPON_MACE2:
+                case ITEM_SUBCLASS_WEAPON_SWORD2:
+                case ITEM_SUBCLASS_WEAPON_STAFF:
+                case ITEM_SUBCLASS_WEAPON_POLEARM:
+                    return TransmogOutfitSlotOption::TwoHandedWeapon;
+                case ITEM_SUBCLASS_WEAPON_BOW:
+                case ITEM_SUBCLASS_WEAPON_GUN:
+                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                    return TransmogOutfitSlotOption::RangedWeapon;
+                case ITEM_SUBCLASS_WEAPON_AXE:
+                case ITEM_SUBCLASS_WEAPON_MACE:
+                case ITEM_SUBCLASS_WEAPON_SWORD:
+                case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
+                case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                case ITEM_SUBCLASS_WEAPON_DAGGER:
+                    return TransmogOutfitSlotOption::OneHandedWeapon;
+                default:
+                    break;
+            }
+            break;
+        case ITEM_CLASS_ARMOR:
+            switch (GetInventoryType())
+            {
+                case INVTYPE_SHIELD:
+                    return TransmogOutfitSlotOption::Shield;
+                case INVTYPE_HOLDABLE:
+                    return TransmogOutfitSlotOption::OffHand;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return TransmogOutfitSlotOption::None;
+}

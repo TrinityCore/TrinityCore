@@ -156,7 +156,7 @@ void SceneObject::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data,
 }
 
 void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target) const
+    UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -173,10 +173,10 @@ void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_SCENEOBJECT])
-        m_sceneObjectData->WriteUpdate(requestedSceneObjectMask, buffer, target, this, true);
+        m_sceneObjectData->WriteUpdate(requestedSceneObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -188,7 +188,7 @@ void SceneObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* 
     UpdateData udata(Owner->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), SceneObjectMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), SceneObjectMask.GetChangesMask(), player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
