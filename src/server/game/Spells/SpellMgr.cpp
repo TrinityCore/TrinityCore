@@ -1485,10 +1485,11 @@ void SpellMgr::LoadSpellGroupStackRules()
             // Find shared auraTypes with maximum count from frequencyContainer
             std::set<AuraType> maxAuraTypes;
             size_t maxAuraTypeCount = 0;
-            for (auto& [auraType, count] : frequencyContainer)
+            for (AuraType const& auraType : commonAuraTypes)
             {
-                if (commonAuraTypes.find(auraType) != commonAuraTypes.end())
+                if (frequencyContainer.contains(auraType))
                 {
+                    uint32 count = frequencyContainer[auraType];
                     if (count > maxAuraTypeCount)
                     {
                         maxAuraTypes.clear();
