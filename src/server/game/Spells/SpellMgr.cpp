@@ -1415,7 +1415,7 @@ void SpellMgr::LoadSpellGroupStackRules()
         {
             // Collection of unique aura types of all spells and their rank's effects.
             // All spell effects of all ranks are under one spellid
-            std::map<uint32 /*spellId*/, std::set<AuraType>> auraTypesBySpellId;
+            std::map<uint32 /*spellId*/, std::unordered_set<AuraType>> auraTypesBySpellId;
 
             // Count of each aura type in the group
             // The count is increased only once for each aura type per spell and its ranks, even if it appears multiple times in the spell or their ranks.
@@ -1425,7 +1425,7 @@ void SpellMgr::LoadSpellGroupStackRules()
             for (uint32 spellId : spellIds)
             {
                 // Collect the aura types of all effects of the spell and its ranks
-                std::set<AuraType>& auraTypes = auraTypesBySpellId[spellId];
+                std::unordered_set<AuraType>& auraTypes = auraTypesBySpellId[spellId];
                 SpellInfo const* firstRankSpellInfo = AssertSpellInfo(spellId)->GetFirstRankSpell();
                 // Loop through all ranks of the spell as the effect types may differ between ranks and only last rank is affected by stacking rules
                 // For example, only the last rank of 27275/soothing-kiss modifies attack speed, which is the aura type we are looking for
@@ -1458,27 +1458,9 @@ void SpellMgr::LoadSpellGroupStackRules()
             }
 
             // Find aura types that all spells share
-            std::set<AuraType> commonAuraTypes;
+            std::unordered_set<AuraType> commonAuraTypes;
             for (const auto& [spellId, auraTypes] : auraTypesBySpellId)
-            {
-                // If it's the first set, initialize the commonAuraTypes set with its elements
-                if (commonAuraTypes.empty())
-                {
-                    commonAuraTypes = auraTypes;
-                    continue;
-                }
-
-                // Create a temporary set to store the common AuraTypes between the current set and commonAuraTypes
-                std::set<AuraType> tempCommonAuraTypes;
-
-                // Find the common AuraTypes by taking the intersection of the current set and commonAuraTypes
-                for (AuraType const& auraType : auraTypes)
-                    if (!commonAuraTypes.contains(auraType))
-                        tempCommonAuraTypes.insert(auraType);
-
-                // Update commonAuraTypes with the common AuraTypes found in this iteration
-                commonAuraTypes = tempCommonAuraTypes;
-            }
+                commonAuraTypes.insert(auraTypes.begin(), auraTypes.end());
 
             if (commonAuraTypes.empty())
             {
