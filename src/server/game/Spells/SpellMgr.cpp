@@ -1479,7 +1479,7 @@ void SpellMgr::LoadSpellGroupStackRules()
             }
 
             if (commonAuraTypes.empty()) {
-                TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group %u with stack rule 3 do not have any aura type that all spells in the group or their ranks would share, skipping", group_id);
+                TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group {} with stack rule 3 do not have any aura type that all spells in the group or their ranks would share, skipping", group_id);
                 continue;
             }
 
