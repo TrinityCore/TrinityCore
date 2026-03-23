@@ -1445,7 +1445,7 @@ void SpellMgr::LoadSpellGroupStackRules()
                                 // set the aura type to the first aura in the group
                                 auraType = subGroup.front();
                                 break;
-                            } 
+                            }
                         }
                         auraTypes.insert(auraType);
                     }
