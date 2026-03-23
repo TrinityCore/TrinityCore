@@ -1163,7 +1163,7 @@ class spell_sha_feral_lunge : public SpellScript
 
     bool Load() override
     {
-        return GetCaster() != nullptr;
+        return GetCaster()->IsPlayer();
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1190,7 +1190,7 @@ class spell_sha_feral_lunge_damage : public SpellScript
 
     bool Load() override
     {
-        return GetCaster() != nullptr;
+        return GetCaster()->IsPlayer();
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
