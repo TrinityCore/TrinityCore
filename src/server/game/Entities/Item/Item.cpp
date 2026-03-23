@@ -46,6 +46,7 @@
 #include "SpellMgr.h"
 #include "StringConvert.h"
 #include "TradeData.h"
+#include "TransmogMgr.h"
 #include "UpdateData.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -2010,51 +2011,6 @@ bool Item::IsValidTransmogrificationTarget() const
     return true;
 }
 
-enum class ItemTransmogrificationWeaponCategory : uint8
-{
-    // Two-handed
-    MELEE_2H,
-    RANGED,
-
-    // One-handed
-    AXE_MACE_SWORD_1H,
-    DAGGER,
-
-    INVALID
-};
-
-static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate const* proto)
-{
-    if (proto->GetClass() == ITEM_CLASS_WEAPON)
-    {
-        switch (proto->GetSubClass())
-        {
-            case ITEM_SUBCLASS_WEAPON_AXE2:
-            case ITEM_SUBCLASS_WEAPON_MACE2:
-            case ITEM_SUBCLASS_WEAPON_SWORD2:
-            case ITEM_SUBCLASS_WEAPON_STAFF:
-            case ITEM_SUBCLASS_WEAPON_POLEARM:
-                return ItemTransmogrificationWeaponCategory::MELEE_2H;
-            case ITEM_SUBCLASS_WEAPON_BOW:
-            case ITEM_SUBCLASS_WEAPON_GUN:
-            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                return ItemTransmogrificationWeaponCategory::RANGED;
-            case ITEM_SUBCLASS_WEAPON_AXE:
-            case ITEM_SUBCLASS_WEAPON_MACE:
-            case ITEM_SUBCLASS_WEAPON_SWORD:
-            case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
-            case ITEM_SUBCLASS_WEAPON_DAGGER:
-                return ItemTransmogrificationWeaponCategory::DAGGER;
-            default:
-                break;
-        }
-    }
-
-    return ItemTransmogrificationWeaponCategory::INVALID;
-}
-
 int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
 {
     -1,                                                     // INVTYPE_NON_EQUIP
@@ -2124,7 +2080,7 @@ bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceE
         switch (source->GetClass())
         {
             case ITEM_CLASS_WEAPON:
-                if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+                if (source->GetWeaponTransmogOutfitSlotOption() != target->GetWeaponTransmogOutfitSlotOption())
                     return false;
                 break;
             case ITEM_CLASS_ARMOR:
@@ -2495,16 +2451,20 @@ uint32 Item::GetDisplayId(Player const* owner) const
     if (!itemModifiedAppearanceId)
         itemModifiedAppearanceId = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS);
 
-    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId))
-        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(transmog->ItemAppearanceID))
+    ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId);
+    if (!itemModifiedAppearance)
+        itemModifiedAppearance = GetItemModifiedAppearance();
+
+    if (itemModifiedAppearance)
+        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(itemModifiedAppearance->ItemAppearanceID))
             return itemAppearance->ItemDisplayInfoID;
 
-    return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
+    return 0;
 }
 
 ItemModifiedAppearanceEntry const* Item::GetItemModifiedAppearance() const
 {
-    return sDB2Manager.GetItemModifiedAppearance(GetEntry(), _bonusData.AppearanceModID);
+    return TransmogMgr::GetItemModifiedAppearance(GetEntry(), _bonusData.AppearanceModID);
 }
 
 uint32 Item::GetModifier(ItemModifier modifier) const

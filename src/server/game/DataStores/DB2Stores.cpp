@@ -382,6 +382,12 @@ DB2Storage<TraitTreeXTraitCostEntry>            sTraitTreeXTraitCostStore("Trait
 DB2Storage<TraitTreeXTraitCurrencyEntry>        sTraitTreeXTraitCurrencyStore("TraitTreeXTraitCurrency.db2", &TraitTreeXTraitCurrencyLoadInfo::Instance);
 DB2Storage<TransmogHolidayEntry>                sTransmogHolidayStore("TransmogHoliday.db2", &TransmogHolidayLoadInfo::Instance);
 DB2Storage<TransmogIllusionEntry>               sTransmogIllusionStore("TransmogIllusion.db2", &TransmogIllusionLoadInfo::Instance);
+DB2Storage<TransmogOutfitEntryEntry>            sTransmogOutfitEntryStore("TransmogOutfitEntry.db2", &TransmogOutfitEntryLoadInfo::Instance);
+DB2Storage<TransmogOutfitSlotInfoEntry>         sTransmogOutfitSlotInfoStore("TransmogOutfitSlotInfo.db2", &TransmogOutfitSlotInfoLoadInfo::Instance);
+DB2Storage<TransmogOutfitSlotOptionEntry>       sTransmogOutfitSlotOptionInfoStore("TransmogOutfitSlotOption.db2", &TransmogOutfitSlotOptionLoadInfo::Instance);
+DB2Storage<TransmogSituationEntry>              sTransmogSituationStore("TransmogSituation.db2", &TransmogSituationLoadInfo::Instance);
+DB2Storage<TransmogSituationGroupEntry>         sTransmogSituationGroupStore("TransmogSituationGroup.db2", &TransmogSituationGroupLoadInfo::Instance);
+DB2Storage<TransmogSituationTriggerEntry>       sTransmogSituationTriggerStore("TransmogSituationTrigger.db2", &TransmogSituationTriggerLoadInfo::Instance);
 DB2Storage<TransmogSetEntry>                    sTransmogSetStore("TransmogSet.db2", &TransmogSetLoadInfo::Instance);
 DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("TransmogSetGroup.db2", &TransmogSetGroupLoadInfo::Instance);
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", &TransmogSetItemLoadInfo::Instance);
@@ -426,7 +432,6 @@ typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<ChrSpeciali
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
 typedef std::array<ItemClassEntry const*, 21> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
-typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
@@ -505,7 +510,6 @@ namespace
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemLimitCategoryConditionContainer _itemCategoryConditions;
-    ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
@@ -536,9 +540,6 @@ namespace
     TalentsByPosition _talentsByPosition;
     std::unordered_map<std::pair<uint32, uint32>, TaxiPathEntry const*> _taxiPaths;
     ToyItemIdsContainer _toys;
-    std::unordered_map<uint32, TransmogIllusionEntry const*> _transmogIllusionsByEnchantmentId;
-    std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
-    std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
     std::unordered_map<int32, UiMapBounds> _uiMapBounds;
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByMap[MAX_UI_MAP_SYSTEM];
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByArea[MAX_UI_MAP_SYSTEM];
@@ -1013,6 +1014,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTraitTreeXTraitCurrencyStore);
     LOAD_DB2(sTransmogHolidayStore);
     LOAD_DB2(sTransmogIllusionStore);
+    LOAD_DB2(sTransmogOutfitEntryStore);
+    LOAD_DB2(sTransmogOutfitSlotInfoStore);
+    LOAD_DB2(sTransmogOutfitSlotOptionInfoStore);
+    LOAD_DB2(sTransmogSituationStore);
+    LOAD_DB2(sTransmogSituationGroupStore);
+    LOAD_DB2(sTransmogSituationTriggerStore);
     LOAD_DB2(sTransmogSetStore);
     LOAD_DB2(sTransmogSetGroupStore);
     LOAD_DB2(sTransmogSetItemStore);
@@ -1359,12 +1366,6 @@ void DB2Manager::IndexLoadedStores()
     for (ItemLimitCategoryConditionEntry const* condition : sItemLimitCategoryConditionStore)
         _itemCategoryConditions[condition->ParentItemLimitCategoryID].push_back(condition);
 
-    for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
-    {
-        ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
-        _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->ItemAppearanceModifierID << 24)] = appearanceMod;
-    }
-
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
         _itemSetSpells[itemSetSpell->ItemSetID].push_back(itemSetSpell);
 
@@ -1575,19 +1576,6 @@ void DB2Manager::IndexLoadedStores()
 
     for (ToyEntry const* toy : sToyStore)
         _toys.insert(toy->ItemID);
-
-    for (TransmogIllusionEntry const* transmogIllusion : sTransmogIllusionStore)
-        _transmogIllusionsByEnchantmentId[transmogIllusion->SpellItemEnchantmentID] = transmogIllusion;
-
-    for (TransmogSetItemEntry const* transmogSetItem : sTransmogSetItemStore)
-    {
-        TransmogSetEntry const* set = sTransmogSetStore.LookupEntry(transmogSetItem->TransmogSetID);
-        if (!set)
-            continue;
-
-        _transmogSetsByItemModifiedAppearance[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
-        _transmogSetItemsByTransmogSet[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
-    }
 
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> uiMapAssignmentByUiMap;
     for (UiMapAssignmentEntry const* uiMapAssignment : sUiMapAssignmentStore)
@@ -2649,37 +2637,6 @@ std::vector<ItemLimitCategoryConditionEntry const*> const* DB2Manager::GetItemLi
     return Trinity::Containers::MapGetValuePtr(_itemCategoryConditions, categoryId);
 }
 
-uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
-{
-    if (ItemModifiedAppearanceEntry const* modifiedAppearance = GetItemModifiedAppearance(itemId, appearanceModId))
-        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->ItemAppearanceID))
-            return itemAppearance->ItemDisplayInfoID;
-
-    return 0;
-}
-
-ItemModifiedAppearanceEntry const* DB2Manager::GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const
-{
-    auto itr = _itemModifiedAppearancesByItem.find(itemId | (appearanceModId << 24));
-    if (itr != _itemModifiedAppearancesByItem.end())
-        return itr->second;
-
-    // Fall back to unmodified appearance
-    if (appearanceModId)
-    {
-        itr = _itemModifiedAppearancesByItem.find(itemId);
-        if (itr != _itemModifiedAppearancesByItem.end())
-            return itr->second;
-    }
-
-    return nullptr;
-}
-
-ItemModifiedAppearanceEntry const* DB2Manager::GetDefaultItemModifiedAppearance(uint32 itemId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_itemModifiedAppearancesByItem, itemId);
-}
-
 std::vector<ItemSetSpellEntry const*> const* DB2Manager::GetItemSetSpells(uint32 itemSetId) const
 {
     return Trinity::Containers::MapGetValuePtr(_itemSetSpells, itemSetId);
@@ -3114,21 +3071,6 @@ bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint3
 bool DB2Manager::IsToyItem(uint32 toy) const
 {
     return _toys.count(toy) > 0;
-}
-
-TransmogIllusionEntry const* DB2Manager::GetTransmogIllusionForEnchantment(uint32 spellItemEnchantmentId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_transmogIllusionsByEnchantmentId, spellItemEnchantmentId);
-}
-
-std::vector<TransmogSetEntry const*> const* DB2Manager::GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_transmogSetsByItemModifiedAppearance, itemModifiedAppearanceId);
-}
-
-std::vector<TransmogSetItemEntry const*> const* DB2Manager::GetTransmogSetItems(uint32 transmogSetId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_transmogSetItemsByTransmogSet, transmogSetId);
 }
 
 struct UiMapAssignmentStatus

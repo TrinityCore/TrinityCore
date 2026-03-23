@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "TransmogMgr.h"
 
 static constexpr char HYPERLINK_DATA_DELIMITER = ':';
 
@@ -527,7 +528,7 @@ bool Trinity::Hyperlinks::LinkTags::transmogillusion::StoreTo(SpellItemEnchantme
     if (!t.TryConsumeTo(spellItemEnchantmentId))
         return false;
     return !!(val = sSpellItemEnchantmentStore.LookupEntry(spellItemEnchantmentId))
-        && sDB2Manager.GetTransmogIllusionForEnchantment(spellItemEnchantmentId) && t.IsEmpty();
+        && TransmogMgr::GetTransmogIllusionForSpellItemEnchantment(spellItemEnchantmentId) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::transmogset::StoreTo(TransmogSetEntry const*& val, std::string_view text)

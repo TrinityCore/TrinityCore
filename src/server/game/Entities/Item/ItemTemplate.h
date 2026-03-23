@@ -967,6 +967,7 @@ struct TC_GAME_API ItemTemplate
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
+    TransmogOutfitSlotOption GetWeaponTransmogOutfitSlotOption() const;
 };
 
 #endif

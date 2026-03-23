@@ -1076,9 +1076,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     SetDisplayId(goInfo->displayId);
 
-    CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goInfo->type));
+    CreateModel();
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
@@ -1147,6 +1147,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
             SetFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
+
+            if (GetGOInfo()->phaseableMO.DoodadSetA)
+                AddDynamicUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::EnableDoodadSets)) = static_cast<int32>(GetGOInfo()->phaseableMO.DoodadSetA);
+
+            if (GetGOInfo()->phaseableMO.DoodadSetB)
+                AddDynamicUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::EnableDoodadSets)) = static_cast<int32>(GetGOInfo()->phaseableMO.DoodadSetB);
             break;
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);

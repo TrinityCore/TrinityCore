@@ -460,6 +460,30 @@ LOCK TABLES `battlenet_account_transmog_illusions` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_transmog_outfits`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_transmog_outfits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_transmog_outfits` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `transmogOutfitId` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`battlenetAccountId`,`transmogOutfitId`),
+  CONSTRAINT `fk_battlenet_account_transmog_outfits` FOREIGN KEY (`battlenetAccountId`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_transmog_outfits`
+--
+
+LOCK TABLES `battlenet_account_transmog_outfits` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_transmog_outfits` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_transmog_outfits` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_account_warband_scenes`
 --
 
@@ -4147,7 +4171,8 @@ INSERT INTO `updates` VALUES
 ('2026_03_10_00_auth.sql','4BB4EBC719F80F7BEA667E6DA49815B358956FEA','RELEASED','2026-03-10 20:42:13',0),
 ('2026_03_14_00_auth.sql','4CE4AF3D9E1BF173832B25F4D1A730A93ED016FA','RELEASED','2026-03-14 12:03:14',0),
 ('2026_03_18_00_auth.sql','7A755DADF9AAC9016FD01B26ACEC714FAB5E3269','RELEASED','2026-03-18 12:36:48',0),
-('2026_03_20_00_auth.sql','9083386953291DA3D0634E90D40863F7625FF37E','RELEASED','2026-03-20 01:11:00',0);
+('2026_03_20_00_auth.sql','9083386953291DA3D0634E90D40863F7625FF37E','RELEASED','2026-03-20 01:11:00',0),
+('2026_03_21_00_auth.sql','6D47EFD7FBCD159F5BC5B5A6020E61824280E92A','RELEASED','2026-03-21 00:08:26',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
