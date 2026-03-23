@@ -283,15 +283,17 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         {
             if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
             {
-                // Fishing holes with zero min and max success opens should not despawn, so don't store use count
+                bool allOpensConsumed = false;
                 if (go->GetGOValue()->FishingHole.MaxOpens)
-                    go->AddUse(); // The fishing hole used once more
+                {
+                    // The fishing hole used once more
+                    go->AddUse();
 
-                // Fishing holes with zero min and max success opens should not despawn
-                if (go->GetGOValue()->FishingHole.MaxOpens && go->GetUseCount() >= go->GetGOValue()->FishingHole.MaxOpens)
-                    go->SetLootState(GO_JUST_DEACTIVATED); // If the max usage is reached, will be despawned in next tick
-                else
-                    go->SetLootState(GO_READY);
+                    // If the max usage is reached, will be despawned in next tick
+                    allOpensConsumed = go->GetUseCount() >= go->GetGOValue()->FishingHole.MaxOpens;
+                }
+
+                go->SetLootState(allOpensConsumed ? GO_JUST_DEACTIVATED : GO_READY);
             }
             else
                 go->SetLootState(GO_JUST_DEACTIVATED);
