@@ -1430,8 +1430,10 @@ void SpellMgr::LoadSpellGroupStackRules()
                 // Loop through all ranks of the spell as the effect types may differ between ranks and only last rank is affected by stacking rules
                 // For example, only the last rank of 27275/soothing-kiss modifies attack speed, which is the aura type we are looking for
                 SpellInfo const* spellInfo = firstRankSpellInfo;
-                while (spellInfo) {
-                    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects()) {
+                while (spellInfo)
+                {
+                    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                    {
                         if (!spellEffectInfo.IsAura())
                             continue;
 
@@ -1457,7 +1459,8 @@ void SpellMgr::LoadSpellGroupStackRules()
 
             // Find aura types that all spells share
             std::set<AuraType> commonAuraTypes;
-            for (const auto& [spellId, auraTypes] : auraTypesBySpellId) {
+            for (const auto& [spellId, auraTypes] : auraTypesBySpellId)
+            {
                 // If it's the first set, initialize the commonAuraTypes set with its elements
                 if (commonAuraTypes.empty())
                 {
@@ -1477,7 +1480,8 @@ void SpellMgr::LoadSpellGroupStackRules()
                 commonAuraTypes = tempCommonAuraTypes;
             }
 
-            if (commonAuraTypes.empty()) {
+            if (commonAuraTypes.empty())
+            {
                 TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group {} with stack rule 3 do not have any aura type that all spells in the group or their ranks would share, skipping", group_id);
                 continue;
             }
