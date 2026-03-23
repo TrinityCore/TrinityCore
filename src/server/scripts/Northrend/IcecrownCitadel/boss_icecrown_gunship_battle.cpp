@@ -1761,7 +1761,7 @@ class spell_igb_rocket_pack : public AuraScript
     {
         SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
+        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
     }

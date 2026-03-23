@@ -72,6 +72,38 @@ namespace WorldPackets
                 uint32 CreatureID = 0;
         };
 
+        class QueryPlayerName final : public ClientPacket
+        {
+        public:
+            explicit QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_NAME_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Player;
+        };
+
+        struct PlayerGuidLookupData
+        {
+            std::string_view Name;
+            std::string_view RealmName;
+            uint8 Race = RACE_NONE;
+            uint8 Sex = GENDER_NONE;
+            uint8 ClassID = CLASS_NONE;
+            DeclinedName const* DeclinedNames = nullptr;
+        };
+
+        class QueryPlayerNameResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryPlayerNameResponse() : ServerPacket(SMSG_NAME_QUERY_RESPONSE, 60) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            Optional<PlayerGuidLookupData> Data;
+        };
+
         class QueryGameObject final : public ClientPacket
         {
             public:

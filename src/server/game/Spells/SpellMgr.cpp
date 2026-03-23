@@ -2964,7 +2964,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             65755
         }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         ApplySpellFix({
@@ -2975,27 +2975,27 @@ void SpellMgr::LoadSpellInfoCorrections()
         }, [](SpellInfo* spellInfo)
         {
             // first effect has correct amplitude
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = spellInfo->GetEffect(EFFECT_0).Amplitude;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = spellInfo->GetEffect(EFFECT_0).ApplyAuraPeriod;
         });
 
         // Vomit
         ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         // Strider Presence
         ApplySpellFix({ 4312 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         // Food
         ApplySpellFix({ 64345 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
-            spellInfo->_GetEffect(EFFECT_2).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_2).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
     }
 
@@ -3072,7 +3072,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         }, [](SpellInfo* spellInfo)
     {
         // copy SP scaling data from direct damage to DoT
-        spellInfo->_GetEffect(EFFECT_0).BonusMultiplier = spellInfo->GetEffect(EFFECT_1).BonusMultiplier;
+        spellInfo->_GetEffect(EFFECT_0).BonusCoefficient = spellInfo->GetEffect(EFFECT_1).BonusCoefficient;
     });
 
     // Detect Undead
@@ -3479,7 +3479,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
     ApplySpellFix({ 51912 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->_GetEffect(EFFECT_0).Amplitude = 3000;
+        spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 3000;
     });
 
     // Desecration Arm - 36 instead of 37 - typo? :/
@@ -4353,7 +4353,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Swarming Shadows
     ApplySpellFix({ 71266, 72890 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
+        spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
     });
 
     // Corruption
@@ -4690,7 +4690,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // either is a periodic with chance on tick, or a proc
 
         spellInfo->_GetEffect(EFFECT_0).ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
-        spellInfo->_GetEffect(EFFECT_0).Amplitude = 0;
+        spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 0;
         spellInfo->ProcChance = 10;
     });
 
@@ -4939,7 +4939,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).Effect          = SPELL_EFFECT_APPLY_AURA;
         spellInfo->_GetEffect(EFFECT_1).TargetA         = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-        spellInfo->_GetEffect(EFFECT_1).Amplitude       = 10 * IN_MILLISECONDS;
+        spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 10 * IN_MILLISECONDS;
         spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
     });
 
@@ -4982,7 +4982,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case SPELL_EFFECT_APPLY_AURA:
                     // special aura updates each 30 seconds
                     if (spellEffectInfo.ApplyAuraName == SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR)
-                        spellEffectInfo.Amplitude = 30 * IN_MILLISECONDS;
+                        spellEffectInfo.ApplyAuraPeriod = 30 * IN_MILLISECONDS;
                     break;
                 default:
                     break;

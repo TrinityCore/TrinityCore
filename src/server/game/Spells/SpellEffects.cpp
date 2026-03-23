@@ -483,7 +483,7 @@ void Spell::EffectSchoolDMG()
                 {
                     // converts each extra point of energy into ($f1+$AP/410) additional damage
                     float ap = unitCaster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    float multiple = ap / 410 + effectInfo->DamageMultiplier;
+                    float multiple = ap / 410 + effectInfo->ChainAmplitude;
                     int32 energy = -(unitCaster->ModifyPower(POWER_ENERGY, -30));
                     damage += int32(energy * multiple);
                     damage += int32(CalculatePct(unitCaster->ToPlayer()->GetComboPoints() * ap, 7));
@@ -959,7 +959,7 @@ void Spell::CalculateJumpSpeeds(SpellEffectInfo const& spellEffectInfo, float di
     if (Creature* creature = unitCaster->ToCreature())
         runSpeed *= creature->GetCreatureTemplate()->speed_run;
 
-    float multiplier = spellEffectInfo.ValueMultiplier;
+    float multiplier = spellEffectInfo.Amplitude;
     if (multiplier <= 0.0f)
         multiplier = 1.0f;
 

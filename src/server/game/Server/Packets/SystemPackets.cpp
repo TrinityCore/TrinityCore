@@ -17,10 +17,23 @@
 
 #include "SystemPackets.h"
 
-WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
+namespace WorldPackets::System
+{
+WorldPacket const* FeatureSystemStatus::Write()
 {
     _worldPacket << uint8(ComplaintStatus);
     _worldPacket << uint8(VoiceEnabled);
 
     return &_worldPacket;
+}
+
+WorldPacket const* MOTD::Write()
+{
+    _worldPacket << uint32(Text->size());
+
+    for (std::string const& line : *Text)
+        _worldPacket << line;
+
+    return &_worldPacket;
+}
 }

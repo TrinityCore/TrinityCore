@@ -17,8 +17,73 @@
 
 #include "TalentPackets.h"
 
-namespace WorldPackets::Talents
+namespace WorldPackets::Talent
 {
+ByteBuffer& operator<<(ByteBuffer& data, TalentEntry const& talentEntry)
+{
+    data << uint32(talentEntry.TalentID);
+    data << int8(talentEntry.Rank);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TalentGroupInfo const& talentGroup)
+{
+    data << uint8(talentGroup.Talents.size());
+
+    for (TalentEntry const& talentEntry : talentGroup.Talents)
+        data << talentEntry;
+
+    data << uint8(talentGroup.GlyphIDs.size());
+
+    for (uint16 glyphID : talentGroup.GlyphIDs)
+        data << uint16(glyphID);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, TalentInfoUpdate const& talentInfo)
+{
+    data << uint32(talentInfo.UnspentTalentPoints);
+    data << uint8(talentInfo.TalentGroups.size());
+    data << uint8(talentInfo.ActiveGroup);
+
+    for (TalentGroupInfo const& talentGroup : talentInfo.TalentGroups)
+        data << talentGroup;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, PetTalentInfoUpdate const& petTalentInfo)
+{
+    data << uint32(petTalentInfo.UnspentTalentPoints);
+    data << uint8(petTalentInfo.Talents.size());
+
+    for (TalentEntry const& talentEntry : petTalentInfo.Talents)
+        data << talentEntry;
+
+    return data;
+}
+
+WorldPacket const* UpdateTalentData::Write()
+{
+    _worldPacket << uint8(Info.index());
+
+    switch (Info.index())
+    {
+        case 0:
+            _worldPacket << std::get<0>(Info);
+            break;
+        case 1:
+            _worldPacket << std::get<1>(Info);
+            break;
+        default:
+            break;
+    }
+
+    return &_worldPacket;
+}
+
 WorldPacket const* RespecWipeConfirm::Write()
 {
     _worldPacket << RespecMaster;
