@@ -11561,6 +11561,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     _oldFactionId = GetFaction();
     SetFaction(charmer->GetFaction());
+    GetThreatManager().ClearAllThreat();
+    CombatStop();
 
     // Pause any Idle movement
     PauseMovement(0, 0, false);
