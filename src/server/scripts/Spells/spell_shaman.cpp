@@ -1163,16 +1163,14 @@ class spell_sha_feral_lunge : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_SHAMAN_GHOST_WOLF);
+        return GetCaster() != nullptr;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
 
-        Aura const* ghostWolf = caster->GetAura(SPELL_SHAMAN_GHOST_WOLF);
-
-        if (!ghostWolf)
+        if (!caster->HasAura(SPELL_SHAMAN_GHOST_WOLF))
             caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, true);
     }
 
@@ -1190,13 +1188,14 @@ class spell_sha_feral_lunge_damage : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
     }
 
+    bool Load() override
+    {
+        return GetCaster() != nullptr;
+    }
+
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->RemoveAura(SPELL_SHAMAN_GHOST_WOLF);
+        GetCaster()->RemoveAura(SPELL_SHAMAN_GHOST_WOLF);
     }
 
     void Register() override
