@@ -479,6 +479,8 @@ struct boss_nefarian : public BossAI
 
         if (id == 1)
         {
+            me->SetCanFly(false);
+            me->SetDisableGravity(false);
             DoZoneInCombat();
             if (me->GetVictim())
                 AttackStart(me->GetVictim());
