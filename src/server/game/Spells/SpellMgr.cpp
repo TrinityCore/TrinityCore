@@ -1506,9 +1506,9 @@ void SpellMgr::LoadSpellGroupStackRules()
             }
 
             // Insert expanded aura type groups or single aura type
+            bool added = false;
             for (AuraType const& auraType : maxAuraTypes)
             {
-                bool added = false;
                 for (std::vector<AuraType> const& subGroup : SubGroups)
                 {
                     if (auraType == subGroup.front())
@@ -1518,9 +1518,9 @@ void SpellMgr::LoadSpellGroupStackRules()
                         break;
                     }
                 }
-                if (!added)
-                    sharedEffectAuraTypeIds.insert(maxAuraTypes.begin(), maxAuraTypes.end());
             }
+            if (!added)
+                sharedEffectAuraTypeIds.insert(maxAuraTypes.begin(), maxAuraTypes.end());
         }
 
         mSpellSameEffectStack[SpellGroup(group_id)] = sharedEffectAuraTypeIds;
