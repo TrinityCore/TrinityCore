@@ -1158,20 +1158,21 @@ class spell_sha_feral_lunge : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_SHAMAN_FERAL_LUNGE_DAMAGE,
-                SPELL_SHAMAN_GHOST_WOLF
-            });
+        return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_SHAMAN_GHOST_WOLF);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
 
-        if (!caster->HasAura(SPELL_SHAMAN_GHOST_WOLF))
+        Aura const* ghostWolf = caster->GetAura(SPELL_SHAMAN_GHOST_WOLF);
+
+        if (!ghostWolf)
             caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, true);
     }
 
@@ -1186,11 +1187,7 @@ class spell_sha_feral_lunge_damage : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_SHAMAN_FERAL_LUNGE_DAMAGE,
-                SPELL_SHAMAN_GHOST_WOLF
-            });
+        return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
