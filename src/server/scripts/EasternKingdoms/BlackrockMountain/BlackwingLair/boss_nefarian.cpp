@@ -258,17 +258,17 @@ struct boss_victor_nefarius : public BossAI
             case ACTION_BONE_CONSTRUCT_START_ATTACK:
                 for (ObjectGuid const& summon : summons)
                 {
-                    if (summon.GetEntry() == NPC_BONE_CONSTRUCT)
-                        if (Creature* boneConstruct = ObjectAccessor::GetCreature(*me, summon))
-                            if (!boneConstruct->IsAlive())
-                            {
-                                boneConstruct->SetVisible(true);
-                                boneConstruct->RemoveAllGameObjects();
-                                boneConstruct->Respawn();
-                                boneConstruct->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                                boneConstruct->SetStandState(UNIT_STAND_STATE_STAND);
-                                SetAggressiveStateAfter(2s, boneConstruct);
-                            }
+                    if (Creature* boneConstruct = ObjectAccessor::GetCreature(*me, summon))
+                        if (boneConstruct->GetEntry() == NPC_BONE_CONSTRUCT && !boneConstruct->IsAlive())
+                        {
+                            boneConstruct->SetVisible(true);
+                            boneConstruct->RemoveAllGameObjects();
+                            boneConstruct->SetSpawnHealth();
+                            boneConstruct->setDeathState(ALIVE);
+                            boneConstruct->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            boneConstruct->SetStandState(UNIT_STAND_STATE_STAND);
+                            SetAggressiveStateAfter(2s, boneConstruct);
+                        }
                 }
                 instance->SetData(DATA_DRAKONID_BONES, 0);
                 break;
