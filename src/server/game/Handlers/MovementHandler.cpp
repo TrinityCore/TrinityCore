@@ -203,11 +203,11 @@ void WorldSession::HandleMoveWorldportAck()
     else if (player->IsPvP() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         player->UpdatePvP(false, false);
 
-    // resummon pet
-    player->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     player->ProcessDelayedOperations();
+
+    // resummon pet
+    player->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
@@ -258,11 +258,11 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
             plMover->UpdatePvP(false, false);
     }
 
-    // resummon pet
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+
+    // resummon pet
+    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
