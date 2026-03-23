@@ -1425,18 +1425,18 @@ void SpellMgr::LoadSpellGroupStackRules()
             for (uint32 spellId : spellIds)
             {
                 // Collect the aura types of all effects of the spell and its ranks
-                auto& auraTypes = auraTypesBySpellId[spellId];
+                std::set<AuraType>& auraTypes = auraTypesBySpellId[spellId];
                 SpellInfo const* firstRankSpellInfo = AssertSpellInfo(spellId)->GetFirstRankSpell();
                 // Loop through all ranks of the spell as the effect types may differ between ranks and only last rank is affected by stacking rules
                 // For example, only the last rank of 27275/soothing-kiss modifies attack speed, which is the aura type we are looking for
                 SpellInfo const* spellInfo = firstRankSpellInfo;
                 while (spellInfo) {
                     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects()) {
-                        if (!spellEffectInfo.IsAura()) {
+                        if (!spellEffectInfo.IsAura())
                             continue;
-                        }
+
                         AuraType auraType = spellEffectInfo.ApplyAuraName;
-                        for (auto const& subGroup : SubGroups)
+                        for (std::vector<AuraType> const& subGroup : SubGroups)
                         {
                             if (std::find(subGroup.begin(), subGroup.end(), auraType) != subGroup.end())
                             {
@@ -1459,23 +1459,22 @@ void SpellMgr::LoadSpellGroupStackRules()
             std::set<AuraType> commonAuraTypes;
             for (const auto& [spellId, auraTypes] : auraTypesBySpellId) {
                 // If it's the first set, initialize the commonAuraTypes set with its elements
-                if (commonAuraTypes.empty()) {
+                if (commonAuraTypes.empty())
+                {
                     commonAuraTypes = auraTypes;
+                    continue;
                 }
-                else {
-                    // Create a temporary set to store the common AuraTypes between the current set and commonAuraTypes
-                    std::set<AuraType> tempCommonAuraTypes;
 
-                    // Find the common AuraTypes by taking the intersection of the current set and commonAuraTypes
-                    for (const auto& auraType : auraTypes) {
-                        if (commonAuraTypes.count(auraType) > 0) {
-                            tempCommonAuraTypes.insert(auraType);
-                        }
-                    }
+                // Create a temporary set to store the common AuraTypes between the current set and commonAuraTypes
+                std::set<AuraType> tempCommonAuraTypes;
 
-                    // Update commonAuraTypes with the common AuraTypes found in this iteration
-                    commonAuraTypes = tempCommonAuraTypes;
-                }
+                // Find the common AuraTypes by taking the intersection of the current set and commonAuraTypes
+                for (AuraType const& auraType : auraTypes)
+                    if (!commonAuraTypes.contains(auraType))
+                        tempCommonAuraTypes.insert(auraType);
+
+                // Update commonAuraTypes with the common AuraTypes found in this iteration
+                commonAuraTypes = tempCommonAuraTypes;
             }
 
             if (commonAuraTypes.empty()) {
@@ -1488,7 +1487,8 @@ void SpellMgr::LoadSpellGroupStackRules()
             size_t maxAuraTypeCount = 0;
             for (auto& [auraType, count] : frequencyContainer)
             {
-                if (commonAuraTypes.find(auraType) != commonAuraTypes.end()) {
+                if (commonAuraTypes.find(auraType) != commonAuraTypes.end())
+                {
                     if (count > maxAuraTypeCount)
                     {
                         maxAuraTypes.clear();
@@ -1496,17 +1496,15 @@ void SpellMgr::LoadSpellGroupStackRules()
                         maxAuraTypeCount = count;
                     }
                     else if (count == maxAuraTypeCount)
-                    {
                         maxAuraTypes.insert(auraType);
-                    }
                 }
             }
 
             // Insert expanded aura type groups or single aura type
-            for (auto const& auraType : maxAuraTypes)
+            for (AuraType const& auraType : maxAuraTypes)
             {
                 bool added = false;
-                for (auto const& subGroup : SubGroups)
+                for (std::vector<AuraType> const& subGroup : SubGroups)
                 {
                     if (auraType == subGroup.front())
                     {
