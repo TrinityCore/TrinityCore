@@ -356,7 +356,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
+    {
         plrMover->HandleFall(movementInfo);
+        if (!plrMover->IsMounted())
+            plrMover->ResummonPetTemporaryUnSummonedIfAny();
+    }
 
     // interrupt parachutes upon falling or landing in water
     if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)

@@ -8258,8 +8258,6 @@ void Unit::Dismount()
             if (pPet->HasUnitFlag(UNIT_FLAG_STUNNED) && !pPet->HasUnitState(UNIT_STATE_STUNNED))
                 pPet->RemoveUnitFlag(UNIT_FLAG_STUNNED);
         }
-        else
-            player->ResummonPetTemporaryUnSummonedIfAny();
 
         // if we have charmed npc, remove stun also
         if (Unit* charm = player->GetCharmed())
