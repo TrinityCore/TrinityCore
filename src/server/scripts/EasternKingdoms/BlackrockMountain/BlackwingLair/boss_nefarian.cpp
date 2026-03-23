@@ -490,9 +490,10 @@ struct boss_nefarian : public BossAI
         // Phase3 begins when health below 20 pct
         if (!_phase3 && me->HealthBelowPctDamaged(20, damage))
         {
-            if (Unit* owner = me->GetOwner())
-                if (owner->IsAIEnabled())
-                    owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_START_ATTACK);
+            if (TempSummon* temp = me->ToTempSummon())
+                if (Unit* owner = temp->GetSummonerUnit())
+                    if (owner->IsAIEnabled())
+                        owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_START_ATTACK);
 
             _phase3 = true;
             Talk(SAY_RAISE_SKELETONS);
@@ -507,9 +508,10 @@ struct boss_nefarian : public BossAI
         if (_despawn && _despawnTimer <= diff)
         {
             instance->SetBossState(DATA_NEFARIAN, FAIL);
-            if (Unit* owner = me->GetOwner())
-                if (owner->IsAIEnabled())
-                    owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_DESPAWN);
+            if (TempSummon* temp = me->ToTempSummon())
+                if (Unit* owner = temp->GetSummonerUnit())
+                    if (owner->IsAIEnabled())
+                        owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_DESPAWN);
         }
         else
             _despawnTimer -= diff;
