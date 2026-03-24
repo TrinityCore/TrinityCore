@@ -356,17 +356,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
-    {
         plrMover->HandleFall(movementInfo);
-        if (!plrMover->IsMounted())
-            plrMover->ResummonPetTemporaryUnSummonedIfAny();
-    }
 
     // interrupt parachutes upon falling or landing in water
     if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
-    // unsummon pet if player leaves the ground on a flying mount
+    // unsummon pet if player is airborne on a flying mount
     if (plrMover && plrMover->IsMounted())
     {
         bool wasFlying = mover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
@@ -374,6 +370,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
         if (!wasFlying && isNowFlying)
             plrMover->UnsummonPetTemporaryIfAny();
+    }
+
+    // resummon pet after dismount mid-air
+    if (plrMover && !plrMover->IsMounted())
+    {
+        bool wasFalling = mover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING);
+        bool isNowFalling = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING);
+
+        if (wasFalling && !isNowFalling)
+            plrMover->ResummonPetTemporaryUnSummonedIfAny();
     }
 
     /* process position-change */
