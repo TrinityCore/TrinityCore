@@ -375,9 +375,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petInfo->PetNumber);
 
-    if (owner->GetTypeId() == TYPEID_PLAYER && owner->ToPlayer()->IsMounted())
-        SetUnitFlag(UNIT_FLAG_STUNNED);
-
     owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(std::make_shared<PetLoadQueryHolder>(ownerid, petInfo->PetNumber)))
         .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime](SQLQueryHolderBase const& holder)
     {
@@ -428,6 +425,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
                     m_declinedname->name[i] = fields[i].GetString();
             }
         }
+
+        if (owner->IsMounted())
+            SetUnitFlag(UNIT_FLAG_STUNNED);
 
         // must be after SetMinion (owner guid check)
         LoadTemplateImmunities();
