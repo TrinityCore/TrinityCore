@@ -47,7 +47,7 @@
 #include "LootMgr.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
-#include "MovementPacketBuilder.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -532,10 +532,10 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         {
             m_splineSyncTimer.Reset(5000); // Retail value, do not change
 
-            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
-            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
-            data << GetPackGUID();
-            SendMessageToSet(&data, true);
+            WorldPackets::Movement::FlightSplineSync flightSplineSync;
+            flightSplineSync.Guid = GetGUID();
+            flightSplineSync.SplineDist = float(movespline->timePassed()) / movespline->Duration();
+            SendMessageToSet(flightSplineSync.Write(), true);
         }
     }
 
