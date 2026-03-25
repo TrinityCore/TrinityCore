@@ -28,7 +28,7 @@ namespace WorldPackets
         class FlightSplineSync final : public ServerPacket
         {
         public:
-            explicit FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 16 + 4) { }
+            explicit FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
