@@ -19,6 +19,7 @@
 #define TRINITYCORE_MOVEMENT_PACKETS_H
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
