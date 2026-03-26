@@ -4581,6 +4581,9 @@ class spell_pri_shadowy_apparition_dummy : public SpellScript
             case RACE_PANDAREN_ALLIANCE:
             case RACE_PANDAREN_HORDE:
                 return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_FEMALE;
+            case RACE_HARANIR_ALLIANCE:
+            case RACE_HARANIR_HORDE:
+                return SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_MALE; // not handled on retail as of patch 12.0.1, uses human male fallback
         }
     }
 

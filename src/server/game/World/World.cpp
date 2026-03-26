@@ -96,6 +96,7 @@
 #include "TaxiPathGraph.h"
 #include "TerrainMgr.h"
 #include "TraitMgr.h"
+#include "TransmogMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "UpdateTime.h"
@@ -2065,6 +2066,9 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
+
+    TC_LOG_INFO("server.loading", "Loading transmog data...");
+    TransmogMgr::Load();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

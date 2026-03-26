@@ -3227,10 +3227,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     itemSubclass = itemTemplate->GetSubClass();
 
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID))
-                        if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(itemModifiedAppearance->ID))
-                            if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
-                                itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
+                    if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(visibleItem.ItemModifiedAppearanceID))
+                        if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
+                            itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
                 }
             }
             if (itemSubclass != reqValue)
@@ -3247,10 +3246,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     itemSubclass = itemTemplate->GetSubClass();
 
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID))
-                        if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(itemModifiedAppearance->ID))
-                            if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
-                                itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
+                    if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(visibleItem.ItemModifiedAppearanceID))
+                        if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
+                            itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
                 }
             }
             if (itemSubclass != reqValue)

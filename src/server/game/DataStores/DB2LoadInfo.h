@@ -6579,6 +6579,62 @@ struct TransmogIllusionLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &TransmogIllusionMeta::Instance, HOTFIX_SEL_TRANSMOG_ILLUSION };
 };
 
+struct TransmogOutfitEntryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { .IsSigned = false, .Type = FT_LONG, .Name = "Cost" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "OrderIndex" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "Source" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "SetType" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OverrideCostModifier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &TransmogOutfitEntryMeta::Instance, HOTFIX_SEL_TRANSMOG_OUTFIT_ENTRY };
+};
+
+struct TransmogOutfitSlotInfoLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[13] =
+    {
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "InventorySlotName" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "TransmogOutfitSlotEnum" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "InventorySlotEnum" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "Unused1200" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "TransmogCollectionType" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SecondarySlotID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "InventorySlotID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "UnassignedAtlasID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "UnassignedDisplayAtlasID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "ItemCostMultiplier" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "IllusionCostMultiplier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &TransmogOutfitSlotInfoMeta::Instance, HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_INFO };
+};
+
+struct TransmogOutfitSlotOptionLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "OptionEnum" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "TransmogOutfitSlotInfoID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SecondaryOptionID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "ItemCostMultiplier" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "IllusionCostMultiplier" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &TransmogOutfitSlotOptionMeta::Instance, HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_OPTION };
+};
+
 struct TransmogSetLoadInfo
 {
     static constexpr DB2FieldMeta Fields[13] =
@@ -6623,6 +6679,48 @@ struct TransmogSetItemLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 4, &TransmogSetItemMeta::Instance, HOTFIX_SEL_TRANSMOG_SET_ITEM };
+};
+
+struct TransmogSituationLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "SituationEnum" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "TransmogSituationGroupID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "OrderIndex" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &TransmogSituationMeta::Instance, HOTFIX_SEL_TRANSMOG_SITUATION };
+};
+
+struct TransmogSituationGroupLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "TransmogSituationTriggerID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "OrderIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &TransmogSituationGroupMeta::Instance, HOTFIX_SEL_TRANSMOG_SITUATION_GROUP };
+};
+
+struct TransmogSituationTriggerLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "TriggerEnum" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &TransmogSituationTriggerMeta::Instance, HOTFIX_SEL_TRANSMOG_SITUATION_TRIGGER };
 };
 
 struct TransportAnimationLoadInfo

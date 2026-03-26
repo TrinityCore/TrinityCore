@@ -544,6 +544,38 @@ void CharCustomize::Read()
     SortCustomizations(CustomizeInfo->Customizations);
 }
 
+CharCustomizeSuccess::CharCustomizeSuccess(CharCustomizeInfo const* info)
+    : ServerPacket(SMSG_CHAR_CUSTOMIZE_SUCCESS, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1), Customizations(info->Customizations)
+{
+    CharGUID = info->CharGUID;
+    SexID = info->SexID;
+    CharName = info->CharName;
+}
+
+WorldPacket const* CharCustomizeSuccess::Write()
+{
+    _worldPacket << CharGUID;
+    _worldPacket << uint8(SexID);
+    _worldPacket << Size<uint32>(Customizations);
+    for (ChrCustomizationChoice customization : Customizations)
+        _worldPacket << customization;
+
+    _worldPacket << SizedString::BitsSize<6>(CharName);
+    _worldPacket.FlushBits();
+
+    _worldPacket << SizedString::Data(CharName);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* CharCustomizeFailure::Write()
+{
+    _worldPacket << uint32(Result);
+    _worldPacket << CharGUID;
+
+    return &_worldPacket;
+}
+
 void CharRaceOrFactionChange::Read()
 {
     RaceOrFactionChangeInfo = std::make_shared<CharRaceOrFactionChangeInfo>();
@@ -822,38 +854,6 @@ void SetWatchedFaction::Read()
 WorldPacket const* SetFactionVisible::Write()
 {
     _worldPacket << FactionIndex;
-
-    return &_worldPacket;
-}
-
-CharCustomizeSuccess::CharCustomizeSuccess(CharCustomizeInfo const* info)
-    : ServerPacket(SMSG_CHAR_CUSTOMIZE_SUCCESS, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1), Customizations(info->Customizations)
-{
-    CharGUID = info->CharGUID;
-    SexID = info->SexID;
-    CharName = info->CharName;
-}
-
-WorldPacket const* CharCustomizeSuccess::Write()
-{
-    _worldPacket << CharGUID;
-    _worldPacket << uint8(SexID);
-    _worldPacket << Size<uint32>(Customizations);
-    for (ChrCustomizationChoice customization : Customizations)
-        _worldPacket << customization;
-
-    _worldPacket << SizedString::BitsSize<6>(CharName);
-    _worldPacket.FlushBits();
-
-    _worldPacket << SizedString::Data(CharName);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* CharCustomizeFailure::Write()
-{
-    _worldPacket << uint32(Result);
-    _worldPacket << CharGUID;
 
     return &_worldPacket;
 }

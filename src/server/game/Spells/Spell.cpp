@@ -61,6 +61,7 @@
 #include "TemporarySummon.h"
 #include "TradeData.h"
 #include "TraitPackets.h"
+#include "TransmogMgr.h"
 #include "UniqueTrackablePtr.h"
 #include "Util.h"
 #include "VMapFactory.h"
@@ -4973,7 +4974,10 @@ int32 Spell::GetSpellCastDataAmmo()
                         switch (itemEntry->SubclassID)
                         {
                             case ITEM_SUBCLASS_WEAPON_THROWN:
-                                ammoDisplayID = sDB2Manager.GetItemDisplayId(item_id, unitCaster->GetVirtualItemAppearanceMod(i));
+                                if (ItemModifiedAppearanceEntry const* modifiedAppearance = TransmogMgr::GetItemModifiedAppearance(item_id, unitCaster->GetVirtualItemAppearanceMod(i)))
+                                    if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->ItemAppearanceID))
+                                        ammoDisplayID = itemAppearance->ItemDisplayInfoID;
+
                                 ammoInventoryType = itemEntry->InventoryType;
                                 break;
                             case ITEM_SUBCLASS_WEAPON_BOW:
@@ -4986,7 +4990,10 @@ int32 Spell::GetSpellCastDataAmmo()
                                 ammoInventoryType = INVTYPE_AMMO;
                                 break;
                             default:
-                                nonRangedAmmoDisplayID = sDB2Manager.GetItemDisplayId(item_id, unitCaster->GetVirtualItemAppearanceMod(i));
+                                if (ItemModifiedAppearanceEntry const* modifiedAppearance = TransmogMgr::GetItemModifiedAppearance(item_id, unitCaster->GetVirtualItemAppearanceMod(i)))
+                                    if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->ItemAppearanceID))
+                                        nonRangedAmmoDisplayID = itemAppearance->ItemDisplayInfoID;
+
                                 nonRangedAmmoInventoryType = itemEntry->InventoryType;
                                 break;
                         }

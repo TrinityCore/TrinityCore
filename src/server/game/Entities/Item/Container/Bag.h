@@ -60,21 +60,20 @@ class TC_GAME_API Bag : public Item
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
-            UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const;
+            UF::ContainerData::Mask const& requestedContainerMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Bag const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Bag const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Bag const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::ItemData::Base ItemMask;
             UF::ContainerData::Base ContainerMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
-
-        std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::ContainerData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONTAINER> m_containerData;
 

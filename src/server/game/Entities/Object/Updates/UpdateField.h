@@ -663,7 +663,7 @@ namespace UF
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void MarkChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
+        void MarkChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
@@ -671,13 +671,10 @@ namespace UF
                 _changesMask.Set(BlockBit);
 
             _changesMask.Set(Bit);
-            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            if (index < uf.size())
-                uf.MarkChanged(index);
         }
 
         template<typename Derived, typename K, typename V, int32 BlockBit, uint32 Bit>
-        void MarkChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::* field), std::type_identity_t<K> const& key)
+        void MarkChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
@@ -685,14 +682,10 @@ namespace UF
                 _changesMask.Set(BlockBit);
 
             _changesMask.Set(Bit);
-            MapUpdateField<K, V, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            auto itr = uf._values.find(key);
-            if (itr != uf._values.end() && itr->second.state == MapUpdateFieldState::Unchanged)
-                itr->second.state = MapUpdateFieldState::Changed;
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void MarkChanged(SetUpdateField<T, BlockBit, Bit>(Derived::* field), std::type_identity_t<T> const& key)
+        void MarkChanged(SetUpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
@@ -700,10 +693,6 @@ namespace UF
                 _changesMask.Set(BlockBit);
 
             _changesMask.Set(Bit);
-            SetUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            auto itr = uf._values.find(key);
-            if (itr != uf._values.end() && itr->second == MapUpdateFieldState::Unchanged)
-                itr->second = MapUpdateFieldState::Changed;
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
@@ -751,35 +740,27 @@ namespace UF
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void ClearChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
+        void ClearChanged(DynamicUpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
-            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            if (index < uf.size())
-                uf.ClearChanged(index);
+            _changesMask.Reset(Bit);
         }
 
         template<typename Derived, typename K, typename V, int32 BlockBit, uint32 Bit>
-        void ClearChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::* field), std::type_identity_t<K> const& key)
+        void ClearChanged(MapUpdateField<K, V, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
-            MapUpdateField<K, V, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            auto itr = uf._values.find(key);
-            if (itr != uf._values.end() && itr->second.state == MapUpdateFieldState::Changed)
-                itr->second.state = MapUpdateFieldState::Unchanged;
+            _changesMask.Reset(Bit);
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        void ClearChanged(SetUpdateField<T, BlockBit, Bit>(Derived::* field), std::type_identity_t<T> const& key)
+        void ClearChanged(SetUpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
 
-            SetUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            auto itr = uf._values.find(key);
-            if (itr != uf._values.end() && itr->second == MapUpdateFieldState::Changed)
-                itr->second = MapUpdateFieldState::Unchanged;
+            _changesMask.Reset(Bit);
         }
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>

@@ -262,7 +262,7 @@ struct VisibleItem : public IsUpdateFieldStructureTag, public HasChangesMask<10>
     UpdateField<uint16, 0, 6> ItemAppearanceModID;
     UpdateField<uint16, 0, 7> ItemVisual;
     UpdateField<uint32, 0, 8> ItemModifiedAppearanceID;
-    UpdateField<uint8, 0, 9> Field_18;
+    UpdateField<uint8, 0, 9> TransmogSlotOption;
 
     using OwnerObject = Unit;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Unit const* owner) const;
@@ -1311,7 +1311,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     DynamicUpdateField<uint32, 0, 26> HouseThemes;
     DynamicUpdateField<uint32, 0, 27> HouseRoomComponentTextures;
     DynamicUpdateField<uint32, 0, 28> HouseTypes;
-    DynamicUpdateField<int32, 0, 29> Field_1980;
+    DynamicUpdateField<int32, 0, 29> UnlockedTransmogOutfits;
     DynamicUpdateField<UF::SpellPctModByLabel, 0, 31> SpellPctModByLabel;
     DynamicUpdateField<UF::SpellFlatModByLabel, 32, 33> SpellFlatModByLabel;
     DynamicUpdateField<UF::SpellPctPVPModByLabel, 32, 34> SpellPctModPVPByLabel;
