@@ -21,8 +21,8 @@ namespace WorldPackets::Movement
 {
 WorldPacket const* FlightSplineSync::Write()
 {
-    _worldPacket << Guid.WriteAsPacked();
     _worldPacket << float(SplineDist);
+    _worldPacket << Guid.WriteAsPacked();
 
     return &_worldPacket;
 }
