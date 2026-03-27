@@ -777,7 +777,7 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
                 Conversation* conversation = Conversation::CreateConversation(_conversation, owner, *owner, owner->GetGUID(), nullptr, false);
                 conversation->AddActor(_actor0, 0, me->GetGUID());
                 conversation->AddActor(_actor1, 1, me->FindNearestCreatureWithOptions(75.0f, { .CreatureId = _npcId, .IgnorePhases = true })->GetGUID());
-                conversation->Start();               
+                conversation->Start();
                 _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
 
                 break;
