@@ -46,7 +46,7 @@ namespace Trinity::ChatCommands
     };
 
     struct ChatCommandBuilder;
-    using ChatCommandTable = std::vector<ChatCommandBuilder>;
+    using ChatCommandTable = ChatCommandBuilder const[];
 }
 
 namespace Trinity::Impl::ChatCommands
@@ -56,105 +56,95 @@ namespace Trinity::Impl::ChatCommands
     // the call stack is MultiConsumer -> ConsumeFromOffset -> MultiConsumer -> ConsumeFromOffset etc
     // MultiConsumer goes into ArgInfo for parsing on each iteration
     template <typename Tuple, size_t offset>
-    ChatCommandResult ConsumeFromOffset(Tuple&, ChatHandler const* handler, std::string_view args);
+    void ConsumeFromOffset(ChatCommandResult& result, Tuple&, ChatHandler const* handler, std::string_view args) noexcept;
 
     template <typename Tuple, typename NextType, size_t offset>
     struct MultiConsumer
     {
-        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
+        inline static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args) noexcept
         {
             ChatCommandResult next = ArgInfo<NextType>::TryConsume(std::get<offset>(tuple), handler, args);
             if (next)
-                return ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *next);
-            else
-                return next;
+                ConsumeFromOffset<Tuple, offset + 1>(next, tuple, handler, *next);
+            return next;
         }
     };
+
+    TC_GAME_API void MergeChatCommandResults(ChatHandler const* handler, ChatCommandResult& result1, ChatCommandResult& result2) noexcept;
 
     template <typename Tuple, typename NestedNextType, size_t offset>
     struct MultiConsumer<Tuple, Optional<NestedNextType>, offset>
     {
-        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args) noexcept
         {
             // try with the argument
             auto& myArg = std::get<offset>(tuple);
-            myArg.emplace();
 
-            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.value(), handler, args);
+            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.emplace(), handler, args);
             if (result1)
-                if ((result1 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *result1)))
-                    return result1;
-            // try again omitting the argument
-            myArg = std::nullopt;
-            ChatCommandResult result2 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, args);
-            if (result2)
-                return result2;
-            if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                return Trinity::StringFormat("{} \"{}\"\n{} \"{}\"",
-                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage(),
-                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage());
+                ConsumeFromOffset<Tuple, offset + 1>(result1, tuple, handler, *result1);
+                if (result1)
+                    return result1;
             }
-            else if (result1.HasErrorMessage())
-                return result1;
-            else
-                return result2;
+
+            // try again omitting the argument
+            myArg.reset();
+            ChatCommandResult result2 = std::nullopt;
+            ConsumeFromOffset<Tuple, offset + 1>(result2, tuple, handler, args);
+            MergeChatCommandResults(handler, result1, result2);
+            return result1;
         }
     };
 
     template <typename Tuple, size_t offset>
-    ChatCommandResult ConsumeFromOffset([[maybe_unused]] Tuple& tuple, [[maybe_unused]] ChatHandler const* handler, std::string_view args)
+    void ConsumeFromOffset([[maybe_unused]] ChatCommandResult& result, [[maybe_unused]] Tuple& tuple, [[maybe_unused]] ChatHandler const* handler, std::string_view args) noexcept
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
-            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
+            result = MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
         else if (!args.empty()) /* the entire string must be consumed */
-            return std::nullopt;
+            result = std::nullopt;
         else
-            return args;
+            result = args;
     }
 
-    template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
-    template <typename... Ts> struct HandlerToTuple<bool(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, Ts...>; };
+    template <typename T> struct CommandInvokerTraits { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
+    template <typename... Ts> struct CommandInvokerTraits<bool(ChatHandler*, Ts...)>
+    {
+        using Func = bool(ChatHandler*, Ts...);
+        using Refs = std::tuple<Ts...>;
+        using Vals = std::tuple<std::remove_cvref_t<Ts>...>;
 
-    template <typename> struct ValueTupleType { };
-    template <typename... Ts> struct ValueTupleType<std::tuple<Ts...>> { using type = std::tuple<std::remove_cvref_t<Ts>...>; };
+        static bool Wrapper(void* handler, ChatHandler* chatHandler, std::string_view argsStr) noexcept
+        {
+            Vals arguments;
+            ChatCommandResult result = std::nullopt;
+            ConsumeFromOffset<Vals, 0>(result, arguments, chatHandler, argsStr);
+            if (result.IsSuccessful())
+                return Invoke(reinterpret_cast<Func*>(handler), chatHandler, arguments, std::make_index_sequence<std::tuple_size_v<Vals>>{});
+
+            if (result.HasErrorMessage())
+                SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
+
+            return false;
+        }
+
+        template <std::size_t... I>
+        inline static constexpr bool Invoke(Func* handler, ChatHandler* chatHandler, Vals& arguments, std::index_sequence<I...>) noexcept
+        {
+            // Invoke command handler preserving original reference category of each argument
+            return handler(chatHandler, std::get<I>(advstd::forward_like<std::tuple_element_t<I, Refs>>(arguments))...);
+        }
+    };
+
+    template <typename... Ts> struct CommandInvokerTraits<bool(ChatHandler const*, Ts...)> : CommandInvokerTraits<bool(ChatHandler*, Ts...)> { };
 
     struct CommandInvoker
     {
-        CommandInvoker() : _wrapper(nullptr), _handler(nullptr) {}
+        CommandInvoker() = default;
         template <typename TypedHandler>
-        CommandInvoker(TypedHandler& handler)
-        {
-            _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
-            {
-                using RefTuple = typename HandlerToTuple<TypedHandler>::type;
-                using ValueTuple = typename ValueTupleType<RefTuple>::type;
-
-                ValueTuple arguments;
-                std::get<0>(arguments) = chatHandler;
-                ChatCommandResult result = ConsumeFromOffset<ValueTuple, 1>(arguments, chatHandler, argsStr);
-                if (result)
-                    return Invoke<RefTuple>(reinterpret_cast<TypedHandler*>(handler), arguments, std::make_index_sequence<std::tuple_size_v<RefTuple>>{});
-                else
-                {
-                    if (result.HasErrorMessage())
-                        SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
-                    return false;
-                }
-            };
-            _handler = reinterpret_cast<void*>(handler);
-        }
-        CommandInvoker(bool(&handler)(ChatHandler*, char const*))
-        {
-            _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
-            {
-                // make a copy of the argument string
-                // legacy handlers can destroy input strings with strtok
-                std::string argsStrCopy(argsStr);
-                return reinterpret_cast<bool(*)(ChatHandler*, char const*)>(handler)(chatHandler, argsStrCopy.c_str());
-            };
-            _handler = reinterpret_cast<void*>(handler);
-        }
+        CommandInvoker(TypedHandler& handler) : _wrapper(&CommandInvokerTraits<TypedHandler>::Wrapper), _handler(reinterpret_cast<void*>(handler)) { }
+        CommandInvoker(bool(&handler)(ChatHandler*, char const*)) : _wrapper(&LegacyWrapper), _handler(reinterpret_cast<void*>(handler)) { }
 
         explicit operator bool() const { return (_wrapper != nullptr); }
         bool operator()(ChatHandler* chatHandler, std::string_view args) const
@@ -164,16 +154,17 @@ namespace Trinity::Impl::ChatCommands
         }
 
     private:
-        template <typename ReferenceTuple, typename TypedHandler, typename ValueTuple, std::size_t... I>
-        static constexpr bool Invoke(TypedHandler* handler, ValueTuple& arguments, std::index_sequence<I...>)
+        static bool LegacyWrapper(void* handler, ChatHandler* chatHandler, std::string_view argsStr) noexcept
         {
-            // Invoke command handler preserving original reference category of each argument
-            return std::invoke(handler, std::get<I>(advstd::forward_like<std::tuple_element_t<I, ReferenceTuple>>(arguments))...);
+            // make a copy of the argument string
+            // legacy handlers can destroy input strings with strtok
+            std::string argsStrCopy(argsStr);
+            return reinterpret_cast<bool(*)(ChatHandler*, char const*)>(handler)(chatHandler, argsStrCopy.c_str());
         }
 
-        using wrapper_func = bool(void*, ChatHandler*, std::string_view);
-        wrapper_func* _wrapper;
-        void* _handler;
+        using wrapper_func = std::add_pointer_t<bool(void*, ChatHandler*, std::string_view) noexcept>;
+        wrapper_func _wrapper = nullptr;
+        void* _handler = nullptr;
     };
 
     struct CommandPermissions
@@ -196,14 +187,18 @@ namespace Trinity::Impl::ChatCommands
             static void SendCommandHelpFor(ChatHandler& handler, std::string_view cmd);
             static std::vector<std::string> GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd);
 
-            ChatCommandNode() : _name{}, _invoker {}, _permission{}, _help{}, _subCommands{} {}
+            ChatCommandNode() = default;
+            ~ChatCommandNode() = default;
 
         private:
             static std::map<std::string_view, ChatCommandNode, StringCompareLessI_T> const& GetTopLevelMap();
-            static void LoadCommandsIntoMap(ChatCommandNode* blank, std::map<std::string_view, ChatCommandNode, StringCompareLessI_T>& map, Trinity::ChatCommands::ChatCommandTable const& commands);
+            static void LoadCommandsIntoMap(ChatCommandNode* blank, std::map<std::string_view, ChatCommandNode, StringCompareLessI_T>& map, std::span<ChatCommandBuilder const> commands);
 
             void LoadFromBuilder(ChatCommandBuilder const& builder);
-            ChatCommandNode(ChatCommandNode&& other) = default;
+            ChatCommandNode(ChatCommandNode const& other) = delete;
+            ChatCommandNode(ChatCommandNode&& other) noexcept = default;
+            ChatCommandNode& operator=(ChatCommandNode const& other) = delete;
+            ChatCommandNode& operator=(ChatCommandNode&& other) noexcept = default;
 
             void ResolveNames(std::string name);
             void SendCommandHelp(ChatHandler& handler) const;
@@ -231,29 +226,24 @@ namespace Trinity::ChatCommands
             InvokerEntry(T& handler, TrinityStrings help, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
                 : _invoker{ handler }, _help{ help }, _permissions{ permission, allowConsole }
             {}
-            InvokerEntry(InvokerEntry const&) = default;
-            InvokerEntry(InvokerEntry&&) = default;
 
             Trinity::Impl::ChatCommands::CommandInvoker _invoker;
             TrinityStrings _help;
             Trinity::Impl::ChatCommands::CommandPermissions _permissions;
         };
-        using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
-
-        ChatCommandBuilder(ChatCommandBuilder&&) = default;
-        ChatCommandBuilder(ChatCommandBuilder const&) = default;
+        using SubCommandEntry = std::span<ChatCommandBuilder const>;
 
         template <typename TypedHandler>
-        ChatCommandBuilder(char const* name, TypedHandler& handler, TrinityStrings help, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, handler, help, permission, allowConsole }
+        ChatCommandBuilder(std::string_view name, TypedHandler& handler, TrinityStrings help, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+            : _name{ name }, _data{ InvokerEntry { handler, help, permission, allowConsole } }
         {}
 
         template <typename TypedHandler>
-        ChatCommandBuilder(char const* name, TypedHandler& handler, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+        ChatCommandBuilder(std::string_view name, TypedHandler& handler, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
             : ChatCommandBuilder(name, handler, TrinityStrings(), permission, allowConsole)
         {}
-        ChatCommandBuilder(char const* name, std::vector<ChatCommandBuilder> const& subCommands)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<SubCommandEntry>, subCommands }
+        ChatCommandBuilder(std::string_view name, std::span<ChatCommandBuilder const> subCommands)
+            : _name{ name }, _data{ std::in_place_index<1>, subCommands.data(), subCommands.size() }
         {}
 
         [[deprecated("char const* parameters to command handlers are deprecated; convert this to a typed argument handler instead")]]
@@ -268,13 +258,13 @@ namespace Trinity::ChatCommands
         {}
 
         [[deprecated("you are using the old-style command format; convert this to the new format ({ name, subCommands })")]]
-        ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
+        ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, SubCommandEntry sub)
             : ChatCommandBuilder(name, sub)
         {}
 
     private:
         std::string_view _name;
-        std::variant<InvokerEntry, SubCommandEntry> _data;
+        std::variant<InvokerEntry, std::pair<ChatCommandBuilder const*, std::size_t> /*workaround: span requires type to be complete*/> _data;
     };
 
     TC_GAME_API void LoadCommandMap();
@@ -283,8 +273,5 @@ namespace Trinity::ChatCommands
     TC_GAME_API void SendCommandHelpFor(ChatHandler& handler, std::string_view cmd);
     TC_GAME_API std::vector<std::string> GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd);
 }
-
-// backwards compatibility with old patches
-using ChatCommand [[deprecated("std::vector<ChatCommand> should be ChatCommandTable! (using namespace Trinity::ChatCommands)")]] = Trinity::ChatCommands::ChatCommandBuilder;
 
 #endif

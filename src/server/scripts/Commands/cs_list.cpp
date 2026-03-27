@@ -47,7 +47,7 @@ class list_commandscript : public CommandScript
 public:
     list_commandscript() : CommandScript("list_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable listAurasCommandTable =
         {
@@ -92,7 +92,7 @@ public:
         QueryResult result;
 
         uint32 creatureCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", creatureId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", *creatureId);
         if (result)
             creatureCount = (*result)[0].GetUInt64();
 
@@ -100,11 +100,11 @@ public:
         {
             Player* player = handler->GetSession()->GetPlayer();
             result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM creature WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
-                player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), creatureId, count);
+                player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), *creatureId, count);
         }
         else
             result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{}' LIMIT {}",
-                creatureId, count);
+                *creatureId, count);
 
         if (result)
         {
@@ -149,7 +149,7 @@ public:
         return true;
     }
 
-    static bool HandleListItemCommand(ChatHandler* handler, Hyperlink<item> item, Optional<uint32> countArg)
+    static bool HandleListItemCommand(ChatHandler* handler, Hyperlink<item> const& item, Optional<uint32> countArg)
     {
         uint32 itemId = item->Item->GetId();
         uint32 count = countArg.value_or(10);
@@ -360,7 +360,7 @@ public:
         QueryResult result;
 
         uint32 objectCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", gameObjectId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", *gameObjectId);
         if (result)
             objectCount = (*result)[0].GetUInt64();
 
@@ -368,11 +368,11 @@ public:
         {
             Player* player = handler->GetSession()->GetPlayer();
             result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
-                player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), gameObjectId, count);
+                player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), *gameObjectId, count);
         }
         else
             result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{}' LIMIT {}",
-                gameObjectId, count);
+                *gameObjectId, count);
 
         if (result)
         {
