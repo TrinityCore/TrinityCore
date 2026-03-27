@@ -1243,6 +1243,9 @@ void Player::Heartbeat()
 
     // Group update
     SendUpdateToOutOfRangeGroupMembers();
+
+    // Indoor/Outdoor aura requirements
+    CheckOutdoorsAuraRequirements();
 }
 
 void Player::setDeathState(DeathState s)
@@ -6135,7 +6138,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
-    CheckAreaExploreAndOutdoor();
+    CheckAreaExplore();
 
     return true;
 }
@@ -6192,16 +6195,13 @@ void Player::SendMovieStart(uint32 movieId)
     SendDirectMessage(packet.Write());
 }
 
-void Player::CheckAreaExploreAndOutdoor()
+void Player::CheckAreaExplore()
 {
     if (!IsAlive())
         return;
 
     if (IsInFlight())
         return;
-
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !IsOutdoors())
-        RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 
     uint32 const areaId = GetAreaId();
     if (!areaId)
@@ -6272,6 +6272,12 @@ void Player::CheckAreaExploreAndOutdoor()
             TC_LOG_DEBUG("entities.player", "Player '{}' ({}) discovered a new area: {}", GetName(),GetGUID().ToString(), areaId);
         }
     }
+}
+
+void Player::CheckOutdoorsAuraRequirements()
+{
+    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
+        RemoveAurasWithAttribute(IsOutdoors() ? SPELL_ATTR0_INDOORS_ONLY : SPELL_ATTR0_OUTDOORS_ONLY);
 }
 
 uint32 Player::TeamForRace(uint8 race)
