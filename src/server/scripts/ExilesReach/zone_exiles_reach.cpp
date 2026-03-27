@@ -312,12 +312,12 @@ public:
             kalecgosClone->SetSpeed(MOVE_RUN, 30.0f);
             wrathionClone->SetSpeed(MOVE_RUN, 30.0f);
 
-            if (player->GetTeam() == TEAM_ALLIANCE)
+            if (player->GetTeamId() == TEAM_ALLIANCE)
             {
                 kalecgosClone->GetMotionMaster()->MovePath(PATH_KALECGOS_FLY_FORWARD_ALLIANCE, false);
                 wrathionClone->GetMotionMaster()->MovePath(PATH_WRATHION_FLY_FORWARD_ALLIANCE, false);
             }
-            else if (player->GetTeam() == TEAM_HORDE)
+            else if (player->GetTeamId() == TEAM_HORDE)
             {
                 kalecgosClone->GetMotionMaster()->MovePath(PATH_KALECGOS_FLY_FORWARD_HORDE, false);
                 wrathionClone->GetMotionMaster()->MovePath(PATH_WRATHION_FLY_FORWARD_HORDE, false);
