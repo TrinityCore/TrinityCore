@@ -177,8 +177,8 @@ enum WarmingUpCaptainData
     TRALL_LINE                          = 83721,
 
     CONVERSATION_SPAR_ALLIANCE          = 30343,
-    ACTOR_0_ALLIANCE                    = 83683,
-    ACTOR_1_ALLIANCE                    = 83684,
+    ACTOR_0_ALLIANCE                    = 109370,
+    ACTOR_1_ALLIANCE                    = 64220,
     JAINA_LINE                          = 83683,
 };
 
@@ -268,8 +268,6 @@ public:
 
     void OnCreate(Unit* creator) override
     {
-        _playerGUID = creator->ToPlayer()->GetGUID();
-
         Creature* kalecgos = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KALECGOS, .IgnorePhases = true });
         Creature* wrathion = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATHION, .IgnorePhases = true });
 
@@ -293,8 +291,18 @@ public:
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, TRALL_LINE));
-        _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, JAINA_LINE));
+        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+        if (!privateObjectOwner)
+            return;
+
+        if (privateObjectOwner->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+        {
+            _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, JAINA_LINE));
+        }
+        else if (privateObjectOwner->ToPlayer()->GetTeamId() == TEAM_HORDE)
+        {
+            _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, TRALL_LINE));
+        }
     }
 
     void OnUpdate(uint32 diff) override
@@ -305,7 +313,11 @@ public:
         {
         case EVENT_MOVE_FORWARD:
         {
-            Player* player = ObjectAccessor::GetPlayer(*conversation, _playerGUID);
+            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+            if (!privateObjectOwner)
+                return;
+
+            Player* player = privateObjectOwner->ToPlayer();
             Creature* kalecgosClone = ObjectAccessor::GetCreature(*player, _kalecgosCloneGUID);
             Creature* wrathionClone = ObjectAccessor::GetCreature(*player, _wrathionCloneGUID);
 
@@ -334,7 +346,6 @@ public:
 private:
     ObjectGuid _kalecgosCloneGUID;
     ObjectGuid _wrathionCloneGUID;
-    ObjectGuid _playerGUID;
     EventMap _events;
 };
 
