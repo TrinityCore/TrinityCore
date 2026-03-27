@@ -263,7 +263,7 @@ private:
 class conversation_spar_ship : public ConversationAI
 {
 public:
-    using ConversationAI::ConversationAI;
+    conversation_spar_ship(Conversation* conversation) : ConversationAI(conversation) {}
 
     void OnCreate(Unit* creator) override
     {
