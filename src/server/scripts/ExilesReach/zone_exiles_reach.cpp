@@ -150,27 +150,42 @@ public:
 
 enum WarmingUpCaptainData
 {
-    NPC_WARLORD_BREKA_GRIMAXE2      = 166824,
-    NPC_WARLORD_BREKA_GRIMAXE3      = 166827,
-    NPC_CAPTAIN_GARRICK             = 156280,
+    NPC_WARLORD_BREKA_GRIMAXE2          = 166824,
+    NPC_WARLORD_BREKA_GRIMAXE3          = 166827,
+    NPC_CAPTAIN_GARRICK                 = 156280,
+    NPC_KALECGOS                        = 248565,
+    NPC_WRATHION                        = 248563,
 
-    PATH_GARRICK_TO_COLE            = 10501450,
-    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
-    PATH_GRIMAXE_TO_THROG           = 10501900,
-    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
+    PATH_GARRICK_TO_COLE                = 10501450,
+    PATH_GARRICK_TO_UPPER_DECK          = 10501451,
+    PATH_GRIMAXE_TO_THROG               = 10501900,
+    PATH_GRIMAXE_TO_UPPER_DECK          = 10501901,
+    PATH_KALECGOS_FLY_FORWARD_HORDE     = 100000000,
+    PATH_WRATHION_FLY_FORWARD_HORDE     = 100000001,
+    PATH_KALECGOS_FLY_FORWARD_ALLIANCE  = 100000002,
+    PATH_WRATHION_FLY_FORWARD_ALLIANCE  = 100000003,
 
-    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
+    EVENT_SHIP_CAPTAIN1_SCRIPT1         = 1,
     EVENT_SHIP_CAPTAIN1_SCRIPT2,
     EVENT_SHIP_CAPTAIN1_SCRIPT3,
+    EVENT_MOVE_FORWARD,
 
-    SAY_SPAR                        = 0,
+    CONVERSATION_SPAR_HORDE             = 30361,
+    ACTOR_0_HORDE                       = 109403,
+    ACTOR_1_HORDE                       = 64220,
+    TRALL_LINE                          = 83721,
+
+    CONVERSATION_SPAR_ALLIANCE          = 30343,
+    ACTOR_0_ALLIANCE                    = 83683,
+    ACTOR_1_ALLIANCE                    = 83684,
+    JAINA_LINE                          = 83683,
 };
 
-// 156280 - Captain Garrick
-// 166824 - Warlord Breka Grimaxe
+// 156280 - Lady Jaina Proudmoore
+// 166824 - Thrall
 struct npc_ship_captain_warming_up_private : public ScriptedAI
 {
-    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature), _pathToSparringPartner(0), _pathToUpperDeck(0) { }
+    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature), _pathToSparringPartner(0), _pathToUpperDeck(0), _conversation(0), _actor0(0), _actor1(0){ }
 
     void InitializeAI() override
     {
@@ -183,13 +198,18 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
         {
             _pathToSparringPartner = PATH_GARRICK_TO_COLE;
             _pathToUpperDeck = PATH_GARRICK_TO_UPPER_DECK;
+            _conversation = CONVERSATION_SPAR_ALLIANCE;
+            _actor0 = ACTOR_0_ALLIANCE;
+            _actor1 = ACTOR_1_ALLIANCE;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE2)
         {
             _pathToSparringPartner = PATH_GRIMAXE_TO_THROG;
             _pathToUpperDeck = PATH_GRIMAXE_TO_UPPER_DECK;
+            _conversation = CONVERSATION_SPAR_HORDE;
+            _actor0 = ACTOR_0_HORDE;
+            _actor1 = ACTOR_1_HORDE;
         }
-
         _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
     }
 
@@ -210,7 +230,12 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_SHIP_CAPTAIN1_SCRIPT1:
-                    Talk(SAY_SPAR);
+                    if (Unit* owner = me->GetDemonCreator())
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(_conversation, owner, *owner, owner->GetGUID(), nullptr, false);
+                        conversation->AddActor(_actor0, 0, me->GetGUID());
+                        conversation->Start();
+                    }
                     me->GetMotionMaster()->MovePath(_pathToSparringPartner, false);
                     break;
                 case EVENT_SHIP_CAPTAIN1_SCRIPT2:
@@ -229,6 +254,87 @@ private:
     EventMap _events;
     uint32 _pathToSparringPartner;
     uint32 _pathToUpperDeck;
+    uint32 _conversation;
+    uint32 _actor0;
+    uint32 _actor1;
+};
+
+// 30361, 30343 - Conversation
+class conversation_spar_ship : public ConversationAI
+{
+public:
+    using ConversationAI::ConversationAI;
+
+    void OnCreate(Unit* creator) override
+    {
+        _playerGUID = creator->ToPlayer()->GetGUID();
+
+        Creature* kalecgos = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KALECGOS, .IgnorePhases = true });
+        Creature* wrathion = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATHION, .IgnorePhases = true });
+
+        if (!kalecgos || !wrathion)
+            return;
+
+        TempSummon* kalecgosClone = kalecgos->SummonPersonalClone(kalecgos->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* wrathionClone = wrathion->SummonPersonalClone(wrathion->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+
+        if (!kalecgosClone || !wrathionClone)
+            return;
+
+        kalecgosClone->SetAIAnimKitId(kalecgos->GetAIAnimKitId());
+        wrathionClone->SetAIAnimKitId(wrathion->GetAIAnimKitId());
+
+        _kalecgosCloneGUID = kalecgosClone->GetGUID();
+        _wrathionCloneGUID = wrathionClone->GetGUID();
+    };
+
+    void OnStart() override
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, TRALL_LINE));
+        _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, JAINA_LINE));
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+        case EVENT_MOVE_FORWARD:
+        {
+            Player* player = ObjectAccessor::GetPlayer(*conversation, _playerGUID);
+            Creature* kalecgosClone = ObjectAccessor::GetCreature(*player, _kalecgosCloneGUID);
+            Creature* wrathionClone = ObjectAccessor::GetCreature(*player, _wrathionCloneGUID);
+
+            kalecgosClone->SetSpeed(MOVE_RUN, 30.0f);
+            wrathionClone->SetSpeed(MOVE_RUN, 30.0f);
+
+            if (player->GetTeam() == TEAM_ALLIANCE)
+            {
+                kalecgosClone->GetMotionMaster()->MovePath(PATH_KALECGOS_FLY_FORWARD_ALLIANCE, false);
+                wrathionClone->GetMotionMaster()->MovePath(PATH_WRATHION_FLY_FORWARD_ALLIANCE, false);
+            }
+            else if (player->GetTeam() == TEAM_HORDE)
+            {
+                kalecgosClone->GetMotionMaster()->MovePath(PATH_KALECGOS_FLY_FORWARD_HORDE, false);
+                wrathionClone->GetMotionMaster()->MovePath(PATH_WRATHION_FLY_FORWARD_HORDE, false);
+            }
+
+            kalecgosClone->DespawnOrUnsummon(14s);
+            wrathionClone->DespawnOrUnsummon(14s);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+private:
+    ObjectGuid _kalecgosCloneGUID;
+    ObjectGuid _wrathionCloneGUID;
+    ObjectGuid _playerGUID;
+    EventMap _events;
 };
 
 enum StandYourGroundData
@@ -6929,6 +7035,7 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickAISelector>("npc_captain_garrick");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
+    RegisterConversationAI(conversation_spar_ship);
     RegisterPrivatePublicCreatureAIPair("npc_cole_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
     RegisterPrivatePublicCreatureAIPair("npc_throg_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
     RegisterPrivatePublicCreatureAIPair("npc_crew_ship", npc_crew_ship_private, NullCreatureAI);
