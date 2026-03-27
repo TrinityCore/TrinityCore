@@ -22,6 +22,7 @@
 #include "CombatAI.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "MapUtils.h"
