@@ -691,7 +691,6 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_SHIP_CAPTAIN2_SCRIPT1:
-                    Talk(SAY_GET_TO_POSITIONS);
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN2_SCRIPT2:
@@ -720,22 +719,41 @@ enum BraceForImpactFirstMateData
     EVENT_FIRST_MATE_1              = 1,
     EVENT_FIRST_MATE_2,
 
-    SAY_STORM = 0,
+    NPC_CAPTAIN_GARRICK3            = 245371,
+    NPC_BREKA_GRIMAXE               = 245248,
+
+    CONVERSATION_STORM_ALLIANCE     = 29823,
+    ACTOR_0_STORM_ALLIANCE          = 73556,
+    ACTOR_1_STORM_ALLIANCE          = 108119,
+    CONVERSATION_STORM_HORDE        = 29787,
+    ACTOR_0_STORM_HORDE             = 108041,
+    ACTOR_1_STORM_HORDE             = 108040,
 };
 
 // 160664 - Private Cole
 // 166583 - Grunt Throg
 struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 {
-    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
+    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _path(0), _npcId(0), _conversation(0), _actor0(0), _actor1(0) {}
 
     void JustAppeared() override
     {
         if (me->GetEntry() == NPC_PRIVATE_COLE)
+        {
             _path = PATH_COLE_BRACE_FOR_IMPACT;
+            _npcId = NPC_CAPTAIN_GARRICK3;
+            _conversation = CONVERSATION_STORM_ALLIANCE;
+            _actor0 = ACTOR_0_STORM_ALLIANCE;
+            _actor1 = ACTOR_1_STORM_ALLIANCE;
+        }
         else if (me->GetEntry() == NPC_GRUNT_THROG)
+        {
             _path = PATH_THROG_BRACE_FOR_IMPACT;
-
+            _npcId = NPC_BREKA_GRIMAXE;
+            _conversation = CONVERSATION_STORM_HORDE;
+            _actor0 = ACTOR_0_STORM_HORDE;
+            _actor1 = ACTOR_1_STORM_HORDE;
+        }
         _events.ScheduleEvent(EVENT_FIRST_MATE_1, 3s);
     }
 
@@ -753,21 +771,32 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_FIRST_MATE_1:
-                    Talk(SAY_STORM);
-                    _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
-                    break;
-                case EVENT_FIRST_MATE_2:
-                    me->GetMotionMaster()->MovePath(_path, false);
-                    break;
-                default:
-                    break;
+            case EVENT_FIRST_MATE_1:
+            {
+                Unit* owner = me->GetDemonCreator();
+                Conversation* conversation = Conversation::CreateConversation(_conversation, owner, *owner, owner->GetGUID(), nullptr, false);
+                conversation->AddActor(_actor0, 0, me->GetGUID());
+                conversation->AddActor(_actor1, 1, me->FindNearestCreatureWithOptions(75.0f, { .CreatureId = _npcId, .IgnorePhases = true })->GetGUID());
+                conversation->Start();               
+                _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
+
+                break;
+            }
+            case EVENT_FIRST_MATE_2:
+                me->GetMotionMaster()->MovePath(_path, false);
+                break;
+            default:
+                break;
             }
         }
     }
 private:
     EventMap _events;
     uint32 _path;
+    uint32 _npcId;
+    uint32 _conversation;
+    uint32 _actor0;
+    uint32 _actor1;
 };
 
 enum BraceForImpactCrewData
