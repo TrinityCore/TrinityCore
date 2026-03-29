@@ -309,6 +309,8 @@ struct boss_murojin : public MurojinAndNekraxxSharedAI
     {
         MurojinAndNekraxxSharedAI::JustDied(killer);
 
+        Talk(Texts::Died);
+
         if (Creature* nekraxx = instance->GetCreature(DATA_NEKRAXX))
             nekraxx->AI()->DoCastSelf(Spells::BestialWrath);
     }
