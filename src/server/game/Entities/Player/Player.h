@@ -979,6 +979,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_DATA_ELEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_DATA_FLAGS,
     PLAYER_LOGIN_QUERY_LOAD_BANK_TAB_SETTINGS,
+    PLAYER_LOGIN_QUERY_LOAD_BACKGROUND_FILTERS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1336,7 +1337,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void Yell(std::string_view text, Language language, WorldObject const* = nullptr) override;
         void Yell(uint32 textId, WorldObject const* target = nullptr) override;
         /// Outputs an universal text which is supposed to be an action.
-        void TextEmote(std::string_view text, WorldObject const* = nullptr, bool = false) override;
+        void TextEmote(std::string_view text, WorldObject const* = nullptr, bool isBossEmote = false) override;
         void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
         void Whisper(std::string_view text, Language language, Player* receiver, bool = false) override;
@@ -2832,6 +2833,15 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
+
+        // Background Filters
+        bool AddBackgroundFilter(uint32 filterId);
+        void DeleteBackgroundFilter(uint32 filterId);
+        bool HasBackgroundFilters() const { return !m_backgroundFilters.empty(); }
+        std::vector<uint32> GetBackgroundFilters() const{ return m_backgroundFilters; }
+        uint32 GetBackgroundFilterByIndex(int32 index) const;
+        int32 m_backgroundFilterIndex;
+
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
         void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -3117,6 +3127,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadPlayerData(PreparedQueryResult elementsResult, PreparedQueryResult flagsResult);
         void _LoadCharacterBankTabSettings(PreparedQueryResult result);
+        void _LoadBackgroundFilters(PreparedQueryResult filtersResult);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3147,6 +3158,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveCUFProfiles(CharacterDatabaseTransaction trans);
         void _SavePlayerData(CharacterDatabaseTransaction trans);
         void _SaveCharacterBankTabSettings(CharacterDatabaseTransaction trans) const;
+        void _SaveBackgroundFilters(CharacterDatabaseTransaction trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3167,6 +3179,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         Team m_team;
         uint32 m_nextSave;
         bool m_customizationsChanged;
+        bool m_backgroundFiltersChanged;
         std::array<ChatFloodThrottle, ChatFloodThrottle::MAX> m_chatFloodData;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
@@ -3295,6 +3308,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint8 m_fishingSteps;
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles;
+
+        std::vector<uint32> m_backgroundFilters;
 
     private:
         // internal common parts for CanStore/StoreItem functions

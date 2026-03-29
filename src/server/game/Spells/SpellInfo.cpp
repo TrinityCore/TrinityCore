@@ -2039,6 +2039,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_WARRIOR_ENRAGE:
         case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
+        case SPELL_SPECIFIC_SELFIE_CAMERA_FILTER:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -2823,6 +2824,17 @@ void SpellInfo::_LoadSpellSpecific()
                             break;
                     }
                 }
+
+                switch (Id)
+                {
+                    case 181767: // Sketch Filter
+                    case 181779: // Death Filter
+                    case 181773: // Black and White Filter
+                        return SPELL_SPECIFIC_SELFIE_CAMERA_FILTER;
+                    default:
+                        break;
+                }
+
                 break;
             }
             case SPELLFAMILY_MAGE:

@@ -1221,7 +1221,9 @@ enum TrinityStrings
     LANG_BG_DR_CRYSTAL_TAKEN              = 10056,
     LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL     = 10057,
 
-    // 10058-10066 - free
+    LANG_SELFIE_CAMERA_BG_FILTER_CAPTURED = 10058,
+
+    // 10059-10066 - free
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,
