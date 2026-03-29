@@ -67,7 +67,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable debugPlayCommandTable =
         {
@@ -516,7 +516,8 @@ public:
 
     static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
     {
-        handler->GetPlayer()->SendUpdateWorldState(variable, value);
+        Map* map = handler->GetPlayer()->GetMap();
+        map->SetWorldStateValue(variable, value, false);
         return true;
     }
 

@@ -36,7 +36,7 @@ class battlenet_account_commandscript : public CommandScript
 public:
     battlenet_account_commandscript() : CommandScript("battlenet_account_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable accountSetCommandTable =
         {

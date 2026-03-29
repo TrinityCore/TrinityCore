@@ -507,7 +507,7 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
     // calculate cost
     float baseCost = 0;
     if (uint32 curveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::TransmogCost))
-        baseCost = sDB2Manager.GetCurveValueAt(curveId, std::max<int32>(_player->GetLevel(), _player->m_activePlayerData->MaxLevel));
+        baseCost = sDB2Manager.GetCurveValueAt(curveId, std::max<int32>(_player->GetLevel(), _player->m_activePlayerData->TransmogCostMinScalingLevel));
 
     float costMultiplier = 1.0f;
     TransmogOutfitEntryEntry const* transmogOutfitEntry = sTransmogOutfitEntryStore.AssertEntry(transmogOutfitUpdateSlots.OutfitID);
@@ -536,11 +536,15 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
 
             if (slot.AppearanceDisplayType == TransmogOutfitDisplayType::Assigned && oldSlotItr->ItemModifiedAppearanceID != slot.ItemModifiedAppearanceID)
             {
-                if (slotEntry)
-                    cost = static_cast<uint64>(std::floor(baseCost * slotEntry->ItemCostMultiplier)) + cost;
+                ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(slot.ItemModifiedAppearanceID);
+                if (!itemModifiedAppearance || !sTransmogHolidayStore.HasRecord(itemModifiedAppearance->ItemID))
+                {
+                    if (slotEntry)
+                        cost = static_cast<uint64>(std::floor(baseCost * slotEntry->ItemCostMultiplier)) + cost;
 
-                if (slotOptionEntry)
-                    cost = static_cast<uint64>(std::floor(baseCost * slotOptionEntry->ItemCostMultiplier)) + cost;
+                    if (slotOptionEntry)
+                        cost = static_cast<uint64>(std::floor(baseCost * slotOptionEntry->ItemCostMultiplier)) + cost;
+                }
             }
 
             if (slot.IllusionDisplayType == TransmogOutfitDisplayType::Assigned && oldSlotItr->SpellItemEnchantmentID != slot.SpellItemEnchantmentID)

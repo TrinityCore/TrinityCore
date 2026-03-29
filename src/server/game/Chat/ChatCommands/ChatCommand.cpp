@@ -31,20 +31,31 @@ using ChatSubCommandMap = std::map<std::string_view, Trinity::Impl::ChatCommands
 
 void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBuilder const& builder)
 {
-    if (ChatCommandBuilder::InvokerEntry const* invokerEntry = std::get_if<ChatCommandBuilder::InvokerEntry>(&builder._data))
+    switch (builder._data.index())
     {
-        ASSERT(!_invoker, "Duplicate blank sub-command.");
-        _invoker = invokerEntry->_invoker;
-        if (invokerEntry->_help)
-            _help.emplace<TrinityStrings>(invokerEntry->_help);
+        case 0:
+        {
+            ChatCommandBuilder::InvokerEntry const& invokerEntry = std::get<0>(builder._data);
+            ASSERT(!_invoker, "Duplicate blank sub-command.");
+            _invoker = invokerEntry._invoker;
+            if (invokerEntry._help != TrinityStrings())
+                _help.emplace<TrinityStrings>(invokerEntry._help);
 
-        _permission = invokerEntry->_permissions;
+            _permission = invokerEntry._permissions;
+            break;
+        }
+        case 1:
+        {
+            auto [data, size] = std::get<1>(builder._data);
+            LoadCommandsIntoMap(this, _subCommands, { data, size });
+            break;
+        }
+        default:
+            break;
     }
-    else
-        LoadCommandsIntoMap(this, _subCommands, std::get<ChatCommandBuilder::SubCommandEntry>(builder._data));
 }
 
-/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandsIntoMap(ChatCommandNode* blank, ChatSubCommandMap& map, Trinity::ChatCommands::ChatCommandTable const& commands)
+/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandsIntoMap(ChatCommandNode* blank, ChatSubCommandMap& map, std::span<ChatCommandBuilder const> commands)
 {
     for (ChatCommandBuilder const& builder : commands)
     {
@@ -473,6 +484,22 @@ bool Trinity::Impl::ChatCommands::ChatCommandNode::HasVisibleSubCommands(ChatHan
         if (it->second.IsVisible(who))
             return true;
     return false;
+}
+
+void Trinity::Impl::ChatCommands::MergeChatCommandResults(ChatHandler const* handler, ChatCommandResult& result1, ChatCommandResult& result2) noexcept
+{
+    if (result2.IsSuccessful())
+        result1 = *result2;
+    else if (result2.HasErrorMessage())
+    {
+        if (result1.HasErrorMessage())
+            result1 = Trinity::StringFormat("{} \"{}\"\n{} \"{}\"",
+                GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage(),
+                GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage());
+        else
+            result1 = std::move(result2).GetErrorMessage();
+    }
+    // else only result1 has error message, don't need to do anything
 }
 
 void Trinity::ChatCommands::LoadCommandMap() { Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandMap(); }
