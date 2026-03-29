@@ -1142,17 +1142,6 @@ class spell_sha_elemental_weapons : public AuraScript
     }
 };
 
-struct FireNovaTargetCheck
-{
-    float MaxSearchRange = 40.0f;
-    Unit const* Shaman;
-
-    bool operator()(Unit const* candidate) const
-    {
-        return candidate->IsWithinDist3d(Shaman, MaxSearchRange) && candidate->HasAura(SPELL_SHAMAN_FLAME_SHOCK, Shaman->GetGUID());
-    }
-};
-
 // 196884 - Feral Lunge
 class spell_sha_feral_lunge : public SpellScript
 {
@@ -1161,22 +1150,22 @@ class spell_sha_feral_lunge : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_SHAMAN_GHOST_WOLF);
+    }
+
+    void OnPrecast() override
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (!caster->HasAura(SPELL_SHAMAN_GHOST_WOLF))
-            caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_FULL_MASK,
-                .TriggeringSpell = GetSpell()
-            });
+        caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_feral_lunge::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1188,18 +1177,25 @@ class spell_sha_feral_lunge_damage : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->RemoveAurasDueToSpell(SPELL_SHAMAN_GHOST_WOLF);
+        GetCaster()->RemoveAurasDueToSpell(SPELL_SHAMAN_GHOST_WOLF);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_feral_lunge_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+struct FireNovaTargetCheck
+{
+    float MaxSearchRange = 40.0f;
+    Unit const* Shaman;
+
+    bool operator()(Unit const* candidate) const
+    {
+        return candidate->IsWithinDist3d(Shaman, MaxSearchRange) && candidate->HasAura(SPELL_SHAMAN_FLAME_SHOCK, Shaman->GetGUID());
     }
 };
 
