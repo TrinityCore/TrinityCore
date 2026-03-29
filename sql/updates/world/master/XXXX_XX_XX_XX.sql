@@ -24,3 +24,19 @@ INSERT INTO `quest_template` (`ID`, `QuestType`, `QuestSortID`, `QuestInfoID`, `
 DELETE FROM `trinity_string` WHERE `entry` = 10058;
 INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES 
 (10058, "S.E.L.F.I.E. Camera captures %s!");
+
+-- Create spell group for selfie camera filters (exclusive - only one can be active at a time)
+DELETE FROM `spell_group` WHERE `id` = 2000;
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
+(2000, 181767), -- Sketch Filter
+(2000, 181779), -- Death Filter
+(2000, 181773), -- Black and White Filter
+(2000, 258750), -- Frostmourne Filter
+(2000, 258749), -- Firelands Filter
+(2000, 258803), -- Argus Filter
+(2000, 258751), -- Sha Filter
+(2000, 258752); -- Twilight Filter
+
+DELETE FROM `spell_group_stack_rules` WHERE `group_id` = 2000;
+INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES
+(2000, 1); -- SPELL_GROUP_STACK_RULE_EXCLUSIVE

@@ -136,8 +136,7 @@ enum SpellSpecificType
     SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT             = 27,
     SPELL_SPECIFIC_HAND                             = 28,
     SPELL_SPECIFIC_PHASE                            = 29,
-    SPELL_SPECIFIC_BANE                             = 30,
-    SPELL_SPECIFIC_SELFIE_CAMERA_FILTER             = 31
+    SPELL_SPECIFIC_BANE                             = 30
 };
 
 enum SpellCustomAttributes
