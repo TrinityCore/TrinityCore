@@ -169,25 +169,25 @@ struct boss_the_candle_king : public BossAI
                 case EVENT_EERIE_MOLDS:
                 {
                     DoCastSelf(SPELL_EERIE_MOLDS_SELECTOR);
-                    events.Repeat(me->GetMap()->IsMythic() ? 23100ms : 31500ms);
+                    events.Repeat(IsMythic() ? 23100ms : 31500ms);
                     break;
                 }
                 case EVENT_PARANOID_MIND:
                 {
                     DoCastSelf(SPELL_PARANOID_MIND);
-                    events.Repeat(me->GetMap()->IsMythic() ? 10900ms : 20600ms);
+                    events.Repeat(IsMythic() ? 10900ms : 20600ms);
                     break;
                 }
                 case EVENT_DARKFLAME_PICKAXE:
                 {
                     DoCastSelf(SPELL_DARKFLAME_PICKAXE_SELECTOR);
-                    events.Repeat(me->GetMap()->IsMythic() ? 23100ms : 17s);
+                    events.Repeat(IsMythic() ? 23100ms : 17s);
                     break;
                 }
                 case EVENT_THROW_DARKFLAME:
                 {
                     DoCastSelf(SPELL_THROW_DARKFLAME_SELECTOR);
-                    events.Repeat(me->GetMap()->IsMythic() ? 24300ms : 17s);
+                    events.Repeat(IsMythic() ? 24300ms : 17s);
                     break;
                 }
                 default:
