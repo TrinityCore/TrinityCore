@@ -1311,23 +1311,6 @@ enum NorthwatchCaravan
     NPC_NORTHWATCH_SUPPLY_CRATE = 39251
 };
 
-// 73690 From Passenger - Eject All Passengers
-class spell_from_passenger_eject_all_passengers : public SpellScript
-{
-    void HandleEffect(SpellEffIndex /*effIndex*/) const
-    {
-        Unit* caster = GetCaster();
-
-        if (Vehicle* vehicle = caster->GetVehicle())
-            vehicle->RemoveAllPassengers();
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_from_passenger_eject_all_passengers::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 49133 Despawn Passengers 2, 3, 4
 class spell_despawn_passengers_2_3_4 : public SpellScript
 {
@@ -1356,25 +1339,40 @@ class spell_despawn_passengers_2_3_4 : public SpellScript
 class npc_northwatch_caravan : public ScriptedAI
 {
 public:
-    npc_northwatch_caravan(Creature* creature) : ScriptedAI(creature), lastPointIndex(0) {}
+    npc_northwatch_caravan(Creature* creature) : ScriptedAI(creature), _lastPointIndex(0), _pathDone(false) {}
 
     void InitializeAI() override
     {
-        uint32 waypointEntry = me->GetEntry() * 100;
-        WaypointPath const* path = sWaypointMgr->GetPath(waypointEntry);
+        uint32 waypointEntry = 0;
 
+        switch (me->GetEntry())
+        {
+            case 39319:
+                waypointEntry = 3931900;
+                _lastPointIndex = 98;
+                break;
+            case 39244:
+                waypointEntry = 3924400;
+                _lastPointIndex = 103;
+                break;
+            case 39318:
+                waypointEntry = 3931800;
+                _lastPointIndex = 80;
+                break;
+        }
+
+        WaypointPath const* path = sWaypointMgr->GetPath(waypointEntry);
         if (!path)
             return;
 
-        lastPointIndex = path->Nodes.size();
-
-        me->GetMotionMaster()->MovePath(waypointEntry, false, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
+        me->GetMotionMaster()->MovePath(waypointEntry, false);
     }
 
     void MovementInform(uint32 movementType, uint32 pointId) override
     {
-        if (movementType == WAYPOINT_MOTION_TYPE && pointId == lastPointIndex)
+        if (movementType == WAYPOINT_MOTION_TYPE && pointId == _lastPointIndex)
         {
+            _pathDone = true;
             DoCastSelf(SPELL_DESPAWN_PASSENEGERS_2_3_4);
         }
     }
@@ -1383,45 +1381,52 @@ public:
     {
         if (!apply)
         {
-            me->DespawnOrUnsummon(1200ms);
+            if (!_pathDone)
+            {
+                if (Creature* creature = who->ToCreature())
+                     creature->SetHomePosition(creature->GetPosition());
 
-            if (who->GetEntry() == NPC_NORTHWATCH_SUPPLY_CRATE)
-            {
-                who->CastSpell(who, SPELL_COSMETIC_EXPLOSION, true);
-            }
-            else if (seatId == 0 && who->GetEntry() == NPC_NORTHWATCH_LUG_DWARF)
-            {
-                who->KillSelf();
+                if (who->GetEntry() == NPC_NORTHWATCH_SUPPLY_CRATE)
+                {
+                    who->CastSpell(who, SPELL_COSMETIC_EXPLOSION, true);
+                }
+                else if (seatId == 0 && who->GetEntry() == NPC_NORTHWATCH_LUG_DWARF)
+                {
+                    who->KillSelf();
+                }
+
+                me->DespawnOrUnsummon(1200ms);
             }
         }
     }
 
 private:
-    uint32 lastPointIndex;
+    uint32 _lastPointIndex;
+    bool _pathDone;
 };
 
 // 39245, 39249, 39251 - Northwatch Caravan Passengers
 class npc_northwatch_caravan_passenger : public ScriptedAI
 {
 public:
-    npc_northwatch_caravan_passenger(Creature* creature) : ScriptedAI(creature), exitedVehicle(false) {}
+    npc_northwatch_caravan_passenger(Creature* creature) : ScriptedAI(creature), _exitedVehicle(false) {}
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (exitedVehicle)
+        if (_exitedVehicle)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (exitedVehicle)
+        if (_exitedVehicle)
             ScriptedAI::UpdateAI(diff);
     }
 
     void MovementInform(uint32 movementType, uint32 pointId) override
     {
         if (movementType == EFFECT_MOTION_TYPE && pointId == EVENT_VEHICLE_EXIT)
-            exitedVehicle = true;
+            _exitedVehicle = true;
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -1446,7 +1451,7 @@ public:
     }
 
 private:
-    bool exitedVehicle;
+    bool _exitedVehicle;
 };
 }
 
@@ -1461,7 +1466,6 @@ void AddSC_durotar()
     // Northwatch Caravan
     RegisterCreatureAI(npc_northwatch_caravan);
     RegisterCreatureAI(npc_northwatch_caravan_passenger);
-    RegisterSpellScript(spell_from_passenger_eject_all_passengers);
     RegisterSpellScript(spell_despawn_passengers_2_3_4);
 
     // Echo Isles

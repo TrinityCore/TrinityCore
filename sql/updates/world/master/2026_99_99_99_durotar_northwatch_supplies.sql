@@ -357,5 +357,5 @@ UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_northwatch_car
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (73690, 49133);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(73690, 'spell_from_passenger_eject_all_passengers'),
+(73690, 'spell_gen_eject_all_passengers'),
 (49133, 'spell_despawn_passengers_2_3_4');
