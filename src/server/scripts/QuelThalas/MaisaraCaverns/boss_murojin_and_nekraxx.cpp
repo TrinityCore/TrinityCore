@@ -132,7 +132,6 @@ namespace Scripts::QuelThalas::MaisaraCaverns::MurojinAndNekraxx
 
     Position const NekraxxLandingPosition = {-914.7274f, 162.20312f, 99.76655f};
     Position const NekraxxCombatPosition = {-919.3368f, 165.42708f, 99.7619f};
-    Position const MurojinCombatPosition = {-913.1424f, 156.8368f, 99.76655f};
 
     namespace
     {
