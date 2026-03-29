@@ -46,7 +46,7 @@ void Trinity::Impl::ChatCommands::EnumArgInfoBase::AddSearchMapEntry(SearchMap& 
     if (title != constant)
     {
         auto titleIt = std::ranges::lower_bound(map, title, compare, Containers::MapKey);
-        if (constantIt == map.end() || compare(title, titleIt->first))
+        if (titleIt == map.end() || compare(title, titleIt->first))
             map.emplace(titleIt, title, val);  // not unique
         else
             titleIt->second = std::nullopt;
