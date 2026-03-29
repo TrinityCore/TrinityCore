@@ -30,7 +30,6 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "maisara_caverns.h"
-#include "WorldStateMgr.h"
 
 namespace Scripts::QuelThalas::MaisaraCaverns::MurojinAndNekraxx
 {
