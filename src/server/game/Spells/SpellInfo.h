@@ -265,7 +265,7 @@ public:
     uint32 GetPeriodicTickCount() const;
 
     int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr) const;
-    int32 CalcBaseValue(WorldObject const* caster, Unit const* target) const;
+    SpellEffectValue CalcBaseValue(WorldObject const* caster, Unit const* target) const;
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
