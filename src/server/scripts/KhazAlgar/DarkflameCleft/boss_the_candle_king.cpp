@@ -370,6 +370,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         static constexpr uint8 MAX_TARGETS = 1;
+        WorldObject* closestTarget = nullptr;
 
         if (targets.size() <= MAX_TARGETS)
             return;
@@ -410,9 +411,6 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_candle_king_darkflame_pickaxe_cast::FilterTargets, EFFECT_0, TARGET_UNIT_RECT_CASTER);
         OnEffectHitTarget += SpellEffectFn(spell_the_candle_king_darkflame_pickaxe_cast::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
-
-private:
-    WorldObject* closestTarget = nullptr;
 };
 
 // 421648 - Cursed Wax
@@ -430,6 +428,7 @@ struct at_the_candle_king_cursed_wax : AreaTriggerAI
         if (!caster)
             return;
 
+        caster->CastSpell(unit, SPELL_CURSED_WAX_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         caster->CastSpell(unit, SPELL_CURSED_WAX_DUMMY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
