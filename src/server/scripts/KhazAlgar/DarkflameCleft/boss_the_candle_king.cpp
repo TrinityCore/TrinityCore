@@ -403,7 +403,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, target->GetGUID(), GetSpell()->m_originalCastId), 300ms);
+        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, target->GetGUID(), GetSpell()->m_castId), 300ms);
     }
 
     void Register() override
