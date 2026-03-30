@@ -43,7 +43,7 @@ class wp_commandscript : public CommandScript
 public:
     wp_commandscript() : CommandScript("wp_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable wpCommandTable =
         {
@@ -417,11 +417,11 @@ public:
             ObjectGuid const& guid = sWaypointMgr->GetVisualGUIDByNode(path->Id, path->Nodes.front().Id);
             if (!guid.IsEmpty())
             {
-                handler->SendSysMessage("|cff00ff00Path with id %u is already showing.|r", *pathid);
+                handler->PSendSysMessage("|cff00ff00Path with id %u is already showing.|r", *pathid);
                 return true;
             }
 
-            handler->SendSysMessage("|cff00ff00Showing path with id %u.|r", *pathid);
+            handler->PSendSysMessage("|cff00ff00Showing path with id %u.|r", *pathid);
             return true;
         }
         else if (show.holds_alternative<EXACT_SEQUENCE("off")>())

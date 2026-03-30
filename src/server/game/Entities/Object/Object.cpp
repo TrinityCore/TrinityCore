@@ -1713,7 +1713,7 @@ float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
-double WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, double value) const
+SpellEffectValue WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const
 {
     if (Player* modOwner = GetSpellModOwner())
     {
