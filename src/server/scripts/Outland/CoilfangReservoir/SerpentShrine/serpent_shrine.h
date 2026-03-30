@@ -63,6 +63,7 @@ enum SSDataTypes
 
 enum SSCreatureIds
 {
+    NPC_THE_LURKER_BELOW            = 21217,
     NPC_LADY_VASHJ                  = 21212
 };
 
@@ -80,8 +81,7 @@ enum SSGameObjectIds
 
 enum SSEventsIds
 {
-    EVENT_RESPAWN_STRANGE_POOL      = 1,
-    EVENT_RESPAWN_STRANGE_POOL_2    = 2
+    EVENT_RESPAWN_STRANGE_POOL      = 1
 };
 
 template <class AI, class T>

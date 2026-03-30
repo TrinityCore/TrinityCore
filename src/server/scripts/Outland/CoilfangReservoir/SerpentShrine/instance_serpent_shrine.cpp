@@ -160,14 +160,8 @@ class instance_serpent_shrine : public InstanceMapScript
 
                 Events.Update(diff);
 
-                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL_2)
-                    instance->Respawn(SPAWN_TYPE_GAMEOBJECT, GetData64(DATA_STRANGE_POOL));
-            }
-
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
-            {
-                if (eventId == EVENT_RESPAWN_STRANGE_POOL)
-                    Events.ScheduleEvent(EVENT_RESPAWN_STRANGE_POOL_2, 15s);
+                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
+                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -196,12 +190,22 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            bool SetBossState(uint32 id, EncounterState state) override
             {
-                InstanceScript::OnGameObjectCreate(go);
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
 
-                if (go->GetEntry() == GO_STRANGE_POOL)
-                    StrangePoolSpawnId = go->GetSpawnId();
+                switch (id)
+                {
+                    case BOSS_THE_LURKER_BELOW:
+                        if (state == FAIL)
+                            Events.ScheduleEvent(EVENT_RESPAWN_STRANGE_POOL, 15s);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override
@@ -249,14 +253,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const override
-            {
-                if (type == DATA_STRANGE_POOL)
-                    return StrangePoolSpawnId;
-
-                return InstanceScript::GetData64(type);
-            }
-
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
@@ -297,7 +293,6 @@ class instance_serpent_shrine : public InstanceMapScript
 
         protected:
             EventMap Events;
-            ObjectGuid::LowType StrangePoolSpawnId = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

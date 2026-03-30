@@ -8,18 +8,27 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMa
 (@CGUID+0,21252,548,0,0,1,1,0,0,40.55804443359375,-415.83349609375,11.35667705535888671,3.333578824996948242,300,0,0,0,0,0,0,0,0,'',NULL,15595);
 
 -- Strange Pool
-UPDATE `gameobject` SET `spawntimesecs` = 604800 WHERE `id` = 184956;
+UPDATE `gameobject` SET `spawntimesecs` = 5 WHERE `id` = 184956;
+
+DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP_ID+0;
+INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
+(@SPAWN_GROUP_ID+0,"Serpentshrine Cavern - The Lurker Below - Strange Pool",4);
+
+DELETE FROM `spawn_group` WHERE `groupId`=@SPAWN_GROUP_ID+0;
+INSERT INTO `spawn_group` (`groupId`,`spawnType`,`spawnId`) VALUES
+(@SPAWN_GROUP_ID+0,1,9378);
+
+DELETE FROM `instance_spawn_groups` WHERE `spawnGroupId`=@SPAWN_GROUP_ID+0;
+INSERT INTO `instance_spawn_groups` (`instanceMapId`,`bossStateId`,`bossStates`,`spawnGroupId`,`flags`) VALUES
+(548,1,1,@SPAWN_GROUP_ID+0,1);
 
 -- Lurker
 UPDATE `creature_text` SET `Text` = "%s takes a deep breath!", `BroadcastTextId` = 20774 WHERE `CreatureID` = 21217;
 
 UPDATE `creature_template` SET `speed_run` = 1 WHERE `entry` = 21217;
 
-UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID+0 WHERE `spawnId` = 93838 AND `spawnType` = 0;
-
-DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP_ID+0;
-INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(@SPAWN_GROUP_ID+0,"Serpentshrine Cavern - The Lurker Below - The Lurker Below",4);
+DELETE FROM `spawn_group` WHERE `spawnId` = 93838 AND `spawnType` = 0;
+DELETE FROM `creature` WHERE `guid` = 93838;
 
 UPDATE `creature` SET `position_x` = 38.4567, `position_y` = -417.324, `position_z` = -18.916666, `orientation` = 2.9496064, `VerifiedBuild` = 15595 WHERE `id` = 21217;
 
