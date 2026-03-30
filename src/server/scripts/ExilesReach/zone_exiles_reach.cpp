@@ -268,8 +268,8 @@ public:
 
     void OnCreate(Unit* creator) override
     {
-        Creature* kalecgos = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KALECGOS, .IgnorePhases = true });
-        Creature* wrathion = creator->ToPlayer()->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATHION, .IgnorePhases = true });
+        Creature* kalecgos = creator->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_KALECGOS, .IgnorePhases = true });
+        Creature* wrathion = creator->FindNearestCreatureWithOptions(100.0f, { .CreatureId = NPC_WRATHION, .IgnorePhases = true });
 
         if (!kalecgos || !wrathion)
             return;
@@ -291,15 +291,15 @@ public:
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+        Unit* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
         if (!privateObjectOwner)
             return;
 
-        if (privateObjectOwner->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+        if (privateObjectOwner->GetTeamId() == TEAM_ALLIANCE)
         {
             _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, JAINA_LINE));
         }
-        else if (privateObjectOwner->ToPlayer()->GetTeamId() == TEAM_HORDE)
+        else if (privateObjectOwner->GetTeamId() == TEAM_HORDE)
         {
             _events.ScheduleEvent(EVENT_MOVE_FORWARD, conversation->GetLineEndTime(privateOwnerLocale, TRALL_LINE));
         }
