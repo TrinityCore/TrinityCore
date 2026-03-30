@@ -738,7 +738,7 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
     npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) {}
 
     void JustAppeared() override
-    {       
+    {
         _events.ScheduleEvent(EVENT_FIRST_MATE_1, 3s);
     }
 
@@ -762,7 +762,7 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
                 Conversation* conversation = Conversation::CreateConversation(_Conversation, owner, *owner, owner->GetGUID(), nullptr, false);
                 conversation->AddActor(Actor0, 0, me->GetGUID());
                 conversation->AddActor(Actor1, 1, me->FindNearestCreatureWithOptions(75.0f, { .CreatureId = NpcID, .IgnorePhases = true })->GetGUID());
-                conversation->Start();               
+                conversation->Start();
                 _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
 
                 break;
