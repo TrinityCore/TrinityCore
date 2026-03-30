@@ -836,4 +836,4 @@ void AddSC_boss_baleroc()
     RegisterSpellScript(spell_baleroc_vital_spark);
     RegisterSpellScript(spell_baleroc_vital_flame);
     new achievement_share_the_pain();
-};
+}

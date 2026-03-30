@@ -20,8 +20,7 @@
 
 #include "Define.h"
 #include "Language.h"
-#include "Optional.h"
-#include "StringFormat.h"
+#include "Optional.h" // for std::nullopt
 #include <fmt/printf.h>
 #include <string>
 #include <string_view>
@@ -47,13 +46,14 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     using tag_base_t = typename tag_base<T>::type;
 
-    struct TokenizeResult {
-        explicit operator bool() { return !token.empty(); }
+    struct TokenizeResult
+    {
+        explicit operator bool() const { return !token.empty(); }
         std::string_view token;
         std::string_view tail;
     };
 
-    inline TokenizeResult tokenize(std::string_view args)
+    inline TokenizeResult tokenize(std::string_view args) noexcept
     {
         TokenizeResult result;
         if (size_t delimPos = args.find(COMMAND_DELIMITER); delimPos != std::string_view::npos)
@@ -68,30 +68,6 @@ namespace Trinity::Impl::ChatCommands
         return result;
     }
 
-    template <typename T, typename... Ts>
-    struct are_all_assignable
-    {
-        static constexpr bool value = (std::is_assignable_v<T&, Ts> && ...);
-    };
-
-    template <typename... Ts>
-    struct are_all_assignable<void, Ts...>
-    {
-        static constexpr bool value = false;
-    };
-
-    template <std::size_t index, typename T1, typename... Ts>
-    struct get_nth : get_nth<index-1, Ts...> { };
-
-    template <typename T1, typename... Ts>
-    struct get_nth<0, T1, Ts...>
-    {
-        using type = T1;
-    };
-
-    template <std::size_t index, typename... Ts>
-    using get_nth_t = typename get_nth<index, Ts...>::type;
-
     // this essentially models std::optional<std::string_view>, except it can also hold an error message
     // it has std::string_view's bool conversion and dereference operators
     //
@@ -100,25 +76,33 @@ namespace Trinity::Impl::ChatCommands
     // std::string_view <-> success, string_view is remaining argument string
     struct ChatCommandResult
     {
-        ChatCommandResult(std::nullopt_t) : _storage() {}
+        ChatCommandResult(std::nullopt_t) noexcept : _storage() {}
         ChatCommandResult(std::string const&) = delete;
-        ChatCommandResult(std::string&& s) : _storage(std::in_place_type<std::string>, std::forward<std::string>(s)) {}
+        ChatCommandResult(std::string&& s) noexcept : _storage(std::in_place_type<std::string>, std::move(s)) {}
         ChatCommandResult(char const* c) : _storage(std::in_place_type<std::string>, c) {}
-        ChatCommandResult(std::string_view s) : _storage(std::in_place_type<std::string_view>, s) {}
+        ChatCommandResult(std::string_view s) noexcept : _storage(std::in_place_type<std::string_view>, s) {}
+
+        ChatCommandResult& operator=(std::nullopt_t) noexcept { _storage.emplace<std::monostate>(); return *this; }
+        ChatCommandResult& operator=(std::string&& s) noexcept { _storage.emplace<std::string>(std::move(s)); return *this; }
+        ChatCommandResult& operator=(char const* c) { _storage.emplace<std::string>(c); return *this; }
+        ChatCommandResult& operator=(std::string_view s) noexcept { _storage.emplace<std::string_view>(s); return *this; }
 
         ChatCommandResult(ChatCommandResult const&) = delete;
-        ChatCommandResult(ChatCommandResult&&) = default;
+        ChatCommandResult(ChatCommandResult&&) noexcept = default;
         ChatCommandResult& operator=(ChatCommandResult const&) = delete;
-        ChatCommandResult& operator=(ChatCommandResult&&) = default;
+        ChatCommandResult& operator=(ChatCommandResult&&) noexcept = default;
+
+        ~ChatCommandResult() = default;
 
         std::string_view operator*() const { return std::get<std::string_view>(_storage); }
         bool IsSuccessful() const { return std::holds_alternative<std::string_view>(_storage); }
         explicit operator bool() const { return IsSuccessful(); }
         bool HasErrorMessage() const { return std::holds_alternative<std::string>(_storage); }
-        std::string const& GetErrorMessage() const { return std::get<std::string>(_storage); }
+        std::string const& GetErrorMessage() const & { return std::get<std::string>(_storage); }
+        std::string&& GetErrorMessage() && { return std::get<std::string>(std::move(_storage)); }
 
-        private:
-            std::variant<std::monostate, std::string_view, std::string> _storage;
+    private:
+        std::variant<std::monostate, std::string_view, std::string> _storage;
     };
 
     TC_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);

@@ -30,7 +30,7 @@ Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
 class at_nethekurse_exit : public AreaTriggerScript
 {
     public:
-        at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { };
+        at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const*) override
         {
@@ -75,7 +75,7 @@ class boss_shattered_executioner : public CreatureScript
             boss_shattered_executionerAI(Creature* creature) : BossAI(creature, DATA_SHATTERED_EXECUTIONER)
             {
                 Initialize();
-            };
+            }
 
             void Initialize()
             {

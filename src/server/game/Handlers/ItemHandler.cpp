@@ -381,25 +381,64 @@ void WorldSession::HandleReadItem(WorldPackets::Item::ReadItem& readItem)
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
 }
 
-void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
+void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem const& sellItem)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_SELL_ITEM: Vendor {}, Item {}, Amount: {}",
-        packet.VendorGUID.ToString(), packet.ItemGUID.ToString(), packet.Amount);
+        sellItem.VendorGUID, sellItem.ItemGUID, sellItem.Amount);
 
-    if (packet.ItemGUID.IsEmpty())
-        return;
-
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(sellItem.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - {} not found or you can not interact with him.", packet.VendorGUID.ToString());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, packet.ItemGUID);
+        TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - {} not found or you can not interact with him.", sellItem.VendorGUID);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, sellItem.ItemGUID);
         return;
     }
 
     if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
     {
-        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, packet.ItemGUID);
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, sellItem.ItemGUID);
+        return;
+    }
+
+    Item* pItem = _player->GetItemByGuid(sellItem.ItemGUID);
+    if (!pItem)
+    {
+        _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, sellItem.ItemGUID);
+        return;
+    }
+
+    // prevent selling item for sellprice when the item is still refundable
+    // this probably happens when right clicking a refundable item, the client sends both
+    // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
+    if (pItem->IsRefundable())
+        return;
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    uint32 amount = sellItem.Amount ? sellItem.Amount : pItem->GetCount();
+
+    Optional<SellResult> sellResult = _player->CanSellItemToVendor(pItem, amount);
+    if (!sellResult)
+        sellResult = _player->SellItemToVendor(pItem, amount);
+
+    if (sellResult)
+        _player->SendSellError(*sellResult, creature, sellItem.ItemGUID);
+}
+
+void WorldSession::HandleSellAllJunkItems(WorldPackets::Item::SellAllJunkItems const& sellAllJunkItems)
+{
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(sellAllJunkItems.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    if (!creature)
+    {
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty);
+        return;
+    }
+
+    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    {
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, ObjectGuid::Empty);
         return;
     }
 
@@ -407,103 +446,44 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Item* pItem = _player->GetItemByGuid(packet.ItemGUID);
-    if (pItem)
+    // collect junk items first
+    std::vector<Item*> junkItems;
+    _player->ForEachItem(ItemSearchLocation::Inventory, [this, &junkItems](Item* item)
     {
-        // prevent sell not owner item
-        if (_player->GetGUID() != pItem->GetOwnerGUID())
+        if (item->GetQuality() != ITEM_QUALITY_POOR)
+            return ItemSearchCallbackResult::Continue;
+
+        if (item->IsRefundable())
+            return ItemSearchCallbackResult::Continue;
+
+        // check per-bag junk sell exclusion
+        if (item->GetBagSlot() == INVENTORY_SLOT_BAG_0)
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-            return;
-        }
-
-        // prevent sell non empty bag by drag-and-drop at vendor's item list
-        if (pItem->IsNotEmptyBag())
-        {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-            return;
-        }
-
-        // prevent sell currently looted item
-        if (_player->GetLootGUID() == pItem->GetGUID())
-        {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-            return;
-        }
-
-        // prevent selling item for sellprice when the item is still refundable
-        // this probably happens when right clicking a refundable item, the client sends both
-        // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
-        if (pItem->IsRefundable())
-            return; // Therefore, no feedback to client
-
-        // special case at auto sell (sell all)
-        if (packet.Amount == 0)
-            packet.Amount = pItem->GetCount();
-        else
-        {
-            // prevent sell more items that exist in stack (possible only not from client)
-            if (packet.Amount > pItem->GetCount())
-            {
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-                return;
-            }
-        }
-
-        if (uint32 sellPrice = pItem->GetSellPrice(_player); sellPrice > 0)
-        {
-            uint64 money = uint64(sellPrice) * packet.Amount;
-
-            using BuybackStorageType = std::remove_cvref_t<decltype(_player->m_activePlayerData->BuybackPrice[0])>;
-            if (money > std::numeric_limits<BuybackStorageType>::max()) // ensure sell price * amount doesn't overflow buyback price
-            {
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-                return;
-            }
-
-            if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
-            {
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-                return;
-            }
-
-            _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
-            _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
-
-            if (packet.Amount < pItem->GetCount())               // need split items
-            {
-                Item* pNewItem = pItem->CloneItem(packet.Amount, _player);
-                if (!pNewItem)
-                {
-                    TC_LOG_ERROR("network", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), packet.Amount);
-                    _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-                    return;
-                }
-
-                pItem->SetCount(pItem->GetCount() - packet.Amount);
-                _player->ItemRemovedQuestCheck(pItem->GetEntry(), packet.Amount);
-                if (_player->IsInWorld())
-                    pItem->SendUpdateToPlayer(_player);
-                pItem->SetState(ITEM_CHANGED, _player);
-
-                _player->AddItemToBuyBackSlot(pNewItem);
-                if (_player->IsInWorld())
-                    pNewItem->SendUpdateToPlayer(_player);
-            }
-            else
-            {
-                _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-                RemoveItemFromUpdateQueueOf(pItem, _player);
-                _player->AddItemToBuyBackSlot(pItem);
-            }
+            if (_player->IsBackpackSellJunkDisabled())
+                return ItemSearchCallbackResult::Continue;
         }
         else
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
-        return;
-    }
-    _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, packet.ItemGUID);
-    return;
+        {
+            uint32 bagIndex = item->GetBagSlot() - INVENTORY_SLOT_BAG_START;
+            if (bagIndex < _player->m_activePlayerData->BagSlotFlags.size()
+                && _player->GetBagSlotFlags(bagIndex).HasFlag(BagSlotFlags::ExcludeJunkSell))
+                return ItemSearchCallbackResult::Continue;
+        }
+
+        Optional<SellResult> sellError = _player->CanSellItemToVendor(item, item->GetCount());
+        if (!sellError)
+            junkItems.push_back(item);
+
+        return ItemSearchCallbackResult::Continue;
+    });
+
+    auto itr = junkItems.begin();
+    auto end = junkItems.end();
+    Optional<SellResult> sellError;
+
+    // stop on first sell failure (gold cap reached)
+    for (; itr != end && !sellError; ++itr)
+        sellError = _player->SellItemToVendor(*itr, (*itr)->GetCount());
 }
 
 void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)

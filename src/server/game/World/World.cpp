@@ -82,6 +82,7 @@
 #include "Player.h"
 #include "PlayerDump.h"
 #include "PoolMgr.h"
+#include "QuestMgr.h"
 #include "QuestPools.h"
 #include "RealmList.h"
 #include "ScenarioMgr.h"
@@ -95,6 +96,7 @@
 #include "TaxiPathGraph.h"
 #include "TerrainMgr.h"
 #include "TraitMgr.h"
+#include "TransmogMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "UpdateTime.h"
@@ -745,7 +747,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "CharacterCreating.MinLevelForDemonHunter"sv, .DefaultValue = 0, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER },
         { .Name = "CharacterCreating.MinLevelForEvoker"sv, .DefaultValue = 50, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER },
         { .Name = "SkipCinematics"sv, .DefaultValue = 0, .Index = CONFIG_SKIP_CINEMATICS, .Min = 0, .Max = 2 },
-        { .Name = "MaxPlayerLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
+        { .Name = "MaxPlayerLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
         { .Name = "MinDualSpecLevel"sv, .DefaultValue = 40, .Index = CONFIG_MIN_DUALSPEC_LEVEL },
         { .Name = "StartPlayerLevel"sv, .DefaultValue = 1, .Index = CONFIG_START_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartDeathKnightPlayerLevel"sv, .DefaultValue = 8, .Index = CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL, .Min = 1 },
@@ -755,7 +757,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "Currency.ResetHour"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_HOUR, .Min = 0, .Max = 23 },
         { .Name = "Currency.ResetDay"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_DAY, .Min = 0, .Max = 6 },
         { .Name = "Currency.ResetInterval"sv, .DefaultValue = 7, .Index = CONFIG_CURRENCY_RESET_INTERVAL, .Min = 1 },
-        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
+        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
         { .Name = "RecruitAFriend.MaxDifference"sv, .DefaultValue = 4, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE },
         { .Name = "ResetSchedule.WeekDay"sv, .DefaultValue = 2, .Index = CONFIG_RESET_SCHEDULE_WEEK_DAY, .Min = 0, .Max = 6 },
         { .Name = "ResetSchedule.Hour"sv, .DefaultValue = 8, .Index = CONFIG_RESET_SCHEDULE_HOUR, .Min = 0, .Max = 23 },
@@ -1579,6 +1581,7 @@ bool World::SetInitialWorldSettings()
     WeatherMgr::LoadWeatherData();
 
     TC_LOG_INFO("server.loading", "Loading Quests...");
+    QuestMgr::Load();
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
 
     TC_LOG_INFO("server.loading", "Checking Quest Disables");
@@ -2063,6 +2066,9 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
+
+    TC_LOG_INFO("server.loading", "Loading transmog data...");
+    TransmogMgr::Load();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

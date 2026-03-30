@@ -107,7 +107,7 @@ class TC_GAME_API ReputationMgr
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
-        std::string GetReputationRankName(FactionEntry const* factionEntry) const;;
+        std::string GetReputationRankName(FactionEntry const* factionEntry) const;
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
         ReputationRank const* GetForcedRankIfAny(uint32 factionId) const;

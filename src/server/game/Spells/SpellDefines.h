@@ -62,7 +62,7 @@ enum class SpellInterruptFlags : uint32
     Movement                    = 0x00000001,
     DamagePushbackPlayerOnly    = 0x00000002,
     Stun                        = 0x00000004, // useless, even spells without it get interrupted
-    Combat                      = 0x00000008,
+    Combat                      = 0x00000008, // used for both interrupting spell when entering combat and to reset auto attack timer
     DamageCancelsPlayerOnly     = 0x00000010,
     MeleeCombat                 = 0x00000020, // NYI
     Immunity                    = 0x00000040, // NYI
@@ -110,7 +110,8 @@ enum class SpellAuraInterruptFlags : uint32
     Summon                      = 0x40000000,
     LeavingCombat               = 0x80000000,
 
-    NOT_VICTIM                  = (HostileActionReceived | Damage | NonPeriodicDamage)
+    NOT_VICTIM                  = HostileActionReceived | Damage | NonPeriodicDamage,
+    AnyDamageMask               = Damage | NonPeriodicDamage | DamageCancelsScript
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags);
@@ -475,6 +476,9 @@ struct TC_GAME_API CastSpellTargetArg
 
     Optional<SpellCastTargets> Targets; // empty optional used to signal error state
 };
+
+//! Spell effect value calculation result type.
+using SpellEffectValue = double; //!< This is a double instead of float to be able to store full range of int32
 
 struct CastSpellExtraArgsInit
 {

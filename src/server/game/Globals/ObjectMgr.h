@@ -822,7 +822,7 @@ struct QuestPOIData
     std::vector<QuestPOIBlobData> Blobs;
 
     void InitializeQueryData();
-    ByteBuffer QueryDataBuffer;
+    std::vector<uint8> QueryDataBuffer;
 };
 
 typedef std::unordered_map<uint32, QuestPOIData> QuestPOIContainer;

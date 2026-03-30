@@ -514,11 +514,10 @@ uint32 SpellEffectInfo::GetPeriodicTickCount() const
 
 int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
-    double basePointsPerLevel = RealPointsPerLevel;
-    // TODO: this needs to be a float, not rounded
-    int32 basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
-    double value = bp ? *bp : basePoints;
-    double comboDamage = PointsPerResource;
+    SpellEffectValue basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
+    SpellEffectValue value = bp ? *bp : basePoints;
+    SpellEffectValue basePointsPerLevel = RealPointsPerLevel;
+    SpellEffectValue comboDamage = PointsPerResource;
 
     Unit const* casterUnit = nullptr;
     if (caster)
@@ -555,8 +554,8 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     if (Scaling.Variance)
     {
         float delta = fabs(Scaling.Variance * 0.5f);
-        double valueVariance = frand(-delta, delta);
-        value += double(basePoints) * valueVariance;
+        float valueVariance = frand(-delta, delta);
+        value += basePoints * valueVariance;
 
         if (variance)
             *variance = valueVariance;
@@ -566,7 +565,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     if (Scaling.Coefficient != 0.0f)
     {
         if (Scaling.ResourceCoefficient)
-            comboDamage = Scaling.ResourceCoefficient * value;
+            comboDamage = value * Scaling.ResourceCoefficient;
     }
     else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
@@ -578,8 +577,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
             // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
             level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
-            if (level < 0)
-                level = 0;
+            level = std::max(level, 0);
             value += level * basePointsPerLevel;
         }
     }
@@ -603,7 +601,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
+SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -660,7 +658,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
         if (value > 0.0f && value < 1.0f)
             value = 1.0f;
 
-        return int32(round(value));
+        return round(value);
     }
     else
     {
@@ -686,7 +684,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
         }
 
-        return int32(round(value));
+        return round(value);
     }
 }
 
@@ -1240,7 +1238,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 309 SPELL_EFFECT_PRELOAD_WORLD
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 310 SPELL_EFFECT_310
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 311 SPELL_EFFECT_ENSURE_WORLD_LOADED
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 311 SPELL_EFFECT_SKIP_QUESTLINE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 312 SPELL_EFFECT_312
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 314 SPELL_EFFECT_ADD_SOCKET_BONUS
@@ -2418,7 +2416,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
        return SPELL_FAILED_TARGETS_DEAD;
 
     // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
-    if (implicit && HasAttribute(SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS) && !unitTarget->CanFreeMove())
+    if (implicit && HasAttribute(SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS) && unitTarget->HasBreakableByDamageCrowdControlAura())
        return SPELL_FAILED_BAD_TARGETS;
 
     // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
@@ -2763,7 +2761,7 @@ void SpellInfo::_LoadAuraState()
 SpellSpecificType SpellInfo::GetSpellSpecific() const
 {
     return _spellSpecific;
-};
+}
 
 void SpellInfo::_LoadSpellSpecific()
 {
@@ -3625,7 +3623,7 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
         else
         {
             SpellEffectInfo const& valueHolder = maxTargetValueHolder->GetEffect(*maxTargetsValueHolderEffect);
-            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            int32 expectedValue = int32(valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1));
             if (maxTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
                     maxTargetValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect), maxTargets, expectedValue);
@@ -3646,7 +3644,7 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
         else
         {
             SpellEffectInfo const& valueHolder = numNonDiminishedTargetsValueHolder->GetEffect(*numNonDiminishedTargetsValueHolderEffect);
-            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            int32 expectedValue = int32(valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1));
             if (numNonDiminishedTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
                     numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*numNonDiminishedTargetsValueHolderEffect), numNonDiminishedTargets, expectedValue);
@@ -4476,7 +4474,7 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
         return true;
     };
 
-    for (auto itr = _visuals.begin(); itr != _visuals.end(); ++itr)
+    for (auto itr = _visuals.begin(), end = _visuals.end(); itr != end; ++itr)
     {
         if (!canUseSpellVisual(*itr))
             continue;
@@ -4485,9 +4483,9 @@ uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/
         boost::container::small_vector<SpellXSpellVisualEntry const*, 4> visualCandidates;
         visualCandidates.push_back(*itr);
 
-        for (auto itr2 = itr + 1; itr2 != _visuals.end() && (*itr)->Priority == (*itr2)->Priority ; ++itr2)
-            if (canUseSpellVisual(*itr))
-                visualCandidates.push_back(*itr);
+        for (auto itr2 = itr + 1; itr2 != end && (*itr)->Priority == (*itr2)->Priority; ++itr2)
+            if (canUseSpellVisual(*itr2))
+                visualCandidates.push_back(*itr2);
 
         if (visualCandidates.size() == 1)
             return visualCandidates.front()->ID;    // special case, ignores Probability

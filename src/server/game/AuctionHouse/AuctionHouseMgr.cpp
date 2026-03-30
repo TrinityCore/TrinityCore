@@ -353,7 +353,7 @@ public:
 
     void AddItem(T const* item)
     {
-        auto where = std::lower_bound(_items.begin(), _items.end(), item, std::cref(_sorter));
+        auto where = std::ranges::lower_bound(_items, item, std::cref(_sorter));
 
         _items.insert(where, item);
         if (_items.size() > _maxResults + _offset)
@@ -363,9 +363,9 @@ public:
         }
     }
 
-    Trinity::IteratorPair<typename std::vector<T const*>::const_iterator> GetResultRange() const
+    std::span<T const* const> GetResultRange() const
     {
-        return Trinity::Containers::MakeIteratorPair(_items.begin() + _offset, _items.end());
+        return std::span(_items.begin() + _offset, _items.end());
     }
 
     bool HasMoreResults() const
@@ -1364,9 +1364,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
 {
     AuctionsResultBuilder<AuctionPosting> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, AuctionHouseResultLimits::Items);
     auto itr = _buckets.lower_bound(AuctionsBucketKey(itemId, 0, 0, 0));
-    auto end = _buckets.lower_bound(AuctionsBucketKey(itemId + 1, 0, 0, 0));
+    auto end = _buckets.end();
     listItemsResult.TotalCount = 0;
-    while (itr != end)
+    while (itr != end && itr->first.ItemId == itemId)
     {
         for (AuctionPosting const* auction : itr->second.Auctions)
         {

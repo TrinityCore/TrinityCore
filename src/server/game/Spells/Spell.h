@@ -109,7 +109,7 @@ enum SpellCastFlags : uint32
     CAST_FLAG_UNKNOWN_16            = 0x00008000,
     CAST_FLAG_UNKNOWN_17            = 0x00010000,
     CAST_FLAG_ADJUST_MISSILE        = 0x00020000,
-    CAST_FLAG_NO_GCD                = 0x00040000,           // no GCD for spell casts from charm/summon (vehicle spells is an example)
+    CAST_FLAG_FROM_CLIENT           = 0x00040000,           // no GCD for spell casts from charm/summon (vehicle spells is an example)
     CAST_FLAG_VISUAL_CHAIN          = 0x00080000,
     CAST_FLAG_UNKNOWN_21            = 0x00100000,
     CAST_FLAG_RUNE_LIST             = 0x00200000,
@@ -445,6 +445,7 @@ class TC_GAME_API Spell
         void EffectLearnAzeriteEssencePower();
         void EffectCreatePrivateConversation();
         void EffectApplyMountEquipment();
+        void EffectSkipCampaign();
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
@@ -457,11 +458,13 @@ class TC_GAME_API Spell
         void EffectChangeActiveCombatTraitConfig();
         void EffectTeleportGraveyard();
         void EffectUpdateInteractions();
+        void EffectSkipQuestLine();
         void EffectLearnWarbandScene();
         void EffectSetPlayerDataElementAccount();
         void EffectSetPlayerDataElementCharacter();
         void EffectSetPlayerDataFlagAccount();
         void EffectSetPlayerDataFlagCharacter();
+        void EffectEquipTransmogOutfit();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -629,6 +632,14 @@ class TC_GAME_API Spell
 
             // SPELL_EFFECT_UPGRADE_HEIRLOOM
             uint32 ItemId;
+
+            // SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT
+            struct
+            {
+                uint32 EquipAction;
+                uint32 TransmogOutfitId;
+                uint32 SituationTrigger;
+            } EquipTransmogOutfit;
 
             struct
             {
@@ -813,6 +824,7 @@ class TC_GAME_API Spell
         ProcFlagsHit m_hitMask;
         ProcFlagsSpellType m_procSpellType;   // for finish procs
         void prepareDataForTriggerSystem();
+        std::pair<ProcFlagsInit /*attacker*/, ProcFlagsInit /*victim*/> FinalizeDataForTriggerSystem(bool positive) const;
 
         // *****************************************
         // Spell target subsystem

@@ -628,7 +628,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             _UpdateAI(diff);
         }
 
-        virtual void _UpdateAI(uint32 diff) { ScriptedAI::UpdateAI(diff); };
+        virtual void _UpdateAI(uint32 diff) { ScriptedAI::UpdateAI(diff); }
 
     private:
         uint32 _deathNotify;

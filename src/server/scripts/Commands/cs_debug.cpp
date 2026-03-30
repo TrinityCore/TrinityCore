@@ -67,7 +67,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable debugPlayCommandTable =
         {
@@ -120,6 +120,7 @@ public:
             { "neargraveyard",      HandleDebugNearGraveyard,              rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "instancespawn",      HandleDebugInstanceSpawns,             rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "conversation",       HandleDebugConversationCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "modifiertree",       HandleDebugModifierTreeCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "wsexpression",       HandleDebugWSExpressionCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "playercondition",    HandleDebugPlayerConditionCommand,     rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "pvp warmode",        HandleDebugWarModeBalanceCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
@@ -515,7 +516,8 @@ public:
 
     static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
     {
-        handler->GetPlayer()->SendUpdateWorldState(variable, value);
+        Map* map = handler->GetPlayer()->GetMap();
+        map->SetWorldStateValue(variable, value, false);
         return true;
     }
 
@@ -1589,6 +1591,25 @@ public:
         return Conversation::CreateConversation(conversationEntry, target, *target, target->GetGUID()) != nullptr;
     }
 
+    static bool HandleDebugModifierTreeCommand(ChatHandler* handler, uint32 modifierTreeId)
+    {
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target->ModifierTreeSatisfied(modifierTreeId))
+            handler->PSendSysMessage("ModifierTree %u met", modifierTreeId);
+        else
+            handler->PSendSysMessage("ModifierTree %u not met", modifierTreeId);
+
+        return true;
+    }
+
     static bool HandleDebugWSExpressionCommand(ChatHandler* handler, uint32 expressionId)
     {
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -1605,9 +1626,9 @@ public:
             return false;
 
         if (ConditionMgr::IsMeetingWorldStateExpression(target->GetMap(), wsExpressionEntry))
-            handler->PSendSysMessage("Expression %u meet", expressionId);
+            handler->PSendSysMessage("WorldStateExpression %u met", expressionId);
         else
-            handler->PSendSysMessage("Expression %u not meet", expressionId);
+            handler->PSendSysMessage("WorldStateExpression %u not met", expressionId);
 
         return true;
     }

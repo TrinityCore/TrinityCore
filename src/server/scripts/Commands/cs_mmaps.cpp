@@ -41,14 +41,16 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+using namespace Trinity::ChatCommands;
+
 class mmaps_commandscript : public CommandScript
 {
 public:
     mmaps_commandscript() : CommandScript("mmaps_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> mmapCommandTable =
+        static ChatCommandTable mmapCommandTable =
         {
             { "loadedtiles", rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, false, &HandleMmapLoadedTilesCommand, "" },
             { "loc",         rbac::RBAC_PERM_COMMAND_MMAP_LOC,         false, &HandleMmapLocCommand,         "" },
@@ -57,7 +59,7 @@ public:
             { "testarea",    rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA,    false, &HandleMmapTestArea,           "" },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, nullptr, "", mmapCommandTable },
         };

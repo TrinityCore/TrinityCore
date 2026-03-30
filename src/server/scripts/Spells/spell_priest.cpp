@@ -48,6 +48,8 @@ enum PriestSpells
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
     SPELL_PRIEST_ANSWERED_PRAYERS                   = 394289,
     SPELL_PRIEST_APOTHEOSIS                         = 200183,
+    SPELL_PRIEST_ARCHANGEL                          = 197862,
+    SPELL_PRIEST_ARCHANGEL_AURA                     = 81700,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
     SPELL_PRIEST_ASSURED_SAFETY                     = 440766,
     SPELL_PRIEST_ATONEMENT                          = 81749,
@@ -116,6 +118,7 @@ enum PriestSpells
     SPELL_PRIEST_ESSENCE_DEVOURER                   = 415479,
     SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL  = 415673,
     SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL   = 415676,
+    SPELL_PRIEST_EVANGELISM                         = 472433,
     SPELL_PRIEST_EXPIATION                          = 390832,
     SPELL_PRIEST_EXPIATION_DAMAGE                   = 390844,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
@@ -218,7 +221,9 @@ enum PriestSpells
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SCHISM                             = 424509,
     SPELL_PRIEST_SCHISM_AURA                        = 214621,
-    SPELL_PRIEST_SEARING_LIGHT                      = 196811,
+    SPELL_PRIEST_SEARING_LIGHT                      = 1280131,
+    SPELL_PRIEST_SEARING_LIGHT_DAMAGE               = 1280134,
+    SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE         = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
@@ -507,6 +512,34 @@ class spell_pri_aq_3p_bonus : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_aq_3p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 197862 - Archangel (attached to 472433 - Evangelism)
+class spell_pri_archangel : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ARCHANGEL, SPELL_PRIEST_ARCHANGEL_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_ARCHANGEL);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PRIEST_ARCHANGEL_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CASTER_AURASTATE | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_pri_archangel::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1154,7 +1187,7 @@ Optional<uint32> GetSpellToCast(uint32 spellId)
         case SPELL_PRIEST_HOLY_WORD_CHASTISE:
         case SPELL_PRIEST_MINDGAMES:
         case SPELL_PRIEST_MINDGAMES_VENTHYR:
-            return SPELL_PRIEST_SEARING_LIGHT;
+            return SPELL_PRIEST_SEARING_LIGHT_DIVINE_IMAGE;
         case SPELL_PRIEST_HOLY_NOVA:
             return SPELL_PRIEST_LIGHT_ERUPTION;
         default:
@@ -1960,32 +1993,40 @@ class spell_pri_eternal_sanctity : public AuraScript
     }
 };
 
-// 246287 - Evangelism
+// 472433 - Evangelism
 class spell_pri_evangelism : public SpellScript
 {
+public:
+    struct TriggerArgs
+    {
+        int32 EffectivenessPct = 100;
+    };
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_EFFECT });
+        return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_RADIANCE });
     }
 
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
+    void HandleCast() const
+    {
+        GetSpell()->SetSpellValue({ SPELLVALUE_AURA_STACK, GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-
-        Aura* atonementAura = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
-        if (!atonementAura)
-            return;
-
-        Milliseconds extraDuration = Seconds(GetEffectValue());
-
-        atonementAura->SetDuration(atonementAura->GetDuration() + extraDuration.count());
-        atonementAura->SetMaxDuration(atonementAura->GetDuration() + extraDuration.count());
+        caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_RADIANCE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_POWER_COST
+                | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .CustomArg = TriggerArgs{ .EffectivenessPct = GetEffectInfo(EFFECT_1).CalcValue(caster, &GetSpellValue()->EffectBasePoints[EFFECT_1], target) }
+        });
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_evangelism::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        BeforeCast += SpellCastFn(spell_pri_evangelism::HandleCast);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_evangelism::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3360,6 +3401,30 @@ class spell_pri_power_word_radiance : public SpellScript
     std::vector<ObjectGuid> _visualTargets;
 };
 
+// 472433 - Evangelism (attached to 194509 - Power Word: Radiance)
+class spell_pri_power_word_radiance_evangelism : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_EVANGELISM, EFFECT_1 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_EVANGELISM, DIFFICULTY_NONE)->GetEffect(EFFECT_1).TargetA.GetTarget() == Targets();
+    }
+
+    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        spell_pri_evangelism::TriggerArgs const* evangelism = std::any_cast<spell_pri_evangelism::TriggerArgs>(&GetSpell()->m_customArg);
+        if (!evangelism)
+            return;
+
+        ApplyPct(pctMod, evangelism->EffectivenessPct);
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_power_word_radiance_evangelism::CalculateHealing);
+    }
+};
+
 // 17 - Power Word: Shield
 class spell_pri_power_word_shield : public AuraScript
 {
@@ -4147,6 +4212,31 @@ class spell_pri_sanctuary_absorb : public AuraScript
     }
 };
 
+// 1280131 - Searing Light
+class spell_pri_searing_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_SEARING_LIGHT_DAMAGE, EFFECT_0 } });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        int32 dotDmg = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+        dotDmg /= sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SEARING_LIGHT_DAMAGE, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount();
+
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PRIEST_SEARING_LIGHT_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, dotDmg } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_searing_light::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // Smite - 585
 class spell_pri_sanctuary_trigger : public SpellScript
 {
@@ -4491,6 +4581,9 @@ class spell_pri_shadowy_apparition_dummy : public SpellScript
             case RACE_PANDAREN_ALLIANCE:
             case RACE_PANDAREN_HORDE:
                 return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_FEMALE;
+            case RACE_HARANIR_ALLIANCE:
+            case RACE_HARANIR_HORDE:
+                return SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_MALE; // not handled on retail as of patch 12.0.1, uses human male fallback
         }
     }
 
@@ -5320,6 +5413,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_abyssal_reverie);
     RegisterSpellScript(spell_pri_answered_prayers);
     RegisterSpellScript(spell_pri_aq_3p_bonus);
+    RegisterSpellScript(spell_pri_archangel);
     RegisterSpellScript(spell_pri_assured_safety);
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_effect);
@@ -5402,6 +5496,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScriptWithArgs(spell_pri_power_surge_periodic, "spell_pri_power_surge_periodic_holy", SPELL_PRIEST_HALO_HOLY);
     RegisterSpellScriptWithArgs(spell_pri_power_surge_periodic, "spell_pri_power_surge_periodic_shadow", SPELL_PRIEST_HALO_SHADOW);
     RegisterSpellScript(spell_pri_power_word_radiance);
+    RegisterSpellScript(spell_pri_power_word_radiance_evangelism);
     RegisterSpellScript(spell_pri_power_word_shield);
     RegisterSpellScript(spell_pri_power_word_solace);
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
@@ -5422,6 +5517,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_rhapsody);
     RegisterSpellScript(spell_pri_rhapsody_proc);
     RegisterSpellScript(spell_pri_schism);
+    RegisterSpellScript(spell_pri_searing_light);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_covenant);
