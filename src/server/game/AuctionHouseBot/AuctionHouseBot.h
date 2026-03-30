@@ -316,7 +316,7 @@ public:
     void ReloadAllConfig();
     void Rebuild(bool all);
 
-    void PrepareStatusInfos(std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType>& statusInfo);
+    void PrepareStatusInfos(std::array<AuctionHouseBotStatusInfoPerType, MAX_AUCTION_HOUSE_TYPE>& statusInfo);
 private:
     void InitializeAgents();
 

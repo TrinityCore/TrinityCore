@@ -47,7 +47,7 @@ public:
     * @brief Returns the command structure for the system.
     */
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable deserterInstanceCommandTable =
         {
