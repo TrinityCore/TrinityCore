@@ -291,7 +291,7 @@ public:
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
-        Unit* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
+        Player* privateObjectOwner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
         if (!privateObjectOwner)
             return;
 
@@ -313,11 +313,10 @@ public:
         {
         case EVENT_MOVE_FORWARD:
         {
-            Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
-            if (!privateObjectOwner)
+            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
+            if (!player)
                 return;
-
-            Player* player = privateObjectOwner->ToPlayer();
+            
             Creature* kalecgosClone = ObjectAccessor::GetCreature(*player, _kalecgosCloneGUID);
             Creature* wrathionClone = ObjectAccessor::GetCreature(*player, _wrathionCloneGUID);
 
