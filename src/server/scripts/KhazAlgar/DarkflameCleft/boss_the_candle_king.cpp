@@ -340,23 +340,23 @@ class spell_the_candle_king_darkflame_pickaxe_selector : public SpellScript
 class DarkflamePickaxeDamageEvent : public BasicEvent
 {
 public:
-    explicit DarkflamePickaxeDamageEvent(Unit* caster, ObjectGuid const& target, Spell* triggeringSpell) : _caster(caster), _target(target), _triggeringSpell(triggeringSpell) { }
+    explicit DarkflamePickaxeDamageEvent(Unit* caster, ObjectGuid const& targetGUID, ObjectGuid originalCastId) : _caster(caster), _targetGUID(targetGUID), _originalCastId(originalCastId) { }
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
-        Unit* target = ObjectAccessor::GetUnit(*_caster, _target);
+        Unit* target = ObjectAccessor::GetUnit(*_caster, _targetGUID);
 
         _caster->CastSpell(target, SPELL_DARKFLAME_PICKAXE_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = _triggeringSpell
+            .OriginalCastId = _originalCastId
         });
         return true;
     }
 
 private:
     Unit* _caster;
-    ObjectGuid _target;
-    Spell* _triggeringSpell;
+    ObjectGuid _targetGUID;
+    ObjectGuid _originalCastId;
 };
 
 // 421277 - Darkflame Pickaxe
@@ -392,16 +392,17 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
         CastSpellExtraArgs args;
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.SetTriggeringSpell(GetSpell());
 
-        caster->CastSpell(closestTarget, SPELL_DARKFLAME_PICKAXE_VISUAL, CastSpellExtraArgsInit{
+        caster->CastSpell(target, SPELL_DARKFLAME_PICKAXE_VISUAL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, GetHitUnit()->GetGUID(), GetSpell()), 300ms);
+        caster->m_Events.AddEventAtOffset(new DarkflamePickaxeDamageEvent(caster, target->GetGUID(), GetSpell()->m_originalCastId), 300ms);
     }
 
     void Register() override
