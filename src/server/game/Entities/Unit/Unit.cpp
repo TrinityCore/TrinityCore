@@ -434,7 +434,7 @@ void Unit::Update(uint32 p_time)
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
     // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
-    m_Events.Update(p_time);
+    WorldObject::Update(p_time);
 
     CheckPendingMovementAcks();
 
@@ -499,6 +499,14 @@ void Unit::Update(uint32 p_time)
     RefreshAI();
 }
 
+void Unit::Heartbeat()
+{
+    WorldObject::Heartbeat();
+
+    // SMSG_FLIGHT_SPLINE_SYNC for cyclic splines
+    SendFlightSplineSyncUpdate();
+}
+
 bool Unit::haveOffhandWeapon() const
 {
     if (Player const* player = ToPlayer())
@@ -524,20 +532,6 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
     movespline->updateState(t_diff);
     bool arrived = movespline->Finalized();
-
-    if (movespline->isCyclic())
-    {
-        m_splineSyncTimer.Update(t_diff);
-        if (m_splineSyncTimer.Passed())
-        {
-            m_splineSyncTimer.Reset(5000); // Retail value, do not change
-
-            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
-            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
-            data << GetPackGUID();
-            SendMessageToSet(&data, true);
-        }
-    }
 
     if (arrived)
     {
@@ -572,6 +566,17 @@ void Unit::UpdateSplinePosition()
         loc.orientation = GetOrientation();
 
     UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+}
+
+void Unit::SendFlightSplineSyncUpdate()
+{
+    if (!movespline->isCyclic() || movespline->Finalized())
+        return;
+
+    WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
+    Movement::PacketBuilder::WriteSplineSync(*movespline, data);
+    data << GetPackGUID();
+    SendMessageToSet(&data, true);
 }
 
 void Unit::InterruptMovementBasedAuras()
@@ -9666,7 +9671,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     if (finalCleanup)
         m_cleanupDone = true;
 
-    m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
     ClearComboPoints();
     ClearComboPointHolders();
