@@ -316,7 +316,7 @@ public:
             Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
             if (!player)
                 return;
-            
+
             Creature* kalecgosClone = ObjectAccessor::GetCreature(*player, _kalecgosCloneGUID);
             Creature* wrathionClone = ObjectAccessor::GetCreature(*player, _wrathionCloneGUID);
 
