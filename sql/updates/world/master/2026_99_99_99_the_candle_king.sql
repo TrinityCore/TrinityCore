@@ -74,9 +74,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (208745, 1, 1, 'I make you candle!', 14, 0, 33, 0, 0, 247829, 262507, 0, 'The Candle King'),
 (208745, 1, 2, 'Wax and ruin!', 14, 0, 33, 0, 0, 247830, 262508, 0, 'The Candle King'),
 (208745, 2, 0, '|TInterface\\Icons\\INV_Shadowflames_Wave:20|t%s targets you with |cFFFF0000|Hspell:421282|h[Darkflame Pickaxe]|h|r!', 42, 0, 100, 0, 0, 0, 0, 0, 'The Candle King'), -- Unknown broadcast_text
-(208745, 3, 0, 'This why I king and you dead.', 14, 0, 33, 0, 0, 247832, 262510	, 0, 'The Candle King'),
+(208745, 3, 0, 'This why I king and you dead.', 14, 0, 100, 0, 0, 247832, 262510, 0, 'The Candle King'),
 (208745, 4, 0, 'You die!', 14, 0, 33, 0, 0, 247826, 262504, 0, 'The Candle King'),
-(208745, 4, 1, 'Snuffed out!', 14, 0, 33, 0, 0, 247827, 262505	 , 0, 'The Candle King'),
+(208745, 4, 1, 'Snuffed out!', 14, 0, 33, 0, 0, 247827, 262505, 0, 'The Candle King'),
 (208745, 4, 2, 'Weaklings!', 14, 0, 33, 0, 0, 247828, 262506, 0, 'The Candle King'),
 (208745, 5, 0, 'But I... the king...', 14, 0, 100, 0, 0, 28232, 262511, 0, 'The Candle King');
 
