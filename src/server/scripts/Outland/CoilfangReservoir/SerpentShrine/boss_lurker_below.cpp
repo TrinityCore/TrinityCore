@@ -289,7 +289,7 @@ struct boss_the_lurker_below : public BossAI
 // 21865 - Coilfang Ambusher
 struct npc_coilfang_ambusher : public ScriptedAI
 {
-    npc_coilfang_ambusher(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustAppeared() override
     {
@@ -361,7 +361,7 @@ private:
 // 21873 - Coilfang Guardian
 struct npc_coilfang_guardian : public ScriptedAI
 {
-    npc_coilfang_guardian(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustAppeared() override
     {
@@ -425,7 +425,7 @@ private:
 // 184956 - Strange Pool
 struct go_strange_pool : public GameObjectAI
 {
-    go_strange_pool(GameObject* go) : GameObjectAI(go) { }
+    using GameObjectAI::GameObjectAI;
 
     bool OnGossipHello(Player* player) override
     {
@@ -499,8 +499,6 @@ class spell_the_lurker_below_spout_periodic : public AuraScript
                 break;
         }
 
-        orientation = Position::NormalizeOrientation(orientation);
-
         target->SetFacingTo(orientation);
 
         target->CastSpell(target, aurEff->GetAmount(), true);
@@ -521,7 +519,7 @@ class spell_the_lurker_below_spout_damage : public SpellScript
     {
         targets.remove_if([](WorldObject* target)
         {
-            return target->ToUnit() && target->ToUnit()->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+            return !target->IsUnit() || target->ToUnit()->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         });
     }
 
