@@ -1575,15 +1575,15 @@ struct npc_cai : public ScriptedAI
 
         _scheduler.Schedule(7s, [this](TaskContext /*task*/)
         {
-            me->AI()->Talk(Texts::CaiTalk0);
+            me->AI()->Talk(Talks::CaiTalk0);
         });
         _scheduler.Schedule(21s, [this](TaskContext /*task*/)
         {
-            me->AI()->Talk(Texts::CaiTalk1);
+            me->AI()->Talk(Talks::CaiTalk1);
         });
         _scheduler.Schedule(37s, [this](TaskContext /*task*/)
         {
-            me->AI()->Talk(Texts::CaiTalk2);
+            me->AI()->Talk(Talks::CaiTalk2);
         });
         _scheduler.Schedule(45s, [this](TaskContext /*task*/)
         {
@@ -1624,11 +1624,11 @@ struct npc_deng : public ScriptedAI
 
         _scheduler.Schedule(14s, [this](TaskContext /*task*/)
         {
-            me->AI()->Talk(Texts::DengTalk0);
+            me->AI()->Talk(Talks::DengTalk0);
         });
         _scheduler.Schedule(29s, [this](TaskContext /*task*/)
         {
-            me->AI()->Talk(Texts::DengTalk1);
+            me->AI()->Talk(Talks::DengTalk1);
         });
         _scheduler.Schedule(45s, [this](TaskContext /*task*/)
         {
@@ -1640,7 +1640,7 @@ struct npc_deng : public ScriptedAI
             if (!summoner)
                 return;
 
-            me->AI()->Talk(Texts::DengTalk2);
+            me->AI()->Talk(Talks::DengTalk2);
             me->GetMotionMaster()->MoveFleeing(summoner);
             me->DespawnOrUnsummon(3s);
         });
