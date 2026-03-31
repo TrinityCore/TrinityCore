@@ -29,9 +29,9 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (54958);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (54958, 0, 0, 0, 3, 0, 1, 0, 0, 0, 3300, 0, 0, '102630'); -- 54958 (Huo) - Благословение Хо
 
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x30000000, `VerifiedBuild`=64978 WHERE (`Entry`=54958 AND `DifficultyID` IN (0, 1); -- 54958 (Huo) - CanSwim, Floating
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=61127 AND `DifficultyID` IN (0, 1); -- 61127 (Ji Firepaw) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=61126 AND `DifficultyID` IN (0, 1); -- 61126 (Aysa Cloudsinger) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x30000000, `VerifiedBuild`=64978 WHERE (`Entry`=54958 AND `DifficultyID` IN (0, 1)); -- 54958 (Huo) - CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=61127 AND `DifficultyID` IN (0, 1)); -- 61127 (Ji Firepaw) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=61126 AND `DifficultyID` IN (0, 1)); -- 61126 (Aysa Cloudsinger) - CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=57619 AND `DifficultyID`=0); -- 57619 (Cheng Dawnscrive) - CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry`=54786 AND `DifficultyID`=0); -- 54786 (Master Shang Xi) - CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=64978 WHERE (`Entry`=57769 AND `DifficultyID`=0); -- 57769 (Шэнь-Цзынь Су) - Sessile, Floating
