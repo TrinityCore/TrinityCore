@@ -796,13 +796,13 @@ class spell_murojin_and_nekraxx_fetid_quillstorm : public SpellScript
 class FetidQuillstormDamageEvent : public BasicEvent
 {
 public:
-    explicit FetidQuillstormDamageEvent(Unit* caster, Position dest, Spell* triggeringSpell) : _caster(caster), _dest(dest), _triggeringSpell(triggeringSpell) { }
+    explicit FetidQuillstormDamageEvent(Unit* caster, Position dest, ObjectGuid originalCastId) : _caster(caster), _dest(dest), _originalCastId(originalCastId) { }
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
         _caster->CastSpell(_dest, Spells::FetidQuillstormDamage, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = _triggeringSpell
+            .OriginalCastId = _originalCastId
         });
         return true;
     }
@@ -810,7 +810,7 @@ public:
 private:
     Unit* _caster;
     Position _dest;
-    Spell* _triggeringSpell;
+    ObjectGuid _originalCastId;
 };
 
 // 1256157 - Fetid Quillstorm
@@ -827,7 +827,7 @@ class spell_murojin_and_nekraxx_fetid_quillstorm_visual : public SpellScript
         Position const* pos = GetHitDest();
 
         caster->SendPlaySpellVisual(*pos, Misc::FetidQuillstormVisualSpell, 0, 0, 1.5f, true);
-        caster->m_Events.AddEventAtOffset(new FetidQuillstormDamageEvent(caster, *pos, GetSpell()), 500ms);
+        caster->m_Events.AddEventAtOffset(new FetidQuillstormDamageEvent(caster, *pos, GetSpell()->m_castId), 500ms);
     }
 
     void Register() override
