@@ -65,7 +65,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (61126, 0, 0, 'Yes master.', 12, 0, 100, 2, 0, 27406, 0, 0, 0, 'Aysa Cloudsinger to Player'),
 (61127, 0, 0, 'On it!', 12, 0, 100, 0, 0, 27306, 0, 0, 0, 'Ji Firepaw to Player');
 
-DELETE FROM `creature_text_locale` WHERE (`CreatureID` IN (54786, 60248, 60253, 61126, 61127) AND `Locale`='ruRU';
+DELETE FROM `creature_text_locale` WHERE (`CreatureID` IN (54786, 60248, 60253, 61126, 61127) AND `Locale`='ruRU');
 INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
 (54786, 0, 0, 'ruRU', 'Добро пожаловать, Хо. Наш народ соскучился по твоему теплу.'),
 (60248, 0, 0, 'ruRU', 'Это... это Хо?'),
