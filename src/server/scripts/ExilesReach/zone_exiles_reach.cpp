@@ -1076,6 +1076,8 @@ enum ExilesReachCaptainsBeachData
     QUEST_EMERGENCY_FIRST_AID_ALLIANCE                     = 54951,
     QUEST_MURLOC_MANIA_HORDE                               = 59929,
     QUEST_EMERGENCY_FIRST_AID_HORDE                        = 59930,
+    QUEST_FINDING_THE_LOST_EXPEDITION_HORDE                = 59931,
+    QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE             = 54952,
 
     SPELL_BANDAGING                                        = 305584,
 
@@ -1290,7 +1292,7 @@ CreatureAI* CaptainGarrickBeachAISelector(Creature* creature)
             if (privateObjectOwner->GetQuestStatus(QUEST_MURLOC_MANIA_ALLIANCE) == QUEST_STATUS_NONE)
                 return new npc_captain_warlord_beach_arrive_private(creature);
             else
-                return new npc_captain_warlord_first_aid_private(creature);  
+                return new npc_captain_warlord_first_aid_private(creature);
         }
     }
     return new npc_captain_garrick_beach(creature);
@@ -1451,9 +1453,6 @@ enum ExilesReachHordeSurvivorsBeachData
     NPC_BO_STANDING                             = 166787,
     NPC_MITHDRAN_STANDING                       = 166792,
     NPC_LANA_JORDAN_STANDING                    = 166797,
-
-    QUEST_FINDING_THE_LOST_EXPEDITION_HORDE     = 59931,
-    QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE  = 54952,
 
     PATH_BO_TO_GRIMAXE                          = 10520210,
     PATH_MITHDRAN_TO_GRIMAXE                    = 10520220,
@@ -1892,7 +1891,7 @@ struct areatrigger_find_the_lost_expedition : AreaTriggerAI
         if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
         {
             player->CastSpell(player, SPELL_GARRICK_PING);
-            Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, player->GetGUID(), nullptr, true);           
+            Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, player->GetGUID(), nullptr, true);
         }
     }
 };
