@@ -75,10 +75,6 @@ namespace Creatures
 {
     static constexpr uint32 MasterLiFei = 54135;
     static constexpr uint32 MasterLiFeiCombat = 54734;
-    
-    // Singing Pools
-    static constexpr uint32 Cai = 60250;
-    static constexpr uint32 Deng = 60249;
 }
 
 namespace Talks
