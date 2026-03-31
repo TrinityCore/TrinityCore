@@ -1988,7 +1988,6 @@ class spell_summon_survivor_beach : public SpellScript
 
 enum CaptainGarrickAbandonedCampData
 {
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE     = 11696,
     CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE   = 12863,
 
     QUEST_COOKING_MEAT_ALLIANCE                         = 55174
@@ -1996,24 +1995,9 @@ enum CaptainGarrickAbandonedCampData
 
 enum WarlordGrimaxeAbandonedCampData
 {
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE        = 14439,
     CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE      = 14611,
 
     QUEST_COOKING_MEAT_HORDE                            = 59932
-};
-
-template<uint32 QuestId, uint32 ConversationId>
-struct npc_captain_abandoned_camp_exiles_reach : public ScriptedAI
-{
-    npc_captain_abandoned_camp_exiles_reach(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() != QuestId)
-            return;
-
-        Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID());
-    }
 };
 
 enum CookingMeatQuestData
@@ -6965,8 +6949,6 @@ void AddSC_zone_exiles_reach()
     new quest_finding_the_lost_expedition_horde();
     RegisterSpellScript(spell_summon_survivor_beach);
     // Abandoned Camp
-    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
-    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
     new quest_cooking_meat_alliance();
     new quest_cooking_meat_horde();
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
