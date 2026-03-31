@@ -47,7 +47,7 @@ public:
             if (!instanceScript)
                 return;
 
-            Creature* nekraxx = instanceScript->GetCreature(DATA_NEKRAXX);
+            Creature const* nekraxx = instanceScript->GetCreature(DATA_NEKRAXX);
             if (!nekraxx)
                 return;
 
