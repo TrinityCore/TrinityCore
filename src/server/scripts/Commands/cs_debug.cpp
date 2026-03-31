@@ -54,6 +54,7 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <fstream>
 #include <limits>
 #include <map>
@@ -513,9 +514,9 @@ public:
         return true;
     }
 
-    static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
+    static bool HandleDebugUpdateWorldStateCommand(ChatHandler const* handler, int32 variable, int32 value)
     {
-        handler->GetPlayer()->SendUpdateWorldState(variable, value);
+        WorldStateMgr::SetValue(variable, value, false, handler->GetPlayer()->GetMap());
         return true;
     }
 

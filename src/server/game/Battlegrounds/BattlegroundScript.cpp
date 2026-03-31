@@ -64,7 +64,7 @@ void BattlegroundScript::TriggerGameEvent(uint32 gameEventId, WorldObject* sourc
 
 void BattlegroundScript::UpdateWorldState(int32 worldStateId, int32 value, bool hidden) const
 {
-    sWorldStateMgr->SetValue(worldStateId, value, hidden, battlegroundMap);
+    WorldStateMgr::SetValue(worldStateId, value, hidden, battlegroundMap);
 }
 
 ArenaScript::ArenaScript(BattlegroundMap* map) : BattlegroundScript(map)
