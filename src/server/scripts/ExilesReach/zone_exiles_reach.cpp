@@ -1084,6 +1084,9 @@ enum ExilesReachCaptainsBeachData
     SPELL_BANDAGING                                        = 305584,
 
     TALK_ARRIVED_AT_BEACH                                  = 0
+
+    PATH_JAINA                                             = 100000005,
+    PATH_THRALL                                            = 100000004,
 };
 
 // 156626 - Captain Garrick
