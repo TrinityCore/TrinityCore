@@ -1590,8 +1590,8 @@ struct npc_cai : public ScriptedAI
             Unit* summoner = summon->GetSummonerUnit();
             if (!summoner)
                 return;
-            
-            me->AI()->Talk(Talks::CaiTalk2);
+
+            me->AI()->Talk(Talks::CaiTalk3);
             me->GetMotionMaster()->MoveFleeing(summoner);
             me->DespawnOrUnsummon(3s);
         });
