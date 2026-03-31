@@ -1,0 +1,150 @@
+-- Unnecessary spawn
+DELETE FROM `gameobject` WHERE `guid` IN (300228, 300206, 300217, 300229, 300231, 300234, 300232, 300224, 300215, 300218, 300230);
+DELETE FROM `creature` WHERE `guid` IN (450955, 450999, 450970, 450962, 450959, 450961, 450963, 450958, 450978, 451002, 450787, 450786, 450728, 451003);
+
+-- Respawn creatures with the same guid
+DELETE FROM `creature` WHERE `guid` IN (450755, 450745, 450759, 450741, 450752, 450747, 450742, 450760, 450744);
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(450755, 57620, 860, 5736, 5826, '0', 0, 0, 0, 1, 1047.8802490234375, 3293.57470703125, 130.4282684326171875, 2.894826173782348632, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Whittler Dewei (Area: Поющие пруды - Difficulty: 0) CreateObject1 - !!! already present in database !!!
+(450745, 55021, 860, 5736, 5826, '0', 0, 0, 0, 0, 1039.4913330078125, 3283.111083984375, 129.5230712890625, 1.815142393112182617, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Jojo Ironbrow (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 82343 - Generic Quest Invisibility 4) - !!! already present in database !!!
+
+(450759, 65467, 860, 5736, 5826, '0', 0, 0, 0, 0, 1039.51220703125, 3293.630126953125, 129.3238372802734375, 4.677482128143310546, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Excited Onlooker (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8) - !!! already present in database !!!
+(450741, 65467, 860, 5736, 5826, '0', 0, 0, 0, 0, 1041.9478759765625, 3291.673583984375, 129.422149658203125, 4.450589656829833984, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Excited Onlooker (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8)
+
+(450752, 56394, 860, 5736, 5826, '0', 0, 0, 0, 0, 1038.0711669921875, 3291.072998046875, 129.069671630859375, 4.904375076293945312, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Mesmerized Child (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8)
+(450747, 56394, 860, 5736, 5826, '0', 0, 0, 0, 0, 1040.79345703125, 3288.7734375, 129.3875732421875, 4.164384365081787109, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Mesmerized Child (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8) - !!! already present in database !!!
+(450742, 56394, 860, 5736, 5826, '0', 0, 0, 0, 0, 1034.7535400390625, 3286.971435546875, 128.67218017578125, 5.917473793029785156, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Mesmerized Child (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8)
+(450760, 56394, 860, 5736, 5826, '0', 0, 0, 0, 0, 1035.873291015625, 3287.873291015625, 128.843170166015625, 5.644624233245849609, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978), -- Mesmerized Child (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8) - !!! already present in database !!!
+
+(450744, 56393, 860, 5736, 5826, '0', 0, 0, 0, 0, 1034.357666015625, 3290.73095703125, 128.7551116943359375, 5.323254108428955078, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 64978); -- Excited Onlooker (Area: Поющие пруды - Difficulty: 0) CreateObject1 (Auras: 78718 - Generic Quest Invisibility 8)
+
+DELETE FROM `creature_addon` WHERE `guid` IN (450745, 450759, 450741, 450752, 450747, 450742, 450760, 450744);
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(450745, 0, 0, 0, 0, 1, 1, 0, 461, 0, 0, 0, 0, '82343'), -- Jojo Ironbrow - 82343 - Generic Quest Invisibility 4 - !!! already present in database !!!
+
+(450759, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'), -- Excited Onlooker - 78718 - Generic Quest Invisibility 8 - !!! already present in database !!!
+(450741, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'), -- Excited Onlooker - 78718 - Generic Quest Invisibility 8
+
+(450752, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'), -- Mesmerized Child - 78718 - Generic Quest Invisibility 8
+(450747, 0, 0, 0, 0, 1, 1, 0, 0, 1507, 0, 0, 0, '78718'), -- Mesmerized Child - 78718 - Generic Quest Invisibility 8 - !!! already present in database !!!
+(450742, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'), -- Mesmerized Child - 78718 - Generic Quest Invisibility 8
+(450760, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'), -- Mesmerized Child - 78718 - Generic Quest Invisibility 8 - !!! already present in database !!!
+
+(450744, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '78718'); -- Excited Onlooker - 78718 - Generic Quest Invisibility 8
+
+DELETE FROM `quest_offer_reward_locale` WHERE (`locale`='ruRU' AND `ID` IN (29662,29521));
+INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `VerifiedBuild`) VALUES
+(29662, 'ruRU', 'Отлично.$B$BПередо мной никакой тростник не устоит.$B$BОтойди в сторонку и позволь мне развеять твои сомнения.', 65299),
+(29521, 'ruRU', 'Рада снова видеть тебя, $n.$B$BТы, должно быть, уже $gпонял:поняла;, что купание в этом пруду превращает в скунса. За время существования Шэнь-Цзынь Су в этих некогда волшебных прудах погибло немало животных. Духи погибших слились с водой, и любой прикоснувшийся к этой воде обретает их облик.$B$BЗдесь есть несколько таких проклятых прудов, и некоторые из них опаснее прочих.', 65299);
+
+DELETE FROM `quest_request_items_locale` WHERE (`ID`=29662 AND `locale`='ruRU');
+INSERT INTO `quest_request_items_locale` (`ID`, `locale`, `CompletionText`, `VerifiedBuild`) VALUES
+(29662, 'ruRU', 'Если я начну хвастаться своей силой, ты мне не поверишь. Лучше я покажу.', 65299);
+
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry` IN (57620, 55021, 65467, 56394, 56393, 55015, 57638) AND `DifficultyID`=0); -- CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x20000100, `VerifiedBuild`=65299 WHERE (`Entry`=57636 AND `DifficultyID`=0); -- 57636 (Stack of Reeds) - Sessile, Floating
+
+UPDATE `creature_template` SET `npcflag`=4289 WHERE `entry`=57620; -- Whittler Dewei
+UPDATE `creature_template` SET `ScriptName`= 'npc_whitefeather_crane', `unit_flags3`=0x4000000 WHERE `entry`=55015; -- Whitefeather Crane
+UPDATE `creature_template` SET `speed_run`=1, `BaseAttackTime`=2000, `unit_flags2`=0x4000800, `unit_flags3`=0x41000000 WHERE `entry`=57636; -- Stack of Reeds
+UPDATE `creature_template` SET `ScriptName`= 'npc_jojo_ironbrow_summon', `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=57638; -- Jojo Ironbrow
+
+DELETE FROM `npc_vendor` WHERE `entry`=57620;
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
+(57620, 20, 39505, 0, 0, 1, 0, 0, 64978), -- Набор виртуозного начертателя
+(57620, 19, 20815, 0, 0, 1, 0, 0, 64978), -- Инструменты ювелира
+(57620, 18, 39354, 0, 0, 1, 0, 0, 64978), -- Тонкий пергамент
+(57620, 17, 6260, 0, 0, 1, 0, 0, 64978), -- Синяя краска
+(57620, 16, 2324, 0, 0, 1, 0, 0, 64978), -- Отбеливатель
+(57620, 15, 2604, 0, 0, 1, 0, 0, 64978), -- Красная краска
+(57620, 14, 6529, 0, 0, 1, 0, 0, 64978), -- Блесна
+(57620, 13, 4289, 0, 0, 1, 0, 0, 64978), -- Соль
+(57620, 12, 3371, 0, 0, 1, 0, 0, 64978), -- Хрустальная колба
+(57620, 11, 2880, 0, 0, 1, 0, 0, 64978), -- Слабый плавень
+(57620, 10, 2320, 0, 0, 1, 0, 0, 64978), -- Грубая нить
+(57620, 9, 30817, 0, 0, 1, 0, 0, 64978), -- Простая мука
+(57620, 8, 2678, 0, 0, 1, 0, 0, 64978), -- Пряные травы
+(57620, 7, 6217, 0, 0, 1, 0, 0, 64978), -- Медный жезл
+(57620, 6, 6256, 0, 0, 1, 0, 0, 64978), -- Удочка
+(57620, 5, 5956, 0, 0, 1, 0, 0, 64978), -- Кузнечный молот
+(57620, 4, 85663, 0, 0, 1, 0, 0, 64978), -- Лопата травника
+(57620, 3, 2901, 0, 0, 1, 0, 0, 64978), -- Шахтерская кирка
+(57620, 2, 7005, 0, 0, 1, 0, 0, 64978), -- Нож для снятия шкур
+(57620, 1, 4470, 0, 0, 1, 0, 0, 64978); -- Простая древесина
+
+DELETE FROM `gameobject_template_locale` WHERE `entry`=209507 AND `locale`='ruRU';
+INSERT INTO `gameobject_template_locale` (`entry`, `locale`, `name`, `castBarCaption`, `unk1`, `VerifiedBuild`) VALUES 
+(209507, 'ruRU', 'Жесткий тростник', 'Извлечение', NULL, 64978);
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (29662);
+INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
+(29662, 0, 0, 0, 0, 29676, -29661521, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'SmartQuest');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=29662 AND `source_type`=5;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(29662, 5, 0, 0, '', 50, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 108786, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On Quest 29662 Reward - Cast on Player - Summon Stack of Reeds');
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (108786, 108808, 108798);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(108786, 'spell_summon_stack_of_reeds'),
+(108808, 'spell_summon_jojo_ironbrow'),
+(108798, 'spell_jojo_headbash_filter');
+
+DELETE FROM `creature_text` WHERE (`CreatureID` IN (57638));
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `comment`) VALUES
+(57638, 0, 0, 'The reeds of the Singing Pools are the hardest in all of the land, but they are as air before my mighty brow.', 12, 0, 100, 1, 0, 0, 0, 0, 'Jojo Ironbrow to Player'),
+(57638, 1, 0, 'Many have tested my claim, and I yet stand proven.', 12, 0, 100, 2, 0, 0, 0, 0, 'Jojo Ironbrow to Player');
+
+DELETE FROM `creature_text_locale` WHERE (`CreatureID` IN (57638) AND `Locale`='ruRU');
+INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
+(57638, 0, 0, 'ruRU', 'Тростник Поющих прудов – прочнейший в этих краях, но для моего лба даже он – не прочнее воздуха.'),
+(57638, 1, 0, 'ruRU', 'Многие пытались испытать меня, но я несокрушим.');
+
+-- Jojo Ironbrow Path
+
+DELETE FROM `waypoint_path` WHERE `PathId`=5763800;
+INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES 
+(5763800, 0, 2, NULL, 'Jojo Ironbow - 57638');
+
+DELETE FROM `waypoint_path_node` WHERE `PathId`=5763800;
+INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`) VALUES 
+(5763800, 1, 1027.379, 3287.417, 126.2935),
+(5763800, 2, 1017.188, 3284.896, 122.1512),
+(5763800, 3, 1008.779, 3281.773, 126.0961),
+(5763800, 4, 1002.936, 3280.243, 129.183),
+(5763800, 5, 995.3472, 3277.767, 131.9249),
+(5763800, 6, 987.7708, 3274.967, 132.621),
+(5763800, 7, 980.6025, 3271.603, 132.3108),
+(5763800, 8, 972.566, 3266.958, 129.9221),
+(5763800, 9, 965.8785, 3262.287, 126.9234),
+(5763800, 10, 957.291, 3258.333, 124.2717),
+(5763800, 11, 954.6875, 3250.521, 123.0217),
+(5763800, 12, 956.0166, 3239.251, 119.8172),
+(5763800, 13, 958.2917, 3227.129, 119.1829),
+(5763800, 14, 961.0208, 3215.984, 118.8171),
+(5763800, 15, 965.2934, 3203.267, 119.1047),
+(5763800, 16, 968.9957, 3193.558, 119.7131),
+(5763800, 17, 965.625, 3186.459, 117.8083),
+(5763800, 18, 960.5972, 3180.624, 117.5583),
+(5763800, 19, 952.6045, 3169.271, 115.5682),
+(5763800, 20, 945.833, 3161.459, 115.3083),
+(5763800, 21, 938.7257, 3150.678, 116.1175),
+(5763800, 22, 930.743, 3137.845, 113.3987),
+(5763800, 23, 925.1771, 3127.699, 110.4666),
+(5763800, 24, 921.0226, 3119.696, 110.343),
+(5763800, 25, 917.9167, 3111.247, 110.0449),
+(5763800, 26, 916.8212, 3100.016, 108.6972),
+(5763800, 27, 918, 3090.027, 105.8014),
+(5763800, 28, 919.632, 3082.332, 102.7485),
+(5763800, 29, 922.191, 3071.392, 102.6767),
+(5763800, 30, 925.3594, 3059.755, 102.7432),
+(5763800, 31, 928.5191, 3048.86, 102.7789),
+(5763800, 32, 931.0364, 3042.571, 102.7266),
+(5763800, 33, 934.375, 3034.375, 102.8546),
+(5763800, 34, 937.5, 3030.209, 103.7299),
+(5763800, 35, 941.0504, 3025.699, 105.1759),
+(5763800, 36, 944.791, 3022.917, 105.7299),
+(5763800, 37, 958.5417, 3019.446, 105.591),
+(5763800, 38, 965.6684, 3015.705, 105.6983),
+(5763800, 39, 968.5799, 3009.252, 105.6935),
+(5763800, 40, 966.8698, 3002.406, 105.0397);
