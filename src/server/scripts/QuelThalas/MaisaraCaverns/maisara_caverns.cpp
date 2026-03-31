@@ -43,11 +43,11 @@ public:
     {
         if (newValue == Misc::AllPrisonersFreed)
         {
-            InstanceScript const* instanceScript = const_cast<Map*>(map)->ToInstanceMap()->GetInstanceScript();
+            InstanceScript* instanceScript = const_cast<Map*>(map)->ToInstanceMap()->GetInstanceScript();
             if (!instanceScript)
                 return;
 
-            Creature const* nekraxx = instanceScript->GetCreature(DATA_NEKRAXX);
+            Creature* nekraxx = instanceScript->GetCreature(DATA_NEKRAXX);
             if (!nekraxx)
                 return;
 
