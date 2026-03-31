@@ -1189,6 +1189,68 @@ private:
     ObjectGuid _quartermasterGUID;
 };
 
+struct npc_captain_warlord_find_expedition : public ScriptedAI
+{
+    npc_captain_warlord_find_expedition(Creature* creature) : ScriptedAI(creature) {}
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Player* summoner = summonerWO->ToPlayer();
+        if (!summoner)
+            return;
+
+        _events.ScheduleEvent(EVENT_READY_TALK_AND_ROTATE, 2s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_JAINA || pathId == PATH_THRALL)
+            me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_READY_TALK_AND_ROTATE:
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner());
+                me->SetFacingToObject(player, true);
+                Talk(1);
+                _events.ScheduleEvent(EVENT_READY_TO_MOVE, 4s);
+                break;
+            }
+            case EVENT_READY_TO_MOVE:
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, me->GetPrivateObjectOwner());
+                if (player->GetTeamId() == TEAM_ALLIANCE)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_JAINA, false);
+                }
+                else if (player->GetTeamId() == TEAM_HORDE)
+                {
+                    me->GetMotionMaster()->MovePath(PATH_THRALL, false);
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
 // 156626 - Lady Jaina Proudmoore
 struct npc_captain_garrick_beach : public ScriptedAI
 {
