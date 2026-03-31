@@ -241,6 +241,7 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_SURGE_OF_LIGHT                     = 109186,
     SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT              = 114255,
+    SPELL_PRIEST_TITHE_EVASION                      = 373223,
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
@@ -4469,6 +4470,9 @@ class spell_pri_shadow_word_death : public SpellScript
             // Death's Torment effectiveness on backlash too
             if (spell_pri_deaths_torment::Data const* deathsTorment = std::any_cast<spell_pri_deaths_torment::Data>(&GetSpell()->m_customArg))
                 backlashDamage = CalculatePct(backlashDamage, deathsTorment->BacklashPct);
+
+            if (AuraEffect const* titheEvasion = caster->GetAuraEffect(SPELL_PRIEST_TITHE_EVASION, EFFECT_0))
+                AddPct(backlashDamage, -titheEvasion->GetAmount());
 
             caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
             {
