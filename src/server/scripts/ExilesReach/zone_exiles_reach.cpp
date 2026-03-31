@@ -1187,7 +1187,7 @@ private:
     ObjectGuid _quartermasterGUID;
 };
 
-// 156626 - Captain Garrick
+// 156626 - Lady Jaina Proudmoore
 struct npc_captain_garrick_beach : public ScriptedAI
 {
     npc_captain_garrick_beach(Creature* creature) : ScriptedAI(creature) { }
@@ -1219,13 +1219,21 @@ struct npc_captain_garrick_beach : public ScriptedAI
                 }
                 break;
             }
+            case QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE:
+            {
+                TempSummon* mePersonal = me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!mePersonal)
+                    return;
+
+                break;
+            }
             default:
                 break;
         }
     }
 };
 
-// 166782 - Warlord Breka Grimaxe
+// 166782 - Thrall
 struct npc_warlord_grimaxe_beach : public ScriptedAI
 {
     npc_warlord_grimaxe_beach(Creature* creature) : ScriptedAI(creature) { }
@@ -1257,6 +1265,13 @@ struct npc_warlord_grimaxe_beach : public ScriptedAI
                 }
                 break;
             }
+            case QUEST_FINDING_THE_LOST_EXPEDITION_HORDE:
+            {
+                TempSummon* mePersonal = me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!mePersonal)
+                    return;
+                break;
+            }
             default:
                 break;
         }
@@ -1269,10 +1284,13 @@ CreatureAI* CaptainGarrickBeachAISelector(Creature* creature)
     {
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
+            if (privateObjectOwner->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
+                return new npc_captain_warlord_find_expedition(creature);
+
             if (privateObjectOwner->GetQuestStatus(QUEST_MURLOC_MANIA_ALLIANCE) == QUEST_STATUS_NONE)
                 return new npc_captain_warlord_beach_arrive_private(creature);
             else
-                return new npc_captain_warlord_first_aid_private(creature);
+                return new npc_captain_warlord_first_aid_private(creature);  
         }
     }
     return new npc_captain_garrick_beach(creature);
@@ -1284,6 +1302,9 @@ CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
     {
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
+            if (privateObjectOwner->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
+                return new npc_captain_warlord_find_expedition(creature);
+
             if (privateObjectOwner->GetQuestStatus(QUEST_MURLOC_MANIA_HORDE) == QUEST_STATUS_NONE)
                 return new npc_captain_warlord_beach_arrive_private(creature);
             else
@@ -1683,11 +1704,6 @@ CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 
 enum LostExpeditionFollowerData
 {
-    ACTOR_ID_ALLIANCE_SURVIVOR                  = 69830,
-    ACTOR_ID_HORDE_SURVIVOR                     = 76283,
-
-    AREA_ABANDONED_CAMP                         = 10452,
-
     CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR  = 12044,
     CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR     = 14437,
     CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP      = 12058,
@@ -1696,197 +1712,6 @@ enum LostExpeditionFollowerData
     EVENT_FOLLOW_PLAYER,
 
     SPELL_GARRICK_PING                          = 313664,
-    SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN       = 297295,
-    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN       = 325075,
-
-    POINT_CAMP_POSITION                         = 0,
-};
-
-static constexpr Position GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
-static constexpr Position GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
-
-// 165359 - Captain Garrick
-// This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
-struct npc_garrick_summoned_beach : public ScriptedAI
-{
-    npc_garrick_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
-
-    void IsSummonedBy(WorldObject* /*summoner*/) override
-    {
-        _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
-    }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id != SPELL_GARRICK_PING)
-            return;
-
-        if (_reachedCamp)
-            return;
-
-        _reachedCamp = true;
-
-        if (Unit* owner = me->GetOwner())
-        {
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false);
-            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
-            conversation->Start();
-
-            me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GarrickAbandonedCampPosition, false);
-        }
-    }
-
-    void MovementInform(uint32 uiType, uint32 uiId) override
-    {
-        if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
-            return;
-
-        if (Unit* owner = me->GetOwner())
-        {
-            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
-            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_INITIAL_SPAWN_CHECK:
-                {
-                    Unit* owner = me->GetOwner();
-                    if (!owner)
-                        break;
-
-                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
-
-                    if (!survivor)
-                    {
-                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
-                            owner->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
-                        else
-                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
-                    }
-                    else
-                    {
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false);
-                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, 1, me->GetGUID());
-                        conversation->Start();
-
-                        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
-                    }
-                    break;
-                }
-                case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-private:
-    EventMap _events;
-    bool _reachedCamp;
-};
-
-// 166805 - Warlord Breka Grimaxe
-// This script is used by Warlord Grimaxe Follower for Finding the Lost Expedition quest
-struct npc_grimaxe_summoned_beach : public ScriptedAI
-{
-    npc_grimaxe_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
-
-    void IsSummonedBy(WorldObject* /*summoner*/) override
-    {
-        _reachedCamp = false;
-
-        _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
-    }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id != SPELL_GARRICK_PING)
-            return;
-
-        if (_reachedCamp)
-            return;
-
-        if (Unit* owner = me->GetOwner())
-        {
-            if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, owner, *owner, owner->GetGUID(), nullptr, false))
-            {
-                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 3, me->GetGUID());
-                conversation->Start();
-            }
-            me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GrimaxeAbandonedCampPosition, false);
-        }
-    }
-
-    void MovementInform(uint32 uiType, uint32 uiId) override
-    {
-        if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
-            return;
-
-        if (Unit* owner = me->GetOwner())
-        {
-            owner->CastSpell(owner, SPELL_UPDATE_PHASE_SHIFT);
-            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_INITIAL_SPAWN_CHECK:
-                {
-                    Unit* owner = me->GetOwner();
-                    if (!owner)
-                        break;
-
-                    Creature* survivor = FindCreatureIgnorePhase(owner, "spawn_check");
-
-                    if (!survivor)
-                    {
-                        if (owner->GetAreaId() != AREA_ABANDONED_CAMP)
-                            owner->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
-                        else
-                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
-                    }
-                    else
-                    {
-                        if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, owner, *owner, owner->GetGUID(), nullptr, false))
-                        {
-                            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, 2, me->GetGUID());
-                            conversation->Start();
-                        }
-                        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
-                    }
-                    break;
-                }
-                case EVENT_FOLLOW_PLAYER:
-                    if (Unit* owner = me->GetOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, 0.0f, float(M_PI / 4.0f));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-private:
-    EventMap _events;
-    bool _reachedCamp;
 };
 
 // 54952 - Finding the Lost Expedition
@@ -1896,13 +1721,12 @@ class quest_finding_the_lost_expedition : public QuestScript
 public:
     quest_finding_the_lost_expedition(char const* script) : QuestScript(script) { }
 
-    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 summonSpellId, std::string_view survivor1StringId, std::string_view survivor2StringId, std::string_view survivor3StringId)
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, std::string_view survivor1StringId, std::string_view survivor2StringId, std::string_view survivor3StringId)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-                player->CastSpell(player, summonSpellId);
 
                 if (Creature* survivor1 = FindCreatureIgnorePhase(player, survivor1StringId, 25.0f))
                 {
@@ -1916,7 +1740,6 @@ public:
 
                 break;
             case QUEST_STATUS_NONE:
-                player->RemoveAura(summonSpellId);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                 break;
             default:
@@ -1934,7 +1757,6 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         HandleQuestStatusChange(player, newStatus,
-            SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN,
             "kee_la_beach",
             "bjorn_stouthands_beach",
             "austin_huxworth_beach");
@@ -1950,35 +1772,9 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         HandleQuestStatusChange(player, newStatus,
-            SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN,
             "bo_beach",
             "mithran_beach",
             "lana_jordan_beach");
-    }
-};
-
-// 305596 - Summon Admiral Garrick Guardian
-// 325076 - Summon Warlord Grimaxe
-class spell_summon_survivor_beach : public SpellScript
-{
-    // @TODO: drop after TARGET_UNK_142 impl
-
-    void SelectTarget(WorldObject*& target)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (!caster)
-            return;
-
-        Creature* survivor = FindCreatureIgnorePhase(caster, caster->GetTeam() == ALLIANCE ? "q54952_garrick" : "q59931_grimaxe", 5.0f);
-        if (!survivor)
-            return;
-
-        target = survivor;
-    }
-
-    void Register() override
-    {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_survivor_beach::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
     }
 };
 
@@ -2093,40 +1889,10 @@ struct areatrigger_find_the_lost_expedition : AreaTriggerAI
         if (!player)
             return;
 
-        if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
+        {
             player->CastSpell(player, SPELL_GARRICK_PING);
-    }
-};
-
-struct areatrigger_find_the_lost_expedition_follower : AreaTriggerAI
-{
-    areatrigger_find_the_lost_expedition_follower(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player)
-            return;
-
-        if (player->GetTeam() == ALLIANCE)
-        {
-            if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) != QUEST_STATUS_INCOMPLETE)
-                return;
-
-            if (player->HasAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN))
-                return;
-
-            player->CastSpell(player, SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
-        }
-        else
-        {
-            if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) != QUEST_STATUS_INCOMPLETE)
-                return;
-
-            if (player->HasAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN))
-                return;
-
-            player->CastSpell(player, SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+            Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, player->GetGUID(), nullptr, true);           
         }
     }
 };
@@ -6959,18 +6725,14 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &KeeLaBeachStandingAISelector>("npc_kee_la_beach_standing");
     new FactoryCreatureScript<CreatureAI, &BjornBeachStandingAISelector>("npc_bjorn_stouthands_beach_standing");
     new FactoryCreatureScript<CreatureAI, &AustinBeachStandingAISelector>("npc_austin_huxworth_beach_standing");
-    RegisterCreatureAI(npc_garrick_summoned_beach);
-    RegisterCreatureAI(npc_grimaxe_summoned_beach);
     new quest_finding_the_lost_expedition_alliance();
     new quest_finding_the_lost_expedition_horde();
-    RegisterSpellScript(spell_summon_survivor_beach);
     // Abandoned Camp
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
     new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
     new quest_cooking_meat_alliance();
     new quest_cooking_meat_horde();
     RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
-    RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition_follower);
     // Quest Enhanced Combat Tactics
     new quest_enhanced_combat_tactics();
     RegisterSpellScript(spell_summon_combat_trainer);
