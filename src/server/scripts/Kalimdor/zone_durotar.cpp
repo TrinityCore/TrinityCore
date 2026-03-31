@@ -1339,7 +1339,7 @@ class spell_despawn_passengers_2_3_4 : public SpellScript
 class npc_northwatch_caravan : public ScriptedAI
 {
 public:
-    npc_northwatch_caravan(Creature* creature) : ScriptedAI(creature), _lastPointIndex(0), _pathDone(false) {}
+    npc_northwatch_caravan(Creature* creature) : ScriptedAI(creature), _pathDone(false) {}
 
     void InitializeAI() override
     {
@@ -1349,15 +1349,12 @@ public:
         {
             case 39319:
                 waypointEntry = 3931900;
-                _lastPointIndex = 98;
                 break;
             case 39244:
                 waypointEntry = 3924400;
-                _lastPointIndex = 103;
                 break;
             case 39318:
                 waypointEntry = 3931800;
-                _lastPointIndex = 80;
                 break;
         }
 
@@ -1368,13 +1365,10 @@ public:
         me->GetMotionMaster()->MovePath(waypointEntry, false);
     }
 
-    void MovementInform(uint32 movementType, uint32 pointId) override
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
-        if (movementType == WAYPOINT_MOTION_TYPE && pointId == _lastPointIndex)
-        {
-            _pathDone = true;
-            DoCastSelf(SPELL_DESPAWN_PASSENEGERS_2_3_4);
-        }
+        _pathDone = true;
+        DoCastSelf(SPELL_DESPAWN_PASSENEGERS_2_3_4);
     }
 
     void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
@@ -1401,7 +1395,6 @@ public:
     }
 
 private:
-    uint32 _lastPointIndex;
     bool _pathDone;
 };
 
