@@ -54,8 +54,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `creature_text` WHERE (`CreatureID` IN (54786, 60248, 60253, 61126, 61127));
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (54786, 0, 0, 'Welcome, Huo. The people have missed your warmth.', 12, 0, 100, 2, 0, 27788, 0, 0, 0, 'Master Shang Xi to Player'),
-(60248, 0, 0, 'Is that... is that Huo?', 12, 0, 100, 25, 0, 0, 0, 0, 'Chia-hui Autumnleaf to Player'),
-(60253, 0, 0, 'It is! Well done, $p!', 12, 0, 100, 71, 0, 0, 0, 0, 'Brewer Lin to Player'),
+(60248, 0, 0, 'Is that... is that Huo?', 12, 0, 100, 25, 0, 0, 0, 0, 0, 'Chia-hui Autumnleaf to Player'),
+(60253, 0, 0, 'It is! Well done, $p!', 12, 0, 100, 71, 0, 0, 0, 0, 0, 'Brewer Lin to Player'),
 (54786, 1, 0, 'You have conquered every challenge I put before you, $n. You have found Huo and brought him safely to the temple.', 12, 0, 100, 1, 0, 27789, 0, 0, 0, 'Master Shang Xi to Player'),
 (54786, 2, 0, 'There is a much larger problem we face now, my students. Shen-zin Su is in pain. If we do not act, the very land on which we stand could die, and all of us with it.', 12, 0, 100, 1, 0, 27790, 0, 0, 0, 'Master Shang Xi to Player'),
 (54786, 3, 0, 'We need to speak to Shen-zin Su and discover how to heal it. And to do that, we need the four elemental spirits returned. Huo was the first.', 12, 0, 100, 1, 0, 27791, 0, 0, 0, 'Master Shang Xi to Player'),
