@@ -86,10 +86,25 @@ INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScal
 (171887, 23, 8, 2, 1, 193364, 0x200048, 128, 0), -- Slimy Smorgasbord
 (164362, 23, 8, 0.524999976158142089, 1, 184769, 0x200048, 128, 0); -- Slimy Morsel
 
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=63305 WHERE (`Entry`=166480 AND `DifficultyID`=0); -- 166480 (Living Slime Stalker) - Sessile, Floating
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=164255 AND `DifficultyID`=0); -- 164255 (Globgrog) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `HealthScalingExpansion`=8, `HealthModifier`=2, `CreatureDifficultyID`=193364, `TypeFlags`=0x200048, `TypeFlags2`=128 WHERE (`Entry`=171887 AND `DifficultyID`=23); -- Slimy Smorgasbord
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `HealthScalingExpansion`=8, `HealthModifier`=0.524999976158142089, `CreatureDifficultyID`=184769, `TypeFlags`=0x200048, `TypeFlags2`=128 WHERE (`Entry`=164362 AND `DifficultyID`=23); -- Slimy Morsel
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=2 AND `Entry` IN (166480, 164362));
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `TypeFlags3`) VALUES
+(164362, 2, 8, 0.524999976158142089, 1, 184769, 0x200048, 128, 0), -- Slimy Morsel
+(166480, 2, 8, 1, 1, 187184, 0x0, 0, 0); -- Living Slime Stalker
+
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000 WHERE `Entry`=164255; -- 164255 (Globgrog) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1710, `VerifiedBuild`=66709 WHERE (`Entry`=164255 AND `DifficultyID`=1); -- 164255 (Globgrog) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `VerifiedBuild`=66709 WHERE (`Entry`=164255 AND `DifficultyID`=2); -- 164255 (Globgrog) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `VerifiedBuild`=66709 WHERE (`Entry`=164255 AND `DifficultyID`=23); -- 164255 (Globgrog) - CanSwim
+
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=66709 WHERE `Entry`=166480; -- 166480 (Living Slime Stalker) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1710, `VerifiedBuild`=66709 WHERE (`Entry`=166480 AND `DifficultyID`=1); -- 166480 (Living Slime Stalker) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `VerifiedBuild`=66709 WHERE (`Entry`=166480 AND `DifficultyID`=2); -- 166480 (Living Slime Stalker) - Sessile, Floating
+
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `VerifiedBuild`=66709 WHERE (`Entry`=171887 AND `DifficultyID`=23); -- Slimy Smorgasbord
+
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1710, `VerifiedBuild`=66709 WHERE (`Entry`=164362 AND `DifficultyID`=1); -- Slimy Morsel
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `VerifiedBuild`=66709 WHERE (`Entry`=164362 AND `DifficultyID`=2); -- Slimy Morsel
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=749, `VerifiedBuild`=66709 WHERE (`Entry`=164362 AND `DifficultyID`=23); -- Slimy Morsel
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`= 164255;
