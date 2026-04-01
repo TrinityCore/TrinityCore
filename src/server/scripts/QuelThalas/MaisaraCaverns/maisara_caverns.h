@@ -46,6 +46,11 @@ enum MaisaraCavernsCreatureIds
     BOSS_RAKTUL_VESSEL_OF_SOULS = 248605
 };
 
+enum MaisaraCavernsGameObjectIds
+{
+    GO_MAISARA_BOSS_1_GATE      = 616338
+};
+
 enum MaisaraCavernsActions
 {
     ACTION_NEKRAXX_INTRO        = 1

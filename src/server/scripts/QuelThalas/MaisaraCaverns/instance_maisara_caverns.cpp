@@ -40,6 +40,11 @@ static constexpr DungeonEncounterData const encounters[] =
     { DATA_RAKTUL_VESSEL_OF_SOULS, {{ 3214 }} }
 };
 
+static constexpr DoorData doorData[] =
+{
+    { GO_MAISARA_BOSS_1_GATE, DATA_MUROJIN_AND_NEKRAXX, EncounterDoorBehavior::OpenWhenDone }
+};
+
 class instance_maisara_caverns : public InstanceMapScript
 {
 public:
@@ -53,6 +58,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, {});
             LoadBossBoundaries(boundaries);
+            LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
 
             _murojinAndNekraxxIntroState = NOT_STARTED;
