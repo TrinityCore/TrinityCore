@@ -1857,7 +1857,7 @@ bool SpellInfo::IsAffectedBySpellMods() const
     return !HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS);
 }
 
-uint32 SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
+int32 SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 {
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId, Difficulty);
     if (!affectSpell)
