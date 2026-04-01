@@ -52,7 +52,7 @@ class instance_plaguefall : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDungeonEncounterData(encounters);
             }
         };
