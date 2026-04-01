@@ -25,16 +25,15 @@ BossBoundaryData const boundaries =
     { DATA_GLOBGROG, new CircleBoundary(Position(2021.948120f, -3556.348848f), 83.0f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_GLOBGROG,          DATA_GLOBGROG          },
     { BOSS_DOCTOR_ICKUS,      DATA_DOCTOR_ICKUS      },
     { BOSS_DOMINA_VENOMBLADE, DATA_DOMINA_VENOMBLADE },
-    { BOSS_MARGRAVE_STRADAMA, DATA_MARGRAVE_STRADAMA },
-    { 0,                      0                      }  // END
+    { BOSS_MARGRAVE_STRADAMA, DATA_MARGRAVE_STRADAMA }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData const encounters[] =
 {
     { DATA_GLOBGROG,          {{ 2382 }} },
     { DATA_DOCTOR_ICKUS,      {{ 2384 }} },
