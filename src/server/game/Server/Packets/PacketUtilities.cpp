@@ -45,25 +45,28 @@ char const* WorldPackets::InvalidHyperlinkException::GetReasonText(Reason reason
     }
 }
 
-bool WorldPackets::Strings::Utf8::Validate(std::string_view value)
+void WorldPackets::Strings::ByteSize::Validate(std::string_view value, std::size_t maxSize)
+{
+    if (std::size_t size = value.size(); size > maxSize)
+        OnInvalidArraySize(size, maxSize);
+}
+
+void WorldPackets::Strings::Utf8::Validate(std::string_view value)
 {
     if (!utf8::is_valid(value.begin(), value.end()))
         throw InvalidUtf8ValueException(value);
-    return true;
 }
 
-bool WorldPackets::Strings::Hyperlinks::Validate(std::string_view value)
+void WorldPackets::Strings::Hyperlinks::Validate(std::string_view value)
 {
     if (!Trinity::Hyperlinks::CheckAllLinks(value))
         throw InvalidHyperlinkException(value, InvalidHyperlinkException::Malformed);
-    return true;
 }
 
-bool WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
+void WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
 {
     if (value.find('|') != std::string::npos)
         throw InvalidHyperlinkException(value, InvalidHyperlinkException::NotAllowed);
-    return true;
 }
 
 void WorldPackets::OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit)

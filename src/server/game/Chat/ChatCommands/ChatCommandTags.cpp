@@ -88,23 +88,29 @@ ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandl
     // first try parsing as account name
     _name.assign(text);
     if (!Utf8ToUpperOnlyLatin(_name))
-        return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+    {
+        next = GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+        return next;
+    }
+
     _id = AccountMgr::GetId(_name);
     _session = sWorld->FindSession(_id);
     if (_id) // account with name exists, we are done
         return next;
 
     // try parsing as account id instead
-    Optional<uint32> id = Trinity::StringTo<uint32>(text, 10);
-    if (!id)
-        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
-    _id = *id;
-    _session = sWorld->FindSession(_id);
+    if (Optional<uint32> id = Trinity::StringTo<uint32>(text, 10))
+    {
+        _id = *id;
+        _session = sWorld->FindSession(_id);
 
-    if (AccountMgr::GetName(_id, _name))
-        return next;
+        if (!AccountMgr::GetName(_id, _name))
+            next = FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
+    }
     else
-        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
+        next = FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+
+    return next;
 }
 
 Optional<Trinity::ChatCommands::AccountIdentifier> Trinity::ChatCommands::AccountIdentifier::FromTarget(ChatHandler* handler)
@@ -129,7 +135,7 @@ ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         if ((_player = ObjectAccessor::FindPlayerByLowGUID(_guid.GetCounter())))
             _name = _player->GetName();
         else if (!sCharacterCache->GetCharacterNameByGuid(_guid, _name))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
+            next = FormatTrinityString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
         return next;
     }
     else
@@ -139,13 +145,16 @@ ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         else
             _name.assign(val.get<std::string_view>());
 
-        if (!normalizePlayerName(_name))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
+        if (normalizePlayerName(_name))
+        {
+            if ((_player = ObjectAccessor::FindPlayerByName(_name)))
+                _guid = _player->GetGUID();
+            else if (!(_guid = sCharacterCache->GetCharacterGuidByName(_name)))
+                next = FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+        }
+        else
+            next = FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
 
-        if ((_player = ObjectAccessor::FindPlayerByName(_name)))
-            _guid = _player->GetGUID();
-        else if (!(_guid = sCharacterCache->GetCharacterGuidByName(_name)))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
         return next;
     }
 }

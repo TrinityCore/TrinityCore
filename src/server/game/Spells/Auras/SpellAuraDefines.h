@@ -735,7 +735,7 @@ enum AuraType : uint32
     SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL         = 648,
     SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL          = 649,
     SPELL_AURA_650                                          = 650,
-    SPELL_AURA_651                                          = 651,
+    SPELL_AURA_ENABLE_EVENT_TRANSMOG_OUTFIT                 = 651,
     SPELL_AURA_652                                          = 652,
     SPELL_AURA_653                                          = 653,
     SPELL_AURA_654                                          = 654,

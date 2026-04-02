@@ -81,16 +81,17 @@ protected:
 public:
     void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
-        UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const;
+        UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target, bool ignoreNestedChangesMask) const;
 
     struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
     {
-        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner) { }
+        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
         AzeriteItem const* Owner;
         UF::ObjectData::Base ObjectMask;
         UF::ItemData::Base ItemMask;
         UF::AzeriteItemData::Base AzeriteItemMask;
+        bool IgnoreNestedChangesMask;
 
         void operator()(Player const* player) const;
     };

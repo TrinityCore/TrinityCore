@@ -249,7 +249,7 @@ class boss_selin_fireheart : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetMagistersTerraceAI<boss_selin_fireheartAI>(creature);
-        };
+        }
 };
 
 class npc_fel_crystal : public CreatureScript
@@ -275,7 +275,7 @@ class npc_fel_crystal : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetMagistersTerraceAI<npc_fel_crystalAI>(creature);
-        };
+        }
 };
 
 void AddSC_boss_selin_fireheart()

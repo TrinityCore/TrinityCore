@@ -42,15 +42,16 @@ protected:
 
 public:
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-        UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target) const;
+        UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target, bool ignoreNestedChangesMask) const;
 
     struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
     {
-        explicit ValuesUpdateForPlayerWithMaskSender(SceneObject const* owner) : Owner(owner) { }
+        explicit ValuesUpdateForPlayerWithMaskSender(SceneObject const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
         SceneObject const* Owner;
         UF::ObjectData::Base ObjectMask;
         UF::SceneObjectData::Base SceneObjectMask;
+        bool IgnoreNestedChangesMask;
 
         void operator()(Player const* player) const;
     };

@@ -571,6 +571,34 @@ struct BroadcastTextDurationEntry
     uint32 BroadcastTextID;
 };
 
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Stalled;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 SortAsNormalQuest;
+    int32 UseMinimalHeader;
+
+    bool HasFlag(CampaignFlags flag) const { return EnumFlag(static_cast<CampaignFlags>(Flags)).HasFlag(flag); }
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_CategoriesEntry
 {
     uint32 ID;
@@ -2951,6 +2979,7 @@ struct MapEntry
 
     EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
     EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
+    EnumFlag<MapFlags3> GetFlags3() const { return static_cast<MapFlags3>(Flags[2]); }
 };
 
 struct MapChallengeModeEntry
@@ -3486,6 +3515,8 @@ struct QuestLineXQuestEntry
     uint32 OrderIndex;
     int32 Flags;
     int32 Unknown1110;
+
+    bool HasFlag(QuestLineXQuestFlags flag) const { return EnumFlag(static_cast<QuestLineXQuestFlags>(Flags)).HasFlag(flag); }
 };
 
 struct QuestMoneyRewardEntry
@@ -4665,6 +4696,57 @@ struct TransmogIllusionEntry
     EnumFlag<TransmogIllusionFlags> GetFlags() const { return static_cast<TransmogIllusionFlags>(Flags); }
 };
 
+struct TransmogOutfitEntryEntry
+{
+    uint64 Cost;
+    LocalizedString Name;
+    uint32 ID;
+    int32 OrderIndex;
+    uint8 Source;
+    int32 Flags;
+    uint8 SetType;
+    float OverrideCostModifier;
+
+    TransmogOutfitEntrySource GetSource() const { return static_cast<TransmogOutfitEntrySource>(Source); }
+    bool HasFlag(TransmogOutfitEntryFlags flag) const { return EnumFlag(static_cast<TransmogOutfitEntryFlags>(Flags)).HasFlag(flag); }
+    TransmogOutfitSetType GetSetType() const { return static_cast<TransmogOutfitSetType>(SetType); }
+};
+
+struct TransmogOutfitSlotInfoEntry
+{
+    char const* InventorySlotName;
+    uint32 ID;
+    int8 TransmogOutfitSlotEnum;
+    int32 InventorySlotEnum;
+    int32 Flags;
+    uint8 Unused1200;
+    uint8 TransmogCollectionType;
+    int32 SecondarySlotID;
+    int32 InventorySlotID;
+    int32 UnassignedAtlasID;
+    int32 UnassignedDisplayAtlasID;
+    float ItemCostMultiplier;
+    float IllusionCostMultiplier;
+
+    TransmogOutfitSlot GetSlot() const { return static_cast<TransmogOutfitSlot>(TransmogOutfitSlotEnum); }
+    bool HasFlag(TransmogOutfitSlotFlags flag) const { return EnumFlag(static_cast<TransmogOutfitSlotFlags>(Flags)).HasFlag(flag); }
+};
+
+struct TransmogOutfitSlotOptionEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint8 OptionEnum;
+    uint32 TransmogOutfitSlotInfoID;
+    int32 Flags;
+    int32 SecondaryOptionID;
+    float ItemCostMultiplier;
+    float IllusionCostMultiplier;
+
+    TransmogOutfitSlotOption GetOption() const { return static_cast<TransmogOutfitSlotOption>(OptionEnum); }
+    bool HasFlag(TransmogOutfitSlotOptionFlags flag) const { return EnumFlag(static_cast<TransmogOutfitSlotOptionFlags>(Flags)).HasFlag(flag); }
+};
+
 struct TransmogSetEntry
 {
     LocalizedString Name;
@@ -4694,6 +4776,39 @@ struct TransmogSetItemEntry
     uint32 TransmogSetID;
     uint32 ItemModifiedAppearanceID;
     int32 Flags;
+};
+
+struct TransmogSituationEntry
+{
+    LocalizedString Name;
+    uint32 ID;
+    int8 SituationEnum;
+    int32 Flags;
+    uint32 TransmogSituationGroupID;
+    int32 OrderIndex;
+
+    TransmogSituation GetSituation() const { return static_cast<TransmogSituation>(SituationEnum); }
+    bool HasFlag(TransmogSituationFlags flag) const { return EnumFlag(static_cast<TransmogSituationFlags>(Flags)).HasFlag(flag); }
+};
+
+struct TransmogSituationGroupEntry
+{
+    uint32 ID;
+    uint32 TransmogSituationTriggerID;
+    int32 OrderIndex;
+    int32 Flags;
+};
+
+struct TransmogSituationTriggerEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    uint32 ID;
+    uint8 TriggerEnum;
+    int32 Flags;
+
+    TransmogSituationTrigger GetTrigger() const { return static_cast<TransmogSituationTrigger>(TriggerEnum); }
+    bool HasFlag(TransmogSituationTriggerFlags flag) const { return EnumFlag(static_cast<TransmogSituationTriggerFlags>(Flags)).HasFlag(flag); }
 };
 
 struct TransportAnimationEntry

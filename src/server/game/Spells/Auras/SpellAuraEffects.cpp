@@ -720,7 +720,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //648 SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL
     &AuraEffect::HandleNULL,                                      //649 SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL
     &AuraEffect::HandleNULL,                                      //650
-    &AuraEffect::HandleNULL,                                      //651
+    &AuraEffect::HandleNULL,                                      //651 SPELL_AURA_ENABLE_EVENT_TRANSMOG_OUTFIT
     &AuraEffect::HandleNULL,                                      //652
     &AuraEffect::HandleNULL,                                      //653
     &AuraEffect::HandleNULL,                                      //654
