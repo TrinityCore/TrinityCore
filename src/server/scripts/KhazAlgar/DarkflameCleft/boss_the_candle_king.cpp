@@ -30,26 +30,27 @@
 
 enum TheCandleKingSpells
 {
-    SPELL_CURSED_WAX                 = 421648,
-    SPELL_CURSED_WAX_DUMMY           = 422079,
-    SPELL_CURSED_WAX_STUN            = 421653,
-    SPELL_CURSED_WAX_VISUAL          = 422088, // Unk purpose
-    SPELL_DARKFLAME_PICKAXE_SELECTOR = 421274,
-    SPELL_DARKFLAME_PICKAXE_CAST     = 421277,
-    SPELL_DARKFLAME_PICKAXE_MARKER   = 422648,
-    SPELL_DARKFLAME_PICKAXE_DAMAGE   = 421282,
-    SPELL_DARKFLAME_PICKAXE_VISUAL   = 421283,
-    SPELL_DARKLIGHT                  = 426152,
-    SPELL_DARKLIGHT_DEBUFF           = 426127,
-    SPELL_CANDLELIGHT                = 426125,
-    SPELL_EERIE_MOLDS_CLONE_SUMMONER = 420676,
-    SPELL_EERIE_MOLDS_SELECTOR       = 420659,
-    SPELL_EERIE_MOLDS_SUMMON         = 420665,
-    SPELL_MOLTEN_WAX_DAMAGE          = 421067,
-    SPELL_PARANOID_MIND              = 426145,
-    SPELL_THROW_DARKFLAME_SELECTOR   = 420696,
-    SPELL_THROW_DARKFLAME_MARKER     = 421250,
-    SPELL_THROW_DARKFLAME_MISSILE    = 421145
+    SPELL_CURSED_WAX                    = 421648,
+    SPELL_CURSED_WAX_DUMMY              = 422079,
+    SPELL_CURSED_WAX_STUN               = 421653,
+    SPELL_CURSED_WAX_VISUAL             = 422088, // Unk purpose
+    SPELL_DARKFLAME_PICKAXE_SELECTOR    = 421274,
+    SPELL_DARKFLAME_PICKAXE_CAST        = 421277,
+    SPELL_DARKFLAME_PICKAXE_MARKER      = 422648,
+    SPELL_DARKFLAME_PICKAXE_DAMAGE      = 421282,
+    SPELL_DARKFLAME_PICKAXE_VISUAL      = 421283,
+    SPELL_DARKLIGHT                     = 426152,
+    SPELL_DARKLIGHT_DEBUFF              = 426127,
+    SPELL_CANDLELIGHT                   = 426125,
+    SPELL_EERIE_MOLDS_CLONE_SUMMONER    = 420676,
+    SPELL_EERIE_MOLDS_SELECTOR          = 420659,
+    SPELL_EERIE_MOLDS_SUMMON            = 420665,
+    SPELL_MOLTEN_WAX_AT                 = 420691,
+    SPELL_MOLTEN_WAX_DAMAGE             = 421067,
+    SPELL_PARANOID_MIND                 = 426145,
+    SPELL_THROW_DARKFLAME_SELECTOR      = 420696,
+    SPELL_THROW_DARKFLAME_MARKER        = 421250,
+    SPELL_THROW_DARKFLAME_MISSILE       = 421145
 };
 
 enum TheCandleKingTexts
@@ -152,6 +153,28 @@ struct boss_the_candle_king : public BossAI
         events.ScheduleEvent(EVENT_THROW_DARKFLAME, 19300ms);
     }
 
+    Milliseconds GetSpellOnCooldown(uint32 spellId)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetDifficulty());
+        if (!spellInfo)
+            return 0ms;
+
+        return me->GetSpellHistory()->GetRemainingCooldown(spellInfo);
+    }
+
+    bool TryCastSpellIfReady(uint32 spellId)
+    {
+        Milliseconds cd = GetSpellOnCooldown(spellId);
+        if (cd == 0ms)
+        {
+            DoCastSelf(spellId);
+            return true;
+        }
+
+        events.Repeat(cd);
+        return false;
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -168,26 +191,26 @@ struct boss_the_candle_king : public BossAI
             {
                 case EVENT_EERIE_MOLDS:
                 {
-                    DoCastSelf(SPELL_EERIE_MOLDS_SELECTOR);
-                    events.Repeat(IsMythic() ? 23100ms : 31500ms);
+                    if (TryCastSpellIfReady(SPELL_EERIE_MOLDS_SELECTOR))
+                        events.Repeat(IsMythic() ? 23100ms : 31500ms);
                     break;
                 }
                 case EVENT_PARANOID_MIND:
                 {
-                    DoCastSelf(SPELL_PARANOID_MIND);
-                    events.Repeat(IsMythic() ? 10900ms : 20600ms);
+                    if (TryCastSpellIfReady(SPELL_PARANOID_MIND))
+                        events.Repeat(IsMythic() ? 10900ms : 20600ms);
                     break;
                 }
                 case EVENT_DARKFLAME_PICKAXE:
                 {
-                    DoCastSelf(SPELL_DARKFLAME_PICKAXE_SELECTOR);
-                    events.Repeat(IsMythic() ? 23100ms : 17s);
+                    if (TryCastSpellIfReady(SPELL_DARKFLAME_PICKAXE_SELECTOR))
+                        events.Repeat(IsMythic() ? 23100ms : 17s);
                     break;
                 }
                 case EVENT_THROW_DARKFLAME:
                 {
-                    DoCastSelf(SPELL_THROW_DARKFLAME_SELECTOR);
-                    events.Repeat(IsMythic() ? 24300ms : 17s);
+                    if (TryCastSpellIfReady(SPELL_THROW_DARKFLAME_SELECTOR))
+                        events.Repeat(IsMythic() ? 24300ms : 17s);
                     break;
                 }
                 default:
@@ -340,16 +363,17 @@ class spell_the_candle_king_darkflame_pickaxe_selector : public SpellScript
 class DarkflamePickaxeDamageEvent : public BasicEvent
 {
 public:
-    explicit DarkflamePickaxeDamageEvent(Unit* caster, ObjectGuid const& targetGUID, ObjectGuid originalCastId) : _caster(caster), _targetGUID(targetGUID), _originalCastId(originalCastId) { }
+    explicit DarkflamePickaxeDamageEvent(Unit* caster, ObjectGuid const& targetGUID, ObjectGuid const& originalCastId) : _caster(caster), _targetGUID(targetGUID), _originalCastId(originalCastId) { }
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
-        Unit* target = ObjectAccessor::GetUnit(*_caster, _targetGUID);
-
-        _caster->CastSpell(target, SPELL_DARKFLAME_PICKAXE_DAMAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = _originalCastId
-        });
+        if (Unit* target = ObjectAccessor::GetUnit(*_caster, _targetGUID))
+        {
+            _caster->CastSpell(target, SPELL_DARKFLAME_PICKAXE_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .OriginalCastId = _originalCastId
+            });
+        }
         return true;
     }
 
@@ -367,25 +391,36 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
         return ValidateSpellInfo({ SPELL_DARKFLAME_PICKAXE_VISUAL, SPELL_DARKFLAME_PICKAXE_DAMAGE });
     }
 
+    void ClearTarget(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         static constexpr uint8 MAX_TARGETS = 1;
-        WorldObject* closestTarget = nullptr;
 
         if (targets.size() <= MAX_TARGETS)
             return;
 
-        targets.remove(GetCaster());
+        targets.remove_if([](WorldObject* target) -> bool
+        {
+            Unit* unit = target->ToUnit();
+            if (!unit)
+                return true;
+
+            return (!unit->IsPlayer() && unit->GetEntry() != NPC_WAX_STATUE) || !unit->HasAura(SPELL_MOLTEN_WAX_AT);
+        });
 
         auto closestTargetItr = std::ranges::min_element(targets, std::ranges::less(), [caster = GetCaster()](WorldObject const* obj)
         {
-            return caster->GetDistance(obj->GetPosition());
+            return caster->GetExactDist2dSq(obj->GetPosition());
         });
 
         if (closestTargetItr == targets.end())
             return;
 
-        closestTarget = *closestTargetItr;
+        WorldObject* closestTarget = *closestTargetItr;
         targets.clear();
         targets.push_back(closestTarget);
     }
@@ -408,6 +443,7 @@ class spell_the_candle_king_darkflame_pickaxe_cast : public SpellScript
 
     void Register() override
     {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_the_candle_king_darkflame_pickaxe_cast::ClearTarget, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_candle_king_darkflame_pickaxe_cast::FilterTargets, EFFECT_0, TARGET_UNIT_RECT_CASTER);
         OnEffectHitTarget += SpellEffectFn(spell_the_candle_king_darkflame_pickaxe_cast::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -441,6 +477,9 @@ struct at_the_candle_king_molten_wax : public AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
+        if (!unit->IsPlayer())
+            return;
+
         unit->CastSpell(unit, SPELL_MOLTEN_WAX_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
