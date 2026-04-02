@@ -22,7 +22,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=888888 AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `SpeedIsTime`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(888888, 1, 888888, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 30, 50, 5, 30, 50, 5, 0, 0, 'at_the_candle_king_candlelight', 0);
+(888888, 1, 888888, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 32, 50, 5, 32, 50, 5, 0, 0, 'at_the_candle_king_candlelight', 0);
 
 DELETE FROM `areatrigger_template` WHERE `Id`=888888 AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES

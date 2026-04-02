@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "darkflame_cleft.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_THE_CANDLE_KING, new ZRangeBoundary(77.05f, 59.20f) }
+};
 
 static constexpr ObjectData creatureData[] =
 {
@@ -47,6 +53,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, {});
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
     };
