@@ -155,7 +155,7 @@ struct boss_the_candle_king : public BossAI
         events.ScheduleEvent(EVENT_THROW_DARKFLAME, 19300ms);
     }
 
-    Milliseconds GetSpellOnCooldown(uint32 spellId)
+    Milliseconds GetCooldownOfSpell(uint32 spellId)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetDifficulty());
         if (!spellInfo)
@@ -166,7 +166,7 @@ struct boss_the_candle_king : public BossAI
 
     bool TryCastSpellIfReady(uint32 spellId)
     {
-        Milliseconds cd = GetSpellOnCooldown(spellId);
+        Milliseconds cd = GetCooldownOfSpell(spellId);
         if (cd == 0ms)
         {
             DoCastSelf(spellId);
