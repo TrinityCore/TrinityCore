@@ -603,7 +603,7 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
 
 void Battleground::UpdateWorldState(int32 worldStateId, int32 value, bool hidden /*= false*/)
 {
-    sWorldStateMgr->SetValue(worldStateId, value, hidden, GetBgMap());
+    WorldStateMgr::SetValue(worldStateId, value, hidden, GetBgMap());
 }
 
 void Battleground::EndBattleground(Team winner)

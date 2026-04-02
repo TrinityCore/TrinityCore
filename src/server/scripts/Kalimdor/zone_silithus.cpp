@@ -928,7 +928,7 @@ public:
             CheckEventFail();
             if (WaveCount == 4 || Failed)
                 EnterEvadeMode();
-        };
+        }
     };
 
 };

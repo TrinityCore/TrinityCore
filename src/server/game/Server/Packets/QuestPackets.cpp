@@ -264,7 +264,7 @@ WorldPacket const* QuestUpdateAddCredit::Write()
     _worldPacket << uint32(ObjectiveType);
 
     return &_worldPacket;
-};
+}
 
 WorldPacket const* QuestUpdateAddCreditSimple::Write()
 {
@@ -432,7 +432,7 @@ WorldPacket const* QuestGiverOfferRewardMessage::Write()
     _worldPacket << SizedString::Data(PortraitTurnInName);
 
     return &_worldPacket;
-};
+}
 
 void QuestGiverChooseReward::Read()
 {

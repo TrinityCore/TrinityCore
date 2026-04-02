@@ -175,15 +175,16 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const;
+            UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             GameObject const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::GameObjectData::Base GameObjectMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

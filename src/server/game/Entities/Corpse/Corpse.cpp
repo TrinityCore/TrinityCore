@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "StringConvert.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 #include <sstream>
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
@@ -257,7 +258,7 @@ void Corpse::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Play
 }
 
 void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::CorpseData::Mask const& requestedCorpseMask, Player const* target) const
+    UF::CorpseData::Mask const& requestedCorpseMask, Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -274,10 +275,10 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, true);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_CORPSE])
-        m_corpseData->WriteUpdate(requestedCorpseMask, buffer, target, this, true);
+        m_corpseData->WriteUpdate(requestedCorpseMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -289,7 +290,7 @@ void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* playe
     UpdateData udata(Owner->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), CorpseMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), CorpseMask.GetChangesMask(), player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);

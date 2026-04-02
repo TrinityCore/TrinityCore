@@ -82,6 +82,7 @@
 #include "Player.h"
 #include "PlayerDump.h"
 #include "PoolMgr.h"
+#include "QuestMgr.h"
 #include "QuestPools.h"
 #include "RealmList.h"
 #include "ScenarioMgr.h"
@@ -95,6 +96,7 @@
 #include "TaxiPathGraph.h"
 #include "TerrainMgr.h"
 #include "TraitMgr.h"
+#include "TransmogMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "UpdateTime.h"
@@ -745,7 +747,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "CharacterCreating.MinLevelForDemonHunter"sv, .DefaultValue = 0, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER },
         { .Name = "CharacterCreating.MinLevelForEvoker"sv, .DefaultValue = 50, .Index = CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER },
         { .Name = "SkipCinematics"sv, .DefaultValue = 0, .Index = CONFIG_SKIP_CINEMATICS, .Min = 0, .Max = 2 },
-        { .Name = "MaxPlayerLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
+        { .Name = "MaxPlayerLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_PLAYER_LEVEL, .Min = 1, .Max = MAX_LEVEL, .Reloadable = false },
         { .Name = "MinDualSpecLevel"sv, .DefaultValue = 40, .Index = CONFIG_MIN_DUALSPEC_LEVEL },
         { .Name = "StartPlayerLevel"sv, .DefaultValue = 1, .Index = CONFIG_START_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartDeathKnightPlayerLevel"sv, .DefaultValue = 8, .Index = CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL, .Min = 1 },
@@ -755,7 +757,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "Currency.ResetHour"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_HOUR, .Min = 0, .Max = 23 },
         { .Name = "Currency.ResetDay"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_DAY, .Min = 0, .Max = 6 },
         { .Name = "Currency.ResetInterval"sv, .DefaultValue = 7, .Index = CONFIG_CURRENCY_RESET_INTERVAL, .Min = 1 },
-        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = DEFAULT_MAX_LEVEL, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
+        { .Name = "RecruitAFriend.MaxLevel"sv, .DefaultValue = GetMaxLevelForExpansion(CURRENT_EXPANSION), .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, .Min = 1 },
         { .Name = "RecruitAFriend.MaxDifference"sv, .DefaultValue = 4, .Index = CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE },
         { .Name = "ResetSchedule.WeekDay"sv, .DefaultValue = 2, .Index = CONFIG_RESET_SCHEDULE_WEEK_DAY, .Min = 0, .Max = 6 },
         { .Name = "ResetSchedule.Hour"sv, .DefaultValue = 8, .Index = CONFIG_RESET_SCHEDULE_HOUR, .Min = 0, .Max = 23 },
@@ -1216,8 +1218,8 @@ void World::LoadConfigSettings(bool reload)
         m_timers[WUPDATE_CLEANDB].Reset();
         m_timers[WUPDATE_AUTOBROADCAST].SetInterval(m_int_configs[CONFIG_AUTOBROADCAST_INTERVAL]);
         m_timers[WUPDATE_AUTOBROADCAST].Reset();
-        sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
-        sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
+        WorldStateMgr::SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
+        WorldStateMgr::SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
 
         // call ScriptMgr if we're reloading the configuration
         sScriptMgr->OnConfigLoad(reload);
@@ -1579,6 +1581,7 @@ bool World::SetInitialWorldSettings()
     WeatherMgr::LoadWeatherData();
 
     TC_LOG_INFO("server.loading", "Loading Quests...");
+    QuestMgr::Load();
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, items, gameobject tables
 
     TC_LOG_INFO("server.loading", "Checking Quest Disables");
@@ -1602,7 +1605,7 @@ bool World::SetInitialWorldSettings()
     sQuestPoolMgr->LoadFromDB();                                // must be after quest templates
 
     TC_LOG_INFO("server.loading", "Loading World State templates...");
-    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP, game events and conditions
+    WorldStateMgr::LoadFromDB();                               // must be loaded before battleground, outdoor PvP, game events and conditions
 
     TC_LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
     sGameEventMgr->LoadFromDB();
@@ -1839,8 +1842,8 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
     LoadPersistentWorldVariables();
 
-    sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
-    sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
+    WorldStateMgr::SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
+    WorldStateMgr::SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
 
     sObjectMgr->LoadPhases();
 
@@ -2064,6 +2067,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
 
+    TC_LOG_INFO("server.loading", "Loading transmog data...");
+    TransmogMgr::Load();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO("server.worldserver", "World initialized in {} minutes {} seconds", startupDuration / 60000, startupDuration % 60000 / 1000);
@@ -2074,8 +2080,8 @@ bool World::SetInitialWorldSettings()
 
 void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
 {
-    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), false, nullptr);
-    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), false, nullptr);
+    WorldStateMgr::SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), false, nullptr);
+    WorldStateMgr::SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), false, nullptr);
 }
 
 void World::DisableForcedWarModeFactionBalanceState()
@@ -2403,6 +2409,8 @@ void World::Update(uint32 diff)
         else if (_warnDiff > getIntConfig(CONFIG_RESPAWN_GUIDWARNING_FREQUENCY) * IN_MILLISECONDS)
             SendGuidWarning();
     }
+
+    WorldStateMgr::Update();
 
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Process cli commands"));
@@ -3511,8 +3519,8 @@ void World::UpdateWarModeRewardValues()
             outnumberedFactionReward = 5;
     }
 
-    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), false, nullptr);
-    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), false, nullptr);
+    WorldStateMgr::SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), false, nullptr);
+    WorldStateMgr::SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), false, nullptr);
 }
 
 uint32 GetVirtualRealmAddress()

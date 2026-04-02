@@ -558,7 +558,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
-    if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+    if (quest->QueryData)
         _session->SendPacket(&quest->QueryData[static_cast<uint32>(_session->GetSessionDbLocaleIndex())]);
     else
     {

@@ -1713,7 +1713,7 @@ float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
-double WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, double value) const
+SpellEffectValue WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const
 {
     if (Player* modOwner = GetSpellModOwner())
     {
@@ -2575,7 +2575,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE)) && unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2))
         return false;
 
-    if (unitTarget && unitTarget->IsUninteractible())
+    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR11_CAN_ASSIST_UNINTERACTIBLE)) && unitTarget && unitTarget->IsUninteractible())
         return false;
 
     // check flags for negative spells

@@ -1492,7 +1492,7 @@ class spell_flying_shadow_kick : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
-};
+}
 
 void AddSC_zone_the_wandering_isle()
 {

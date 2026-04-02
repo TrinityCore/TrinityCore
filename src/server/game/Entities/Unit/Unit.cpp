@@ -768,26 +768,32 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag
 
 bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
 {
-    AuraEffectList const& auras = GetAuraEffectsByType(type);
-    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Damage))
+    for (AuraEffect const* aura : GetAuraEffectsByType(type))
+        if ((!excludeAura || excludeAura != aura->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
+            aura->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
             return true;
     return false;
 }
 
-bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) const
+bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel) const
 {
-    uint32 excludeAura = 0;
-    if (Spell* currentChanneledSpell = excludeCasterChannel ? excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL) : nullptr)
-        excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
+    if (!HasInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
+        return false;
 
-    return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
+    uint32 excludeAura = 0;
+    if (excludeCasterChannel)
+        if (Spell const* currentChanneledSpell = excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
+
+    // This function is named after spell attribute it is meant for - SPELL_ATTR6_DO_NOT_CHAIN_TO_CROWD_CONTROLLED_TARGETS
+    // Not checking aura type is not a mistake here
+    for (AuraApplication const* aurApp : m_interruptableAuras)
+        if (!aurApp->IsPositive()
+            && (!excludeAura || excludeAura != aurApp->GetBase()->GetId())
+            && aurApp->GetBase()->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::AnyDamageMask))
+            return true;
+
+    return false;
 }
 
 /*static*/ void Unit::DealDamageMods(Unit const* attacker, Unit const* victim, uint32& damage, uint32* absorb)
@@ -3581,12 +3587,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask)
 
     if (Player* player = ToPlayer())
     {
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleObjectInteractions(false, true, false, false);
 
-        player->FailCriteria(CriteriaFailEvent::GainAura, aurApp->GetBase()->GetId());
-        player->StartCriteria(CriteriaStartEvent::GainAura, aurApp->GetBase()->GetId());
-        player->UpdateCriteria(CriteriaType::GainAura, aurApp->GetBase()->GetId());
+        player->FailCriteria(CriteriaFailEvent::GainAura, aura->GetId());
+        player->StartCriteria(CriteriaStartEvent::GainAura, aura->GetId());
+        player->UpdateCriteria(CriteriaType::GainAura, aura->GetId(), 0, 0, caster);
     }
 }
 
@@ -3731,8 +3737,8 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
         m_modAuras[aurEff->GetAuraType()].push_front(aurEff);
         if (Player* player = ToPlayer())
         {
-            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
             player->FailCriteria(CriteriaFailEvent::GainAuraEffect, aurEff->GetAuraType());
+            player->StartCriteria(CriteriaStartEvent::GainAuraEffect, aurEff->GetAuraType());
         }
     }
     else
@@ -9218,8 +9224,9 @@ void Unit::AtEnterCombat()
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
         if (spell->getState() == SPELL_STATE_PREPARING
             && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL)
-            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat))
-            InterruptNonMeleeSpells(false);
+            && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat)
+            && !spell->m_spellInfo->HasAura(SPELL_AURA_MOUNTED)) // for some reason mounts are not interrupted by entering combat even with both interrupt flag and attribute
+            InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnteringCombat);
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_ENTER_COMBAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
