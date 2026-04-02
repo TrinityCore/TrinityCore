@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_THE_CANDLE_KING, new ZRangeBoundary(77.05f, 59.20f) }
+    { DATA_THE_CANDLE_KING, new ZRangeBoundary(59.20f, 90.0f) }
 };
 
 static constexpr ObjectData creatureData[] =
