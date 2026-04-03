@@ -30,6 +30,7 @@
 #include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "hellfire_ramparts.h"
 #include "Map.h"
 #include "MotionMaster.h"
