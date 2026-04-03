@@ -41,6 +41,11 @@ static constexpr DungeonEncounterData const encounters[] =
     { DATA_THE_DARKNESS,    {{ 2788 }} }
 };
 
+static constexpr DoorData doorData[] =
+{
+    { GO_CATACOMBS_GATE, DATA_THE_CANDLE_KING, EncounterDoorBehavior::OpenWhenDone }
+};
+
 class instance_darkflame_cleft : public InstanceMapScript
 {
 public:
@@ -53,6 +58,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, {});
+            LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }

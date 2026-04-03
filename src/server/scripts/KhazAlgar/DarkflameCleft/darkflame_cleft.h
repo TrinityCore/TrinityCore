@@ -43,6 +43,11 @@ enum DarkflameCleftCreatureIds
     BOSS_THE_DARKNESS    = 210797
 };
 
+enum DarkflameCleftGameObjectIds
+{
+    GO_CATACOMBS_GATE    = 430177
+};
+
 template <class AI, class T>
 inline AI* GetDarkflameCleftAI(T* obj)
 {
