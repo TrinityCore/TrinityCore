@@ -361,11 +361,11 @@ class spell_kystia_manaheart_mirror_images : public AuraScript
 
     void HandlePeriodicEffect(AuraEffect const* aurEff) const
     {
-        if (Unit* target = GetTarget())
-            target->CastSpell(target, Spells::MirrorImage, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
-            });
+        Unit* target = GetTarget();
+        target->CastSpell(target, Spells::MirrorImage, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
     }
 
     void Register() override
