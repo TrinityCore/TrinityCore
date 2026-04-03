@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KYSTIA_MANAHEART, new ZRangeBoundary(-7.0729f, -5.2693f) }
+    { DATA_KYSTIA_MANAHEART, new ZRangeBoundary(-6.98f, -2.26f) }
 };
 
 static constexpr ObjectData creatureData[] =

@@ -239,15 +239,12 @@ struct boss_kystia_manaheart_nibbles : public BossAI
 {
     boss_kystia_manaheart_nibbles(Creature* creature) : BossAI(creature, DATA_NIBBLES) { }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         _EnterEvadeMode();
         _DespawnAtEvade();
-
-        if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
-            kystia->AI()->EnterEvadeMode(why);
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override

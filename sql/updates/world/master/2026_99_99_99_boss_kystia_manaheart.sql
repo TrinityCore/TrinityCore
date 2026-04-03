@@ -110,6 +110,6 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (234648, 4, 1, 'Nibbles, give mother a taste!', 14, 0, 50, 0, 0, 299090, 297206, 0, 'Kystia Manaheart'),
 (234648, 5, 0, 'Fel conquers all.', 14, 0, 100, 0, 0, 299087, 297199, 0, 'Kystia Manaheart'),
 (234648, 6, 0, 'But... my... magic...', 14, 0, 100, 0, 0, 299088, 297202, 0, 'Kystia Manaheart to Player'),
-(234660, 0, 0, '|TInterface\\ICONS\\Spell_Fire_FelFlameBreath.blp:20|t %s begins casting |cFFFF0000|Hspell:1253811|h[Fel Spray]|h|r!', 68, 0, 100, 0, 0, 0, 0, 0, 'Nibbles to Player'),
-(234660, 1, 0, '|TInterface\\ICONS\\Spell_Paladin_Lightofdawn.blp:20|t %s casts |cFFFF0000|Hspell:1230304|h[Light Infusion]|h|r at Kystia!', 68, 0, 100, 0, 0, 0, 0, 0, 'Nibbles to Kystia Manaheart'),
+(234660, 0, 0, '|TInterface\\ICONS\\Spell_Paladin_Lightofdawn.blp:20|t %s casts |cFFFF0000|Hspell:1230304|h[Light Infusion]|h|r at Kystia!', 68, 0, 100, 0, 0, 0, 0, 0, 'Nibbles to Kystia Manaheart'),
+(234660, 1, 0, '|TInterface\\ICONS\\Spell_Fire_FelFlameBreath.blp:20|t %s begins casting |cFFFF0000|Hspell:1253811|h[Fel Spray]|h|r!', 68, 0, 100, 0, 0, 0, 0, 0, 'Nibbles to Player'),
 (234660, 2, 0, '%s makes her escape.', 68, 0, 100, 0, 0, 299088, 280475, 0, 'Nibbles to Nibbles');
