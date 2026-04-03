@@ -5103,6 +5103,31 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF JADE FOREST SPELLS
     //
 
+    //
+    // DARKFLAME CLEFT SPELLS
+    //
+
+    // Darkflame Pickaxe
+    ApplySpellFix({ 421277 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    // Throw Darkflame
+    ApplySpellFix({ 420696 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // Throw Darkflame
+    ApplySpellFix({ 421250 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(165); // 7s
+    });
+
+    // ENDOF DARKFLAME CLEFT SPELLS
+    //
+
     // Earthquake
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {

@@ -436,7 +436,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //344 SPELL_EFFECT_344
     &Spell::EffectNULL,                                     //345 SPELL_EFFECT_ASSIST_ACTION
     &Spell::EffectNULL,                                     //346 SPELL_EFFECT_346
-    &Spell::EffectNULL,                                     //347 SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT
+    &Spell::EffectEquipTransmogOutfit,                      //347 SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT
     &Spell::EffectNULL,                                     //348 SPELL_EFFECT_GIVE_HOUSE_LEVEL
     &Spell::EffectNULL,                                     //349 SPELL_EFFECT_LEARN_HOUSE_ROOM
     &Spell::EffectNULL,                                     //350 SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT
@@ -6337,4 +6337,31 @@ void Spell::EffectSetPlayerDataFlagCharacter()
         return;
 
     target->SetDataFlagCharacter(effectInfo->MiscValue, damage != 0);
+}
+
+void Spell::EffectEquipTransmogOutfit()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    Optional<bool> locked;
+    switch (static_cast<TransmogOutfitEquipAction>(m_misc.EquipTransmogOutfit.EquipAction))
+    {
+        case TransmogOutfitEquipAction::EquipAndLock:
+        case TransmogOutfitEquipAction::RemoveAndLock:
+        case TransmogOutfitEquipAction::Lock:
+            locked = true;
+            break;
+        case TransmogOutfitEquipAction::Unlock:
+            locked = false;
+            break;
+        default:
+            break;
+    }
+
+    target->EquipTransmogOutfit(m_misc.EquipTransmogOutfit.TransmogOutfitId, static_cast<TransmogSituationTrigger>(m_misc.EquipTransmogOutfit.SituationTrigger), locked);
 }

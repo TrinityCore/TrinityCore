@@ -1136,11 +1136,7 @@ bool WorldSession::IsAddonRegistered(std::string_view prefix) const
     if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
         return true;
 
-    if (_registeredAddonPrefixes.empty())
-        return false;
-
-    std::vector<std::string>::const_iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
-    return itr != _registeredAddonPrefixes.end();
+    return advstd::ranges::contains(_registeredAddonPrefixes, prefix);
 }
 
 void WorldSession::HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& /*packet*/) // empty packet
@@ -1259,6 +1255,7 @@ public:
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
         TRANSMOG_ILLUSIONS,
+        TRANSMOG_OUTFITS,
         WARBAND_SCENES,
         PLAYER_DATA_ELEMENTS_ACCOUNT,
         PLAYER_DATA_FLAGS_ACCOUNT,
@@ -1308,6 +1305,10 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(TRANSMOG_ILLUSIONS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_TRANSMOG_OUTFITS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(TRANSMOG_OUTFITS, stmt) && ok;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_SCENES);
         stmt->setUInt32(0, battlenetAccountId);
@@ -1373,6 +1374,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountMounts(holder.GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
     _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
+    _collectionMgr->LoadAccountTransmogOutfits(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_OUTFITS));
     _collectionMgr->LoadAccountWarbandScenes(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_SCENES));
     LoadPlayerDataAccount(holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_ELEMENTS_ACCOUNT), holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_FLAGS_ACCOUNT));
 

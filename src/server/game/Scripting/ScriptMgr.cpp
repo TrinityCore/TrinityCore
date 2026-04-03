@@ -1787,14 +1787,14 @@ OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId, Map* map)
     return tmpscript->GetOutdoorPvP(map);
 }
 
-Trinity::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
+std::vector<Trinity::ChatCommands::ChatCommandBuilder> ScriptMgr::GetChatCommands()
 {
-    Trinity::ChatCommands::ChatCommandTable table;
+    std::vector<Trinity::ChatCommands::ChatCommandBuilder> table;
 
     FOR_SCRIPTS(CommandScript, itr, end)
     {
-        Trinity::ChatCommands::ChatCommandTable cmds = itr->second->GetCommands();
-        std::move(cmds.begin(), cmds.end(), std::back_inserter(table));
+        std::span<Trinity::ChatCommands::ChatCommandBuilder const> cmds = itr->second->GetCommands();
+        table.insert(table.end(), cmds.begin(), cmds.end());
     }
 
     return table;

@@ -62,15 +62,16 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::CorpseData::Mask const& requestedCorpseMask, Player const* target) const;
+            UF::CorpseData::Mask const& requestedCorpseMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Corpse const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Corpse const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Corpse const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::CorpseData::Base CorpseMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

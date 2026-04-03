@@ -25,11 +25,12 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "UnitDefines.h"
-#include "WorldPacket.h"
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <cmath>
 
+class WorldPacket;
 struct ItemTemplate;
 enum class VisibilityDistanceType : uint8;
 
@@ -533,7 +534,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  flags_extra;
     uint32  ScriptID;
     std::string StringId;
-    WorldPacket QueryData[TOTAL_LOCALES];
+    std::unique_ptr<WorldPacket[]> QueryData;
     CreatureModel const* GetModelByIdx(uint32 idx) const;
     CreatureModel const* GetRandomValidModel() const;
     CreatureModel const* GetFirstValidModel() const;

@@ -212,7 +212,7 @@ public:
     {
         return ValidateSpellInfo({ SPELL_DK_BONE_SHIELD })
             && ValidateSpellEffect({ { spellInfo->Id, _effIndex } })
-            && spellInfo->GetEffect(_effIndex).CalcBaseValue(nullptr, nullptr, 0, 0) <= int32(sSpellMgr->AssertSpellInfo(SPELL_DK_BONE_SHIELD, DIFFICULTY_NONE)->StackAmount);
+            && spellInfo->GetEffect(_effIndex).CalcBaseValue(nullptr, nullptr, 0, 0) <= SpellEffectValue(sSpellMgr->AssertSpellInfo(SPELL_DK_BONE_SHIELD, DIFFICULTY_NONE)->StackAmount);
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const

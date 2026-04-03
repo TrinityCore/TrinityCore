@@ -1997,6 +1997,26 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_ILLUSION, "SELECT MAX(ID) + 1 FROM transmog_illusion", CONNECTION_SYNCH);
 
+    // TransmogOutfitEntry.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_OUTFIT_ENTRY, "SELECT Cost, Name, ID, OrderIndex, Source, Flags, SetType, OverrideCostModifier"
+        " FROM transmog_outfit_entry WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_OUTFIT_ENTRY, "SELECT MAX(ID) + 1 FROM transmog_outfit_entry", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_OUTFIT_ENTRY, "SELECT ID, Name_lang FROM transmog_outfit_entry_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // TransmogOutfitSlotInfo.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_INFO, "SELECT InventorySlotName, ID, TransmogOutfitSlotEnum, InventorySlotEnum, Flags, "
+        "Unused1200, TransmogCollectionType, SecondarySlotID, InventorySlotID, UnassignedAtlasID, UnassignedDisplayAtlasID, ItemCostMultiplier, "
+        "IllusionCostMultiplier FROM transmog_outfit_slot_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_INFO, "SELECT MAX(ID) + 1 FROM transmog_outfit_slot_info", CONNECTION_SYNCH);
+
+    // TransmogOutfitSlotOption.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_OPTION, "SELECT ID, Name, OptionEnum, TransmogOutfitSlotInfoID, Flags, SecondaryOptionID, "
+        "ItemCostMultiplier, IllusionCostMultiplier FROM transmog_outfit_slot_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_OPTION, "SELECT MAX(ID) + 1 FROM transmog_outfit_slot_option", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_OUTFIT_SLOT_OPTION, "SELECT ID, Name_lang FROM transmog_outfit_slot_option_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
     // TransmogSet.db2
     PrepareStatement(HOTFIX_SEL_TRANSMOG_SET, "SELECT Name, ID, ClassMask, TrackingQuestID, Flags, TransmogSetGroupID, ItemNameDescriptionID, "
         "ParentTransmogSetID, Unknown810, ExpansionID, PatchID, UiOrder, PlayerConditionID FROM transmog_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -2013,6 +2033,25 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_TRANSMOG_SET_ITEM, "SELECT ID, TransmogSetID, ItemModifiedAppearanceID, Flags FROM transmog_set_item"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_SET_ITEM, "SELECT MAX(ID) + 1 FROM transmog_set_item", CONNECTION_SYNCH);
+
+    // TransmogSituation.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SITUATION, "SELECT Name, ID, SituationEnum, Flags, TransmogSituationGroupID, OrderIndex"
+        " FROM transmog_situation WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_SITUATION, "SELECT MAX(ID) + 1 FROM transmog_situation", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_SITUATION, "SELECT ID, Name_lang FROM transmog_situation_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // TransmogSituationGroup.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SITUATION_GROUP, "SELECT ID, TransmogSituationTriggerID, OrderIndex, Flags FROM transmog_situation_group"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_SITUATION_GROUP, "SELECT MAX(ID) + 1 FROM transmog_situation_group", CONNECTION_SYNCH);
+
+    // TransmogSituationTrigger.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SITUATION_TRIGGER, "SELECT Name, Description, ID, TriggerEnum, Flags FROM transmog_situation_trigger"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_SITUATION_TRIGGER, "SELECT MAX(ID) + 1 FROM transmog_situation_trigger", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_SITUATION_TRIGGER, "SELECT ID, Name_lang, Description_lang FROM transmog_situation_trigger_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // TransportAnimation.db2
     PrepareStatement(HOTFIX_SEL_TRANSPORT_ANIMATION, "SELECT ID, PosX, PosY, PosZ, SequenceID, TimeIndex, TransportID FROM transport_animation"

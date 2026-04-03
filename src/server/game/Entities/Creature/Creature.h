@@ -498,15 +498,16 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
     public:
         void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
+            UF::UnitData::Mask const& requestedUnitMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Creature const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Creature const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Creature const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::UnitData::Base UnitMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

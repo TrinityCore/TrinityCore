@@ -477,6 +477,9 @@ struct TC_GAME_API CastSpellTargetArg
     Optional<SpellCastTargets> Targets; // empty optional used to signal error state
 };
 
+//! Spell effect value calculation result type.
+using SpellEffectValue = double; //!< This is a double instead of float to be able to store full range of int32
+
 struct CastSpellExtraArgsInit
 {
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
