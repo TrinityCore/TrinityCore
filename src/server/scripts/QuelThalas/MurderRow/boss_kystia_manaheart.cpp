@@ -237,7 +237,10 @@ private:
 // 234660 - Nibbles
 struct boss_kystia_manaheart_nibbles : public BossAI
 {
-    boss_kystia_manaheart_nibbles(Creature* creature) : BossAI(creature, DATA_NIBBLES) { }
+    boss_kystia_manaheart_nibbles(Creature* creature) : BossAI(creature, DATA_NIBBLES)
+    {
+        SetBoundary(instance->GetBossBoundary(DATA_KYSTIA_MANAHEART));
+    }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
