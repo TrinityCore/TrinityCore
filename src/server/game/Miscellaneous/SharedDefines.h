@@ -6424,6 +6424,8 @@ enum ChatMsg : int32
     CHAT_MSG_GUILD_ITEM_LOOTED                  = 0x40,
     CHAT_MSG_COMMUNITIES_CHANNEL                = 0x41,
     CHAT_MSG_VOICE_TEXT                         = 0x42,
+    CHAT_MSG_PING                               = 0x43,
+    CHAT_MSG_ENCOUNTER_EVENT                    = 0x44,
 
     MAX_CHAT_MSG_TYPE
 };

@@ -5346,13 +5346,15 @@ TC_API_EXPORT EnumText EnumUtils<ChatMsg>::ToString(ChatMsg value)
         case CHAT_MSG_GUILD_ITEM_LOOTED: return { "CHAT_MSG_GUILD_ITEM_LOOTED", "CHAT_MSG_GUILD_ITEM_LOOTED", "" };
         case CHAT_MSG_COMMUNITIES_CHANNEL: return { "CHAT_MSG_COMMUNITIES_CHANNEL", "CHAT_MSG_COMMUNITIES_CHANNEL", "" };
         case CHAT_MSG_VOICE_TEXT: return { "CHAT_MSG_VOICE_TEXT", "CHAT_MSG_VOICE_TEXT", "" };
+        case CHAT_MSG_PING: return { "CHAT_MSG_PING", "CHAT_MSG_PING", "" };
+        case CHAT_MSG_ENCOUNTER_EVENT: return { "CHAT_MSG_ENCOUNTER_EVENT", "CHAT_MSG_ENCOUNTER_EVENT", "" };
         case MAX_CHAT_MSG_TYPE: return { "MAX_CHAT_MSG_TYPE", "MAX_CHAT_MSG_TYPE", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<ChatMsg>::Count() { return 69; }
+TC_API_EXPORT size_t EnumUtils<ChatMsg>::Count() { return 71; }
 
 template <>
 TC_API_EXPORT ChatMsg EnumUtils<ChatMsg>::FromIndex(size_t index)
@@ -5427,7 +5429,9 @@ TC_API_EXPORT ChatMsg EnumUtils<ChatMsg>::FromIndex(size_t index)
         case 65: return CHAT_MSG_GUILD_ITEM_LOOTED;
         case 66: return CHAT_MSG_COMMUNITIES_CHANNEL;
         case 67: return CHAT_MSG_VOICE_TEXT;
-        case 68: return MAX_CHAT_MSG_TYPE;
+        case 68: return CHAT_MSG_PING;
+        case 69: return CHAT_MSG_ENCOUNTER_EVENT;
+        case 70: return MAX_CHAT_MSG_TYPE;
         default: throw std::out_of_range("index");
     }
 }
@@ -5505,7 +5509,9 @@ TC_API_EXPORT size_t EnumUtils<ChatMsg>::ToIndex(ChatMsg value)
         case CHAT_MSG_GUILD_ITEM_LOOTED: return 65;
         case CHAT_MSG_COMMUNITIES_CHANNEL: return 66;
         case CHAT_MSG_VOICE_TEXT: return 67;
-        case MAX_CHAT_MSG_TYPE: return 68;
+        case CHAT_MSG_PING: return 68;
+        case CHAT_MSG_ENCOUNTER_EVENT: return 69;
+        case MAX_CHAT_MSG_TYPE: return 70;
         default: throw std::out_of_range("value");
     }
 }
