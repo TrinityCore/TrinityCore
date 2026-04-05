@@ -22,6 +22,7 @@
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
+#include <chrono>
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
