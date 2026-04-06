@@ -21209,7 +21209,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (base < 10000.0 && static_cast<SpellModifierByClassMask*>(mod)->value <= -100)
+                if (base < 10000.0 && static_cast<SpellPctModifierByClassMask*>(mod)->value <= -100)
                 {
                     modInstantSpell = mod;
                     break;
@@ -21248,7 +21248,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (static_cast<SpellModifierByClassMask*>(mod)->value >= 100)
+                if (static_cast<SpellFlatModifierByClassMask*>(mod)->value >= 100)
                 {
                     modCritical = mod;
                     break;
@@ -21288,7 +21288,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (!applyCount)
             continue;
 
-        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        int32 value = static_cast<SpellFlatModifierByClassMask*>(mod)->value;
         if (value == 0)
             continue;
 
@@ -21320,7 +21320,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (base + *flat == 0)
             continue;
 
-        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        int32 value = static_cast<SpellPctModifierByClassMask*>(mod)->value;
         if (value == 0)
             continue;
 
@@ -21421,7 +21421,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_FLAT)
                         {
-                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            SpellFlatModifierByClassMask const* spellMod = static_cast<SpellFlatModifierByClassMask const*>(*itr++);
                             if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
                                 modData.ModifierValue += spellMod->value;
                         }
@@ -21432,7 +21432,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_PCT)
                         {
-                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            SpellPctModifierByClassMask const* spellMod = static_cast<SpellPctModifierByClassMask const*>(*itr++);
                             if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
                                 modData.ModifierValue += spellMod->value;
                         }
@@ -21526,9 +21526,6 @@ void Player::SendSpellModifiers() const
 
     for (SpellModifier const* mod : m_spellMods)
     {
-        if (mod->type != SPELLMOD_FLAT && mod->type != SPELLMOD_PCT)
-            continue;
-
         switch (mod->type)
         {
             case SPELLMOD_FLAT:
@@ -21541,7 +21538,7 @@ void Player::SendSpellModifiers() const
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
                     float& modifierValue = getOrCreateModifierData(flatModifier->ModifierData, classIndex, 0.f);
-                    modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
+                    modifierValue += static_cast<SpellFlatModifierByClassMask const*>(mod)->value;
                 }
                 break;
             case SPELLMOD_PCT:
@@ -21554,7 +21551,7 @@ void Player::SendSpellModifiers() const
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
                     float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 0.f);
-                    modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
+                    modifierValue += static_cast<SpellPctModifierByClassMask const*>(mod)->value;
                 }
                 break;
             default:
