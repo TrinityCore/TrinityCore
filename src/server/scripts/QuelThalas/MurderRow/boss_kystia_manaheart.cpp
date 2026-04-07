@@ -100,6 +100,12 @@ namespace Scripts::QuelThalas::MurderRow::KystiaManaheart
         static constexpr uint32 SpellVisualNibblesUnfriendly = 249081;
     }
 
+    namespace DisplayIds
+    {
+        static constexpr uint32 DisplayFriendly   = 128332;
+        static constexpr uint32 DisplayUnfriendly = 126199;
+    }
+
 // 234648 - Kystia Manaheart
 struct boss_kystia_manaheart : public BossAI
 {
@@ -126,6 +132,7 @@ struct boss_kystia_manaheart : public BossAI
 
         if (Creature* nibbles = instance->GetCreature(DATA_NIBBLES))
         {
+            nibbles->SetDisplayId(DisplayIds::DisplayFriendly);
             nibbles->SetAnimTier(AnimTier::Fly, true);
             nibbles->SetDisableGravity(true);
             nibbles->SetPlayHoverAnim(true);
@@ -150,6 +157,7 @@ struct boss_kystia_manaheart : public BossAI
         if (Creature* nibbles = instance->GetCreature(DATA_NIBBLES))
         {
             nibbles->SendPlaySpellVisualKit(SpellVisuals::SpellVisualNibblesUnfriendly, 0, 0);
+            nibbles->SetDisplayId(DisplayIds::DisplayUnfriendly);
             nibbles->ClearUnitState(UNIT_STATE_ROOT);
             nibbles->CastSpell(nibbles, Spells::IllicitInfusion, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         }
@@ -290,6 +298,15 @@ struct boss_kystia_manaheart_nibbles : public BossAI
         events.ScheduleEvent(Events::CorrodingSpittle, 4500ms);
     }
 
+    void OnChannelFinished(SpellInfo const* spell) override
+    {
+        if (spell->Id != Spells::LightInfusion)
+            return;
+
+        if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
+            kystia->CastSpell(me, Spells::IllicitInfusionCast, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (me->GetFaction() == FACTION_FRIENDLY)
@@ -332,6 +349,7 @@ struct boss_kystia_manaheart_nibbles : public BossAI
                         me->AttackStop();
                         me->SetFaction(FACTION_FRIENDLY);
                         me->SendPlaySpellVisualKit(SpellVisuals::SpellVisualNibblesFriendly, 0, 0);
+                        me->SetDisplayId(DisplayIds::DisplayFriendly);
 
                         if (Creature* kystia = instance->GetCreature(DATA_KYSTIA_MANAHEART))
                         {
@@ -456,30 +474,6 @@ class spell_kystia_manaheart_blink : public SpellScript
     }
 };
 
-// 1265412 - Destabilized
-class spell_kystia_manaheart_destabilized : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ Spells::IllicitInfusion });
-    }
-
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        Unit* caster = GetCaster();
-
-        if (!caster)
-            return;
-
-        GetTarget()->CastSpell(caster, Spells::IllicitInfusionCast, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_kystia_manaheart_destabilized::AfterRemove, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 474365 - Fel Crazed
 class spell_kystia_manaheart_fel_crazed : public SpellScript
 {
@@ -557,7 +551,6 @@ void AddSC_boss_kystia_manaheart()
     RegisterSpellScript(spell_kystia_manaheart_mirror_image);
     RegisterSpellScript(spell_kystia_manaheart_fel_nova_selector);
     RegisterSpellScript(spell_kystia_manaheart_blink);
-    RegisterSpellScript(spell_kystia_manaheart_destabilized);
     RegisterSpellScript(spell_kystia_manaheart_fel_crazed);
     RegisterSpellScript(spell_kystia_manaheart_felstorm);
 

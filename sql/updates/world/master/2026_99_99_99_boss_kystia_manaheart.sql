@@ -86,14 +86,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (255050, 0, 0, 0, '', 11, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 1264106, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Kystia Manaheart (copy) - On Respawn - Cast \'Felstorm\'');
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_kystia_manaheart_felstorm', 'spell_kystia_manaheart_destabilized', 'spell_kystia_manaheart_mirror_images', 'spell_kystia_manaheart_mirror_image', 'spell_kystia_manaheart_light_infusion', 'spell_kystia_manaheart_fel_crazed', 'spell_kystia_manaheart_fel_nova_selector', 'spell_kystia_manaheart_blink');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_kystia_manaheart_felstorm', 'spell_kystia_manaheart_mirror_images', 'spell_kystia_manaheart_mirror_image', 'spell_kystia_manaheart_light_infusion', 'spell_kystia_manaheart_fel_crazed', 'spell_kystia_manaheart_fel_nova_selector', 'spell_kystia_manaheart_blink');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (1264095, 'spell_kystia_manaheart_mirror_images'),
 (1264098, 'spell_kystia_manaheart_mirror_image'),
 (1230304, 'spell_kystia_manaheart_light_infusion'),
 (474365, 'spell_kystia_manaheart_fel_crazed'),
 (474240, 'spell_kystia_manaheart_fel_nova_selector'),
-(1265412, 'spell_kystia_manaheart_destabilized'),
 (1264106, 'spell_kystia_manaheart_felstorm'),
 (474183, 'spell_kystia_manaheart_blink');
 
