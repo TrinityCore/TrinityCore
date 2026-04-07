@@ -1217,6 +1217,10 @@ enum CharacterFlags4 : int32
     CHARACTER_FLAG_4_NO_NEIGHBORHOOD_INVITES                    = 0x00000080, // Character does not accept neighborhood invites
     CHARACTER_FLAG_4_CHECKED_FOR_2ND_WAVE_ACCOUNT_WIDE_FACTIONS = 0x00000100, // Character has been checked for 2nd wave of account wide factions
     CHARACTER_FLAG_4_WILL_BE_RESURRECTED_IN_HARDCORE            = 0x00000200, // Character will be resurrected overriding hardcore game rule
+    CHARACTER_FLAG_4_USED_MAX_LEVEL_BOOST                       = 0x00000400, // Character used a max level boost and cannot use it again
+    CHARACTER_FLAG_4_DISALLOW_RECENT_ALLIES_TO_SEE_LOCATION     = 0x00000800, // Other players cannot see your character's location if you are in their Recent Allies list
+    CHARACTER_FLAG_4_HAS_ARATHI_RPE                             = 0x00001000, // Character is granted the Arathi teleport option at selection (removed after entering world)
+    CHARACTER_FLAG_4_FREE_TRANSMOG_CLAIMED                      = 0x00002000, // Character has used their first discounted transmog transaction
 };
 
 enum CharacterRestrictionFlags : uint32
@@ -6420,6 +6424,8 @@ enum ChatMsg : int32
     CHAT_MSG_GUILD_ITEM_LOOTED                  = 0x40,
     CHAT_MSG_COMMUNITIES_CHANNEL                = 0x41,
     CHAT_MSG_VOICE_TEXT                         = 0x42,
+    CHAT_MSG_PING                               = 0x43,
+    CHAT_MSG_ENCOUNTER_EVENT                    = 0x44,
 
     MAX_CHAT_MSG_TYPE
 };

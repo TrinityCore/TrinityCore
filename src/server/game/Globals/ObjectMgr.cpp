@@ -70,6 +70,7 @@
 #include "TerrainMgr.h"
 #include "ThreadPool.h"
 #include "Timer.h"
+#include "TransmogMgr.h"
 #include "TransportMgr.h"
 #include "VMapFactory.h"
 #include "VMapManager.h"
@@ -1509,12 +1510,12 @@ void ObjectMgr::LoadEquipmentTemplates()
             }
 
             // AppearanceModId 0 is always valid
-            if (equipmentInfo.Items[i].AppearanceModId && !sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
+            if (equipmentInfo.Items[i].AppearanceModId && !TransmogMgr::GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
             {
                 TC_LOG_ERROR("sql.sql", "Unknown item appearance for (ID={}, AppearanceModID={}) pair in creature_equip_template.ItemID{} creature_equip_template.AppearanceModID{} "
                     "for CreatureID = {} and ID={}, forced to default.",
                     equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId, i + 1, i + 1, entry, id);
-                if (ItemModifiedAppearanceEntry const* defaultAppearance = sDB2Manager.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId))
+                if (ItemModifiedAppearanceEntry const* defaultAppearance = TransmogMgr::GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId))
                     equipmentInfo.Items[i].AppearanceModId = defaultAppearance->ItemAppearanceModifierID;
                 else
                     equipmentInfo.Items[i].AppearanceModId = 0;
@@ -4007,14 +4008,14 @@ void ObjectMgr::LoadPlayerInfo()
                 Field* fields = result->Fetch();
 
                 uint32 current_race = fields[0].GetUInt8();
-                if (!sChrRacesStore.HasRecord(current_race))
+                if (current_race && !sChrRacesStore.HasRecord(current_race))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo_item` table, ignoring.", current_race);
                     continue;
                 }
 
                 uint32 current_class = fields[1].GetUInt8();
-                if (!sChrClassesStore.HasRecord(current_class))
+                if (current_class && !sChrClassesStore.HasRecord(current_class))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo_item` table, ignoring.", current_class);
                     continue;

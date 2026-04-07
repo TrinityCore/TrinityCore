@@ -77,6 +77,8 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF         = 408390,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_ENHANCED_ELEMENTS              = 77223,
+    SPELL_SHAMAN_FERAL_LUNGE                    = 196884,
+    SPELL_SHAMAN_FERAL_LUNGE_DAMAGE             = 215802,
     SPELL_SHAMAN_FIRE_NOVA_DAMAGE               = 333977,
     SPELL_SHAMAN_FIRE_NOVA_ENABLER              = 466622,
     SPELL_SHAMAN_FLAME_SHOCK                    = 188389,
@@ -1140,6 +1142,52 @@ class spell_sha_elemental_weapons : public AuraScript
     }
 };
 
+// 196884 - Feral Lunge
+class spell_sha_feral_lunge : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_SHAMAN_GHOST_WOLF);
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_SHAMAN_GHOST_WOLF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+    }
+};
+
+// 215802 - Feral Lunge Damage
+class spell_sha_feral_lunge_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_SHAMAN_GHOST_WOLF);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_feral_lunge_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 struct FireNovaTargetCheck
 {
     float MaxSearchRange = 40.0f;
@@ -1274,20 +1322,12 @@ class spell_sha_hailstorm : public AuraScript
     void CalcCleaveMod(AuraEffect const* aurEff, SpellModifier*& spellMod) const
     {
         if (!spellMod)
-        {
-            SpellModifierByClassMask* mod = new SpellModifierByClassMask(GetAura());
-            mod->op = SpellModOp::ChainTargets;
-            mod->type = SPELLMOD_FLAT;
-            mod->spellId = GetId();
-            mod->mask = { 0x80000000, 0x00000000, 0x00000000, 0x00000000 };
-
-            spellMod = mod;
-        }
+            spellMod = new SpellFlatModifierByClassMask(SpellModOp::ChainTargets, GetId(), GetAura(), { 0x80000000, 0x00000000, 0x00000000, 0x00000000 });
 
         if (AuraEffect const* hailstormPassive = GetUnitOwner()->GetAuraEffect(SPELL_SHAMAN_HAILSTORM_TALENT, EFFECT_0))
         {
             int32 targetCap = hailstormPassive->GetAmount() / aurEff->GetBaseAmount();
-            static_cast<SpellModifierByClassMask*>(spellMod)->value = std::min<int32>(targetCap, GetStackAmount()) + 1;
+            static_cast<SpellFlatModifierByClassMask*>(spellMod)->value = std::min<int32>(targetCap, GetStackAmount()) + 1;
         }
     }
 
@@ -3459,6 +3499,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_elemental_weapons);
+    RegisterSpellScript(spell_sha_feral_lunge);
+    RegisterSpellScript(spell_sha_feral_lunge_damage);
     RegisterSpellScript(spell_sha_fire_nova);
     RegisterSpellScript(spell_sha_flame_shock_fire_nova_enabler);
     RegisterSpellScript(spell_sha_flametongue_weapon);

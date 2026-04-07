@@ -713,14 +713,14 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //641
     &AuraEffect::HandleNULL,                                      //642
     &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
-    &AuraEffect::HandleNULL,                                      //644
+    &AuraEffect::HandleNULL,                                      //644 SPELL_AURA_MOD_GRAVITY
     &AuraEffect::HandleNULL,                                      //645
     &AuraEffect::HandleNULL,                                      //646 SPELL_AURA_ADD_FLAT_PVP_MODIFIER
     &AuraEffect::HandleNULL,                                      //647 SPELL_AURA_ADD_PCT_PVP_MODIFIER
     &AuraEffect::HandleNULL,                                      //648 SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL
     &AuraEffect::HandleNULL,                                      //649 SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL
     &AuraEffect::HandleNULL,                                      //650
-    &AuraEffect::HandleNULL,                                      //651
+    &AuraEffect::HandleNULL,                                      //651 SPELL_AURA_ENABLE_EVENT_TRANSMOG_OUTFIT
     &AuraEffect::HandleNULL,                                      //652
     &AuraEffect::HandleNULL,                                      //653
     &AuraEffect::HandleNULL,                                      //654
@@ -1006,45 +1006,23 @@ void AuraEffect::CalculateSpellMod()
     switch (GetAuraType())
     {
         case SPELL_AURA_ADD_FLAT_MODIFIER:
+            if (!m_spellmod)
+                m_spellmod = new SpellFlatModifierByClassMask(SpellModOp(GetMiscValue()), GetId(), GetBase(), GetSpellEffectInfo().SpellClassMask);
+            static_cast<SpellFlatModifierByClassMask*>(m_spellmod)->value = GetAmount();
+            break;
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
-            {
-                SpellModifierByClassMask* spellmod = new SpellModifierByClassMask(GetBase());
-                spellmod->op = SpellModOp(GetMiscValue());
-
-                spellmod->type = GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER ? SPELLMOD_PCT : SPELLMOD_FLAT;
-                spellmod->spellId = GetId();
-                spellmod->mask = GetSpellEffectInfo().SpellClassMask;
-                m_spellmod = spellmod;
-            }
-            static_cast<SpellModifierByClassMask*>(m_spellmod)->value = GetAmount();
+                m_spellmod = new SpellPctModifierByClassMask(SpellModOp(GetMiscValue()), GetId(), GetBase(), GetSpellEffectInfo().SpellClassMask);
+            static_cast<SpellPctModifierByClassMask*>(m_spellmod)->value = GetAmount();
             break;
         case SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL:
             if (!m_spellmod)
-            {
-                SpellFlatModifierByLabel* spellmod = new SpellFlatModifierByLabel(GetBase());
-                spellmod->op = SpellModOp(GetMiscValue());
-
-                spellmod->type = SPELLMOD_LABEL_FLAT;
-                spellmod->spellId = GetId();
-                spellmod->value.ModIndex = GetMiscValue();
-                spellmod->value.LabelID = GetMiscValueB();
-                m_spellmod = spellmod;
-            }
+                m_spellmod = new SpellFlatModifierByLabel(SpellModOp(GetMiscValue()), GetId(), GetBase(), GetMiscValueB());
             static_cast<SpellFlatModifierByLabel*>(m_spellmod)->value.ModifierValue = GetAmount();
             break;
         case SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL:
             if (!m_spellmod)
-            {
-                SpellPctModifierByLabel* spellmod = new SpellPctModifierByLabel(GetBase());
-                spellmod->op = SpellModOp(GetMiscValue());
-
-                spellmod->type = SPELLMOD_LABEL_PCT;
-                spellmod->spellId = GetId();
-                spellmod->value.ModIndex = GetMiscValue();
-                spellmod->value.LabelID = GetMiscValueB();
-                m_spellmod = spellmod;
-            }
+                m_spellmod = new SpellPctModifierByLabel(SpellModOp(GetMiscValue()), GetId(), GetBase(), GetMiscValueB());
             static_cast<SpellPctModifierByLabel*>(m_spellmod)->value.ModifierValue = 1.0f + CalculatePct(1.0f, GetAmount());
             break;
         default:

@@ -2334,12 +2334,8 @@ class spell_dh_soul_furnace_conduit : public AuraScript
         {
             if (!spellMod)
             {
-                spellMod = new SpellModifierByClassMask(GetAura());
-                spellMod->op = SpellModOp::HealingAndDamage;
-                spellMod->type = SPELLMOD_PCT;
-                spellMod->spellId = GetId();
-                static_cast<SpellModifierByClassMask*>(spellMod)->mask = flag128(0x80000000);
-                static_cast<SpellModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
+                spellMod = new SpellPctModifierByClassMask(SpellModOp::HealingAndDamage, GetId(), GetAura(), flag128(0x80000000));
+                static_cast<SpellPctModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
             }
         }
     }

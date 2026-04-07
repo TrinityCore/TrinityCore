@@ -514,11 +514,10 @@ uint32 SpellEffectInfo::GetPeriodicTickCount() const
 
 int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
-    double basePointsPerLevel = RealPointsPerLevel;
-    // TODO: this needs to be a float, not rounded
-    int32 basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
-    double value = bp ? *bp : basePoints;
-    double comboDamage = PointsPerResource;
+    SpellEffectValue basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
+    SpellEffectValue value = bp ? *bp : basePoints;
+    SpellEffectValue basePointsPerLevel = RealPointsPerLevel;
+    SpellEffectValue comboDamage = PointsPerResource;
 
     Unit const* casterUnit = nullptr;
     if (caster)
@@ -555,8 +554,8 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     if (Scaling.Variance)
     {
         float delta = fabs(Scaling.Variance * 0.5f);
-        double valueVariance = frand(-delta, delta);
-        value += double(basePoints) * valueVariance;
+        float valueVariance = frand(-delta, delta);
+        value += basePoints * valueVariance;
 
         if (variance)
             *variance = valueVariance;
@@ -566,7 +565,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     if (Scaling.Coefficient != 0.0f)
     {
         if (Scaling.ResourceCoefficient)
-            comboDamage = Scaling.ResourceCoefficient * value;
+            comboDamage = value * Scaling.ResourceCoefficient;
     }
     else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
@@ -578,8 +577,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
             // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
             level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
-            if (level < 0)
-                level = 0;
+            level = std::max(level, 0);
             value += level * basePointsPerLevel;
         }
     }
@@ -603,7 +601,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     return int32(round(value));
 }
 
-int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
+SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
 {
     if (Scaling.Coefficient != 0.0f)
     {
@@ -660,7 +658,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
         if (value > 0.0f && value < 1.0f)
             value = 1.0f;
 
-        return int32(round(value));
+        return round(value);
     }
     else
     {
@@ -686,7 +684,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
         }
 
-        return int32(round(value));
+        return round(value);
     }
 }
 
@@ -1951,7 +1949,7 @@ bool SpellInfo::IsAffectedBySpellMods() const
     return !HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS);
 }
 
-uint32 SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
+int32 SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 {
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId, Difficulty);
     if (!affectSpell)
@@ -3625,7 +3623,7 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
         else
         {
             SpellEffectInfo const& valueHolder = maxTargetValueHolder->GetEffect(*maxTargetsValueHolderEffect);
-            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            int32 expectedValue = int32(valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1));
             if (maxTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
                     maxTargetValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect), maxTargets, expectedValue);
@@ -3646,7 +3644,7 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
         else
         {
             SpellEffectInfo const& valueHolder = numNonDiminishedTargetsValueHolder->GetEffect(*numNonDiminishedTargetsValueHolderEffect);
-            int32 expectedValue = valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1);
+            int32 expectedValue = int32(valueHolder.CalcBaseValue(nullptr, nullptr, 0, -1));
             if (numNonDiminishedTargets != expectedValue)
                 TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} has different value in effect {} than expected, recheck target caps (expected {}, got {})",
                     numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*numNonDiminishedTargetsValueHolderEffect), numNonDiminishedTargets, expectedValue);

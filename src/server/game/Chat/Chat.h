@@ -56,32 +56,33 @@ class TC_GAME_API ChatHandler
         virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
+        void SendSysMessage(std::string_view messageFormat, fmt::printf_args messageFormatArgs) noexcept;
 
         template<typename... Args>
         void PSendSysMessage(char const* fmt, Args&&... args)
         {
-            SendSysMessage(StringVPrintf(fmt, fmt::make_printf_args(args...)));
+            this->SendSysMessage(fmt, fmt::make_printf_args(args...));
         }
 
         template<typename... Args>
         void PSendSysMessage(uint32 entry, Args&&... args)
         {
-            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...));
+            this->PSendSysMessage(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
         template<typename... Args>
-        static std::string PGetParseString(std::string_view fmt, Args&&... args)
+        static std::string PGetParseString(std::string_view fmt, Args&&... args) noexcept
         {
             return StringVPrintf(fmt, fmt::make_printf_args(args...));
         }
 
         template<typename... Args>
-        std::string PGetParseString(uint32 entry, Args&&... args) const
+        std::string PGetParseString(uint32 entry, Args&&... args) const noexcept
         {
             return PGetParseString(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        static std::string StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs);
+        static std::string StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs) noexcept;
 
         bool _ParseCommands(std::string_view text);
         virtual bool ParseCommands(std::string_view text);

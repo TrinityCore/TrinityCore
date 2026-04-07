@@ -159,7 +159,7 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     if (MMAP::MMapManager::isRebuildingTilesEnabledOnMap(GetId()))
         m_mmapTileRebuilder = std::make_shared<MMAP::DynamicTileBuilder>(this, MMAP::MMapManager::instance()->GetNavMesh(GetId(), GetInstanceId()));
 
-    _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
+    _worldStateValues = WorldStateMgr::GetInitialWorldStatesForMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -441,7 +441,7 @@ void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool hidden)
 
     itr->second = value;
 
-    WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId);
+    WorldStateTemplate const* worldStateTemplate = WorldStateMgr::GetWorldStateTemplate(worldStateId);
     if (worldStateTemplate)
         sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
 
@@ -2846,8 +2846,8 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty
     // this make sure it gets unloaded if for some reason no player joins
     m_unloadTimer = std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
-    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
-    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
+    WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
+    WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
 
     if (i_instanceLock)
     {
@@ -3404,9 +3404,9 @@ uint32 InstanceMap::GetMaxPlayers() const
 
 TeamId InstanceMap::GetTeamIdInInstance() const
 {
-    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
+    if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
         return TEAM_ALLIANCE;
-    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
+    if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
         return TEAM_HORDE;
     return TEAM_NEUTRAL;
 }

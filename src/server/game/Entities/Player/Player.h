@@ -135,6 +135,13 @@ namespace WorldPackets
         struct TraitConfig;
         struct TraitEntry;
     }
+
+    namespace Transmogrification
+    {
+        struct TransmogOutfitDataInfo;
+        struct TransmogOutfitSituationInfo;
+        struct TransmogOutfitSlotData;
+    }
 }
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
@@ -244,7 +251,8 @@ enum SpecResetType
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), spellId(0), ownerAura(_ownerAura) { }
+    SpellModifier(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura)
+        : op(_op), type(_type), spellId(_spellId), ownerAura(_ownerAura) { }
     virtual ~SpellModifier() = default;
 
     SpellModOp op;
@@ -256,22 +264,53 @@ struct SpellModifier
 
 struct SpellModifierByClassMask : SpellModifier
 {
-    SpellModifierByClassMask(Aura* _ownerAura) : SpellModifier(_ownerAura), value(0), mask() { }
+    SpellModifierByClassMask(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura, flag128 const& _mask)
+        : SpellModifier(_op, _type, _spellId, _ownerAura), mask(_mask) { }
 
-    int32 value;
     flag128 mask;
 };
 
-template<typename T>
-struct SpellModifierByLabel : SpellModifier
+struct SpellFlatModifierByClassMask : SpellModifierByClassMask
 {
-    SpellModifierByLabel(Aura* _ownerAura) : SpellModifier(_ownerAura) { }
+    SpellFlatModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_FLAT, _spellId, _ownerAura, _mask) { }
 
-    T value;
+    int32 value = { };
 };
 
-using SpellFlatModifierByLabel = SpellModifierByLabel<UF::SpellFlatModByLabel>;
-using SpellPctModifierByLabel = SpellModifierByLabel<UF::SpellPctModByLabel>;
+struct SpellPctModifierByClassMask : SpellModifierByClassMask
+{
+    SpellPctModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_PCT, _spellId, _ownerAura, _mask) { }
+
+    int32 value = { };
+};
+
+struct SpellFlatModifierByLabel : SpellModifier
+{
+    SpellFlatModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, uint32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_FLAT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0;
+        value.LabelID = _label;
+    }
+
+    UF::SpellFlatModByLabel value = { };
+};
+
+struct SpellPctModifierByLabel : SpellModifier
+{
+    SpellPctModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, int32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_PCT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0.0f;
+        value.LabelID = _label;
+    }
+
+    UF::SpellPctModByLabel value;
+};
 
 struct SpellModifierCompare
 {
@@ -334,7 +373,8 @@ enum ActionButtonType
     ACTION_BUTTON_CMACRO    = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
     ACTION_BUTTON_COMPANION = 0x50,
     ACTION_BUTTON_MOUNT     = 0x60,
-    ACTION_BUTTON_ITEM      = 0x80
+    ACTION_BUTTON_ITEM      = 0x80,
+    ACTION_BUTTON_OUTFIT    = 0x90
 };
 
 enum class HonorGainSource : uint8
@@ -548,6 +588,7 @@ enum PlayerLocalFlags
     PLAYER_LOCAL_FLAG_CHARACTER_BANK_DISABLED           = 0x00080000,
     PLAYER_LOCAL_FLAG_CHARACTER_BANK_CONVERSION_FAILED  = 0x00100000,
     PLAYER_LOCAL_FLAG_ACCOUNT_BANK_DISABLED             = 0x00200000,
+    PLAYER_LOCAL_FLAG_FREE_TRANSMOG_CLAIMED             = 0x00400000,
 };
 
 DEFINE_ENUM_FLAG(PlayerLocalFlags);
@@ -586,6 +627,8 @@ enum PlayerExtraFlags
     PLAYER_EXTRA_HAS_RACE_CHANGED           = 0x0200,
     PLAYER_EXTRA_GRANTED_LEVELS_FROM_RAF    = 0x0400,
     PLAYER_EXTRA_LEVEL_BOOSTED              = 0x0800,
+
+    PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED = 0x1000,
 };
 
 // 2^n values
@@ -937,6 +980,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT,
     PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
@@ -1264,6 +1310,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetBeenGrantedLevelsFromRaF() { m_ExtraFlags |= PLAYER_EXTRA_GRANTED_LEVELS_FROM_RAF; }
         bool HasLevelBoosted() const { return (m_ExtraFlags & PLAYER_EXTRA_LEVEL_BOOSTED) != 0; }
         void SetHasLevelBoosted() { m_ExtraFlags |= PLAYER_EXTRA_LEVEL_BOOSTED; }
+        bool HasClaimedFreeTransmog() const { return (m_ExtraFlags & PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED) != 0; }
+        void SetHasClaimedFreeTransmog() { m_ExtraFlags |= PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED; }
 
         uint32 GetXP() const { return m_activePlayerData->XP; }
         uint32 GetXPForNextLevel() const { return m_activePlayerData->NextLevelXP; }
@@ -1550,7 +1598,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);
-        void SetVisibleItemSlot(uint8 slot, Item* pItem);
+        void SetVisibleItemSlot(uint8 slot, Item const* item);
         Item* BankItem(ItemPosCountVec const& dest, Item* pItem, bool update);
         void RemoveItem(uint8 bag, uint8 slot, bool update);
         void MoveItemFromInventory(uint8 bag, uint8 slot, bool update);
@@ -2010,9 +2058,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        static uint32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
-        template <class T>
-        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, T base, int32* flat, float* pct) const;
+        static int32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
+        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, double base, int32* flat, float* pct) const;
         template <class T>
         void ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
@@ -2498,7 +2545,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
         void DeleteEquipmentSet(uint64 id);
 
-        void SendInitWorldStates(uint32 zoneId, uint32 areaId);
+        void SendInitWorldStates(uint32 zoneId, uint32 areaId) const;
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false) const;
         void SendDirectMessage(WorldPacket const* data) const;
 
@@ -2987,6 +3034,18 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
+        void AddUnlockedTransmogOutfits(std::span<int32 const> transmogOutfitIds);
+        void AddUnlockedTransmogOutfit(int32 transmogOutfitIds) { AddUnlockedTransmogOutfits(std::span(&transmogOutfitIds, 1)); }
+
+        void CreateTransmogOutfit(uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        void InitializeNewTransmogOutfit(UF::MutableFieldReference<UF::TransmogOutfitData, false> outfit,
+            uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        bool UpdateTransmogOutfit(uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        void UpdateTransmogOutfitSituations(uint32 id, bool situationsEnabled, std::span<WorldPackets::Transmogrification::TransmogOutfitSituationInfo const> situations);
+        void UpdateTransmogOutfitSlots(uint32 id, std::span<WorldPackets::Transmogrification::TransmogOutfitSlotData const> slots);
+        void EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Optional<bool> locked);
+        std::string GetCharacterSelectOutfit() const;
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::PlayerData, int32(WowCS::EntityFragment::CGObject), TYPEID_PLAYER> m_playerData;
@@ -3075,7 +3134,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
-        void _LoadTransmogOutfits(PreparedQueryResult result);
+        void _LoadTransmogCustomSets(PreparedQueryResult result);
+        void _LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryResult situationsResult, PreparedQueryResult slotsResult,
+            int32 equippedTransmogOutfitId, bool locked);
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
@@ -3106,6 +3167,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveSpells(CharacterDatabaseTransaction trans);
         void _SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans);
         void _SaveEquipmentSets(CharacterDatabaseTransaction trans);
+        void _SaveTransmogOutfits(CharacterDatabaseTransaction trans);
         void _SaveBGData(CharacterDatabaseTransaction trans);
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
@@ -3254,6 +3316,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         std::unique_ptr<Runes> m_runes;
         EquipmentSetContainer _equipmentSets;
+        std::set<uint32> m_changedTransmogOutfits;
 
         bool CanNeverSee(WorldObject const* obj, bool ignorePhaseShift = false) const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;

@@ -4329,7 +4329,7 @@ struct npc_geolord_grekog : public ScriptedAI
     {
         uint32 prisonerEntry = NPC_LINDIE_SPRINGSTOCK;
 
-        if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, me->GetMap()) == 1)
+        if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_HORDE, me->GetMap()) == 1)
             prisonerEntry = NPC_CORK_FIZZLEPOP;
 
         Creature* bunny = me->FindNearestCreatureWithOptions(25.0f, { .CreatureId = NPC_INVIS_BUNNY_GEOLORD, .IgnorePhases = true });
