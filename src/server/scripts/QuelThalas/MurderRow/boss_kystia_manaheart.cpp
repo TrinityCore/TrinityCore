@@ -504,8 +504,8 @@ class spell_kystia_manaheart_felstorm : public AuraScript
 {
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Creature* creatureCaster = GetCaster()->ToCreature())
-            creatureCaster->DespawnOrUnsummon();
+        if (Creature* targetCreature = GetTarget()->ToCreature())
+            targetCreature->DespawnOrUnsummon(1ms);
     }
 
     void Register() override
