@@ -512,7 +512,12 @@ uint32 SpellEffectInfo::GetPeriodicTickCount() const
     return totalTicks;
 }
 
-int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
+int32 SpellEffectInfo::CalcValueAsInt(WorldObject const* caster /*= nullptr*/, SpellEffectValue const* basePoints /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
+{
+    return int32(CalcValue(caster, basePoints, target, variance, castItemId, itemLevel));
+}
+
+SpellEffectValue SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, SpellEffectValue const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
     SpellEffectValue basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
     SpellEffectValue value = bp ? *bp : basePoints;
@@ -598,7 +603,59 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     if (caster)
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
-    return int32(round(value));
+    switch (Effect)
+    {
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_ENVIRONMENTAL_DAMAGE:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_HEAL:
+        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+        case SPELL_EFFECT_WEAPON_DAMAGE:
+        case SPELL_EFFECT_HEAL_MAX_HEALTH:
+        case SPELL_EFFECT_HEAL_MECHANICAL:
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_POWER_BURN:
+            value = std::round(value);
+            break;
+        case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+        case SPELL_EFFECT_APPLY_AURA_ON_PET:
+        case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
+            switch (ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                case SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_OBS_MOD_POWER:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                case SPELL_AURA_POWER_BURN:
+                    value = std::round(value);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            return false;
+    }
+
+    return std::clamp(value, MinValue, MaxValue);
 }
 
 SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const
@@ -658,7 +715,10 @@ SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit 
         if (value > 0.0f && value < 1.0f)
             value = 1.0f;
 
-        return round(value);
+        if (!_spellInfo->HasAttribute(SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS))
+            value = round(value);
+
+        return value;
     }
     else
     {
@@ -681,10 +741,12 @@ SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit 
             else if (caster && caster->IsUnit())
                 level = caster->ToUnit()->GetLevel();
 
-            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
+            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * value / 100.0f;
+            if (!_spellInfo->HasAttribute(SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS))
+                value = round(value);
         }
 
-        return round(value);
+        return value;
     }
 }
 
@@ -4582,7 +4644,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
 
     //We need scaling level info for some auras that compute bp 0 or positive but should be debuffs
     float bpScalePerLevel = effect.RealPointsPerLevel;
-    int32 bp = effect.CalcValue();
+    SpellEffectValue bp = effect.CalcValue();
     switch (spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:

@@ -609,7 +609,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
             && ValidateSpellInfo(
                 {
-                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
                     SeethingShore::Spells::AchievementTrackerCreditClaimJumper,
                     SeethingShore::Spells::AchievementTrackerDeathFromAbove
                 });
@@ -623,7 +623,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
             args.TriggerFlags = TRIGGERED_FULL_MASK;
             args.OriginalCastId = GetSpell()->m_castId;
 
-            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValue(player)), args);
+            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValueAsInt(player)), args);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerCreditClaimJumper, true);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerDeathFromAbove, true);
         }

@@ -700,7 +700,7 @@ class spell_xt002_searing_light_spawn_life_spark : public AuraScript
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* xt002 = GetCaster())
-            if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
+            if (xt002->HasAura(aurEff->GetAmountAsInt()))   // Heartbreak aura indicating hard mode
                 xt002->CastSpell(GetOwner(), SPELL_SUMMON_LIFE_SPARK, true);
     }
 
@@ -721,7 +721,7 @@ class spell_xt002_gravity_bomb_aura : public AuraScript
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* xt002 = GetCaster())
-            if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
+            if (xt002->HasAura(aurEff->GetAmountAsInt()))   // Heartbreak aura indicating hard mode
                 xt002->CastSpell(GetOwner(), SPELL_SUMMON_VOID_ZONE, true);
     }
 
@@ -732,7 +732,7 @@ class spell_xt002_gravity_bomb_aura : public AuraScript
         if (!xt002)
             return;
 
-        if (aurEff->GetAmount() >= int32(owner->GetHealth()))
+        if (aurEff->GetAmount() >= static_cast<SpellEffectValue>(owner->GetHealth()))
             xt002->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
     }
 

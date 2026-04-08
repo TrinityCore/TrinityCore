@@ -38,7 +38,7 @@ class spell_ooze_zap : public SpellScript
 
     SpellCastResult CheckRequirement()
     {
-        if (!GetCaster()->HasAura(GetEffectInfo(EFFECT_1).CalcValue()))
+        if (!GetCaster()->HasAura(GetEffectInfo(EFFECT_1).CalcValueAsInt()))
             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; // This is actually correct
 
         if (!GetExplTargetUnit())
@@ -51,7 +51,7 @@ class spell_ooze_zap : public SpellScript
     {
         PreventHitDefaultEffect(effIndex);
         if (GetHitUnit())
-            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -95,7 +95,7 @@ class spell_energize_aoe : public SpellScript
     {
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
         {
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetEffectInfo(EFFECT_1).CalcValue()) == QUEST_STATUS_INCOMPLETE)
+            if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetEffectInfo(EFFECT_1).CalcValueAsInt()) == QUEST_STATUS_INCOMPLETE)
                 ++itr;
             else
                 targets.erase(itr++);
@@ -106,7 +106,7 @@ class spell_energize_aoe : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override

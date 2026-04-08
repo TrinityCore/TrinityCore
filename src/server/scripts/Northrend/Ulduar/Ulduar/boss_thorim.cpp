@@ -951,7 +951,7 @@ struct npc_thorim_trashAI : public ScriptedAI
         /// returns heal amount of the given spell including hots
         static uint32 GetTotalHeal(SpellInfo const* spellInfo, Unit const* caster)
         {
-            uint32 heal = 0;
+            SpellEffectValue heal = 0;
             for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
@@ -960,18 +960,18 @@ struct npc_thorim_trashAI : public ScriptedAI
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA) && spellEffectInfo.IsAura(SPELL_AURA_PERIODIC_HEAL))
                     heal += spellEffectInfo.GetPeriodicTickCount() * spellEffectInfo.CalcValue(caster);
             }
-            return heal;
+            return static_cast<uint32>(heal);
         }
 
         /// returns remaining heal amount on given target
         static uint32 GetRemainingHealOn(Unit* target)
         {
-            uint32 heal = 0;
+            SpellEffectValue heal = 0;
             Unit::AuraEffectList const& auras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
             for (AuraEffect const* aurEff : auras)
                 heal += aurEff->GetAmount() * aurEff->GetRemainingTicks();
 
-            return heal;
+            return static_cast<uint32>(heal);
         }
 
         class MostHPMissingInRange

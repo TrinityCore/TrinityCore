@@ -137,7 +137,7 @@ class spell_warl_absolute_corruption : public SpellScript
         if (Aura const* absoluteCorruption = GetCaster()->GetAura(SPELL_WARLOCK_ABSOLUTE_CORRUPTION))
         {
             Milliseconds duration = GetHitUnit()->IsPvP()
-                ? Seconds(absoluteCorruption->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue())
+                ? Seconds(absoluteCorruption->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt())
                 : Milliseconds(-1);
 
             GetHitAura()->SetMaxDuration(duration.count());
@@ -281,7 +281,7 @@ class spell_warl_burning_rush : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        if (caster->GetHealthPct() <= float(GetEffectInfo(EFFECT_1).CalcValue(caster)))
+        if (caster->GetHealthPct() <= GetEffectInfo(EFFECT_1).CalcValue(caster))
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_ENOUGH_HEALTH);
             return SPELL_FAILED_CUSTOM_ERROR;
@@ -301,7 +301,7 @@ class spell_warl_burning_rush_aura : public AuraScript
 {
     void PeriodicTick(AuraEffect const* aurEff)
     {
-        if (GetTarget()->GetHealthPct() <= float(aurEff->GetAmount()))
+        if (GetTarget()->GetHealthPct() <= aurEff->GetAmount())
         {
             PreventDefaultAction();
             Remove();
@@ -467,7 +467,7 @@ class spell_warl_chaotic_energies : public AuraScript
         }
 
         // You take ${$s2/3}% reduced damage
-        float damageReductionPct = float(effect1->GetAmount()) / 3;
+        float damageReductionPct = effect1->GetAmount() / 3;
         // plus a random amount of up to ${$s2/3}% additional reduced damage
         damageReductionPct += frand(0.0f, damageReductionPct);
 
@@ -534,13 +534,13 @@ class spell_warl_dark_pact : public AuraScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { spellInfo->Id, EFFECT_2 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
         {
             float extraAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 2.5f;
-            int32 absorb = caster->CountPctFromCurHealth(GetEffectInfo(EFFECT_1).CalcValue(caster));
+            uint64 absorb = caster->CountPctFromCurHealth(GetEffectInfo(EFFECT_1).CalcValue(caster));
             caster->SetHealth(caster->GetHealth() - absorb);
             amount = CalculatePct(absorb, GetEffectInfo(EFFECT_2).CalcValue(caster)) + extraAmount;
         }
@@ -912,7 +912,7 @@ class spell_warl_perpetual_unstability : public SpellScript
         {
             if (Aura const* unstableAfflictionAura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
             {
-                Milliseconds maxUnstableAfflictionDuration = Seconds(perpetualUnstability->GetAmount());
+                FloatSeconds maxUnstableAfflictionDuration(perpetualUnstability->GetAmount());
                 if (Milliseconds(unstableAfflictionAura->GetDuration()) <= maxUnstableAfflictionDuration)
                     caster->CastSpell(target, SPELL_WARLOCK_PERPETUAL_UNSTABILITY_DAMAGE, CastSpellExtraArgs()
                         .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
@@ -1165,7 +1165,7 @@ class spell_warl_seed_of_corruption_dummy_aura : public AuraScript
             caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE, aurEff);
     }
 
-    void CalculateBuffer(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/) const
+    void CalculateBuffer(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -1192,7 +1192,7 @@ class spell_warl_seed_of_corruption_dummy_aura : public AuraScript
         // other seed explosions detonate this instantly, no matter what damage amount is
         if (!damageInfo->GetSpellInfo() || damageInfo->GetSpellInfo()->Id != SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE)
         {
-            int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
+            SpellEffectValue amount = aurEff->GetAmount() - damageInfo->GetDamage();
             if (amount > 0)
             {
                 aurEff->SetAmount(amount);
@@ -1235,10 +1235,10 @@ class spell_warl_seed_of_corruption_generic : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
+        SpellEffectValue amount = aurEff->GetAmount() - damageInfo->GetDamage();
         if (amount > 0)
         {
-            const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+            aurEff->SetAmount(amount);
             return;
         }
 
@@ -1706,7 +1706,7 @@ class spell_warl_unstable_affliction : public AuraScript
         if (!removedEffect)
             return;
 
-        int32 damage = GetEffectInfo(EFFECT_0).CalcValue(caster, nullptr, GetUnitOwner()) / 100.0f * *removedEffect->CalculateEstimatedAmount(caster, removedEffect->GetAmount());
+        SpellEffectValue damage = GetEffectInfo(EFFECT_0).CalcValue(caster, nullptr, GetUnitOwner()) / 100.0 * *removedEffect->CalculateEstimatedAmount(caster, removedEffect->GetAmount());
         caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DAMAGE, CastSpellExtraArgs()
             .AddSpellMod(SPELLVALUE_BASE_POINT0, damage)
             .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
@@ -1774,7 +1774,7 @@ class spell_warl_volatile_agony : public SpellScript
         {
             if (Aura const* agonyAura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
             {
-                Milliseconds maxAgonyDuration = Seconds(volatileAgony->GetAmount());
+                FloatSeconds maxAgonyDuration(volatileAgony->GetAmount());
                 if (Milliseconds(agonyAura->GetDuration()) <= maxAgonyDuration)
                     caster->CastSpell(target, SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE, CastSpellExtraArgs()
                         .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)

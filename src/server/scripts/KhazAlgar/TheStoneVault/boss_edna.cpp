@@ -474,7 +474,7 @@ class spell_edna_refracting_beam_selector : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_REFRACTING_BEAM_DAMAGE, GetCastDifficulty());
-        uint32 maxTargets = spell->GetEffect(EFFECT_3).CalcValue(GetCaster());
+        uint32 maxTargets = spell->GetEffect(EFFECT_3).CalcValueAsInt(GetCaster());
 
         if (targets.size() > maxTargets)
             targets.resize(maxTargets);

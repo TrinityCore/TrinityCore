@@ -1704,8 +1704,8 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->HasAura(GetEffectInfo().CalcValue()))
-                    GetHitUnit()->RemoveAurasDueToSpell(GetEffectInfo().CalcValue());
+                if (GetHitUnit()->HasAura(GetEffectInfo().CalcValueAsInt()))
+                    GetHitUnit()->RemoveAurasDueToSpell(GetEffectInfo().CalcValueAsInt());
             }
 
             void Register() override

@@ -353,13 +353,13 @@ class spell_stormwind_harbor_to_boralus_transition : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()) });
     }
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, aurEff->GetAmount(), false);
+            caster->CastSpell(caster, aurEff->GetAmountAsInt(), false);
     }
 
     void Register() override

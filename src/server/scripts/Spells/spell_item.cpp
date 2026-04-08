@@ -334,7 +334,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 // 26400 - Arcane Shroud
 class spell_item_arcane_shroud : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -504,11 +504,11 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        int32 absorb = int32(CalculatePct(healInfo->GetHeal(), 15.0f));
+        SpellEffectValue absorb = CalculatePct(healInfo->GetHeal(), 15.0f);
         if (AuraEffect* protEff = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PROTECTION_OF_ANCIENT_KINGS, EFFECT_0, eventInfo.GetActor()->GetGUID()))
         {
             // The shield can grow to a maximum size of 20,000 damage absorbtion
-            protEff->SetAmount(std::min<int32>(protEff->GetAmount() + absorb, 20000));
+            protEff->SetAmount(std::min(protEff->GetAmount() + absorb, 20000.0));
 
             // Refresh and return to prevent replacing the aura
             protEff->GetBase()->RefreshDuration();
@@ -1355,7 +1355,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        int32 pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
+        SpellEffectValue pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
                 if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
@@ -1692,7 +1692,7 @@ class spell_item_persistent_shield : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
-        int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
+        SpellEffectValue bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
 
         // Scarab Brooch does not replace stronger shields
         if (AuraEffect const* shield = target->GetAuraEffect(SPELL_PERSISTENT_SHIELD_TRIGGERED, EFFECT_0, caster->GetGUID()))
@@ -2331,7 +2331,7 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
 // 28862 - The Eye of Diminution
 class spell_item_the_eye_of_diminution : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -3561,7 +3561,7 @@ public:
             Aura* dummy = caster->GetAura(_stackSpell); // retrieve aura
 
             //dont do anything if it's not the right amount of stacks;
-            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmount())
+            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmountAsInt())
                 return;
 
             // if right amount, remove the aura and cast real trigger
@@ -3941,7 +3941,7 @@ class spell_item_artifical_stamina : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
             amount = GetEffectInfo(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
@@ -3965,7 +3965,7 @@ class spell_item_artifical_damage : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
             amount = GetSpellInfo()->GetEffect(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
@@ -4548,7 +4548,7 @@ class spell_item_grips_of_forsaken_sanity : public AuraScript
 
     bool CheckHealth(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetActor()->GetHealthPct() >= float(GetEffectInfo(EFFECT_1).CalcValue());
+        return eventInfo.GetActor()->GetHealthPct() >= GetEffectInfo(EFFECT_1).CalcValue();
     }
 
     void Register() override

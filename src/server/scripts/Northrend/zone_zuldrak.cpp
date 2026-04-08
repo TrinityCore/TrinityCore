@@ -868,12 +868,12 @@ class spell_zuldrak_chains_of_the_scourge : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

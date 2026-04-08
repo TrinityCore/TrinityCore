@@ -212,7 +212,18 @@ enum class SpellPvpModifier : uint8
 
 enum SpellValueMod : int32
 {
-    SPELLVALUE_BASE_POINT0,
+    SPELLVALUE_MAX_TARGETS,
+    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_DURATION,
+    SPELLVALUE_PARENT_SPELL_TARGET_COUNT,
+    SPELLVALUE_PARENT_SPELL_TARGET_INDEX,
+
+    SPELLVALUE_INT_END
+};
+
+enum SpellValueModFloat : int32
+{
+    SPELLVALUE_BASE_POINT0  = uint8(SPELLVALUE_INT_END),
     SPELLVALUE_BASE_POINT1,
     SPELLVALUE_BASE_POINT2,
     SPELLVALUE_BASE_POINT3,
@@ -247,18 +258,7 @@ enum SpellValueMod : int32
 
     SPELLVALUE_BASE_POINT_END,
 
-    SPELLVALUE_MAX_TARGETS = SPELLVALUE_BASE_POINT_END,
-    SPELLVALUE_AURA_STACK,
-    SPELLVALUE_DURATION,
-    SPELLVALUE_PARENT_SPELL_TARGET_COUNT,
-    SPELLVALUE_PARENT_SPELL_TARGET_INDEX,
-
-    SPELLVALUE_INT_END
-};
-
-enum SpellValueModFloat : int32
-{
-    SPELLVALUE_RADIUS_MOD   = uint8(SPELLVALUE_INT_END),
+    SPELLVALUE_RADIUS_MOD   = SPELLVALUE_BASE_POINT_END,
     SPELLVALUE_CRIT_CHANCE,
     SPELLVALUE_DURATION_PCT,
 };
@@ -493,12 +493,12 @@ struct CastSpellExtraArgsInit
     struct SpellValueOverride
     {
         SpellValueOverride(SpellValueMod mod, int32 val) : Type(mod) { Value.I = val; }
-        SpellValueOverride(SpellValueModFloat mod, float val) : Type(mod) { Value.F = val; }
+        SpellValueOverride(SpellValueModFloat mod, SpellEffectValue val) : Type(mod) { Value.F = val; }
 
         int32 Type;
         union
         {
-            float F;
+            SpellEffectValue F;
             int32 I;
         } Value;
     };
@@ -518,7 +518,7 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs(AuraEffect const* eff) { TriggerFlags = TRIGGERED_FULL_MASK; SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) { CastDifficulty = castDifficulty; }
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.emplace_back(mod, val); }
-    CastSpellExtraArgs(SpellValueModFloat mod, float val) { SpellValueOverrides.emplace_back(mod, val); }
+    CastSpellExtraArgs(SpellValueModFloat mod, SpellEffectValue val) { SpellValueOverrides.emplace_back(mod, val); }
     CastSpellExtraArgs(CastSpellExtraArgsInit&& init) : CastSpellExtraArgsInit(std::move(init)) { SetTriggeringSpell(TriggeringSpell); }
 
     CastSpellExtraArgs(CastSpellExtraArgs const& other);
@@ -537,8 +537,8 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
     CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
-    CastSpellExtraArgs& AddSpellMod(SpellValueModFloat mod, float val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
-    CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
+    CastSpellExtraArgs& AddSpellMod(SpellValueModFloat mod, SpellEffectValue val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
+    CastSpellExtraArgs& AddSpellBP0(SpellEffectValue val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
     CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
     CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult>&& scriptResult) { ScriptResult = std::move(scriptResult); return *this; }
     CastSpellExtraArgs& SetScriptWaitsForSpellHit(bool scriptWaitsForSpellHit) { ScriptWaitsForSpellHit = scriptWaitsForSpellHit; return *this; }
