@@ -975,7 +975,7 @@ class spell_putricide_unstable_experiment : public SpellScript
                 break;
         }
 
-        GetCaster()->CastSpell(target, uint32(GetEffectInfo(SpellEffIndex(stage)).CalcValue()), true);
+        GetCaster()->CastSpell(target, uint32(GetEffectInfo(SpellEffIndex(stage)).CalcValueAsInt()), true);
     }
 
     void Register() override
@@ -1037,7 +1037,7 @@ class spell_putricide_choking_gas_bomb : public SpellScript
             if (spellEffectInfo.EffectIndex == skipIndex)
                 continue;
 
-            uint32 spellId = uint32(spellEffectInfo.CalcValue());
+            uint32 spellId = uint32(spellEffectInfo.CalcValueAsInt());
             GetCaster()->CastSpell(GetCaster(), spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                 .SetOriginalCaster(GetCaster()->GetGUID()));
         }
@@ -1129,7 +1129,7 @@ class spell_putricide_eat_ooze : public SpellScript
         if (!target)
             return;
 
-        if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
+        if (Aura* grow = target->GetAura(uint32(GetEffectValueAsInt())))
         {
             if (grow->GetStackAmount() < 3)
             {
@@ -1162,13 +1162,13 @@ class spell_putricide_mutated_plague : public AuraScript
         uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
         SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell, GetCastDifficulty());
 
-        int32 damage = spell->GetEffect(EFFECT_0).CalcValue(caster);
+        SpellEffectValue damage = spell->GetEffect(EFFECT_0).CalcValue(caster);
         float multiplier = 2.0f;
         if (GetTarget()->GetMap()->Is25ManRaid())
             multiplier = 3.0f;
 
-        damage *= int32(pow(multiplier, GetStackAmount()));
-        damage = int32(damage * 1.5f);
+        damage *= std::pow(multiplier, GetStackAmount());
+        damage = damage * 1.5f;
 
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
@@ -1178,13 +1178,13 @@ class spell_putricide_mutated_plague : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        uint32 healSpell = uint32(aurEff->GetSpellEffectInfo().CalcValue());
+        uint32 healSpell = uint32(aurEff->GetSpellEffectInfo().CalcValueAsInt());
         SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(healSpell, GetCastDifficulty());
 
         if (!healSpellInfo)
             return;
 
-        int32 heal = healSpellInfo->GetEffect(EFFECT_0).CalcValue() * GetStackAmount();
+        SpellEffectValue heal = healSpellInfo->GetEffect(EFFECT_0).CalcValue() * GetStackAmount();
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetOriginalCaster(GetCasterGUID());
         args.AddSpellBP0(heal);
@@ -1372,11 +1372,11 @@ class spell_putricide_clear_aura_effect_value : public SpellScript
     {
         PreventHitDefaultEffect(effIndex);
         Unit* target = GetHitUnit();
-        uint32 auraId = GetEffectValue();
+        uint32 auraId = GetEffectValueAsInt();
         target->RemoveAurasDueToSpell(auraId);
         if (m_scriptSpellId == SPELL_TEAR_GAS_CANCEL && GetSpellInfo()->GetEffects().size() >= EFFECT_1)
         {
-            uint32 auraId2 = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+            uint32 auraId2 = GetSpellInfo()->GetEffect(EFFECT_1).CalcValueAsInt();
             target->RemoveAurasDueToSpell(auraId2);
         }
     }
@@ -1393,9 +1393,9 @@ class spell_stinky_precious_decimate : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (GetHitUnit()->GetHealthPct() > float(GetEffectValue()))
+        if (GetHitUnit()->GetHealthPct() > GetEffectValue())
         {
-            uint32 newHealth = GetHitUnit()->GetMaxHealth() * uint32(GetEffectValue()) / 100;
+            uint64 newHealth = GetHitUnit()->CountPctFromMaxHealth(GetEffectValue());
             GetHitUnit()->SetHealth(newHealth);
         }
     }

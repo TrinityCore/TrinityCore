@@ -1561,19 +1561,19 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION:
-                        if (target->HasAura(GetEffectValue()))
+                        if (target->HasAura(GetEffectValueAsInt()))
                             for (uint8 n = 0; n < 2; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue());
+                                target->RemoveAuraFromStack(GetEffectValueAsInt());
                         break;
                     case SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION:
-                        if (target->HasAura(GetEffectValue()))
+                        if (target->HasAura(GetEffectValueAsInt()))
                             for (uint8 n = 0; n < 10; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue());
+                                target->RemoveAuraFromStack(GetEffectValueAsInt());
                         break;
                     case SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION:
-                        if (target->HasAura(GetEffectValue()))
+                        if (target->HasAura(GetEffectValueAsInt()))
                             for (uint8 n = 0; n < 25; ++n)
-                                target->RemoveAuraFromStack(GetEffectValue());
+                                target->RemoveAuraFromStack(GetEffectValueAsInt());
                         break;
                     default:
                         break;

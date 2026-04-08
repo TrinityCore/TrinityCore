@@ -241,7 +241,7 @@ class spell_saviana_conflagration_throwback : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
         GetHitUnit()->GetMotionMaster()->MovePoint(POINT_LAND, SavianaRagefireFlyInPos);
     }
 

@@ -1944,7 +1944,7 @@ class spell_the_lich_king_infest : public AuraScript
         if (aurEff->GetTickNumber() == 1)
             return;
 
-        aurEff->SetAmount(int32(aurEff->GetAmount() * 1.15f));
+        aurEff->SetAmount(aurEff->GetAmount() * 1.15);
     }
 
     void Register() override
@@ -2091,7 +2091,7 @@ private:
         AfterEffectApply += AuraEffectRemoveFn(spell_the_lich_king_necrotic_plague_jump_aura::AfterDispel, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
     }
 
-    int32 _lastAmount;
+    SpellEffectValue _lastAmount;
 };
 
 // 73530 - Shadow Trap (Visual)
@@ -2188,7 +2188,7 @@ class spell_the_lich_king_raging_spirit : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -2337,7 +2337,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -2517,12 +2517,12 @@ class spell_the_lich_king_lights_favor : public AuraScript
                 effect->RecalculateAmount(caster);
     }
 
-    void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateBonus(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
         amount = 0;
         if (Unit* caster = GetCaster())
-            amount = int32(caster->GetHealthPct());
+            amount = caster->GetHealthPct();
     }
 
     void Register() override
@@ -2659,7 +2659,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(nullptr, uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(nullptr, uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -2710,7 +2710,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

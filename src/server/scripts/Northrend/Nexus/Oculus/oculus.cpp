@@ -442,7 +442,7 @@ class spell_oculus_shock_lance : public SpellScript
     {
         if (AuraEffect const* shockCharges = victim->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
         {
-            flatMod += shockCharges->GetAmount();
+            flatMod += shockCharges->GetAmountAsInt();
             shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
@@ -493,7 +493,7 @@ class spell_oculus_temporal_rift : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 amount = aurEff->GetAmount() + damageInfo->GetDamage();
+        SpellEffectValue amount = aurEff->GetAmount() + damageInfo->GetDamage();
         if (amount >= 15000)
         {
             if (Unit* caster = GetCaster())
@@ -501,7 +501,7 @@ class spell_oculus_temporal_rift : public AuraScript
             amount -= 15000;
         }
 
-        const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+        aurEff->SetAmount(amount);
     }
 
     void Register() override
@@ -527,10 +527,10 @@ class spell_oculus_touch_the_nightmare : public SpellScript
 // 50344 - Dream Funnel
 class spell_oculus_dream_funnel : public AuraScript
 {
-    void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         if (Unit* caster = GetCaster())
-            amount = int32(caster->CountPctFromMaxHealth(5));
+            amount = caster->CountPctFromMaxHealth(5);
 
         canBeRecalculated = false;
     }

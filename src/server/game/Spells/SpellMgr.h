@@ -438,7 +438,7 @@ class TC_GAME_API PetAura
     public:
         PetAura() : removeOnChangePet(false), damage(0) { }
 
-        PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, int _damage) :
+        PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, SpellEffectValue _damage) :
         removeOnChangePet(_removeOnChangePet), damage(_damage)
         {
             auras[petEntry] = aura;
@@ -465,7 +465,7 @@ class TC_GAME_API PetAura
             return removeOnChangePet;
         }
 
-        int32 GetDamage() const
+        SpellEffectValue GetDamage() const
         {
             return damage;
         }
@@ -473,7 +473,7 @@ class TC_GAME_API PetAura
     private:
         PetAuraMap auras;
         bool removeOnChangePet;
-        int32 damage;
+        SpellEffectValue damage;
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
@@ -695,7 +695,7 @@ class TC_GAME_API SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
-        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, AuraType auraType, SpellEffectValue amount, std::map<SpellGroup, SpellEffectValue>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 

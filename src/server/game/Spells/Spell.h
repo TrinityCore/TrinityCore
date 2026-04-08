@@ -237,7 +237,7 @@ struct SpellLogEffect
 struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto, WorldObject const* caster);
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];
+    SpellEffectValue EffectBasePoints[MAX_SPELL_EFFECTS];
     uint32    CustomBasePointsMask;
     uint32    MaxAffectedTargets;
     float     RadiusMod;
@@ -522,7 +522,7 @@ class TC_GAME_API Spell
         bool CheckSpellCancelsConfuse(int32* param1) const;
         bool CheckSpellCancelsNoActions(int32* param1) const;
 
-        int32 CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* target, float* var = nullptr) const;
+        SpellEffectValue CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* target, float* var = nullptr) const;
 
         void Delayed();
         void DelayedChannel();
@@ -768,7 +768,8 @@ class TC_GAME_API Spell
         GameObject* gameObjTarget;
         Corpse* m_corpseTarget;
         WorldLocation* destTarget;
-        int32 damage;
+        SpellEffectValue effectValue;
+        inline int32 GetEffectValueAsInt() const { return static_cast<int32>(effectValue); }
         SpellMissInfo targetMissInfo;
         float variance;
         SpellEffectHandleMode effectHandleMode;
@@ -832,7 +833,7 @@ class TC_GAME_API Spell
             // info set at PreprocessTarget, used by DoTargetSpellHit
             DiminishingGroup DRGroup = DIMINISHING_NONE;
             int32 AuraDuration = 0;
-            int32 AuraBasePoints[MAX_SPELL_EFFECTS] = { };
+            SpellEffectValue AuraBasePoints[MAX_SPELL_EFFECTS] = { };
             bool Positive = true;
             UnitAura* HitAura = nullptr;
             ProcFlagsHit ProcHitMask = { };

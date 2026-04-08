@@ -1089,7 +1089,7 @@ class spell_shade_soul_channel : public AuraScript
 {
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        int32 const maxSlowEff = -99;
+        constexpr SpellEffectValue maxSlowEff = -99;
         if (aurEff->GetAmount() < maxSlowEff)
             if (AuraEffect* slowEff = GetEffect(EFFECT_0))
                 slowEff->ChangeAmount(maxSlowEff);

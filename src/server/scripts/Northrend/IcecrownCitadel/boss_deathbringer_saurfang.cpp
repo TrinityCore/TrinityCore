@@ -1025,9 +1025,9 @@ class spell_deathbringer_blood_power : public SpellScript
 
 class spell_deathbringer_blood_power_aura : public AuraScript
 {
-    void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
+    void RecalculateHook(AuraEffect const* /*aurEffect*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
-        amount = int32(GetUnitOwner()->GetPower(POWER_ENERGY));
+        amount = GetUnitOwner()->GetPower(POWER_ENERGY);
         canBeRecalculated = true;
     }
 
@@ -1146,7 +1146,7 @@ private:
 
     void HandleForceCast(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), TRIGGERED_FULL_MASK);
     }
 
     void Register() override
@@ -1190,7 +1190,7 @@ class spell_deathbringer_remove_marks : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

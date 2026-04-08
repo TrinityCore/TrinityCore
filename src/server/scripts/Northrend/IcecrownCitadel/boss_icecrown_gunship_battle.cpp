@@ -1999,7 +1999,7 @@ class spell_igb_burning_pitch_selector : public SpellScript
     void HandleDummy(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), TRIGGERED_NONE);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), TRIGGERED_NONE);
     }
 
     void Register() override
@@ -2017,7 +2017,7 @@ class spell_igb_burning_pitch : public SpellScript
         PreventHitDefaultEffect(effIndex);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(8000);
-        GetCaster()->CastSpell(nullptr, GetEffectValue(), args);
+        GetCaster()->CastSpell(nullptr, GetEffectValueAsInt(), args);
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BURNING_PITCH, TRIGGERED_FULL_MASK);
     }
 
@@ -2043,7 +2043,7 @@ class spell_igb_rocket_artillery : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), TRIGGERED_NONE);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), TRIGGERED_NONE);
     }
 
     void Register() override

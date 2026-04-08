@@ -498,7 +498,7 @@ class spell_marrowgar_coldflame : public SpellScript
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -515,7 +515,7 @@ class spell_marrowgar_coldflame_bonestorm : public SpellScript
     {
         PreventHitDefaultEffect(effIndex);
         for (uint8 i = 0; i < 4; ++i)
-            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue() + i), true);
+            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt() + i), true);
     }
 
     void Register() override

@@ -718,7 +718,12 @@ SpellEffectInfo const& SpellScript::GetEffectInfo() const
     return *m_spell->effectInfo;
 }
 
-int32 SpellScript::GetEffectValue() const
+int32 SpellScript::GetEffectValueAsInt() const
+{
+    return static_cast<int32>(GetEffectValue());
+}
+
+SpellEffectValue SpellScript::GetEffectValue() const
 {
     if (!IsInEffectHook())
     {
@@ -726,10 +731,10 @@ int32 SpellScript::GetEffectValue() const
         return 0;
     }
 
-    return m_spell->damage;
+    return m_spell->effectValue;
 }
 
-void SpellScript::SetEffectValue(int32 value)
+void SpellScript::SetEffectValue(SpellEffectValue value)
 {
     if (!IsInEffectHook())
     {
@@ -737,7 +742,7 @@ void SpellScript::SetEffectValue(int32 value)
         return;
     }
 
-    m_spell->damage = value;
+    m_spell->effectValue = std::clamp(value, SpellEffectInfo::MinValue, SpellEffectInfo::MaxValue);
 }
 
 float SpellScript::GetEffectVariance() const

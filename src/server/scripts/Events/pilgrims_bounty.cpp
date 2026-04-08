@@ -87,7 +87,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellEffect({ { uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()), EFFECT_0 } });
+            && ValidateSpellEffect({ { uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()), EFFECT_0 } });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -125,10 +125,10 @@ class spell_pilgrims_bounty_feast_on : public SpellScript
                         .SetOriginalCaster(player->GetGUID()));
                 }
 
-        if (Aura* aura = caster->GetAura(GetEffectValue()))
+        if (Aura* aura = caster->GetAura(GetEffectValueAsInt()))
         {
             if (aura->GetStackAmount() == 1)
-                caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue());
+                caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt());
             aura->ModStackAmount(-1);
         }
     }
@@ -411,14 +411,14 @@ private:
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(aurEff->GetAmount()), true);
+        target->CastSpell(target, uint32(aurEff->GetAmountAsInt()), true);
         HandlePlate(target, true);
     }
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->RemoveAurasDueToSpell(aurEff->GetAmount());
+        target->RemoveAurasDueToSpell(aurEff->GetAmountAsInt());
         HandlePlate(target, false);
     }
 

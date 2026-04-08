@@ -628,14 +628,14 @@ class spell_sholazar_take_sputum_sample : public SpellScript
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo(
         {
-            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
-            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt())
         });
     }
 
     SpellCastResult CheckCast()
     {
-        if (!GetCaster()->HasAura(uint32(GetEffectInfo(EFFECT_1).CalcValue())))
+        if (!GetCaster()->HasAura(uint32(GetEffectInfo(EFFECT_1).CalcValueAsInt())))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         return SPELL_CAST_OK;
@@ -643,7 +643,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -762,7 +762,7 @@ class spell_sholazar_flight_to_sholazar : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return sBroadcastTextStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+        return sBroadcastTextStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()));
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -770,7 +770,7 @@ class spell_sholazar_flight_to_sholazar : public SpellScript
         // 51076 (triggers 51071) is Area Aura - Party and applies on player too (no aura in sniffs on player)
         // That makes both player and creature say
         if (Creature* caster = GetCaster()->ToCreature())
-            caster->Unit::Say(uint32(GetEffectValue()), caster);
+            caster->Unit::Say(uint32(GetEffectValueAsInt()), caster);
     }
 
     void Register() override

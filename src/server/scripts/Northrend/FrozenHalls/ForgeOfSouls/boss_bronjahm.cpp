@@ -262,7 +262,7 @@ class spell_bronjahm_consume_soul : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void Register() override

@@ -435,9 +435,11 @@ void SpellCastTargets::Update(WorldObject* caster)
 
 SpellValue::SpellValue(SpellInfo const* proto, WorldObject const* caster)
 {
-    memset(EffectBasePoints, 0, sizeof(EffectBasePoints));
     for (SpellEffectInfo const& spellEffectInfo : proto->GetEffects())
         EffectBasePoints[spellEffectInfo.EffectIndex] = spellEffectInfo.CalcBaseValue(caster, nullptr);
+
+    for (std::size_t i = proto->GetEffects().size(); i < std::size(EffectBasePoints); ++i)
+        EffectBasePoints[i] = 0.0;
 
     CustomBasePointsMask = 0;
     MaxAffectedTargets = proto->MaxAffectedTargets;
@@ -544,7 +546,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     gameObjTarget = nullptr;
     m_corpseTarget = nullptr;
     destTarget = nullptr;
-    damage = 0;
+    effectValue = 0.0;
     targetMissInfo = SPELL_MISS_NONE;
     variance = 0.0f;
     effectHandleMode = SPELL_EFFECT_HANDLE_LAUNCH;
@@ -4913,9 +4915,9 @@ int32 Spell::GetSpellCastDataAmmo()
     return ammoDisplayID;
 }
 
-static std::pair<int32, SpellHealPredictionType> CalcPredictedHealing(SpellInfo const* spellInfo, Unit const* unitCaster, Unit* target, uint32 castItemEntry, int32 castItemLevel, Spell* spell, bool withPeriodic)
+static std::pair<SpellEffectValue, SpellHealPredictionType> CalcPredictedHealing(SpellInfo const* spellInfo, Unit const* unitCaster, Unit* target, uint32 castItemEntry, int32 castItemLevel, Spell* spell, bool withPeriodic)
 {
-    int32 points = 0;
+    SpellEffectValue points = 0;
     SpellHealPredictionType type = SPELL_HEAL_PREDICTION_TARGET;
     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
     {
@@ -4970,7 +4972,7 @@ void Spell::UpdateSpellHealPrediction(WorldPackets::Spells::SpellHealPrediction&
     if (Unit* target = m_targets.GetUnitTarget())
     {
         auto [points, type] = CalcPredictedHealing(m_spellInfo, unitCaster, target, m_castItemEntry, m_castItemLevel, this, withPeriodic);
-        healPrediction.Points = points;
+        healPrediction.Points = static_cast<uint32>(points);
         healPrediction.Type = type;
     }
 
@@ -5640,7 +5642,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     destTarget = &m_destTargets[spellEffectInfo.EffectIndex]._position;
     effectInfo = &spellEffectInfo;
 
-    damage = CalculateDamage(spellEffectInfo, unitTarget, &variance);
+    effectValue = CalculateDamage(spellEffectInfo, unitTarget, &variance);
 
     bool preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
 
@@ -6351,7 +6353,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     Optional<PetSaveMode> petSlot;
                     if (!spellEffectInfo.MiscValue)
                     {
-                        petSlot = PetSaveMode(spellEffectInfo.CalcValue());
+                        petSlot = PetSaveMode(spellEffectInfo.CalcValueAsInt());
 
                         // No pet can be summoned if any pet is dead
                         for (Optional<PetStable::PetInfo> const& activePet : playerCaster->GetPetStable()->ActivePets)
@@ -6605,8 +6607,8 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
 
-                    int32 value = CalculateDamage(spellEffectInfo, target);
-                    if (value && int32(target->GetLevelForTarget(m_caster)) > value)
+                    SpellEffectValue value = CalculateDamage(spellEffectInfo, target);
+                    if (value && target->GetLevelForTarget(m_caster) > value)
                         return SPELL_FAILED_HIGHLEVEL;
                 }
 
@@ -7000,10 +7002,14 @@ SpellCastResult Spell::CheckMovement() const
     return SPELL_CAST_OK;
 }
 
-int32 Spell::CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* target, float* var /*= nullptr*/) const
+SpellEffectValue Spell::CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit const* target, float* var /*= nullptr*/) const
 {
+    if (var)
+        *var = 0.0f;
+
     bool needRecalculateBasePoints = !(m_spellValue->CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex));
-    return m_caster->CalculateSpellDamage(target, spellEffectInfo, needRecalculateBasePoints ? nullptr : &m_spellValue->EffectBasePoints[spellEffectInfo.EffectIndex], var);
+    SpellEffectValue* basePoints = needRecalculateBasePoints ? nullptr : &m_spellValue->EffectBasePoints[spellEffectInfo.EffectIndex];
+    return spellEffectInfo.CalcValue(m_caster, basePoints, target, var);
 }
 
 bool Spell::CanAutoCast(Unit* target)
@@ -7441,7 +7447,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                         if (!itemTemplate)
                             return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                        uint32 createCount = std::clamp<uint32>(spellEffectInfo.CalcValue(), 1u, itemTemplate->GetMaxStackSize());
+                        uint32 createCount = std::clamp<uint32>(spellEffectInfo.CalcValueAsInt(), 1u, itemTemplate->GetMaxStackSize());
                         ItemPosCountVec dest;
                         InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, spellEffectInfo.ItemType, createCount);
                         if (msg != EQUIP_ERR_OK)
@@ -7463,7 +7469,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                                     return SPELL_FAILED_DONT_REPORT;
                                 }
                                 else if (m_spellInfo->GetEffects().size() > EFFECT_1)
-                                    player->CastSpell(player, m_spellInfo->GetEffect(EFFECT_1).CalcValue(), CastSpellExtraArgs()
+                                    player->CastSpell(player, m_spellInfo->GetEffect(EFFECT_1).CalcValueAsInt(), CastSpellExtraArgs()
                                         .SetTriggeringSpell(this));        // move this to anywhere
                                 return SPELL_FAILED_DONT_REPORT;
                             }
@@ -7753,10 +7759,10 @@ void Spell::Delayed() // only called in DealDamage()
     //check pushback reduce
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
 
-    int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
+    float delayReduce = 100.0f;                             // must be initialized to 100 for percent modifiers
     if (Player* player = unitCaster->GetSpellModOwner())
         player->ApplySpellMod(m_spellInfo, SpellModOp::ResistPushback, delayReduce, this);
-    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100.0f;
     if (delayReduce >= 100)
         return;
 
@@ -7795,10 +7801,10 @@ void Spell::DelayedChannel()
 
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
 
-    int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
+    float delayReduce = 100.0f;                                  // must be initialized to 100 for percent modifiers
     if (Player* player = unitCaster->GetSpellModOwner())
         player->ApplySpellMod(m_spellInfo, SpellModOp::ResistPushback, delayReduce, this);
-    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100.0f;
     if (delayReduce >= 100)
         return;
 
@@ -7935,8 +7941,8 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
                 return false;
             if (!target->GetCharmerGUID().IsEmpty())
                 return false;
-            if (int32 value = CalculateDamage(spellEffectInfo, target))
-                if ((int32)target->GetLevelForTarget(m_caster) > value)
+            if (SpellEffectValue value = CalculateDamage(spellEffectInfo, target))
+                if (target->GetLevelForTarget(m_caster) > value)
                     return false;
             break;
         default:
@@ -8434,7 +8440,7 @@ SpellCastResult Spell::CanOpenLock(SpellEffectInfo const& effect, uint32 lockId,
                     // skill bonus provided by casting spell (mostly item spells)
                     // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)
                     if (effect.TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || effect.TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
-                        skillValue += effect.CalcValue();
+                        skillValue += effect.CalcValueAsInt();
 
                     if (skillValue < reqSkillValue)
                         return SPELL_FAILED_LOW_CASTLEVEL;
@@ -8460,7 +8466,7 @@ void Spell::SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& valu
 {
     if (value.Type >= SPELLVALUE_BASE_POINT0 && value.Type < SPELLVALUE_BASE_POINT_END)
     {
-        m_spellValue->EffectBasePoints[value.Type - SPELLVALUE_BASE_POINT0] = value.Value.I;
+        m_spellValue->EffectBasePoints[value.Type - SPELLVALUE_BASE_POINT0] = value.Value.F;
         m_spellValue->CustomBasePointsMask |= 1 << (value.Type - SPELLVALUE_BASE_POINT0);
         return;
     }
@@ -8489,7 +8495,7 @@ void Spell::SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& valu
             m_spellValue->CriticalChance = value.Value.F;
             break;
         case SPELLVALUE_DURATION_PCT:
-            m_spellValue->DurationMul = value.Value.F / 100.0f;
+            m_spellValue->DurationMul = value.Value.F / 100.0;
             break;
         default:
             break;
@@ -8853,9 +8859,9 @@ void Spell::PrepareTriggersExecutedOnHit()
         {
             // calculate the chance using spell base amount, because aura amount is not updated on combo-points change
             // this possibly needs fixing
-            int32 auraBaseAmount = aurEff->GetBaseAmount();
+            SpellEffectValue auraBaseAmount = aurEff->GetBaseAmount();
             // proc chance is stored in effect amount
-            int32 chance = unitCaster->CalculateSpellDamage(nullptr, aurEff->GetSpellEffectInfo(), &auraBaseAmount);
+            int32 chance = unitCaster->CalcValueAsInt(unitCaster, aurEff->GetSpellEffectInfo(), &auraBaseAmount);
             chance *= aurEff->GetBase()->GetStackAmount();
 
             // build trigger and add to the list

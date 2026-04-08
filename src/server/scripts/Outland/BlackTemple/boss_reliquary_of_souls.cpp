@@ -740,7 +740,7 @@ class spell_reliquary_of_souls_aura_of_anger : public AuraScript
     {
         if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
             aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
-        aurEff->SetAmount(100 * aurEff->GetTickNumber());
+        aurEff->SetAmount(100.0 * aurEff->GetTickNumber());
     }
 
     void Register() override

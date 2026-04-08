@@ -614,7 +614,7 @@ class spell_death_knight_devour_humanoid : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
