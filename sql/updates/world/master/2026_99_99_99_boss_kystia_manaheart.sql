@@ -11,7 +11,7 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (234648, 255050, 234660);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (234648, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, '422356'), -- 234648 (Kystia Manaheart) - Bot AI Follow Advert
 (255050, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '1264103'), -- 255050 (Kystia Manaheart) - VFX
-(234660, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 3, '1230289'); -- 234660 (Nibbles) - Illicit Infusion
+(234660, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, '1230289'); -- 234660 (Nibbles) - Illicit Infusion
 
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=1 AND `Entry` IN (234648, 234660, 255050));
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `TypeFlags3`) VALUES
@@ -36,10 +36,6 @@ INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`,
 (124578, 0.765999972820281982, 3, 0, 66220),
 (138932, 0.765999972820281982, 3, 0, 66220),
 (126199, 2.475043296813964843, 4, 0, 66220);
-
-DELETE FROM `creature_template_movement` WHERE `CreatureId`=234660;
-INSERT INTO `creature_template_movement` (`CreatureId`, `HoverInitiallyEnabled`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
-(234660, 1, 0, 0, NULL);
 
 -- Gameobjects
 DELETE FROM `gameobject` WHERE `guid` = @OGUID+0;
