@@ -309,7 +309,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     // calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance && !(e.event.event_flags & SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL))
     {
-        if (!roll_chance_i(e.event.event_chance))
+        if (!roll_chance(e.event.event_chance))
             return;
     }
 

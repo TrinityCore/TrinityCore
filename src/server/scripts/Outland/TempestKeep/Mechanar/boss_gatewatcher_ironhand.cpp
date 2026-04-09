@@ -67,7 +67,7 @@ struct boss_gatewatcher_iron_hand : public BossAI
 
     void KilledUnit(Unit* /*victim*/) override
     {
-        if (roll_chance_i(50))
+        if (roll_chance(50))
             Talk(SAY_SLAY);
     }
 
@@ -99,7 +99,7 @@ struct boss_gatewatcher_iron_hand : public BossAI
                     Talk(EMOTE_HAMMER);
                     /// @todo expect cast this about 5 times in a row (?), announce it by emote only once
                     DoCastVictim(SPELL_JACKHAMMER, true);
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_HAMMER);
                     events.ScheduleEvent(EVENT_JACKHAMMER, 30s);
                     break;

@@ -4833,7 +4833,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     break;
                 }
                 case 39850:                                     // Rocket Blast
-                    if (roll_chance_i(20))                       // backfire stun
+                    if (roll_chance(20))                       // backfire stun
                         target->CastSpell(target, 51581, this);
                     break;
                 case 43873:                                     // Headless Horseman Laugh
@@ -5633,7 +5633,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             break;
     }
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    bool crit = roll_chance(GetCritChanceFor(caster, target));
     if (crit)
         damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
 
@@ -5721,7 +5721,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetSpellEffectInfo(), stackAmountForBonuses, nullptr, this);
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    bool crit = roll_chance(GetCritChanceFor(caster, target));
     if (crit)
         damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
 
@@ -5851,7 +5851,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    bool crit = roll_chance(GetCritChanceFor(caster, target));
     if (crit)
         damage = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, damage, target);
 

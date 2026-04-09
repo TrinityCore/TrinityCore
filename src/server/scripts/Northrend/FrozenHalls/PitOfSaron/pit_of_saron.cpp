@@ -43,7 +43,7 @@ enum Events
 
 bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
 {
-    if (roll_chance_i(12))
+    if (roll_chance(12))
     {
         _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
         _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(20s, 35s)));

@@ -371,7 +371,7 @@ class spell_stratholme_haunting_phantoms : public AuraScript
 
     void HandleDummyTick(AuraEffect const* /*aurEff*/)
     {
-        if (roll_chance_i(50))
+        if (roll_chance(50))
             GetTarget()->CastSpell(nullptr, SPELL_SUMMON_SPITEFUL_PHANTOM, true);
         else
             GetTarget()->CastSpell(nullptr, SPELL_SUMMON_WRATH_PHANTOM, true);

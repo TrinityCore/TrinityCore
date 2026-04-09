@@ -124,7 +124,7 @@ struct boss_nethermancer_sepethrea : public BossAI
                 case EVENT_DRAGONS_BREATH:
                     DoCastSelf(SPELL_DRAGONS_BREATH);
                     events.Repeat(25s, 35s);
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_DRAGONS_BREATH);
                     break;
                 default:

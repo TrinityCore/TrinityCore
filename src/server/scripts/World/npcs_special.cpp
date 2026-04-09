@@ -1519,7 +1519,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                 }
                 case EVENT_EMOTE:
                     // Play random emote or dance
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                     {
                         me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
                         _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
@@ -1536,7 +1536,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
 
                     // Random EVENT_EMOTE or EVENT_FACETO
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         _events.ScheduleEvent(EVENT_FACE_TO, 1s);
                     else
                         _events.ScheduleEvent(EVENT_EMOTE, 1s);

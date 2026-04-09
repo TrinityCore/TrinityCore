@@ -255,7 +255,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     break;
                 case EVENT_BERSERK:
                     DoCast(SPELL_BERSERK);
-                    roll_chance_i(50) ? Talk(SAY_ENRAGE) : DoPlaySoundToSet(me, SOUND_ID_ENRAGE);
+                    roll_chance(50) ? Talk(SAY_ENRAGE) : DoPlaySoundToSet(me, SOUND_ID_ENRAGE);
                     break;
                 default:
                     break;

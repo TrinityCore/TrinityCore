@@ -124,7 +124,7 @@ struct boss_exarch_maladaar : public BossAI
     void OnSpellCast(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_STOLEN_SOUL)
-            if (roll_chance_i(25))
+            if (roll_chance(25))
                 Talk(SAY_SOUL_CLEAVE);
     }
 
@@ -164,7 +164,7 @@ struct boss_exarch_maladaar : public BossAI
             switch (eventId)
             {
                 case EVENT_SOUL_SCREAM:
-                    if (roll_chance_i(25))
+                    if (roll_chance(25))
                         Talk(SAY_ROAR);
                     DoCastSelf(SPELL_SOUL_SCREAM);
                     events.Repeat(RAND(15s, 20s));

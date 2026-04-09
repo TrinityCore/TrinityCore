@@ -802,7 +802,7 @@ class spell_free_webbed_on_quest : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (roll_chance_i(66))
+        if (roll_chance(66))
             caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_FREE_WEBBED_11, true);

@@ -1217,7 +1217,7 @@ public:
             c = 0;
             mx = ShieldOrbLocations[0][0];
             my = ShieldOrbLocations[0][1];
-            bClockwise = roll_chance_i(50);
+            bClockwise = roll_chance(50);
         }
 
         InstanceScript* instance;

@@ -55,7 +55,7 @@ public:
             if (!spellClickHandled)
                 return;
 
-            if (roll_chance_i(CHANCE_HOSTILE))
+            if (roll_chance<int32>(CHANCE_HOSTILE))
             {
                 me->CastSpell(me, SPELL_INFECTED_WOULD);
                 me->SetEntry(NPC_CORRUPTED_LASHER);

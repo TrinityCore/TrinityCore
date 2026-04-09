@@ -123,7 +123,7 @@ struct npc_guard_generic : public GuardAI
                 meleeContext.Repeat();
                 return;
             }
-            if (roll_chance_i(20))
+            if (roll_chance(20))
             {
                 if (SpellInfo const* spellInfo = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, NOMINAL_MELEE_RANGE, SELECT_EFFECT_DONTCARE))
                 {
@@ -138,7 +138,7 @@ struct npc_guard_generic : public GuardAI
             SpellInfo const* spellInfo = nullptr;
 
             // Select a healing spell if less than 30% hp and ONLY 33% of the time
-            if (me->HealthBelowPct(30) && roll_chance_i(33))
+            if (me->HealthBelowPct(30) && roll_chance(33))
                 spellInfo = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, SELECT_EFFECT_HEALING);
 
             // No healing spell available, check if we can cast a ranged spell

@@ -737,7 +737,7 @@ class boss_sara : public CreatureScript
 
             void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (!roll_chance_i(30) || _events.IsInPhase(PHASE_TRANSFORM))
+                if (!roll_chance(30) || _events.IsInPhase(PHASE_TRANSFORM))
                     return;
 
                 switch (spellInfo->Id)
