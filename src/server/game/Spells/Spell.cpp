@@ -3617,10 +3617,19 @@ void Spell::cancel()
             SendCastResult(SPELL_FAILED_INTERRUPTED);
             break;
         case SPELL_STATE_CHANNELING:
-            for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
-                if (targetInfo.MissCondition == SPELL_MISS_NONE)
-                    if (Unit* unit = m_caster->GetGUID() == targetInfo.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, targetInfo.TargetGUID))
-                        unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+            {
+                // Mark current spell as not deletable to protect against scripts attempting to despawn the caster twice (aura removal)
+                // while current spell is being cancelled by despawn
+                bool executed = m_executedCurrently;
+                SetExecutedCurrently(true);
+
+                for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
+                    if (targetInfo.MissCondition == SPELL_MISS_NONE)
+                        if (Unit* unit = m_caster->GetGUID() == targetInfo.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, targetInfo.TargetGUID))
+                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+
+                SetExecutedCurrently(executed);
+            }
 
             SendChannelUpdate(0, SPELL_FAILED_INTERRUPTED);
             SendInterrupted(0);
@@ -4370,7 +4379,16 @@ void Spell::finish(SpellCastResult result)
     if (Creature* creatureCaster = unitCaster->ToCreature())
         creatureCaster->ReleaseSpellFocus(this);
 
-    Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
+    {
+        // Mark current spell as not deletable to protect against scripts attempting to despawn the caster twice
+        // while current spell is already being finished by despawn
+        bool executed = m_executedCurrently;
+        SetExecutedCurrently(true);
+
+        Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
+
+        SetExecutedCurrently(executed);
+    }
 
     if (IsEmpowerSpell())
     {

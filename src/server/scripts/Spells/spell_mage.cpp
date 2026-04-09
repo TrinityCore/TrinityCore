@@ -1120,8 +1120,9 @@ class spell_mage_hot_streak_ignite_marker : public SpellScript
 public:
     static bool IsActive(Spell const* spell)
     {
-        if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
-            return script->_affectedByHotStreak;
+        if (spell)
+            if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
+                return script->_affectedByHotStreak;
         return false;
     }
 };
