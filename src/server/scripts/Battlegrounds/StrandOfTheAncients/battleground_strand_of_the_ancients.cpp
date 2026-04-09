@@ -687,7 +687,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
             if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 battleground->UpdatePvpStat(killerPlayer, PVP_STAT_DEMOLISHERS_DESTROYED, 1);
             int32 worldStateId = _attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
-            int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, battlegroundMap);
+            int32 currentDestroyedVehicles = WorldStateMgr::GetValue(worldStateId, battlegroundMap);
             UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
         }
     }

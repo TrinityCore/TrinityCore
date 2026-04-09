@@ -2185,7 +2185,7 @@ class spell_anduin_wrynn_progression_aura : public AuraScript
         return ValidateSpellInfo({ SPELL_ANDUIN_PROGRESSION_AURA, SPELL_ANDUIN_KNEEL_POSE });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         amount = -1;
         canBeRecalculated = true;
@@ -2379,7 +2379,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
     void OnInitialize() override
     {
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BEFOULED_BARRIER_DEBUFF, at->GetMap()->GetDifficultyID()))
-            _absorbRequired = spellInfo->GetEffect(EFFECT_0).CalcValue(at->GetCaster());
+            _absorbRequired = spellInfo->GetEffect(EFFECT_0).CalcValueAsInt(at->GetCaster());
 
         at->SetTimeToTargetScale(30000);
 
@@ -2609,7 +2609,7 @@ class spell_anduin_wrynn_befouled_barrier_absorb : public AuraScript
 
     void OnHealAbsorb(AuraEffect* /*aurEff*/, HealInfo const& healInfo, uint32& absorbAmount) const
     {
-        absorbAmount = CalculatePct(healInfo.GetHeal(), GetEffectInfo(EFFECT_2).CalcValue());
+        absorbAmount = CalculatePct(healInfo.GetHeal(), GetEffectInfo(EFFECT_2).CalcValueAsInt());
 
         Unit* caster = GetCaster();
         if (!caster)
@@ -3150,7 +3150,7 @@ class spell_anduin_wrynn_soul_despawn : public SpellScript
 // 368913 - Force of Will
 class spell_anduin_wrynn_force_of_will : public AuraScript
 {
-    void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated) const
+    void RecalculateHook(AuraEffect const* /*aurEffect*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3162,7 +3162,7 @@ class spell_anduin_wrynn_force_of_will : public AuraScript
         canBeRecalculated = false;
     }
 
-    void RecalculateHookDamageTaken(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated) const
+    void RecalculateHookDamageTaken(AuraEffect const* /*aurEffect*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         Unit* caster = GetCaster();
         if (!caster)

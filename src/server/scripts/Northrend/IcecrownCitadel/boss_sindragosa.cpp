@@ -1058,7 +1058,7 @@ class spell_sindragosa_s_fury : public SpellScript
         uint32 minResistFactor = uint32((resistance / (resistance + 510.0f)) * 10.0f) * 2;
         uint32 randomResist = urand(0, (9 - minResistFactor) * 100) / 100 + minResistFactor;
 
-        uint32 damage = (uint32(GetEffectValue() / _targetCount) * randomResist) / 10;
+        uint32 damage = (uint32(GetEffectValueAsInt() / _targetCount) * randomResist) / 10;
 
         SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo(), GetSpell()->m_SpellVisual, GetSpellInfo()->SchoolMask);
         damageInfo.damage = damage;
@@ -1378,7 +1378,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScript
         if (unitList.empty())
             return;
 
-        Trinity::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        Trinity::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -1394,7 +1394,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), float(GetEffectValue()), GetSpellInfo(), true, true);
+        GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), GetEffectValue(), GetSpellInfo(), true, true);
         GetCaster()->GetAI()->SetData(DATA_WHELP_MARKER, 1);
     }
 

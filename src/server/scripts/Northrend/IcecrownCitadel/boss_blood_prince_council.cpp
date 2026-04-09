@@ -1092,7 +1092,7 @@ class spell_taldaram_glittering_sparks : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -1108,7 +1108,7 @@ class spell_taldaram_summon_flame_ball : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -1290,7 +1290,7 @@ class spell_blood_council_shadow_prison_damage : public SpellScript
     {
         if (Aura const* aur = victim->GetAura(GetSpellInfo()->Id))
             if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))
-                flatMod += eff->GetAmount();
+                flatMod += eff->GetAmountAsInt();
     }
 
     void Register() override

@@ -293,7 +293,7 @@ class spell_mage_arcane_explosion : public SpellScript
             if (!requiredTargets)
                 return false;
 
-            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance_i(triggerChance->GetAmount());
+            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance_f(triggerChance->GetAmount());
         }();
 
         if (!procTriggered)
@@ -315,11 +315,11 @@ class spell_mage_blazing_barrier : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_BLAZING_BARRIER_TRIGGER });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
-            amount = int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            amount = caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f;
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -647,22 +647,22 @@ class spell_mage_ethereal_blink_triggered : public SpellScript
         if (!reductionEffect)
             return;
 
-        Seconds reduction = Seconds(reductionEffect->GetAmount()) * targets.size();
+        FloatSeconds reduction = FloatSeconds(reductionEffect->GetAmount()) * targets.size();
 
         if (AuraEffect const* cap = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_3))
-            if (reduction > Seconds(cap->GetAmount()))
-                reduction = Seconds(cap->GetAmount());
+            if (reduction > FloatSeconds(cap->GetAmount()))
+                reduction = FloatSeconds(cap->GetAmount());
 
         if (reduction > 0s)
         {
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_BLINK, -reduction);
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_SHIMMER, -reduction);
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_BLINK, -duration_cast<SpellHistory::Duration>(reduction));
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_SHIMMER, -duration_cast<SpellHistory::Duration>(reduction));
         }
     }
 
     void TriggerSlow(SpellEffIndex /*effIndex*/)
     {
-        int32 effectivenessPct = 100;
+        SpellEffectValue effectivenessPct = 100;
         if (AuraEffect const* effectivenessEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_1))
             effectivenessPct = effectivenessEffect->GetAmount();
 
@@ -688,7 +688,7 @@ class spell_mage_feel_the_burn : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_FEEL_THE_BURN });
     }
 
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         if (Unit* caster = GetCaster())
             if (AuraEffect const* valueHolder = caster->GetAuraEffect(SPELL_MAGE_FEEL_THE_BURN, EFFECT_0))
@@ -733,13 +733,13 @@ class spell_mage_fingers_of_frost : public AuraScript
     bool CheckFrostboltProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0x2000000, 0, 0))
-            && roll_chance_i(aurEff->GetAmount());
+            && roll_chance_f(aurEff->GetAmount());
     }
 
     bool CheckFrozenOrbProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0, 0x80, 0))
-            && roll_chance_i(aurEff->GetAmount());
+            && roll_chance_f(aurEff->GetAmount());
     }
 
     void Trigger(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -843,10 +843,10 @@ class spell_mage_flame_on : public AuraScript
            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
    }
 
-   void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+   void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
    {
        canBeRecalculated = false;
-       amount = -GetPctOf(GetEffectInfo(EFFECT_2).CalcValue() * IN_MILLISECONDS, sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
+       amount = -GetPctOf<SpellEffectValue>(GetEffectInfo(EFFECT_2).CalcValue() * int32(IN_MILLISECONDS), sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
    }
 
    void Register() override
@@ -946,7 +946,7 @@ class spell_mage_flurry : public SpellScript
 
     void EffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetSpell()->m_castId, GetEffectValue() - 1), randtime(300ms, 400ms));
+        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetSpell()->m_castId, GetEffectValueAsInt() - 1), randtime(300ms, 400ms));
     }
 
     void Register() override
@@ -1156,7 +1156,7 @@ class spell_mage_ice_barrier : public AuraScript
         });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated) const
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         canBeRecalculated = false;
         amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
@@ -1243,7 +1243,7 @@ class spell_mage_ice_lance : public SpellScript
             if (Aura const* thermalVoid = caster->GetAura(SPELL_MAGE_THERMAL_VOID))
                 if (!thermalVoid->GetSpellInfo()->GetEffects().empty())
                     if (Aura* icyVeins = caster->GetAura(SPELL_MAGE_ICY_VEINS))
-                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster) * IN_MILLISECONDS);
+                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt(caster) * IN_MILLISECONDS);
 
             // Chain Reaction
             if (caster->HasAura(SPELL_MAGE_CHAIN_REACTION_DUMMY))
@@ -1307,12 +1307,12 @@ class spell_mage_ignite : public AuraScript
         PreventDefaultAction();
 
         SpellEffectInfo const& igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty())->GetEffect(EFFECT_0);
-        int32 pct = aurEff->GetAmount();
+        SpellEffectValue pct = aurEff->GetAmount();
 
         if (spell_mage_hot_streak_ignite_marker::IsActive(eventInfo.GetProcSpell()))
             pct *= 2;
 
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot.GetPeriodicTickCount());
+        SpellEffectValue amount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot.GetPeriodicTickCount();
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
@@ -1379,7 +1379,7 @@ class spell_mage_improved_combustion : public AuraScript
         return GetUnitOwner()->HasAura(SPELL_MAGE_IMPROVED_COMBUSTION);
     }
 
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_2))
         {
@@ -1665,11 +1665,11 @@ class spell_mage_prismatic_barrier : public AuraScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
         if (Unit* caster = GetCaster())
-            amount = int32(CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_5).CalcValue(caster)));
+            amount = CalculatePct(caster->GetMaxHealth(), GetEffectInfo(EFFECT_5).CalcValue(caster));
     }
 
     void Register() override
@@ -1978,7 +1978,7 @@ class spell_mage_supernova : public SpellScript
     {
         if (GetExplTargetUnit() == GetHitUnit())
         {
-            uint32 damage = GetHitDamage();
+            int32 damage = GetHitDamage();
             AddPct(damage, GetEffectInfo(EFFECT_0).CalcValue());
             SetHitDamage(damage);
         }
@@ -2002,7 +2002,7 @@ class spell_mage_tempest_barrier : public AuraScript
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
-        int32 amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+        SpellEffectValue amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
         target->CastSpell(target, SPELL_MAGE_TEMPEST_BARRIER_ABSORB, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff,
@@ -2031,7 +2031,7 @@ class spell_mage_touch_of_the_magi_aura : public AuraScript
         {
             if (damageInfo->GetAttacker() == GetCaster() && damageInfo->GetVictim() == GetTarget())
             {
-                uint32 extra = CalculatePct(damageInfo->GetDamage(), 25);
+                SpellEffectValue extra = CalculatePct(damageInfo->GetDamage(), 25);
                 if (extra > 0)
                     aurEff->ChangeAmount(aurEff->GetAmount() + extra);
             }
@@ -2040,7 +2040,7 @@ class spell_mage_touch_of_the_magi_aura : public AuraScript
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        int32 amount = aurEff->GetAmount();
+        SpellEffectValue amount = aurEff->GetAmount();
         if (!amount || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
@@ -2087,7 +2087,7 @@ class spell_mage_wildfire_crit : public AuraScript
         return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, _effIndex } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated) const
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated) const
     {
         Unit* caster = GetCaster();
         if (!caster)

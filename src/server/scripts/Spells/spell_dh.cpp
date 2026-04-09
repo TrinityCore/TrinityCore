@@ -409,7 +409,7 @@ class spell_dh_chaos_theory : public SpellScript
         if (!min || !max)
             return;
 
-        int32 critChance = irand(min->GetAmount(), max->GetAmount());
+        SpellEffectValue critChance = frand(min->GetAmount(), max->GetAmount());
         caster->CastSpell(caster, SPELL_DH_CHAOS_THEORY_CRIT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, critChance } }
@@ -611,7 +611,7 @@ class spell_dh_consume_soul_vengeance_lesser : public SpellScript
         if (!shearPassive || !shearPassive->HasEffect(EFFECT_1) || !shearPassive->HasEffect(EFFECT_2))
             return;
 
-        flatMod += std::max(CalculatePct(uint64(damageTakenTracker->CalculateAmount(GetCaster())), shearPassive->GetEffect(EFFECT_1)->GetAmount()),
+        flatMod += std::max<SpellEffectValue>(CalculatePct(damageTakenTracker->CalculateAmount(GetCaster()), shearPassive->GetEffect(EFFECT_1)->GetAmount()),
             victim->CountPctFromMaxHealth(shearPassive->GetEffect(EFFECT_2)->GetAmount()));
     }
 
@@ -624,7 +624,7 @@ class spell_dh_consume_soul_vengeance_lesser : public SpellScript
 // 320413 - Critical Chaos
 class spell_dh_critical_chaos : public AuraScript
 {
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
         {
@@ -659,7 +659,7 @@ class spell_dh_cycle_of_binding : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
         SpellHistory* history = GetTarget()->GetSpellHistory();
-        SpellHistory::Duration amount = Seconds(-aurEff->GetAmount());
+        SpellHistory::Duration amount = duration_cast<SpellHistory::Duration>(FloatSeconds(-aurEff->GetAmount()));
 
         for (uint32 spellId : SigilSpellsIds)
             history->ModifyCooldown(spellId, amount);
@@ -691,7 +691,7 @@ class spell_dh_cycle_of_hatred : public SpellScript
         // First calculate cooldown then add another stack
         uint32 cycleOfHatredStack = caster->GetAuraCount(SPELL_DH_CYCLE_OF_HATRED_COOLDOWN_REDUCTION);
         AuraEffect const* cycleOfHatred = caster->GetAuraEffect(SPELL_DH_CYCLE_OF_HATRED_TALENT, EFFECT_0);
-        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), -Milliseconds(cycleOfHatred->GetAmount() * cycleOfHatredStack));
+        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), -Milliseconds(static_cast<int64>(cycleOfHatred->GetAmount() * cycleOfHatredStack)));
 
         CastSpellExtraArgs args;
         args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -783,10 +783,10 @@ class spell_dh_darkglare_boon : public AuraScript
 
         SpellHistory::Duration cooldown, categoryCooldown;
         SpellHistory::GetCooldownDurations(GetSpellInfo(), 0, &cooldown, nullptr, &categoryCooldown);
-        int32 reductionPct = irand(darkglareBoon->GetEffect(EFFECT_0)->GetAmount(), darkglareBoon->GetEffect(EFFECT_1)->GetAmount());
+        SpellEffectValue reductionPct = frand(darkglareBoon->GetEffect(EFFECT_0)->GetAmount(), darkglareBoon->GetEffect(EFFECT_1)->GetAmount());
         SpellHistory::Duration cooldownReduction(CalculatePct(std::max(cooldown, categoryCooldown).count(), reductionPct));
 
-        int32 energizeValue = irand(darkglareBoon->GetEffect(EFFECT_2)->GetAmount(), darkglareBoon->GetEffect(EFFECT_3)->GetAmount());
+        SpellEffectValue energizeValue = frand(darkglareBoon->GetEffect(EFFECT_2)->GetAmount(), darkglareBoon->GetEffect(EFFECT_3)->GetAmount());
 
         target->GetSpellHistory()->ModifyCooldown(SPELL_DH_FEL_DEVASTATION, -cooldownReduction);
 
@@ -810,7 +810,7 @@ class spell_dh_darkness : public AuraScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         // Set absorbtion amount to unlimited
         amount = -1;
@@ -819,7 +819,7 @@ class spell_dh_darkness : public AuraScript
     void Absorb(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount) const
     {
         if (AuraEffect const* chanceEffect = GetEffect(EFFECT_1))
-            if (roll_chance_i(chanceEffect->GetAmount()))
+            if (roll_chance_f(chanceEffect->GetAmount()))
                 absorbAmount = dmgInfo.GetDamage();
     }
 
@@ -924,7 +924,7 @@ class spell_dh_demonic : public SpellScript
         if (!demonic)
             return;
 
-        int32 duration = demonic->GetAmount() + GetSpell()->GetChannelDuration();
+        int32 duration = demonic->GetAmountAsInt() + GetSpell()->GetChannelDuration();
 
         if (Aura* aura = caster->GetAura(_transformSpellId))
         {
@@ -1126,7 +1126,7 @@ public:
 
     bool Load() override
     {
-        _maxFragmentsToCreate = sSpellMgr->AssertSpellInfo(_primarySpellId, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(GetCaster());
+        _maxFragmentsToCreate = sSpellMgr->AssertSpellInfo(_primarySpellId, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValueAsInt(GetCaster());
         _fragmentsToCreate = _maxFragmentsToCreate;
         return true;
     }
@@ -1517,7 +1517,7 @@ struct at_dh_inner_demon : AreaTriggerAI
 // 388118 - Know Your Enemy
 class spell_dh_know_your_enemy : public AuraScript
 {
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
         {
@@ -1924,7 +1924,7 @@ class spell_dh_shattered_destiny : public AuraScript
             return false;
 
         _furySpent += procSpell->GetPowerTypeCostAmount(POWER_FURY).value_or(0);
-        return _furySpent >= GetEffect(EFFECT_1)->GetAmount();
+        return _furySpent >= GetEffect(EFFECT_1)->GetAmountAsInt();
     }
 
     void HandleProc(ProcEventInfo const& /*eventInfo*/)
@@ -1933,8 +1933,8 @@ class spell_dh_shattered_destiny : public AuraScript
         if (!metamorphosis)
             return;
 
-        int32 requiredFuryAmount = GetEffect(EFFECT_1)->GetAmount();
-        metamorphosis->SetDuration(metamorphosis->GetDuration() + _furySpent / requiredFuryAmount * GetEffect(EFFECT_0)->GetAmount());
+        int32 requiredFuryAmount = GetEffect(EFFECT_1)->GetAmountAsInt();
+        metamorphosis->SetDuration(metamorphosis->GetDuration() + _furySpent / requiredFuryAmount * GetEffect(EFFECT_0)->GetAmountAsInt());
         _furySpent %= requiredFuryAmount;
     }
 
@@ -2010,7 +2010,7 @@ class spell_dh_shattered_souls_devourer : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance_f(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -2162,7 +2162,7 @@ class spell_dh_soul_carver : public SpellScript
 
     void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
     {
-        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), GetEffectInfo(EFFECT_2).CalcValueAsInt(GetCaster()));
     }
 
     void Register() override
@@ -2181,7 +2181,7 @@ class spell_dh_soul_carver_aura : public AuraScript
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
         if (Unit* caster = GetCaster())
-            spell_dh_shattered_souls_base_lesser::CreateFragments(GetTarget(), caster, GetEffectInfo(EFFECT_3).CalcValue(caster));
+            spell_dh_shattered_souls_base_lesser::CreateFragments(GetTarget(), caster, GetEffectInfo(EFFECT_3).CalcValueAsInt(caster));
     }
 
     void Register() override
@@ -2204,7 +2204,7 @@ class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
         if (!seconds)
             return false;
 
-        _damagePerSecond.resize(seconds->GetAmount());
+        _damagePerSecond.resize(seconds->GetAmountAsInt());
         return !_damagePerSecond.empty();
     }
 
@@ -2220,10 +2220,10 @@ class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
         _damagePerSecond[0] = 0;
     }
 
-    void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void HandleCalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        amount = int32(std::reduce(_damagePerSecond.begin(), _damagePerSecond.end(), 0u));
+        amount = std::reduce(_damagePerSecond.begin(), _damagePerSecond.end(), 0u);
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -2259,11 +2259,11 @@ class spell_dh_soulmonger : public AuraScript
     static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* target = eventInfo.GetActionTarget();
-        int32 amount = eventInfo.GetHealInfo()->GetHeal();
+        SpellEffectValue amount = eventInfo.GetHealInfo()->GetHeal();
         if (AuraEffect const* existingAbsorb = target->GetAuraEffect(SPELL_DH_SOULMONGER_ABSORB, EFFECT_0))
             amount += existingAbsorb->GetAmount();
 
-        amount = std::min(amount, int32(target->CountPctFromMaxHealth(aurEff->GetAmount())));
+        amount = std::min(amount, SpellEffectValue(target->CountPctFromMaxHealth(aurEff->GetAmount())));
 
         target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -2307,16 +2307,12 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 {
     void CalculateSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
     {
-        if (aurEff->GetAmount() == 10)
+        if (aurEff->GetAmountAsInt() == 10)
         {
             if (!spellMod)
             {
-                spellMod = new SpellModifierByClassMask(GetAura());
-                spellMod->op = SpellModOp::HealingAndDamage;
-                spellMod->type = SPELLMOD_PCT;
-                spellMod->spellId = GetId();
-                static_cast<SpellModifierByClassMask*>(spellMod)->mask = flag128(0x80000000);
-                static_cast<SpellModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
+                spellMod = new SpellPctModifierByClassMask(SpellModOp::HealingAndDamage, GetId(), GetAura(), flag128(0x80000000));
+                static_cast<SpellPctModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
             }
         }
     }
@@ -2332,7 +2328,7 @@ class spell_dh_soul_sigils : public AuraScript
 {
     void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), aurEff->GetAmount());
+        spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), aurEff->GetAmountAsInt());
     }
 
     void Register() override

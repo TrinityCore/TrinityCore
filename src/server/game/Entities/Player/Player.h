@@ -251,7 +251,8 @@ enum SpecResetType
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), spellId(0), ownerAura(_ownerAura) { }
+    SpellModifier(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura)
+        : op(_op), type(_type), spellId(_spellId), ownerAura(_ownerAura) { }
     virtual ~SpellModifier() = default;
 
     SpellModOp op;
@@ -263,22 +264,53 @@ struct SpellModifier
 
 struct SpellModifierByClassMask : SpellModifier
 {
-    SpellModifierByClassMask(Aura* _ownerAura) : SpellModifier(_ownerAura), value(0), mask() { }
+    SpellModifierByClassMask(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura, flag128 const& _mask)
+        : SpellModifier(_op, _type, _spellId, _ownerAura), mask(_mask) { }
 
-    int32 value;
     flag128 mask;
 };
 
-template<typename T>
-struct SpellModifierByLabel : SpellModifier
+struct SpellFlatModifierByClassMask : SpellModifierByClassMask
 {
-    SpellModifierByLabel(Aura* _ownerAura) : SpellModifier(_ownerAura) { }
+    SpellFlatModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_FLAT, _spellId, _ownerAura, _mask) { }
 
-    T value;
+    int32 value = { };
 };
 
-using SpellFlatModifierByLabel = SpellModifierByLabel<UF::SpellFlatModByLabel>;
-using SpellPctModifierByLabel = SpellModifierByLabel<UF::SpellPctModByLabel>;
+struct SpellPctModifierByClassMask : SpellModifierByClassMask
+{
+    SpellPctModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_PCT, _spellId, _ownerAura, _mask) { }
+
+    float value = { };
+};
+
+struct SpellFlatModifierByLabel : SpellModifier
+{
+    SpellFlatModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, uint32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_FLAT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0;
+        value.LabelID = _label;
+    }
+
+    UF::SpellFlatModByLabel value = { };
+};
+
+struct SpellPctModifierByLabel : SpellModifier
+{
+    SpellPctModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, int32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_PCT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0.0f;
+        value.LabelID = _label;
+    }
+
+    UF::SpellPctModByLabel value;
+};
 
 struct SpellModifierCompare
 {
@@ -2026,9 +2058,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        static uint32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
-        template <class T>
-        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, T base, int32* flat, float* pct) const;
+        static int32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
+        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, double base, int32* flat, float* pct) const;
         template <class T>
         void ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
@@ -2514,7 +2545,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
         void DeleteEquipmentSet(uint64 id);
 
-        void SendInitWorldStates(uint32 zoneId, uint32 areaId);
+        void SendInitWorldStates(uint32 zoneId, uint32 areaId) const;
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false) const;
         void SendDirectMessage(WorldPacket const* data) const;
 

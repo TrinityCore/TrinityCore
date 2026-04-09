@@ -598,13 +598,13 @@ class spell_garothi_fel_bombardment_periodic : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), uint32(aurEff->GetSpellEffectInfo().CalcValue(caster)), true);
+            caster->CastSpell(GetTarget(), uint32(aurEff->GetSpellEffectInfo().CalcValueAsInt(caster)), true);
     }
 
     void Register() override
@@ -651,7 +651,7 @@ class spell_garothi_searing_barrage_selector : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        uint32 spellId = GetEffectValue() == SPELL_SEARING_BARRAGE_DUMMY_ANNIHILATOR ? SPELL_SEARING_BARRAGE_DAMAGE_ANNIHILATOR : SPELL_SEARING_BARRAGE_DAMAGE_DECIMATOR;
+        uint32 spellId = GetEffectValueAsInt() == SPELL_SEARING_BARRAGE_DUMMY_ANNIHILATOR ? SPELL_SEARING_BARRAGE_DAMAGE_ANNIHILATOR : SPELL_SEARING_BARRAGE_DAMAGE_DECIMATOR;
         if (Unit* caster = GetCaster())
             caster->CastSpell(GetHitUnit(), spellId, true);
     }
@@ -739,13 +739,13 @@ class spell_garothi_annihilation_selector : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), uint32(GetEffectInfo().CalcValue(caster)), true);
+            caster->CastSpell(GetHitUnit(), uint32(GetEffectInfo().CalcValueAsInt(caster)), true);
     }
 
     void Register() override

@@ -147,14 +147,14 @@ class spell_gilneas_knocking : public SpellScript
     {
         return ValidateSpellInfo(
         {
-            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()),
-            uint32(spellInfo->GetEffect(EFFECT_2).CalcValue())
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()),
+            uint32(spellInfo->GetEffect(EFFECT_2).CalcValueAsInt())
         });
     }
 
     void HandleEffect()
     {
-        GetCaster()->CastSpell(GetCaster(), GetEffectInfo(RAND(EFFECT_1, EFFECT_2)).CalcValue(), true);
+        GetCaster()->CastSpell(GetCaster(), GetEffectInfo(RAND(EFFECT_1, EFFECT_2)).CalcValueAsInt(), true);
     }
 
     void Register() override

@@ -364,18 +364,18 @@ public:
         /// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
         if (player->GetBGTeam() == HORDE && trigger->ID == AT_ALLIANCE_KEEP)
         {
-            bool keepClosed = sWorldStateMgr->GetValue(BG_IC_GATE_EAST_A_WS_CLOSED, player->GetMap()) == 1
-                && sWorldStateMgr->GetValue(BG_IC_GATE_WEST_A_WS_CLOSED, player->GetMap()) == 1
-                && sWorldStateMgr->GetValue(BG_IC_GATE_FRONT_A_WS_CLOSED, player->GetMap()) == 1;
+            bool keepClosed = WorldStateMgr::GetValue(BG_IC_GATE_EAST_A_WS_CLOSED, player->GetMap()) == 1
+                && WorldStateMgr::GetValue(BG_IC_GATE_WEST_A_WS_CLOSED, player->GetMap()) == 1
+                && WorldStateMgr::GetValue(BG_IC_GATE_FRONT_A_WS_CLOSED, player->GetMap()) == 1;
 
             if (keepClosed)
                 player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
         }
         else if (player->GetBGTeam() == ALLIANCE && trigger->ID == AT_HORDE_KEEP)
         {
-            bool keepClosed = sWorldStateMgr->GetValue(BG_IC_GATE_EAST_H_WS_CLOSED, player->GetMap()) == 1
-                && sWorldStateMgr->GetValue(BG_IC_GATE_WEST_H_WS_CLOSED, player->GetMap()) == 1
-                && sWorldStateMgr->GetValue(BG_IC_GATE_FRONT_H_WS_CLOSED, player->GetMap()) == 1;
+            bool keepClosed = WorldStateMgr::GetValue(BG_IC_GATE_EAST_H_WS_CLOSED, player->GetMap()) == 1
+                && WorldStateMgr::GetValue(BG_IC_GATE_WEST_H_WS_CLOSED, player->GetMap()) == 1
+                && WorldStateMgr::GetValue(BG_IC_GATE_FRONT_H_WS_CLOSED, player->GetMap()) == 1;
 
             if (keepClosed)
                 player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);

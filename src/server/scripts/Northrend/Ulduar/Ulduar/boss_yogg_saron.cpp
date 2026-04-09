@@ -1967,7 +1967,7 @@ class spell_yogg_saron_target_selectors : public SpellScriptLoader    // 63744, 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, uint32(GetEffectValue()));
+                    GetCaster()->CastSpell(target, uint32(GetEffectValueAsInt()));
             }
 
             void Register() override
@@ -2186,7 +2186,7 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
                 if (!linked)
                     return;
 
-                GetTarget()->CastSpell(linked, (GetTarget()->GetDistance(linked) > (float)aurEff->GetAmount()) ? SPELL_BRAIN_LINK_DAMAGE : SPELL_BRAIN_LINK_NO_DAMAGE, true);
+                GetTarget()->CastSpell(linked, (GetTarget()->GetDistance(linked) > aurEff->GetAmount()) ? SPELL_BRAIN_LINK_DAMAGE : SPELL_BRAIN_LINK_NO_DAMAGE, true);
             }
 
             void Register() override
@@ -2311,7 +2311,7 @@ class spell_yogg_saron_empowering_shadows_range_check : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+                    target->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
             }
 
             void Register() override
@@ -2410,7 +2410,7 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
                     else
                         target->CastSpell(target, SPELL_SQUEEZE_10, true);
 
-                    target->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+                    target->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
                 }
             }
 
@@ -2569,7 +2569,7 @@ class spell_yogg_saron_shattered_illusion : public SpellScriptLoader    // 65238
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+                    target->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
             }
 
             void Register() override
@@ -2638,7 +2638,7 @@ class spell_yogg_saron_cancel_illusion_room_aura : public SpellScriptLoader    /
                 if (Unit* target = GetHitUnit())
                 {
                     target->CastSpell(target, SPELL_TELEPORT_BACK_TO_MAIN_ROOM);
-                    target->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+                    target->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
                 }
             }
 
@@ -2664,7 +2664,7 @@ class spell_yogg_saron_nondescript : public SpellScriptLoader     // 64010, 6401
         {
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true);
+                GetTarget()->CastSpell(GetTarget(), uint32(aurEff->GetAmountAsInt()), true);
             }
 
             void Register() override
@@ -2770,7 +2770,7 @@ class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
                 {
                     target->CastSpell(target, SPELL_TELEPORT_BACK_TO_MAIN_ROOM);
                     target->RemoveAurasDueToSpell(SPELL_SANITY, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-                    target->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+                    target->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
                 }
             }
 
@@ -2917,7 +2917,7 @@ class spell_yogg_saron_insane_periodic : public SpellScriptLoader    // 64555
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, uint32(GetEffectValue()), true);
+                    GetCaster()->CastSpell(target, uint32(GetEffectValueAsInt()), true);
             }
 
             void Register() override

@@ -265,12 +265,12 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

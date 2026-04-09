@@ -169,7 +169,7 @@ class spell_mark_of_kazzak : public AuraScript
         return ValidateSpellInfo({ SPELL_MARK_OF_KAZZAK_DAMAGE });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         if (Unit* owner = GetUnitOwner())
             amount = CalculatePct(owner->GetPower(POWER_MANA), 5);

@@ -262,13 +262,13 @@ class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public Sp
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({
-            static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue())
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt())
         });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(), CastSpellExtraArgsInit
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt(), CastSpellExtraArgsInit
         {
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
