@@ -14,8 +14,3 @@ DELETE FROM `quest_offer_reward_locale` WHERE (`ID` IN (59932, 55174) AND `local
 INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `VerifiedBuild`) VALUES
 (59932, 'ruRU', '<Вон\'са быстро съедает приготовленное вами мясо.>\n\nЗначит, я все-таки пока не отправлюсь к Бвонсамди.\n\nЛучше вам поторопиться. Нескольких членов экспедиции сцапали свинобразы!', 66709),
 (55174, 'ruRU', '<Алария быстро съедает приготовленное вами мясо.>\n\nКлянусь Светом... Так намного лучше.\n\nЗдесь нельзя оставаться... экспедицию захватили свинобразы!', 66709);
-
-DELETE FROM `creature_questender` WHERE (`id`=166854 AND `quest`=59932) OR (`id`=156607 AND `quest`=55174);
-INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
-(166854, 59932, 66709), -- 59932 ended by 166854
-(156607, 55174, 66709); -- 55174 ended by Алария
