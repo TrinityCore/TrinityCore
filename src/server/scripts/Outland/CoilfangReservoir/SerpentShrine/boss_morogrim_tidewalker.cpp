@@ -259,7 +259,7 @@ private:
 // 21913 - Water Globule
 struct npc_water_globule : public ScriptedAI
 {
-    npc_water_globule(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustAppeared() override
     {
@@ -314,19 +314,9 @@ class spell_morogrim_tidewalker_watery_grave : public SpellScript
     PrepareSpellScript(spell_morogrim_tidewalker_watery_grave);
 
 public:
-    spell_morogrim_tidewalker_watery_grave()
-    {
-        _targetCount = 0;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(WateryGraveTeleportSpells);
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->IsUnit();
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -348,7 +338,7 @@ public:
     }
 
 private:
-    std::size_t _targetCount;
+    std::size_t _targetCount = 0;
 };
 
 // 37866 - Summon Water Globules
