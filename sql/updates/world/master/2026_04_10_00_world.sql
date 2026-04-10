@@ -1,3 +1,7 @@
+-- Template
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` IN (166906, 156651);
+
+-- Locales
 DELETE FROM `gameobject_template_locale` WHERE (`locale`='ruRU' AND `entry` IN (339770,335718,339769,349962));
 INSERT INTO `gameobject_template_locale` (`entry`, `locale`, `name`, `castBarCaption`, `unk1`, `VerifiedBuild`) VALUES
 (339770, 'ruRU', 'Брошенный сундук с сокровищами', 'Открывание', '', 66709),
