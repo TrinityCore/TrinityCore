@@ -15,17 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "blackwing_lair.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 
-enum Events
+enum NefarianEvents
 {
     // Victor Nefarius
     EVENT_SPAWN_ADD            = 1,
@@ -48,7 +49,7 @@ enum Events
     EVENT_SUCCESS_3            = 16,
 };
 
-enum Says
+enum NefarianSays
 {
     // Nefarius
     // UBRS
@@ -65,7 +66,6 @@ enum Says
     SAY_RAISE_SKELETONS        = 1,
     SAY_SLAY                   = 2,
     SAY_DEATH                  = 3,
-
     SAY_MAGE                   = 4,
     SAY_WARRIOR                = 5,
     SAY_DRUID                  = 6,
@@ -75,28 +75,30 @@ enum Says
     SAY_WARLOCK                = 10,
     SAY_HUNTER                 = 11,
     SAY_ROGUE                  = 12,
-    SAY_DEATH_KNIGHT           = 13
+    SAY_DEATH_KNIGHT           = 13,
+    SAY_XHEALTH                = 14,
+    SAY_SHADOWFLAME            = 15
 };
 
-enum Gossip
+enum NefarianGossip
 {
    GOSSIP_ID                   = 6045,
    GOSSIP_OPTION_ID            = 0
 };
 
-enum Paths
+enum NefarianPaths
 {
     NEFARIUS_PATH_2            = 11037368,
     NEFARIUS_PATH_3            = 11037376
 };
 
-enum GameObjects
+enum NefarianGameObjects
 {
     GO_PORTCULLIS_ACTIVE       = 164726,
     GO_PORTCULLIS_TOBOSSROOMS  = 175186
 };
 
-enum Creatures
+enum NefarianCreatures
 {
     NPC_BRONZE_DRAKANOID       = 14263,
     NPC_BLUE_DRAKANOID         = 14261,
@@ -109,7 +111,7 @@ enum Creatures
     NPC_GYTH                   = 10339
 };
 
-enum Spells
+enum NefarianSpells
 {
     // Victor Nefarius
     // UBRS Spells
@@ -148,19 +150,25 @@ enum Spells
 // 22666
 };
 
-Position const DrakeSpawnLoc[2] = // drakonid
+enum NefarianActions
 {
-    {-7591.151855f, -1204.051880f, 476.800476f, 3.0f},
-    {-7514.598633f, -1150.448853f, 476.796570f, 3.0f}
+    ACTION_BONE_CONSTRUCT_DESPAWN = 1,
+    ACTION_BONE_CONSTRUCT_START_ATTACK
+};
+
+Position const NefarianDrakeSpawnLoc[2] = // drakonid
+{
+    { -7591.151855f, -1204.051880f, 476.800476f, 3.0f },
+    { -7514.598633f, -1150.448853f, 476.796570f, 3.0f }
 };
 
 Position const NefarianLoc[2] =
 {
-    {-7449.763672f, -1387.816040f, 526.783691f, 3.0f}, // nefarian spawn
-    {-7535.456543f, -1279.562500f, 476.798706f, 3.0f}  // nefarian move
+    { -7449.763672f, -1387.816040f, 526.783691f, 3.0f }, // nefarian spawn
+    { -7535.456543f, -1279.562500f, 476.798706f, 3.0f }  // nefarian move
 };
 
-uint32 const Entry[5] = {NPC_BRONZE_DRAKANOID, NPC_BLUE_DRAKANOID, NPC_RED_DRAKANOID, NPC_GREEN_DRAKANOID, NPC_BLACK_DRAKANOID};
+uint32 constexpr NefarianEntry[5] = { NPC_BRONZE_DRAKANOID, NPC_BLUE_DRAKANOID, NPC_RED_DRAKANOID, NPC_GREEN_DRAKANOID, NPC_BLACK_DRAKANOID };
 
 struct boss_victor_nefarius : public BossAI
 {
@@ -171,25 +179,22 @@ struct boss_victor_nefarius : public BossAI
 
     void Initialize()
     {
-        SpawnedAdds = 0;
+        _spawnedAdds = 0;
     }
 
     void Reset() override
     {
         Initialize();
 
-        if (me->GetMapId() == 469)
-        {
-            if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
-                _Reset();
+        if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
+            _Reset();
 
-            me->SetVisible(true);
-            me->SetPhaseMask(1, true);
-            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            me->SetFaction(FACTION_FRIENDLY);
-            me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
-            me->RemoveAura(SPELL_NEFARIANS_BARRIER);
-        }
+        me->SetVisible(true);
+        me->SetPhaseMask(1, true);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetFaction(FACTION_FRIENDLY);
+        me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
+        me->RemoveAura(SPELL_NEFARIANS_BARRIER);
     }
 
     void JustReachedHome() override
@@ -217,16 +222,20 @@ struct boss_victor_nefarius : public BossAI
 
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
-        if (summon->GetEntry() != NPC_NEFARIAN)
+        if (summon->GetEntry() != NPC_NEFARIAN && summon->GetEntry() != NPC_BONE_CONSTRUCT)
         {
             summon->UpdateEntry(NPC_BONE_CONSTRUCT);
+            summon->SetHomePosition(summon->GetPosition());
             summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetStandState(UNIT_STAND_STATE_DEAD);
         }
     }
 
-    void JustSummoned(Creature* /*summon*/) override { }
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+    }
 
     void SetData(uint32 type, uint32 data) override
     {
@@ -238,6 +247,35 @@ struct boss_victor_nefarius : public BossAI
 
         if (type == 1 && data == 2)
             events.ScheduleEvent(EVENT_SUCCESS_1, 5s);
+    }
+
+    void DoAction(int32 param) override
+    {
+        switch (param)
+        {
+            case ACTION_BONE_CONSTRUCT_DESPAWN:
+                summons.DespawnEntry(NPC_BONE_CONSTRUCT);
+                break;
+            case ACTION_BONE_CONSTRUCT_START_ATTACK:
+                for (ObjectGuid const& summon : summons)
+                {
+                    if (Creature* boneConstruct = ObjectAccessor::GetCreature(*me, summon))
+                        if (boneConstruct->GetEntry() == NPC_BONE_CONSTRUCT && !boneConstruct->IsAlive())
+                        {
+                            boneConstruct->SetVisible(true);
+                            boneConstruct->RemoveAllGameObjects();
+                            boneConstruct->SetSpawnHealth();
+                            boneConstruct->setDeathState(ALIVE);
+                            boneConstruct->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            boneConstruct->SetStandState(UNIT_STAND_STATE_STAND);
+                            SetAggressiveStateAfter(1s, boneConstruct, true, me);
+                        }
+                }
+                instance->SetData(DATA_DRAKONID_BONES, 0);
+                break;
+            default:
+                break;
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -293,7 +331,7 @@ struct boss_victor_nefarius : public BossAI
         }
 
         // Only do this if we haven't spawned nefarian yet
-        if (UpdateVictim() && SpawnedAdds <= 42)
+        if (UpdateVictim() && _spawnedAdds <= 42)
         {
             events.Update(diff);
 
@@ -329,20 +367,20 @@ struct boss_victor_nefarius : public BossAI
                         events.ScheduleEvent(EVENT_MIND_CONTROL, 30s, 35s);
                         break;
                     case EVENT_SPAWN_ADD:
-                        for (uint8 i=0; i<2; ++i)
+                        for (uint8 i = 0; i < 2; ++i)
                         {
                             uint32 CreatureID;
                             if (urand(0, 2) == 0)
                                 CreatureID = NPC_CHROMATIC_DRAKANOID;
                             else
-                                CreatureID = Entry[urand(0, 4)];
-                            if (Creature* dragon = me->SummonCreature(CreatureID, DrakeSpawnLoc[i]))
+                                CreatureID = NefarianEntry[urand(0, 4)];
+                            if (Creature* dragon = me->SummonCreature(CreatureID, NefarianDrakeSpawnLoc[i]))
                             {
                                 dragon->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
                                 dragon->AI()->AttackStart(me->GetVictim());
                             }
 
-                            if (++SpawnedAdds >= 42)
+                            if (++_spawnedAdds >= 42)
                             {
                                 if (Creature* nefarian = me->SummonCreature(NPC_NEFARIAN, NefarianLoc[0]))
                                 {
@@ -351,6 +389,7 @@ struct boss_victor_nefarius : public BossAI
                                     nefarian->SetCanFly(true);
                                     nefarian->SetDisableGravity(true);
                                     nefarian->CastSpell(nullptr, SPELL_SHADOWFLAME_INITIAL);
+                                    nefarian->SetHomePosition(NefarianLoc[1]);
                                     nefarian->GetMotionMaster()->MovePoint(1, NefarianLoc[1]);
                                 }
                                 events.CancelEvent(EVENT_MIND_CONTROL);
@@ -381,8 +420,8 @@ struct boss_victor_nefarius : public BossAI
         return false;
     }
 
-    private:
-        uint32 SpawnedAdds;
+private:
+    uint32 _spawnedAdds;
 };
 
 struct boss_nefarian : public BossAI
@@ -394,9 +433,9 @@ struct boss_nefarian : public BossAI
 
     void Initialize()
     {
-        Phase3 = false;
-        canDespawn = false;
-        DespawnTimer = 30000;
+        _phase3 = false;
+        _despawn = false;
+        _despawnTimer = 30000;
     }
 
     void Reset() override
@@ -406,7 +445,7 @@ struct boss_nefarian : public BossAI
 
     void JustReachedHome() override
     {
-        canDespawn = true;
+        _despawn = true;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -428,7 +467,7 @@ struct boss_nefarian : public BossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (rand32() % 5)
+        if (roll_chance_i(20))
             return;
 
         Talk(SAY_SLAY, victim);
@@ -441,30 +480,50 @@ struct boss_nefarian : public BossAI
 
         if (id == 1)
         {
+            me->SetCanFly(false);
+            me->SetDisableGravity(false);
             DoZoneInCombat();
             if (me->GetVictim())
                 AttackStart(me->GetVictim());
         }
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        // Phase3 begins when health below 20 pct
+        if (!_phase3 && me->HealthBelowPctDamaged(20, damage))
+        {
+            if (TempSummon* temp = me->ToTempSummon())
+                if (Unit* owner = temp->GetSummonerUnit())
+                    if (owner->IsAIEnabled())
+                        owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_START_ATTACK);
+
+            _phase3 = true;
+            Talk(SAY_RAISE_SKELETONS);
+        }
+
+        if (me->HealthBelowPctDamaged(5, damage))
+            Talk(SAY_XHEALTH);
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        if (canDespawn && DespawnTimer <= diff)
+        if (_despawn && _despawnTimer <= diff)
         {
             instance->SetBossState(DATA_NEFARIAN, FAIL);
-
-            std::list<Creature*> constructList;
-            me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);
-            for (std::list<Creature*>::const_iterator itr = constructList.begin(); itr != constructList.end(); ++itr)
-                (*itr)->DespawnOrUnsummon();
-
-        } else DespawnTimer -= diff;
+            if (TempSummon* temp = me->ToTempSummon())
+                if (Unit* owner = temp->GetSummonerUnit())
+                    if (owner->IsAIEnabled())
+                        owner->GetAI()->DoAction(ACTION_BONE_CONSTRUCT_DESPAWN);
+        }
+        else
+            _despawnTimer -= diff;
 
         if (!UpdateVictim())
             return;
 
-        if (canDespawn)
-            canDespawn = false;
+        if (_despawn)
+            _despawn = false;
 
         events.Update(diff);
 
@@ -551,33 +610,13 @@ struct boss_nefarian : public BossAI
                 return;
         }
 
-        // Phase3 begins when health below 20 pct
-        if (!Phase3 && HealthBelowPct(20))
-        {
-            std::list<Creature*> constructList;
-            me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);
-            for (std::list<Creature*>::const_iterator itr = constructList.begin(); itr != constructList.end(); ++itr)
-                if ((*itr) && !(*itr)->IsAlive())
-                {
-                    (*itr)->Respawn();
-                    DoZoneInCombat((*itr));
-                    (*itr)->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    (*itr)->SetReactState(REACT_AGGRESSIVE);
-                    (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
-                }
-
-            Phase3 = true;
-            Talk(SAY_RAISE_SKELETONS);
-        }
-
         DoMeleeAttackIfReady();
     }
 
 private:
-    bool canDespawn;
-    uint32 DespawnTimer;
-    bool Phase3;
-
+    bool _despawn;
+    uint32 _despawnTimer;
+    bool _phase3;
 };
 
 void AddSC_boss_nefarian()

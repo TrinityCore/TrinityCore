@@ -87,8 +87,8 @@ public:
             LoadObjectData(creatureData, gameObjectData);
 
             // Razorgore
-            EggCount = 0;
-            EggEvent = 0;
+            _eggCount = 0;
+            _eggEvent = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -120,7 +120,10 @@ public:
                     if (GetBossState(DATA_FIREMAW) == DONE)
                         go->SetPhaseMask(2, true);
                     else
-                        EggList.push_back(go->GetGUID());
+                        _eggList.push_back(go->GetGUID());
+                    break;
+                case GO_DRAKONID_BONES:
+                    _drakonicBonesList.push_back(go->GetGUID());
                     break;
                 default:
                     break;
@@ -132,7 +135,7 @@ public:
             InstanceScript::OnGameObjectRemove(go);
 
             if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
-                EggList.remove(go->GetGUID());
+                _eggList.remove(go->GetGUID());
         }
 
         bool CheckRequiredBosses(uint32 bossId, Player const* player /*= nullptr*/) const override
@@ -175,7 +178,7 @@ public:
                 case DATA_RAZORGORE_THE_UNTAMED:
                     if (state == DONE)
                     {
-                        for (GuidList::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
+                        for (GuidList::const_iterator itr = _eggList.begin(); itr != _eggList.end(); ++itr)
                             if (GameObject* egg = instance->GetGameObject(*itr))
                                 egg->SetPhaseMask(2, true);
                     }
@@ -208,16 +211,16 @@ public:
                 {
                     case IN_PROGRESS:
                         _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 45s);
-                        EggEvent = data;
-                        EggCount = 0;
+                        _eggEvent = data;
+                        _eggCount = 0;
                         break;
                     case NOT_STARTED:
                         _events.CancelEvent(EVENT_RAZOR_SPAWN);
-                        EggEvent = data;
-                        EggCount = 0;
+                        _eggEvent = data;
+                        _eggCount = 0;
                         break;
                     case SPECIAL:
-                        if (++EggCount == 15)
+                        if (++_eggCount == 15)
                         {
                             if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                             {
@@ -228,10 +231,17 @@ public:
                             _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1s);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);
                         }
-                        if (EggEvent == NOT_STARTED)
+                        if (_eggEvent == NOT_STARTED)
                             SetData(DATA_EGG_EVENT, IN_PROGRESS);
                         break;
                 }
+            }
+            else if (type == DATA_DRAKONID_BONES)
+            {
+                for (ObjectGuid const& guid : _drakonicBonesList)
+                    if (GameObject* go = instance->GetGameObject(guid))
+                        go->DespawnOrUnsummon();
+                _drakonicBonesList.clear();
             }
         }
 
@@ -283,9 +293,12 @@ public:
         EventMap _events;
 
         // Razorgore
-        uint8 EggCount;
-        uint32 EggEvent;
-        GuidList EggList;
+        uint8 _eggCount;
+        uint32 _eggEvent;
+        GuidList _eggList;
+
+        // Nefarian
+        GuidList _drakonicBonesList;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
