@@ -1860,8 +1860,6 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
         float outRadius = ringEffect.CalcRadius(nullptr, SpellTargetIndex::TargetB);
         float inRadius = ringEffect.CalcRadius(nullptr, SpellTargetIndex::TargetA);
 
-        size_t beforeCount = targets.size();
-
         targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
             {
                 Unit* unit = target->ToUnit();
