@@ -1086,7 +1086,7 @@ class spell_rog_ruthlessness : public AuraScript
         Unit* target = GetTarget();
 
         if (Optional<int32> cost = GetFinishingMoveCPCost(procInfo.GetProcSpell()))
-            if (roll_chance_f(aurEff->GetSpellEffectInfo().PointsPerResource * *cost))
+            if (roll_chance(aurEff->GetSpellEffectInfo().PointsPerResource * *cost))
                 target->ModifyPower(POWER_COMBO_POINTS, 1);
     }
 

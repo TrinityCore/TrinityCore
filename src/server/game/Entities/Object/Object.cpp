@@ -2004,7 +2004,7 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
         float reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
 
-        if (reflectchance > 0 && roll_chance_f(reflectchance))
+        if (reflectchance > 0 && roll_chance(reflectchance))
             return spellInfo->HasAttribute(SPELL_ATTR7_REFLECTION_ONLY_DEFENDS) ? SPELL_MISS_DEFLECT : SPELL_MISS_REFLECT;
     }
 

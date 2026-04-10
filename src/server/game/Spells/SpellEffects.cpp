@@ -1395,7 +1395,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     uint32 perfectItemType = itemId;
     // get perfection capability and chance
     if (CanCreatePerfectItem(player, m_spellInfo->Id, perfectCreateChance, perfectItemType))
-        if (roll_chance_f(perfectCreateChance)) // if the roll succeeds...
+        if (roll_chance(perfectCreateChance)) // if the roll succeeds...
             newitemid = perfectItemType;        // the perfect item replaces the regular one
 
     /* == gem perfection handling over == */
@@ -1411,7 +1411,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     // get the chance and maximum number for creating extra items
     if (CanCreateExtraItems(player, m_spellInfo->Id, additionalCreateChance, additionalMaxNum))
         // roll with this chance till we roll not to create or we create the max num
-        while (roll_chance_f(additionalCreateChance) && items_count <= additionalMaxNum)
+        while (roll_chance(additionalCreateChance) && items_count <= additionalMaxNum)
             ++items_count;
 
     // really will be created more items
@@ -3528,7 +3528,7 @@ void Spell::EffectInebriate()
     uint8 currentDrunkValue = player->GetDrunkValue();
     uint8 drunkValue = std::clamp<int32>(GetEffectValueAsInt() + currentDrunkValue, 0, 100);
     if (currentDrunkValue == 100 && currentDrunkValue == drunkValue)
-        if (roll_chance_f(25.0f))
+        if (roll_chance(25.0f))
             player->CastSpell(player, 67468, CastSpellExtraArgs()
                 .SetTriggeringSpell(this));    // Drunken Vomit
 
@@ -4244,7 +4244,7 @@ void Spell::EffectDispelMechanic()
         Aura* aura = itr->second;
         if (!aura->GetApplicationOfTarget(unitTarget->GetGUID()))
             continue;
-        if (roll_chance_i(aura->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster))))
+        if (roll_chance(aura->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster))))
             if ((aura->GetSpellInfo()->GetAllEffectsMechanicMask() & (UI64LIT(1) << mechanic)))
                 dispel_list.emplace_back(aura->GetId(), aura->GetCasterGUID());
     }

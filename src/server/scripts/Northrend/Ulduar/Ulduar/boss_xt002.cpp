@@ -825,7 +825,7 @@ class spell_xt002_energy_orb : public SpellScript
 
         target->CastSpell(target, SPELL_RECHARGE_BOOMBOT, true);
 
-        if (roll_chance_i(30))
+        if (roll_chance(30))
             target->CastSpell(target, SPELL_RECHARGE_PUMMELER, true);
 
         for (uint8 i = 0; i < urand(5, 7); ++i)

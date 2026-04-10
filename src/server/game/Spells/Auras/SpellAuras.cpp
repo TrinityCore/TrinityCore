@@ -1976,7 +1976,7 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
         if (!target->IsStandState())
             return 0;
 
-    bool success = roll_chance_f(CalcProcChance(*procEntry, eventInfo));
+    bool success = roll_chance(CalcProcChance(*procEntry, eventInfo));
 
     const_cast<Aura*>(this)->SetLastProcAttemptTime(now);
 

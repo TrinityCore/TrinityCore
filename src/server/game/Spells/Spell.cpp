@@ -3306,7 +3306,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit)
         int32 _duration = 0;
         for (auto i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
         {
-            if (CanExecuteTriggersOnHit(unit, i->triggeredByAura) && roll_chance_i(i->chance))
+            if (CanExecuteTriggersOnHit(unit, i->triggeredByAura) && roll_chance(i->chance))
             {
                 m_caster->CastSpell(unit, i->triggeredSpell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                     .SetTriggeringSpell(this)
@@ -8626,7 +8626,7 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
         critChance = unit->SpellCritChanceTaken(m_originalCaster, this, nullptr, m_spellSchoolMask, critChance, m_attackType);
     }
 
-    targetInfo.IsCrit = roll_chance_f(critChance);
+    targetInfo.IsCrit = roll_chance(critChance);
 }
 
 void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, SpellEffectInfo const& spellEffectInfo)

@@ -4462,7 +4462,7 @@ struct npc_quilboar_warrior : public ScriptedAI
     {
         me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 3s, 5s);
@@ -4470,7 +4470,7 @@ struct npc_quilboar_warrior : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_DEATH, killer);
     }
 
@@ -4513,7 +4513,7 @@ struct npc_quilboar_geomancer : public ScriptedAI
     {
         me->RemoveAura(SPELL_QUILBOAR_SLEEP_DNT);
 
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_AGGRO, who);
 
         _events.ScheduleEvent(EVENT_GEOMANCER_EARTH_BOLT, 3s, 5s);
@@ -4521,7 +4521,7 @@ struct npc_quilboar_geomancer : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (roll_chance_f(33.33f))
+        if (roll_chance(33.33f))
             Talk(SAY_DEATH, killer);
     }
 

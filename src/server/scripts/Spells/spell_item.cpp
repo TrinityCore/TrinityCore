@@ -307,7 +307,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 caster->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
                 uint32 spellId = SPELL_MANIFEST_ANGER_MAIN_HAND;
                 if (Player* player = caster->ToPlayer())
-                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance_i(50))
+                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance(50))
                         spellId = SPELL_MANIFEST_ANGER_OFF_HAND;
 
                 caster->CastSpell(target, spellId, aurEff);
@@ -420,7 +420,7 @@ class spell_item_aura_of_madness : public AuraScript
         uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->GetClass()]);
         caster->CastSpell(caster, spellId, aurEff);
 
-        if (roll_chance_i(10))
+        if (roll_chance(10))
             caster->Unit::Say(SAY_MADNESS);
     }
 
@@ -730,7 +730,7 @@ class spell_item_goblin_bomb_dispenser : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Item* item = GetCastItem())
-            GetCaster()->CastSpell(GetCaster(), roll_chance_i(95) ? SPELL_SUMMON_GOBLIN_BOMB : SPELL_MALFUNCTION_EXPLOSION, item);
+            GetCaster()->CastSpell(GetCaster(), roll_chance(95) ? SPELL_SUMMON_GOBLIN_BOMB : SPELL_MALFUNCTION_EXPLOSION, item);
     }
 
     void Register() override
@@ -792,7 +792,7 @@ class spell_item_defibrillate : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
-                if (roll_chance_i(_chance))
+                if (roll_chance(_chance))
                 {
                     PreventHitDefaultEffect(effIndex);
                     if (_failSpell)
@@ -1978,7 +1978,7 @@ class spell_item_ultrasafe_transporter : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (!roll_chance_i(50)) // 50% success
+        if (!roll_chance(50)) // 50% success
             return;
 
         Unit* caster = GetCaster();
@@ -2045,7 +2045,7 @@ class spell_item_dimensional_ripper_area52 : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (!roll_chance_i(50)) // 50% success
+        if (!roll_chance(50)) // 50% success
             return;
 
         Unit* caster = GetCaster();
@@ -2748,7 +2748,7 @@ class spell_item_purify_helboar_meat : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
+        caster->CastSpell(caster, roll_chance(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
     }
 
     void Register() override
@@ -2775,7 +2775,7 @@ class spell_item_nigh_invulnerability : public SpellScript
         Unit* caster = GetCaster();
         if (Item* castItem = GetCastItem())
         {
-            if (roll_chance_i(86))                  // Nigh-Invulnerability   - success
+            if (roll_chance(86))                  // Nigh-Invulnerability   - success
                 caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, castItem);
             else                                    // Complete Vulnerability - backfire in 14% casts
                 caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, castItem);
@@ -2804,7 +2804,7 @@ class spell_item_poultryizer : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         if (GetCastItem() && GetHitUnit())
-            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, GetCastItem());
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, GetCastItem());
     }
 
     void Register() override
@@ -3012,7 +3012,7 @@ class spell_item_nitro_boosts : public SpellScript
         Unit* caster = GetCaster();
         bool success = true;
         if (!caster->GetMap()->IsDungeon())
-            success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
+            success = roll_chance(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
         caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, GetCastItem());
     }
 
@@ -3040,7 +3040,7 @@ class spell_item_nitro_boosts_backfire : public AuraScript
         float curZ = GetTarget()->GetPositionZ();
         if (curZ < lastZ)
         {
-            if (roll_chance_i(80)) // we don't have enough sniffs to verify this, guesstimate
+            if (roll_chance(80)) // we don't have enough sniffs to verify this, guesstimate
                 GetTarget()->CastSpell(GetTarget(), SPELL_NITRO_BOOSTS_PARACHUTE, effect);
             GetAura()->Remove();
         }
@@ -3137,7 +3137,7 @@ class spell_item_pygmy_oil : public SpellScript
         else
         {
             aura = caster->GetAura(SPELL_PYGMY_OIL_SMALLER_AURA);
-            if (!aura || aura->GetStackAmount() < 5 || !roll_chance_i(50))
+            if (!aura || aura->GetStackAmount() < 5 || !roll_chance(50))
                     caster->CastSpell(caster, SPELL_PYGMY_OIL_SMALLER_AURA, true);
             else
             {
@@ -3815,8 +3815,8 @@ class spell_item_mind_control_cap : public SpellScript
         Unit* caster = GetCaster();
         if (Unit* target = GetHitUnit())
         {
-            if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
-                caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, GetCastItem());
+            if (roll_chance<int32>(ROLL_CHANCE_NO_BACKFIRE))
+                caster->CastSpell(target, roll_chance<int32>(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, GetCastItem());
             else
                 target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
         }
@@ -4229,8 +4229,8 @@ class spell_item_eggnog : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (roll_chance_i(40))
-            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(50) ? SPELL_EGG_NOG_REINDEER : SPELL_EGG_NOG_SNOWMAN, GetCastItem());
+        if (roll_chance(40))
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance(50) ? SPELL_EGG_NOG_REINDEER : SPELL_EGG_NOG_SNOWMAN, GetCastItem());
     }
 
     void Register() override

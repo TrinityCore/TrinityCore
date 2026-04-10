@@ -1656,7 +1656,7 @@ class spell_warl_summon_sayaad : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(nullptr, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(nullptr, roll_chance(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, TRIGGERED_FULL_MASK);
     }
 
     void Register() override

@@ -806,7 +806,7 @@ class spell_zuldrak_cocooned_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN);
+        GetHitUnit()->CastSpell(GetCaster(), roll_chance(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN);
     }
 
     void Register() override

@@ -787,7 +787,7 @@ class spell_icecrown_pound_drum : public SpellScript
 
     void HandleSummon()
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_SUMMON_DEEP_JORMUNGAR : SPELL_STORMFORGED_MOLE_MACHINE, true);
+        GetCaster()->CastSpell(GetCaster(), roll_chance(50) ? SPELL_SUMMON_DEEP_JORMUNGAR : SPELL_STORMFORGED_MOLE_MACHINE, true);
     }
 
     void Register() override

@@ -168,7 +168,7 @@ class spell_evo_burnout : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -332,7 +332,7 @@ public:
     bool Load() override
     {
         AuraEffect const* aurEff = GetCaster()->GetAuraEffect(_talentAuraId, EFFECT_0);
-        return aurEff && roll_chance_f(aurEff->GetAmount());
+        return aurEff && roll_chance(aurEff->GetAmount());
     }
 
     void HandleEssenceBurst() const

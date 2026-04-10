@@ -335,7 +335,7 @@ class spell_hun_cobra_sting : public AuraScript
 
     bool RollProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
-        return roll_chance_f(GetEffect(EFFECT_1)->GetAmount());
+        return roll_chance(GetEffect(EFFECT_1)->GetAmount());
     }
 
     void Register() override
@@ -639,7 +639,7 @@ class spell_hun_lock_and_load : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -1139,7 +1139,7 @@ class spell_hun_shrapnel_shot : public AuraScript
 
     void HandleProc(ProcEventInfo const& /*eventInfo*/) const
     {
-        if (!roll_chance_f(GetEffect(EFFECT_0)->GetAmount()))
+        if (!roll_chance(GetEffect(EFFECT_0)->GetAmount()))
             return;
 
         GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
@@ -1444,7 +1444,7 @@ class spell_hun_wilderness_medicine : public AuraScript
     void OnPeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
-            if (roll_chance_f(_dispelChance))
+            if (roll_chance(_dispelChance))
                 caster->CastSpell(GetTarget(), SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL, CastSpellExtraArgsInit{
                     .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                     .TriggeringAura = aurEff

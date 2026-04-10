@@ -819,7 +819,7 @@ class spell_dh_darkness : public AuraScript
     void Absorb(AuraEffect const* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount) const
     {
         if (AuraEffect const* chanceEffect = GetEffect(EFFECT_1))
-            if (roll_chance_f(chanceEffect->GetAmount()))
+            if (roll_chance(chanceEffect->GetAmount()))
                 absorbAmount = dmgInfo.GetDamage();
     }
 
@@ -2010,7 +2010,7 @@ class spell_dh_shattered_souls_devourer : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)

@@ -215,7 +215,7 @@ class spell_pal_art_of_war : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -297,7 +297,7 @@ class spell_pal_awakening : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -558,7 +558,7 @@ class spell_pal_divine_purpose : public AuraScript
         if (!procSpell->HasPowerTypeCost(POWER_HOLY_POWER))
             return false;
 
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -827,7 +827,7 @@ class spell_pal_final_verdict : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        if (!roll_chance_f(GetEffectValue()))
+        if (!roll_chance(GetEffectValue()))
             return;
 
         Unit* caster = GetCaster();
@@ -1323,7 +1323,7 @@ class spell_pal_item_t6_trinket : public AuraScript
         else
             return;
 
-        if (roll_chance_i(chance))
+        if (roll_chance(chance))
             eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
     }
 

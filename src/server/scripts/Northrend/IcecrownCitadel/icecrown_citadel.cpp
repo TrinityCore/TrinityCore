@@ -788,7 +788,7 @@ struct DarkFallenAI : public ScriptedAI
             if (!IsDoingEmotes)
                 return;
 
-            if (roll_chance_i(20))
+            if (roll_chance(20))
             {
                 std::vector<Creature*> creatures;
                 ICCOrbControllerMinionSearch check(me, true);

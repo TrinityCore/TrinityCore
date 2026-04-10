@@ -382,7 +382,7 @@ class spell_ymiron_the_fallen_king_soul_siphon : public AuraScript
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (!roll_chance_f(10))
+        if (!roll_chance(10))
             return;
 
         TriggerSuicide();

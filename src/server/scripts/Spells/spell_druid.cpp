@@ -516,7 +516,7 @@ class spell_dru_dream_of_cenarius_guardian : public AuraScript
         if (GetUnitOwner()->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN))
             return false;
 
-        return roll_chance_f(GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK));
+        return roll_chance(GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK));
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/) const
@@ -868,7 +868,7 @@ class spell_dru_embrace_of_the_dream : public AuraScript
 
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
     {
-        return roll_chance_f(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+        return roll_chance(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
@@ -1168,7 +1168,7 @@ class spell_dru_galactic_guardian : public AuraScript
 
     static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -1294,7 +1294,7 @@ class spell_dru_gore : public AuraScript
 
     bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*procInfo*/)
@@ -1488,7 +1488,7 @@ class spell_dru_item_t6_trinket : public AuraScript
         else
             return;
 
-        if (roll_chance_i(chance))
+        if (roll_chance(chance))
             eventInfo.GetActor()->CastSpell(nullptr, spellId, aurEff);
     }
 
@@ -1604,7 +1604,7 @@ class spell_dru_luxuriant_soil : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
@@ -1879,7 +1879,7 @@ class spell_dru_omen_of_clarity_restoration : public AuraScript
 {
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void Register() override
@@ -2199,7 +2199,7 @@ class spell_dru_shooting_stars : public AuraScript
 
         float chance = float(aurEff->GetAmount()) * std::sqrt(float(targets.size()));
         float procs;
-        if (roll_chance_f(std::modf(chance / 100.0f, &procs) * 100.0f))
+        if (roll_chance(std::modf(chance / 100.0f, &procs) * 100.0f))
             procs += 1.0f;
 
         if (procs <= 0.0f)
@@ -2210,7 +2210,7 @@ class spell_dru_shooting_stars : public AuraScript
         {
             uint32 spellId = SPELL_DRUID_SHOOTING_STARS_DAMAGE;
             AuraEffect const* crashingStarTalent = caster->GetAuraEffect(SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0);
-            if (crashingStarTalent && roll_chance_f(crashingStarTalent->GetAmount()))
+            if (crashingStarTalent && roll_chance(crashingStarTalent->GetAmount()))
                 spellId = SPELL_DRUID_CRASHING_STAR_DAMAGE;
 
             caster->CastSpell(target, spellId, CastSpellExtraArgsInit{
@@ -2339,7 +2339,7 @@ class spell_dru_sudden_ambush : public AuraScript
         if (!comboPoints)
             return false;
 
-        return roll_chance_f(*comboPoints * aurEff->GetAmount());
+        return roll_chance(*comboPoints * aurEff->GetAmount());
     }
 
     void Register() override

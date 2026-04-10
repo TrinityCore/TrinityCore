@@ -233,7 +233,7 @@ class spell_sha_aftershock : public AuraScript
     {
         if (Spell const* procSpell = eventInfo.GetProcSpell())
             if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM))
-                return cost > 0 && roll_chance_f(aurEff->GetAmount());
+                return cost > 0 && roll_chance(aurEff->GetAmount());
 
         return false;
     }
@@ -660,7 +660,7 @@ class spell_sha_deeply_rooted_elements : public AuraScript
         if (procInfo.GetSpellInfo()->Id != _triggeringSpellId)
             return false;
 
-        return roll_chance_i(_procAttempts++ - 2);
+        return roll_chance(_procAttempts++ - 2);
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -1016,7 +1016,7 @@ class spell_sha_earthquake_tick : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            if (roll_chance_f(GetEffectInfo(EFFECT_1).CalcValue()))
+            if (roll_chance(GetEffectInfo(EFFECT_1).CalcValue()))
             {
                 std::vector<AreaTrigger*> areaTriggers = GetCaster()->GetAreaTriggers(SPELL_SHAMAN_EARTHQUAKE);
                 auto itr = std::ranges::find(areaTriggers, GetSpell()->GetOriginalCasterGUID(), [](AreaTrigger const* at) { return at->GetGUID(); });
@@ -1484,7 +1484,7 @@ class spell_sha_ice_strike_proc : public AuraScript
 public:
     void AttemptProc()
     {
-        if (!roll_chance_i(++_attemptCount * 7))
+        if (!roll_chance(++_attemptCount * 7))
             return;
 
         _attemptCount = 0;
@@ -1645,7 +1645,7 @@ class spell_sha_item_t6_trinket : public AuraScript
         else
             return;
 
-        if (roll_chance_i(chance))
+        if (roll_chance(chance))
             eventInfo.GetActor()->CastSpell(nullptr, spellId, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
 
@@ -1824,7 +1824,7 @@ class spell_sha_lava_surge : public AuraScript
 
         procChance = (1.0 - std::pow(missChance, _normalizedTicks)) * 100.0;
 
-        return roll_chance_f(procChance);
+        return roll_chance(procChance);
     }
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
@@ -2159,7 +2159,7 @@ class spell_sha_mastery_elemental_overload : public AuraScript
             if (eventInfo.GetProcSpell()->m_appliedMods.contains(stormkeeper))
                 chance = 100.0;
 
-        return roll_chance_f(chance);
+        return roll_chance(chance);
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
@@ -2325,7 +2325,7 @@ class spell_sha_molten_thunder_sundering : public SpellScript
         SpellEffectValue procChance = chanceBaseEffect->GetAmount();
         procChance += std::min<SpellEffectValue>(targetLimitEffect->GetAmount(), GetUnitTargetCountForEffect(EFFECT_0)) * chancePerTargetEffect->GetAmount();
         procChance *= std::pow(0.5, counterScript->ProcCount); // Each consecutive reset reduces these chances by half
-        if (roll_chance_f(procChance))
+        if (roll_chance(procChance))
         {
             shaman->CastSpell(shaman, SPELL_SHAMAN_MOLTEN_THUNDER_PROC, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -2618,7 +2618,7 @@ public:
         _caster->CastSpell(_target, _mainHandDamageSpellId, args);
         _caster->CastSpell(_target, _offHandDamageSpellId, args);
 
-        if (!roll_chance_f(_procChance))
+        if (!roll_chance(_procChance))
             return true;
 
         _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
@@ -2669,7 +2669,7 @@ public:
             return;
 
         SpellEffectValue procChance = chanceEffect->GetAmount();
-        if (!roll_chance_f(procChance))
+        if (!roll_chance(procChance))
             return;
 
         caster->m_Events.AddEventAtOffset(new StormflurryEvent(caster, GetHitUnit(), GetSpell()->m_castId, damageEffect->GetAmount(),
@@ -3283,7 +3283,7 @@ class spell_sha_voltaic_blaze_talent : public AuraScript
 {
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -3370,7 +3370,7 @@ void WindfuryProcEvent::Trigger(Unit* shaman, Unit* target)
     }
 
     std::ptrdiff_t attacks = 2;
-    if (AuraEffect const* unrulyWinds = shaman->GetAuraEffect(SPELL_SHAMAN_UNRULY_WINDS, EFFECT_0); roll_chance_f(unrulyWinds->GetAmount()))
+    if (AuraEffect const* unrulyWinds = shaman->GetAuraEffect(SPELL_SHAMAN_UNRULY_WINDS, EFFECT_0); roll_chance(unrulyWinds->GetAmount()))
         ++attacks;
 
     shaman->m_Events.AddEventAtOffset(new WindfuryProcEvent(shaman, target, attacks), Sequence.front().Delay);

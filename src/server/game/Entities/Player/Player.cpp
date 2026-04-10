@@ -8751,7 +8751,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                 else if (chance > 100.0f)
                     chance = GetWeaponProcChance();
 
-                if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
+                if (roll_chance(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
                     CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
         }
@@ -8814,7 +8814,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
                 chance = 100.0f;
 
-            if (roll_chance_f(chance))
+            if (roll_chance(chance))
             {
                 if (spellInfo->IsPositive())
                     CastSpell(this, spellInfo->Id, item);
@@ -8822,7 +8822,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                     CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
 
-            if (roll_chance_f(chance))
+            if (roll_chance(chance))
             {
                 Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetVictim();
 
@@ -26309,7 +26309,7 @@ void Player::InitializeSelfResurrectionSpells()
         if ((*itr)->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_WARLOCK && (*itr)->GetSpellInfo()->SpellFamilyFlags[1] & 0x1000000)
             spells[0] = 3026;
         // Twisting Nether                                  // prio: 2 (max)
-        else if ((*itr)->GetId() == 23701 && roll_chance_i(10))
+        else if ((*itr)->GetId() == 23701 && roll_chance(10))
             spells[1] = 23700;
     }
 
