@@ -20,7 +20,7 @@
 #include "ScriptMgr.h"
 #include "ecodome_aldani.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_AZHICCAR,    DATA_AZHICCAR    },
     { BOSS_TAAHBAT,     DATA_TAAHBAT     },
@@ -29,7 +29,7 @@ ObjectData const creatureData[] =
     { 0,                0                }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_AZHICCAR,          {{ 3107 }} },
     { DATA_TAAHBAT_AND_AWAZJ, {{ 3108 }} },
@@ -47,7 +47,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
 
             _azhiccarIntroState = NOT_STARTED;

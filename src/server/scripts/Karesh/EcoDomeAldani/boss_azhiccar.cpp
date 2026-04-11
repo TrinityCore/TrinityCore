@@ -34,31 +34,36 @@
 enum AzhiccarSpells
 {
     // Intro
-    SPELL_DEVOUR_INTRO                    = 1233112,
-    SPELL_DEVOUR_INTRO_SELECTOR           = 1233116,
-    SPELL_DEVOUR_INSTAKILL                = 1233147,
-    SPELL_KNOCKBACK                       = 1222792,
+    SPELL_DEVOUR_INTRO                      = 1233112,
+    SPELL_DEVOUR_INTRO_SELECTOR             = 1233116,
+    SPELL_DEVOUR_INSTAKILL                  = 1233147,
+    SPELL_KNOCKBACK                         = 1222792,
 
     // Combat
-    SPELL_DEVOUR                          = 1217232,
-    SPELL_DEVOUR_AREATRIGGER              = 1217240,
-    SPELL_DEVOUR_SELECTOR                 = 1217255,
-    SPELL_DEVOURER_VORTEX                 = 1227068,
-    SPELL_DIGESTIVE_SPITTLE               = 1217446,
-    SPELL_ENERGY_CONTROLLER               = 1217202,
-    SPELL_FEAST                           = 1217241,
-    SPELL_FEAST_HEAL                      = 1217247,
-    SPELL_FEAST_INSTAKILL                 = 1217252,
-    SPELL_INVADING_SHRIEK_DAMAGE          = 1231850,
-    SPELL_INVADING_SHRIEK_DUMMY           = 1217330,
-    SPELL_INVADING_SHRIEK_PERIODIC        = 1217327,
-    SPELL_INVADING_SHRIEK_SUMMON          = 1217331,
-    SPELL_PLAYER_DETECTION                = 1217757,
-    SPELL_THRASH                          = 1217664,
-    SPELL_TOXIC_REGURGITATION_CAST        = 1227745,
-    SPELL_TOXIC_REGURGITATION_MARKER      = 1227748,
-    SPELL_TOXIC_REGURGITATION_MISSILE     = 1217438,
-    SPELL_TOXIC_REGURGITATION_SELECTOR    = 1217436
+    SPELL_DEVOUR                            = 1217232,
+    SPELL_DEVOUR_AREATRIGGER                = 1217240,
+    SPELL_DEVOUR_SELECTOR                   = 1217255,
+    SPELL_DEVOURER_VORTEX                   = 1227068,
+    SPELL_DIGESTIVE_SPITTLE                 = 1217446,
+    SPELL_DIGESTIVE_SPITTLE_NPC_SLOW        = 1217526,
+    SPELL_ENERGY_CONTROLLER                 = 1217202,
+    SPELL_FEAST                             = 1217241,
+    SPELL_FEAST_HEAL                        = 1217247,
+    SPELL_FEAST_INSTAKILL                   = 1217252,
+    SPELL_INVADING_SHRIEK_DAMAGE            = 1231850,
+    SPELL_INVADING_SHRIEK_DUMMY             = 1217330,
+    SPELL_INVADING_SHRIEK_PERIODIC          = 1217327,
+    SPELL_INVADING_SHRIEK_SUMMON            = 1217331,
+    SPELL_PLAYER_DETECTION                  = 1217757,
+    SPELL_THRASH                            = 1217664,
+    SPELL_TOXIC_REGURGITATION_CAST          = 1227745,
+    SPELL_TOXIC_REGURGITATION_MARKER        = 1227748,
+    SPELL_TOXIC_REGURGITATION_MISSILE       = 1217438,
+    SPELL_TOXIC_REGURGITATION_SELECTOR      = 1217436,
+
+    // Mites
+    SPELL_UNCONTROLLED                      = 1231811,
+    SPELL_STUNNED                           = 1235707,
 };
 
 enum AzhiccarEvents
@@ -80,16 +85,18 @@ enum AzhiccarTexts
 
 enum AzhiccarMisc
 {
-    ANIMKIT_NONE   = 0,
-    ANIMKIT_EMERGE = 21290,
+    ANIMKIT_NONE                = 0,
+    ANIMKIT_EMERGE              = 21290,
+    ANIMKIT_MITE_DEVOUR_BIRTH   = 11428,
 
-    SPELL_VISUALKIT_ALARM = 222521,
+    SPELL_VISUALKIT_ALARM       = 222521,
 
-    POINT_AZHICCAR = 0,
+    POINT_AZHICCAR              = 0,
 
-    SPELL_VISUAL_DEVOURED = 155836,
+    SPELL_VISUAL_DEVOURED       = 155836,
 
-    NPC_PORTAL_STALKER = 237454
+    NPC_PORTAL_STALKER          = 237454,
+    NPC_FRENZIED_MITE           = 236190,
 };
 
 static constexpr Position AzhiccarPosition = { 436.8889f, -746.0f, 1002.0926f };
@@ -122,6 +129,8 @@ struct boss_azhiccar : public BossAI
 
         _invadingShriekCount = 1;
         _toxicRegurgitationCount = 1;
+
+        _lastPortalPositions.clear();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -136,7 +145,7 @@ struct boss_azhiccar : public BossAI
         events.ScheduleEvent(EVENT_INVADING_SHRIEK, 5200ms);
 
         if (IsHeroicOrHigher())
-            events.ScheduleEvent(EVENT_CHECK_ENERGY, 500s);
+            events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -228,13 +237,17 @@ struct boss_azhiccar : public BossAI
 
                     Trinity::Containers::RandomResize(portalAngles, 3);
 
+                    static constexpr float PORTAL_STALKER_DIST = 30.0f;
+
+                    _lastPortalPositions.clear();
                     for (float angle : portalAngles)
                     {
                         angle += me->GetOrientation();
-                        float dist = 30.0f;
                         Position pos = me->GetPosition();
-                        me->MovePosition(pos, dist, angle);
+                        me->MovePosition(pos, PORTAL_STALKER_DIST, angle);
                         me->SummonCreature(NPC_PORTAL_STALKER, pos, TEMPSUMMON_TIMED_DESPAWN, 4100ms);
+
+                        _lastPortalPositions.push_back(pos);
                     }
 
                     DoCastSelf(SPELL_INVADING_SHRIEK_PERIODIC);
@@ -262,7 +275,26 @@ struct boss_azhiccar : public BossAI
                     {
                         DoCastSelf(SPELL_DEVOUR);
 
-                        // Todo: implement m+ mechanic for spawning more Devourer Mites
+                        if (IsMythic())
+                        {
+                            for (Position const& lastPos : _lastPortalPositions)
+                            {
+                                me->SummonCreature(NPC_PORTAL_STALKER, lastPos, TEMPSUMMON_TIMED_DESPAWN, 2s);
+                                for (uint8 i = 0; i < 3; i++)
+                                {
+                                    Position pos(lastPos);
+                                    me->MovePosition(pos, 3.0f, frand(0, 2 * float(M_PI)));
+
+                                    me->m_Events.AddEventAtOffset([caster = me, pos]()
+                                    {
+                                        caster->CastSpell(pos, SPELL_INVADING_SHRIEK_SUMMON, CastSpellExtraArgsInit{
+                                            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                                        });
+                                    }, 2100ms);
+                                }
+                            }
+                        }
+                        events.Repeat(25s);
                     }
                     else
                         events.Repeat(500ms);
@@ -280,6 +312,29 @@ struct boss_azhiccar : public BossAI
 private:
     uint32 _invadingShriekCount;
     uint32 _toxicRegurgitationCount;
+    std::vector<Position> _lastPortalPositions;
+};
+
+// 236190 - Frenzied Mite
+struct npc_azhiccar_frenzied_mite : public ScriptedAI
+{
+    npc_azhiccar_frenzied_mite(Creature* creature) : ScriptedAI(creature) {}
+
+    void JustAppeared() override
+    {
+        Creature* azhiccar = me->GetInstanceScript()->GetCreature(DATA_AZHICCAR);
+        if (!azhiccar)
+            return;
+
+        if (azhiccar->GetPower(POWER_ENERGY) >= 100)
+        {
+            me->SetReactState(REACT_PASSIVE);
+            DoCastSelf(SPELL_STUNNED);
+            me->PlayOneShotAnimKitId(ANIMKIT_MITE_DEVOUR_BIRTH);
+        }
+        else
+            DoCastSelf(SPELL_UNCONTROLLED);
+    }
 };
 
 // 1217202 - Energy Controller
@@ -333,7 +388,7 @@ class spell_azhiccar_toxic_regurgitation_cast : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_TOXIC_REGURGITATION_MISSILE });
+        return ValidateSpellInfo({ SPELL_TOXIC_REGURGITATION_MARKER, SPELL_TOXIC_REGURGITATION_MISSILE });
     }
 
     void HandleOnHit() const
@@ -345,11 +400,13 @@ class spell_azhiccar_toxic_regurgitation_cast : public SpellScript
         Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(caster, players, check);
         Cell::VisitWorldObjects(caster, searcher, 200.0f);
 
-        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
-            caster->CastSpell(*itr, SPELL_TOXIC_REGURGITATION_MISSILE, CastSpellExtraArgsInit{
+        for (Player* player : players)
+        {
+            caster->CastSpell(player, SPELL_TOXIC_REGURGITATION_MISSILE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
             });
+        }
     }
 
     void Register() override
@@ -381,6 +438,7 @@ class spell_azhiccar_invading_shriek : public SpellScript
     }
 };
 
+// 1217327 - Invading Shriek
 class spell_azhiccar_invading_shriek_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -400,17 +458,19 @@ class spell_azhiccar_invading_shriek_aura : public AuraScript
 
     void OnPeriodic(AuraEffect const* aurEff)
     {
-        if (aurEff->GetTickNumber() > 1)
-        {
-            Unit* caster = GetCaster();
-            ObjectGuid guid = _stalkerList.front();
-            _stalkerList.pop();
+        if (aurEff->GetTickNumber() <= 1)
+            return;
 
-            if (Creature* stalker = ObjectAccessor::GetCreature(*caster, guid))
-                caster->CastSpell(stalker->GetPosition(), SPELL_INVADING_SHRIEK_DUMMY, CastSpellExtraArgsInit{
-                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                    .TriggeringAura = aurEff
-                });
+        Unit* caster = GetCaster();
+        ObjectGuid guid = _stalkerList.front();
+        _stalkerList.pop();
+
+        if (Creature* stalker = ObjectAccessor::GetCreature(*caster, guid))
+        {
+            caster->CastSpell(stalker->GetPosition(), SPELL_INVADING_SHRIEK_DUMMY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
         }
     }
 
@@ -451,7 +511,7 @@ class spell_azhiccar_player_detection : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_THRASH });
+        return ValidateSpellInfo({ SPELL_DEVOUR, SPELL_THRASH });
     }
 
     void HandlePlayerDetection() const
@@ -482,13 +542,14 @@ class spell_azhiccar_devour : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DEVOUR_AREATRIGGER });
+        return ValidateSpellInfo({ SPELL_DEVOUR_AREATRIGGER, SPELL_DEVOUR_SELECTOR });
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_DEVOUR_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        GetCaster()->CastSpell(GetCaster(), SPELL_DEVOUR_SELECTOR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DEVOUR_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(caster, SPELL_DEVOUR_SELECTOR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -500,6 +561,13 @@ class spell_azhiccar_devour : public AuraScript
 // 1217255 - Devour
 class spell_azhiccar_devour_selector : public SpellScript
 {
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* target) {
+            return !target->IsPlayer() && target->GetEntry() != NPC_FRENZIED_MITE;
+        });
+    }
+
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* target = GetHitUnit();
@@ -515,6 +583,7 @@ class spell_azhiccar_devour_selector : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_azhiccar_devour_selector::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_azhiccar_devour_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -551,23 +620,21 @@ struct at_azhiccar_digestive_spittle : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer())
-            return;
-
         Unit* caster = at->GetCaster();
         if (!caster)
             return;
 
-        caster->CastSpell(unit, SPELL_DIGESTIVE_SPITTLE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(unit, (unit->IsPlayer() ? SPELL_DIGESTIVE_SPITTLE : SPELL_DIGESTIVE_SPITTLE_NPC_SLOW), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_SPITTLE);
+        unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_SPITTLE_NPC_SLOW);
     }
 };
 
-// 1217240 Devour
+// 1217240 - Devour
 // Id - 38188
 struct at_azhiccar_devour_force : AreaTriggerAI
 {
@@ -575,7 +642,7 @@ struct at_azhiccar_devour_force : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer())
+        if (!unit->IsPlayer() || unit->GetEntry() == NPC_PORTAL_STALKER)
             return;
 
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), 3.0f, MovementForceType::Gravity);
@@ -587,7 +654,7 @@ struct at_azhiccar_devour_force : AreaTriggerAI
     }
 };
 
-// 1217240 Devour
+// 1217240 - Devour
 // Id - 38189
 struct at_azhiccar_devour : AreaTriggerAI
 {
@@ -606,7 +673,7 @@ struct at_azhiccar_devour : AreaTriggerAI
     }
 };
 
-// Id - XXX
+// Id - 176
 struct at_azhiccar_intro : AreaTriggerAI
 {
     at_azhiccar_intro(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -682,6 +749,7 @@ void AddSC_boss_azhiccar()
 {
     RegisterEcodomeAldaniCreatureAI(boss_azhiccar);
 
+    RegisterEcodomeAldaniCreatureAI(npc_azhiccar_frenzied_mite);
     RegisterSpellScript(spell_azhiccar_energy_controller);
     RegisterSpellScript(spell_azhiccar_toxic_regurgitation_selector);
     RegisterSpellScript(spell_azhiccar_toxic_regurgitation_cast);
