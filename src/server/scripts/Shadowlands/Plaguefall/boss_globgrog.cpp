@@ -450,12 +450,10 @@ class spell_globgrog_victory_start_convo : public SpellScript
 
     void HandleHit() const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
-        if (!creatureCaster)
-            return;
-
+        Unit* caster = GetCaster();
+    
         uint32 spellId = RAND(SPELL_VICTORY_TEXT_1, SPELL_VICTORY_TEXT_2);
-        creatureCaster->CastSpell(creatureCaster, spellId, CastSpellExtraArgsInit{
+        caster->CastSpell(caster, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
