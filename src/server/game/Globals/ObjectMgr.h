@@ -449,14 +449,7 @@ struct TC_GAME_API SpellClickInfo
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 
-struct AreaTriggerTeleport
-{
-    uint32 target_mapId;
-    float  target_X;
-    float  target_Y;
-    float  target_Z;
-    float  target_Orientation;
-};
+using AreaTriggerTeleport = WorldSafeLocsEntry;
 
 struct AreaTriggerPolygon
 {
@@ -829,7 +822,7 @@ struct QuestPOIData
     std::vector<QuestPOIBlobData> Blobs;
 
     void InitializeQueryData();
-    ByteBuffer QueryDataBuffer;
+    std::vector<uint8> QueryDataBuffer;
 };
 
 typedef std::unordered_map<uint32, QuestPOIData> QuestPOIContainer;
@@ -986,7 +979,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Trinity::unique_trackable_ptr<Quest>> QuestContainer;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<uint32, AreaTriggerTeleport> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerTeleport const*> AreaTriggerContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 

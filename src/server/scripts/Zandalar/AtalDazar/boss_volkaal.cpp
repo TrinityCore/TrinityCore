@@ -267,7 +267,7 @@ class spell_volkaal_lingering_nausea : public AuraScript
         Unit* target = GetTarget();
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
+            caster->CastSpell(target, aurEff->GetAmountAsInt(), CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
         });
@@ -317,29 +317,6 @@ class spell_volkaal_toxic_leap_selector : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_volkaal_toxic_leap_selector::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 250258 - Toxic Leap
-class spell_volkaal_toxic_leap : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TOXIC_LEAP });
-    }
-
-    void HandleHit(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        float dist = GetCaster()->GetExactDist(GetHitDest());
-        float jumpGravity = 159500.0f / (dist * dist); // constant based on calculating avg of inverse from multiple leaps
-        GetCaster()->GetMotionMaster()->MoveJumpWithGravity(*GetHitDest(), 50, jumpGravity, EVENT_JUMP);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_volkaal_toxic_leap::HandleHit, EFFECT_1, SPELL_EFFECT_JUMP_CHARGE);
     }
 };
 
@@ -448,7 +425,6 @@ void AddSC_boss_volkaal()
     RegisterSpellScript(spell_volkaal_lingering_nausea);
     RegisterSpellScript(spell_volkaal_noxious_stench);
     RegisterSpellScript(spell_volkaal_toxic_leap_selector);
-    RegisterSpellScript(spell_volkaal_toxic_leap);
     RegisterSpellScript(spell_volkaal_soul_anchor);
     RegisterSpellScript(spell_volkaal_reanimate);
     RegisterSpellScript(spell_volkaal_rapid_decay);

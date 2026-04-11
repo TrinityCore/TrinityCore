@@ -236,7 +236,7 @@ class spell_pet_gen_lich_pet_periodic_emote : public AuraScript
         // Effect of 70050 is overlapped by effect of 69683 but not instantly (69683 is a series of spell casts, takes longer to execute).
         // However, for some reason emote is not played if creature is idle and only if creature is moving or is already rooted.
         // For now it's scripted manually in script below to play emote always.
-        if (roll_chance_i(50))
+        if (roll_chance(50))
             GetTarget()->CastSpell(GetTarget(), SPELL_LICH_PET_EMOTE, true);
     }
 
@@ -265,12 +265,12 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

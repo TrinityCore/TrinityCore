@@ -50,9 +50,9 @@ void CommerceTokenGetMarketPrice::Read()
 WorldPacket const* CommerceTokenGetMarketPriceResponse::Write()
 {
     _worldPacket << ClientToken;
-    _worldPacket << ServerToken;
-    _worldPacket << PriceGuarantee;
-    _worldPacket << PriceLockDurationSeconds;
+    _worldPacket << Result;
+    _worldPacket << Price;
+    _worldPacket << ExpectedSecondsUntilSold;
 
     return &_worldPacket;
 }

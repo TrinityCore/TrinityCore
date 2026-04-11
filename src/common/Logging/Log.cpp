@@ -367,13 +367,17 @@ Log* Log::instance() noexcept
 
 void Log::Initialize(Trinity::Asio::IoContext* ioContext)
 {
+    SetAsynchronous(ioContext);
+    LoadFromConfig();
+}
+
+void Log::SetAsynchronous(Trinity::Asio::IoContext* ioContext)
+{
     if (ioContext)
     {
         _ioContext = ioContext;
         _strand = new Trinity::Asio::Strand(*ioContext);
     }
-
-    LoadFromConfig();
 }
 
 void Log::SetSynchronous()

@@ -19,11 +19,10 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "sanctum_of_domination.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_SYLVANAS_WINDRUNNER,        DATA_SYLVANAS_WINDRUNNER         },
     { NPC_SYLVANAS_SHADOWCOPY_RIDING,  DATA_SYLVANAS_SHADOWCOPY_RIDING  },
@@ -31,10 +30,9 @@ ObjectData const creatureData[] =
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
     { NPC_THRONE_OF_THE_DAMNED,        DATA_THRONE_OF_THE_DAMNED        },
-    { 0,                               0                                } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_THE_TARRAGRUE,              {{ 2423 }} },
     { DATA_THE_EYE_OF_THE_JAILER,      {{ 2433 }} },
@@ -60,7 +58,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDungeonEncounterData(encounters);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
 
             SylvanasIntroductionState = NOT_STARTED;
         }

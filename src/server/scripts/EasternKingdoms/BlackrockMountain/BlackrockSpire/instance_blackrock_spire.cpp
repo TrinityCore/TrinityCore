@@ -28,7 +28,7 @@
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_DOORS,                  DATA_PYROGAURD_EMBERSEER,     EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_EMBERSEER_OUT,          DATA_PYROGAURD_EMBERSEER,     EncounterDoorBehavior::OpenWhenDone },
@@ -36,7 +36,6 @@ DoorData const doorData[] =
     { GO_DRAKKISATH_DOOR_2,      DATA_GENERAL_DRAKKISATH,      EncounterDoorBehavior::OpenWhenDone },
     { GO_PORTCULLIS_ACTIVE,      DATA_WARCHIEF_REND_BLACKHAND, EncounterDoorBehavior::OpenWhenDone },
     { GO_PORTCULLIS_TOBOSSROOMS, DATA_WARCHIEF_REND_BLACKHAND, EncounterDoorBehavior::OpenWhenDone },
-    { 0,                         0,                            EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 static constexpr DungeonEncounterData Encounters[] =

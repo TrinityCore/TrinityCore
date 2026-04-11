@@ -73,10 +73,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 ClientToken          = 0;
-            uint32 ServerToken          = 0;
-            uint64 PriceGuarantee       = 0;
-            uint32 PriceLockDurationSeconds = 0; // preset auction duration enum
+            uint32 ClientToken              = 0;
+            int32 Result                    = 0;
+            uint64 Price                    = 0;
+            uint32 ExpectedSecondsUntilSold = 0;
         };
     }
 }

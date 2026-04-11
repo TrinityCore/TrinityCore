@@ -179,6 +179,14 @@ public:
     unique_weak_ptr(unique_weak_ptr<T2>&& other) noexcept
         : _ptr(std::move(other)._ptr) { }
 
+    template <typename T2>
+    unique_weak_ptr(unique_trackable_ptr<T2> const& aliased, T* aliasValue)
+        : _ptr(std::shared_ptr<T>(aliased._ptr, aliasValue)) { }
+
+    template <typename T2>
+    unique_weak_ptr(unique_trackable_ptr<T2>&& aliased, T* aliasValue)
+        : _ptr(std::shared_ptr<T>(std::move(aliased)._ptr, aliasValue)) { }
+
     unique_weak_ptr& operator=(unique_trackable_ptr<T> const& trackable)
     {
         _ptr = trackable._ptr;

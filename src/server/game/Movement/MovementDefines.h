@@ -88,7 +88,7 @@ enum MovementSlot : uint8
     MAX_MOTION_SLOT
 };
 
-enum class MovementWalkRunSpeedSelectionMode
+enum class MovementWalkRunSpeedSelectionMode : uint8
 {
     Default,
     ForceRun,
@@ -147,8 +147,10 @@ struct JumpChargeParams
     };
 
     bool TreatSpeedAsMoveTimeSeconds = false;
+    bool UnlimitedSpeed = false;
 
-    float JumpGravity = 0.0f;
+    Optional<float> MinHeight;
+    Optional<float> MaxHeight;
 
     Optional<uint32> SpellVisualId;
     Optional<uint32> ProgressCurveId;

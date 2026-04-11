@@ -44,7 +44,7 @@ WorldPacket const* ScenarioState::Write()
     _worldPacket << ScenarioGUID;
     _worldPacket << int32(ScenarioID);
     _worldPacket << int32(CurrentStep);
-    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int16(DifficultyID);
     _worldPacket << uint32(WaveCurrent);
     _worldPacket << uint32(WaveMax);
     _worldPacket << uint32(TimerDuration);

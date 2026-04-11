@@ -30,11 +30,11 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
-    m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
 
     m_updateFlag.Stationary = true;
@@ -177,7 +177,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
     RelocateStationaryPosition(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
+    _Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
     UpdatePositionData();
@@ -370,25 +370,25 @@ uint32 Conversation::GetScriptId() const
     return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
 }
 
-void Conversation::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Conversation::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_conversationData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_conversationData->WriteCreate(flags, data, target, this);
 }
 
-void Conversation::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Conversation::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_CONVERSATION))
-        m_conversationData->WriteUpdate(*data, flags, this, target);
+        m_conversationData->WriteUpdate(flags, data, target, this);
 }
 
 void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const
+    UF::ConversationData::Mask const& requestedConversationMask, Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -401,14 +401,14 @@ void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obje
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_CONVERSATION])
-        m_conversationData->WriteUpdate(buffer, requestedConversationMask, true, this, target);
+        m_conversationData->WriteUpdate(requestedConversationMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -420,14 +420,14 @@ void Conversation::ValuesUpdateForPlayerWithMaskSender::operator()(Player const*
     UpdateData udata(Owner->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ConversationMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ConversationMask.GetChangesMask(), player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
 }
 
-void Conversation::ClearUpdateMask(bool remove)
+void Conversation::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Conversation::m_conversationData);
-    Object::ClearUpdateMask(remove);
+    WorldObject::ClearValuesChangesMask();
 }

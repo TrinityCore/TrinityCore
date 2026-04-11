@@ -33,21 +33,22 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         ~Conversation();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
+            UF::ConversationData::Mask const& requestedConversationMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Conversation const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::ConversationData::Base ConversationMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

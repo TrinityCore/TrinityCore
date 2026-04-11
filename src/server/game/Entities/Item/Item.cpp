@@ -20,6 +20,7 @@
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Bag.h"
+#include "ClientBuildInfo.h"
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -39,11 +40,13 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "StringConvert.h"
 #include "TradeData.h"
+#include "TransmogMgr.h"
 #include "UpdateData.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -482,7 +485,6 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
 
 Item::Item()
 {
-    m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_Item, false);
@@ -507,7 +509,7 @@ Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemId);
     SetObjectScale(1.0f);
@@ -923,7 +925,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -1787,6 +1789,8 @@ bool Item::IsBindedNotWith(Player const* player) const
 
 void Item::BuildUpdate(UpdateDataMapType& data_map)
 {
+    BuildUpdateChangesMask();
+
     if (Player* owner = GetOwner())
         BuildFieldsUpdate(owner, data_map);
     ClearUpdateMask(false);
@@ -1800,37 +1804,37 @@ UF::UpdateFieldFlag Item::GetUpdateFieldFlagsFor(Player const* target) const
     return UF::UpdateFieldFlag::None;
 }
 
-void Item::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Item::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_itemData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_itemData->WriteCreate(flags, data, target, this);
 }
 
-void Item::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Item::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_ITEM))
-        m_itemData->WriteUpdate(*data, flags, this, target);
+        m_itemData->WriteUpdate(flags, data, target, this);
 }
 
-void Item::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Item::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
     valuesMask.Set(TYPEID_ITEM);
 
-    *data << uint32(valuesMask.GetBlock(0));
+    data << uint32(valuesMask.GetBlock(0));
 
     UF::ItemData::Mask mask;
-    m_itemData->AppendAllowedFieldsMaskForFlag(mask, flags);
-    m_itemData->WriteUpdate(*data, mask, true, this, target);
+    UF::ItemData::AppendAllowedFieldsMaskForFlag(mask, flags);
+    m_itemData->WriteUpdate(mask, data, target, this, true);
 }
 
 void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::ItemData::Mask const& requestedItemMask, Player const* target) const
+    UF::ItemData::Mask const& requestedItemMask, Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -1838,21 +1842,21 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
         valuesMask.Set(TYPEID_OBJECT);
 
     UF::ItemData::Mask itemMask = requestedItemMask;
-    m_itemData->FilterDisallowedFieldsMaskForFlag(itemMask, flags);
+    UF::ItemData::FilterDisallowedFieldsMaskForFlag(itemMask, flags);
     if (itemMask.IsAnySet())
         valuesMask.Set(TYPEID_ITEM);
 
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_ITEM])
-        m_itemData->WriteUpdate(buffer, itemMask, true, this, target);
+        m_itemData->WriteUpdate(itemMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -1864,16 +1868,16 @@ void Item::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player)
     UpdateData udata(player->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
 }
 
-void Item::ClearUpdateMask(bool remove)
+void Item::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Item::m_itemData);
-    Object::ClearUpdateMask(remove);
+    Object::ClearValuesChangesMask();
 }
 
 bool Item::AddToObjectUpdate()
@@ -2007,51 +2011,6 @@ bool Item::IsValidTransmogrificationTarget() const
     return true;
 }
 
-enum class ItemTransmogrificationWeaponCategory : uint8
-{
-    // Two-handed
-    MELEE_2H,
-    RANGED,
-
-    // One-handed
-    AXE_MACE_SWORD_1H,
-    DAGGER,
-
-    INVALID
-};
-
-static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate const* proto)
-{
-    if (proto->GetClass() == ITEM_CLASS_WEAPON)
-    {
-        switch (proto->GetSubClass())
-        {
-            case ITEM_SUBCLASS_WEAPON_AXE2:
-            case ITEM_SUBCLASS_WEAPON_MACE2:
-            case ITEM_SUBCLASS_WEAPON_SWORD2:
-            case ITEM_SUBCLASS_WEAPON_STAFF:
-            case ITEM_SUBCLASS_WEAPON_POLEARM:
-                return ItemTransmogrificationWeaponCategory::MELEE_2H;
-            case ITEM_SUBCLASS_WEAPON_BOW:
-            case ITEM_SUBCLASS_WEAPON_GUN:
-            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                return ItemTransmogrificationWeaponCategory::RANGED;
-            case ITEM_SUBCLASS_WEAPON_AXE:
-            case ITEM_SUBCLASS_WEAPON_MACE:
-            case ITEM_SUBCLASS_WEAPON_SWORD:
-            case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
-            case ITEM_SUBCLASS_WEAPON_DAGGER:
-                return ItemTransmogrificationWeaponCategory::DAGGER;
-            default:
-                break;
-        }
-    }
-
-    return ItemTransmogrificationWeaponCategory::INVALID;
-}
-
 int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
 {
     -1,                                                     // INVTYPE_NON_EQUIP
@@ -2121,7 +2080,7 @@ bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceE
         switch (source->GetClass())
         {
             case ITEM_CLASS_WEAPON:
-                if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+                if (source->GetWeaponTransmogOutfitSlotOption() != target->GetWeaponTransmogOutfitSlotOption())
                     return false;
                 break;
             case ITEM_CLASS_ARMOR:
@@ -2333,7 +2292,7 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
         {
             if (fixedLevel)
                 level = fixedLevel;
-            else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true))
+            else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, {}, true))
                 level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
             itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
@@ -2355,7 +2314,28 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
             itemLevel = bonusData.PvpItemLevel;
 
         itemLevel += bonusData.PvpItemLevelBonus;
-        itemLevel += sDB2Manager.GetPvpItemLevelBonus(itemTemplate->GetId());
+    }
+
+    if (!bonusData.IgnoreSquish)
+    {
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+        {
+            int32 currentBuild = ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build);
+
+            // apply all squishes between items_squish and server_squish
+            for (uint32 squishId = bonusData.ItemSquishEraID; squishId < sItemSquishEraStore.GetNumRows(); ++squishId)
+            {
+                ItemSquishEraEntry const* squish = sItemSquishEraStore.LookupEntry(squishId);
+                if (!squish)
+                    continue;
+
+                if (squish->Patch > currentBuild)
+                    break;
+
+                if (squish->CurveID)
+                    itemLevel = uint32(sDB2Manager.GetCurveValueAt(squish->CurveID, itemLevel));
+            }
+        }
     }
 
     if (itemTemplate->GetInventoryType() != INVTYPE_NON_EQUIP)
@@ -2471,16 +2451,20 @@ uint32 Item::GetDisplayId(Player const* owner) const
     if (!itemModifiedAppearanceId)
         itemModifiedAppearanceId = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS);
 
-    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId))
-        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(transmog->ItemAppearanceID))
+    ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId);
+    if (!itemModifiedAppearance)
+        itemModifiedAppearance = GetItemModifiedAppearance();
+
+    if (itemModifiedAppearance)
+        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(itemModifiedAppearance->ItemAppearanceID))
             return itemAppearance->ItemDisplayInfoID;
 
-    return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
+    return 0;
 }
 
 ItemModifiedAppearanceEntry const* Item::GetItemModifiedAppearance() const
 {
-    return sDB2Manager.GetItemModifiedAppearance(GetEntry(), _bonusData.AppearanceModID);
+    return TransmogMgr::GetItemModifiedAppearance(GetEntry(), _bonusData.AppearanceModID);
 }
 
 uint32 Item::GetModifier(ItemModifier modifier) const
@@ -2596,7 +2580,7 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(GetBonusListIDs().begin(), GetBonusListIDs().end(), int32(bonusListID)) != GetBonusListIDs().end())
+    if (advstd::ranges::contains(GetBonusListIDs(), int32(bonusListID)))
         return;
 
     WorldPackets::Item::ItemBonusKey itemBonusKey;
@@ -2870,7 +2854,7 @@ void Item::SetFixedLevel(uint8 level)
 
     if (_bonusData.PlayerLevelToItemLevelCurveId)
     {
-        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, 0, true))
+        if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(_bonusData.ContentTuningId, {}, true))
             level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, level);
@@ -2943,6 +2927,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     ItemLevelOffsetCurveId = proto->GetItemLevelOffsetCurveId();
     ItemLevelOffsetItemLevel = proto->GetItemLevelOffsetItemLevel();
     ItemLevelOffset = 0;
+    ItemSquishEraID = proto->GetItemSquishEraId();
 
     EffectCount = 0;
     for (ItemEffectEntry const* itemEffect : proto->Effects)
@@ -2958,6 +2943,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     CanSalvage = !proto->HasFlag(ITEM_FLAG4_NO_SALVAGE);
     CanRecraft = proto->HasFlag(ITEM_FLAG4_RECRAFTABLE);
     CannotTradeBindOnPickup = proto->HasFlag(ITEM_FLAG2_NO_TRADE_BIND_ON_ACQUIRE);
+    IgnoreSquish = false;
 
     _state.SuffixPriority = std::numeric_limits<int32>::max();
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
@@ -3166,6 +3152,9 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                     }
 
                     ItemLevelOffsetItemLevel = scalingConfig->ItemLevel;
+                    ItemSquishEraID = scalingConfig->ItemSquishEraID;
+                    if (scalingConfig->Flags & 0x1)
+                        IgnoreSquish = true;
 
                     if (values[1] < _state.RequiredLevelCurvePriority)
                     {
@@ -3174,6 +3163,9 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                     }
                 }
             }
+            break;
+        case ITEM_BONUS_ITEM_BONUS_LIST:
+            AddBonusList(values[0]);
             break;
         case ITEM_BONUS_SCALING_CONFIG:
             if (values[1] < _state.ScalingStatDistributionPriority)
@@ -3187,6 +3179,9 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                     }
 
                     ItemLevelOffsetItemLevel = 0;
+                    ItemSquishEraID = scalingConfig->ItemSquishEraID;
+                    if (scalingConfig->Flags & 0x1)
+                        IgnoreSquish = true;
                 }
             }
             break;

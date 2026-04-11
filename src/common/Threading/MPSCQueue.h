@@ -114,14 +114,14 @@ public:
         (_dummyPtr->*IntrusiveLink).~Atomic();
     }
 
-    void Enqueue(T* input)
+    void Enqueue(T* input) noexcept
     {
         (input->*IntrusiveLink).store(nullptr, std::memory_order_release);
         T* prevHead = _head.exchange(input, std::memory_order_acq_rel);
         (prevHead->*IntrusiveLink).store(input, std::memory_order_release);
     }
 
-    bool Dequeue(T*& result)
+    bool Dequeue(T*& result) noexcept
     {
         T* tail = _tail.load(std::memory_order_relaxed);
         T* next = (tail->*IntrusiveLink).load(std::memory_order_acquire);

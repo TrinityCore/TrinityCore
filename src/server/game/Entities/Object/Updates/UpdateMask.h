@@ -19,7 +19,7 @@
 #define UpdateMask_h__
 
 #include "Define.h"
-#include <algorithm>
+#include <array>
 #include <cstring> // std::memset
 
 namespace UpdateMaskHelpers
@@ -68,10 +68,11 @@ public:
 
     constexpr bool IsAnySet() const
     {
-        return std::ranges::any_of(_blocksMask, [](uint32 blockMask)
-        {
-            return blockMask != 0;
-        });
+        for (uint32 i = 0; i < BlocksMaskCount; ++i)
+            if (_blocksMask[i])
+                return true;
+
+        return false;
     }
 
     constexpr void Reset(uint32 index)

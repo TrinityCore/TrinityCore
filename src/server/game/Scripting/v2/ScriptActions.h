@@ -19,6 +19,7 @@
 #define TRINITYCORE_SCRIPT_ACTIONS_H
 
 #include "ScriptActionResult.h"
+#include "Define.h"
 #include "Duration.h"
 
 namespace Scripting::v2
@@ -28,7 +29,7 @@ class ActionBase;
 template<typename T>
 class ActionResultSetter;
 
-class ActionBase
+class TC_GAME_API ActionBase
 {
 public:
     ActionBase();
@@ -65,12 +66,11 @@ class ActionResult : public ActionBase
 public:
     [[nodiscard]] static ActionResultSetter<T> GetResultSetter(std::shared_ptr<ActionResult> action)
     {
-        T* resultPtr = &action->_result;
-        return ActionResultSetter<T>(std::move(action), resultPtr);
+        return ActionResultSetter<T>(std::shared_ptr<ActionResultValueHolder<T>>(std::move(action), &action->_result));
     }
 
 private:
-    T _result = { };
+    ActionResultValueHolder<T> _result = { .Action = *this };
 };
 
 template<>

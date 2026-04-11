@@ -234,7 +234,7 @@ class spell_waycrest_manor_wildfire : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (aurEff->GetTickNumber() % 6 == 0)
-            GetTarget()->CastSpell(roll_chance_i(50) ? GetRandomPositionInCircle() : GetRandomPositionInRectangle(), SPELL_WILDFIRE_MISSILE, TRIGGERED_FULL_MASK);
+            GetTarget()->CastSpell(roll_chance(50) ? GetRandomPositionInCircle() : GetRandomPositionInRectangle(), SPELL_WILDFIRE_MISSILE, TRIGGERED_FULL_MASK);
     }
 
     void Register() override

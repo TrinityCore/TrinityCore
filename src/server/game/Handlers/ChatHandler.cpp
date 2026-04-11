@@ -39,7 +39,6 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
-#include "Warden.h"
 #include "World.h"
 #include <algorithm>
 
@@ -510,13 +509,6 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
     if (prefix.empty() || prefix.length() > 16)
         return;
 
-    // Our Warden module also uses SendAddonMessage as a way to communicate Lua check results to the server, see if this is that
-    if (type == CHAT_MSG_GUILD)
-    {
-        if (_warden && _warden->ProcessLuaCheckResponse(text))
-            return;
-    }
-
     // Disabled addon channel?
     if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
         return;
@@ -738,6 +730,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
             break;
         case EMOTE_STATE_DANCE:
         case EMOTE_STATE_READ:
+        case EMOTE_STATE_LEAN:
             _player->SetEmoteState(emote);
             break;
         default:

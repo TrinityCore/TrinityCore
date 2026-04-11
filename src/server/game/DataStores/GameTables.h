@@ -56,6 +56,7 @@ struct GtBaseMPEntry
     float DemonHunter = 0.0f;
     float Evoker = 0.0f;
     float Adventurer = 0.0f;
+    float Traveler = 0.0f;
 };
 
 struct GtBattlePetXPEntry
@@ -144,6 +145,7 @@ struct GtSpellScalingEntry
     float DemonHunter = 0.0f;
     float Evoker = 0.0f;
     float Adventurer = 0.0f;
+    float Traveler = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
     float Gem1 = 0.0f;
@@ -242,6 +244,8 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Evoker;
         case CLASS_ADVENTURER:
             return row->Adventurer;
+        case CLASS_TRAVELER:
+            return row->Traveler;
         default:
             break;
     }
@@ -281,6 +285,8 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Evoker;
         case CLASS_ADVENTURER:
             return row->Adventurer;
+        case CLASS_TRAVELER:
+            return row->Traveler;
         case -1:
         case -7:
             return row->Item;

@@ -30,7 +30,7 @@ struct LoginSessionState : public Trinity::Net::Http::SessionState
     std::unique_ptr<Trinity::Crypto::SRP::BnetSRP6Base> Srp;
 };
 
-class LoginHttpSession : public Trinity::Net::Http::AbstractSocket, public std::enable_shared_from_this<LoginHttpSession>
+class LoginHttpSession final : public Trinity::Net::Http::AbstractSocket, public std::enable_shared_from_this<LoginHttpSession>
 {
 public:
     static constexpr std::string_view SESSION_ID_COOKIE = "JSESSIONID=";

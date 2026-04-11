@@ -1616,7 +1616,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_halion_damage_aoe_summon_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectLaunch += SpellEffectFn(spell_halion_damage_aoe_summon_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -1704,8 +1704,8 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->HasAura(GetEffectInfo().CalcValue()))
-                    GetHitUnit()->RemoveAurasDueToSpell(GetEffectInfo().CalcValue());
+                if (GetHitUnit()->HasAura(GetEffectInfo().CalcValueAsInt()))
+                    GetHitUnit()->RemoveAurasDueToSpell(GetEffectInfo().CalcValueAsInt());
             }
 
             void Register() override

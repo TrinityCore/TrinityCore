@@ -78,7 +78,7 @@ class TC_SHARED_API SecretMgr
         Secret const& GetSecret(Secrets i);
 
     private:
-        void AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std::mutex> const&);
+        void AttemptLoad(Secrets i, LogLevel errorLevel, std::scoped_lock<std::mutex> const&);
         Optional<std::string> AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const;
 
         std::array<Secret, NUM_SECRETS> _secrets;

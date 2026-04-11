@@ -554,16 +554,12 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
             {
                 if (TransportBase* transport = boat->ToTransportBase())
                 {
-                    player->Relocate(spawnPositionOnTransport[_attackers]);
-                    transport->AddPassenger(player);
-                    player->m_movementInfo.transport.pos.Relocate(spawnPositionOnTransport[_attackers]);
-                    float x, y, z, o;
-                    spawnPositionOnTransport[_attackers].GetPosition(x, y, z, o);
-                    transport->CalculatePassengerPosition(x, y, z, &o);
-                    player->Relocate(x, y, z, o);
+                    transport->AddPassenger(player, spawnPositionOnTransport[_attackers]);
+                    Position position = transport->GetPositionWithOffset(player->m_movementInfo.transport.pos);
+                    player->Relocate(position);
 
                     if (player->IsInWorld())
-                        player->NearTeleportTo({ x, y, z, o });
+                        player->NearTeleportTo(position);
                 }
             }
         }
@@ -691,7 +687,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
             if (Player* killerPlayer = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 battleground->UpdatePvpStat(killerPlayer, PVP_STAT_DEMOLISHERS_DESTROYED, 1);
             int32 worldStateId = _attackers == TEAM_HORDE ? BG_SA_DESTROYED_HORDE_VEHICLES : BG_SA_DESTROYED_ALLIANCE_VEHICLES;
-            int32 currentDestroyedVehicles = sWorldStateMgr->GetValue(worldStateId, battlegroundMap);
+            int32 currentDestroyedVehicles = WorldStateMgr::GetValue(worldStateId, battlegroundMap);
             UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
         }
     }

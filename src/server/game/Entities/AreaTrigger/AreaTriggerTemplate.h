@@ -62,7 +62,7 @@ enum class AreaTriggerCreatePropertiesFlag : uint32
     None                           = 0x00000,
     HasAbsoluteOrientation         = 0x00001,
     HasDynamicShape                = 0x00002,
-    HasAttached                    = 0x00004,
+    HasAttached                    = 0x00004, // DEPRECATED
     HasFaceMovementDir             = 0x00008,
     HasFollowsTerrain              = 0x00010, // NYI
     AlwaysExterior                 = 0x00020,

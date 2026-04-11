@@ -47,7 +47,7 @@ bool SmartAI::IsAIControlled() const
 }
 
 void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult/* = {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult/* = {}*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();

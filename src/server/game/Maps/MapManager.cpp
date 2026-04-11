@@ -163,7 +163,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
     if (!entry)
         return nullptr;
 
-    std::unique_lock<std::shared_mutex> lock(_mapsLock);
+    std::scoped_lock lock(_mapsLock);
 
     Map* map = nullptr;
     uint32 newInstanceId = 0;                       // instanceId of the resulting map
@@ -485,8 +485,8 @@ public:
 
     void OnCreate(Map* map) override
     {
-        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, map->GetInstanceId() == TEAM_ALLIANCE, false, map);
-        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, map->GetInstanceId() == TEAM_HORDE, false, map);
+        WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, map->GetInstanceId() == TEAM_ALLIANCE, false, map);
+        WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_HORDE, map->GetInstanceId() == TEAM_HORDE, false, map);
     }
 };
 

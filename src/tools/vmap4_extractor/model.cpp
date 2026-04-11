@@ -159,21 +159,7 @@ Vec3D fixCoordSystem(Vec3D const& v)
 
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
-    FILE* input = fopen(tempname.c_str(), "r+b");
-
-    if (!input)
-        return;
-
-    fseek(input, 8, SEEK_SET); // get the correct no of vertices
-    int nVertices;
-    int count = fread(&nVertices, sizeof(int), 1, input);
-    fclose(input);
-
-    if (count != 1 || nVertices == 0)
-        return;
-
-    // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
+    // scale factor - divide by 1024
     float sc = doodadDef.Scale / 1024.0f;
 
     Vec3D position = fixCoords(doodadDef.Position);
@@ -247,32 +233,16 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
 
             std::string ModelInstName;
             if (doodadData.Paths)
-                ModelInstName = GetPlainName(&doodadData.Paths[doodad.NameIndex]);
+                ModelInstName = &doodadData.Paths[doodad.NameIndex];
             else if (doodadData.FileDataIds)
                 ModelInstName = Trinity::StringFormat("FILE{:08X}.xxx", doodadData.FileDataIds[doodad.NameIndex]);
             else
                 ASSERT(false);
 
+            if (!ExtractSingleModel(ModelInstName))
+                continue;
+
             uint32 nlen = ModelInstName.length();
-            NormalizeFileName(ModelInstName.data(), nlen);
-            if (ModelInstName.ends_with(".mdx") || ModelInstName.ends_with(".mdl"))
-            {
-                ModelInstName.replace(ModelInstName.length() - 2, 2, "2");
-                nlen = ModelInstName.length();
-            }
-
-            std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
-            FILE* input = fopen(tempname.c_str(), "r+b");
-            if (!input)
-                continue;
-
-            fseek(input, 8, SEEK_SET); // get the correct no of vertices
-            int nVertices;
-            int count = fread(&nVertices, sizeof(int), 1, input);
-            fclose(input);
-
-            if (count != 1 || nVertices == 0)
-                continue;
 
             ASSERT(doodadId < std::numeric_limits<uint16>::max());
             ++doodadId;

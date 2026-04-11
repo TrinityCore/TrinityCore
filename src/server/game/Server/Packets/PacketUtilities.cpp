@@ -20,41 +20,53 @@
 #include "StringFormat.h"
 #include <utf8.h>
 
-WorldPackets::InvalidStringValueException::InvalidStringValueException(std::string_view value) : ByteBufferInvalidValueException("string", value), _value(value)
+WorldPackets::InvalidStringValueException::InvalidStringValueException(char const* type, std::string_view value)
+    : ByteBufferInvalidValueException(type, value), _value(value)
 {
 }
 
-WorldPackets::InvalidUtf8ValueException::InvalidUtf8ValueException(std::string_view value) : InvalidStringValueException(value)
+WorldPackets::InvalidUtf8ValueException::InvalidUtf8ValueException(std::string_view value)
+    : InvalidStringValueException("utf8 string", value)
 {
 }
 
-WorldPackets::InvalidHyperlinkException::InvalidHyperlinkException(std::string_view value) : InvalidStringValueException(value)
+WorldPackets::InvalidHyperlinkException::InvalidHyperlinkException(std::string_view value, Reason reason)
+    : InvalidStringValueException(GetReasonText(reason), value), _reason(reason)
 {
 }
 
-WorldPackets::IllegalHyperlinkException::IllegalHyperlinkException(std::string_view value) : InvalidStringValueException(value)
+char const* WorldPackets::InvalidHyperlinkException::GetReasonText(Reason reason)
 {
+    switch (reason)
+    {
+        case Malformed: return "malformed hyperlink";
+        case NotAllowed: return "not allowed hyperlink";
+        default: return "hyperlink";
+    }
 }
 
-bool WorldPackets::Strings::Utf8::Validate(std::string_view value)
+void WorldPackets::Strings::ByteSize::Validate(std::string_view value, std::size_t maxSize)
+{
+    if (std::size_t size = value.size(); size > maxSize)
+        OnInvalidArraySize(size, maxSize);
+}
+
+void WorldPackets::Strings::Utf8::Validate(std::string_view value)
 {
     if (!utf8::is_valid(value.begin(), value.end()))
         throw InvalidUtf8ValueException(value);
-    return true;
 }
 
-bool WorldPackets::Strings::Hyperlinks::Validate(std::string_view value)
+void WorldPackets::Strings::Hyperlinks::Validate(std::string_view value)
 {
     if (!Trinity::Hyperlinks::CheckAllLinks(value))
-        throw InvalidHyperlinkException(value);
-    return true;
+        throw InvalidHyperlinkException(value, InvalidHyperlinkException::Malformed);
 }
 
-bool WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
+void WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
 {
     if (value.find('|') != std::string::npos)
-        throw IllegalHyperlinkException(value);
-    return true;
+        throw InvalidHyperlinkException(value, InvalidHyperlinkException::NotAllowed);
 }
 
 void WorldPackets::OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit)

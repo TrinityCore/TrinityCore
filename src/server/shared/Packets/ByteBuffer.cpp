@@ -65,7 +65,7 @@ std::string_view ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
     std::string_view value(begin, stringEnd);
     _rpos += value.length() + 1;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value);
+        throw ByteBufferInvalidValueException("utf8 string", value);
     return value;
 }
 
@@ -81,7 +81,7 @@ std::string_view ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*=
     std::string_view value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value);
+        throw ByteBufferInvalidValueException("utf8 string", value);
     return value;
 }
 

@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_ASYNC_ACCEPTOR_H
 #define TRINITYCORE_ASYNC_ACCEPTOR_H
 
+#include "Concepts.h"
 #include "IoContext.h"
 #include "IpAddress.h"
 #include "Log.h"
@@ -25,40 +26,40 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/v6_only.hpp>
 #include <atomic>
-#include <functional>
 
 #define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
 
 namespace Trinity::Net
 {
 template <typename Callable>
-concept AcceptCallback = std::invocable<Callable, IoContextTcpSocket&&, uint32>;
+concept AcceptCallback = std::invocable<Callable, IoContextTcpSocket&&>;
+
+template <typename Callable>
+concept SelectIoContextForNewSocketFn = Trinity::invocable_r<Callable, Asio::IoContext*>;
 
 class AsyncAcceptor
 {
 public:
     AsyncAcceptor(Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
-        _acceptor(ioContext), _endpoint(make_address(bindIp), port),
-        _socket(ioContext), _closed(false), _socketFactory([this] { return DefaultSocketFactory(); })
+        _acceptor(ioContext), _endpoint(make_address(bindIp), port), _closed(false)
     {
     }
 
-    template <AcceptCallback Callback>
-    void AsyncAccept(Callback&& acceptCallback)
+    template <SelectIoContextForNewSocketFn SelectIoContextForNewSocket, AcceptCallback Callback>
+    void AsyncAccept(SelectIoContextForNewSocket&& selectIoContext, Callback&& acceptCallback)
     {
-        auto [tmpSocket, tmpThreadIndex] = _socketFactory();
-        // TODO: get rid of temporary variables (clang 15 cannot handle variables from structured bindings as lambda captures)
-        IoContextTcpSocket* socket = tmpSocket;
-        uint32 threadIndex = tmpThreadIndex;
-        _acceptor.async_accept(*socket, [this, socket, threadIndex, acceptCallback = std::forward<Callback>(acceptCallback)](boost::system::error_code const& error) mutable
+        Asio::IoContext* context = selectIoContext();
+        _acceptor.async_accept(context->get_executor(), [this,
+            selectIoContext = std::forward<SelectIoContextForNewSocket>(selectIoContext),
+            acceptCallback = std::forward<Callback>(acceptCallback)](boost::system::error_code const& error, IoContextTcpSocket&& socket) mutable
         {
             if (!error)
             {
                 try
                 {
-                    socket->non_blocking(true);
+                    socket.non_blocking(true);
 
-                    acceptCallback(std::move(*socket), threadIndex);
+                    acceptCallback(std::move(socket));
                 }
                 catch (boost::system::system_error const& err)
                 {
@@ -67,7 +68,7 @@ public:
             }
 
             if (!_closed)
-                this->AsyncAccept(std::move(acceptCallback));
+                this->AsyncAccept(std::move(selectIoContext), std::move(acceptCallback));
         });
     }
 
@@ -93,7 +94,14 @@ public:
         // v6_only is enabled on some *BSD distributions by default
         // we want to allow both v4 and v6 connections to the same listener
         if (_endpoint.protocol() == boost::asio::ip::tcp::v6())
-            _acceptor.set_option(boost::asio::ip::v6_only(false));
+        {
+            _acceptor.set_option(boost::asio::ip::v6_only(false), errorCode);
+            if (errorCode)
+            {
+                TC_LOG_INFO("network", "Could not disable v6_only option {}", errorCode.message());
+                return false;
+            }
+        }
 
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
@@ -121,16 +129,10 @@ public:
         _acceptor.close(err);
     }
 
-    void SetSocketFactory(std::function<std::pair<IoContextTcpSocket*, uint32>()> func) { _socketFactory = std::move(func); }
-
 private:
-    std::pair<IoContextTcpSocket*, uint32> DefaultSocketFactory() { return std::make_pair(&_socket, 0); }
-
     boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, IoContextTcpSocket::executor_type> _acceptor;
     boost::asio::ip::tcp::endpoint _endpoint;
-    IoContextTcpSocket _socket;
     std::atomic<bool> _closed;
-    std::function<std::pair<IoContextTcpSocket*, uint32>()> _socketFactory;
 };
 }
 

@@ -750,7 +750,7 @@ private:
                 // Twin Vortex part
                 uint32 lightVortex = SPELL_LIGHT_VORTEX_DAMAGE;
                 uint32 darkVortex = SPELL_DARK_VORTEX_DAMAGE;
-                int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0).CalcValue() / 1000 - 1;
+                int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt() / 1000 - 1;
 
                 if (lightVortex && darkVortex && stacksCount)
                 {

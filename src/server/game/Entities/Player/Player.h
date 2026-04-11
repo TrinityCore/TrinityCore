@@ -135,6 +135,13 @@ namespace WorldPackets
         struct TraitConfig;
         struct TraitEntry;
     }
+
+    namespace Transmogrification
+    {
+        struct TransmogOutfitDataInfo;
+        struct TransmogOutfitSituationInfo;
+        struct TransmogOutfitSlotData;
+    }
 }
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
@@ -244,7 +251,8 @@ enum SpecResetType
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura) : op(SpellModOp::HealingAndDamage), type(SPELLMOD_FLAT), spellId(0), ownerAura(_ownerAura) { }
+    SpellModifier(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura)
+        : op(_op), type(_type), spellId(_spellId), ownerAura(_ownerAura) { }
     virtual ~SpellModifier() = default;
 
     SpellModOp op;
@@ -256,22 +264,53 @@ struct SpellModifier
 
 struct SpellModifierByClassMask : SpellModifier
 {
-    SpellModifierByClassMask(Aura* _ownerAura) : SpellModifier(_ownerAura), value(0), mask() { }
+    SpellModifierByClassMask(SpellModOp _op, SpellModType _type, uint32 _spellId, Aura* _ownerAura, flag128 const& _mask)
+        : SpellModifier(_op, _type, _spellId, _ownerAura), mask(_mask) { }
 
-    int32 value;
     flag128 mask;
 };
 
-template<typename T>
-struct SpellModifierByLabel : SpellModifier
+struct SpellFlatModifierByClassMask : SpellModifierByClassMask
 {
-    SpellModifierByLabel(Aura* _ownerAura) : SpellModifier(_ownerAura) { }
+    SpellFlatModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_FLAT, _spellId, _ownerAura, _mask) { }
 
-    T value;
+    int32 value = { };
 };
 
-using SpellFlatModifierByLabel = SpellModifierByLabel<UF::SpellFlatModByLabel>;
-using SpellPctModifierByLabel = SpellModifierByLabel<UF::SpellPctModByLabel>;
+struct SpellPctModifierByClassMask : SpellModifierByClassMask
+{
+    SpellPctModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
+        : SpellModifierByClassMask(_op, SPELLMOD_PCT, _spellId, _ownerAura, _mask) { }
+
+    float value = { };
+};
+
+struct SpellFlatModifierByLabel : SpellModifier
+{
+    SpellFlatModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, uint32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_FLAT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0;
+        value.LabelID = _label;
+    }
+
+    UF::SpellFlatModByLabel value = { };
+};
+
+struct SpellPctModifierByLabel : SpellModifier
+{
+    SpellPctModifierByLabel(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, int32 _label)
+        : SpellModifier(_op, SPELLMOD_LABEL_PCT, _spellId, _ownerAura)
+    {
+        value.ModIndex = int32(_op);
+        value.ModifierValue = 0.0f;
+        value.LabelID = _label;
+    }
+
+    UF::SpellPctModByLabel value;
+};
 
 struct SpellModifierCompare
 {
@@ -334,7 +373,8 @@ enum ActionButtonType
     ACTION_BUTTON_CMACRO    = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
     ACTION_BUTTON_COMPANION = 0x50,
     ACTION_BUTTON_MOUNT     = 0x60,
-    ACTION_BUTTON_ITEM      = 0x80
+    ACTION_BUTTON_ITEM      = 0x80,
+    ACTION_BUTTON_OUTFIT    = 0x90
 };
 
 enum class HonorGainSource : uint8
@@ -515,13 +555,15 @@ DEFINE_ENUM_FLAG(PlayerFlags);
 
 enum PlayerFlagsEx
 {
-    PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
-    PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002,
-    PLAYER_FLAGS_EX_ARTIFACT_FORGE_CHEAT    = 0x0004,
-    PLAYER_FLAGS_EX_IN_PVP_COMBAT           = 0x0040,       // Forbids /follow
-    PLAYER_FLAGS_EX_MENTOR                  = 0x0080,
-    PLAYER_FLAGS_EX_NEWCOMER                = 0x0100,
-    PLAYER_FLAGS_EX_UNLOCKED_AOE_LOOT       = 0x0200
+    PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED       = 0x00000001,
+    PLAYER_FLAGS_EX_MERCENARY_MODE              = 0x00000002,
+    PLAYER_FLAGS_EX_ARTIFACT_FORGE_CHEAT        = 0x00000004,
+    PLAYER_FLAGS_EX_ITEM_LEVEL_SQUISH           = 0x00000020,       // Uses ItemLevelSquish gametable
+    PLAYER_FLAGS_EX_IN_PVP_COMBAT               = 0x00000040,       // Forbids /follow
+    PLAYER_FLAGS_EX_MENTOR                      = 0x00000080,
+    PLAYER_FLAGS_EX_NEWCOMER                    = 0x00000100,
+    PLAYER_FLAGS_EX_UNLOCKED_AOE_LOOT           = 0x00000200,
+    PLAYER_FLAGS_EX_AUTO_DECLINE_NEIGHBORHOOD   = 0x00008000
 };
 
 DEFINE_ENUM_FLAG(PlayerFlagsEx);
@@ -546,6 +588,7 @@ enum PlayerLocalFlags
     PLAYER_LOCAL_FLAG_CHARACTER_BANK_DISABLED           = 0x00080000,
     PLAYER_LOCAL_FLAG_CHARACTER_BANK_CONVERSION_FAILED  = 0x00100000,
     PLAYER_LOCAL_FLAG_ACCOUNT_BANK_DISABLED             = 0x00200000,
+    PLAYER_LOCAL_FLAG_FREE_TRANSMOG_CLAIMED             = 0x00400000,
 };
 
 DEFINE_ENUM_FLAG(PlayerLocalFlags);
@@ -584,6 +627,8 @@ enum PlayerExtraFlags
     PLAYER_EXTRA_HAS_RACE_CHANGED           = 0x0200,
     PLAYER_EXTRA_GRANTED_LEVELS_FROM_RAF    = 0x0400,
     PLAYER_EXTRA_LEVEL_BOOSTED              = 0x0800,
+
+    PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED = 0x1000,
 };
 
 // 2^n values
@@ -651,10 +696,10 @@ enum SkillUpdateState
 
 struct SkillStatusData
 {
-    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
+    SkillStatusData(uint32 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
     {
     }
-    uint8 pos;
+    uint32 pos;
     SkillUpdateState uState;
 };
 
@@ -935,6 +980,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT,
     PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
@@ -1232,14 +1280,14 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetRace(), GetClass(), GetLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0, uint32 preferredMountDisplay = 0, Optional<float> speed = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult = {});
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, Optional<float> speed = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult = {});
         void FinishTaxiFlight();
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
         void StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult);
 
         bool IsDeveloper() const { return HasPlayerFlag(PLAYER_FLAGS_DEVELOPER); }
         void SetDeveloper(bool on) { if (on) SetPlayerFlag(PLAYER_FLAGS_DEVELOPER); else RemovePlayerFlag(PLAYER_FLAGS_DEVELOPER); }
@@ -1262,6 +1310,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetBeenGrantedLevelsFromRaF() { m_ExtraFlags |= PLAYER_EXTRA_GRANTED_LEVELS_FROM_RAF; }
         bool HasLevelBoosted() const { return (m_ExtraFlags & PLAYER_EXTRA_LEVEL_BOOSTED) != 0; }
         void SetHasLevelBoosted() { m_ExtraFlags |= PLAYER_EXTRA_LEVEL_BOOSTED; }
+        bool HasClaimedFreeTransmog() const { return (m_ExtraFlags & PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED) != 0; }
+        void SetHasClaimedFreeTransmog() { m_ExtraFlags |= PLAYER_EXTRA_FLAG_FREE_TRANSMOG_CLAIMED; }
 
         uint32 GetXP() const { return m_activePlayerData->XP; }
         uint32 GetXPForNextLevel() const { return m_activePlayerData->NextLevelXP; }
@@ -1541,13 +1591,14 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetCurrencyWeeklyCap(uint32 id) const;
         uint32 GetCurrencyWeeklyCap(CurrencyTypesEntry const* currency) const;
         bool HasCurrency(uint32 id, uint32 amount) const;
+        void SetCurrencyFlagsFromClient(uint32 id, CurrencyDbFlags flags);
 
         void SetInvSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid); }
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);
-        void SetVisibleItemSlot(uint8 slot, Item* pItem);
+        void SetVisibleItemSlot(uint8 slot, Item const* item);
         Item* BankItem(ItemPosCountVec const& dest, Item* pItem, bool update);
         void RemoveItem(uint8 bag, uint8 slot, bool update);
         void MoveItemFromInventory(uint8 bag, uint8 slot, bool update);
@@ -1579,6 +1630,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool IsUsingTwoHandedWeaponInOneHand() const;
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false, uint32 dungeonEncounterId = 0);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint32 count, uint8 bag, uint8 slot);
+        Optional<SellResult> CanSellItemToVendor(Item const* item, uint32 amount) const;
+        Optional<SellResult> SellItemToVendor(Item* item, uint32 amount);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
@@ -1690,7 +1743,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId, bool updateInteractions = true, bool updateGameObjectQuestGiverStatus = false);
         QuestGiverStatus GetQuestDialogStatus(Object const* questGiver) const;
-        void SkipQuests(std::vector<uint32> const& questIds); // removes quest from log, flags rewarded, but does not give any rewards to player
+        void SkipQuests(std::span<uint32 const> questIds); // removes quest from log, flags rewarded, but does not give any rewards to player
         void DespawnPersonalSummonsForQuest(uint32 questId);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -2005,9 +2058,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        static uint32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
-        template <class T>
-        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, T base, int32* flat, float* pct) const;
+        static int32 IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell = nullptr);
+        void GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, double base, int32* flat, float* pct) const;
         template <class T>
         void ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
@@ -2208,30 +2260,32 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
     protected:
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::UnitData::Mask const& requestedUnitMask,
-            UF::PlayerData::Mask const& requestedPlayerMask, UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const;
+            UF::PlayerData::Mask const& requestedPlayerMask, UF::ActivePlayerData::Mask const& requestedActivePlayerMask,
+            Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Player const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Player const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Player const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::UnitData::Base UnitMask;
             UF::PlayerData::Base PlayerMask;
             UF::ActivePlayerData::Base ActivePlayerMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
 
-        void DestroyForPlayer(Player* target) const override;
+        void DestroyForPlayer(Player const* target) const override;
 
         // notifiers
         void SendAttackSwingCancelAttack() const;
@@ -2483,7 +2537,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void CastItemCombatSpell(DamageInfo const& damageInfo);
         void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);
-        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc);
+        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, std::array<int32, 3> const& misc);
         void ApplyItemLootedSpell(Item* item, bool apply);
         void ApplyItemLootedSpell(ItemTemplate const* itemTemplate);
 
@@ -2491,7 +2545,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
         void DeleteEquipmentSet(uint64 id);
 
-        void SendInitWorldStates(uint32 zoneId, uint32 areaId);
+        void SendInitWorldStates(uint32 zoneId, uint32 areaId) const;
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false) const;
         void SendDirectMessage(WorldPacket const* data) const;
 
@@ -2629,7 +2683,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         GuidUnorderedSet m_clientGUIDs;
         GuidUnorderedSet m_visibleTransports;
 
-        bool HaveAtClient(Object const* u) const;
+        bool HaveAtClient(BaseEntity const* u) const;
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 
@@ -2980,6 +3034,18 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
+        void AddUnlockedTransmogOutfits(std::span<int32 const> transmogOutfitIds);
+        void AddUnlockedTransmogOutfit(int32 transmogOutfitIds) { AddUnlockedTransmogOutfits(std::span(&transmogOutfitIds, 1)); }
+
+        void CreateTransmogOutfit(uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        void InitializeNewTransmogOutfit(UF::MutableFieldReference<UF::TransmogOutfitData, false> outfit,
+            uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        bool UpdateTransmogOutfit(uint32 id, WorldPackets::Transmogrification::TransmogOutfitDataInfo const& outfitData);
+        void UpdateTransmogOutfitSituations(uint32 id, bool situationsEnabled, std::span<WorldPackets::Transmogrification::TransmogOutfitSituationInfo const> situations);
+        void UpdateTransmogOutfitSlots(uint32 id, std::span<WorldPackets::Transmogrification::TransmogOutfitSlotData const> slots);
+        void EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Optional<bool> locked);
+        std::string GetCharacterSelectOutfit() const;
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::PlayerData, int32(WowCS::EntityFragment::CGObject), TYPEID_PLAYER> m_playerData;
@@ -3068,7 +3134,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
-        void _LoadTransmogOutfits(PreparedQueryResult result);
+        void _LoadTransmogCustomSets(PreparedQueryResult result);
+        void _LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryResult situationsResult, PreparedQueryResult slotsResult,
+            int32 equippedTransmogOutfitId, bool locked);
         void _LoadBGData(PreparedQueryResult result);
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
@@ -3099,6 +3167,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveSpells(CharacterDatabaseTransaction trans);
         void _SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans);
         void _SaveEquipmentSets(CharacterDatabaseTransaction trans);
+        void _SaveTransmogOutfits(CharacterDatabaseTransaction trans);
         void _SaveBGData(CharacterDatabaseTransaction trans);
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
@@ -3247,6 +3316,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         std::unique_ptr<Runes> m_runes;
         EquipmentSetContainer _equipmentSets;
+        std::set<uint32> m_changedTransmogOutfits;
 
         bool CanNeverSee(WorldObject const* obj, bool ignorePhaseShift = false) const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;

@@ -226,12 +226,24 @@ ByteBuffer& operator<<(ByteBuffer& data, GuildGuidLookupData const& lookupData)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, HouseLookupData const& lookupData)
+{
+    data << lookupData.Guid;
+    data << SizedString::BitsSize<8>(lookupData.Name);
+    data.FlushBits();
+
+    data << SizedString::Data(lookupData.Name);
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, NameCacheLookupResult const& result)
 {
     data << uint8(result.Result);
     data << result.Player;
     data << OptionalInit(result.Data);
     data << OptionalInit(result.GuildData);
+    data << OptionalInit(result.HouseData);
     data.FlushBits();
 
     if (result.Data)
@@ -239,6 +251,9 @@ ByteBuffer& operator<<(ByteBuffer& data, NameCacheLookupResult const& result)
 
     if (result.GuildData)
         data << *result.GuildData;
+
+    if (result.HouseData)
+        data << *result.HouseData;
 
     return data;
 }
@@ -345,6 +360,7 @@ WorldPacket const* QueryGameObjectResponse::Write()
             statsData.append(Stats.QuestItems.data(), Stats.QuestItems.size());
 
         statsData << int32(Stats.ContentTuningId);
+        statsData << int32(Stats.RequiredLevel);
     }
 
     _worldPacket << Size<uint32>(statsData);
@@ -411,12 +427,10 @@ WorldPacket const* QuestPOIQueryResponse::Write()
     _worldPacket << Size<int32>(QuestPOIDataStats);
     _worldPacket << Size<int32>(QuestPOIDataStats);
 
-    bool useCache = sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES);
-
     for (QuestPOIData const* questPOIData : QuestPOIDataStats)
     {
-        if (useCache)
-            _worldPacket.append(questPOIData->QueryDataBuffer);
+        if (!questPOIData->QueryDataBuffer.empty())
+            _worldPacket.append(questPOIData->QueryDataBuffer.data(), questPOIData->QueryDataBuffer.size());
         else
             _worldPacket << *questPOIData;
     }

@@ -27,7 +27,7 @@
 #define MAX_QUIET_DISTANCE 43.0f
 
 FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;

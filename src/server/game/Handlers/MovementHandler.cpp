@@ -119,14 +119,13 @@ void WorldSession::HandleMoveWorldportAck()
 
     if (player->m_teleport_dest.TransportGuid)
     {
-        if (Transport* newTransport = newMap->GetTransport(*player->m_teleport_dest.TransportGuid))
+        if (GameObject* go = newMap->GetTransport(*player->m_teleport_dest.TransportGuid))
         {
-            newTransport->AddPassenger(player);
-            player->m_movementInfo.transport.pos.Relocate(loc.Location);
-            float x, y, z, o;
-            loc.Location.GetPosition(x, y, z, o);
-            newTransport->CalculatePassengerPosition(x, y, z, &o);
-            player->Relocate(x, y, z, o);
+            if (TransportBase* newTransport = go->ToTransportBase())
+            {
+                newTransport->AddPassenger(player, loc.Location);
+                player->Relocate(newTransport->GetPositionWithOffset(loc.Location));
+            }
         }
     }
     else if (TransportBase* transport = player->GetTransport())
@@ -297,14 +296,13 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 
     if (dest.TransportGuid)
     {
-        if (Transport* transport = plMover->GetMap()->GetTransport(*dest.TransportGuid))
+        if (GameObject* go = plMover->GetMap()->GetGameObject(*dest.TransportGuid))
         {
-            transport->AddPassenger(plMover);
-            plMover->m_movementInfo.transport.pos.Relocate(destLocation);
-            float x, y, z, o;
-            dest.Location.GetPosition(x, y, z, o);
-            transport->CalculatePassengerPosition(x, y, z, &o);
-            destLocation.Relocate(x, y, z, o);
+            if (TransportBase* transport = go->ToTransportBase())
+            {
+                transport->AddPassenger(plMover, destLocation);
+                destLocation.Relocate(transport->GetPositionWithOffset(plMover->m_movementInfo.transport.pos));
+            }
         }
     }
 
@@ -397,7 +395,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
             {
                 if (GameObject* go = plrMover->GetMap()->GetGameObject(movementInfo.transport.guid))
                     if (TransportBase* transport = go->ToTransportBase())
-                        transport->AddPassenger(plrMover);
+                        transport->AddPassenger(plrMover, movementInfo.transport.pos);
             }
             else if (plrMover->GetTransport()->GetTransportGUID() != movementInfo.transport.guid)
             {
@@ -405,7 +403,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
                 if (GameObject* go = plrMover->GetMap()->GetGameObject(movementInfo.transport.guid))
                 {
                     if (TransportBase* transport = go->ToTransportBase())
-                        transport->AddPassenger(plrMover);
+                        transport->AddPassenger(plrMover, movementInfo.transport.pos);
                     else
                         movementInfo.ResetTransport();
                 }

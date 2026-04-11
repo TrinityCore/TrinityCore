@@ -19,23 +19,21 @@
 #include "ScriptMgr.h"
 #include "auchindoun.h"
 
-constexpr ObjectData creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_VIGILANT_KAATHAR,  DATA_VIGILANT_KAATHAR   },
     { BOSS_SOULBINDER_NYAMI,  DATA_SOULBINDER_NYAMI   },
     { BOSS_AZZAKEL,           DATA_AZZAKEL            },
     { BOSS_TERONGOR,          DATA_TERONGOR           },
     { NPC_SOULBINDER_TUULANI, DATA_SOULBINDER_TUULANI },
-    { 0,                      0                       }  // END
 };
 
-constexpr ObjectData objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_HOLY_BARRIER, DATA_HOLY_BARRIER },
-    { 0,               0                 }  // END
 };
 
-constexpr DungeonEncounterData encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_VIGILANT_KAATHAR, {{ 1678 }}  },
     { DATA_SOULBINDER_NYAMI, {{ 1685 }}  },

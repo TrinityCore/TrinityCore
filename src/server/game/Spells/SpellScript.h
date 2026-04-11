@@ -52,8 +52,10 @@ class WorldObject;
 struct SpellDestination;
 struct SpellModifier;
 struct SpellValue;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum class ItemContext : uint8;
+
+using SpellEffectValue = double;
 
 #define SPELL_EFFECT_ANY ((uint16)-1)
 #define SPELL_AURA_ANY ((uint16)-1)
@@ -94,7 +96,7 @@ protected:
     class HookList : public ::HookList<T>
     {
     public:
-        HookList& operator+=(T&& t);
+        HookList& operator+=(T&& t) noexcept;
     };
 
     class TC_GAME_API EffectHook
@@ -174,9 +176,9 @@ protected:
         Ret(* Thunk)(BaseClass&, Args..., StorageType);
     };
 
-    uint8 m_currentScriptState;
     std::string_view m_scriptName;
     uint32 m_scriptSpellId;
+    uint8 m_currentScriptState;
 
 private:
 
@@ -889,6 +891,7 @@ public:
 
     // methods usable only after spell targets have been fully selected
     int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
+    int32 GetUnitTargetIndexForEffect(ObjectGuid const& target, SpellEffIndex effect) const;
     int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
     int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
     int64 GetCorpseTargetCountForEffect(SpellEffIndex effect) const;
@@ -939,8 +942,9 @@ public:
 
     // method available only in EffectHandler method
     SpellEffectInfo const& GetEffectInfo() const;
-    int32 GetEffectValue() const;
-    void SetEffectValue(int32 value);
+    int32 GetEffectValueAsInt() const;
+    SpellEffectValue GetEffectValue() const;
+    void SetEffectValue(SpellEffectValue value);
     float GetEffectVariance() const;
     void SetEffectVariance(float variance);
 
@@ -1190,7 +1194,7 @@ public:
     class EffectCalcAmountHandler final : public EffectBase
     {
     public:
-        using ScriptFuncInvoker = AuraScript::ScriptFuncInvoker<void, AuraEffect const*, int32&, bool&>;
+        using ScriptFuncInvoker = AuraScript::ScriptFuncInvoker<void, AuraEffect const*, SpellEffectValue&, bool&>;
 
         template<typename ScriptFunc>
         explicit EffectCalcAmountHandler(ScriptFunc handler, uint8 effIndex, uint16 auraType)
@@ -1202,17 +1206,17 @@ public:
             static_assert(ScriptFuncInvoker::Alignment >= alignof(ScriptFunc));
 
             if constexpr (std::is_member_function_pointer_v<ScriptFunc>)
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, int32&, bool&>,
-                    R""(EffectCalcAmountHandler signature must be "void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)")"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, SpellEffectValue&, bool&>,
+                    R""(EffectCalcAmountHandler signature must be "void CalcAmount(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated)")"");
             else
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, int32&, bool&>,
-                    R""(EffectCalcAmountHandler signature must be "static void CalcAmount(your_script_class& script, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)")"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, SpellEffectValue&, bool&>,
+                    R""(EffectCalcAmountHandler signature must be "static void CalcAmount(your_script_class& script, AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated)")"");
 
             new (_invoker.ImplStorage.data()) ScriptFuncInvoker::Impl<ScriptFunc>{ .Func = handler };
             _invoker.Thunk = &ScriptFuncInvoker::Impl<ScriptFunc>::Invoke;
         }
 
-        void Call(AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated) const
+        void Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated) const
         {
             return _invoker.Thunk(*auraScript, aurEff, amount, canBeRecalculated, _invoker.ImplStorage);
         }
@@ -1727,13 +1731,14 @@ public:
     HookList<EffectCalcCritChanceHandler> DoEffectCalcCritChance;
     #define AuraEffectCalcCritChanceFn(F, I, N) EffectCalcCritChanceHandler(&F, I, N)
 
-    // executed when aura effect calculates damage or healing for dots and hots
+    // executed when aura effect calculates damage or healing for dots and hots or initial absorb aura amount calculation
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // where function is: void function(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
     HookList<EffectCalcDamageAndHealingHandler> DoEffectCalcDamageAndHealing;
     #define AuraEffectCalcDamageFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
     #define AuraEffectCalcHealingFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
+    #define AuraEffectCalcAbsorbFn(F, I) EffectCalcDamageAndHealingHandler(&F, I, SPELL_AURA_SCHOOL_ABSORB)
 
     // executed when absorb aura effect is going to reduce damage
     // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);

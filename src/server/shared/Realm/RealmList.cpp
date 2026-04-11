@@ -187,7 +187,7 @@ void RealmList::UpdateRealms()
         TC_LOG_INFO("realmlist", "Removed realm \"{}\".", itr->second);
 
     {
-        std::unique_lock<std::shared_mutex> lock(_realmsMutex);
+        std::scoped_lock lock(_realmsMutex);
 
         _subRegions.swap(newSubRegions);
         _realms.swap(newRealms);
@@ -213,7 +213,7 @@ void RealmList::UpdateRealms()
 
 std::shared_ptr<Realm const> RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    std::shared_lock lock(_realmsMutex);
     return Trinity::Containers::MapGetValuePtr(_realms, id);
 }
 
@@ -236,7 +236,7 @@ std::shared_ptr<Realm const> RealmList::GetCurrentRealm() const
 
 void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
 {
-    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    std::shared_lock lock(_realmsMutex);
     for (std::string const& subRegion : _subRegions)
         response->add_attribute_value()->set_string_value(subRegion);
 }
@@ -301,7 +301,7 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSec
 {
     JSON::RealmList::RealmListUpdates realmList;
     {
-        std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+        std::shared_lock lock(_realmsMutex);
         for (auto const& [_, realm] : _realms)
         {
             if (realm->Id.GetSubRegionAddress() != subRegion)

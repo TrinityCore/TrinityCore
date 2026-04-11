@@ -138,11 +138,8 @@ public:
                 me->AddAura(SPELL_JULES_GOES_PRONE, me);
                 me->AddAura(SPELL_JULES_THREATENS_AURA, me);
 
-                me->SetCanFly(true);
-                me->SetSpeedRate(MOVE_RUN, 0.2f);
-
                 me->SetFacingTo(3.207566f);
-                me->GetMotionMaster()->MoveJump(exorcismPos[2], 2.0f, 2.0f);
+                me->GetMotionMaster()->MovePoint(11, exorcismPos[2], false, {}, 1.25f);
 
                 success = false;
 

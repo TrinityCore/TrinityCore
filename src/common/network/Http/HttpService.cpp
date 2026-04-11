@@ -130,7 +130,7 @@ void SessionService::InitAndStoreSessionState(std::shared_ptr<SessionState> stat
 
     // Generate session id
     {
-        std::unique_lock lock{ _sessionsMutex };
+        std::scoped_lock lock{ _sessionsMutex };
 
         while (state->Id.is_nil() || _sessions.contains(state->Id))
             std::copy_n(Trinity::Crypto::GetRandomBytes<16>().begin(), 16, state->Id.begin());
@@ -157,11 +157,11 @@ void SessionService::Stop()
 {
     _inactiveSessionsKillTimer = nullptr;
     {
-        std::unique_lock lock{ _sessionsMutex };
+        std::scoped_lock lock{ _sessionsMutex };
         _sessions.clear();
     }
     {
-        std::unique_lock lock{ _inactiveSessionsMutex };
+        std::scoped_lock lock{ _inactiveSessionsMutex };
         _inactiveSessions.clear();
     }
 }
@@ -190,7 +190,7 @@ std::shared_ptr<SessionState> SessionService::FindAndRefreshSessionState(std::st
     }
 
     {
-        std::unique_lock inactiveSessionsLock{ _inactiveSessionsMutex };
+        std::scoped_lock inactiveSessionsLock{ _inactiveSessionsMutex };
         _inactiveSessions.erase(state->Id);
     }
 
@@ -201,7 +201,7 @@ void SessionService::MarkSessionInactive(boost::uuids::uuid const& id)
 {
     bool wasActive = true;
     {
-        std::unique_lock inactiveSessionsLock{ _inactiveSessionsMutex };
+        std::scoped_lock inactiveSessionsLock{ _inactiveSessionsMutex };
         wasActive = _inactiveSessions.insert(id).second;
     }
 
@@ -222,7 +222,7 @@ void SessionService::KillInactiveSessions()
     std::set<boost::uuids::uuid> inactiveSessions;
 
     {
-        std::unique_lock lock{ _inactiveSessionsMutex };
+        std::scoped_lock lock{ _inactiveSessionsMutex };
         std::swap(_inactiveSessions, inactiveSessions);
     }
 
@@ -230,7 +230,7 @@ void SessionService::KillInactiveSessions()
         TimePoint now = TimePoint::clock::now();
         std::size_t inactiveSessionsCount = inactiveSessions.size();
 
-        std::unique_lock lock{ _sessionsMutex };
+        std::scoped_lock lock{ _sessionsMutex };
         for (auto itr = inactiveSessions.begin(); itr != inactiveSessions.end(); )
         {
             auto sessionItr = _sessions.find(*itr);
@@ -248,7 +248,7 @@ void SessionService::KillInactiveSessions()
 
     {
         // restore sessions not killed to inactive queue
-        std::unique_lock lock{ _inactiveSessionsMutex };
+        std::scoped_lock lock{ _inactiveSessionsMutex };
         for (auto itr = inactiveSessions.begin(); itr != inactiveSessions.end(); )
         {
             auto node = inactiveSessions.extract(itr++);

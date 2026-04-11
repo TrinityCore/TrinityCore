@@ -551,6 +551,11 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
 //--------------------
 //-Battlefield Method-
 //--------------------
+void Battlefield::SetGraveyardNumber(uint32 number)
+{
+    m_GraveyardList.resize(number);
+}
+
 BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
 {
     if (id < m_GraveyardList.size())

@@ -34,6 +34,18 @@
 #include "Unit.h"
 #include <sstream>
 
+class VehicleJoinEvent : public BasicEvent
+{
+public:
+    VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
+    bool Execute(uint64, uint32) override;
+    void Abort(uint64) override;
+
+    Vehicle* Target;
+    Unit* Passenger;
+    SeatMap::iterator Seat;
+};
+
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE)
 {
@@ -572,16 +584,12 @@ void Vehicle::RelocatePassengers()
         {
             ASSERT(passenger->IsInWorld());
 
-            float px, py, pz, po;
-            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
-
-            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
+            seatRelocation.emplace_back(passenger, _me->GetPositionWithOffset(passenger->m_movementInfo.transport.pos));
         }
     }
 
     for (auto const& [passenger, position] : seatRelocation)
-        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+        UpdatePassengerPosition(_me->GetMap(), passenger, position, false);
 }
 
 /**

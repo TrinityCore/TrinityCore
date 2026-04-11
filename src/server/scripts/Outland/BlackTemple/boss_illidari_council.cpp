@@ -284,7 +284,7 @@ struct IllidariCouncilBossAI : public BossAI
         if (victim->GetTypeId() == TYPEID_PLAYER)
             Talk(SAY_COUNCIL_SLAY);
 
-        if (roll_chance_i(30))
+        if (roll_chance(30))
             if (Creature* boss = instance->GetCreature(GetRandomBossExcept(_bossId)))
                 boss->AI()->Talk(SAY_COUNCIL_COMNT);
     }

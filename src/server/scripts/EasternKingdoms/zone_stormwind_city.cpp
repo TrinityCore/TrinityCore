@@ -331,12 +331,14 @@ struct npc_anduin_wrynn_nation_of_kultiras : public ScriptedAI
 // 279998 - Kul Tiras: Skip Intro
 class spell_kultiras_skip_intro : public SpellScript
 {
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    static constexpr std::array<uint32, 4> QuestsToSkip = { QUEST_NATION_OF_KULTIRAS, QUEST_NATION_OF_KULTIRAS_NPE, QUEST_OUT_LIKE_FLYNN, QUEST_DAUGHTER_OF_THE_SEA };
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         if (Player* player = GetCaster()->ToPlayer())
         {
             player->CastSpell(nullptr, SPELL_SKIP_TOLDAGOR_TELEPORT, false);
-            player->SkipQuests({ QUEST_NATION_OF_KULTIRAS, QUEST_NATION_OF_KULTIRAS_NPE, QUEST_OUT_LIKE_FLYNN, QUEST_DAUGHTER_OF_THE_SEA });
+            player->SkipQuests(QuestsToSkip);
         }
     }
 
@@ -351,13 +353,13 @@ class spell_stormwind_harbor_to_boralus_transition : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()) });
     }
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, aurEff->GetAmount(), false);
+            caster->CastSpell(caster, aurEff->GetAmountAsInt(), false);
     }
 
     void Register() override

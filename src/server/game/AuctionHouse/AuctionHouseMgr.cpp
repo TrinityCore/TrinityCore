@@ -56,12 +56,12 @@ AuctionsBucketKey::AuctionsBucketKey(WorldPackets::AuctionHouse::AuctionBucketKe
 
 std::size_t AuctionsBucketKey::Hash(AuctionsBucketKey const& key)
 {
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, std::hash<uint32>()(key.ItemId));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.ItemLevel));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.BattlePetSpeciesId));
-    Trinity::hash_combine(hashVal, std::hash<uint16>()(key.SuffixItemNameDescriptionId));
-    return hashVal;
+    Trinity::HashFnv1a<> hash;
+    hash.UpdateData(key.ItemId);
+    hash.UpdateData(key.ItemLevel);
+    hash.UpdateData(key.BattlePetSpeciesId);
+    hash.UpdateData(key.SuffixItemNameDescriptionId);
+    return hash.Value;
 }
 
 AuctionsBucketKey AuctionsBucketKey::ForItem(Item const* item)
@@ -353,7 +353,7 @@ public:
 
     void AddItem(T const* item)
     {
-        auto where = std::lower_bound(_items.begin(), _items.end(), item, std::cref(_sorter));
+        auto where = std::ranges::lower_bound(_items, item, std::cref(_sorter));
 
         _items.insert(where, item);
         if (_items.size() > _maxResults + _offset)
@@ -363,9 +363,9 @@ public:
         }
     }
 
-    Trinity::IteratorPair<typename std::vector<T const*>::const_iterator> GetResultRange() const
+    std::span<T const* const> GetResultRange() const
     {
-        return Trinity::Containers::MakeIteratorPair(_items.begin() + _offset, _items.end());
+        return std::span(_items.begin() + _offset, _items.end());
     }
 
     bool HasMoreResults() const
@@ -1146,9 +1146,8 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
     if (filters.HasFlag(AuctionHouseFilterMask::UncollectedOnly))
     {
         knownAppearanceIds = player->GetSession()->GetCollectionMgr()->GetAppearanceIds();
-        knownPetSpecies.init_from_block_range(knownPetBits.begin(), knownPetBits.end());
-        if (knownPetSpecies.size() < sBattlePetSpeciesStore.GetNumRows())
-            knownPetSpecies.resize(sBattlePetSpeciesStore.GetNumRows());
+        knownPetSpecies.resize(std::max(knownPetSpecies.size() * 32, std::size_t(sBattlePetSpeciesStore.GetNumRows())));
+        boost::from_block_range(knownPetBits.begin(), knownPetBits.end(), knownPetSpecies);
     }
 
     AuctionsResultBuilder<AuctionsBucketData> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, AuctionHouseResultLimits::Browse);
@@ -1365,9 +1364,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
 {
     AuctionsResultBuilder<AuctionPosting> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, AuctionHouseResultLimits::Items);
     auto itr = _buckets.lower_bound(AuctionsBucketKey(itemId, 0, 0, 0));
-    auto end = _buckets.lower_bound(AuctionsBucketKey(itemId + 1, 0, 0, 0));
+    auto end = _buckets.end();
     listItemsResult.TotalCount = 0;
-    while (itr != end)
+    while (itr != end && itr->first.ItemId == itemId)
     {
         for (AuctionPosting const* auction : itr->second.Auctions)
         {

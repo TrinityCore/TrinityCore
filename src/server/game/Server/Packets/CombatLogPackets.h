@@ -51,6 +51,7 @@ namespace WorldPackets
             int32 Overkill = -1;
             uint8 SchoolMask = 0;
             int32 ShieldBlock = 0;
+            int32 ReflectingSpellID = 0;
             int32 Resisted = 0;
             bool Periodic = false;
             int32 Absorbed = 0;
@@ -153,6 +154,7 @@ namespace WorldPackets
             ObjectGuid Victim;
             int32 InterruptedSpellID = 0;
             int32 SpellID = 0;
+            bool HideFromCombatLog = false;
         };
 
         struct SpellDispellData
@@ -230,6 +232,7 @@ namespace WorldPackets
             int32 SpellID = 0;
             ObjectGuid Caster;
             std::vector<SpellLogMissEntry> Entries;
+            bool HideFromCombatLog = false;
         };
 
         class ProcResist final : public ServerPacket
@@ -285,20 +288,20 @@ namespace WorldPackets
             int32 Resisted = 0;
         };
 
-        struct UnkAttackerState
+        struct HitInfoData
         {
-            uint32 State1 = 0;
-            float State2 = 0.0f;
-            float State3 = 0.0f;
-            float State4 = 0.0f;
-            float State5 = 0.0f;
-            float State6 = 0.0f;
-            float State7 = 0.0f;
-            float State8 = 0.0f;
-            float State9 = 0.0f;
-            float State10 = 0.0f;
-            float State11 = 0.0f;
-            uint32 State12 = 0;
+            uint32 ArmorReduction = 0;
+            float CritRollNeeded = 0.0f;
+            float CombatRoll = 0.0f;
+            float MissChance = 0.0f;
+            float DodgeChance = 0.0f;
+            float ParryChance = 0.0f;
+            float BlockChance = 0.0f;
+            float GlanceChance = 0.0f;
+            float CrushChance = 0.0f;
+            float MinDamage = 0.0f;
+            float MaxDamage = 0.0f;
+            uint32 SinceLastSwing = 0;
         };
 
         class AttackerStateUpdate final : public CombatLogServerPacket
@@ -308,7 +311,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 HitInfo = 0; // Flags
+            uint32 Flags = 0; // Flags
             ObjectGuid AttackerGUID;
             ObjectGuid VictimGUID;
             int32 Damage = 0;
@@ -320,8 +323,8 @@ namespace WorldPackets
             uint32 MeleeSpellID = 0;
             int32 BlockAmount = 0;
             int32 RageGained = 0;
-            UnkAttackerState UnkState;
-            float Unk = 0.0f;
+            HitInfoData HitInfo;
+            float BlockRoll = 0.0f;
             Spells::ContentTuningParams ContentTuning;
         };
 
@@ -343,10 +346,10 @@ namespace WorldPackets
             std::vector<Spells::SpellSupportInfo> Supporters;
         };
 
-        class SpellHealAbsorbLog final : public ServerPacket
+        class SpellHealAbsorbLog final : public CombatLogServerPacket
         {
         public:
-            explicit SpellHealAbsorbLog() : ServerPacket(SMSG_SPELL_HEAL_ABSORB_LOG, 100) { }
+            explicit SpellHealAbsorbLog() : CombatLogServerPacket(SMSG_SPELL_HEAL_ABSORB_LOG, 100) { }
 
             WorldPacket const* Write() override;
 

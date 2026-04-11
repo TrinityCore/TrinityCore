@@ -782,7 +782,7 @@ class boss_flame_leviathan_overload_device : public CreatureScript
                     if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
                         me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                        player->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
+                        player->KnockbackFrom(me->GetVehicleBase()->GetPosition(), 30, 30);
                         player->ExitVehicle();
                     }
                 }
@@ -1628,7 +1628,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector() { };
+        explicit FlameLeviathanPursuedTargetSelector() { }
 
         bool operator()(WorldObject* target) const
         {
@@ -1717,7 +1717,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
             {
                 Spell* baseSpell = GetSpell();
                 SpellCastTargets targets = baseSpell->m_targets;
-                int32 damage = GetEffectValue();
+                int32 damage = GetEffectValueAsInt();
                 if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))
@@ -1751,7 +1751,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                             else
                             {
                                 passenger->ExitVehicle();
-                                passenger->GetMotionMaster()->MoveJump(*targets.GetDstPos(), targets.GetSpeedXY(), targets.GetSpeedZ());
+                                passenger->GetMotionMaster()->MoveJump(EVENT_JUMP, *targets.GetDstPos(), targets.GetSpeedXY());
                             }
                         }
             }

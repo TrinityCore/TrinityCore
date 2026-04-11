@@ -458,9 +458,16 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
 TC_COMMON_API float DegToRad(float degrees);
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
-inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
+inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return haystack.starts_with(needle); }
 inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
+
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
+
+struct StringContainsStringI_T
+{
+    bool operator()(std::string_view haystack, std::string_view needle) const { return StringContainsStringI(haystack, needle); }
+};
+
 TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
 
 struct StringCompareLessI_T
@@ -582,7 +589,7 @@ std::string GetTypeName() { return Impl::GetTypeName(typeid(T)); }
 template <typename T>
 std::string GetTypeName(T&& v)
 {
-    if constexpr (std::is_same_v<std::remove_cv_t<T>, std::type_info>)
+    if constexpr (std::is_same_v<std::remove_cvref_t<T>, std::type_info>)
         return Impl::GetTypeName(v);
     else
         return Impl::GetTypeName(typeid(v));

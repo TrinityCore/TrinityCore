@@ -25,6 +25,7 @@
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "DynamicTree.h"
+#include "DynamicMMapTileBuilder.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -36,6 +37,7 @@
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MMapManager.h"
 #include "MapManager.h"
 #include "MapUtils.h"
 #include "Metric.h"
@@ -52,7 +54,7 @@
 #include "TerrainMgr.h"
 #include "Transport.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "Vehicle.h"
 #include "Vignette.h"
 #include "VignettePackets.h"
@@ -138,20 +140,9 @@ i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(Inst
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE), m_mapRefIter(m_mapRefManager.end()),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
-i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0),
+i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0), i_grids(),
 i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _respawnCheckTimer(0), _vignetteUpdateTimer(5200, 5200)
 {
-    for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
-    {
-        for (uint32 y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
-        {
-            //z code
-            setNGrid(nullptr, x, y);
-        }
-    }
-
-    _zonePlayerCountMap.clear();
-
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
 
@@ -165,7 +156,10 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
 
     m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
 
-    _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
+    if (MMAP::MMapManager::isRebuildingTilesEnabledOnMap(GetId()))
+        m_mmapTileRebuilder = std::make_shared<MMAP::DynamicTileBuilder>(this, MMAP::MMapManager::instance()->GetNavMesh(GetId(), GetInstanceId()));
+
+    _worldStateValues = WorldStateMgr::GetInitialWorldStatesForMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -301,6 +295,7 @@ void Map::EnsureGridCreated(GridCoord const& p)
         int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
 
         m_terrain->LoadMapAndVMap(gx, gy);
+        m_terrain->LoadMMap(GetInstanceId(), gx, gy);
     }
 }
 
@@ -446,7 +441,7 @@ void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool hidden)
 
     itr->second = value;
 
-    WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId);
+    WorldStateTemplate const* worldStateTemplate = WorldStateMgr::GetWorldStateTemplate(worldStateId);
     if (worldStateTemplate)
         sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
 
@@ -658,6 +653,9 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 void Map::Update(uint32 t_diff)
 {
     _dynamicTree.update(t_diff);
+    if (m_mmapTileRebuilder)
+        m_mmapTileRebuilder->Update(Milliseconds(t_diff));
+
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
@@ -1513,9 +1511,8 @@ bool Map::AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell)
 
 bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
-    float resp_x, resp_y, resp_z, resp_o;
-    c->GetRespawnPosition(resp_x, resp_y, resp_z, &resp_o);
-    Cell resp_cell(resp_x, resp_y);
+    Position resp = c->GetRespawnPosition();
+    Cell resp_cell(resp.GetPositionX(), resp.GetPositionY());
 
     //creature will be unloaded with grid
     if (diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
@@ -1531,7 +1528,7 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
     // teleport it to respawn point (like normal respawn if player see)
     if (CreatureCellRelocation(c, resp_cell))
     {
-        c->Relocate(resp_x, resp_y, resp_z, resp_o);
+        c->Relocate(resp);
         c->GetMotionMaster()->Initialize(); // prevent possible problems with default move generators
         //CreatureRelocationNotify(c, resp_cell, resp_cell.GetCellCoord());
         c->UpdatePositionData();
@@ -1544,9 +1541,8 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 
 bool Map::GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly)
 {
-    float resp_x, resp_y, resp_z, resp_o;
-    go->GetRespawnPosition(resp_x, resp_y, resp_z, &resp_o);
-    Cell resp_cell(resp_x, resp_y);
+    Position resp = go->GetRespawnPosition();
+    Cell resp_cell(resp.GetPositionX(), resp.GetPositionY());
 
     //GameObject will be unloaded with grid
     if (diffGridOnly && !go->GetCurrentCell().DiffGrid(resp_cell))
@@ -1559,7 +1555,7 @@ bool Map::GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly)
     // teleport it to respawn point (like normal respawn if player see)
     if (GameObjectCellRelocation(go, resp_cell))
     {
-        go->Relocate(resp_x, resp_y, resp_z, resp_o);
+        go->Relocate(resp);
         go->UpdatePositionData();
         go->UpdateObjectVisibility(false);
         return true;
@@ -1776,6 +1772,28 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     return result;
 }
 
+void Map::RequestRebuildNavMeshOnGameObjectModelChange(GameObjectModel const& model, PhaseShift const& phaseShift)
+{
+    if (!m_mmapTileRebuilder)
+        return;
+
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, GetId(), m_terrain.get(), model.GetPosition().x, model.GetPosition().y);
+
+    G3D::AABox const& bounds = model.getBounds();
+
+    GridCoord low = Trinity::ComputeGridCoord(bounds.high().x, bounds.high().y);
+    low.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.x_coord;
+    low.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.y_coord;
+
+    GridCoord high = Trinity::ComputeGridCoord(bounds.low().x, bounds.low().y);
+    high.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.x_coord;
+    high.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.y_coord;
+
+    for (uint32 x = low.x_coord; x <= high.x_coord; ++x)
+        for (uint32 y = low.y_coord; y <= high.y_coord; ++y)
+            m_mmapTileRebuilder->AddTile(terrainMapId, x, y);
+}
+
 TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
@@ -1949,7 +1967,7 @@ void Map::SendObjectUpdates()
 
     while (!_updateObjects.empty())
     {
-        Object* obj = *_updateObjects.begin();
+        BaseEntity* obj = *_updateObjects.begin();
         ASSERT(obj->IsInWorld());
         _updateObjects.erase(_updateObjects.begin());
         obj->BuildUpdate(update_players);
@@ -2729,17 +2747,11 @@ void Map::AddToActive(WorldObject* obj)
     {
         case TYPEID_UNIT:
             if (Creature* creature = obj->ToCreature(); !creature->IsPet() && creature->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                creature->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = creature->GetRespawnPosition();
             break;
         case TYPEID_GAMEOBJECT:
             if (GameObject* gameObject = obj->ToGameObject(); gameObject->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                gameObject->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = gameObject->GetRespawnPosition();
             break;
         default:
             break;
@@ -2780,17 +2792,11 @@ void Map::RemoveFromActive(WorldObject* obj)
     {
         case TYPEID_UNIT:
             if (Creature* creature = obj->ToCreature(); !creature->IsPet() && creature->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                creature->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = creature->GetRespawnPosition();
             break;
         case TYPEID_GAMEOBJECT:
             if (GameObject* gameObject = obj->ToGameObject(); gameObject->GetSpawnId())
-            {
-                respawnLocation.emplace();
-                gameObject->GetRespawnPosition(respawnLocation->m_positionX, respawnLocation->m_positionY, respawnLocation->m_positionZ);
-            }
+                respawnLocation = gameObject->GetRespawnPosition();
             break;
         default:
             break;
@@ -2840,8 +2846,8 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty
     // this make sure it gets unloaded if for some reason no player joins
     m_unloadTimer = std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
-    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
-    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
+    WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
+    WorldStateMgr::SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
 
     if (i_instanceLock)
     {
@@ -2900,6 +2906,10 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
         if (lockError != TRANSFER_ABORT_NONE)
             return lockError;
     }
+
+    if (Group* owningGroup = GetOwningGroup())
+        if (!player->IsInGroup(owningGroup->GetGUID()))
+            return TRANSFER_ABORT_MAX_PLAYERS;
 
     return Map::CannotEnter(player);
 }
@@ -3394,9 +3404,9 @@ uint32 InstanceMap::GetMaxPlayers() const
 
 TeamId InstanceMap::GetTeamIdInInstance() const
 {
-    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
+    if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
         return TEAM_ALLIANCE;
-    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
+    if (WorldStateMgr::GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
         return TEAM_HORDE;
     return TEAM_NEUTRAL;
 }

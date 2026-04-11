@@ -286,7 +286,7 @@ struct boss_guarm : public BossAI
                 events.CancelEvent(EVENT_LICK);
                 me->GetMotionMaster()->Clear(); // remove ChaseMovementGen
                 me->SetReactState(REACT_PASSIVE);
-                me->GetMotionMaster()->MoveJump(BerserkerPair.JumpPos, 42.0f, 21.5f, POINT_BERSERK_JUMP);
+                me->GetMotionMaster()->MoveJump(POINT_BERSERK_JUMP, BerserkerPair.JumpPos, {}, 12.0f);
                 break;
             default:
                 break;
@@ -418,7 +418,7 @@ class spell_lick_selector_guarm : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -642,7 +642,7 @@ class spell_headlong_charge_trigger : public SpellScript
         uint8 pairId = urand(0, 3);
         caster->GetMotionMaster()->Clear(); // remove ChaseMovementGen
         caster->SetReactState(REACT_PASSIVE);
-        caster->GetMotionMaster()->MoveJump(HeadlongChargePairs[pairId].JumpPos, 42.0f, 21.5f, POINT_HEADLONG_CHARGE + pairId);
+        caster->GetMotionMaster()->MoveJump(POINT_HEADLONG_CHARGE + pairId, HeadlongChargePairs[pairId].JumpPos, {}, 12.0f);
     }
 
     void Register() override
@@ -728,7 +728,7 @@ class spell_volatile_foam_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -769,7 +769,7 @@ class spell_volatile_foam_aura : public AuraScript
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo(
         {
-            (uint32)spellInfo->GetEffect(EFFECT_0).CalcValue(), // SpellIdOnDispel
+            (uint32)spellInfo->GetEffect(EFFECT_0).CalcValueAsInt(), // SpellIdOnDispel
             SpellIdOnExpire
         });
     }
@@ -782,7 +782,7 @@ class spell_volatile_foam_aura : public AuraScript
         if (removeMode == AURA_REMOVE_BY_EXPIRE)
             target->CastSpell(target, SpellIdOnExpire);
         else if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
-            target->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).CalcValue());
+            target->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt());
     }
 
     void Register() override

@@ -524,7 +524,7 @@ struct npc_joren_ironstock : public ScriptedAI
                     SpellCastResult result = DoCast(invader, SPELL_SHOOT);
                     if (result == SpellCastResult::SPELL_CAST_OK)
                     {
-                        if (roll_chance_i(50))
+                        if (roll_chance(50))
                             Talk(SAY_SHOOT_ROCKJAW, invader);
                     }
                     else

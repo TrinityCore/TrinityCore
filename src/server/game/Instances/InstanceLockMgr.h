@@ -56,7 +56,7 @@
 struct DungeonEncounterEntry;
 struct MapEntry;
 struct MapDifficultyEntry;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum TransferAbortReason : uint32;
 
 #define INSTANCE_ID_HIGH_MASK   0x1F440000

@@ -45,7 +45,7 @@
         BOOST_PP_SEQ_FOR_EACH(DEFINE_FIELD_ACCESSOR_CACHE_FIELD, ~, fields_list) \
         struct_name(result_type const& result) : Fields(result.Fetch()), indexes(indexes_impl(result)) { }\
         Field* Fields; \
-        static Indexes const& indexes_impl(result_type const& result) { static Indexes const instance(result); return instance; }\
+        static Indexes const& indexes_impl(result_type const& result) noexcept { static Indexes const instance(result); return instance; }\
         Indexes const& indexes;\
     }
 

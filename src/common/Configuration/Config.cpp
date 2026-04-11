@@ -137,7 +137,7 @@ namespace
 bool ConfigMgr::LoadInitial(std::string file, std::vector<std::string> args,
                             std::string& error)
 {
-    std::lock_guard<std::mutex> lock(_configLock);
+    std::scoped_lock lock(_configLock);
 
     _filename = std::move(file);
     _args = std::move(args);
@@ -158,7 +158,7 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
     if (!LoadFile(file, fullTree, error))
         return false;
 
-    std::lock_guard<std::mutex> lock(_configLock);
+    std::scoped_lock lock(_configLock);
 
     for (bpt::ptree::value_type const& child : fullTree.begin()->second)
         _config.put_child(bpt::ptree::path_type(child.first, '/'), child.second);
@@ -197,7 +197,7 @@ bool ConfigMgr::LoadAdditionalDir(std::string const& dir, bool keepOnReload, std
 
 std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()
 {
-    std::lock_guard<std::mutex> lock(_configLock);
+    std::scoped_lock lock(_configLock);
 
     std::vector<std::string> overriddenKeys;
 
@@ -346,7 +346,7 @@ float ConfigMgr::GetFloatDefault(std::string_view name, float def, bool quiet) c
 
 std::string const& ConfigMgr::GetFilename()
 {
-    std::lock_guard<std::mutex> lock(_configLock);
+    std::scoped_lock lock(_configLock);
     return _filename;
 }
 
@@ -357,7 +357,7 @@ std::vector<std::string> const& ConfigMgr::GetArguments() const
 
 std::vector<std::string> ConfigMgr::GetKeysByString(std::string const& name)
 {
-    std::lock_guard<std::mutex> lock(_configLock);
+    std::scoped_lock lock(_configLock);
 
     std::vector<std::string> keys;
 

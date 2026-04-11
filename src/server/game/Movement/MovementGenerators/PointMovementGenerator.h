@@ -34,7 +34,7 @@ class PointMovementGenerator : public MovementGenerator
             Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<float> closeEnoughDistance = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         PointMovementGenerator(PointMovementGenerator const&) = delete;
         PointMovementGenerator(PointMovementGenerator&&) = delete;
         PointMovementGenerator& operator=(PointMovementGenerator const&) = delete;

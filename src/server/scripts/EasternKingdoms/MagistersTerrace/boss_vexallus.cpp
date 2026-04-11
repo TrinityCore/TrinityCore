@@ -177,7 +177,7 @@ class boss_vexallus : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetMagistersTerraceAI<boss_vexallusAI>(creature);
-        };
+        }
 };
 
 enum NpcPureEnergy
@@ -210,7 +210,7 @@ class npc_pure_energy : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetMagistersTerraceAI<npc_pure_energyAI>(creature);
-        };
+        }
 };
 
 void AddSC_boss_vexallus()
