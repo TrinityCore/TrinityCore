@@ -316,6 +316,7 @@ namespace WorldPackets
 
     namespace Collections
     {
+        class ClearNewAppearance;
         class CollectionItemSetFavorite;
     }
 
@@ -1790,6 +1791,7 @@ class TC_GAME_API WorldSession
         void HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSavedInstanceExtend& setSavedInstanceExtend);
 
         // Collections
+        void HandleClearNewAppearance(WorldPackets::Collections::ClearNewAppearance& clearNewAppearance);
         void HandleCollectionItemSetFavorite(WorldPackets::Collections::CollectionItemSetFavorite& collectionItemSetFavorite);
 
         // Transmogrification

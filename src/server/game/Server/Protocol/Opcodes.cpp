@@ -353,7 +353,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_CLASS_TALENTS_REQUEST_NEW_CONFIG,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClassTalentsRequestNewConfig);
     DEFINE_HANDLER(CMSG_CLASS_TALENTS_SET_STARTER_BUILD_ACTIVE,             STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleClassTalentsSetStarterBuildActive);
     DEFINE_HANDLER(CMSG_CLASS_TALENTS_SET_USES_SHARED_ACTION_BARS,          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleClassTalentsSetUsesSharedActionBars);
-    DEFINE_HANDLER(CMSG_CLEAR_NEW_APPEARANCE,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_CLEAR_NEW_APPEARANCE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClearNewAppearance);
     DEFINE_HANDLER(CMSG_CLEAR_RAID_MARKER,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClearRaidMarker);
     DEFINE_HANDLER(CMSG_CLEAR_TRADE_ITEM,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClearTradeItemOpcode);
     DEFINE_HANDLER(CMSG_CLIENT_PORT_GRAVEYARD,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePortGraveyard);

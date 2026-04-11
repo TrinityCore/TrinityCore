@@ -44,3 +44,7 @@ void WorldSession::HandleCollectionItemSetFavorite(WorldPackets::Collections::Co
             break;
     }
 }
+
+void WorldSession::HandleClearNewAppearance(WorldPackets::Collections::ClearNewAppearance& /*clearNewAppearance*/)
+{
+}

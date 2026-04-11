@@ -2041,7 +2041,7 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
     -1,                                                     // INVTYPE_THROWN
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
     -1,                                                     // INVTYPE_QUIVER
-    -1                                                      // INVTYPE_RELIC
+    -1,                                                     // INVTYPE_RELIC
     -1,                                                     // INVTYPE_PROFESSION_TOOL
     -1,                                                     // INVTYPE_PROFESSION_GEAR
     -1,                                                     // INVTYPE_EQUIPABLE_SPELL_OFFENSIVE
