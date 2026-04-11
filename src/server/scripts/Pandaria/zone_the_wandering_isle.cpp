@@ -55,12 +55,26 @@ namespace Spells
     static constexpr uint32 FlyingShadowKickJump = 108943;
     static constexpr uint32 FeetOfFury = 108958;
     static constexpr uint32 FeetOfFuryDamage = 108957;
+
+    // The Challenger's Flames
+    static constexpr uint32 SeeQuestInvis19 = 108694;
+    static constexpr uint32 SeeQuestInvis16 = 105160;
+    static constexpr uint32 SeeQuestInvis17 = 105161;
+    static constexpr uint32 SeeQuestInvis18 = 105162;
 }
 
 namespace Quests
 {
     static constexpr uint32 OnlyTheWorthyShallPass = 29421;
 }
+
+namespace QuestObjectives
+{
+    static constexpr uint32 ChallengerTorchLit = 255751;
+    static constexpr uint32 RedBrazierLit      = 255752;
+    static constexpr uint32 BlueBrazierLit     = 255753;
+    static constexpr uint32 VioletBrazierLit   = 255754;
+};
 
 namespace Creatures
 {
@@ -1492,6 +1506,25 @@ class spell_flying_shadow_kick : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
+// Quest 29664 - The Challenger's Fires
+struct quest_the_challengers_fires : public QuestScript
+{
+public:
+    quest_the_challengers_fires() : QuestScript("quest_the_challengers_fires") { }
+
+    void OnQuestObjectiveChange(Player* player, Quest const* /*quest*/, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/) override
+    {
+        if (objective.ID == QuestObjectives::ChallengerTorchLit)
+            player->RemoveAurasDueToSpell(Spells::SeeQuestInvis19);
+        else if (objective.ID == QuestObjectives::RedBrazierLit)
+            player->RemoveAurasDueToSpell(Spells::SeeQuestInvis16);
+        else if (objective.ID == QuestObjectives::BlueBrazierLit)
+            player->RemoveAurasDueToSpell(Spells::SeeQuestInvis17);
+        else if (objective.ID == QuestObjectives::VioletBrazierLit)
+            player->RemoveAurasDueToSpell(Spells::SeeQuestInvis18);
+    }
+};
 }
 
 void AddSC_zone_the_wandering_isle()
@@ -1531,4 +1564,6 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_li_fei_combat);
     RegisterSpellScript(spell_feet_of_fury);
     RegisterSpellScript(spell_flying_shadow_kick);
+
+    new quest_the_challengers_fires();
 }
