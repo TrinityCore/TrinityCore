@@ -70,6 +70,7 @@ namespace Quests
 
 namespace QuestObjectives
 {
+    // The Challenger's Flames
     static constexpr uint32 ChallengerTorchLit = 255751;
     static constexpr uint32 RedBrazierLit      = 255752;
     static constexpr uint32 BlueBrazierLit     = 255753;
