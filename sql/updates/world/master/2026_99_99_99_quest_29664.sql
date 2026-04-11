@@ -80,7 +80,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `spell_area` WHERE `spell` IN (108694, 108695, 105156, 105157, 105158) AND `area`=5849;
 DELETE FROM `spell_area` WHERE `spell`=108695 AND `area`=5849 AND `quest_start`=29664 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES
-(108695, 5849, 29664, 0, -108694, 0, 2, 3, 8, 0);
+(108695, 5849, 29664, 0, -108694, 0, 2, 3, 8, 0),
 (108694, 5849, 29664, 0, -108695, 0, 2, 3, 8, 0);
 
 -- Missing data from prior quest 29420
