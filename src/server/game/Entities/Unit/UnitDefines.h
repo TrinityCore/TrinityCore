@@ -374,6 +374,7 @@ enum NPCFlags2 : uint32
     UNIT_NPC_FLAG_2_AZERITE_RESPEC                                  = 0x00004000,   // TITLE is azerite respec
     UNIT_NPC_FLAG_2_ISLANDS_QUEUE                                   = 0x00008000,   // TITLE is islands queue
     UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
+    UNIT_NPC_FLAG_2_TRADING_POST_VENDOR                             = 0x00080000,   // Title is trading post vendor
     UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER                        = 0x00200000,   // TITLE is personal tabard designer
 };
 
