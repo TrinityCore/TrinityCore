@@ -971,7 +971,7 @@ class spell_grab_on : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
-            grip->ModStackAmount(GetEffectValue(), AURA_REMOVE_BY_DEFAULT, false);
+            grip->ModStackAmount(GetEffectValueAsInt(), AURA_REMOVE_BY_DEFAULT, false);
     }
 
     void Register() override
@@ -1002,12 +1002,12 @@ class spell_low_health_trigger : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(nullptr, GetEffectValue(), true);
+        GetHitUnit()->CastSpell(nullptr, GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -1022,7 +1022,7 @@ class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScript
 {
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        SetEffectValue(static_cast<int32>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
+        SetEffectValue(static_cast<SpellEffectValue>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
     }
 
     void Register() override
@@ -1053,7 +1053,7 @@ class spell_claw_swipe_check : public AuraScript
             }
         }
 
-        GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), false);
+        GetTarget()->CastSpell(nullptr, aurEff->GetAmountAsInt(), false);
     }
 
     void Register() override
@@ -1073,11 +1073,11 @@ class spell_fatal_strike : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        int32 chance = 0;
+        SpellEffectValue chance = 0;
         if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRY_JAWS_OPEN, EFFECT_0))
             chance = aurEff->GetAmount();
 
-        if (!roll_chance_i(chance))
+        if (!roll_chance(chance))
         {
             GetCaster()->GetAI()->DoAction(ACTION_FATAL_STRIKE_MISS);
             return;
@@ -1120,12 +1120,12 @@ class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -1192,7 +1192,7 @@ class spell_storm_peaks_bear_flank_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
     }
 
     void Register() override

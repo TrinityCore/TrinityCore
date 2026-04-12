@@ -472,12 +472,12 @@ class spell_lord_stormsong_surrender_to_the_void : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleDummy(SpellEffIndex /* effIndex */) const
     {
-        GetHitUnit()->m_Events.AddEvent([hitUnit = GetHitUnit(), casterGUID = GetCaster()->GetGUID(), spellId = GetEffectValue()]()
+        GetHitUnit()->m_Events.AddEvent([hitUnit = GetHitUnit(), casterGUID = GetCaster()->GetGUID(), spellId = GetEffectValueAsInt()]()
         {
             if (Unit* caster = ObjectAccessor::GetUnit(*hitUnit, casterGUID))
                 hitUnit->CastSpell(caster, uint32(spellId), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -495,13 +495,13 @@ class spell_lord_stormsong_disciple_of_the_vol_zith : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, GetEffectInfo(EFFECT_0).CalcValueAsInt(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override

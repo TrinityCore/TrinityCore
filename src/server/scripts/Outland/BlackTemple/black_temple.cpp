@@ -256,7 +256,7 @@ class spell_illidari_nightlord_shadow_inferno : public AuraScript
     void OnPeriodic(AuraEffect const* aurEffect)
     {
         PreventDefaultAction();
-        int32 bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
+        SpellEffectValue bp = aurEffect->GetTickNumber() * aurEffect->GetAmount();
         GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SHADOW_INFERNO_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
     }
 

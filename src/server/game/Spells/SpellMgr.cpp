@@ -410,7 +410,7 @@ void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>&
     }
 }
 
-bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const
+bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, AuraType auraType, SpellEffectValue amount, std::map<SpellGroup, SpellEffectValue>& groups) const
 {
     uint32 spellId = spellInfo->GetFirstRankSpell()->Id;
     auto spellGroupBounds = GetSpellSpellGroupMapBounds(spellId);
@@ -422,7 +422,7 @@ bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uin
         if (found != mSpellSameEffectStack.end())
         {
             // check auraTypes
-            if (!found->second.count(auraType))
+            if (!found->second.contains(auraType))
                 continue;
 
             // Put the highest amount in the map
@@ -431,7 +431,7 @@ bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uin
                 groups.emplace(group, amount);
             else
             {
-                int32 curr_amount = groups[group];
+                SpellEffectValue curr_amount = groupItr->second;
                 // Take absolute value because this also counts for the highest negative aura
                 if (std::abs(curr_amount) < std::abs(amount))
                     groupItr->second = amount;
@@ -975,7 +975,7 @@ void SpellMgr::LoadSpellLearnSkills()
             {
                 case SPELL_EFFECT_SKILL:
                     dbc_node.skill = uint16(spellEffectInfo.MiscValue);
-                    dbc_node.step  = uint16(spellEffectInfo.CalcValue());
+                    dbc_node.step  = uint16(spellEffectInfo.CalcValueAsInt());
                     dbc_node.value = 0;
                     dbc_node.maxvalue = 0;
                     break;
@@ -1858,7 +1858,7 @@ void SpellMgr::LoadSpellProcs()
                     break;
                 // proc auras with another aura reducing hit chance (eg 63767) only proc on missed attack
                 case SPELL_AURA_MOD_HIT_CHANCE:
-                    if (spellEffectInfo.CalcValue() <= -100)
+                    if (spellEffectInfo.CalcValueAsInt() <= -100)
                         procEntry.HitMask = PROC_HIT_MISS;
                     break;
                 case SPELL_AURA_PROC_TRIGGER_SPELL:
@@ -2101,7 +2101,7 @@ void SpellMgr::LoadSpellLinked()
         {
             for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
-                if (spellEffectInfo.CalcValue() == abs(effect))
+                if (spellEffectInfo.CalcValueAsInt() == abs(effect))
                     TC_LOG_ERROR("sql.sql", "The spell {} Effect: {} listed in `spell_linked_spell` has same bp{} like effect (possible hack).", abs(trigger), abs(effect), uint32(spellEffectInfo.EffectIndex));
             }
         }
@@ -3192,7 +3192,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                         default:
                         {
                             // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
-                            if (!spellEffectInfo.CalcValue() && !((spellEffectInfo.Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfoMutable->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
+                            if (!spellEffectInfo.CalcValueAsInt() && !((spellEffectInfo.Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfoMutable->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
                                 break;
 
                             // Sindragosa Frost Breath

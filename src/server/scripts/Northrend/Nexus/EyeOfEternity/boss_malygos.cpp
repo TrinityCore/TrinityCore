@@ -1916,7 +1916,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
-            target->CastSpell(GetCaster(), GetEffectValue(), true);
+            target->CastSpell(GetCaster(), GetEffectValueAsInt(), true);
     }
 
     void Register() override

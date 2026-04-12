@@ -135,7 +135,7 @@ uint32 RestMgr::GetRestBonusFor(RestTypes restType, uint32 xp)
 
 void RestMgr::Update(time_t now)
 {
-    if (roll_chance_i(3) && _restTime > 0) // freeze update
+    if (roll_chance(3) && _restTime > 0) // freeze update
     {
         time_t timeDiff = now - _restTime;
         if (timeDiff >= 10)

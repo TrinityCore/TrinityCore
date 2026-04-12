@@ -278,7 +278,7 @@ class spell_soulbound_goliath_soul_thorns_remove_stun : public SpellScript
         if (TempSummon* target = GetHitUnit()->ToTempSummon())
         {
             if (Unit* summoner = target->GetSummonerUnit())
-                summoner->RemoveAurasDueToSpell(GetEffectValue());
+                summoner->RemoveAurasDueToSpell(GetEffectValueAsInt());
         }
     }
 

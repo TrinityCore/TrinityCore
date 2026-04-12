@@ -413,7 +413,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScript
             case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
         }
         // sometimes, if you're lucky, you get a dwarf
-        if (roll_chance_i(5))
+        if (roll_chance(5))
             spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
         GetCaster()->CastSpell(GetCaster(), spellId, true);
     }
@@ -521,7 +521,7 @@ class spell_q12805_lifeblood_dummy : public SpellScript
         if (Creature* target = GetHitCreature())
         {
             caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
-            target->CastSpell(target, uint32(GetEffectValue()), true);
+            target->CastSpell(target, uint32(GetEffectValueAsInt()), true);
             target->DespawnOrUnsummon(2s);
         }
     }
@@ -897,13 +897,13 @@ class spell_q13086_cannons_target : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+            && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
         if (WorldLocation const* pos = GetExplTargetDest())
-            GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
+            GetCaster()->CastSpell(pos->GetPosition(), GetEffectValueAsInt(), true);
     }
 
     void Register() override
@@ -1084,7 +1084,7 @@ class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : public SpellSc
         {
             if (Unit* owner = target->GetOwner())
             {
-                owner->CastSpell(owner, GetEffectValue(), true);
+                owner->CastSpell(owner, GetEffectValueAsInt(), true);
             }
         }
     }
@@ -1299,7 +1299,7 @@ class spell_q12619_emblazon_runeblade_effect : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), false);
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), false);
     }
 
     void Register() override
@@ -1537,7 +1537,7 @@ class spell_q13665_q13790_bested_trigger : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
-        target->CastSpell(target, uint32(GetEffectValue()), true);
+        target->CastSpell(target, uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -1647,7 +1647,7 @@ class spell_q11896_weakness_to_lightning_46444 : public SpellScript
         {
             if (Unit* owner = target->GetOwner())
             {
-                target->CastSpell(owner, GetEffectValue(), true);
+                target->CastSpell(owner, GetEffectValueAsInt(), true);
             }
         }
     }
@@ -1772,8 +1772,8 @@ class spell_quest_portal_with_condition : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
-            && sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) })
+            && sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()));
     }
 
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
@@ -1782,8 +1782,8 @@ class spell_quest_portal_with_condition : public SpellScript
         if (!target)
             return;
 
-        uint32 spellId = GetEffectInfo().CalcValue();
-        uint32 questId = GetEffectInfo(EFFECT_1).CalcValue();
+        uint32 spellId = GetEffectInfo().CalcValueAsInt();
+        uint32 questId = GetEffectInfo(EFFECT_1).CalcValueAsInt();
 
         // This probably should be a way to throw error in SpellCastResult
         if (target->IsActiveQuest(questId))

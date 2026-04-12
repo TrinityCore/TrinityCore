@@ -152,7 +152,7 @@ struct boss_grandmaster_vorpil : public BossAI
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_DRAW_SHADOWS:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_DRAW);
                     DoCastSelf(SPELL_DRAW_SHADOWS);
                     events.Repeat(35s, 45s);

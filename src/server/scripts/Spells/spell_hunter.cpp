@@ -335,7 +335,7 @@ class spell_hun_cobra_sting : public AuraScript
 
     bool RollProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
-        return roll_chance_i(GetEffect(EFFECT_1)->GetAmount());
+        return roll_chance(GetEffect(EFFECT_1)->GetAmount());
     }
 
     void Register() override
@@ -360,7 +360,7 @@ class spell_hun_concussive_shot : public SpellScript
         if (Aura* concussiveShot = GetHitUnit()->GetAura(SPELL_HUNTER_CONCUSSIVE_SHOT, caster->GetGUID()))
         {
             SpellInfo const* steadyShot = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_STEADY_SHOT, GetCastDifficulty());
-            Milliseconds extraDuration = Seconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10);
+            Milliseconds extraDuration = duration_cast<Milliseconds>(FloatSeconds(steadyShot->GetEffect(EFFECT_2).CalcValue(caster) / 10));
             Milliseconds newDuration = Milliseconds(concussiveShot->GetDuration()) + extraDuration;
             concussiveShot->SetDuration(newDuration.count());
             concussiveShot->SetMaxDuration(newDuration.count());
@@ -481,8 +481,8 @@ class spell_hun_hunting_party : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION, -Seconds(aurEff->GetAmount()));
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION_PET, -Seconds(aurEff->GetAmount()));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION, duration_cast<Milliseconds>(FloatSeconds(-aurEff->GetAmount())));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION_PET, duration_cast<Milliseconds>(FloatSeconds(-aurEff->GetAmount())));
     }
 
     void Register() override
@@ -639,7 +639,7 @@ class spell_hun_lock_and_load : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -697,7 +697,7 @@ class spell_hun_master_marksman : public AuraScript
     static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_MASTER_MARKSMAN, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
-        int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / ticks;
+        SpellEffectValue damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / ticks;
 
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_MASTER_MARKSMAN, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -717,7 +717,7 @@ class spell_hun_masters_call : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellInfo({ SPELL_HUNTER_MASTERS_CALL_TRIGGERED, uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+            && ValidateSpellInfo({ SPELL_HUNTER_MASTERS_CALL_TRIGGERED, uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     bool Load() override
@@ -760,7 +760,7 @@ class spell_hun_masters_call : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->ToPlayer()->GetPet()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetCaster()->ToPlayer()->GetPet()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -850,7 +850,7 @@ class spell_hun_multi_shot : public SpellScript
 // 459783 - Penetrating Shots
 class spell_hun_penetrating_shots : public AuraScript
 {
-    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
         {
@@ -1008,7 +1008,7 @@ class spell_hun_rejuvenating_wind : public AuraScript
         Unit* caster = GetTarget();
 
         uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_REJUVENATING_WIND_HEAL, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
-        int32 heal = CalculatePct(caster->GetMaxHealth(), aurEff->GetAmount()) / ticks;
+        SpellEffectValue heal = CalculatePct(caster->GetMaxHealth(), aurEff->GetAmount()) / ticks;
 
         caster->CastSpell(caster, SPELL_HUNTER_REJUVENATING_WIND_HEAL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -1120,7 +1120,7 @@ class spell_hun_scrappy : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
         for (uint32 spellId : AffectedSpellIds)
-            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Milliseconds(aurEff->GetAmount()));
+            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Milliseconds(aurEff->GetAmountAsInt()));
     }
 
     void Register() override
@@ -1139,7 +1139,7 @@ class spell_hun_shrapnel_shot : public AuraScript
 
     void HandleProc(ProcEventInfo const& /*eventInfo*/) const
     {
-        if (!roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
+        if (!roll_chance(GetEffect(EFFECT_0)->GetAmount()))
             return;
 
         GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
@@ -1174,7 +1174,7 @@ class spell_hun_steady_shot : public SpellScript
         });
 
         if (GetCaster()->HasAura(SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA))
-            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, Milliseconds(-GetEffectInfo(EFFECT_1).CalcValue()));
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, Milliseconds(-GetEffectInfo(EFFECT_1).CalcValueAsInt()));
     }
 
     void Register() override
@@ -1406,7 +1406,7 @@ class spell_hun_t29_2p_marksmanship_bonus : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
         uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
-        uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
+        SpellEffectValue damage = CalculatePct(eventInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
 
         caster->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE, CastSpellExtraArgs(aurEff)
             .SetTriggeringSpell(eventInfo.GetProcSpell())
@@ -1444,7 +1444,7 @@ class spell_hun_wilderness_medicine : public AuraScript
     void OnPeriodic(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
-            if (roll_chance_i(_dispelChance))
+            if (roll_chance(_dispelChance))
                 caster->CastSpell(GetTarget(), SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL, CastSpellExtraArgsInit{
                     .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                     .TriggeringAura = aurEff
@@ -1456,7 +1456,7 @@ class spell_hun_wilderness_medicine : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_wilderness_medicine::OnPeriodic, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
     }
 
-    int32 _dispelChance = 0;
+    SpellEffectValue _dispelChance = 0;
 };
 
 void AddSC_hunter_spell_scripts()

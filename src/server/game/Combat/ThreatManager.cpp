@@ -776,7 +776,7 @@ void ThreatManager::RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* other
 
 void ThreatManager::UpdateMyTempModifiers()
 {
-    int32 mod = 0;
+    SpellEffectValue mod = 0;
     for (AuraEffect const* eff : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_THREAT))
         mod += eff->GetAmount();
 
@@ -802,7 +802,7 @@ void ThreatManager::UpdateMySpellSchoolModifiers()
     _multiSchoolModifiers.clear();
 }
 
-void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, uint32 pct)
+void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, float pct)
 {
     _redirectRegistry[spellId][victim] = pct;
     UpdateRedirectInfo();
@@ -927,11 +927,11 @@ void ThreatManager::PurgeThreatenedByMeRef(ObjectGuid const& guid)
 void ThreatManager::UpdateRedirectInfo()
 {
     _redirectInfo.clear();
-    uint32 totalPct = 0;
+    float totalPct = 0;
     for (auto const& pair : _redirectRegistry) // (spellid, victim -> pct)
         for (auto const& victimPair : pair.second) // (victim,pct)
         {
-            uint32 thisPct = std::min<uint32>(100 - totalPct, victimPair.second);
+            float thisPct = std::min(100.0f - totalPct, victimPair.second);
             if (thisPct > 0)
             {
                 _redirectInfo.push_back({ victimPair.first, thisPct });

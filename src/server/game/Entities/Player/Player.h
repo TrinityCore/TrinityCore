@@ -283,7 +283,7 @@ struct SpellPctModifierByClassMask : SpellModifierByClassMask
     SpellPctModifierByClassMask(SpellModOp _op, uint32 _spellId, Aura* _ownerAura, flag128 _mask)
         : SpellModifierByClassMask(_op, SPELLMOD_PCT, _spellId, _ownerAura, _mask) { }
 
-    int32 value = { };
+    float value = { };
 };
 
 struct SpellFlatModifierByLabel : SpellModifier

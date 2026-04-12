@@ -1846,7 +1846,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr12>::ToString(SpellAttr12 value)
         case SPELL_ATTR12_UNK18: return { "SPELL_ATTR12_UNK18", "Unknown attribute 18@Attr12", "" };
         case SPELL_ATTR12_UNK19: return { "SPELL_ATTR12_UNK19", "Unknown attribute 19@Attr12", "" };
         case SPELL_ATTR12_UNK20: return { "SPELL_ATTR12_UNK20", "Unknown attribute 20@Attr12", "" };
-        case SPELL_ATTR12_UNK21: return { "SPELL_ATTR12_UNK21", "Unknown attribute 21@Attr12", "" };
+        case SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS: return { "SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS", "Use float values for scaling amounts", "" };
         case SPELL_ATTR12_UNK22: return { "SPELL_ATTR12_UNK22", "Unknown attribute 22@Attr12", "" };
         case SPELL_ATTR12_START_COOLDOWN_ON_CAST_START: return { "SPELL_ATTR12_START_COOLDOWN_ON_CAST_START", "Trigger Cooldown On Spell Start", "" };
         case SPELL_ATTR12_IS_GARRISON_BUFF: return { "SPELL_ATTR12_IS_GARRISON_BUFF", "Never Learn", "" };
@@ -1890,7 +1890,7 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
         case 18: return SPELL_ATTR12_UNK18;
         case 19: return SPELL_ATTR12_UNK19;
         case 20: return SPELL_ATTR12_UNK20;
-        case 21: return SPELL_ATTR12_UNK21;
+        case 21: return SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS;
         case 22: return SPELL_ATTR12_UNK22;
         case 23: return SPELL_ATTR12_START_COOLDOWN_ON_CAST_START;
         case 24: return SPELL_ATTR12_IS_GARRISON_BUFF;
@@ -1931,7 +1931,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
         case SPELL_ATTR12_UNK18: return 18;
         case SPELL_ATTR12_UNK19: return 19;
         case SPELL_ATTR12_UNK20: return 20;
-        case SPELL_ATTR12_UNK21: return 21;
+        case SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS: return 21;
         case SPELL_ATTR12_UNK22: return 22;
         case SPELL_ATTR12_START_COOLDOWN_ON_CAST_START: return 23;
         case SPELL_ATTR12_IS_GARRISON_BUFF: return 24;

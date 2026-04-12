@@ -401,7 +401,7 @@ class spell_priestess_alun_za_energy_regen : public AuraScript
 {
     void OnPeriodic(AuraEffect const* aurEff) const
     {
-        GetTarget()->ModifyPower(POWER_ENERGY, aurEff->GetAmount() / 10);
+        GetTarget()->ModifyPower(POWER_ENERGY, aurEff->GetAmountAsInt() / 10);
     }
 
     void Register() override
@@ -415,7 +415,7 @@ class spell_priestess_alun_za_agitate : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
         });
@@ -442,7 +442,7 @@ class spell_priestess_alun_za_molten_gold : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        target->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
+        target->CastSpell(target, aurEff->GetAmountAsInt(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
         });
@@ -580,7 +580,7 @@ class spell_priestess_alun_za_transfusion_heal : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        SetEffectValue(GetEffectValue() / 100);
+        SetEffectValue(GetEffectValue() / 100.0);
     }
 
     void Register() override
@@ -594,7 +594,7 @@ class spell_priestess_alun_za_transfusion_damage : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        SetEffectValue(GetEffectValue() / 100);
+        SetEffectValue(GetEffectValue() / 100.0);
     }
 
     void Register() override
