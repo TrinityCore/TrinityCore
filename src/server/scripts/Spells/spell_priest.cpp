@@ -38,6 +38,7 @@
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "CommonPredicates.h"
+#include <queue>
 
 enum PriestSpells
 {

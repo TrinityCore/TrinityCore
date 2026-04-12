@@ -33,6 +33,7 @@
 #include "SharedDefines.h"
 #include "TemporarySummon.h"
 #include "maw_of_souls.h"
+#include <queue>
 
 enum YmironFallenKingSpells
 {

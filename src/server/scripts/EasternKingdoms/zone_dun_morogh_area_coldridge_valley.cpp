@@ -27,6 +27,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "WaypointDefines.h"
+#include <queue>
 
 enum WoundedColdridgeMountaineer
 {

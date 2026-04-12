@@ -31,6 +31,7 @@
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include <queue>
 
 namespace DeephaulRavine
 {
