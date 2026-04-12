@@ -26,7 +26,7 @@ class ADTFile;
 class WDTFile
 {
 public:
-    WDTFile(char* file_name, char* file_name1);
+    WDTFile(char const* file_name, char const* file_name1);
     ~WDTFile(void);
 
     bool init(uint32 mapId);
