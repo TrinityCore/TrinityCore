@@ -197,19 +197,17 @@ class spell_omor_the_unscarred_orbital_strike_target : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.size() == 1)
-        {
-            _canContinue = false;
+        if (targets.size() <= 1)
             return;
-        }
 
         Unit* caster = GetCaster();
-        targets.remove_if([caster](WorldObject* target)
+        targets.remove_if([caster](WorldObject const* target)
         {
             return caster->GetExactDist2d(target) > 20.0f;
         });
 
         Trinity::Containers::RandomResize(targets, 1);
+        _canContinue = true;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -237,7 +235,7 @@ class spell_omor_the_unscarred_orbital_strike_target : public SpellScript
     }
 
 private:
-    bool _canContinue = true;
+    bool _canContinue = false;
 };
 
 // 32185 - Orbital Strike
@@ -257,9 +255,11 @@ class spell_omor_the_unscarred_orbital_strike_whip : public AuraScript
         if (Creature* creature = GetTarget()->ToCreature())
         {
             for (ThreatReference const* ref : creature->GetThreatManager().GetUnsortedThreatList())
-                if (Player* player = ref->GetVictim()->ToPlayer())
-                    if (player->IsFalling())
-                        creature->CastSpell(player, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
+            {
+                Unit* victim = ref->GetVictim();
+                if (victim->IsPlayer() && victim->IsFalling())
+                    creature->CastSpell(victim, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
+            }
         }
     }
 
