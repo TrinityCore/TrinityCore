@@ -18,6 +18,7 @@
 #include "TransmogMgr.h"
 #include "DB2Stores.h"
 #include "FlatSet.h"
+#include "Log.h"
 #include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -157,23 +158,40 @@ void TransmogMgr::Load()
 
     for (TransmogOutfitSlotInfoEntry const* transmogOutfitSlot : sTransmogOutfitSlotInfoStore)
     {
-        ASSERT(transmogOutfitSlot->GetSlot() < TransmogOutfitSlot::Max);
+        if (transmogOutfitSlot->GetSlot() >= TransmogOutfitSlot::Max)
+        {
+            TC_LOG_ERROR("server.loading", "TransmogMgr::Load - TransmogOutfitSlotInfo ID {} has invalid slot {}, skipping.", transmogOutfitSlot->ID, AsUnderlyingType(transmogOutfitSlot->GetSlot()));
+            continue;
+        }
 
         TransmogOutfitSlotInfo* slot = &SlotInfoByOutfitSlot[AsUnderlyingType(transmogOutfitSlot->GetSlot())];
         slot->Data = transmogOutfitSlot;
 
         if (!transmogOutfitSlot->HasFlag(TransmogOutfitSlotFlags::IsSecondarySlot))
         {
-            ASSERT(transmogOutfitSlot->InventorySlotEnum < EQUIPMENT_SLOT_END);
+            if (transmogOutfitSlot->InventorySlotEnum >= EQUIPMENT_SLOT_END)
+            {
+                TC_LOG_ERROR("server.loading", "TransmogMgr::Load - TransmogOutfitSlotInfo ID {} has invalid InventorySlotEnum {}, skipping.", transmogOutfitSlot->ID, transmogOutfitSlot->InventorySlotEnum);
+                continue;
+            }
             SlotInfoByInvSlot[transmogOutfitSlot->InventorySlotEnum] = slot;
         }
     }
 
     for (TransmogOutfitSlotOptionEntry const* transmogOutfitSlotOption : sTransmogOutfitSlotOptionInfoStore)
     {
-        ASSERT(transmogOutfitSlotOption->GetOption() < TransmogOutfitSlotOption::Max);
+        if (transmogOutfitSlotOption->GetOption() >= TransmogOutfitSlotOption::Max)
+        {
+            TC_LOG_ERROR("server.loading", "TransmogMgr::Load - TransmogOutfitSlotOption ID {} has invalid option {}, skipping.", transmogOutfitSlotOption->ID, AsUnderlyingType(transmogOutfitSlotOption->GetOption()));
+            continue;
+        }
 
-        TransmogOutfitSlotInfoEntry const* transmogOutfitSlot = sTransmogOutfitSlotInfoStore.AssertEntry(transmogOutfitSlotOption->TransmogOutfitSlotInfoID);
+        TransmogOutfitSlotInfoEntry const* transmogOutfitSlot = sTransmogOutfitSlotInfoStore.LookupEntry(transmogOutfitSlotOption->TransmogOutfitSlotInfoID);
+        if (!transmogOutfitSlot)
+        {
+            TC_LOG_ERROR("server.loading", "TransmogMgr::Load - TransmogOutfitSlotOption ID {} references missing TransmogOutfitSlotInfo {}, skipping.", transmogOutfitSlotOption->ID, transmogOutfitSlotOption->TransmogOutfitSlotInfoID);
+            continue;
+        }
 
         TransmogOutfitSlotInfo& slotInfo = SlotInfoByOutfitSlot[AsUnderlyingType(transmogOutfitSlot->GetSlot())];
         if (!std::holds_alternative<std::unique_ptr<TransmogOutfitSlotOptionInfo[]>>(slotInfo.SlotIndexOrOptions))
@@ -201,6 +219,9 @@ void TransmogMgr::Load()
             auto optionItr = std::ranges::find_if(options,
                 [](TransmogOutfitSlotOptionEntry const* option) { return option != nullptr; },
                 &TransmogOutfitSlotOptionInfo::Data);
+
+            if (optionItr == options.end())
+                continue;
 
             slot.SlotOption = optionItr->Data;
             optionItr->SlotIndex = AllSlots.size() - 1;
@@ -314,7 +335,11 @@ TransmogOutfitEntryEntry const* TransmogMgr::GetNextOutfitToUnlock(TransmogOutfi
     }
 
     if (!lastOwnedOutfit)
+    {
+        if (TransmogOutfitsBySource[AsUnderlyingType(source)].empty())
+            return nullptr;
         return TransmogOutfitsBySource[AsUnderlyingType(source)].front();
+    }
 
     auto itr = std::ranges::find(TransmogOutfitsBySource[AsUnderlyingType(source)], lastOwnedOutfit) + 1;
     if (itr != TransmogOutfitsBySource[AsUnderlyingType(source)].end())
@@ -373,7 +398,7 @@ bool TransmogMgr::ValidateSlots(std::span<WorldPackets::Transmogrification::Tran
 {
     for (WorldPackets::Transmogrification::TransmogOutfitSlotData const& slot : slots)
     {
-        if (slot.Slot >= TransmogOutfitSlot::Max)
+        if (slot.Slot < TransmogOutfitSlot{0} || slot.Slot >= TransmogOutfitSlot::Max)
             return false;
 
         if (slot.SlotOption >= TransmogOutfitSlotOption::Max)

@@ -11877,7 +11877,8 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
             {
                 // check if artifact override is active
                 static constexpr int32 MaxArtifactSpecializations = AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecFour) - AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + 1;
-                int32 specIndex = GetPrimarySpecializationEntry()->OrderIndex;
+                ChrSpecializationEntry const* primarySpec = GetPrimarySpecializationEntry();
+                int32 specIndex = primarySpec ? primarySpec->OrderIndex : -1;
                 if (specIndex >= 0 && specIndex < MaxArtifactSpecializations)
                 {
                     TransmogOutfitSlotOption artifactOption = static_cast<TransmogOutfitSlotOption>(AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + specIndex);
@@ -17838,7 +17839,9 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
 
     for (int32 transmogOutfitId : m_activePlayerData->UnlockedTransmogOutfits)
     {
-        TransmogOutfitEntryEntry const* transmogOutfitEntry = sTransmogOutfitEntryStore.AssertEntry(transmogOutfitId);
+        TransmogOutfitEntryEntry const* transmogOutfitEntry = sTransmogOutfitEntryStore.LookupEntry(transmogOutfitId);
+        if (!transmogOutfitEntry)
+            continue;
 
         if (transmogOutfitEntry->HasFlag(TransmogOutfitEntryFlags::OnlyAvailableDuringEvent) && !IsHolidayActive(HOLIDAY_TRIAL_OF_STYLE))
             continue;
@@ -17867,6 +17870,22 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
             case TransmogOutfitSetType::CustomSet:
             default:
                 break;
+        }
+    }
+
+    // If no outfit is equipped but outfits exist, auto-equip the first one.
+    // Without this, TransmogOutfitMetadata::TransmogOutfitID stays 0 and the
+    // client refuses to send CMSG_TRANSMOG_OUTFIT_UPDATE_SLOTS, deadlocking
+    // the entire wardrobe system.
+    if (!equippedTransmogOutfitId)
+    {
+        for (auto const& [id, transmogOutfit] : m_activePlayerData->TransmogOutfits)
+        {
+            if (transmogOutfit.value.OutfitInfo->SetType == AsUnderlyingType(TransmogOutfitSetType::Outfit))
+            {
+                equippedTransmogOutfitId = id;
+                break;
+            }
         }
     }
 
@@ -20600,6 +20619,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setInt32(index++, m_playerData->PersonalTabard->BackgroundColor);
         stmt->setInt32(index++, m_activePlayerData->TransmogMetadata->TransmogOutfitID);
         stmt->setBool(index++, m_activePlayerData->TransmogMetadata->Locked);
+        stmt->setUInt8(index++, uint8(m_activePlayerData->UiChromieTimeExpansionID));
     }
     else
     {
@@ -20753,6 +20773,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setInt32(index++, m_playerData->PersonalTabard->BackgroundColor);
         stmt->setInt32(index++, m_activePlayerData->TransmogMetadata->TransmogOutfitID);
         stmt->setBool(index++, m_activePlayerData->TransmogMetadata->Locked);
+        stmt->setUInt8(index++, uint8(m_activePlayerData->UiChromieTimeExpansionID));
 
         // Index
         stmt->setUInt64(index, GetGUID().GetCounter());
@@ -31324,7 +31345,11 @@ void Player::EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Op
     {
         for (UF::TransmogOutfitSlotData const& slot : transmogOutfit->Slots)
         {
-            uint32 slotIndex = TransmogMgr::GetSlotAndOption(static_cast<TransmogOutfitSlot>(*slot.Slot), static_cast<TransmogOutfitSlotOption>(*slot.SlotOption))->SlotIndex;
+            TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(static_cast<TransmogOutfitSlot>(*slot.Slot), static_cast<TransmogOutfitSlotOption>(*slot.SlotOption));
+            if (!slotInfo)
+                continue;
+
+            uint32 slotIndex = slotInfo->SlotIndex;
             auto viewedOutfitSlot = viewedOutfit.ModifyValue(&UF::TransmogOutfitData::Slots, slotIndex);
             if (static_cast<TransmogOutfitDisplayType>(*slot.AppearanceDisplayType) != TransmogOutfitDisplayType::Unassigned)
             {

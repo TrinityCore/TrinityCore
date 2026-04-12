@@ -37,6 +37,16 @@ namespace WorldPackets
             bool IsFavorite = false;
         };
 
+        class ClearNewAppearance final : public ClientPacket
+        {
+        public:
+            ClearNewAppearance(WorldPacket&& packet) : ClientPacket(CMSG_CLEAR_NEW_APPEARANCE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ItemModifiedAppearanceID = 0;
+        };
+
         struct ItemCollectionItemData
         {
             int32 ID = 0;

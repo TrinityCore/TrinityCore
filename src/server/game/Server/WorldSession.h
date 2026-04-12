@@ -316,6 +316,7 @@ namespace WorldPackets
 
     namespace Collections
     {
+        class ClearNewAppearance;
         class CollectionItemSetFavorite;
     }
 
@@ -1791,6 +1792,7 @@ class TC_GAME_API WorldSession
 
         // Collections
         void HandleCollectionItemSetFavorite(WorldPackets::Collections::CollectionItemSetFavorite& collectionItemSetFavorite);
+        void HandleClearNewAppearance(WorldPackets::Collections::ClearNewAppearance& clearNewAppearance);
 
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);

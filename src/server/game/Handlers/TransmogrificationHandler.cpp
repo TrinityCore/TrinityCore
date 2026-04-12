@@ -276,7 +276,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
 
             item->SetModifier(AppearanceModifierSlotBySpec[player->GetActiveTalentGroup()], 0);
             item->SetModifier(SecondaryAppearanceModifierSlotBySpec[player->GetActiveTalentGroup()], 0);
-            item->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, 0);
         }
 
         item->SetState(ITEM_CHANGED, player);
@@ -305,7 +304,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 item->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, item->GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS));
 
             item->SetModifier(IllusionModifierSlotBySpec[player->GetActiveTalentGroup()], 0);
-            item->SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, 0);
         }
 
         item->SetState(ITEM_CHANGED, player);
@@ -368,7 +366,8 @@ void WorldSession::HandleTransmogOutfitNew(WorldPackets::Transmogrification::Tra
     }
 
     GetCollectionMgr()->AddTransmogOutfit(transmogOutfitEntry->ID);
-    _player->CreateTransmogOutfit(transmogOutfitEntry->ID, transmogOutfitNew.Info);
+    if (!_player->m_activePlayerData->TransmogOutfits.Get(transmogOutfitEntry->ID))
+        _player->CreateTransmogOutfit(transmogOutfitEntry->ID, transmogOutfitNew.Info);
     _player->ModifyMoney(-int64(transmogOutfitEntry->Cost));
 
     WorldPackets::Transmogrification::TransmogOutfitNewEntryAdded transmogOutfitNewEntryAdded;
@@ -380,7 +379,7 @@ void WorldSession::HandleTransmogOutfitUpdateInfo(WorldPackets::Transmogrificati
 {
     if (!_player->GetNPCIfCanInteractWith(transmogOutfitUpdateInfo.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER, UNIT_NPC_FLAG_2_NONE))
     {
-        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitNew - {} not found or player can't interact with it.",
+        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateInfo - {} not found or player can't interact with it.",
             GetPlayerInfo(), transmogOutfitUpdateInfo.Npc);
         return;
     }
@@ -409,7 +408,7 @@ void WorldSession::HandleTransmogOutfitUpdateSituations(WorldPackets::Transmogri
 {
     if (!_player->GetNPCIfCanInteractWith(transmogOutfitUpdateSituations.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER, UNIT_NPC_FLAG_2_NONE))
     {
-        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitNew - {} not found or player can't interact with it.",
+        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateSituations - {} not found or player can't interact with it.",
             GetPlayerInfo(), transmogOutfitUpdateSituations.Npc);
         return;
     }
@@ -449,7 +448,7 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
 {
     if (!_player->GetNPCIfCanInteractWith(transmogOutfitUpdateSlots.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER, UNIT_NPC_FLAG_2_NONE))
     {
-        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitNew - {} not found or player can't interact with it.",
+        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateSlots - {} not found or player can't interact with it.",
             GetPlayerInfo(), transmogOutfitUpdateSlots.Npc);
         return;
     }
@@ -489,11 +488,15 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
                 bindAppearances.push_back(slot.ItemModifiedAppearanceID);
         }
 
-        if (slot.SpellItemEnchantmentID && !GetCollectionMgr()->HasTransmogIllusion(TransmogMgr::GetTransmogIllusionForSpellItemEnchantment(slot.SpellItemEnchantmentID)->ID))
+        if (slot.SpellItemEnchantmentID)
         {
-            TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateSlots - player does not have enchant {} in illusion collection.",
-                GetPlayerInfo(), slot.SpellItemEnchantmentID);
-            return;
+            TransmogIllusionEntry const* illusion = TransmogMgr::GetTransmogIllusionForSpellItemEnchantment(slot.SpellItemEnchantmentID);
+            if (!illusion || !GetCollectionMgr()->HasTransmogIllusion(illusion->ID))
+            {
+                TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateSlots - player does not have enchant {} in illusion collection.",
+                    GetPlayerInfo(), slot.SpellItemEnchantmentID);
+                return;
+            }
         }
     }
 
@@ -510,7 +513,13 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
         baseCost = sDB2Manager.GetCurveValueAt(curveId, std::max<int32>(_player->GetLevel(), _player->m_activePlayerData->TransmogCostMinScalingLevel));
 
     float costMultiplier = 1.0f;
-    TransmogOutfitEntryEntry const* transmogOutfitEntry = sTransmogOutfitEntryStore.AssertEntry(transmogOutfitUpdateSlots.OutfitID);
+    TransmogOutfitEntryEntry const* transmogOutfitEntry = sTransmogOutfitEntryStore.LookupEntry(transmogOutfitUpdateSlots.OutfitID);
+    if (!transmogOutfitEntry)
+    {
+        TC_LOG_ERROR("entities.player.cheat", "{} WorldSession::HandleTransmogOutfitUpdateSlots - outfit entry {} not found in DB2 store.",
+            GetPlayerInfo(), transmogOutfitUpdateSlots.OutfitID);
+        return;
+    }
     if (transmogOutfitEntry->HasFlag(TransmogOutfitEntryFlags::UseOverrideCostModifier))
         costMultiplier *= transmogOutfitEntry->OverrideCostModifier;
 
@@ -531,6 +540,9 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
             oldSlotItr = std::ranges::find(oldSlotItr, oldSlotEnd,
                 std::pair(AsUnderlyingType(slot.Slot), AsUnderlyingType(slot.SlotOption)),
                 [](UF::TransmogOutfitSlotData const& slotData) { return std::pair(*slotData.Slot, *slotData.SlotOption); });
+
+            if (oldSlotItr == oldSlotEnd)
+                continue;
 
             auto [slotEntry, slotOptionEntry, _] = *TransmogMgr::GetSlotAndOption(slot.Slot, slot.SlotOption);
 
@@ -559,7 +571,7 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
             ++oldSlotItr;
         }
 
-        cost = static_cast<uint64>(std::clamp(costMultiplier, 0.0f, 1.0f) * cost);
+        cost = static_cast<uint64>(std::max(costMultiplier, 0.0f) * cost);
 
         if (cost != transmogOutfitUpdateSlots.Cost)
         {
@@ -585,8 +597,7 @@ void WorldSession::HandleTransmogOutfitUpdateSlots(WorldPackets::Transmogrificat
 
     _player->UpdateTransmogOutfitSlots(transmogOutfitUpdateSlots.OutfitID, transmogOutfitUpdateSlots.Slots);
 
-    if (transmogOutfitUpdateSlots.OutfitID == _player->m_activePlayerData->TransmogMetadata->TransmogOutfitID)
-        _player->EquipTransmogOutfit(transmogOutfitUpdateSlots.OutfitID, TransmogSituationTrigger::TransmogUpdate, {});
+    _player->EquipTransmogOutfit(transmogOutfitUpdateSlots.OutfitID, TransmogSituationTrigger::TransmogUpdate, {});
 
     WorldPackets::Transmogrification::TransmogOutfitSlotsUpdated transmogOutfitSlotsUpdated;
     transmogOutfitSlotsUpdated.TransmogOutfitID = transmogOutfitUpdateSlots.OutfitID;
