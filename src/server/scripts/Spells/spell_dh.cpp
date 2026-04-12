@@ -1841,6 +1841,42 @@ class spell_dh_reap : public SpellScript
     }
 };
 
+class spell_dh_reap_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF });
+    }
+
+    void HandleReapSouls(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        float range = GetSpellInfo()->GetMaxRange();
+
+        std::vector<AreaTrigger*> atList = caster->GetAreaTriggers(SPELL_DH_SOUL_FRAGMENT_DEVOURER);
+
+        if (atList.empty())
+            return;
+
+        if (atList.size() > 4)
+            atList.resize(4);
+
+        for (AreaTrigger* soulFragment : atList)
+        {
+            if (soulFragment->GetDistance(caster) > range)
+                return;
+
+            caster->CastSpell(soulFragment->GetPosition(), SPELL_DH_CONSUME_SOUL_DEVOURER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            soulFragment->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_reap_aura::HandleReapSouls, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 // 339895 - Repeat Decree (attached to 307046 - Elysian Decree and 389860 - Sigil of Spite)
 class spell_dh_repeat_decree_conduit : public SpellScript
 {
@@ -2724,7 +2760,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
-    RegisterSpellScript(spell_dh_reap);
+    RegisterSpellAndAuraScriptPair(spell_dh_reap, spell_dh_reap_aura);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
