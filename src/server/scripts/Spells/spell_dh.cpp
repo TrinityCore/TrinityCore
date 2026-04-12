@@ -1845,7 +1845,7 @@ class spell_dh_reap_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF });
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FRAGMENT_DEVOURER, SPELL_DH_CONSUME_SOUL_DEVOURER });
     }
 
     void HandleReapSouls(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
