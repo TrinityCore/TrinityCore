@@ -45,14 +45,13 @@ enum SSDataTypes
     DATA_CARIBDIS                   = 2,
     DATA_KARATHRESS                 = 3,
     DATA_SHARKKIS                   = 6,
-    DATA_THELURKERBELOW             = 11,
     DATA_TIDALVESS                  = 12,
     DATA_LEOTHERAS                  = 14,
     DATA_LEOTHERAS_EVENT_STARTER    = 15,
-    DATA_STRANGE_POOL               = 17,
     DATA_WATER                      = 18,
     DATA_TRASH                      = 19,
 
+    DATA_STRANGE_POOL,
     DATA_BRIDGE_PART_1,
     DATA_BRIDGE_PART_2,
     DATA_BRIDGE_PART_3,
@@ -64,11 +63,13 @@ enum SSDataTypes
 
 enum SSCreatureIds
 {
+    NPC_THE_LURKER_BELOW            = 21217,
     NPC_LADY_VASHJ                  = 21212
 };
 
 enum SSGameObjectIds
 {
+    GO_STRANGE_POOL                 = 184956,
     GO_BRIDGE_PART_1                = 184203,
     GO_BRIDGE_PART_2                = 184204,
     GO_BRIDGE_PART_3                = 184205,
@@ -76,6 +77,11 @@ enum SSGameObjectIds
     GO_SHIELD_GENERATOR_2           = 185052,
     GO_SHIELD_GENERATOR_3           = 185053,
     GO_SHIELD_GENERATOR_4           = 185054
+};
+
+enum SSEventsIds
+{
+    EVENT_RESPAWN_STRANGE_POOL      = 1
 };
 
 template <class AI, class T>

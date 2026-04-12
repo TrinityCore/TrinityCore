@@ -317,7 +317,7 @@ struct std::hash<ObjectGuid>
 
 namespace fmt
 {
-inline namespace v9
+inline namespace v10
 {
 template <typename T, typename Char, typename Enable>
 struct formatter;
