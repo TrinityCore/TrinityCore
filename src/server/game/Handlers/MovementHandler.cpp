@@ -46,6 +46,9 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
+    if (_player->GetTeleportState() != TeleportState::WaitingForWorldPortAck)
+        return;
+
     HandleMoveWorldportAck();
 }
 
@@ -53,11 +56,8 @@ void WorldSession::HandleMoveWorldportAck()
 {
     Player* player = GetPlayer();
     // ignore unexpected far teleports
-    if (!player->IsBeingTeleportedFar())
-        return;
-
-    bool seamlessTeleport = player->IsBeingTeleportedSeamlessly();
-    player->SetSemaphoreTeleportFar(false);
+    bool seamlessTeleport = player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS);
+    player->SetTeleportState(TeleportState::NotTeleporting);
 
     // get the teleport destination
     TeleportLocation const& loc = player->GetTeleportDest();
@@ -183,7 +183,7 @@ void WorldSession::HandleMoveWorldportAck()
         player->FinishTaxiFlight();
     }
 
-    if (!player->IsAlive() && player->GetTeleportOptions() & TELE_REVIVE_AT_TELEPORT)
+    if (!player->IsAlive() && player->GetTeleportOptions().HasFlag(TELE_REVIVE_AT_TELEPORT))
         player->ResurrectPlayer(0.5f);
 
     // resurrect character at enter into instance where his corpse exist after add to map
@@ -247,7 +247,7 @@ void WorldSession::HandleMoveWorldportAck()
 
 void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& /*suspendTokenResponse*/)
 {
-    if (!_player->IsBeingTeleportedFar())
+    if (_player->GetTeleportState() != TeleportState::WaitingForSuspendTokenResponse)
         return;
 
     TeleportLocation const& loc = GetPlayer()->GetTeleportDest();
@@ -262,11 +262,13 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
     WorldPackets::Movement::NewWorld packet;
     packet.MapID = loc.Location.GetMapId();
     packet.Loc.Pos = loc.Location;
-    packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    packet.Reason = !_player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS) ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
     packet.Counter = _player->GetNewWorldCounter();
     SendPacket(packet.Write());
 
-    if (_player->IsBeingTeleportedSeamlessly())
+    _player->SetTeleportState(TeleportState::WaitingForWorldPortAck);
+
+    if (_player->GetTeleportOptions().HasFlag(TELE_TO_SEAMLESS))
         HandleMoveWorldportAck();
 }
 
@@ -276,13 +278,13 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 
     Player* plMover = _player->GetUnitBeingMoved()->ToPlayer();
 
-    if (!plMover || !plMover->IsBeingTeleportedNear())
+    if (!plMover || plMover->GetTeleportState() != TeleportState::WaitingForTeleportAck)
         return;
 
     if (packet.MoverGUID != plMover->GetGUID())
         return;
 
-    plMover->SetSemaphoreTeleportNear(false);
+    plMover->SetTeleportState(TeleportState::NotTeleporting);
 
     uint32 old_zone = plMover->GetZoneId();
 
