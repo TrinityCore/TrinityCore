@@ -455,7 +455,7 @@ public:
     bool Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;
-    WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const;
+    static WMOAreaTableEntry const* GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId, bool allowGroupFallback);
     std::unordered_set<uint32> const* GetPVPStatIDsForMap(uint32 mapId) const;
     std::vector<ItemEffectEntry const*> const* GetItemEffectsForItemId(uint32 itemId) const;
     ScalingStatValuesEntry const* GetScalingStatValuesForLevel(uint32 characterLevel) const;

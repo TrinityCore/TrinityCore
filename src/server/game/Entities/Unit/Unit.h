@@ -1939,7 +1939,7 @@ class TC_GAME_API Unit : public WorldObject
         void DisableSpline();
 
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
-        virtual void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData);
+        void UpdateLiquidStatusOnPositionChange(Optional<LiquidData> const& newLiquidData);
 
         // notifiers
         virtual void AtEnterCombat();
