@@ -32,6 +32,7 @@
 #include "LFGPackets.h"
 #include "MailPackets.h"
 #include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "NPCPackets.h"
 #include "PartyPackets.h"
 #include "PetPackets.h"

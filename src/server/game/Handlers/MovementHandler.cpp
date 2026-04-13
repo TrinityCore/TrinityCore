@@ -419,6 +419,23 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         }
         else
             plrMover->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
+
+        // Whenever a player stops a movement action, an indoor/outdoor check is being performed
+        switch (opcode)
+        {
+            case CMSG_MOVE_SET_FLY:
+            case MSG_MOVE_FALL_LAND:
+            case MSG_MOVE_STOP:
+            case MSG_MOVE_STOP_STRAFE:
+            case MSG_MOVE_STOP_TURN:
+            case MSG_MOVE_STOP_SWIM:
+            case MSG_MOVE_STOP_PITCH:
+            case MSG_MOVE_STOP_ASCEND:
+                plrMover->CheckOutdoorsAuraRequirements();
+                break;
+            default:
+                break;
+        }
     }
 }
 

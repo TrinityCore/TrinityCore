@@ -23,6 +23,7 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -91,10 +92,8 @@ class instance_serpent_shrine : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, gameObjectData);
 
-                StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
-                FishingTimer = 1000;
                 WaterCheckTimer = 500;
                 FrenzySpawnTimer = 2000;
                 DoSpawnFrenzy = false;
@@ -158,6 +157,11 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
                 else
                     FrenzySpawnTimer -= diff;
+
+                Events.Update(diff);
+
+                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
+                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -171,9 +175,6 @@ class instance_serpent_shrine : public InstanceMapScript
                         break;
                     case 21966:
                         Sharkkis = creature->GetGUID();
-                        break;
-                    case 21217:
-                        LurkerBelow = creature->GetGUID();
                         break;
                     case 21965:
                         Tidalvess = creature->GetGUID();
@@ -189,6 +190,24 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
+            bool SetBossState(uint32 id, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
+
+                switch (id)
+                {
+                    case BOSS_THE_LURKER_BELOW:
+                        if (state == FAIL)
+                            Events.ScheduleEvent(EVENT_RESPAWN_STRANGE_POOL, 15s);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
             void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_LEOTHERAS_EVENT_STARTER)
@@ -199,8 +218,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                    case DATA_THELURKERBELOW:
-                        return LurkerBelow;
                     case DATA_SHARKKIS:
                         return Sharkkis;
                     case DATA_TIDALVESS:
@@ -223,9 +240,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_STRANGE_POOL:
-                        StrangePool = data;
-                        break;
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
                             ++TrashCount;//+1 died
@@ -243,8 +257,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_STRANGE_POOL:
-                        return StrangePool;
                     case DATA_WATER:
                         return Water;
                     default:
@@ -265,7 +277,6 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            ObjectGuid LurkerBelow;
             ObjectGuid Sharkkis;
             ObjectGuid Tidalvess;
             ObjectGuid Caribdis;
@@ -273,14 +284,15 @@ class instance_serpent_shrine : public InstanceMapScript
             ObjectGuid LeotherasTheBlind;
             ObjectGuid LeotherasEventStarter;
 
-            uint32 StrangePool;
-            uint32 FishingTimer;
             uint32 WaterCheckTimer;
             uint32 FrenzySpawnTimer;
             uint32 Water;
             uint32 TrashCount;
 
             bool DoSpawnFrenzy;
+
+        protected:
+            EventMap Events;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

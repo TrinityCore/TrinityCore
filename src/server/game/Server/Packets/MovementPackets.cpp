@@ -15,28 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WDTFILE_H
-#define WDTFILE_H
+#include "MovementPackets.h"
 
-#include "mpq_libmpq.h"
-#include <string>
-
-class ADTFile;
-
-class WDTFile
+namespace WorldPackets::Movement
 {
-public:
-    WDTFile(char const* file_name, char const* file_name1);
-    ~WDTFile(void);
+WorldPacket const* FlightSplineSync::Write()
+{
+    _worldPacket << float(SplineDist);
+    _worldPacket << Guid.WriteAsPacked();
 
-    bool init(uint32 mapId);
-    ADTFile* GetMap(int x, int z);
-
-    std::vector<std::string> _wmoNames;
-
-private:
-    MPQFile _file;
-    std::string filename;
-};
-
-#endif
+    return &_worldPacket;
+}
+}

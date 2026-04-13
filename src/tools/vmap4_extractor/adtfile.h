@@ -56,7 +56,7 @@ private:
     MPQFile _file;
     std::string Adtfilename;
 public:
-    ADTFile(char* filename);
+    ADTFile(char const* filename);
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;

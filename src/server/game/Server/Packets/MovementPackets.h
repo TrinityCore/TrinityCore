@@ -15,28 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WDTFILE_H
-#define WDTFILE_H
+#ifndef TRINITYCORE_MOVEMENT_PACKETS_H
+#define TRINITYCORE_MOVEMENT_PACKETS_H
 
-#include "mpq_libmpq.h"
-#include <string>
+#include "Packet.h"
+#include "ObjectGuid.h"
 
-class ADTFile;
-
-class WDTFile
+namespace WorldPackets
 {
-public:
-    WDTFile(char const* file_name, char const* file_name1);
-    ~WDTFile(void);
+    namespace Movement
+    {
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            explicit FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 8 + 4) { }
 
-    bool init(uint32 mapId);
-    ADTFile* GetMap(int x, int z);
+            WorldPacket const* Write() override;
 
-    std::vector<std::string> _wmoNames;
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
+    }
+}
 
-private:
-    MPQFile _file;
-    std::string filename;
-};
-
-#endif
+#endif // TRINITYCORE_MOVEMENT_PACKETS_H

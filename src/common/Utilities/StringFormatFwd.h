@@ -15,28 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WDTFILE_H
-#define WDTFILE_H
+#ifndef TRINITYCORE_STRING_FORMAT_FWD_H
+#define TRINITYCORE_STRING_FORMAT_FWD_H
 
-#include "mpq_libmpq.h"
-#include <string>
+#include <stdexcept>
 
-class ADTFile;
-
-class WDTFile
+namespace fmt
 {
-public:
-    WDTFile(char const* file_name, char const* file_name1);
-    ~WDTFile(void);
+inline namespace v10
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
+}
+}
 
-    bool init(uint32 mapId);
-    ADTFile* GetMap(int x, int z);
+namespace Trinity
+{
+struct NoArgFormatterBase
+{
+    template <typename ParseContext>
+    constexpr typename ParseContext::iterator parse(ParseContext& ctx)
+    {
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
 
-    std::vector<std::string> _wmoNames;
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
 
-private:
-    MPQFile _file;
-    std::string filename;
+        return begin;
+    }
 };
+}
 
-#endif
+#endif // TRINITYCORE_STRING_FORMAT_FWD_H
