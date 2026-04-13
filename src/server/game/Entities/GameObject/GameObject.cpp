@@ -2035,20 +2035,20 @@ void GameObject::Use(Unit* user)
             if (info->spellcaster.partyOnly)
             {
                 ObjectGuid ownerGuid = GetOwnerGUID();
-                if (!ownerGuid || !ownerGuid.IsPlayer())
+                if (ownerGuid.IsEmpty())
                     return;
 
-                if (user->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (Group* group = user->ToPlayer()->GetGroup())
+                if (ownerGuid != user->GetGUID())
                 {
-                    if (!group->IsMember(ownerGuid))
+                    if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGuid))
+                        ownerGuid = owner->GetCharmerOrOwnerOrOwnGUID();
+
+                    Player const* playerUser = user->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (!playerUser)
                         return;
-                }
-                else
-                {
-                    if (ownerGuid != user->GetGUID())
+
+                    Group const* group = playerUser->GetGroup();
+                    if (!group || !group->IsMember(ownerGuid))
                         return;
                 }
             }
