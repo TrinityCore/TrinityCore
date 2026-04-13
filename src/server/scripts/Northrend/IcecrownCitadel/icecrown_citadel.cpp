@@ -788,7 +788,7 @@ struct DarkFallenAI : public ScriptedAI
             if (!IsDoingEmotes)
                 return;
 
-            if (roll_chance_i(20))
+            if (roll_chance(20))
             {
                 std::vector<Creature*> creatures;
                 ICCOrbControllerMinionSearch check(me, true);
@@ -1440,12 +1440,12 @@ class spell_icc_harvest_blight_specimen : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void HandleQuestComplete(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValueAsInt()));
     }
 
     void Register() override

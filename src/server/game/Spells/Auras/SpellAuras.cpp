@@ -511,7 +511,7 @@ AuraScript* Aura::GetScriptByType(std::type_info const& type) const
     return nullptr;
 }
 
-void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount)
+void Aura::_InitEffects(uint32 effMask, Unit* caster, SpellEffectValue const* baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     _effects.resize(GetSpellInfo()->GetEffects().size());
@@ -1273,7 +1273,7 @@ AuraKey Aura::GenerateKey(uint32& recalculateMask) const
     return key;
 }
 
-void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, int32* amount)
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, SpellEffectValue const* amount)
 {
     m_maxDuration = maxDuration;
     m_duration = duration;
@@ -1541,7 +1541,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // effect on caster
                         if (AuraEffect const* aurEff = aura->GetEffect(0))
                         {
-                            float multiplier = float(aurEff->GetAmount());
+                            SpellEffectValue multiplier = aurEff->GetAmount();
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                             args.SetOriginalCastId(GetCastId());
                             args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
@@ -1976,7 +1976,7 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
         if (!target->IsStandState())
             return 0;
 
-    bool success = roll_chance_f(CalcProcChance(*procEntry, eventInfo));
+    bool success = roll_chance(CalcProcChance(*procEntry, eventInfo));
 
     const_cast<Aura*>(this)->SetLastProcAttemptTime(now);
 
@@ -2217,7 +2217,7 @@ void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
     }
 }
 
-void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated)
 {
     for (AuraScript* script : m_loadedScripts)
     {

@@ -547,8 +547,8 @@ CREATE TABLE `character_aura_effect` (
   `spell` int unsigned NOT NULL,
   `effectMask` int unsigned NOT NULL,
   `effectIndex` tinyint unsigned NOT NULL,
-  `amount` int NOT NULL DEFAULT '0',
-  `baseAmount` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `baseAmount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3392,8 +3392,8 @@ CREATE TABLE `pet_aura_effect` (
   `spell` int unsigned NOT NULL,
   `effectMask` int unsigned NOT NULL,
   `effectIndex` tinyint unsigned NOT NULL,
-  `amount` int NOT NULL DEFAULT '0',
-  `baseAmount` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `baseAmount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3918,7 +3918,8 @@ INSERT INTO `updates` VALUES
 ('2026_01_14_00_characters.sql','FF5D889A41BBD9F9827489DEC08BCA9DB457933E','ARCHIVED','2026-01-14 23:40:33',0),
 ('2026_01_28_00_characters.sql','807B6622970E81089806C3B45C6C7A32EF531BCA','ARCHIVED','2026-01-25 21:53:51',0),
 ('2026_02_06_00_characters.sql','90735F4481A137E79B8371F291008CF6051657AC','ARCHIVED','2026-02-06 12:45:48',0),
-('2026_03_21_00_characters.sql','87963F4E341B195D4B4C4514A3119092DF127431','RELEASED','2026-03-21 00:42:13',0);
+('2026_03_21_00_characters.sql','87963F4E341B195D4B4C4514A3119092DF127431','RELEASED','2026-03-21 00:42:13',0),
+('2026_04_08_00_characters.sql','5A7FC8264EBD524E4EBAACF53D1CE89C6FF0D255','RELEASED','2026-04-07 10:24:16',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

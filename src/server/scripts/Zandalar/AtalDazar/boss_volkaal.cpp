@@ -267,7 +267,7 @@ class spell_volkaal_lingering_nausea : public AuraScript
         Unit* target = GetTarget();
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(target, aurEff->GetAmount(), CastSpellExtraArgsInit{
+            caster->CastSpell(target, aurEff->GetAmountAsInt(), CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
         });

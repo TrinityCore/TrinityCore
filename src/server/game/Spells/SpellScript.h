@@ -55,6 +55,8 @@ struct SpellValue;
 enum Difficulty : int16;
 enum class ItemContext : uint8;
 
+using SpellEffectValue = double;
+
 #define SPELL_EFFECT_ANY ((uint16)-1)
 #define SPELL_AURA_ANY ((uint16)-1)
 
@@ -940,8 +942,9 @@ public:
 
     // method available only in EffectHandler method
     SpellEffectInfo const& GetEffectInfo() const;
-    int32 GetEffectValue() const;
-    void SetEffectValue(int32 value);
+    int32 GetEffectValueAsInt() const;
+    SpellEffectValue GetEffectValue() const;
+    void SetEffectValue(SpellEffectValue value);
     float GetEffectVariance() const;
     void SetEffectVariance(float variance);
 
@@ -1191,7 +1194,7 @@ public:
     class EffectCalcAmountHandler final : public EffectBase
     {
     public:
-        using ScriptFuncInvoker = AuraScript::ScriptFuncInvoker<void, AuraEffect const*, int32&, bool&>;
+        using ScriptFuncInvoker = AuraScript::ScriptFuncInvoker<void, AuraEffect const*, SpellEffectValue&, bool&>;
 
         template<typename ScriptFunc>
         explicit EffectCalcAmountHandler(ScriptFunc handler, uint8 effIndex, uint16 auraType)
@@ -1203,17 +1206,17 @@ public:
             static_assert(ScriptFuncInvoker::Alignment >= alignof(ScriptFunc));
 
             if constexpr (std::is_member_function_pointer_v<ScriptFunc>)
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, int32&, bool&>,
-                    R""(EffectCalcAmountHandler signature must be "void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)")"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, SpellEffectValue&, bool&>,
+                    R""(EffectCalcAmountHandler signature must be "void CalcAmount(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated)")"");
             else
-                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, int32&, bool&>,
-                    R""(EffectCalcAmountHandler signature must be "static void CalcAmount(your_script_class& script, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)")"");
+                static_assert(std::is_invocable_r_v<void, ScriptFunc, ScriptClass&, AuraEffect const*, SpellEffectValue&, bool&>,
+                    R""(EffectCalcAmountHandler signature must be "static void CalcAmount(your_script_class& script, AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated)")"");
 
             new (_invoker.ImplStorage.data()) ScriptFuncInvoker::Impl<ScriptFunc>{ .Func = handler };
             _invoker.Thunk = &ScriptFuncInvoker::Impl<ScriptFunc>::Invoke;
         }
 
-        void Call(AuraScript* auraScript, AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated) const
+        void Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated) const
         {
             return _invoker.Thunk(*auraScript, aurEff, amount, canBeRecalculated, _invoker.ImplStorage);
         }

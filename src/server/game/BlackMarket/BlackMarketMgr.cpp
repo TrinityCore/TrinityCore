@@ -189,7 +189,7 @@ void BlackMarketMgr::RefreshAuctions()
     {
         if (GetAuctionByID(pair.second->MarketID))
             continue;
-        if (!roll_chance_f(pair.second->Chance))
+        if (!roll_chance(pair.second->Chance))
             continue;
 
         templates.push_back(pair.second);

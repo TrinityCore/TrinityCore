@@ -18,6 +18,8 @@
 #include "TaskScheduler.h"
 #include "Errors.h"
 
+TaskScheduler::success_t const TaskScheduler::EmptySuccessCallback;
+
 TaskScheduler::TaskScheduler()
     : self_reference(this, [](TaskScheduler const*) { }),
     _now(clock_t::now()),
@@ -33,19 +35,42 @@ TaskScheduler& TaskScheduler::ClearValidator()
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(success_t const& callback/* = nullptr*/)
+TaskScheduler& TaskScheduler::Update()
+{
+    _now = clock_t::now();
+    Dispatch(EmptySuccessCallback);
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::Update(success_t callback)
 {
     _now = clock_t::now();
     Dispatch(callback);
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(size_t milliseconds, success_t const& callback/* = nullptr*/)
+TaskScheduler& TaskScheduler::Update(size_t milliseconds)
 {
-    return Update(std::chrono::milliseconds(milliseconds), callback);
+    _now += std::chrono::milliseconds(milliseconds);
+    Dispatch(EmptySuccessCallback);
+    return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(duration_t difftime, success_t const& callback/* = nullptr*/)
+TaskScheduler& TaskScheduler::Update(size_t milliseconds, success_t callback)
+{
+    _now += std::chrono::milliseconds(milliseconds);
+    Dispatch(callback);
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::Update(duration_t difftime)
+{
+    _now += difftime;
+    Dispatch(EmptySuccessCallback);
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::Update(duration_t difftime, success_t callback)
 {
     _now += difftime;
     Dispatch(callback);
@@ -54,7 +79,7 @@ TaskScheduler& TaskScheduler::Update(duration_t difftime, success_t const& callb
 
 TaskScheduler& TaskScheduler::Async(std::function<void()> callable)
 {
-    _asyncHolder.emplace(std::move(callable));
+    Schedule(duration_t(1), [callable = std::move(callable)](TaskContext const&) { callable(); });
     return *this;
 }
 
@@ -62,7 +87,6 @@ TaskScheduler& TaskScheduler::CancelAll()
 {
     /// Clear the task holder
     _task_holder.Clear();
-    _asyncHolder = AsyncHolder();
     return *this;
 }
 
@@ -75,11 +99,12 @@ TaskScheduler& TaskScheduler::CancelGroup(group_t group)
     return *this;
 }
 
-TaskScheduler& TaskScheduler::CancelGroupsOf(std::vector<group_t> const& groups)
+TaskScheduler& TaskScheduler::CancelGroupsOf(std::span<group_t> groups)
 {
-    for (group_t group : groups)
-        CancelGroup(group);
-
+    _task_holder.RemoveIf([groups](TaskContainer const& task) -> bool
+    {
+        return std::ranges::any_of(groups, [&](group_t group) { return task->IsInGroup(group); });
+    });
     return *this;
 }
 
@@ -93,7 +118,7 @@ TaskScheduler& TaskScheduler::DelayAll(duration_t duration)
     return *this;
 }
 
-TaskScheduler& TaskScheduler::DelayGroup(group_t const group, duration_t duration)
+TaskScheduler& TaskScheduler::DelayGroup(group_t group, duration_t duration)
 {
     _task_holder.ModifyIf([&duration, group](TaskContainer const& task) -> bool
     {
@@ -110,7 +135,7 @@ TaskScheduler& TaskScheduler::DelayGroup(group_t const group, duration_t duratio
 
 TaskScheduler& TaskScheduler::RescheduleAll(duration_t duration)
 {
-    auto const end = _now + duration;
+    timepoint_t end = _now + duration;
     _task_holder.ModifyIf([end](TaskContainer const& task) -> bool
     {
         task->_end = end;
@@ -119,9 +144,9 @@ TaskScheduler& TaskScheduler::RescheduleAll(duration_t duration)
     return *this;
 }
 
-TaskScheduler& TaskScheduler::RescheduleGroup(group_t const group, duration_t duration)
+TaskScheduler& TaskScheduler::RescheduleGroup(group_t group, duration_t duration)
 {
-    auto const end = _now + duration;
+    timepoint_t end = _now + duration;
     _task_holder.ModifyIf([end, group](TaskContainer const& task) -> bool
     {
         if (task->IsInGroup(group))
@@ -135,21 +160,27 @@ TaskScheduler& TaskScheduler::RescheduleGroup(group_t const group, duration_t du
     return *this;
 }
 
-TaskScheduler& TaskScheduler::InsertTask(TaskContainer task)
+TaskScheduler& TaskScheduler::InsertTask(TaskContainer&& task)
 {
     _task_holder.Push(std::move(task));
     return *this;
 }
 
+TaskScheduler& TaskScheduler::InsertTask(TaskQueue::Container::node_type&& node)
+{
+    _task_holder.Push(std::move(node));
+    return *this;
+}
+
 TaskScheduler& TaskScheduler::ScheduleAt(timepoint_t end, duration_t time, task_handler_t task)
 {
-    return InsertTask(TaskContainer(new Task(end + time, time, std::move(task))));
+    return InsertTask(std::make_shared<Task>(end + time, time, std::move(task)));
 }
 
 TaskScheduler& TaskScheduler::ScheduleAt(timepoint_t end, duration_t time, group_t const group, task_handler_t task)
 {
     static constexpr repeated_t DEFAULT_REPEATED = 0;
-    return InsertTask(TaskContainer(new Task(end + time, time, group, DEFAULT_REPEATED, std::move(task))));
+    return InsertTask(std::make_shared<Task>(end + time, time, group, DEFAULT_REPEATED, std::move(task)));
 }
 
 void TaskScheduler::Dispatch(success_t const& callback/* = nullptr*/)
@@ -157,17 +188,6 @@ void TaskScheduler::Dispatch(success_t const& callback/* = nullptr*/)
     // If the validation failed abort the dispatching here.
     if (!_predicate())
         return;
-
-    // Process all asyncs
-    while (!_asyncHolder.empty())
-    {
-        _asyncHolder.front()();
-        _asyncHolder.pop();
-
-        // If the validation failed abort the dispatching here.
-        if (!_predicate())
-            return;
-    }
 
     while (!_task_holder.IsEmpty())
     {
@@ -196,14 +216,17 @@ void TaskScheduler::TaskQueue::Push(TaskContainer&& task)
     container.emplace(std::move(task));
 }
 
-auto TaskScheduler::TaskQueue::Pop() -> TaskContainer
+void TaskScheduler::TaskQueue::Push(Container::node_type&& node)
 {
-    TaskContainer result = *container.begin();
-    container.erase(container.begin());
-    return result;
+    container.insert(std::move(node));
 }
 
-auto TaskScheduler::TaskQueue::First() const -> TaskContainer const&
+TaskScheduler::TaskQueue::Container::node_type TaskScheduler::TaskQueue::Pop()
+{
+    return container.extract(container.begin());
+}
+
+TaskScheduler::TaskContainer const& TaskScheduler::TaskQueue::First() const
 {
     return *container.begin();
 }
@@ -224,17 +247,14 @@ void TaskScheduler::TaskQueue::RemoveIf(std::function<bool(TaskContainer const&)
 
 void TaskScheduler::TaskQueue::ModifyIf(std::function<bool(TaskContainer const&)> const& filter)
 {
-    std::vector<TaskContainer> cache;
+    Container cache;
     for (auto itr = container.begin(); itr != container.end();)
         if (filter(*itr))
-        {
-            cache.push_back(*itr);
-            itr = container.erase(itr);
-        }
+            cache.insert(container.extract(itr++));
         else
             ++itr;
 
-    container.insert(cache.begin(), cache.end());
+    container.merge(cache);
 }
 
 bool TaskScheduler::TaskQueue::IsEmpty() const
@@ -242,11 +262,47 @@ bool TaskScheduler::TaskQueue::IsEmpty() const
     return container.empty();
 }
 
-TaskContext& TaskContext::Dispatch(std::function<TaskScheduler&(TaskScheduler&)> const& apply)
+TaskScheduler::TaskContainer& TaskContext::GetTaskContainer() noexcept
 {
-    if (std::shared_ptr<TaskScheduler> owner = _owner.lock())
-        apply(*owner);
+    static_assert(std::variant_size_v<decltype(_task)> == 2);
+    switch (_task.index())
+    {
+        case 0: return std::get<0>(_task).value();
+        case 1: return std::get<1>(_task);
+        default:
+            ASSERT(false);
+    }
+}
 
+TaskScheduler::Task* TaskContext::GetTask() const noexcept
+{
+    static_assert(std::variant_size_v<decltype(_task)> == 2);
+    switch (_task.index())
+    {
+        case 0: return std::get<0>(_task).value().get();
+        case 1: return std::get<1>(_task).get();
+        default:
+            ASSERT(false);
+    }
+}
+
+TaskContext::TaskContext(TaskContext&& right) noexcept
+    : _task(std::move(right._task)), _owner(std::move(right._owner))
+{
+    //leave moved-from object in usable state (const qualified functions need to remain callable)
+    right._task = GetTaskContainer();
+}
+
+TaskContext& TaskContext::operator=(TaskContext&& right) noexcept
+{
+    if (this != &right)
+    {
+        _task = std::move(right._task);
+        _owner = std::move(right._owner);
+
+        //leave moved-from object in usable state (const qualified functions need to remain callable)
+        right._task = GetTaskContainer();
+    }
     return *this;
 }
 
@@ -255,130 +311,134 @@ bool TaskContext::IsExpired() const
     return _owner.expired();
 }
 
-bool TaskContext::IsInGroup(TaskScheduler::group_t const group) const
+bool TaskContext::IsInGroup(TaskScheduler::group_t group) const
 {
-    return _task->IsInGroup(group);
+    return GetTask()->IsInGroup(group);
 }
 
-TaskContext& TaskContext::SetGroup(TaskScheduler::group_t const group)
+TaskContext& TaskContext::SetGroup(TaskScheduler::group_t group)
 {
-    _task->_group = group;
+    GetTask()->_group = group;
     return *this;
 }
 
 TaskContext& TaskContext::ClearGroup()
 {
-    _task->_group = std::nullopt;
+    GetTask()->_group = std::nullopt;
     return *this;
 }
 
 TaskScheduler::repeated_t TaskContext::GetRepeatCounter() const
 {
-    return _task->_repeated;
+    return GetTask()->_repeated;
 }
 
 TaskContext& TaskContext::Repeat(TaskScheduler::duration_t duration)
 {
-    AssertOnConsumed();
+    // If you encounter this assertion check if you repeat a TaskContext more then 1 time!
+    ASSERT(std::holds_alternative<TaskScheduler::TaskQueue::Container::node_type>(_task), "Bad task logic, task context was consumed already!");
 
     // Set new duration, in-context timing and increment repeat counter
-    _task->_duration = duration;
-    _task->_end += duration;
-    _task->_repeated += 1;
-    (*_consumed) = true;
-    return this->Dispatch([this](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.InsertTask(_task);
-    });
+    TaskScheduler::TaskQueue::Container::node_type& taskNode = std::get<TaskScheduler::TaskQueue::Container::node_type>(_task);
+    TaskScheduler::TaskContainer task = taskNode.value();
+    task->_duration = duration;
+    task->_end += duration;
+    task->_repeated += 1;
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->InsertTask(std::move(taskNode));
+
+    //leave *this in usable state (const qualified functions need to remain callable)
+    _task = std::move(task);
+
+    return *this;
 }
 
-TaskContext& TaskContext::Async(std::function<void()> const& callable)
+TaskContext& TaskContext::Repeat()
 {
-    return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.Async(callable);
-    });
+    return Repeat(GetTask()->_duration);
+}
+
+TaskContext& TaskContext::Async(std::function<void()> callable)
+{
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->Async(std::move(callable));
+
+    return *this;
 }
 
 TaskContext& TaskContext::Schedule(TaskScheduler::duration_t time, TaskScheduler::task_handler_t task)
 {
-    auto const end = _task->_end;
-    return this->Dispatch([end, time, task = std::move(task)](TaskScheduler& scheduler) mutable -> TaskScheduler&
-    {
-        return scheduler.ScheduleAt(end, time, std::move(task));
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+         scheduler->ScheduleAt(GetTask()->_end, time, std::move(task));
+
+    return *this;
 }
 
-TaskContext& TaskContext::Schedule(TaskScheduler::duration_t time, TaskScheduler::group_t const group, TaskScheduler::task_handler_t task)
+TaskContext& TaskContext::Schedule(TaskScheduler::duration_t time, TaskScheduler::group_t group, TaskScheduler::task_handler_t task)
 {
-    auto const end = _task->_end;
-    return this->Dispatch([end, time, group, task = std::move(task)](TaskScheduler& scheduler) mutable -> TaskScheduler&
-    {
-        return scheduler.ScheduleAt(end, time, group, std::move(task));
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->ScheduleAt(GetTask()->_end, time, group, std::move(task));
+
+    return *this;
 }
 
 TaskContext& TaskContext::CancelAll()
 {
-    return Dispatch(&TaskScheduler::CancelAll);
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->CancelAll();
+
+    return *this;
 }
 
-TaskContext& TaskContext::CancelGroup(TaskScheduler::group_t const group)
+TaskContext& TaskContext::CancelGroup(TaskScheduler::group_t group)
 {
-    return Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.CancelGroup(group);
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->CancelGroup(group);
+
+    return *this;
 }
 
-TaskContext& TaskContext::CancelGroupsOf(std::vector<TaskScheduler::group_t> const& groups)
+TaskContext& TaskContext::CancelGroupsOf(std::span<TaskScheduler::group_t> groups)
 {
-    return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.CancelGroupsOf(groups);
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->CancelGroupsOf(groups);
+
+    return *this;
 }
 
 TaskContext& TaskContext::DelayAll(TaskScheduler::duration_t duration)
 {
-    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.DelayAll(duration);
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->DelayAll(duration);
+
+    return *this;
 }
 
-TaskContext& TaskContext::DelayGroup(TaskScheduler::group_t const group, TaskScheduler::duration_t duration)
+TaskContext& TaskContext::DelayGroup(TaskScheduler::group_t group, TaskScheduler::duration_t duration)
 {
-    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.DelayGroup(group, duration);
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->DelayGroup(group, duration);
+
+    return *this;
 }
 
 TaskContext& TaskContext::RescheduleAll(TaskScheduler::duration_t duration)
 {
-    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.RescheduleAll(duration);
-    });
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->RescheduleAll(duration);
+
+    return *this;
 }
 
-TaskContext& TaskContext::RescheduleGroup(TaskScheduler::group_t const group, TaskScheduler::duration_t duration)
+TaskContext& TaskContext::RescheduleGroup(TaskScheduler::group_t group, TaskScheduler::duration_t duration)
 {
-    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
-    {
-        return scheduler.RescheduleGroup(group, duration);
-    });
-}
+    if (std::shared_ptr<TaskScheduler> scheduler = _owner.lock())
+        scheduler->RescheduleGroup(group, duration);
 
-void TaskContext::AssertOnConsumed() const
-{
-    // This was adapted to TC to prevent static analysis tools from complaining.
-    // If you encounter this assertion check if you repeat a TaskContext more then 1 time!
-    ASSERT(!(*_consumed) && "Bad task logic, task context was consumed already!");
+    return *this;
 }
 
 void TaskContext::Invoke()
 {
-    _task->_task(*this);
+    GetTask()->_task(std::move(*this));
 }

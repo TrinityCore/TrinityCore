@@ -166,7 +166,7 @@ class spell_warr_anger_management_proc : public AuraScript
 {
     static bool ValidateProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, ChrSpecialization spec)
     {
-        if (aurEff->GetAmount() == 0)
+        if (aurEff->GetAmountAsInt() == 0)
             return false;
 
         Player const* player = eventInfo.GetActor()->ToPlayer();
@@ -222,7 +222,7 @@ class spell_warr_anger_management_proc : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, std::span<int32 const> spellIds) const
     {
         int32 rageCost = *eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE) / 10; // db values are 10x the actual rage cost
-        float multiplier  = static_cast<float>(rageCost) / static_cast<float>(aurEff->GetAmount());
+        SpellEffectValue multiplier  = static_cast<float>(rageCost) / aurEff->GetAmount();
         Milliseconds cooldownMod = -duration_cast<Milliseconds>(multiplier * CooldownReduction);
 
         for (int32 spellId : spellIds)
@@ -310,8 +310,8 @@ class spell_warr_bloodsurge : public AuraScript
         Trinity::UnitWorker worker(caster, work);
         Cell::VisitAllObjects(caster, worker, 50.0f);
 
-        float chance = std::sqrt(rends) * aurEff->GetAmount();
-        if (!roll_chance_f(chance))
+        SpellEffectValue chance = std::sqrt(rends) * aurEff->GetAmount();
+        if (!roll_chance(chance))
             return;
 
         caster->CastSpell(caster, SPELL_WARRIOR_BLOODSURGE_ENERGIZE, CastSpellExtraArgsInit{
@@ -624,7 +624,7 @@ class spell_warr_deft_experience : public SpellScript
         Unit const* caster = GetCaster();
         if (Aura* enrageAura = caster->GetAura(SPELL_WARRIOR_ENRAGE))
             if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1))
-                enrageAura->SetDuration(enrageAura->GetDuration() + (aurEff->GetAmount() * (IsHitCrit() ? 2 : 1)));
+                enrageAura->SetDuration(enrageAura->GetDuration() + (aurEff->GetAmountAsInt() * (IsHitCrit() ? 2 : 1)));
     }
 
     void Register() override
@@ -645,7 +645,7 @@ class spell_warr_devastator : public AuraScript
     {
         if (GetTarget()->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_SHIELD_SLAM))
         {
-            if (roll_chance_i(GetEffectInfo(EFFECT_1).CalcValue()))
+            if (roll_chance(GetEffectInfo(EFFECT_1).CalcValue()))
             {
                 GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
                 GetTarget()->CastSpell(GetTarget(), SPELL_WARRIOR_SHIELD_SLAM_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -706,7 +706,7 @@ class spell_warr_enrage_proc : public AuraScript
             }
         }
 
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(ProcEventInfo const& eventInfo)
@@ -768,7 +768,7 @@ class spell_warr_execute : public SpellScript
         if (Aura* suddenDeathAura = GetCaster()->GetAura(SPELL_WARRIOR_SUDDEN_DEATH_BUFF))
             if (GetSpell()->m_appliedMods.contains(suddenDeathAura))
                 if (AuraEffect const* suddenDeathTalentAura = GetCaster()->GetAuraEffect(SPELL_WARRIOR_SUDDEN_DEATH, EFFECT_0))
-                    return suddenDeathTalentAura->GetAmount() * 10;
+                    return suddenDeathTalentAura->GetAmountAsInt() * 10;
 
         return {};
     }
@@ -797,7 +797,7 @@ class spell_warr_execute : public SpellScript
                 .BaseRageCost = baseCost,
                 .OptionalRageCost = optionalCost,
                 .DamageRageSpent = GetSuddenDeathRageCost().value_or(rageSpent),
-                .RefundRage = CalculatePct(rageSpent, GetEffectInfo(EFFECT_1).CalcValue())
+                .RefundRage = CalculatePct(rageSpent, GetEffectInfo(EFFECT_1).CalcValueAsInt())
             }
         });
     }
@@ -924,7 +924,7 @@ class spell_warr_frothing_berserker : public AuraScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = procSpell,
             .TriggeringAura = aurEff,
-            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, CalculatePct(spentRage, aurEff->GetAmount()) } }
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, static_cast<SpellEffectValue>(CalculatePct(spentRage, aurEff->GetAmount())) } }
         });
     }
 
@@ -1193,15 +1193,15 @@ class spell_warr_improved_whirlwind : public SpellScript
         if (!caster)
             return;
 
-        int32 const ragePerTarget = GetEffectValue();
-        int32 const baseRage = GetEffectInfo(EFFECT_0).CalcValue();
-        int32 const maxRage = baseRage + (ragePerTarget * GetEffectInfo(EFFECT_2).CalcValue());
+        int32 const ragePerTarget = GetEffectValueAsInt();
+        int32 const baseRage = GetEffectInfo(EFFECT_0).CalcValueAsInt();
+        int32 const maxRage = baseRage + (ragePerTarget * GetEffectInfo(EFFECT_2).CalcValueAsInt());
         int32 const rageGained = std::min<int32>(baseRage + (targetsHit * ragePerTarget), maxRage);
 
         caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_ENERGIZE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
-            .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT0, rageGained * 10 } }
+            .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT0, SpellEffectValue(rageGained * 10) } }
         });
 
         ApplyWhirlwindCleaveAura(caster, GetCastDifficulty(), GetSpell());
@@ -1424,7 +1424,7 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
         PreventDefaultAction();
 
         Unit* target = eventInfo.GetActionTarget();
-        int32 bp0 = CalculatePct(target->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
+        SpellEffectValue bp0 = CalculatePct(target->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(bp0);
         target->CastSpell(nullptr, SPELL_WARRIOR_STOICISM, args);
@@ -1561,7 +1561,7 @@ protected:
 
         int64 const targetCount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
 
-        if (targetCount < minTargetCount->GetAmount())
+        if (targetCount < minTargetCount->GetAmountAsInt())
             return;
 
         if (AuraEffect const* aurEff = meatCleaver->GetEffect(EFFECT_0))
@@ -1635,14 +1635,14 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
     {
         // it is currently impossible to have Wrath and Fury without having Improved Raging Blow, but we will check it anyway
         Unit* caster = GetCaster();
-        int32 value = 0;
+        SpellEffectValue value = 0;
         if (caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
             value = GetEffectValue();
 
         if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0))
             value += auraEffect->GetAmount();
 
-        if (roll_chance_i(value))
+        if (roll_chance(value))
         {
             caster->CastSpell(nullptr, SPELL_WARRIOR_ALWAYS_ANGRY, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -1674,7 +1674,7 @@ class spell_warr_rallying_cry : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, SpellEffectValue(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
 
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, args);
     }
@@ -1746,8 +1746,8 @@ class spell_warr_rumbling_earth : public SpellScript
         if (!minTargetCount || !cooldownReduction)
             return;
 
-        if (GetUnitTargetCountForEffect(EFFECT_0) >= minTargetCount->GetAmount())
-            GetCaster()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, Seconds(-cooldownReduction->GetAmount()));
+        if (GetUnitTargetCountForEffect(EFFECT_0) >= minTargetCount->GetAmountAsInt())
+            GetCaster()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, -duration_cast<Milliseconds>(FloatSeconds(cooldownReduction->GetAmount())));
     }
 
     void Register() override
@@ -1873,7 +1873,7 @@ class spell_warr_strategist : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleCooldown(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*procEvent*/) const
@@ -2000,7 +2000,7 @@ class spell_warr_tactician : public AuraScript
         if (!procSpell->CalcPowerCost(POWER_RAGE, false, eventInfo.GetActor(), SpellSchoolMask(procSpell->SchoolMask)))
             return false;
 
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -2047,7 +2047,7 @@ class spell_warr_tenderize : public AuraScript
         target->CastSpell(nullptr, SPELL_WARRIOR_SLAUGHTERING_STRIKES_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = eventInfo.GetProcSpell(),
-            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, aurEff->GetAmount() } }
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, aurEff->GetAmountAsInt() } }
         });
     }
 
@@ -2083,7 +2083,7 @@ class spell_warr_thunder_blast_aura : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
@@ -2193,7 +2193,7 @@ class spell_warr_trauma : public AuraScript
     {
         Unit* target = eventInfo.GetActionTarget();
         //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-        int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount());
+        SpellEffectValue damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount();
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
         GetCaster()->CastSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, args);
@@ -2240,7 +2240,7 @@ class spell_warr_unbridled_ferocity : public AuraScript
 
     void HandleProc(ProcEventInfo& /*eventInfo*/) const
     {
-        int32 durationMs = GetEffect(EFFECT_1)->GetAmount();
+        int32 durationMs = GetEffect(EFFECT_1)->GetAmountAsInt();
 
         GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_RECKLESSNESS, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD,
@@ -2250,7 +2250,7 @@ class spell_warr_unbridled_ferocity : public AuraScript
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/) const
     {
-        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+        return roll_chance(GetEffect(EFFECT_0)->GetAmount());
     }
 
     void Register() override

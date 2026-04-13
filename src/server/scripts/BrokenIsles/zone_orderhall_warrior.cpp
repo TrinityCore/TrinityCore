@@ -213,7 +213,7 @@ struct npc_feasting_valarjar : public ScriptedAI
                 _scheduler.Schedule(1s, [this](TaskContext /*context*/)
                 {
                     me->SetVirtualItem(0, 0);
-                    if (roll_chance_i(85))
+                    if (roll_chance(85))
                         DoCastSelf(SPELL_EMOTE_BELCH);
                 });
             }

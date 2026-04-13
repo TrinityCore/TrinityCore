@@ -401,7 +401,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         CloseGossipMenuFor(player);
-        if (roll_chance_i(clueGainChance))
+        if (roll_chance(clueGainChance))
             GiveClue(player);
         else
         {
@@ -555,9 +555,9 @@ struct npc_westfall_hobo_witness : public ScriptedAI
                 }
                 case Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove:
                     me->ResumeMovement();
-                    if (roll_chance_i(50)) // prevent spam
+                    if (roll_chance(50)) // prevent spam
                     {
-                        if (roll_chance_i(70)) // chance to trigger simple talk event
+                        if (roll_chance(70)) // chance to trigger simple talk event
                             _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::HoboTalk, 30s, 80s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
                         else
                             _events.ScheduleEvent(urand(Events::MurderWasTheCaseThatTheyGaveMe::JackpotIntro, Events::MurderWasTheCaseThatTheyGaveMe::PropertyRage), 30s, 80s, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);

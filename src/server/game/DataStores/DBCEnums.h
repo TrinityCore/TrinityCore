@@ -3108,6 +3108,13 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
+enum class VehicleSeatFlagsC : int32
+{
+    NoFatigue                       = 0x00000040
+};
+
+DEFINE_ENUM_FLAG(VehicleSeatFlagsC);
+
 enum class VignetteFlags
 {
     InfiniteAOI             = 0x000001,
@@ -3139,6 +3146,20 @@ enum class WarbandSceneFlags : uint8
 };
 
 DEFINE_ENUM_FLAG(WarbandSceneFlags);
+
+enum class WMOAreaTableFlags : int32
+{
+    RenderMinimap               = 0x01,
+    ForceIndoors                = 0x02,
+    ForceOutdoors               = 0x04,
+    GenerateSingleExteriorMap   = 0x08,
+    Stormwind                   = 0x10,
+    ChunkUsesTerrainForMinimap  = 0x20,
+    IgnoreForMinimapAndEffects  = 0x40,
+    IgnoreFatigue               = 0x80
+};
+
+DEFINE_ENUM_FLAG(WMOAreaTableFlags);
 
 enum WorldMapTransformsFlags
 {

@@ -764,13 +764,13 @@ public:
                         _events.ScheduleEvent(EVENT_PLAYEMOTE, Seconds(10), Seconds(25));
                         break;
                     case EVENT_SAY_TEXT:
-                        if (roll_chance_i(3))
+                        if (roll_chance(3))
                         {
                             Talk(SAY_LEAVE_TOWNHALL);
                             _events.ScheduleEvent(EVENT_LEAVE_TOWNHALL, Seconds(2));
                             break;
                         }
-                        if (roll_chance_i(30))
+                        if (roll_chance(30))
                             Talk(SAY_IN_TOWNHALL);
                         _events.Repeat(Seconds(30), Seconds(60));
                         break;

@@ -333,7 +333,7 @@ class spell_fjord_rivenwood_captives_on_quest : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (roll_chance_i(80))
+        if (roll_chance(80))
             target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
@@ -449,14 +449,14 @@ class spell_fjord_the_cleansing_on_death_cast_on_master : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+                summoner->CastSpell(summoner, uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -486,7 +486,7 @@ class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
+        caster->CastSpell(caster, roll_chance(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
     }
 
     void Register() override
@@ -500,12 +500,12 @@ class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -519,14 +519,14 @@ class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
+                summoner->CastSpell(summoner, uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
