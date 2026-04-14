@@ -22,6 +22,7 @@
 
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
+#include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
