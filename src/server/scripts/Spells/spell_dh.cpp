@@ -1824,10 +1824,10 @@ class spell_dh_reap : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_REAP_DAMAGE });
+        return ValidateSpellInfo({ SPELL_DH_REAP_DAMAGE, SPELL_DH_SOUL_FRAGMENT_DEVOURER, SPELL_DH_CONSUME_SOUL_DEVOURER });
     }
 
-    void HandleDamage(SpellEffIndex /*effIndex*/)
+    void HandleDamage(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_REAP_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -1835,20 +1835,7 @@ class spell_dh_reap : public SpellScript
         });
     }
 
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dh_reap::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-class spell_dh_reap_aura : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_SOUL_FRAGMENT_DEVOURER, SPELL_DH_CONSUME_SOUL_DEVOURER });
-    }
-
-    void HandleReapSouls(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleSoulsGathering() const
     {
         Unit* caster = GetCaster();
         float range = GetSpellInfo()->GetMaxRange();
@@ -1858,22 +1845,27 @@ class spell_dh_reap_aura : public AuraScript
         if (atList.empty())
             return;
 
-        if (atList.size() > 4)
-            atList.resize(4);
+        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_DH_SHATTERED_SOULS_DEVOURER, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValueAsInt(GetCaster());
+        if (atList.size() > maxTargets)
+            atList.resize(maxTargets);
 
         for (AreaTrigger* soulFragment : atList)
         {
             if (soulFragment->GetDistance(caster) > range)
                 return;
 
-            caster->CastSpell(soulFragment->GetPosition(), SPELL_DH_CONSUME_SOUL_DEVOURER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(soulFragment->GetPosition(), SPELL_DH_CONSUME_SOUL_DEVOURER, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
             soulFragment->Remove();
         }
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_dh_reap_aura::HandleReapSouls, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_reap::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+        BeforeCast += SpellCastFn(spell_dh_reap::HandleSoulsGathering);
     }
 };
 
@@ -2760,7 +2752,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
-    RegisterSpellAndAuraScriptPair(spell_dh_reap, spell_dh_reap_aura);
+    RegisterSpellScript(spell_dh_reap);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
