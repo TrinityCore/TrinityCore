@@ -1845,7 +1845,7 @@ class spell_dh_reap : public SpellScript
         if (atList.empty())
             return;
 
-        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_DH_SHATTERED_SOULS_DEVOURER, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValueAsInt(GetCaster());
+        uint32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_DH_SHATTERED_SOULS_DEVOURER, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValueAsInt(GetCaster());
         if (atList.size() > maxTargets)
             atList.resize(maxTargets);
 
