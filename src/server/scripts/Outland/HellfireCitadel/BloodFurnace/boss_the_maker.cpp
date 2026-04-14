@@ -21,7 +21,6 @@
 
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 
 enum MakerTexts
@@ -64,7 +63,7 @@ struct boss_the_maker : public BossAI
         uint8 count = 0;
 
         for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-            if (Player* player = ref->GetVictim()->ToPlayer())
+            if (ref->GetVictim()->IsPlayer())
                 ++count;
 
         return count;

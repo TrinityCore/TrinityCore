@@ -264,7 +264,7 @@ struct npc_shadowmoon_channeler : public ScriptedAI
         _scheduler.CancelAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _scheduler.CancelAll();
 
