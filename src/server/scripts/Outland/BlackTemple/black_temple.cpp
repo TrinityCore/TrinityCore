@@ -185,13 +185,13 @@ struct npc_angered_soul_fragment : public ScriptedAI
     {
         _scheduler.CancelAll();
 
-        _scheduler.Schedule(Seconds(1), GROUP_OUT_OF_COMBAT, [this](TaskContext invi)
+        _scheduler.Schedule(Seconds(1), GROUP_OUT_OF_COMBAT, [this](TaskContext& invi)
         {
             DoCastSelf(SPELL_GREATER_INVISIBILITY);
 
             /* Workaround - On Retail creature appear and "vanish" again periodically, but i cant find packets
             with UPDATE_AURA on sniffs about it */
-            _scheduler.Schedule(Seconds(5), Seconds(10), GROUP_OUT_OF_COMBAT, [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(5), Seconds(10), GROUP_OUT_OF_COMBAT, [this](TaskContext const& /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
             });
@@ -205,7 +205,7 @@ struct npc_angered_soul_fragment : public ScriptedAI
         me->RemoveAurasDueToSpell(SPELL_GREATER_INVISIBILITY);
 
         _scheduler.CancelGroup(GROUP_OUT_OF_COMBAT);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext anger)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& anger)
         {
             Unit* target = me->GetVictim();
             if (target && me->IsWithinMeleeRange(target))

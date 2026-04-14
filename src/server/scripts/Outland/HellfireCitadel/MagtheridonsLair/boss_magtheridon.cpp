@@ -413,7 +413,7 @@ struct npc_magtheridon_room : public PassiveAI
     {
         DoCastSelf(SPELL_DEBRIS_VISUAL);
 
-        _scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(5), [this](TaskContext const& /*context*/)
         {
             DoCastAOE(SPELL_DEBRIS_DAMAGE);
         });

@@ -124,7 +124,7 @@ struct npc_core_rager : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(7s, [this](TaskContext task) // These times are probably wrong
+        _scheduler.Schedule(7s, [this](TaskContext& task) // These times are probably wrong
         {
             DoCastVictim(SPELL_MANGLE);
             task.Repeat(10s);

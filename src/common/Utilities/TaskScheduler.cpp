@@ -262,28 +262,9 @@ bool TaskScheduler::TaskQueue::IsEmpty() const
     return container.empty();
 }
 
-TaskScheduler::TaskContainer& TaskContext::GetTaskContainer() noexcept
+TaskContext::TaskContext(TaskScheduler::TaskQueue::Container::node_type&& task, std::weak_ptr<TaskScheduler>&& owner) noexcept
+    : _task(std::move(task)), _owner(std::move(owner))
 {
-    static_assert(std::variant_size_v<decltype(_task)> == 2);
-    switch (_task.index())
-    {
-        case 0: return std::get<0>(_task).value();
-        case 1: return std::get<1>(_task);
-        default:
-            ASSERT(false);
-    }
-}
-
-TaskScheduler::Task* TaskContext::GetTask() const noexcept
-{
-    static_assert(std::variant_size_v<decltype(_task)> == 2);
-    switch (_task.index())
-    {
-        case 0: return std::get<0>(_task).value().get();
-        case 1: return std::get<1>(_task).get();
-        default:
-            ASSERT(false);
-    }
 }
 
 TaskContext::TaskContext(TaskContext&& right) noexcept
@@ -305,6 +286,8 @@ TaskContext& TaskContext::operator=(TaskContext&& right) noexcept
     }
     return *this;
 }
+
+TaskContext::~TaskContext() = default;
 
 bool TaskContext::IsExpired() const
 {
@@ -440,5 +423,29 @@ TaskContext& TaskContext::RescheduleGroup(TaskScheduler::group_t group, TaskSche
 
 void TaskContext::Invoke()
 {
-    GetTask()->_task(std::move(*this));
+    GetTask()->_task(*this);
+}
+
+TaskScheduler::TaskContainer& TaskContext::GetTaskContainer() noexcept
+{
+    static_assert(std::variant_size_v<decltype(_task)> == 2);
+    switch (_task.index())
+    {
+        case 0: return std::get<0>(_task).value();
+        case 1: return std::get<1>(_task);
+        default:
+            ASSERT(false);
+    }
+}
+
+TaskScheduler::Task* TaskContext::GetTask() const noexcept
+{
+    static_assert(std::variant_size_v<decltype(_task)> == 2);
+    switch (_task.index())
+    {
+        case 0: return std::get<0>(_task).value().get();
+        case 1: return std::get<1>(_task).get();
+        default:
+            ASSERT(false);
+    }
 }

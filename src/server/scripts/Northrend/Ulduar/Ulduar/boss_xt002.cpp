@@ -396,7 +396,7 @@ struct boss_xt002 : public BossAI
         {
             me->SetEmoteState(EMOTE_STATE_SPELL_CHANNEL_OMNI);
 
-            scheduler.Schedule(11s, [this](TaskContext /*task*/)
+            scheduler.Schedule(11s, [this](TaskContext const& /*task*/)
             {
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
             });
@@ -405,7 +405,7 @@ struct boss_xt002 : public BossAI
         {
             me->SetEmoteState(EMOTE_STATE_DANCE);
 
-            scheduler.Schedule(30s, [this](TaskContext /*task*/)
+            scheduler.Schedule(30s, [this](TaskContext const& /*task*/)
             {
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
             });
@@ -479,19 +479,19 @@ struct npc_scrapbot : public ScriptedAI
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
-            Schedule(2s, [this](TaskContext /*StartMove*/)
+            Schedule(2s, [this](TaskContext const& /*StartMove*/)
             {
                 if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             })
-            .Schedule(1s, [this](TaskContext checkXt002)
+            .Schedule(1s, [this](TaskContext& checkXt002)
             {
                 if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
                     if (me->IsWithinMeleeRange(xt002))
                     {
                         DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                        _scheduler.Schedule(1s, [this](TaskContext /*ScrapRepair*/)
+                        _scheduler.Schedule(1s, [this](TaskContext const& /*ScrapRepair*/)
                         {
                             if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                                 xt002->CastSpell(me, SPELL_SCRAP_REPAIR, true);
@@ -536,22 +536,22 @@ struct npc_pummeller : public ScriptedAI
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
-            Schedule(1s, [this](TaskContext /*StartMove*/)
+            Schedule(1s, [this](TaskContext const& /*StartMove*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
             })
-            .Schedule(17s, [this](TaskContext trample)
+            .Schedule(17s, [this](TaskContext& trample)
             {
                 DoCastSelf(SPELL_TRAMPLE);
                 trample.Repeat(11s);
             })
-            .Schedule(19s, [this](TaskContext arcingSmash)
+            .Schedule(19s, [this](TaskContext& arcingSmash)
             {
                 DoCastSelf(SPELL_ARCING_SMASH);
                 arcingSmash.Repeat(8s);
             })
-            .Schedule(19s, [this](TaskContext upperCut)
+            .Schedule(19s, [this](TaskContext& upperCut)
             {
                 DoCastVictim(SPELL_UPPERCUT);
                 upperCut.Repeat(14s);
@@ -592,13 +592,13 @@ struct npc_boombot : public ScriptedAI
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
-            Schedule(4s, [this](TaskContext /*StartMove*/)
+            Schedule(4s, [this](TaskContext const& /*StartMove*/)
             {
                 if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
 
             })
-            .Schedule(1s, [this](TaskContext checkXt002)
+            .Schedule(1s, [this](TaskContext& checkXt002)
             {
                 if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
@@ -646,7 +646,7 @@ struct npc_life_spark : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_STATIC_CHARGED);
-        _scheduler.Schedule(12s, [this](TaskContext spellShock)
+        _scheduler.Schedule(12s, [this](TaskContext& spellShock)
         {
             DoCastVictim(SPELL_SHOCK);
             spellShock.Repeat();
@@ -674,7 +674,7 @@ struct npc_xt_void_zone : public PassiveAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(2500ms, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2500ms, [this](TaskContext const& /*task*/)
         {
             DoCastSelf(SPELL_CONSUMPTION);
         });

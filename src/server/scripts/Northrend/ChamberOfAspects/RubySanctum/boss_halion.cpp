@@ -937,7 +937,7 @@ class npc_orb_carrier : public CreatureScript
                         if (northOrb && northOrb->GetTypeId() == TYPEID_UNIT)
                             northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
 
-                        scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
+                        scheduler.Schedule(Seconds(5), [this](TaskContext const& /*context*/)
                         {
                             DoAction(ACTION_SHOOT);
                         });
@@ -1284,7 +1284,7 @@ class npc_living_inferno : public CreatureScript
 
                 // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
-                    scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                     {
                         me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);
                     });

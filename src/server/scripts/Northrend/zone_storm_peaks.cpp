@@ -643,7 +643,7 @@ struct npc_wild_wyrm : public VehicleAI
         {
             me->GetMotionMaster()->MovePath(PATH_WILD_WYRM, true);
         })
-            .Schedule(Milliseconds(500), [this](TaskContext context)
+            .Schedule(Milliseconds(500), [this](TaskContext& context)
         {
             if (_phase == PHASE_MOUTH)
                 return;

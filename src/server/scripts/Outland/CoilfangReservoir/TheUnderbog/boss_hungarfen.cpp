@@ -53,7 +53,7 @@ struct boss_hungarfen : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        _scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext task)
+        _scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext& task)
         {
             /// @todo cast here SPELL_PUTRID_MUSHROOM_PRIMER and do it in spell script
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
@@ -63,7 +63,7 @@ struct boss_hungarfen : public BossAI
 
         if (IsHeroic())
         {
-            _scheduler.Schedule(3s, 5s, [this](TaskContext task)
+            _scheduler.Schedule(3s, 5s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ACID_GEYSER);
@@ -97,7 +97,7 @@ struct boss_hungarfen : public BossAI
             _roared = true;
             me->SetReactState(REACT_PASSIVE);
 
-            _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
             {
                 DoCastSelf(SPELL_FOUL_SPORES);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -121,7 +121,7 @@ struct npc_underbog_mushroom : public ScriptedAI
         DoCastSelf(SPELL_SHRINK);
         DoCastSelf(SPELL_PUTRID_MUSHROOM);
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_GROW);
 
@@ -132,11 +132,11 @@ struct npc_underbog_mushroom : public ScriptedAI
                 task.Repeat(2s);
             else
             {
-                task.Schedule(1s, [this](TaskContext task)
+                task.Schedule(1s, [this](TaskContext& task)
                 {
                     DoCastSelf(SPELL_SPORE_CLOUD);
 
-                    task.Schedule(4s, [this](TaskContext /*task*/)
+                    task.Schedule(4s, [this](TaskContext const& /*task*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_GROW);
                         me->DespawnOrUnsummon(4s);

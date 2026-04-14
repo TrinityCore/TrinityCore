@@ -213,7 +213,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         {
             DoCastSelf(SPELL_POISONOUS_MUSHROOM_VISUAL_AURA);
 
-            _scheduler.Schedule(1s, [this](TaskContext checkRangeContext)
+            _scheduler.Schedule(1s, [this](TaskContext& checkRangeContext)
             {
                 std::vector<Player*> playersNearby;
                 GetPlayerListInGrid(playersNearby, me, 2.0f);
@@ -226,7 +226,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
 
                     DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
 
-                    _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetObjectScale(0.1f);
                         me->DespawnOrUnsummon(Seconds(4));
@@ -237,7 +237,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
             });
         }
 
-        _scheduler.Schedule(Milliseconds(800), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(800), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_GROW, true);
         });

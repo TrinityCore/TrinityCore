@@ -113,12 +113,12 @@ struct npc_firelands_flame_archon : public ScriptedAI
 
     void JustEngagedWith(Unit* /*attacker*/) override
     {
-        scheduler.Schedule(Seconds(10), Seconds(12), [this](TaskContext context)
+        scheduler.Schedule(Seconds(10), Seconds(12), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_FLAME_TORRENT);
             context.Repeat(Seconds(15), Seconds(17));
         });
-        scheduler.Schedule(Seconds(25), [this](TaskContext context)
+        scheduler.Schedule(Seconds(25), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_FIERY_TORMENT);
             context.Repeat(Seconds(45));
@@ -178,14 +178,14 @@ struct npc_firelands_molten_flamefather : public ScriptedAI
 
     void JustEngagedWith(Unit* /*attacker*/) override
     {
-        scheduler.Schedule(Seconds(5), [this](TaskContext context)
+        scheduler.Schedule(Seconds(5), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_MAGMA_CONDUIT);
             if (Is25ManRaid())
                 DoCastAOE(SPELL_MAGMA_CONDUIT);
             context.Repeat(Seconds(25));
         });
-        scheduler.Schedule(Milliseconds(12800), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(12800), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_EARTHQUAKE);
             context.Repeat(Milliseconds(32500));

@@ -57,7 +57,7 @@ struct npc_guard_generic : public GuardAI
     {
         _scheduler.CancelAll();
         _combatScheduler.CancelAll();
-        _scheduler.Schedule(Seconds(1), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& context)
         {
             // Find a spell that targets friendly and applies an aura (these are generally buffs)
             if (SpellInfo const* spellInfo = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, SELECT_EFFECT_AURA))
@@ -115,7 +115,7 @@ struct npc_guard_generic : public GuardAI
         if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
             Talk(SAY_GUARD_SIL_AGGRO, who);
 
-        _combatScheduler.Schedule(Seconds(1), [this](TaskContext meleeContext)
+        _combatScheduler.Schedule(Seconds(1), [this](TaskContext& meleeContext)
         {
             Unit* victim = me->GetVictim();
             if (!me->isAttackReady() || !me->IsWithinMeleeRange(victim))
@@ -132,7 +132,7 @@ struct npc_guard_generic : public GuardAI
                 }
             }
             meleeContext.Repeat();
-        }).Schedule(Seconds(5), [this](TaskContext spellContext)
+        }).Schedule(Seconds(5), [this](TaskContext& spellContext)
         {
             bool healing = false;
             SpellInfo const* spellInfo = nullptr;
@@ -206,14 +206,14 @@ struct npc_guard_shattrath_faction : public GuardAI
 
     void ScheduleVanish()
     {
-        _scheduler.Schedule(Seconds(5), [this](TaskContext banishContext)
+        _scheduler.Schedule(Seconds(5), [this](TaskContext& banishContext)
         {
             Unit* temp = me->GetVictim();
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(temp, me->GetEntry() == NPC_ALDOR_VINDICATOR ? SPELL_BANISHED_SHATTRATH_S : SPELL_BANISHED_SHATTRATH_A);
                 ObjectGuid playerGUID = temp->GetGUID();
-                banishContext.Schedule(Seconds(9), [this, playerGUID](TaskContext /*exileContext*/)
+                banishContext.Schedule(Seconds(9), [this, playerGUID](TaskContext const& /*exileContext*/)
                 {
                     if (Unit* temp = ObjectAccessor::GetUnit(*me, playerGUID))
                     {

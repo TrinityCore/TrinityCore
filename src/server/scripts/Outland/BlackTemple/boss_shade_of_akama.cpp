@@ -557,7 +557,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(2), [this](TaskContext channel)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext& channel)
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
@@ -722,7 +722,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(1, me->GetPositionX() + frand(-8.0f, 8.0f), me->GetPositionY() + frand(-8.0f, 8.0f), me->GetPositionZ());
 
-            _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext sorcer_channel)
+            _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext& sorcer_channel)
             {
                 if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {

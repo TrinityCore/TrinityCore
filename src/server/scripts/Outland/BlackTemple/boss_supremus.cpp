@@ -194,7 +194,7 @@ struct npc_volcano : public NullCreatureAI
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_VOLCANIC_ERUPTION);
         });

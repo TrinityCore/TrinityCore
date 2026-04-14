@@ -160,7 +160,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetUninteractible(false);

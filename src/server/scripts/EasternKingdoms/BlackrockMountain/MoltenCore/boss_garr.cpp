@@ -95,7 +95,7 @@ struct npc_firesworn : public ScriptedAI
     void ScheduleTasks()
     {
         // Timers for this are probably wrong
-        _scheduler.Schedule(4s, [this](TaskContext context)
+        _scheduler.Schedule(4s, [this](TaskContext& context)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_IMMOLATE);
@@ -105,7 +105,7 @@ struct npc_firesworn : public ScriptedAI
 
         // Separation Anxiety - Periodically check if Garr is nearby
         // ...and enrage if he is not.
-        _scheduler.Schedule(3s, [this](TaskContext context)
+        _scheduler.Schedule(3s, [this](TaskContext& context)
         {
             if (!me->FindNearestCreature(NPC_GARR, 20.0f))
                 DoCastSelf(SPELL_SEPARATION_ANXIETY);

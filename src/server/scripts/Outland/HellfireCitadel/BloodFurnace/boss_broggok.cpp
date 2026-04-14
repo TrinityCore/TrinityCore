@@ -162,7 +162,7 @@ struct BroggokPrisionersAI : public ScriptedAI
     void Reset() override
     {
         scheduler.CancelAll();
-        scheduler.Schedule(1s, 5s, [this](TaskContext emote)
+        scheduler.Schedule(1s, 5s, [this](TaskContext& emote)
         {
             me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(PrisionersEmotes));
             emote.Repeat(6s, 9s);
@@ -207,11 +207,11 @@ struct npc_nascent_fel_orc : public BroggokPrisionersAI
 
     void ScheduleEvents() override
     {
-        scheduler.Schedule(15s, [this](TaskContext concussionBlow)
+        scheduler.Schedule(15s, [this](TaskContext& concussionBlow)
         {
             DoCastVictim(SPELL_CONCUSSION_BLOW);
             concussionBlow.Repeat(8s, 11s);
-        }).Schedule(7s, [this](TaskContext stomp)
+        }).Schedule(7s, [this](TaskContext& stomp)
         {
             DoCastVictim(SPELL_STOMP);
             stomp.Repeat(16s, 21s);
@@ -226,11 +226,11 @@ struct npc_fel_orc_neophyte : public BroggokPrisionersAI
 
     void ScheduleEvents() override
     {
-        scheduler.Schedule(5s, [this](TaskContext charge)
+        scheduler.Schedule(5s, [this](TaskContext& charge)
         {
             DoCastVictim(SPELL_CHARGE);
             charge.Repeat(20s);
-        }).Schedule(1s, [this](TaskContext frenzy)
+        }).Schedule(1s, [this](TaskContext& frenzy)
         {
             DoCastSelf(SPELL_FRENZY);
             frenzy.Repeat(12s, 13s);

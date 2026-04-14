@@ -475,7 +475,7 @@ struct npc_swarming_guardian : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoCastSelf(SPELL_AGRO_CREATOR);

@@ -417,7 +417,7 @@ struct npc_sapphiron_blizzard : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(Seconds(3), [this](TaskContext chill)
+        _scheduler.Schedule(Seconds(3), [this](TaskContext& chill)
         {
             DoCastSelf(me->m_spells[0], true);
             chill.Repeat();

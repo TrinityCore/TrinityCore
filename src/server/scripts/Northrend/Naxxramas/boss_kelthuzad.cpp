@@ -827,7 +827,7 @@ struct npc_kelthuzad_shadow_fissure : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(5s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(5s, [this](TaskContext const& /*task*/)
         {
             DoCastSelf(SPELL_VOID_BLAST);
         });

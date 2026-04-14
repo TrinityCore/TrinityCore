@@ -246,42 +246,42 @@ struct npc_stolen_soul : public ScriptedAI
         switch (_summonerClass)
         {
             case CLASS_WARRIOR:            //
-                _scheduler.Schedule(5s, 10s, [this](TaskContext task)
+                _scheduler.Schedule(5s, 10s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_MORTAL_STRIKE);
                     task.Repeat(5s, 10s);
                 });
                 break;
             case CLASS_PALADIN:            // video & sniff
-                _scheduler.Schedule(2s, 7s, [this](TaskContext task)
+                _scheduler.Schedule(2s, 7s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
                     task.Repeat(8s, 15s);
                 });
                 break;
             case CLASS_HUNTER:             // video
-                _scheduler.Schedule(5s, [this](TaskContext task)
+                _scheduler.Schedule(5s, [this](TaskContext& task)
                 {
                     DoCastSelf(SPELL_FREEZING_TRAP);
                     task.Repeat(20s);
                 });
                 break;
             case CLASS_ROGUE:              //
-                _scheduler.Schedule(5s, [this](TaskContext task)
+                _scheduler.Schedule(5s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
                     task.Repeat(10s);
                 });
                 break;
             case CLASS_PRIEST:             //
-                _scheduler.Schedule(2s, [this](TaskContext task)
+                _scheduler.Schedule(2s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_MIND_FLAY);
                     task.Repeat(3s, 5s);
                 });
                 break;
             case CLASS_SHAMAN:             // video
-                _scheduler.Schedule(0s, [this](TaskContext task)
+                _scheduler.Schedule(0s, [this](TaskContext& task)
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true, true, -SPELL_FROST_SHOCK))
                         DoCast(target, SPELL_FROST_SHOCK);
@@ -289,14 +289,14 @@ struct npc_stolen_soul : public ScriptedAI
                 });
                 break;
             case CLASS_MAGE:               // video
-                _scheduler.Schedule(0s, [this](TaskContext task)
+                _scheduler.Schedule(0s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_FIREBALL);
                     task.Repeat(3s);
                 });
                 break;
             case CLASS_WARLOCK:            // video
-                _scheduler.Schedule(10s, [this](TaskContext task)
+                _scheduler.Schedule(10s, [this](TaskContext& task)
                 {
                     if (Unit* victim = me->GetVictim())
                         if (!victim->HasAura(SPELL_CURSE_OF_AGONY))
@@ -306,14 +306,14 @@ struct npc_stolen_soul : public ScriptedAI
                 });
                 break;
             case CLASS_DRUID:              //
-                _scheduler.Schedule(5s, [this](TaskContext task)
+                _scheduler.Schedule(5s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_MOONFIRE);
                     task.Repeat(10s);
                 });
                 break;
             case CLASS_DEATH_KNIGHT:       //
-                _scheduler.Schedule(3s, 6s, [this](TaskContext task)
+                _scheduler.Schedule(3s, 6s, [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_PLAGUE_STRIKE);
                     task.Repeat(6s, 12s);

@@ -604,7 +604,7 @@ struct npc_ahune_ice_spear_bunny : public ScriptedAI
         DoCastSelf(SPELL_SUMMON_ICE_SPEAR_GO);
         DoCastSelf(SPELL_ICE_SPEAR_VISUAL);
 
-        _scheduler.Schedule(2500ms, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2500ms, [this](TaskContext const& /*task*/)
         {
             DoCastSelf(SPELL_ICE_SPEAR_DELAY);
             me->DespawnOrUnsummon(3500ms);
@@ -626,7 +626,7 @@ struct go_ahune_ice_spear : public GameObjectAI
 
     void Reset() override
     {
-        _scheduler.Schedule(2500ms, [this](TaskContext /*context*/)
+        _scheduler.Schedule(2500ms, [this](TaskContext const& /*context*/)
         {
             me->UseDoorOrButton();
             me->DespawnOrUnsummon(3500ms);

@@ -204,13 +204,13 @@ struct boss_ichoron : public BossAI
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
         });
 
-        scheduler.Schedule(Seconds(10), Seconds(15), [this](TaskContext task)
+        scheduler.Schedule(Seconds(10), Seconds(15), [this](TaskContext& task)
         {
             DoCastAOE(SPELL_WATER_BOLT_VOLLEY);
             task.Repeat(Seconds(10), Seconds(15));
         });
 
-        scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
+        scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                 DoCast(target, SPELL_WATER_BLAST);

@@ -58,20 +58,20 @@ struct boss_lavanthor : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        scheduler.Schedule(Seconds(1), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                 DoCast(target, SPELL_FIREBOLT);
             task.Repeat(Seconds(5), Seconds(13));
         });
 
-        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        scheduler.Schedule(Seconds(5), [this](TaskContext& task)
         {
             DoCastVictim(SPELL_FLAME_BREATH);
             task.Repeat(Seconds(10), Seconds(15));
         });
 
-        scheduler.Schedule(Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(Seconds(10), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                 DoCast(target, SPELL_LAVA_BURN);
@@ -80,7 +80,7 @@ struct boss_lavanthor : public BossAI
 
         if (IsHeroic())
         {
-            scheduler.Schedule(Seconds(3), [this](TaskContext task)
+            scheduler.Schedule(Seconds(3), [this](TaskContext& task)
             {
                 DoCastAOE(SPELL_CAUTERIZING_FLAMES);
                 task.Repeat(Seconds(10), Seconds(16));
