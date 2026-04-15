@@ -224,11 +224,11 @@ void EventMap::ScheduleNextFromSeries(Event eventData)
 
 void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
 {
-    if (group && group <= 8)
-        eventId |= (1 << (group + 15));
+    if (group > sizeof(GroupMask) * 8)
+        return;
 
-    if (phase && phase <= 8)
-        eventId |= (1 << (phase + 23));
+    if (phase > sizeof(PhaseMask) * 8)
+        return;
 
     Event newEvent = Event(eventId, group, phase);
     for (Milliseconds const& time : timeSeries)
@@ -237,7 +237,7 @@ void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex
     ScheduleNextFromSeries(newEvent);
 }
 
-void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
+void EventMap::ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& timeSeries)
 {
-    ScheduleEventSeries(eventId, group, phase, timeSeries);
+    ScheduleEventSeries(eventId, 0, 0, timeSeries);
 }

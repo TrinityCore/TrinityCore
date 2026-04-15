@@ -280,7 +280,7 @@ public:
     * @param eventId of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& series);
+    void ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& timeSeries);
 
 private:
     /**
