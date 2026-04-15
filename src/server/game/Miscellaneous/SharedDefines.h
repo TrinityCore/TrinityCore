@@ -5785,7 +5785,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (11.2.5.62687)
+// SkillLine.db2 (12.0.1.66838)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -6165,7 +6165,25 @@ enum SkillType
     SKILL_LANG_EARTHEN                              = 2884,
     SKILL_SUPPLY_SHIPMENTS                          = 2886,
     SKILL_RACIAL_EARTHEN                            = 2895,
-    SKILL_ALL_WARBANDS                              = 2902
+    SKILL_ALL_WARBANDS                              = 2902,
+    SKILL_MIDNIGHT_ALCHEMY                          = 2906,
+    SKILL_MIDNIGHT_BLACKSMITHING                    = 2907,
+    SKILL_MIDNIGHT_COOKING                          = 2908,
+    SKILL_MIDNIGHT_ENCHANTING                       = 2909,
+    SKILL_MIDNIGHT_ENGINEERING                      = 2910,
+    SKILL_MIDNIGHT_FISHING                          = 2911,
+    SKILL_MIDNIGHT_HERBALISM                        = 2912,
+    SKILL_MIDNIGHT_INSCRIPTION                      = 2913,
+    SKILL_MIDNIGHT_JEWELCRAFTING                    = 2914,
+    SKILL_MIDNIGHT_LEATHERWORKING                   = 2915,
+    SKILL_MIDNIGHT_MINING                           = 2916,
+    SKILL_MIDNIGHT_SKINNING                         = 2917,
+    SKILL_MIDNIGHT_TAILORING                        = 2918,
+    SKILL_RACIAL_HARANIR                            = 2930,
+    SKILL_ALCHEMY_RESEARCH                          = 2950,
+    SKILL_PET_EXOTIC_WHIPTAIL                       = 2961,
+    SKILL_DYE_CRAFTING                              = 2984,
+    SKILL_LANG_HARANI                               = 2987
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
