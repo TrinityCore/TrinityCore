@@ -164,7 +164,7 @@ void EventMap::CancelEvent(EventId eventId)
 
     for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
     {
-        if (eventId == (itr->first & 0x0000FFFF))
+        if (eventId == itr->first._id)
             _timerSeries.erase(itr++);
         else
             ++itr;
@@ -184,9 +184,9 @@ void EventMap::CancelEventGroup(GroupIndex group)
             ++itr;
     }
 
-    for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+    for (auto itr = _timerSeries.begin(); itr != _timerSeries.end();)
     {
-        if (itr->first & (1 << (group + 15)))
+        if (itr->first._groupMask & GroupMask(1u << (group - 1u)))
             _timerSeries.erase(itr++);
         else
             ++itr;
@@ -207,13 +207,10 @@ bool EventMap::HasEventScheduled(EventId eventId) const
     return GetTimeUntilEvent(eventId) != Milliseconds::max();
 }
 
-void EventMap::ScheduleNextFromSeries(EventId eventData)
+void EventMap::ScheduleNextFromSeries(Event eventData)
 {
     EventSeriesStore::iterator itr = _timerSeries.find(eventData);
     if (itr == _timerSeries.end())
-        return;
-
-    if (itr->first != eventData)
         return;
 
     if (itr->second.size() == 0)
@@ -222,7 +219,7 @@ void EventMap::ScheduleNextFromSeries(EventId eventData)
     Milliseconds time = itr->second.front();
     itr->second.pop();
 
-    ScheduleEvent(eventData, time);
+    ScheduleEvent(eventData._id, time, eventData._groupMask, eventData._phaseMask);
 }
 
 void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
@@ -233,13 +230,14 @@ void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex
     if (phase && phase <= 8)
         eventId |= (1 << (phase + 23));
 
+    Event newEvent = Event(eventId, group, phase);
     for (Milliseconds const& time : timeSeries)
-        _timerSeries[eventId].push(time);
+        _timerSeries[newEvent].push(time);
 
-    ScheduleNextFromSeries(eventId);
+    ScheduleNextFromSeries(newEvent);
 }
 
-void EventMap::ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& timeSeries)
+void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
 {
-    ScheduleEventSeries(eventId, 0, 0, timeSeries);
+    ScheduleEventSeries(eventId, group, phase, timeSeries);
 }

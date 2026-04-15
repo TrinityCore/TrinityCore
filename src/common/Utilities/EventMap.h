@@ -50,7 +50,7 @@ class TC_COMMON_API EventMap
      * Key: Time as TimePoint when the event should occur.
      */
     using EventStore = std::multimap<TimePoint, Event>;
-    typedef std::map<uint32 /*event data*/, std::queue<Milliseconds>> EventSeriesStore;
+    typedef std::map<Event, std::queue<Milliseconds>> EventSeriesStore;
 
 public:
     EventMap() : _time(TimePoint::min()), _phaseMask(0) { }
@@ -262,7 +262,7 @@ public:
     * @brief Schedules specified event with next timer from series
     * @param full event data, including group and phase
     */
-    void ScheduleNextFromSeries(EventId eventData);
+    void ScheduleNextFromSeries(Event eventData);
 
     /**
     * @name ScheduleEventSeries
@@ -280,7 +280,7 @@ public:
     * @param eventId of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& series);
+    void ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& series);
 
 private:
     /**
