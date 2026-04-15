@@ -40,6 +40,15 @@ class TC_COMMON_API EventMap
         {
         }
 
+        bool operator<(Event const& other) const
+        {
+            if (_id != other._id)
+                return _id < other._id;
+            if (_groupMask != other._groupMask)
+                return _groupMask < other._groupMask;
+            return _phaseMask < other._phaseMask;
+        }
+
         EventId _id          = 0u;
         GroupMask _groupMask = 0u;
         PhaseMask _phaseMask = 0u;
