@@ -21,6 +21,7 @@
 void EventMap::Reset()
 {
     _eventMap.clear();
+    _timerSeries.clear();
     _time = TimePoint::min();
     _phaseMask = 0;
 }
@@ -219,7 +220,7 @@ void EventMap::ScheduleNextFromSeries(Event eventData)
     Milliseconds time = itr->second.front();
     itr->second.pop();
 
-    ScheduleEvent(eventData._id, time, eventData._groupMask, eventData._phaseMask);
+    _eventMap.insert(EventStore::value_type(_time + time, eventData));
 }
 
 void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
