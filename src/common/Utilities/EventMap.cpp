@@ -207,7 +207,7 @@ bool EventMap::HasEventScheduled(EventId eventId) const
     return GetTimeUntilEvent(eventId) != Milliseconds::max();
 }
 
-void EventMap::ScheduleNextFromSeries(uint32 eventData)
+void EventMap::ScheduleNextFromSeries(EventId eventData)
 {
     EventSeriesStore::iterator itr = _timerSeries.find(eventData);
     if (itr == _timerSeries.end())
@@ -225,7 +225,7 @@ void EventMap::ScheduleNextFromSeries(uint32 eventData)
     ScheduleEvent(eventData, time);
 }
 
-void EventMap::ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> const& timeSeries)
+void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
 {
     if (group && group <= 8)
         eventId |= (1 << (group + 15));
@@ -239,7 +239,7 @@ void EventMap::ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std
     ScheduleNextFromSeries(eventId);
 }
 
-void EventMap::ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> const& timeSeries)
+void EventMap::ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& timeSeries)
 {
     ScheduleEventSeries(eventId, 0, 0, timeSeries);
 }

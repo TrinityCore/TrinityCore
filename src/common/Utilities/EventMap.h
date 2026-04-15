@@ -262,7 +262,7 @@ public:
     * @brief Schedules specified event with next timer from series
     * @param full event data, including group and phase
     */
-    void ScheduleNextFromSeries(uint32 eventData);
+    void ScheduleNextFromSeries(EventId eventData);
 
     /**
     * @name ScheduleEventSeries
@@ -272,7 +272,7 @@ public:
     * @param phase of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> const& timeSeries);
+    void ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries);
 
     /**
     * @name ScheduleEventSeries
@@ -280,7 +280,7 @@ public:
     * @param eventId of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> const& series);
+    void ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& series);
 
 private:
     /**
