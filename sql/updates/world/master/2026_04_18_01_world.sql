@@ -32,7 +32,6 @@ INSERT INTO `graveyard_zone` (`ID`, `GhostZone`, `Comment`) VALUES
 (@GGUID+9, 15968, 'Eversong Woods - Farstrider Hold'),
 (@GGUID+10, 15968, 'Eversong Woods - Dawnstar Spire');
 
-
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @GGUID+0 AND @GGUID+10;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
 (@GGUID+0, 0, 9376.21, -3909.01, 48.2837, 5.611652374267578125 / (2 * PI() / 360), 'Eversong Woods - Sunstrider Isle GY'),
