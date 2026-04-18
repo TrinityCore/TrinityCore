@@ -20,11 +20,11 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "StringFormatFwd.h"
 #include <array>
 #include <functional>
 #include <list>
 #include <set>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
@@ -315,33 +315,11 @@ struct std::hash<ObjectGuid>
     }
 };
 
-namespace fmt
-{
-inline namespace v10
-{
-template <typename T, typename Char, typename Enable>
-struct formatter;
-
 template <>
-struct formatter<ObjectGuid, char, void>
+struct fmt::formatter<ObjectGuid, char, void> : Trinity::NoArgFormatterBase
 {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin())
-    {
-        auto begin = ctx.begin(), end = ctx.end();
-        if (begin == end)
-            return begin;
-
-        if (*begin != '}')
-            throw std::invalid_argument("invalid type specifier");
-
-        return begin;
-    }
-
     template <typename FormatContext>
     auto format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out());
 };
-}
-}
 
 #endif // TRINITYCORE_OBJECT_GUID_H
