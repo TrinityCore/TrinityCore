@@ -2827,31 +2827,27 @@ class spell_pri_lights_wrath : public SpellScript
 };
 
 // 1253590 - Master the Darkness
-// Triggered by 47758 - Penance (Channel Damage), 47757 - Penance (Channel Healing)
-class spell_pri_master_the_darkness : public SpellScript
+class spell_pri_master_the_darkness : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_MASTER_THE_DARKNESS_AURA });
     }
 
-    bool Load() override
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        AuraEffect const* mtd = GetCaster()->GetAuraEffect(SPELL_PRIEST_MASTER_THE_DARKNESS, EFFECT_0);
-        if (mtd && roll_chance(mtd->GetAmount()))
-            return true;
-
-        return false;
+        return roll_chance(aurEff->GetAmount());
     }
 
-    void HandleAfterCast()
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MASTER_THE_DARKNESS_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_MASTER_THE_DARKNESS_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_pri_master_the_darkness::HandleAfterCast);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_master_the_darkness::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_master_the_darkness::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
