@@ -5492,7 +5492,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (11.2.5.62687)
+// QuestInfo.dbc (12.0.1.66838)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5575,7 +5575,8 @@ enum QuestInfo
     QUEST_INFO_DELVE                                = 288,
     QUEST_INFO_WORLD_BOSS                           = 289,
     QUEST_INFO_HIDDEN                               = 291,
-    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292
+    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292,
+    QUEST_INFO_PREY_WORLD_QUEST                     = 295
 };
 
 // QuestSort.dbc (11.2.5.62687)
