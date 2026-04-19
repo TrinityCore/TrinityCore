@@ -163,6 +163,8 @@ enum PriestSpells
     SPELL_PRIEST_LIGHTS_WRATH_VISUAL                = 215795,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
+    SPELL_PRIEST_MASTER_THE_DARKNESS                = 1253590,
+    SPELL_PRIEST_MASTER_THE_DARKNESS_AURA           = 1253591,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
     SPELL_PRIEST_MIND_BLAST                         = 8092,
     SPELL_PRIEST_MIND_DEVOURER                      = 373202,
@@ -2821,6 +2823,35 @@ class spell_pri_lights_wrath : public SpellScript
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_pri_lights_wrath::CalculateDamageBonus);
+    }
+};
+
+// 1253590 - Master the Darkness
+// Triggered by 47758 - Penance (Channel Damage), 47757 - Penance (Channel Healing)
+class spell_pri_master_the_darkness : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_MASTER_THE_DARKNESS_AURA });
+    }
+
+    bool Load() override
+    {
+        AuraEffect const* mtd = GetCaster()->GetAuraEffect(SPELL_PRIEST_MASTER_THE_DARKNESS, EFFECT_0);
+        if (mtd && roll_chance(mtd->GetAmount()))
+            return true;
+
+        return false;
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MASTER_THE_DARKNESS_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_master_the_darkness::HandleAfterCast);
     }
 };
 
@@ -5504,6 +5535,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
+    RegisterSpellScript(spell_pri_master_the_darkness);
     RegisterSpellScript(spell_pri_mental_decay);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_mind_devourer);
