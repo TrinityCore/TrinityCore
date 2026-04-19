@@ -22,6 +22,10 @@
 
 namespace Scripts::QuelThalas::SilvermoonCityMidnight
 {
+namespace Quests
+{
+    static constexpr uint32 CompleteMidnightCampaign = 90806;
+}
 
 // 1278767 - [DNT] Skip Midnight Intro - Flag Campaign
 class spell_silvermoon_skip_midnight_intro : public SpellScript
@@ -29,7 +33,7 @@ class spell_silvermoon_skip_midnight_intro : public SpellScript
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetCaster()->ToPlayer())
-            player->CompleteQuest(90806);
+            player->CompleteQuest(Quests::CompleteMidnightCampaign);
     }
 
     void Register() override
