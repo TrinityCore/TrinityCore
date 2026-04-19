@@ -32,6 +32,7 @@ class spell_silvermoon_skip_midnight_intro : public SpellScript
 {
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
+        // HACK: This should be rewarded after completing the Intro which is nyi atm.
         if (Player* player = GetCaster()->ToPlayer())
             player->CompleteQuest(Quests::CompleteMidnightCampaign);
     }
