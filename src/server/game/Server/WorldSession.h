@@ -683,6 +683,7 @@ namespace WorldPackets
         class ChoiceResponse;
         class UiMapQuestLinesRequest;
         class SpawnTrackingUpdate;
+        class QueryQuestItemUsability;
     }
 
     namespace RaF
@@ -1611,6 +1612,7 @@ class TC_GAME_API WorldSession
         void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest);
         void HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker);
         void HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingUpdate& spawnTrackingUpdate);
+        void HandleQueryQuestItemUsability(WorldPackets::Quest::QueryQuestItemUsability& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
