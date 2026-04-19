@@ -41,6 +41,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "Item.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
