@@ -26,6 +26,9 @@
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
+/*######
+## npc_lord_gregor_lescovar
+######*/
 enum LordGregorLescovar
 {
     SAY_GUARD_2         = 0,
@@ -43,9 +46,6 @@ enum LordGregorLescovar
     QUEST_THE_ATTACK    = 434
 };
 
-/*######
-## npc_lord_gregor_lescovar
-######*/
 class npc_lord_gregor_lescovar : public CreatureScript
 {
 public:
@@ -203,6 +203,9 @@ public:
     }
 };
 
+/*######
+## npc_marzon
+######*/
 class npc_marzon_silent_blade : public CreatureScript
 {
 public:
@@ -285,6 +288,9 @@ public:
     }
 };
 
+/*######
+## npc_tyrion_spybot
+######*/
 enum TyrionSpybot
 {
     SAY_QUEST_ACCEPT_ATTACK  = 0,
@@ -449,7 +455,9 @@ public:
         return new npc_tyrion_spybotAI(creature);
     }
 };
-
+/*######
+## npc_tyrion
+######*/
 enum Tyrion
 {
     NPC_TYRION_SPYBOT = 8856
