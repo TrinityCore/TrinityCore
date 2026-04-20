@@ -1,34 +1,8 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Quest 434 – The Attack
+ * TrinityCore 3.3.5a (rev f7472018507b)
+ * Fixed server-side implementation
  */
-
-/* ScriptData
-SDName: Stormwind_City
-SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 434.
-SDCategory: Stormwind City
-EndScriptData */
-
-/* ContentData
-npc_tyrion
-npc_tyrion_spybot
-npc_marzon_silent_blade
-npc_lord_gregor_lescovar
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -36,10 +10,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
-
-/*######
-## npc_lord_gregor_lescovar
-######*/
 
 enum LordGregorLescovar
 {
@@ -63,11 +33,6 @@ class npc_lord_gregor_lescovar : public CreatureScript
 public:
     npc_lord_gregor_lescovar() : CreatureScript("npc_lord_gregor_lescovar") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_lord_gregor_lescovarAI(creature);
-    }
-
     struct npc_lord_gregor_lescovarAI : public EscortAI
     {
         npc_lord_gregor_lescovarAI(Creature* creature) : EscortAI(creature)
@@ -79,7 +44,6 @@ public:
         {
             uiTimer = 0;
             uiPhase = 0;
-
             MarzonGUID.Clear();
         }
 
@@ -125,7 +89,10 @@ public:
                     break;
                 case 16:
                     SetEscortPaused(true);
-                    if (Creature* pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1s))
+                    if (Creature* pMarzon = me->SummonCreature(
+                            NPC_MARZON_BLADE,
+                            -8411.360352f, 480.069733f, 123.760895f, 4.941504f,
+                            TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1s))
                     {
                         pMarzon->GetMotionMaster()->MovePoint(0, -8408.000977f, 468.611450f, 123.759903f);
                         MarzonGUID = pMarzon->GetGUID();
@@ -135,26 +102,21 @@ public:
                     break;
             }
         }
-        //TO-DO: We don't have movemaps, also we can't make 2 npcs walks to one point propperly (and we can not use escort ai, because they are 2 different spawns and with same entry), because of it we make them, disappear.
+
         void DoGuardsDisappearAndDie()
         {
-            std::list<Creature*> GuardList;
-            me->GetCreatureListWithEntryInGrid(GuardList, NPC_STORMWIND_ROYAL, 8.0f);
-            if (!GuardList.empty())
-            {
-                for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
-                {
-                    if (Creature* pGuard = *itr)
-                        pGuard->DisappearAndDie();
-                }
-            }
+            std::list<Creature*> guardList;
+            me->GetCreatureListWithEntryInGrid(guardList, NPC_STORMWIND_ROYAL, 8.0f);
+
+            for (Creature* guard : guardList)
+                guard->DisappearAndDie();
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 diff) override
         {
             if (uiPhase)
             {
-                if (uiTimer <= uiDiff)
+                if (uiTimer <= diff)
                 {
                     switch (uiPhase)
                     {
@@ -175,9 +137,10 @@ public:
                             uiPhase = 0;
                             break;
                         case 4:
+                            // Lescovar spricht mit Marzon – danach geht es mit Phase 5 weiter
                             Talk(SAY_LESCOVAR_3);
-                            uiTimer = 0;
-                            uiPhase = 0;
+                            uiTimer = 3000;
+                            uiPhase = 5;
                             break;
                         case 5:
                             if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
@@ -202,9 +165,12 @@ public:
                             uiPhase = 0;
                             break;
                     }
-                } else uiTimer -= uiDiff;
+                }
+                else
+                    uiTimer -= diff;
             }
-            EscortAI::UpdateAI(uiDiff);
+
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -212,21 +178,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-};
 
-/*######
-## npc_marzon_silent_blade
-######*/
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_lord_gregor_lescovarAI(creature);
+    }
+};
 
 class npc_marzon_silent_blade : public CreatureScript
 {
 public:
     npc_marzon_silent_blade() : CreatureScript("npc_marzon_silent_blade") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_marzon_silent_bladeAI(creature);
-    }
 
     struct npc_marzon_silent_bladeAI : public ScriptedAI
     {
@@ -268,24 +230,24 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
+        void MovementInform(uint32 type, uint32 /*id*/) override
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
             if (me->IsSummon())
             {
-                Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
-                if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 {
-                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI* ai =
-                        CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
-                    if (ai)
+                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled())
                     {
-                        ai->uiTimer = 2000;
-                        ai->uiPhase = 5;
+                        auto* ai = CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
+                        if (ai)
+                        {
+                            ai->uiTimer = 2000;
+                            ai->uiPhase = 5;
+                        }
                     }
-                    //me->ChangeOrient(0.0f, summoner);
                 }
             }
         }
@@ -298,11 +260,12 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-};
 
-/*######
-## npc_tyrion_spybot
-######*/
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_marzon_silent_bladeAI(creature);
+    }
+};
 
 enum TyrionSpybot
 {
@@ -319,17 +282,13 @@ enum TyrionSpybot
     NPC_LORD_GREGOR_LESCOVAR = 1754,
 };
 
-static constexpr uint32 PATH_ESCORT_LESCOVAR = 70850;
+/// Lescovar-Escortpfad: Bibliothek → Plattform (id 14034)
+static constexpr uint32 PATH_ESCORT_LESCOVAR = 14034;
 
 class npc_tyrion_spybot : public CreatureScript
 {
 public:
     npc_tyrion_spybot() : CreatureScript("npc_tyrion_spybot") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_tyrion_spybotAI(creature);
-    }
 
     struct npc_tyrion_spybotAI : public EscortAI
     {
@@ -376,11 +335,11 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 diff) override
         {
             if (uiPhase)
             {
-                if (uiTimer <= uiDiff)
+                if (uiTimer <= diff)
                 {
                     switch (uiPhase)
                     {
@@ -404,10 +363,10 @@ public:
                             uiPhase = 4;
                             break;
                         case 4:
-                           SetEscortPaused(false);
-                           uiPhase = 0;
-                           uiTimer = 0;
-                           break;
+                            SetEscortPaused(false);
+                            uiPhase = 0;
+                            uiTimer = 0;
+                            break;
                         case 5:
                             if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 10.0f, true))
                                 pGuard->AI()->Talk(SAY_GUARD_1);
@@ -453,9 +412,12 @@ public:
                             uiPhase = 0;
                             break;
                     }
-                } else uiTimer -= uiDiff;
+                }
+                else
+                    uiTimer -= diff;
             }
-            EscortAI::UpdateAI(uiDiff);
+
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -463,18 +425,20 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-};
 
-/*######
-## npc_tyrion
-######*/
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_tyrion_spybotAI(creature);
+    }
+};
 
 enum Tyrion
 {
     NPC_TYRION_SPYBOT = 8856
 };
 
-static constexpr uint32 PATH_ESCORT_TYRION_SPYBOT = 14034;
+/// Spybot-Escortpfad: Plattform → Bibliothek (id 70850)
+static constexpr uint32 PATH_ESCORT_TYRION_SPYBOT = 70850;
 
 class npc_tyrion : public CreatureScript
 {
