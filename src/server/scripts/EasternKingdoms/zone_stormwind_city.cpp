@@ -1,4 +1,4 @@
- /*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
  * TrinityCore 3.3.5a (rev f7472018507b)
  * Fixed server-side implementation
  */
+
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -306,7 +307,7 @@ enum TyrionSpybot
     NPC_LORD_GREGOR_LESCOVAR = 1754,
 };
 
-/// Lescovar-Escortpfad: Bibliothek → Plattform (id 14034)
+/// Lescovar escort path: Library → Platform (id 14034)
 static constexpr uint32 PATH_ESCORT_LESCOVAR = 14034;
 
 class npc_tyrion_spybot : public CreatureScript
@@ -463,7 +464,7 @@ enum Tyrion
     NPC_TYRION_SPYBOT = 8856
 };
 
-/// Spybot-Escortpfad: Plattform → Bibliothek (id 70850)
+/// Spybot escort path: Platform → Library (id 70850)
 static constexpr uint32 PATH_ESCORT_TYRION_SPYBOT = 70850;
 
 class npc_tyrion : public CreatureScript
