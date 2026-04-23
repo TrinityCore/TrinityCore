@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Quest 434 – The Attack
  * TrinityCore 3.3.5a (rev f7472018507b)
  * Fixed server-side implementation
