@@ -455,14 +455,6 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
 {
     npc_anubarak_anub_ar_assassin(Creature* creature) : npc_anubarak_pet_template(creature, false){ }
 
-    Position GetRandomPositionAround(Creature* anubarak)
-    {
-        static float DISTANCE_MIN = 10.0f;
-        static float DISTANCE_MAX = 30.0f;
-        double angle = rand_norm() * 2.0 * M_PI;
-        return { anubarak->GetPositionX() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::sin(angle)), anubarak->GetPositionY() + (float)(frand(DISTANCE_MIN, DISTANCE_MAX)*std::cos(angle)), anubarak->GetPositionZ() };
-    }
-
     void InitializeAI() override
     {
         npc_anubarak_pet_template::InitializeAI();
@@ -470,9 +462,10 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
         if (Creature* anubarak = _instance->GetCreature(DATA_ANUBARAK))
         {
             Position jumpTo;
+            uint32 attempts = 0;
             do
-                jumpTo = GetRandomPositionAround(anubarak);
-            while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
+                jumpTo = anubarak->GetRandomPoint(anubarak->GetPosition(), 10.f, 30.0f);
+            while (!CreatureAI::IsInBounds(*boundary, &jumpTo) && attempts < 10);
             me->GetMotionMaster()->MoveJump(EVENT_JUMP, jumpTo, 24.0f, 20.0f, 30.0f);
             DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
         }
