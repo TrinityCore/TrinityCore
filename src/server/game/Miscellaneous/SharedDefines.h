@@ -3288,7 +3288,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.db2 (11.2.5.62687)
+// EmotesText.db2 (12.0.5.67186)
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -3558,10 +3558,10 @@ enum TextEmotes
     TEXT_EMOTE_IMPRESSED            = 625,
     TEXT_EMOTE_MAGNIFICENT          = 626,
     TEXT_EMOTE_QUACK                = 627,
-    TEXT_EMOTE_LEAN                 = 628,
+    TEXT_EMOTE_LEAN                 = 633,
 };
 
-// Emotes.db2 (10.1.5.50232)
+// Emotes.db2 (12.0.5.67186)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -3825,6 +3825,8 @@ enum Emote : uint32
     EMOTE_STATE_WORK_CHOPWOOD4                   = 614,
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
     EMOTE_STATE_READ_AND_SIT                     = 616,
+    EMOTE_STATE_READYSPELLDIRECTED               = 617,
+    EMOTE_STATE_READYTHROWN_NO_SOUND             = 618,
     EMOTE_STATE_PARRY_UNARMED                    = 619,
     EMOTE_STATE_BLOCK_SHIELD                     = 620,
     EMOTE_STATE_SIT_GROUND_2                     = 621,
@@ -3976,6 +3978,7 @@ enum Emote : uint32
     EMOTE_ONESHOT_TALK_SUBDUED                   = 1005,
     EMOTE_STATE_EMOTETALK                        = 1006,
     EMOTE_STATE_WAINTERACTION                    = 1007,
+    EMOTE_STATE_WORK_CHOPWOOD_LUMBER_AXE         = 1008,
     EMOTE_ONESHOT_TAKE_OFF_START                 = 1009,
     EMOTE_ONESHOT_BATTLEROAR_NO_SOUND            = 1010,
     EMOTE_STATE_WAWEAPONSHARPEN                  = 1011,
@@ -4021,9 +4024,33 @@ enum Emote : uint32
     EMOTE_ONESHOT_DANCE_VAR2                     = 1075,
     EMOTE_STATE_KNEEL_INTERACT_INTERRUPT         = 1081,
     EMOTE_STATE_WA2HIDLE_UNSHEATH                = 1082,
+    EMOTE_STATE_SHOVEL                           = 1083,
     EMOTE_STATE_LEAN                             = 1084,
+    EMOTE_STATE_READYSPELLOMNI_INTERRUPTABLE     = 1089,
     EMOTE_ONESHOT_WALEAN01_VAR1                  = 1093,
     EMOTE_ONESHOT_WALEAN01_VAR0                  = 1094,
+    EMOTE_STATE_FLYCHANNELCASTOMNI               = 1097,
+    EMOTE_STATE_ARTOFFLOOP_HIDES_WEAPON          = 1100,
+    EMOTE_STATE_WORK_HERBALISM_HARANIR_PAINTING  = 1101,
+    EMOTE_STATE_SPELL_CHANNEL_OMNI_UP            = 1103,
+    EMOTE_STATE_WAARMSCROSSED                    = 1110,
+    EMOTE_ONESHOT_PARRY_FIST1H                   = 1111,
+    EMOTE_STATE_WAHANG02                         = 1112,
+    EMOTE_STATE_WORK_HOUSING_HAMMER_SOUND        = 1113,
+    EMOTE_STATE_WACRADLE                         = 1115,
+    EMOTE_STATE_WACRATEHOLD                      = 1116,
+    EMOTE_STATE_WORK_HAMMER_HARANIR_PAINTING     = 1117,
+    EMOTE_STATE_WORK_HERBALISM_HOUSING_SCYTHE    = 1118,
+    EMOTE_STATE_WORK_MINING_HOUSING              = 1119,
+    EMOTE_ONESHOT_TALK_SUBDUED_NO_SHEATHE        = 1120,
+    EMOTE_STATE_WALEAN02_NO_INTERRUPT            = 1121,
+    EMOTE_STATE_WORK_BLUNT_IMPACT                = 1122,
+    EMOTE_ONESHOT_ARTDUALLOOP                    = 1125,
+    EMOTE_STATE_ARTDUALLOOP                      = 1126,
+    EMOTE_STATE_WORK_ZULAMAN_CHOPPING_WOOD       = 1128,
+    EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING       = 1129,
+    EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND     = 1131,
+    EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND    = 1132,
 };
 
 // AnimationData.db2 (6.0.2.18988)
