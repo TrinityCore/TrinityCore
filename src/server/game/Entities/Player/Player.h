@@ -904,6 +904,19 @@ enum ArenaTeamInfoType
     ARENA_TEAM_END               = 7
 };
 
+enum class TeleportState
+{
+    NotTeleporting,
+    Initiated,
+    // destination is on same map and instance
+    DelayedTeleport,
+    WaitingForTeleportAck,
+    // destination is on different map or different instance of the same map
+    DelayedWorldPort,
+    WaitingForSuspendTokenResponse,
+    WaitingForWorldPortAck
+};
+
 enum TeleportToOptions
 {
     TELE_TO_NONE                = 0x00,
@@ -1860,7 +1873,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
         static bool IsValidClass(uint8 Class) { return ((1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE) != 0; }
-        static bool IsValidRace(uint8 Race) { return Trinity::RaceMask<uint64>{ RACEMASK_ALL_PLAYABLE }.HasRace(Race); }
+        static bool IsValidRace(uint8 Race) { return RACEMASK_ALL_PLAYABLE.HasRace(Race); }
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2304,7 +2317,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
-        void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData) override;
+        void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
+        void UpdateLiquidMirrorTimerFlagsOnPositionChange(Optional<LiquidData> const& newLiquidData);
         void AtEnterCombat() override;
         void AtExitCombat() override;
 
@@ -2381,14 +2395,16 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus); }
 
         TeleportLocation& GetTeleportDest() { return m_teleport_dest; }
-        uint32 GetTeleportOptions() const { return m_teleport_options; }
+        TeleportState GetTeleportState() const { return m_teleport_state; }
+        void SetTeleportState(TeleportState state) { m_teleport_state = state; }
+        EnumFlag<TeleportToOptions> GetTeleportOptions() const { return m_teleport_options; }
         int32 GetNewWorldCounter() const { return m_newWorldCounter; }
-        bool IsBeingTeleported() const { return IsBeingTeleportedNear() || IsBeingTeleportedFar(); }
-        bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
-        bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
-        bool IsBeingTeleportedSeamlessly() const { return IsBeingTeleportedFar() && m_teleport_options & TELE_TO_SEAMLESS; }
-        void SetSemaphoreTeleportNear(bool semphsetting) { mSemaphoreTeleport_Near = semphsetting; }
-        void SetSemaphoreTeleportFar(bool semphsetting) { mSemaphoreTeleport_Far = semphsetting; }
+        bool IsBeingTeleported() const { return m_teleport_state != TeleportState::NotTeleporting; }
+        bool IsBeingTeleportedNear() const { return m_teleport_state == TeleportState::DelayedTeleport
+            || m_teleport_state == TeleportState::WaitingForTeleportAck; }
+        bool IsBeingTeleportedFar() const { return m_teleport_state == TeleportState::DelayedWorldPort
+            || m_teleport_state == TeleportState::WaitingForSuspendTokenResponse
+            || m_teleport_state == TeleportState::WaitingForWorldPortAck; }
         void ProcessDelayedOperations();
 
         void CheckAreaExplore();
@@ -3044,7 +3060,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateTransmogOutfitSituations(uint32 id, bool situationsEnabled, std::span<WorldPackets::Transmogrification::TransmogOutfitSituationInfo const> situations);
         void UpdateTransmogOutfitSlots(uint32 id, std::span<WorldPackets::Transmogrification::TransmogOutfitSlotData const> slots);
         void EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Optional<bool> locked);
-        std::string GetCharacterSelectOutfit() const;
 
         std::string GetDebugInfo() const override;
 
@@ -3168,6 +3183,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans);
         void _SaveEquipmentSets(CharacterDatabaseTransaction trans);
         void _SaveTransmogOutfits(CharacterDatabaseTransaction trans);
+        void _SaveCharacterSelectOutfit(CharacterDatabaseTransaction trans) const;
         void _SaveBGData(CharacterDatabaseTransaction trans);
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
@@ -3346,8 +3362,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
-        bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
-        void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
         void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
 
         bool IsInstanceLoginGameMasterException() const;
@@ -3363,15 +3377,13 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         // Current teleport data
         TeleportLocation m_teleport_dest;
+        TeleportState m_teleport_state;
         TeleportToOptions m_teleport_options;
         uint32 m_teleportSpellId;
         int32 m_newWorldCounter;
-        bool mSemaphoreTeleport_Near;
-        bool mSemaphoreTeleport_Far;
 
         uint32 m_DelayedOperations;
         bool m_bCanDelayTeleport;
-        bool m_bHasDelayedTeleport;
 
         std::unique_ptr<PetStable> m_petStable;
 

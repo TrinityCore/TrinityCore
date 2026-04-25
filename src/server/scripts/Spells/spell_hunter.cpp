@@ -258,7 +258,7 @@ struct at_hun_binding_shot : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             for (ObjectGuid const& guid : at->GetInsideUnits())
             {

@@ -128,7 +128,7 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     _soundTurnIn(questRecord.CompleteSoundKitID().GetUInt32()),
     _areaGroupID(questRecord.AreaGroupID().GetUInt32()),
     _limitTime(questRecord.TimeAllowed().GetInt64()),
-    _allowableRaces({ .RawValue = questRecord.AllowableRaces().GetUInt64() }),
+    _allowableRaces({ .RawValue = advstd::bit_cast<std::array<int32, 2>>(questRecord.AllowableRaces().GetUInt64()) }),
     _expansion(questRecord.Expansion().GetInt32()),
     _managedWorldStateID(questRecord.ManagedWorldStateID().GetInt32()),
     _questSessionBonus(questRecord.QuestSessionBonus().GetInt32()),

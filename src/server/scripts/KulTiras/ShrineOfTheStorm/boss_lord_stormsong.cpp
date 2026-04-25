@@ -159,7 +159,7 @@ struct boss_lord_stormsong : public BossAI
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 me->GetMap()->SummonCreature(instance->instance->GetTeamInInstance() == HORDE ? NPC_LORD_STORMSONG_REXXAR : NPC_LORD_STORMSONG_BROTHER_PIKE, IntroPosition);
 
-                scheduler.Schedule(11s, [this](TaskContext task)
+                scheduler.Schedule(11s, [this](TaskContext& task)
                 {
                     me->SetFacingTo(1.047197f);
                     me->SetOrientation(me->GetOrientation());
@@ -169,11 +169,11 @@ struct boss_lord_stormsong : public BossAI
 
                     azshara->DespawnOrUnsummon();
 
-                    task.Schedule(16s, [this](TaskContext task)
+                    task.Schedule(16s, [this](TaskContext& task)
                     {
                         DoCastSelf(SPELL_DARK_BINDING);
 
-                        task.Schedule(6s, [this](TaskContext)
+                        task.Schedule(6s, [this](TaskContext const&)
                         {
                             me->SetImmuneToPC(false);
                             me->SetEmoteState(EMOTE_STATE_READY1H);

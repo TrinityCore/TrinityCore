@@ -239,7 +239,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
 
     void OnPrepareStage3() override
     {
-        _scheduler.Schedule(24s, [&](TaskContext)
+        _scheduler.Schedule(24s, [&](TaskContext const&)
         {
             for (ObjectGuid const& door : _walls)
                 if (GameObject* gameObject = battlegroundMap->GetGameObject(door))
@@ -253,7 +253,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
             if (GameObject* gameObject = battlegroundMap->GetGameObject(door))
                 gameObject->UseDoorOrButton();
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             for (ObjectGuid const& guid : _orbHolders)
             {
@@ -393,7 +393,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
         player->CastSpell(player, TempleOfKotmogu::Spells::Restoration, true);
         trigger->Remove();
 
-        _scheduler.Schedule(90s, [&, index](TaskContext)
+        _scheduler.Schedule(90s, [&, index](TaskContext const&)
         {
             SpawnHealingBuff(index);
         });

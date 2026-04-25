@@ -115,7 +115,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(1), [this](TaskContext targetSearch)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext& targetSearch)
             {
                 std::list<Creature*> bigEarlList;
                 me->GetCreatureListWithEntryInGrid(bigEarlList, NPC_BIGEARL, 5.0f);

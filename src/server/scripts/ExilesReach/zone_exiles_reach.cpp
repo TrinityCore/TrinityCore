@@ -824,7 +824,7 @@ struct npc_crew_ship_private : public ScriptedAI
     void JustAppeared() override
     {
         _path = GetPathID();
-        _scheduler.Schedule(Seconds(7), [this](TaskContext)
+        _scheduler.Schedule(Seconds(7), [this](TaskContext const&)
         {
             me->GetMotionMaster()->MovePath(_path, false);
         });

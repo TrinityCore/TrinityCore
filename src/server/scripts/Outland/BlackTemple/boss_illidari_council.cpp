@@ -546,7 +546,7 @@ struct npc_veras_vanish_effect : public PassiveAI
     void Reset() override
     {
         DoCastSelf(SPELL_BIRTH, true);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_ENVENOM_DUMMY, true);
         });

@@ -165,7 +165,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
             me->RemoveAurasDueToSpell(SPELL_KNEELING);
             me->SetReactState(REACT_PASSIVE);
 
-            scheduler.Schedule(1600ms, [this](TaskContext /*task*/)
+            scheduler.Schedule(1600ms, [this](TaskContext const& /*task*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
             });
@@ -245,7 +245,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
             return;
 
         me->RemoveAurasDueToSpell(SPELL_KNEELING);
-        scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             me->GetMotionMaster()->MoveJump(EVENT_JUMP, YmironIntroJumpPos, 24.0f, 2.0f);
         });
@@ -259,7 +259,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
         if (pointId != EVENT_JUMP)
             return;
 
-        scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
+        scheduler.Schedule(1500ms, [this](TaskContext const& /*task*/)
         {
             me->GetMotionMaster()->MovePath(PATH_INTRO_TOWARDS_SLAVES, false);
         });
@@ -270,11 +270,11 @@ struct boss_ymiron_the_fallen_king : public BossAI
         if (spell->Id != SPELL_SOUL_SIPHON_CHANNEL)
             return;
 
-        scheduler.Schedule(2s, [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext& task)
         {
             Talk(SAY_INTRO2);
 
-            task.Schedule(5s, [this](TaskContext /*task*/)
+            task.Schedule(5s, [this](TaskContext const& /*task*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_INTRO_AWAY_FROM_SLAVES, false);
             });
@@ -288,7 +288,7 @@ struct boss_ymiron_the_fallen_king : public BossAI
 
         if (pathId == PATH_INTRO_TOWARDS_SLAVES)
         {
-            scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
             {
                 DoCastAOE(SPELL_SOUL_SIPHON_CHANNEL);
                 Talk(SAY_INTRO1);
@@ -679,14 +679,14 @@ struct npc_ymiron_the_fallen_king_risen_warrior : public ScriptedAI
         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_ARISE_FALLEN, 4, 2000);
 
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
         });
 
         DoZoneInCombat();
 
-        _scheduler.Schedule(6s, [this](TaskContext task)
+        _scheduler.Schedule(6s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_VIGOR, true);
             task.Repeat(6s);

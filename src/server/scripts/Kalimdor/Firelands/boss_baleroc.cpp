@@ -133,31 +133,31 @@ struct boss_baleroc : public firelands_bossAI
         switch (phase)
         {
             case PHASE_ONE:
-                scheduler.Schedule(Milliseconds(8500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(8500), [this](TaskContext & context)
                 {
                     me->AddAura(SPELL_INCENDIARY_SOUL, me); // No cast
                     DoCastVictim(SPELL_BLAZE_OF_GLORY);
                     context.Repeat(Milliseconds(11500));
                 });
-                scheduler.Schedule(Seconds(5), [this](TaskContext context)
+                scheduler.Schedule(Seconds(5), [this](TaskContext& context)
                 {
                     DoCastAOE(SPELL_SHARDS_OF_TORMENT);
                     context.Repeat(Seconds(34));
                 });
                 if (me->GetMap()->IsHeroic())
                 {
-                    scheduler.Schedule(Seconds(26), [this](TaskContext context)
+                    scheduler.Schedule(Seconds(26), [this](TaskContext& context)
                     {
                         DoCastAOE(SPELL_COUNTDOWN);
                         context.Repeat(Seconds(48));
                     });
                 }
-                scheduler.Schedule(Milliseconds(30500), [this](TaskContext context)
+                scheduler.Schedule(Milliseconds(30500), [this](TaskContext& context)
                 {
                     DoCastSelf(SPELL_BLADES_OF_BALEROC);
                     context.Repeat(Seconds(47));
                 });
-                scheduler.Schedule(Minutes(6), [this](TaskContext)
+                scheduler.Schedule(Minutes(6), [this](TaskContext const&)
                 {
                     Talk(SAY_ENRAGE);
                     Talk(EMOTE_ENRAGE);
@@ -190,7 +190,7 @@ struct boss_baleroc : public firelands_bossAI
             _canYellKilledPlayer = false;
             Talk(SAY_KILL);
 
-            separateScheduler.Schedule(Seconds(8), [this](TaskContext)
+            separateScheduler.Schedule(Seconds(8), [this](TaskContext const&)
             {
                 _canYellKilledPlayer = true;
             });
@@ -278,11 +278,11 @@ struct npc_shard_of_torment : public NullCreatureAI
     void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastAOE(SPELL_TORMENT_PRE_VISUAL);
-        scheduler.Schedule(Milliseconds(4400), [this](TaskContext)
+        scheduler.Schedule(Milliseconds(4400), [this](TaskContext& context)
         {
             me->RemoveAurasDueToSpell(SPELL_TORMENT_PRE_VISUAL);
             DoCastAOE(SPELL_TORMENT_ACTIVE);
-            scheduler.Schedule(Milliseconds(1100), [this](TaskContext context)
+            context.Schedule(Milliseconds(1100), [this](TaskContext& context)
             {
                 DoCastAOE(SPELL_WAVE_OF_TORMENT);
                 context.Repeat(Seconds(1));
@@ -296,7 +296,7 @@ struct npc_shard_of_torment : public NullCreatureAI
             return;
 
         scheduler.CancelAll();
-        scheduler.Schedule(Milliseconds(1100), [this](TaskContext context)
+        scheduler.Schedule(Milliseconds(1100), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_WAVE_OF_TORMENT);
             context.Repeat(Seconds(1));

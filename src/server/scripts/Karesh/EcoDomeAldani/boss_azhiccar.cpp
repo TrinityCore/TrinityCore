@@ -191,12 +191,12 @@ struct boss_azhiccar : public BossAI
                 me->SetAIAnimKitId(ANIMKIT_NONE);
                 me->PlayOneShotAnimKitId(ANIMKIT_EMERGE);
 
-                scheduler.Schedule(2s + 170ms, [this](TaskContext context)
+                scheduler.Schedule(2s + 170ms, [this](TaskContext& context)
                 {
                     DoCastSelf(SPELL_KNOCKBACK);
                     DoCastSelf(SPELL_DEVOUR_INTRO);
 
-                    context.Schedule(7s, [this](TaskContext)
+                    context.Schedule(7s, [this](TaskContext const&)
                     {
                         me->SetUninteractible(false);
                         me->SetImmuneToAll(false);
@@ -706,7 +706,7 @@ struct npc_azhiccar_intro_creature : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_DEVOUR_INTRO_SELECTOR)
         {
-            _scheduler.Schedule(2000ms, 4500ms, [this](TaskContext)
+            _scheduler.Schedule(2000ms, 4500ms, [this](TaskContext const&)
             {
                 me->SendPlayOrphanSpellVisual(OrphanSpellVisualPosition, me->GetPosition(), SPELL_VISUAL_DEVOURED, 45.0f, false);
                 DoCastSelf(SPELL_DEVOUR_INSTAKILL);

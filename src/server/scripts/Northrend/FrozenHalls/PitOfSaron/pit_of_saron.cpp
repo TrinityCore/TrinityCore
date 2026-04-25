@@ -204,7 +204,7 @@ struct npc_pit_of_saron_icicle : public PassiveAI
     {
         _summonerGUID = summoner->GetGUID();
 
-        _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(3650), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
             DoCastSelf(SPELL_ICICLE_FALL_VISUAL);

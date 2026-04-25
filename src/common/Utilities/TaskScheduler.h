@@ -21,6 +21,7 @@
 #include "Duration.h"
 #include "Optional.h"
 #include "Random.h"
+#include "Types.h"
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -48,6 +49,8 @@ class TC_COMMON_API TaskScheduler
 {
     friend class TaskContext;
 
+    class TaskHandler;
+
     // Time definitions (use steady clock)
     typedef std::chrono::steady_clock clock_t;
     typedef clock_t::time_point timepoint_t;
@@ -57,12 +60,46 @@ class TC_COMMON_API TaskScheduler
     typedef uint32 group_t;
     // Task repeated type
     typedef uint32 repeated_t;
-    // Task handle type
-    typedef std::function<void(TaskContext&&)> task_handler_t;
+    // Task handler type
+    typedef TaskHandler task_handler_t;
     // Predicate type
     typedef std::function<bool()> predicate_t;
     // Success handle type
     typedef std::function<void()> success_t;
+
+    // Task handler function wrapper designed to support both TaskContext& and TaskContext arguments
+    class TaskHandler
+    {
+    public:
+        template <typename InnerHandler> requires (!std::same_as<InnerHandler, TaskHandler>)
+        TaskHandler(InnerHandler&& handler) : _handler(TaskHandler::Wrap(std::forward<InnerHandler>(handler))) { }
+
+        void operator()(TaskContext& context) const { _handler(context); }
+
+    private:
+        template <typename InnerHandler>
+        static decltype(auto) Wrap(InnerHandler&& handler)
+        {
+            if constexpr (std::invocable<InnerHandler, TaskContext&>)
+            {
+                return std::forward<InnerHandler>(handler);
+            }
+            else if constexpr (std::invocable<InnerHandler, TaskContext&&>)
+            {
+                // support legacy signature
+                return [inner = std::forward<InnerHandler>(handler)](TaskContext& context)
+                {
+                    inner(static_cast<TaskContext&&>(context));
+                };
+            }
+            else
+            {
+                static_assert(Trinity::dependant_false_v<InnerHandler>, "Unsupported task argument type, must be TaskContext& or TaskContext const&");
+            }
+        }
+
+        std::function<void(TaskContext&)> _handler;
+    };
 
     class Task
     {
@@ -340,18 +377,13 @@ class TC_COMMON_API TaskContext
     /// Owner
     std::weak_ptr<TaskScheduler> _owner;
 
-    TaskScheduler::TaskContainer& GetTaskContainer() noexcept;
-
-    TaskScheduler::Task* GetTask() const noexcept;
-
 public:
     // Empty constructor
     TaskContext() noexcept
         : _task(), _owner() { }
 
     // Construct from task and owner
-    explicit TaskContext(TaskScheduler::TaskQueue::Container::node_type&& task, std::weak_ptr<TaskScheduler>&& owner) noexcept
-        : _task(std::move(task)), _owner(std::move(owner)) { }
+    explicit TaskContext(TaskScheduler::TaskQueue::Container::node_type&& task, std::weak_ptr<TaskScheduler>&& owner) noexcept;
 
     // Copy construct
     TaskContext(TaskContext const& right) = delete;
@@ -365,7 +397,7 @@ public:
     // Move assign
     TaskContext& operator=(TaskContext&& right) noexcept;
 
-    ~TaskContext() = default;
+    ~TaskContext();
 
     /// Returns true if the owner was deallocated and this context has expired.
     bool IsExpired() const;
@@ -497,6 +529,10 @@ public:
 private:
     /// Invokes the associated hook of the task.
     void Invoke();
+
+    TaskScheduler::TaskContainer& GetTaskContainer() noexcept;
+
+    TaskScheduler::Task* GetTask() const noexcept;
 };
 
 #endif /// TRINITYCORE_TASK_SCHEDULER_H

@@ -923,7 +923,7 @@ struct npc_ball_of_flame : public ScriptedAI
         {
             me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
             DoCastSelf(SPELL_FLAMES);
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
             {
                 DoCastSelf(SPELL_FLAME_SPHERE_DEATH_EFFECT);
             });
@@ -1044,7 +1044,7 @@ struct npc_dark_nucleus : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext targetAuraCheck)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& targetAuraCheck)
         {
             if (Unit* victim = me->GetVictim())
             {

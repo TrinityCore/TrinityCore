@@ -701,10 +701,10 @@ struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
         if (pathId == PATH_MAGUS_OPEN_PORTAL_EXODAR)
         {
             DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
-            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext& task)
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                task.Schedule(1s + 500ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_EXODAR, false);
                 });
@@ -713,10 +713,10 @@ struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
         else if (pathId == PATH_MAGUS_OPEN_PORTAL_IRONFORGE)
         {
             DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
-            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext& task)
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                task.Schedule(1s + 500ms, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_MAGUS_FINISH_PORTAL_IRONFORGE, false);
                 });
@@ -725,10 +725,10 @@ struct npc_7th_legion_magus_sanctum_of_the_sages : public ScriptedAI
         else if (pathId == PATH_MAGUS_OPEN_PORTAL_STORMWIND)
         {
             DoCastAOE(SPELL_LEGION_MAGUS_ARCANE_CHANNEL);
-            _scheduler.Schedule(3s + 500ms, [this](TaskContext task)
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext& task)
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                task.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                task.Schedule(1s + 500ms, [this](TaskContext const& /*task*/)
                 {
                     TempSummon* summon = me->ToTempSummon();
                     if (!summon)

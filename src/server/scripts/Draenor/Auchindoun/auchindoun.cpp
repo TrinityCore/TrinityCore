@@ -158,7 +158,7 @@ struct npc_auchindoun_auchenai_defender : public ScriptedAI
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            _scheduler.Schedule(1s + 300ms, [this](TaskContext /*task*/)
+            _scheduler.Schedule(1s + 300ms, [this](TaskContext const& /*task*/)
             {
                 me->SetFacingTo(3.8194849f);
                 Talk(SAY_NYAMI_AWAITS);
@@ -186,11 +186,11 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
         {
             Talk(SAY_WELCOME_1);
 
-            _scheduler.Schedule(4s + 300ms, [this](TaskContext task)
+            _scheduler.Schedule(4s + 300ms, [this](TaskContext& task)
             {
                 Talk(SAY_WELCOME_2);
 
-                task.Schedule(6s, [this](TaskContext /*task*/)
+                task.Schedule(6s, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_BARRIER, false);
                 });
@@ -205,20 +205,20 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
 
             Talk(SAY_BREAK_BARRIER_1);
 
-            _scheduler.Schedule(3s, [this](TaskContext task)
+            _scheduler.Schedule(3s, [this](TaskContext& task)
             {
                 DoCast(SPELL_TUULANI_UNLOCK_VISUAL);
 
-                task.Schedule(4s, [this](TaskContext task)
+                task.Schedule(4s, [this](TaskContext& task)
                 {
                     if (GameObject* holyBarrier = me->GetInstanceScript()->GetGameObject(DATA_HOLY_BARRIER))
                         holyBarrier->SetGoState(GO_STATE_ACTIVE);
 
-                    task.Schedule(2s + 300ms, [this](TaskContext task)
+                    task.Schedule(2s + 300ms, [this](TaskContext& task)
                     {
                         Talk(SAY_BREAK_BARRIER_2);
 
-                        task.Schedule(1s + 300ms, [this](TaskContext /*task*/)
+                        task.Schedule(1s + 300ms, [this](TaskContext const& /*task*/)
                         {
                             me->GetMotionMaster()->MovePath(PATH_MOVE_TO_BOSS, false);
                         });
@@ -236,7 +236,7 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
             {
                 case POINT_TALK:
                 {
-                    _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                    _scheduler.Schedule(500ms, [this](TaskContext const& /*task*/)
                     {
                         Talk(SAY_WELCOME_3);
                     });
@@ -255,7 +255,7 @@ struct npc_auchindoun_soulbinder_tuulani : public ScriptedAI
         {
             if (waypointId == POINT_SOULS)
             {
-                _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(500ms, [this](TaskContext const& /*task*/)
                 {
                     me->SetFacingTo(1.727875f);
                     Talk(SAY_HEROES_SOULS);
@@ -285,7 +285,7 @@ struct at_auchindoun_npc_reaction : AreaTriggerAI
         if (!unit->IsCreature() || unit->GetEmoteState() == EMOTE_STATE_READY1H_ALLOW_MOVEMENT || unit->GetEntry() == NPC_SOULBINDER_TUULANI)
             return;
 
-        _scheduler.Schedule(1500ms, [this, unitGUID = unit->GetGUID()](TaskContext task)
+        _scheduler.Schedule(1500ms, [this, unitGUID = unit->GetGUID()](TaskContext& task)
         {
             Creature* auchenaiDefender = ObjectAccessor::GetCreature(*at, unitGUID);
             if (!auchenaiDefender)
@@ -295,7 +295,7 @@ struct at_auchindoun_npc_reaction : AreaTriggerAI
                 auchenaiDefender->SetFacingToObject(caster);
             auchenaiDefender->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-            task.Schedule(4s, [this, unitGUID](TaskContext /*task*/)
+            task.Schedule(4s, [this, unitGUID](TaskContext const& /*task*/)
             {
                 Creature* auchenaiDefender = ObjectAccessor::GetCreature(*at, unitGUID);
                 if (!auchenaiDefender)

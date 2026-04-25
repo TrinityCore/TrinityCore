@@ -115,7 +115,7 @@ struct boss_soulbound_goliath : public BossAI
         {
             case ACTION_SOULBOUND_GOLIATH_INTRO:
             {
-                _scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(1s + 500ms, [this](TaskContext const& /*task*/)
                 {
                     me->SetAIAnimKitId(ANIMKIT_NONE);
                     me->PlayOneShotAnimKitId(ANIMKIT_AWAKE);

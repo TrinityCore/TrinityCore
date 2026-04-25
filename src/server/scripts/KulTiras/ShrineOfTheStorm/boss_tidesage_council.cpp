@@ -420,7 +420,7 @@ struct at_tidesage_council_reinforcing_ward : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             for (ObjectGuid const& guid : at->GetInsideUnits())
             {

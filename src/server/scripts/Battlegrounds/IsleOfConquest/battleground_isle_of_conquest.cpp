@@ -367,7 +367,7 @@ struct battleground_isle_of_conquest : BattlegroundScript
             gameobject->SetGoState(GO_STATE_ACTIVE);
         });
 
-        _scheduler.Schedule(20s, [&](TaskContext)
+        _scheduler.Schedule(20s, [&](TaskContext const&)
         {
             for (ObjectGuid const& guid : _wallGUIDs)
                 if (GameObject* gameobject = battlegroundMap->GetGameObject(guid))

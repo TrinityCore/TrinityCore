@@ -166,7 +166,7 @@ struct npc_raging_flames : public ScriptedAI
 
         FixateRandomTarget();
 
-        _scheduler.Schedule(15s, 25s, [this](TaskContext task)
+        _scheduler.Schedule(15s, 25s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_INFERNO);
             FixateRandomTarget();

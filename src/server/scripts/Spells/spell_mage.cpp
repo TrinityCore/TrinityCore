@@ -890,7 +890,7 @@ struct at_mage_flame_patch : public AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetPosition(), SPELL_MAGE_FLAME_PATCH_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);

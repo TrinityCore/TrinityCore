@@ -47,27 +47,27 @@ struct boss_vanndar : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _scheduler
-            .Schedule(3s, [this](TaskContext task)
+            .Schedule(3s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_AVATAR);
                 task.Repeat(15s, 20s);
             })
-            .Schedule(4s, [this](TaskContext task)
+            .Schedule(4s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_THUNDERCLAP);
                 task.Repeat(5s, 15s);
             })
-            .Schedule(6s, [this](TaskContext task)
+            .Schedule(6s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_STORMBOLT);
                 task.Repeat(10s, 25s);
             })
-            .Schedule(20s, 30s, [this](TaskContext task)
+            .Schedule(20s, 30s, [this](TaskContext& task)
             {
                 Talk(YELL_RANDOM);
                 task.Repeat(20s, 30s);
             })
-            .Schedule(5s, [this](TaskContext task)
+            .Schedule(5s, [this](TaskContext& task)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {

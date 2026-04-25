@@ -1383,7 +1383,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
         if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
             illidan->AI()->JustSummoned(me);
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();
@@ -1398,7 +1398,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
             me->AttackStop();
         }
         else if (action == ACTION_RESUME_COMBAT)
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
@@ -1435,10 +1435,10 @@ struct npc_blade_of_azzinoth : public NullCreatureAI
         _flameGuid.Clear();
         me->PlayDirectSound(WARGLAIVE_SPAWN_SOUND_ID);
         DoCastSelf(SPELL_BIRTH, true);
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_SUMMON_TEAR_OF_AZZINOTH);
-            _scheduler.Schedule(Milliseconds(500), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Milliseconds(500), [this](TaskContext const& /*context*/)
             {
                 if (Creature* flame = ObjectAccessor::GetCreature(*me, _flameGuid))
                     DoCast(flame, SPELL_AZZINOTH_CHANNEL);
@@ -1577,7 +1577,7 @@ struct npc_shadow_demon : public PassiveAI
 
         DoCastSelf(SPELL_SHADOW_DEMON_PASSIVE);
         DoCastSelf(SPELL_FIND_TARGET);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext checkTarget)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& checkTarget)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
             {
@@ -1759,7 +1759,7 @@ struct npc_cage_trap_trigger : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext checkTarget)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& checkTarget)
         {
             DoCastSelf(SPELL_CAGE_TRAP_PERIODIC);
             checkTarget.Repeat();

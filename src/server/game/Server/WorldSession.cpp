@@ -1722,6 +1722,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) co
             maxPacketCounterAllowed = 1;
             break;
         }
+        case CMSG_CHECK_IS_ADVENTURE_MAP_POI_VALID:     // not profiled
+        {
+            // 12.0.1: all entries of the db2 are sent
+            maxPacketCounterAllowed = sAdventureMapPOIStore.GetNumRows();
+            break;
+        }
         default:
         {
             maxPacketCounterAllowed = 100;

@@ -802,7 +802,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
     if (target.GetTarget() == TARGET_DEST_CASTER_RANDOM ||
         target.GetTarget() == TARGET_DEST_TARGET_RANDOM ||
         target.GetTarget() == TARGET_DEST_DEST_RANDOM)
-        radius += (entry->RadiusMax - radius) * rand_norm();
+        radius += (entry->RadiusMax - radius) * std::sqrt(rand_norm());
     else if (radius == 0.0f)
         radius = entry->RadiusMax;
 

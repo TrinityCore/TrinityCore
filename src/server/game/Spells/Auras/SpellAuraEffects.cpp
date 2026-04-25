@@ -725,6 +725,12 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //653
     &AuraEffect::HandleNULL,                                      //654
     &AuraEffect::HandleNULL,                                      //655 SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST
+    &AuraEffect::HandleNULL,                                      //656
+    &AuraEffect::HandleNULL,                                      //657
+    &AuraEffect::HandleNULL,                                      //658
+    &AuraEffect::HandleNULL,                                      //659
+    &AuraEffect::HandleNULL,                                      //660
+    &AuraEffect::HandleNULL,                                      //661 SPELL_AURA_ALTERED_FORM_IN_COMBAT
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, SpellEffectValue const* baseAmount, Unit* caster) :

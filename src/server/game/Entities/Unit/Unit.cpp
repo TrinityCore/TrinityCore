@@ -998,6 +998,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel
         if (damagetype != NODAMAGE && damagetype != SELF_DAMAGE && victim->HasAuraType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL))
         {
             AuraEffectVector vAbsorbOverkill = CopyAuraEffectList(victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL));
+            std::ranges::stable_sort(vAbsorbOverkill, Trinity::AbsorbAuraOrderPred());
             DamageInfo damageInfo = DamageInfo(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype,
                 cleanDamage ? cleanDamage->attackType : BASE_ATTACK);
             for (AuraEffect* absorbAurEff : vAbsorbOverkill)
@@ -1011,7 +1012,12 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel
                     continue;
 
                 // cannot absorb over limit
-                if (damageTaken >= victim->CountPctFromMaxHealth(100 + absorbAurEff->GetMiscValueB()))
+                if (absorbAurEff->GetAmount() > 0)
+                {
+                    if (damageTaken > absorbAurEff->GetAmount())
+                        continue;
+                }
+                else if (damageTaken >= victim->GetMaxHealth() * 2)
                     continue;
 
                 // absorb all damage by default
@@ -1891,7 +1897,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
     AuraEffectVector vSchoolAbsorbCopy = CopyAuraEffectList(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
-    std::sort(vSchoolAbsorbCopy.begin(), vSchoolAbsorbCopy.end(), Trinity::AbsorbAuraOrderPred());
+    std::ranges::stable_sort(vSchoolAbsorbCopy, Trinity::AbsorbAuraOrderPred());
 
     // absorb without mana cost
     for (auto itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
@@ -2104,6 +2110,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
         return;
 
     AuraEffectVector vHealAbsorb = CopyAuraEffectList(healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB));
+    std::ranges::stable_sort(vHealAbsorb, Trinity::AbsorbAuraOrderPred());
     for (auto i = vHealAbsorb.begin(); i != vHealAbsorb.end() && healInfo.GetHeal() > 0; ++i)
     {
         AuraEffect* absorbAurEff = *i;
@@ -3338,13 +3345,12 @@ bool Unit::IsOnOceanFloor() const
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
-    ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
     WorldObject::ProcessPositionDataChanged(data);
-    ProcessTerrainStatusUpdate(oldLiquidStatus, data.liquidInfo);
+    UpdateLiquidStatusOnPositionChange(data.liquidInfo);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CurrentAreaID), data.areaId);
 }
 
-void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
+void Unit::UpdateLiquidStatusOnPositionChange(Optional<LiquidData> const& newLiquidData)
 {
     if (!IsControlledByPlayer())
         return;
@@ -3363,18 +3369,14 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<Li
     {
         if (_lastLiquid && _lastLiquid->SpellID)
             RemoveAurasDueToSpell(_lastLiquid->SpellID);
-        Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
         // Set _lastLiquid before casting liquid spell to avoid infinite loops
         _lastLiquid = curLiquid;
 
+        Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
         if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellID, true);
     }
-
-    // mount capability depends on liquid state change
-    if (oldLiquidStatus != GetLiquidStatus())
-        UpdateMountCapability();
 }
 
 void Unit::DeMorph()
@@ -13682,11 +13684,70 @@ bool Unit::SetCollision(bool disable)
     return true;
 }
 
-bool Unit::SetEnableFullSpeedTurning(bool enable)
+bool Unit::SetStrafingDisabled(bool disable)
 {
-    if (GetTypeId() != TYPEID_PLAYER)
+    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE))
         return false;
 
+    if (disable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+
+    static OpcodeServer const disableStrafingOpcodeTable[2] =
+    {
+        SMSG_MOVE_ENABLE_STRAFING,
+        SMSG_MOVE_DISABLE_STRAFING,
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableStrafingOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetJumpingDisabled(bool disable)
+{
+    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING))
+        return false;
+
+    if (disable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+
+    static OpcodeServer const disableJumpingOpcodeTable[2] =
+    {
+        SMSG_MOVE_ENABLE_JUMPING,
+        SMSG_MOVE_DISABLE_JUMPING,
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableJumpingOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetEnableFullSpeedTurning(bool enable)
+{
     if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING))
         return false;
 
@@ -13704,6 +13765,68 @@ bool Unit::SetEnableFullSpeedTurning(bool enable)
     if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(fullSpeedTurningOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetEnableFullSpeedPitching(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+
+    static constexpr OpcodeServer fullSpeedPitchingOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_FULL_SPEED_PITCHING,
+        SMSG_MOVE_ENABLE_FULL_SPEED_PITCHING
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(fullSpeedPitchingOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetAlwaysAllowPitching(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+
+    static constexpr OpcodeServer alwaysAllowPitchingOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_ALWAYS_ALLOW_PITCHING,
+        SMSG_MOVE_SET_ALWAYS_ALLOW_PITCHING
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(alwaysAllowPitchingOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());

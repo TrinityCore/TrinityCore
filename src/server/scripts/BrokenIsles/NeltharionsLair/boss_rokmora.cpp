@@ -398,7 +398,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
     {
         Seconds delay = 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             DoCastSelf(SPELL_JUMP_TO_GROUND_COSMETIC);
             me->GetMotionMaster()->MoveJump(POINT_NAVAROGG_JUMP, NavarroggJumpIntroPosition, 50.0f, 50.0f);
@@ -406,14 +406,14 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
 
         delay += 2s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             me->RemoveAurasDueToSpell(SPELL_JUMP_TO_GROUND_COSMETIC);
         });
 
         delay += 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             if (Creature* ularogg = me->FindNearestCreature(NPC_ULAROGG, 50.0f))
             {
@@ -436,7 +436,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
 
         delay += 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             if (Creature* ularogg = me->FindNearestCreature(NPC_ULAROGG, 50.0f))
                 ularogg->CastSpell(ularogg->GetPosition(), SPELL_BOSS_INTRO_CONVERSATION);

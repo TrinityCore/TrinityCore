@@ -590,7 +590,7 @@ struct npc_enslaved_soul : public ScriptedAI
 
         DoCastSelf(SPELL_ENSLAVED_SOUL_PASSIVE, true);
 
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();

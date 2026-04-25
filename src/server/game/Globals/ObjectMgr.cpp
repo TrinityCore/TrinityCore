@@ -4829,12 +4829,13 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be -1/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->_allowableRaces.RawValue != uint64(-1))
+        if (qinfo->_allowableRaces != RACEMASK_ALL_v<std::array<int32, 2>>)
         {
-            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE).IsEmpty())
+            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE_v<std::array<int32, 2>>).IsEmpty())
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} does not contain any playable races in `AllowableRaces` ({}), value set to -1 (all races).", qinfo->GetQuestId(), qinfo->_allowableRaces.RawValue);
-                qinfo->_allowableRaces.RawValue = uint64(-1);
+                TC_LOG_ERROR("sql.sql", "Quest {} does not contain any playable races in `AllowableRaces` (0x{:X}{:08X}), value set to -1 (all races).",
+                    qinfo->GetQuestId(), qinfo->_allowableRaces.RawValue[1], qinfo->_allowableRaces.RawValue[0]);
+                qinfo->_allowableRaces = RACEMASK_ALL_v<std::array<int32, 2>>;
             }
         }
         // RequiredSkillId, can be 0
@@ -11045,7 +11046,7 @@ void ObjectMgr::LoadPlayerChoices()
     _playerChoices.clear();
 
     QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, "
-        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, ForceDontShowChoicesAsList, MaxResponses, ScriptName FROM playerchoice");
+        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, ForceDontShowChoicesAsList, RequiresSelection, MaxResponses, ScriptName FROM playerchoice");
     if (!choices)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
@@ -11064,7 +11065,7 @@ void ObjectMgr::LoadPlayerChoices()
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(UiTextureKitId)(SoundKitId)(CloseSoundKitId)(Duration)(Question)(PendingChoiceText)
-                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(MaxResponses)(ScriptName)) fields { *choices };
+                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(RequiresSelection)(MaxResponses)(ScriptName)) fields { *choices };
 
             int32 choiceId = fields.ChoiceId().GetInt32();
 
@@ -11082,6 +11083,7 @@ void ObjectMgr::LoadPlayerChoices()
             choice.KeepOpenAfterChoice = fields.KeepOpenAfterChoice().GetBool();
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
             choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
+            choice.RequiresSelection = fields.RequiresSelection().GetBool();
             choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
             choice.ScriptId = GetScriptId(fields.ScriptName().GetStringView());
 

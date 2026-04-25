@@ -138,7 +138,7 @@ struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
             me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
             aratorClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-            _scheduler.Schedule(1s, [this, aratorGuid = aratorClone->GetGUID()](TaskContext task)
+            _scheduler.Schedule(1s, [this, aratorGuid = aratorClone->GetGUID()](TaskContext& task)
             {
                 Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
                 if (!aratorClone)
@@ -146,7 +146,7 @@ struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
 
                 me->SetMountDisplayId(Mounts::VereesaWindrunnerMount);
                 aratorClone->SetMountDisplayId(Mounts::AratorMount);
-                task.Schedule(2s, [this, aratorGuid](TaskContext /*task*/)
+                task.Schedule(2s, [this, aratorGuid](TaskContext const& /*task*/)
                 {
                     Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
                     if (!aratorClone)

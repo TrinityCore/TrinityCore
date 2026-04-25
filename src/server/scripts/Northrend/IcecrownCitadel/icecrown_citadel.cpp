@@ -661,7 +661,7 @@ struct npc_icc_orb_controller : public ScriptedAI
 
     void Reset() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext /*initialize*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*initialize*/)
         {
             std::vector<Creature*> creatures;
             ICCOrbControllerMinionSearch check(me, false);
@@ -683,7 +683,7 @@ struct npc_icc_orb_controller : public ScriptedAI
 
     void ScheduleVisualChannel(bool evading)
     {
-        _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext visual)
+        _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext& visual)
         {
             ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
@@ -783,7 +783,7 @@ struct DarkFallenAI : public ScriptedAI
         {
             return !me->HasUnitState(UNIT_STATE_CASTING);
         })
-        .Schedule(1s, 10s, [this](TaskContext emote)
+        .Schedule(1s, 10s, [this](TaskContext& emote)
         {
             if (!IsDoingEmotes)
                 return;
@@ -800,7 +800,7 @@ struct DarkFallenAI : public ScriptedAI
                     DoCast(friendly, SPELL_POLYMORPH_ALLY);
                 }
             }
-            Scheduler.Schedule(1s, [this](TaskContext /*emote*/)
+            emote.Schedule(1s, [this](TaskContext& /*emote*/)
             {
                 me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(DarkFallensEmotes));
             });
@@ -861,16 +861,16 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        Scheduler.Schedule(500ms, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_VAMPIRIC_AURA);
         })
-        .Schedule(8s, [this](TaskContext unholyStrike)
+        .Schedule(8s, [this](TaskContext& unholyStrike)
         {
             DoCastVictim(SPELL_UNHOLY_STRIKE);
             unholyStrike.Repeat(8s, 9s);
         })
-        .Schedule(6s, [this](TaskContext bloodMirror)
+        .Schedule(6s, [this](TaskContext& bloodMirror)
         {
             DoCastSelf(SPELL_BLOOD_MIRROR);
             bloodMirror.Repeat(34s);
@@ -888,12 +888,12 @@ struct npc_darkfallen_noble : public DarkFallenAI
     void ScheduleSpells() override
     {
         AttackSpellId = SPELL_SHADOW_BOLT;
-        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        Scheduler.Schedule(500ms, [this](TaskContext const& /*context*/)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
                 DoCast(target, SPELL_CHAINS_OF_SHADOW);
         })
-        .Schedule(11s, [this](TaskContext summonVampiric)
+        .Schedule(11s, [this](TaskContext& summonVampiric)
         {
             // Vampiric should be summoned by 70647 but i have no idea what is miscB of summon effect
             if (Unit* target = me->GetVictim())
@@ -911,11 +911,11 @@ struct npc_vampiric_fiend : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_DISEASE_CLOUD);
-        _scheduler.Schedule(9s, [this](TaskContext /*leechingRoot*/)
+        _scheduler.Schedule(9s, [this](TaskContext const& /*leechingRoot*/)
         {
             DoCastVictim(SPELL_LEECHING_ROOT);
         })
-        .Schedule(38s, [this](TaskContext /*leechingRoot*/)
+        .Schedule(38s, [this](TaskContext const& /*leechingRoot*/)
         {
             me->DespawnOrUnsummon();
         });
@@ -949,18 +949,18 @@ struct npc_darkfallen_archmage : public DarkFallenAI
     void ScheduleSpells() override
     {
         AttackSpellId = SPELL_FIREBALL;
-        Scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
+        Scheduler.Schedule(1s, [this](TaskContext& amplifyMagic)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_AMPLIFY_MAGIC);
             amplifyMagic.Repeat(15s, 24s);
         })
-        .Schedule(10s, [this](TaskContext blastWave)
+        .Schedule(10s, [this](TaskContext& blastWave)
         {
             DoCastSelf(SPELL_BLAST_WAVE);
             blastWave.Repeat(25s, 30s);
         })
-        .Schedule(17s, [this](TaskContext polymorph)
+        .Schedule(17s, [this](TaskContext& polymorph)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_POLYMORPH))
                 DoCast(target, SPELL_POLYMORPH);
@@ -975,12 +975,12 @@ struct npc_darkfallen_advisor : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(8s, [this](TaskContext lichSlap)
+        Scheduler.Schedule(8s, [this](TaskContext& lichSlap)
         {
             DoCastVictim(SPELL_LICH_SLAP);
             lichSlap.Repeat(12s);
         })
-        .Schedule(50s, [this](TaskContext immunity)
+        .Schedule(50s, [this](TaskContext& immunity)
         {
             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                 DoCast(target, SPELL_SHROUD_OF_SPELL_WARDING);
@@ -995,12 +995,12 @@ struct npc_darkfallen_tactician : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        Scheduler.Schedule(8s, [this](TaskContext unholyStrike)
+        Scheduler.Schedule(8s, [this](TaskContext& unholyStrike)
         {
             DoCastVictim(SPELL_UNHOLY_STRIKE);
             unholyStrike.Repeat(8s, 11s);
         })
-        .Schedule(10s, [this](TaskContext shadowStep)
+        .Schedule(10s, [this](TaskContext& shadowStep)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false))
             {
@@ -1133,7 +1133,7 @@ struct go_empowering_blood_orb : public GameObjectAI
         me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
             trigger->DespawnOrUnsummon();
-        _scheduler.Schedule(3s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
         {
             me->Delete();
         });

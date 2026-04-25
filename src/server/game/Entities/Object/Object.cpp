@@ -682,32 +682,23 @@ bool WorldObject::isInBack(WorldObject const* target, float arc) const
     return !HasInArc(2 * float(M_PI) - arc, target);
 }
 
-void WorldObject::GetRandomPoint(Position const& pos, float distance, float& rand_x, float& rand_y, float& rand_z) const
-{
-    if (!distance)
-    {
-        pos.GetPosition(rand_x, rand_y, rand_z);
-        return;
-    }
-
-    // angle to face `obj` to `this`
-    float angle = rand_norm() * static_cast<float>(2 * M_PI);
-    float new_dist = rand_norm() + rand_norm();
-    new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
-
-    rand_x = pos.m_positionX + new_dist * std::cos(angle);
-    rand_y = pos.m_positionY + new_dist * std::sin(angle);
-    rand_z = pos.m_positionZ;
-
-    Trinity::NormalizeMapCoord(rand_x);
-    Trinity::NormalizeMapCoord(rand_y);
-    UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
-}
-
-Position WorldObject::GetRandomPoint(Position const& srcPos, float distance) const
+Position WorldObject::GetRandomPoint(Position const& srcPos, float distance, float minDistance /*= 0.0f*/) const
 {
     float x, y, z;
-    GetRandomPoint(srcPos, distance, x, y, z);
+    srcPos.GetPosition(x, y, z);
+    if (distance)
+    {
+        // angle to face `obj` to `this`
+        float angle = rand_norm() * static_cast<float>(2 * M_PI);
+        float new_dist = minDistance + (distance - minDistance) * std::sqrt(rand_norm());
+
+        x += new_dist * std::cos(angle);
+        y += new_dist * std::sin(angle);
+
+        Trinity::NormalizeMapCoord(x);
+        Trinity::NormalizeMapCoord(y);
+        UpdateGroundPositionZ(x, y, z);            // update to LOS height if available
+    }
     return Position(x, y, z, GetOrientation());
 }
 
@@ -2805,7 +2796,7 @@ Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
 Position WorldObject::GetRandomNearPosition(float radius)
 {
     Position pos = GetPosition();
-    MovePosition(pos, radius * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
+    MovePosition(pos, radius * std::sqrt(rand_norm()), rand_norm() * static_cast<float>(2 * M_PI));
     return pos;
 }
 

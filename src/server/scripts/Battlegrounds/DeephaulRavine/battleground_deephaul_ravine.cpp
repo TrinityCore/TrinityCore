@@ -256,14 +256,14 @@ struct battleground_deephaul_ravine : BattlegroundScript
     void OnStart() override
     {
         BattlegroundScript::OnStart();
-        _scheduler.Schedule(15s, [&](TaskContext)
+        _scheduler.Schedule(15s, [&](TaskContext const&)
         {
             UpdateWorldState(DeephaulRavine::WorldStates::FlagEnabled, 3);
         });
 
         UpdateWorldState(DeephaulRavine::WorldStates::BattleBegun, 1);
 
-        _scheduler.Schedule(2s, [&](TaskContext context)
+        _scheduler.Schedule(2s, [&](TaskContext& context)
         {
             uint32 const underAllianceControl = std::ranges::count_if(DeephaulRavine::WorldStates::AllianceControlWorldStates, [&](int32 worldState)
             {
@@ -289,7 +289,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 context.Repeat();
         });
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             RespawnEarthenMineCarts();
             context.Repeat();
@@ -311,12 +311,12 @@ struct battleground_deephaul_ravine : BattlegroundScript
     {
         BattlegroundScript::OnPrepareStage3();
 
-        _scheduler.Schedule(2s, [&](TaskContext)
+        _scheduler.Schedule(2s, [&](TaskContext const&)
         {
             SpawnMineCarts();
         });
 
-        _scheduler.Schedule(15s, [&](TaskContext)
+        _scheduler.Schedule(15s, [&](TaskContext const&)
         {
             DoForLeaders([&](Creature const* creature)
             {
@@ -412,7 +412,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
                 UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
 
-                _scheduler.Schedule(Milliseconds(flagInBase->GetGOInfo()->newflag.RespawnTime) - 5s, [&](TaskContext)
+                _scheduler.Schedule(Milliseconds(flagInBase->GetGOInfo()->newflag.RespawnTime) - 5s, [&](TaskContext const&)
                 {
                     DoForLeaders([&](Creature const* creature)
                     {
@@ -475,7 +475,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
         AreaTriggerCreatePropertiesId const createPropertiesId = trigger->GetCreateProperties()->Id;
         Position pos = trigger->GetPosition();
 
-        _scheduler.Schedule(90s, [&, createPropertiesId, pos](TaskContext)
+        _scheduler.Schedule(90s, [&, createPropertiesId, pos](TaskContext const&)
         {
             if (Creature* genericBunny = battlegroundMap->GetCreature(_genericBunnyGUID))
                 AreaTrigger::CreateAreaTrigger(createPropertiesId, pos, -1, genericBunny, nullptr);
@@ -629,7 +629,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
 
         CheckWinner();
 
-        _scheduler.Schedule(2s, [&](TaskContext)
+        _scheduler.Schedule(2s, [&](TaskContext const&)
         {
             SpawnMineCarts();
         });
@@ -894,7 +894,7 @@ public:
     void JustAppeared() override
     {
         me->ToTempSummon()->GetSummoner()->ToPlayer()->EnterVehicle(me);
-        _scheduler.Schedule(1500ms, [&](TaskContext)
+        _scheduler.Schedule(1500ms, [&](TaskContext const&)
         {
             // teleport packet sends same x & y for some reason
             // teleport and movement start at same time
@@ -913,7 +913,7 @@ public:
         switch (pathId)
         {
             case Path1:
-                _scheduler.Schedule(500ms, [&](TaskContext)
+                _scheduler.Schedule(500ms, [&](TaskContext const&)
                 {
                     if (Vehicle* vehicle = me->GetVehicleKit())
                         vehicle->RemoveAllPassengers();
@@ -921,7 +921,7 @@ public:
                 });
                 break;
             case Path2:
-                _scheduler.Schedule(1s, [&](TaskContext)
+                _scheduler.Schedule(1s, [&](TaskContext const&)
                 {
                     me->GetMotionMaster()->MovePath(Path3, false);
                 });
@@ -952,7 +952,7 @@ public:
     void JustAppeared() override
     {
         me->ToTempSummon()->GetSummoner()->ToPlayer()->EnterVehicle(me);
-        _scheduler.Schedule(1500ms, [&](TaskContext)
+        _scheduler.Schedule(1500ms, [&](TaskContext const&)
         {
             // teleport packet sends same x & y for some reason
             // teleport and movement start at same time
@@ -971,7 +971,7 @@ public:
         switch (pathId)
         {
             case Path1:
-                _scheduler.Schedule(500ms, [&](TaskContext)
+                _scheduler.Schedule(500ms, [&](TaskContext const&)
                 {
                     if (Vehicle* vehicle = me->GetVehicleKit())
                     {
@@ -988,7 +988,7 @@ public:
                 });
                 break;
             case Path2:
-                _scheduler.Schedule(1s, [&](TaskContext)
+                _scheduler.Schedule(1s, [&](TaskContext const&)
                 {
                     me->DespawnOrUnsummon();
                 });
@@ -1052,20 +1052,20 @@ public:
         switch (pathId)
         {
             case Path1:
-                _scheduler.Schedule(10s, [this](TaskContext)
+                _scheduler.Schedule(10s, [this](TaskContext const&)
                 {
                     me->GetMotionMaster()->MovePath(Path2, false);
                     Talk(DeephaulRavine::CreatureTexts::Intro2);
                 });
                 break;
             case Path2:
-                _scheduler.Schedule(3s, [this](TaskContext)
+                _scheduler.Schedule(3s, [this](TaskContext const&)
                 {
                     me->GetMotionMaster()->MovePath(Path3, false);
                 });
                 break;
             case Path3:
-                _scheduler.Schedule(5s, [this](TaskContext)
+                _scheduler.Schedule(5s, [this](TaskContext const&)
                 {
                     me->GetMotionMaster()->MovePath(Path4, false);
                 });

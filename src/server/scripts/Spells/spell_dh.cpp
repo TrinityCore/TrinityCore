@@ -1435,7 +1435,7 @@ struct at_dh_glaive_tempest : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(0ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext& task)
         {
             FloatMilliseconds period = 500ms; // 500ms, affected by haste
             if (Unit* caster = at->GetCaster())

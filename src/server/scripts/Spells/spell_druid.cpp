@@ -1526,7 +1526,7 @@ struct at_dru_lunar_beam : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
             {

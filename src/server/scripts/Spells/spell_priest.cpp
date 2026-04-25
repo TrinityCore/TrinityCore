@@ -246,6 +246,7 @@ enum PriestSpells
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
+    SPELL_PRIEST_TRANSLUCENT_IMAGE                  = 373446,
     SPELL_PRIEST_TRINITY                            = 214205,
     SPELL_PRIEST_TRINITY_EFFECT                     = 290793,
     SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_HOLY          = 390706,
@@ -1473,7 +1474,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void ReturnToCaster()
     {
-        _scheduler.Schedule(0ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext& task)
         {
             Unit* caster = at->GetCaster();
             if (!caster)
@@ -1857,7 +1858,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_PERIODIC, args);
 
         UpdateMovement();
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             UpdateMovement();
             task.Repeat(500ms);
@@ -4845,6 +4846,26 @@ class spell_pri_train_of_thought : public AuraScript
     }
 };
 
+// 373446 - Translucent Image
+// Triggered by 586 - Fade
+class spell_pri_translucent_image : public SpellScript
+{
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_PRIEST_TRANSLUCENT_IMAGE);
+    }
+
+    static void PreventEffect(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_translucent_image::PreventEffect, EFFECT_3, TARGET_UNIT_CASTER);
+    }
+};
+
 // 390705 - Twilight Equilibrium
 class spell_pri_twilight_equilibrium : public AuraScript
 {
@@ -5537,6 +5558,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
+    RegisterSpellScript(spell_pri_translucent_image);
     RegisterSpellScript(spell_pri_twilight_equilibrium);
     RegisterSpellScript(spell_pri_twilight_equilibrium_shadow_word_pain);
     RegisterSpellScript(spell_pri_twist_of_fate);

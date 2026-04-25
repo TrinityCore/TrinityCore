@@ -146,7 +146,7 @@ struct boss_shade_of_medivh : public BossAI
         me->SetPowerType(POWER_MANA);
         me->SetPower(POWER_MANA, 0);
 
-        scheduler.Schedule(2s, [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext& task)
         {
             static constexpr uint8 VisualCount = 5;
             static constexpr float TravelSpeed = 8.0f;

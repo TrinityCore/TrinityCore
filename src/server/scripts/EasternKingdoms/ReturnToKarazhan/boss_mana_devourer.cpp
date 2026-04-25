@@ -267,7 +267,7 @@ struct at_mana_devourer_loose_mana : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
             {
@@ -332,7 +332,7 @@ struct at_mana_devourer_energy_void : AreaTriggerAI
 
         _shrinkPeriodicActive = true;
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             at->SetTimeToTargetScale(1000);
 

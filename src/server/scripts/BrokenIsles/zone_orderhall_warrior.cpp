@@ -132,7 +132,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         _summonerGuid = summoner->GetGUID();
-        _scheduler.Schedule(2s, [this, summoner](TaskContext /*context*/)
+        _scheduler.Schedule(2s, [this, summoner](TaskContext const& /*context*/)
         {
             me->GetMotionMaster()->MovePath(DanicaPath01, false);
             Talk(SAY_FIRST_LINE, summoner);
@@ -144,7 +144,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
         switch (pathId)
         {
             case POINT_FORGE_OF_ODYN:
-                _scheduler.Schedule(10s, [this](TaskContext /*context*/)
+                _scheduler.Schedule(10s, [this](TaskContext const& /*context*/)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _summonerGuid);
                     me->GetMotionMaster()->MovePath(DanicaPath02, false);
@@ -152,7 +152,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
                 });
                 break;
             case POINT_INTRODUCE_MEAD_HALL:
-                _scheduler.Schedule(10s, [this](TaskContext /*context*/)
+                _scheduler.Schedule(10s, [this](TaskContext const& /*context*/)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _summonerGuid);
                     me->GetMotionMaster()->MovePath(DanicaPath03, false);
@@ -204,13 +204,13 @@ struct npc_feasting_valarjar : public ScriptedAI
 
     void Reset() override
     {
-        _scheduler.Schedule(5s, 30s, [this](TaskContext context)
+        _scheduler.Schedule(5s, 30s, [this](TaskContext& context)
         {
             Emote emoteID = Trinity::Containers::SelectRandomContainerElement(_randomEmotes);
             if (emoteID == EMOTE_ONESHOT_EAT_NO_SHEATHE)
             {
                 me->SetVirtualItem(0, urand(0, 1) ? ITEM_MONSTER_ITEM_MUTTON_WITH_BITE : ITEM_MONSTER_ITEM_TANKARD_WOODEN);
-                _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+                context.Schedule(1s, [this](TaskContext const& /*context*/)
                 {
                     me->SetVirtualItem(0, 0);
                     if (roll_chance(85))
@@ -222,7 +222,7 @@ struct npc_feasting_valarjar : public ScriptedAI
             context.Repeat();
         });
 
-        _scheduler.Schedule(5min, 20min, [this](TaskContext /*context*/)
+        _scheduler.Schedule(5min, 20min, [this](TaskContext const& /*context*/)
         {
             float direction = me->GetOrientation() + M_PI;
             me->GetMotionMaster()->MovePoint(POINT_LEAVING, me->GetFirstCollisionPosition(5.0f, direction));
@@ -277,21 +277,21 @@ struct npc_valarjar_paying_respect_to_odyn : ScriptedAI
         switch (id)
         {
             case POINT_TABLE:
-                _scheduler.Schedule(3s, 6s, [this](TaskContext /*context*/)
+                _scheduler.Schedule(3s, 6s, [this](TaskContext const& /*context*/)
                 {
                     me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(_randomEmotes));
                 });
 
-                _scheduler.Schedule(7s, 15s, [this](TaskContext /*context*/)
+                _scheduler.Schedule(7s, 15s, [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MovePath({ POINT_ODYN, { GetPathToOdyn().begin(), GetPathToOdyn().end() }, WaypointMoveType::Walk, WaypointPathFlags::ExactSplinePath }, false);
                 });
                 break;
             case POINT_ODYN:
-                _scheduler.Schedule(1s, 3s, [this](TaskContext /*context*/)
+                _scheduler.Schedule(1s, 3s, [this](TaskContext& context)
                 {
                     me->PlayOneShotAnimKitId(1431);
-                    _scheduler.Schedule(3s, 10s, [this](TaskContext /*context*/)
+                    context.Schedule(3s, 10s, [this](TaskContext const& /*context*/)
                     {
                         me->GetMotionMaster()->MovePath({ POINT_DESPAWN, { GetPathToDespawnPoint().begin(), GetPathToDespawnPoint().end() }, WaypointMoveType::Run, WaypointPathFlags::ExactSplinePath }, false);
                     });
@@ -525,13 +525,13 @@ struct npc_spectating_valarjar : public ScriptedAI
 
     void Reset() override
     {
-        _scheduler.Schedule(5s, 30s, [this](TaskContext context)
+        _scheduler.Schedule(5s, 30s, [this](TaskContext& context)
         {
             me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(_randomEmotes));
             context.Repeat();
         });
 
-        _scheduler.Schedule(5min, 20min, [this](TaskContext /*context*/)
+        _scheduler.Schedule(5min, 20min, [this](TaskContext const& /*context*/)
         {
             float direction = me->GetOrientation() + M_PI;
             me->GetMotionMaster()->MovePoint(0, me->GetFirstCollisionPosition(5.0f, direction));
@@ -572,7 +572,7 @@ struct npc_valkyr_of_odyn : public ScriptedAI
     {
         if (me->GetPositionZ() >= 100.0f)
         {
-            _scheduler.Schedule(3s, [this](TaskContext /*context*/)
+            _scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
             {
                 me->GetMotionMaster()->MovePath({ POINT_JUMP, { GetPath().begin(), GetPath().end() }, WaypointMoveType::Run, WaypointPathFlags::FlyingPath }, false);
             });
@@ -591,7 +591,7 @@ struct npc_valkyr_of_odyn : public ScriptedAI
         switch (pathId)
         {
             case POINT_JUMP:
-                _scheduler.Schedule(250ms, [this](TaskContext /*context*/)
+                _scheduler.Schedule(250ms, [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MoveJump(POINT_DESPAWN_JUMP, { 1107.84f, 7222.57f, 38.9725f, me->GetOrientation() });
                 });
@@ -795,18 +795,18 @@ struct npc_weapon_inspector_valarjar : public ScriptedAI
 
     void Reset() override
     {
-        _scheduler.Schedule(15s, 20s, [this](TaskContext context)
+        _scheduler.Schedule(15s, 20s, [this](TaskContext& context)
         {
             me->SetAIAnimKitId(0);
             std::pair<uint32, uint32> weapons = Trinity::Containers::SelectRandomContainerElement(_randomWeapons);
             me->SetVirtualItem(0, weapons.first);
             me->SetVirtualItem(1, weapons.second);
 
-            context.Schedule(8s, 10s, [this](TaskContext context)
+            context.Schedule(8s, 10s, [this](TaskContext& context)
             {
                 me->SetVirtualItem(0, 0);
                 me->SetVirtualItem(1, 0);
-                context.Schedule(10s, [this](TaskContext /*context*/)
+                context.Schedule(10s, [this](TaskContext const& /*context*/)
                 {
                     me->SetAIAnimKitId(1583);
                 });
