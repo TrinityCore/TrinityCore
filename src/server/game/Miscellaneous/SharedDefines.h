@@ -5606,7 +5606,7 @@ enum QuestInfo
     QUEST_INFO_PREY_WORLD_QUEST                     = 295
 };
 
-// QuestSort.dbc (11.2.5.62687)
+// QuestSort.db2 (12.0.5.67186)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
