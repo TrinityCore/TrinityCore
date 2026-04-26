@@ -476,7 +476,7 @@ class TC_GAME_API Spell
         template<class SEARCHER> static void SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);
 
         WorldObject* SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList = nullptr);
-        void SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, float range, Position const* position, WorldObject* referer,
+        void SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, SpellRange range, Position const* position, WorldObject* referer,
             SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList,
             Trinity::WorldObjectSpellAreaTargetSearchReason searchReason);
         void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType,
@@ -1009,10 +1009,10 @@ namespace Trinity
 
     struct TC_GAME_API WorldObjectSpellAreaTargetCheck : public WorldObjectSpellTargetCheck
     {
-        float _range;
+        SpellRange _range;
         Position const* _position;
         WorldObjectSpellAreaTargetSearchReason _searchReason;
-        WorldObjectSpellAreaTargetCheck(float range, Position const* position, WorldObject* caster,
+        WorldObjectSpellAreaTargetCheck(SpellRange range, Position const* position, WorldObject* caster,
             WorldObject* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType,
             WorldObjectSpellAreaTargetSearchReason searchReason = WorldObjectSpellAreaTargetSearchReason::Area);
 
@@ -1024,7 +1024,7 @@ namespace Trinity
         Position _coneSrc;
         float _coneAngle;
         float _lineWidth;
-        WorldObjectSpellConeTargetCheck(Position const& coneSrc, float coneAngle, float lineWidth, float range, WorldObject* caster,
+        WorldObjectSpellConeTargetCheck(Position const& coneSrc, float coneAngle, float lineWidth, SpellRange range, WorldObject* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType);
 
         bool operator()(WorldObject* target) const;
@@ -1044,7 +1044,7 @@ namespace Trinity
     {
         Position _position;
         float _lineWidth;
-        WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, float range, WorldObject* caster,
+        WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, SpellRange range, WorldObject* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType);
 
         bool operator()(WorldObject* target) const;

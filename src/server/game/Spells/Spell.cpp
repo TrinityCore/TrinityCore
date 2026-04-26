@@ -1148,7 +1148,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                             dest = st->GetPosition();
                         else
                         {
-                            float randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
+                            float randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex).Max;
                             if (randomRadius > 0.0f)
                                 MovePosition(dest._position, m_caster, randomRadius, targetType.CalcDirectionAngle());
                         }
@@ -1174,7 +1174,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
             {
                 target = m_caster;
                 // radius is only meant to be randomized when using caster fallback
-                randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
+                randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex).Max;
             }
             break;
         default:
@@ -1277,14 +1277,14 @@ void Spell::SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, Sp
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
     ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
-    float radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
+    SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(m_spellInfo, spellEffectInfo, objectType, condList))
     {
-        float extraSearchRadius = radius > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
+        float extraSearchRadius = radius.Max > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
         Trinity::WorldObjectSpellConeTargetCheck check(*m_caster, DegToRad(coneAngle), m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius + extraSearchRadius);
+        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius.Max + extraSearchRadius);
 
         CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
@@ -1362,7 +1362,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
              return;
     }
 
-    float radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
+    SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
     std::list<WorldObject*> targets;
     switch (targetType.GetTarget())
     {
@@ -1514,7 +1514,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             if (!unitCaster)
                 break;
 
-            float dist = spellEffectInfo.CalcRadius(unitCaster, targetIndex);
+            float dist = spellEffectInfo.CalcRadius(unitCaster, targetIndex).Max;
             float angle = targetType.CalcDirectionAngle();
             if (targetType.GetTarget() == TARGET_DEST_CASTER_MOVEMENT_DIRECTION)
             {
@@ -1570,10 +1570,10 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             break;
         case TARGET_DEST_NEARBY_DB:
         {
-            Optional<std::pair<float, float>> radiusBounds = spellEffectInfo.CalcRadiusBounds(m_caster, targetIndex, this);
+            SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex, this);
             std::vector<SpellTargetPosition const*> positionsInRange;
             for (auto const& [_, position] : sSpellMgr->GetSpellTargetPositions(m_spellInfo->Id, spellEffectInfo.EffectIndex))
-                if (m_caster->GetMapId() == position.GetMapId() && (!radiusBounds || (!m_caster->IsInDist(position, radiusBounds->first) && m_caster->IsInDist(position, radiusBounds->second))))
+                if (m_caster->GetMapId() == position.GetMapId() && m_caster->IsInRange3d(&position, radius.Min, radius.Max))
                     positionsInRange.push_back(&position);
 
             if (positionsInRange.empty())
@@ -1589,7 +1589,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
         }
         default:
         {
-            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
+            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex).Max;
             float angle = targetType.CalcDirectionAngle();
             float objSize = m_caster->GetCombatReach();
 
@@ -1654,7 +1654,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
         default:
         {
             float angle = targetType.CalcDirectionAngle();
-            float dist = spellEffectInfo.CalcRadius(nullptr, targetIndex);
+            float dist = spellEffectInfo.CalcRadius(nullptr, targetIndex).Max;
 
             Position pos = dest._position.GetPosition();
             MovePosition(pos, target, dist, angle);
@@ -1693,7 +1693,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
             break;
         case TARGET_DEST_DEST_TARGET_TOWARDS_CASTER:
         {
-            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
+            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex).Max;
             Position pos = dest._position.GetPosition();
             float angle = pos.GetAbsoluteAngle(m_caster) - m_caster->GetOrientation();
 
@@ -1706,7 +1706,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
         default:
         {
             float angle = targetType.CalcDirectionAngle();
-            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex);
+            float dist = spellEffectInfo.CalcRadius(m_caster, targetIndex).Max;
 
             Position pos = dest._position.GetPosition();
             MovePosition(pos, m_caster, dist, angle);
@@ -1971,13 +1971,13 @@ void Spell::SelectImplicitLineTargets(SpellEffectInfo const& spellEffectInfo, Sp
     }
 
     ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
-    float radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
+    SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(m_spellInfo, spellEffectInfo, objectType, condList))
     {
         Trinity::WorldObjectSpellLineTargetCheck check(m_caster, dst, m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, radius);
+        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, radius.Max);
 
         CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
@@ -2188,7 +2188,7 @@ WorldObject* Spell::SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, f
     return target;
 }
 
-void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, float range, Position const* position, WorldObject* referer,
+void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo const& spellEffectInfo, SpellRange range, Position const* position, WorldObject* referer,
     SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer const* condList,
     Trinity::WorldObjectSpellAreaTargetSearchReason searchReason)
 {
@@ -2196,10 +2196,10 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo 
     if (!containerTypeMask)
         return;
 
-    float extraSearchRadius = range > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
+    float extraSearchRadius = range.Max > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
     Trinity::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList, objectType, searchReason);
     Trinity::WorldObjectListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), targets, check, containerTypeMask);
-    SearchTargets(searcher, containerTypeMask, m_caster, position, range + extraSearchRadius);
+    SearchTargets(searcher, containerTypeMask, m_caster, position, range.Max + extraSearchRadius);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType,
@@ -2245,7 +2245,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
 
     WorldObject* chainSource = m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) ? m_caster : target;
     std::list<WorldObject*> tempTargets;
-    SearchAreaTargets(tempTargets, spellEffectInfo, searchRadius, chainSource, m_caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions.get(),
+    SearchAreaTargets(tempTargets, spellEffectInfo, { 0.0f, searchRadius }, chainSource, m_caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions.get(),
         Trinity::WorldObjectSpellAreaTargetSearchReason::Chain);
     tempTargets.remove(target);
 
@@ -9141,7 +9141,7 @@ bool WorldObjectSpellNearbyTargetCheck::operator()(WorldObject* target)
     return false;
 }
 
-WorldObjectSpellAreaTargetCheck::WorldObjectSpellAreaTargetCheck(float range, Position const* position, WorldObject* caster,
+WorldObjectSpellAreaTargetCheck::WorldObjectSpellAreaTargetCheck(SpellRange range, Position const* position, WorldObject* caster,
     WorldObject* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType,
     WorldObjectSpellAreaTargetSearchReason searchReason /*= Area*/)
     : WorldObjectSpellTargetCheck(caster, referer, spellInfo, selectionType, condList, objectType), _range(range), _position(position), _searchReason(searchReason) { }
@@ -9151,13 +9151,14 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target) const
     if (GameObject* gameObjectTarget = target->ToGameObject())
     {
         // isInRange including the dimension of the GO
-        bool isInRange = gameObjectTarget->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range);
+        bool isInRange = gameObjectTarget->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range.Max)
+            && (_range.Min <= 0.0f || !gameObjectTarget->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range.Min));
         if (!isInRange)
             return false;
     }
     else
     {
-        bool isInsideCylinder = target->IsWithinDist2d(_position, _range) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= _range;
+        bool isInsideCylinder = target->IsInRange2d(_position, _range.Min, _range.Max) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= _range.Max;
         if (!isInsideCylinder)
             return false;
 
@@ -9182,7 +9183,7 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
-WorldObjectSpellConeTargetCheck::WorldObjectSpellConeTargetCheck(Position const& coneSrc, float coneAngle, float lineWidth, float range, WorldObject* caster,
+WorldObjectSpellConeTargetCheck::WorldObjectSpellConeTargetCheck(Position const& coneSrc, float coneAngle, float lineWidth, SpellRange range, WorldObject* caster,
     SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType)
     : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _coneSrc(coneSrc), _coneAngle(coneAngle), _lineWidth(lineWidth) { }
 
@@ -9224,7 +9225,7 @@ bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
-WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, float range, WorldObject* caster,
+WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, SpellRange range, WorldObject* caster,
     SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType)
     : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _position(*srcPosition), _lineWidth(lineWidth)
 {

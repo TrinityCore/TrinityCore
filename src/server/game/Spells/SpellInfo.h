@@ -274,8 +274,7 @@ public:
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius(SpellTargetIndex targetIndex) const;
-    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
-    Optional<std::pair<float, float>> CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const;
+    SpellRange CalcRadius(WorldObject const* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool dstSet = false, uint32 mask = 0) const;

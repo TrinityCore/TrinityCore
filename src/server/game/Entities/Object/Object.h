@@ -713,8 +713,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
-        bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
-        bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
+        bool IsInRange2d(Position const* pos, float minRange, float maxRange) const;
+        bool IsInRange3d(Position const* pos, float minRange, float maxRange) const;
         bool isInFront(WorldObject const* target, float arc = float(M_PI)) const;
         bool isInBack(WorldObject const* target, float arc = float(M_PI)) const;
 

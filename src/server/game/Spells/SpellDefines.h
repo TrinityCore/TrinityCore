@@ -326,6 +326,9 @@ struct SpellRange
 {
     float Min = 0.0f;
     float Max = 0.0f;
+
+    constexpr SpellRange operator*(float mul) const { return { Min * mul, Max * mul }; }
+    bool operator==(SpellRange const&) const = default;
 };
 
 struct TC_GAME_API SpellDestination
