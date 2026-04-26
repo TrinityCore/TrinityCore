@@ -1476,8 +1476,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             break;
         case TARGET_DEST_CASTER_FISHING:
         {
-            float minDist = m_spellInfo->GetMinRange(true);
-            float maxDist = m_spellInfo->GetMaxRange(true);
+            auto [minDist, maxDist] = m_spellInfo->GetMinMaxRange(true);
             float dist = frand(minDist, maxDist);
             float x, y, z;
             float angle = rand_norm() * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
@@ -2236,7 +2235,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     float searchRadius = [&]()
     {
         if (m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER))
-            return GetMinMaxRange(false).second;
+            return GetMinMaxRange(false).Max;
 
         if (spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::ChainFromInitialTarget))
             return jumpRadius;
@@ -7153,14 +7152,13 @@ bool Spell::CanIncreaseRangeByMovement(Unit const* unit)
         && !unit->IsWalking();
 }
 
-std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
+SpellRange Spell::GetMinMaxRange(bool strict) const
 {
     float rangeMod = 0.0f;
-    float minRange = 0.0f;
-    float maxRange = 0.0f;
+    SpellRange range;
 
     if (strict && m_spellInfo->IsNextMeleeSwingSpell())
-        return { 0.0f, 100.0f };
+        return range;
 
     Unit* unitCaster = m_caster->ToUnit();
     if (m_spellInfo->RangeEntry)
@@ -7182,15 +7180,15 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
                     meleeRange = unitCaster->GetMeleeRange(target ? target : unitCaster);
             }
 
-            minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
-            maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
+            range = m_caster->GetSpellMinMaxRangeForTarget(target, m_spellInfo);
+            range.Min += meleeRange;
 
             if (target || m_targets.GetCorpseTarget())
             {
                 rangeMod = m_caster->GetCombatReach() + (target ? target->GetCombatReach() : m_caster->GetCombatReach());
 
-                if (minRange > 0.0f && !(m_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
-                    minRange += rangeMod;
+                if (range.Min > 0.0f && !(m_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
+                    range.Min += rangeMod;
             }
         }
 
@@ -7201,14 +7199,14 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* ranged = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK, true))
-            maxRange *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
+            range.Max *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Range, maxRange, const_cast<Spell*>(this));
+        modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Range, range.Max, const_cast<Spell*>(this));
 
-    maxRange += rangeMod;
+    range.Max += rangeMod;
 
-    return { minRange, maxRange };
+    return range;
 }
 
 SpellCastResult Spell::CheckPower() const

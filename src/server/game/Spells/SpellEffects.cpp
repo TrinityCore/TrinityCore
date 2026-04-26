@@ -4437,8 +4437,7 @@ void Spell::EffectTransmitted()
     else
     {
         //GO is always friendly to it's creator, get range for friends
-        float min_dis = m_spellInfo->GetMinRange(true);
-        float max_dis = m_spellInfo->GetMaxRange(true);
+        auto [min_dis, max_dis] = m_spellInfo->GetMinMaxRange(true);
         float dis = rand_norm() * (max_dis - min_dis) + min_dis;
 
         unitCaster->GetClosePoint(fx, fy, fz, DEFAULT_PLAYER_BOUNDING_RADIUS, dis);

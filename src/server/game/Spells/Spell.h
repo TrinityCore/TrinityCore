@@ -702,7 +702,7 @@ class TC_GAME_API Spell
 
         static bool CanIncreaseRangeByMovement(Unit const* unit);
 
-        std::pair<float, float> GetMinMaxRange(bool strict) const;
+        SpellRange GetMinMaxRange(bool strict) const;
 
     protected:
         bool HasGlobalCooldown() const;

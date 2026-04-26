@@ -556,7 +556,8 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, WorldObject* caster = nullptr, Spell* spell = nullptr) const;
+        float GetMaxRange(bool positive = false, WorldObject const* caster = nullptr, Spell* spell = nullptr) const;
+        SpellRange GetMinMaxRange(bool positive = false, WorldObject const* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 CalcDuration(WorldObject const* caster = nullptr) const;
         int32 GetDuration() const;
