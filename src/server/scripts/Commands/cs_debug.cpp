@@ -54,6 +54,7 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <fstream>
 #include <limits>
 #include <map>
@@ -67,7 +68,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable debugPlayCommandTable =
         {
@@ -514,9 +515,9 @@ public:
         return true;
     }
 
-    static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
+    static bool HandleDebugUpdateWorldStateCommand(ChatHandler const* handler, int32 variable, int32 value)
     {
-        handler->GetPlayer()->SendUpdateWorldState(variable, value);
+        WorldStateMgr::SetValue(variable, value, false, handler->GetPlayer()->GetMap());
         return true;
     }
 
@@ -1004,7 +1005,7 @@ public:
                 for (auto const& pair : redirectInfo)
                 {
                     Unit* unit = ObjectAccessor::GetUnit(*target, pair.first);
-                    handler->PSendSysMessage(" |-- %02u%% to %s", pair.second, unit ? unit->GetName().c_str() : pair.first.ToString().c_str());
+                    handler->PSendSysMessage(" |-- % 2.1f%% to %s", pair.second, unit ? unit->GetName().c_str() : pair.first.ToString().c_str());
                 }
             }
         }
@@ -1024,7 +1025,7 @@ public:
                     for (auto const& innerPair : outerPair.second) // (guid, pct)
                     {
                         Unit* unit = ObjectAccessor::GetUnit(*target, innerPair.first);
-                        handler->PSendSysMessage("   |-- %02u%% to %s", innerPair.second, unit ? unit->GetName().c_str() : innerPair.first.ToString().c_str());
+                        handler->PSendSysMessage("   |-- % 2.1f%% to %s", innerPair.second, unit ? unit->GetName().c_str() : innerPair.first.ToString().c_str());
                     }
                 }
             }

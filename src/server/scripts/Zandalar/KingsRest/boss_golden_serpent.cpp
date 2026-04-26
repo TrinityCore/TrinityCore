@@ -229,7 +229,7 @@ struct npc_animated_gold : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_LUCRES_CALL)
         {
-            _scheduler.Schedule(3s, [this](TaskContext)
+            _scheduler.Schedule(3s, [this](TaskContext const&)
             {
                 if (!me->HasAura(SPELL_MOLTEN_GOLD_AURA))
                 {

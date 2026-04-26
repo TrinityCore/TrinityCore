@@ -542,7 +542,7 @@ bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req,
     if (req->ClassMask && !(req->ClassMask & (1 << (playerClass - 1))))
         return false;
 
-    if (race != RACE_NONE && !req->RaceMask.IsEmpty() && req->RaceMask.RawValue != -1 && !req->RaceMask.HasRace(race))
+    if (race != RACE_NONE && !req->RaceMask.IsEmpty() && req->RaceMask != RACEMASK_ALL_v<int64> && !req->RaceMask.HasRace(race))
         return false;
 
     if (req->AchievementID /*&& !HasAchieved(req->AchievementID)*/)
@@ -2552,8 +2552,10 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
                 for (auto const& [questId, quest] : questTemplates)
                 {
-                    Trinity::RaceMask<uint64> newRaceMask = (newTeamId == TEAM_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE;
-                    if (quest->GetAllowableRaces().RawValue != uint64(-1) && (quest->GetAllowableRaces() & newRaceMask).IsEmpty())
+                    Trinity::RaceMask<std::array<int32, 2>> newRaceMask = newTeamId == TEAM_ALLIANCE
+                        ? RACEMASK_ALLIANCE_v<std::array<int32, 2>>
+                        : RACEMASK_HORDE_v<std::array<int32, 2>>;
+                    if (quest->GetAllowableRaces() != RACEMASK_ALL_v<std::array<int32, 2>> && (quest->GetAllowableRaces() & newRaceMask).IsEmpty())
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);

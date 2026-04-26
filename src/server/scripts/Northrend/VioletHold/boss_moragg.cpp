@@ -72,14 +72,14 @@ struct boss_moragg : public BossAI
             DoCast(me, SPELL_RAY_OF_SUFFERING);
         });
 
-        scheduler.Schedule(Seconds(15), [this](TaskContext task)
+        scheduler.Schedule(Seconds(15), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
                 DoCast(target, SPELL_OPTIC_LINK);
             task.Repeat(Seconds(25));
         });
 
-        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        scheduler.Schedule(Seconds(5), [this](TaskContext& task)
         {
             DoCastVictim(SPELL_CORROSIVE_SALIVA);
             task.Repeat(Seconds(10));

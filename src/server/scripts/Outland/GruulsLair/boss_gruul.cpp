@@ -317,8 +317,8 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                float radius = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster(), SpellTargetIndex::TargetB);
-                if (!radius)
+                float radius = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster(), SpellTargetIndex::TargetB).Max;
+                if (radius <= 0.0f)
                     return;
 
                 float distance = GetCaster()->GetDistance2d(GetHitUnit());

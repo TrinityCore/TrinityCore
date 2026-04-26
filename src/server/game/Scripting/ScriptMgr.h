@@ -537,7 +537,7 @@ class TC_GAME_API CommandScript : public ScriptObject
         ~CommandScript();
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual std::vector<Trinity::ChatCommands::ChatCommandBuilder> GetCommands() const = 0;
+        virtual std::span<Trinity::ChatCommands::ChatCommandBuilder const> GetCommands() const = 0;
 };
 
 class TC_GAME_API WeatherScript : public ScriptObject

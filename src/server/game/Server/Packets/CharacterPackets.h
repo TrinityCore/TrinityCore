@@ -189,6 +189,7 @@ namespace WorldPackets
                     uint32 TransmogrifiedItemID = 0;
                     uint8 Subclass          = 0;
                     uint8 InvType           = 0;
+                    uint8 SheatheCategory   = 0;
                     uint32 DisplayID        = 0;
                     uint32 DisplayEnchantID = 0;
                     int32 SecondaryItemModifiedAppearanceID = 0; // also -1 is some special value

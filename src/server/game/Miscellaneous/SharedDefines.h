@@ -899,7 +899,7 @@ enum SpellAttr12 : uint32
     SPELL_ATTR12_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr12
     SPELL_ATTR12_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr12
     SPELL_ATTR12_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr12
-    SPELL_ATTR12_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr12
+    SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS               = 0x00200000, // TITLE Use float values for scaling amounts
     SPELL_ATTR12_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr12
     SPELL_ATTR12_START_COOLDOWN_ON_CAST_START    = 0x00800000, // TITLE Trigger Cooldown On Spell Start
     SPELL_ATTR12_IS_GARRISON_BUFF                = 0x01000000, // TITLE Never Learn
@@ -1217,6 +1217,10 @@ enum CharacterFlags4 : int32
     CHARACTER_FLAG_4_NO_NEIGHBORHOOD_INVITES                    = 0x00000080, // Character does not accept neighborhood invites
     CHARACTER_FLAG_4_CHECKED_FOR_2ND_WAVE_ACCOUNT_WIDE_FACTIONS = 0x00000100, // Character has been checked for 2nd wave of account wide factions
     CHARACTER_FLAG_4_WILL_BE_RESURRECTED_IN_HARDCORE            = 0x00000200, // Character will be resurrected overriding hardcore game rule
+    CHARACTER_FLAG_4_USED_MAX_LEVEL_BOOST                       = 0x00000400, // Character used a max level boost and cannot use it again
+    CHARACTER_FLAG_4_DISALLOW_RECENT_ALLIES_TO_SEE_LOCATION     = 0x00000800, // Other players cannot see your character's location if you are in their Recent Allies list
+    CHARACTER_FLAG_4_HAS_ARATHI_RPE                             = 0x00001000, // Character is granted the Arathi teleport option at selection (removed after entering world)
+    CHARACTER_FLAG_4_FREE_TRANSMOG_CLAIMED                      = 0x00002000, // Character has used their first discounted transmog transaction
 };
 
 enum CharacterRestrictionFlags : uint32
@@ -1226,7 +1230,7 @@ enum CharacterRestrictionFlags : uint32
     CHARACTER_RESTRICTION_FLAG_EXPANSION_TRIAL      = 0x00080000,
 };
 
-// Languages.db2 (11.2.5.62687)
+// Languages.db2 (12.0.1.66838)
 enum Language
 {
     LANG_UNIVERSAL            = 0,
@@ -1276,6 +1280,7 @@ enum Language
     LANG_EARTHEN              = 304,
     LANG_NERUBIAN             = 307,
     LANG_TONGUES_OF_SANCTUARY = 308,
+    LANG_HARANI               = 309,
 };
 
 enum TeamId
@@ -3283,7 +3288,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.db2 (11.2.5.62687)
+// EmotesText.db2 (12.0.5.67186)
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -3553,10 +3558,10 @@ enum TextEmotes
     TEXT_EMOTE_IMPRESSED            = 625,
     TEXT_EMOTE_MAGNIFICENT          = 626,
     TEXT_EMOTE_QUACK                = 627,
-    TEXT_EMOTE_LEAN                 = 628,
+    TEXT_EMOTE_LEAN                 = 633,
 };
 
-// Emotes.db2 (10.1.5.50232)
+// Emotes.db2 (12.0.5.67186)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -3820,6 +3825,8 @@ enum Emote : uint32
     EMOTE_STATE_WORK_CHOPWOOD4                   = 614,
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
     EMOTE_STATE_READ_AND_SIT                     = 616,
+    EMOTE_STATE_READYSPELLDIRECTED               = 617,
+    EMOTE_STATE_READYTHROWN_NO_SOUND             = 618,
     EMOTE_STATE_PARRY_UNARMED                    = 619,
     EMOTE_STATE_BLOCK_SHIELD                     = 620,
     EMOTE_STATE_SIT_GROUND_2                     = 621,
@@ -3971,6 +3978,7 @@ enum Emote : uint32
     EMOTE_ONESHOT_TALK_SUBDUED                   = 1005,
     EMOTE_STATE_EMOTETALK                        = 1006,
     EMOTE_STATE_WAINTERACTION                    = 1007,
+    EMOTE_STATE_WORK_CHOPWOOD_LUMBER_AXE2        = 1008,
     EMOTE_ONESHOT_TAKE_OFF_START                 = 1009,
     EMOTE_ONESHOT_BATTLEROAR_NO_SOUND            = 1010,
     EMOTE_STATE_WAWEAPONSHARPEN                  = 1011,
@@ -4016,9 +4024,33 @@ enum Emote : uint32
     EMOTE_ONESHOT_DANCE_VAR2                     = 1075,
     EMOTE_STATE_KNEEL_INTERACT_INTERRUPT         = 1081,
     EMOTE_STATE_WA2HIDLE_UNSHEATH                = 1082,
+    EMOTE_STATE_SHOVEL                           = 1083,
     EMOTE_STATE_LEAN                             = 1084,
+    EMOTE_STATE_READYSPELLOMNI_INTERRUPTABLE     = 1089,
     EMOTE_ONESHOT_WALEAN01_VAR1                  = 1093,
     EMOTE_ONESHOT_WALEAN01_VAR0                  = 1094,
+    EMOTE_STATE_FLYCHANNELCASTOMNI2              = 1097,
+    EMOTE_STATE_ARTOFFLOOP_HIDES_WEAPON          = 1100,
+    EMOTE_STATE_WORK_HERBALISM_HARANIR_PAINTING  = 1101,
+    EMOTE_STATE_SPELL_CHANNEL_OMNI_UP            = 1103,
+    EMOTE_STATE_WAARMSCROSSED                    = 1110,
+    EMOTE_ONESHOT_PARRY_FIST1H                   = 1111,
+    EMOTE_STATE_WAHANG02                         = 1112,
+    EMOTE_STATE_WORK_HOUSING_HAMMER_SOUND        = 1113,
+    EMOTE_STATE_WACRADLE                         = 1115,
+    EMOTE_STATE_WACRATEHOLD2                     = 1116,
+    EMOTE_STATE_WORK_HAMMER_HARANIR_PAINTING     = 1117,
+    EMOTE_STATE_WORK_HERBALISM_HOUSING_SCYTHE    = 1118,
+    EMOTE_STATE_WORK_MINING_HOUSING              = 1119,
+    EMOTE_ONESHOT_TALK_SUBDUED_NO_SHEATHE        = 1120,
+    EMOTE_STATE_WALEAN02_NO_INTERRUPT            = 1121,
+    EMOTE_STATE_WORK_BLUNT_IMPACT                = 1122,
+    EMOTE_ONESHOT_ARTDUALLOOP                    = 1125,
+    EMOTE_STATE_ARTDUALLOOP                      = 1126,
+    EMOTE_STATE_WORK_ZULAMAN_CHOPPING_WOOD       = 1128,
+    EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING       = 1129,
+    EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND     = 1131,
+    EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND    = 1132,
 };
 
 // AnimationData.db2 (6.0.2.18988)
@@ -5487,7 +5519,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (11.2.5.62687)
+// QuestInfo.dbc (12.0.1.66838)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5570,7 +5602,8 @@ enum QuestInfo
     QUEST_INFO_DELVE                                = 288,
     QUEST_INFO_WORLD_BOSS                           = 289,
     QUEST_INFO_HIDDEN                               = 291,
-    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292
+    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292,
+    QUEST_INFO_PREY_WORLD_QUEST                     = 295
 };
 
 // QuestSort.dbc (11.2.5.62687)
@@ -5780,7 +5813,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (11.2.5.62687)
+// SkillLine.db2 (12.0.1.66838)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -6160,7 +6193,25 @@ enum SkillType
     SKILL_LANG_EARTHEN                              = 2884,
     SKILL_SUPPLY_SHIPMENTS                          = 2886,
     SKILL_RACIAL_EARTHEN                            = 2895,
-    SKILL_ALL_WARBANDS                              = 2902
+    SKILL_ALL_WARBANDS                              = 2902,
+    SKILL_MIDNIGHT_ALCHEMY                          = 2906,
+    SKILL_MIDNIGHT_BLACKSMITHING                    = 2907,
+    SKILL_MIDNIGHT_COOKING                          = 2908,
+    SKILL_MIDNIGHT_ENCHANTING                       = 2909,
+    SKILL_MIDNIGHT_ENGINEERING                      = 2910,
+    SKILL_MIDNIGHT_FISHING                          = 2911,
+    SKILL_MIDNIGHT_HERBALISM                        = 2912,
+    SKILL_MIDNIGHT_INSCRIPTION                      = 2913,
+    SKILL_MIDNIGHT_JEWELCRAFTING                    = 2914,
+    SKILL_MIDNIGHT_LEATHERWORKING                   = 2915,
+    SKILL_MIDNIGHT_MINING                           = 2916,
+    SKILL_MIDNIGHT_SKINNING                         = 2917,
+    SKILL_MIDNIGHT_TAILORING                        = 2918,
+    SKILL_RACIAL_HARANIR                            = 2930,
+    SKILL_ALCHEMY_RESEARCH                          = 2950,
+    SKILL_PET_EXOTIC_WHIPTAIL                       = 2961,
+    SKILL_DYE_CRAFTING                              = 2984,
+    SKILL_LANG_HARANI                               = 2987
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
@@ -6420,6 +6471,8 @@ enum ChatMsg : int32
     CHAT_MSG_GUILD_ITEM_LOOTED                  = 0x40,
     CHAT_MSG_COMMUNITIES_CHANNEL                = 0x41,
     CHAT_MSG_VOICE_TEXT                         = 0x42,
+    CHAT_MSG_PING                               = 0x43,
+    CHAT_MSG_ENCOUNTER_EVENT                    = 0x44,
 
     MAX_CHAT_MSG_TYPE
 };
@@ -6750,6 +6803,7 @@ enum ResponseCodes
     CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 109,
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 110,
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 111,
+    CHAR_NAME_SPACES_DISALLOWED                            = 112,
 };
 
 enum CharacterUndeleteResult
@@ -8582,65 +8636,68 @@ enum class GameError : uint32
     ERR_BANK_TAB_INVALID_NAME                                       = 1175,
     ERR_BANK_TAB_INVALID_TEXT                                       = 1176,
     ERR_CHARACTER_BANK_NOT_CONVERTED                                = 1177,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1178,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1179,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1180,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1181,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1182,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1183,
-    ERR_WOW_LABS_SET_WOW_LABS_AREA_ID_FAILED                        = 1184,
-    ERR_PLUNDERSTORM_CANNOT_QUEUE                                   = 1185,
-    ERR_TARGET_IS_SELF_FOUND_CANNOT_TRADE                           = 1186,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_TRADE                           = 1187,
-    ERR_MAIL_RECEPIENT_IS_SELF_FOUND_CANNOT_RECEIVE_MAIL            = 1188,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_SEND_MAIL                       = 1189,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_USE_AUCTION_HOUSE               = 1190,
-    ERR_MAIL_TARGET_CANNOT_RECEIVE_MAIL                             = 1191,
-    ERR_REMIX_INVALID_TRANSFER_REQUEST                              = 1192,
-    ERR_CURRENCY_TRANSFER_INVALID_CHARACTER                         = 1193,
-    ERR_CURRENCY_TRANSFER_INVALID_CURRENCY                          = 1194,
-    ERR_CURRENCY_TRANSFER_INSUFFICIENT_CURRENCY                     = 1195,
-    ERR_CURRENCY_TRANSFER_MAX_QUANTITY                              = 1196,
-    ERR_CURRENCY_TRANSFER_NO_VALID_SOURCE                           = 1197,
-    ERR_CURRENCY_TRANSFER_CHARACTER_LOGGED_IN                       = 1198,
-    ERR_CURRENCY_TRANSFER_SERVER_ERROR                              = 1199,
-    ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1200,
-    ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1201,
-    ERR_CURRENCY_TRANSFER_DISABLED                                  = 1202,
-    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1203,
-    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1204,
-    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1205,
-    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1206,
-    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1207,
-    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1208,
-    ERR_HOUSE_MOVED                                                 = 1209,
-    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1210,
-    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1211,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1212,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1213,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1214,
-    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1215,
-    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1216,
-    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1217,
-    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1218,
-    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1219,
-    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1220,
-    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1221,
-    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1222,
-    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1223,
-    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1224,
-    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1225,
-    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1226,
-    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1227,
-    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1228,
-    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1229,
-    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1230,
-    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1231,
-    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_S                  = 1232,
-    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1233,
-    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1234,
-    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1235,
-    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1236,
+    ERR_NO_SALVAGED_ITEMS_IN_ACCOUNT_BANK                           = 1178,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1179,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1180,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1181,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1182,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1183,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1184,
+    ERR_WOW_LABS_SET_WOW_LABS_AREA_ID_FAILED                        = 1185,
+    ERR_PLUNDERSTORM_CANNOT_QUEUE                                   = 1186,
+    ERR_TARGET_IS_SELF_FOUND_CANNOT_TRADE                           = 1187,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_TRADE                           = 1188,
+    ERR_MAIL_RECEPIENT_IS_SELF_FOUND_CANNOT_RECEIVE_MAIL            = 1189,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_SEND_MAIL                       = 1190,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_USE_AUCTION_HOUSE               = 1191,
+    ERR_MAIL_TARGET_CANNOT_RECEIVE_MAIL                             = 1192,
+    ERR_REMIX_INVALID_TRANSFER_REQUEST                              = 1193,
+    ERR_CURRENCY_TRANSFER_INVALID_CHARACTER                         = 1194,
+    ERR_CURRENCY_TRANSFER_INVALID_CURRENCY                          = 1195,
+    ERR_CURRENCY_TRANSFER_INSUFFICIENT_CURRENCY                     = 1196,
+    ERR_CURRENCY_TRANSFER_MAX_QUANTITY                              = 1197,
+    ERR_CURRENCY_TRANSFER_NO_VALID_SOURCE                           = 1198,
+    ERR_CURRENCY_TRANSFER_CHARACTER_LOGGED_IN                       = 1199,
+    ERR_CURRENCY_TRANSFER_SERVER_ERROR                              = 1200,
+    ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1201,
+    ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1202,
+    ERR_CURRENCY_TRANSFER_DISABLED                                  = 1203,
+    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1204,
+    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1205,
+    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1206,
+    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1207,
+    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1208,
+    ERR_NOT_WHILE_HOUSE_INSPECT_MODE                                = 1209,
+    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1210,
+    ERR_HOUSE_MOVED                                                 = 1211,
+    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1212,
+    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1213,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1214,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1215,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1216,
+    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1217,
+    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1218,
+    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1219,
+    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1220,
+    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1221,
+    ERR_HOUSING_ACTION_NOENTRY                                      = 1222,
+    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1223,
+    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1224,
+    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1225,
+    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1226,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1227,
+    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1228,
+    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1229,
+    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1230,
+    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1231,
+    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1232,
+    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1233,
+    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1234,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_SS                 = 1235,
+    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1236,
+    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1237,
+    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1238,
+    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1239,
 };
 
 enum class MountResult : uint32

@@ -589,7 +589,7 @@ std::string GetTypeName() { return Impl::GetTypeName(typeid(T)); }
 template <typename T>
 std::string GetTypeName(T&& v)
 {
-    if constexpr (std::is_same_v<std::remove_cv_t<T>, std::type_info>)
+    if constexpr (std::is_same_v<std::remove_cvref_t<T>, std::type_info>)
         return Impl::GetTypeName(v);
     else
         return Impl::GetTypeName(typeid(v));

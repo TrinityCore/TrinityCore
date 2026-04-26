@@ -210,7 +210,7 @@ struct battleground_seething_shore final : BattlegroundScript
 
     void OnPrepareStage3() override
     {
-        _scheduler.Schedule(2s, [this](TaskContext context)
+        _scheduler.Schedule(2s, [this](TaskContext& context)
         {
             if (_activeAzeriteNodes.size() < MAX_AZERITE_SPAWNS)
             {
@@ -233,7 +233,7 @@ struct battleground_seething_shore final : BattlegroundScript
             }
         }
 
-        _scheduler.Schedule(30s, 2min, [this](TaskContext context)
+        _scheduler.Schedule(30s, 2min, [this](TaskContext& context)
         {
             SpawnBuffs();
             context.Repeat();
@@ -609,7 +609,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
             && ValidateSpellInfo(
                 {
-                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+                    static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
                     SeethingShore::Spells::AchievementTrackerCreditClaimJumper,
                     SeethingShore::Spells::AchievementTrackerDeathFromAbove
                 });
@@ -623,7 +623,7 @@ class spell_bg_seething_shore_parachute : public SpellScript
             args.TriggerFlags = TRIGGERED_FULL_MASK;
             args.OriginalCastId = GetSpell()->m_castId;
 
-            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValue(player)), args);
+            player->CastSpell(player, static_cast<uint32>(GetEffectInfo().CalcValueAsInt(player)), args);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerCreditClaimJumper, true);
             player->CastSpell(player, SeethingShore::Spells::AchievementTrackerDeathFromAbove, true);
         }
@@ -774,7 +774,7 @@ struct npc_bg_seething_shore_air_supply_ground_dummy : ScriptedAI
     {
         if (actionId == SeethingShore::Actions::SpawnBuff)
         {
-            _scheduler.Schedule(5s, [&](TaskContext)
+            _scheduler.Schedule(5s, [&](TaskContext const&)
             {
                 SpawnAirSupplyParachute();
             });
@@ -866,13 +866,13 @@ struct npc_bg_seething_shore_commander : ScriptedAI
         {
             case SeethingShore::Actions::CommanderText1:
                 Talk(SeethingShore::CommanderTexts::Intro1);
-                _scheduler.Schedule(30s, [this](TaskContext context)
+                _scheduler.Schedule(30s, [this](TaskContext& context)
                 {
                     Talk(SeethingShore::CommanderTexts::Intro2);
-                    context.Schedule(15s, [this](TaskContext context2)
+                    context.Schedule(15s, [this](TaskContext& context2)
                     {
                         Talk(SeethingShore::CommanderTexts::Intro3);
-                        context2.Schedule(12s, [this](TaskContext)
+                        context2.Schedule(12s, [this](TaskContext const&)
                         {
                             Talk(SeethingShore::CommanderTexts::Intro4);
                         });
@@ -902,7 +902,7 @@ struct npc_bg_seething_shore_vignette_dummy : ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(38s, [this](TaskContext)
+        _scheduler.Schedule(38s, [this](TaskContext const&)
         {
             if (Creature* fissure = me->FindNearestCreature(SeethingShore::Creatures::AzeriteFissure, 5.0f))
                 me->SendPlaySpellVisual(fissure, SeethingShore::SpellVisuals::AzeriteBirth, 0, 0, 0.0f);

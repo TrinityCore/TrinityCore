@@ -27,9 +27,11 @@ namespace Battlenet
     {
     };
 
+    class SessionManager;
+
     struct SessionManagerTraits
     {
-        using Self = class SessionManager;
+        using Self = SessionManager;
         using SocketType = Session;
         using ThreadType = SessionNetworkThread;
     };

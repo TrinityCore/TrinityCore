@@ -179,7 +179,7 @@ class spell_pal_ardent_defender : public AuraScript
     {
         PreventDefaultAction();
 
-        int32 targetHealthPercent = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
+        SpellEffectValue targetHealthPercent = GetEffectInfo(EFFECT_1).CalcValue(GetTarget());
         uint64 targetHealth = int32(GetTarget()->CountPctFromMaxHealth(targetHealthPercent));
         if (GetTarget()->HealthBelowPct(targetHealthPercent))
         {
@@ -215,7 +215,7 @@ class spell_pal_art_of_war : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -297,14 +297,14 @@ class spell_pal_awakening : public AuraScript
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Milliseconds extraDuration = 0ms;
         if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
-            extraDuration = Seconds(durationEffect->GetAmount());
+            extraDuration = duration_cast<Milliseconds>(FloatSeconds(durationEffect->GetAmount()));
 
         if (Aura* avengingWrath = GetTarget()->GetAura(SPELL_PALADIN_AVENGING_WRATH))
         {
@@ -479,7 +479,7 @@ class spell_pal_crusader_might : public AuraScript
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK, Milliseconds(aurEff->GetAmount()));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK, Milliseconds(aurEff->GetAmountAsInt()));
     }
 
     void Register() override
@@ -558,7 +558,7 @@ class spell_pal_divine_purpose : public AuraScript
         if (!procSpell->HasPowerTypeCost(POWER_HOLY_POWER))
             return false;
 
-        return roll_chance_i(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -779,7 +779,7 @@ class spell_pal_execution_sentence_aura : public AuraScript
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        int32 amount = aurEff->GetAmount();
+        SpellEffectValue amount = aurEff->GetAmount();
         if (!amount || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
@@ -827,7 +827,7 @@ class spell_pal_final_verdict : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        if (!roll_chance_i(GetEffectValue()))
+        if (!roll_chance(GetEffectValue()))
             return;
 
         Unit* caster = GetCaster();
@@ -1323,7 +1323,7 @@ class spell_pal_item_t6_trinket : public AuraScript
         else
             return;
 
-        if (roll_chance_i(chance))
+        if (roll_chance(chance))
             eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
     }
 
@@ -1382,7 +1382,7 @@ class spell_pal_light_s_beacon : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        uint32 heal = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
+        SpellEffectValue heal = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
 
         Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
         for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
@@ -1489,7 +1489,7 @@ class spell_pal_righteous_protector : public AuraScript
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        int32 value = aurEff->GetAmount() * 100 * _baseHolyPowerCost->Amount;
+        int32 value = aurEff->GetAmountAsInt() * 100 * _baseHolyPowerCost->Amount;
 
         GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, Milliseconds(-value));
         GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS, Milliseconds(-value));
@@ -1567,7 +1567,7 @@ class spell_pal_shield_of_vengeance : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
         if (Player const* player = GetUnitOwner()->ToPlayer())
@@ -1588,7 +1588,7 @@ class spell_pal_shield_of_vengeance : public AuraScript
         OnEffectRemove += AuraEffectApplyFn(spell_pal_shield_of_vengeance::HandleRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 
-    int32 _initialAmount = 0;
+    SpellEffectValue _initialAmount = 0;
 };
 
 // 469304 - Steed of Liberty
@@ -1605,7 +1605,7 @@ class spell_pal_steed_of_liberty : public AuraScript
         target->CastSpell(target, SPELL_PALADIN_BLESSING_OF_FREEDOM, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff,
-            .SpellValueOverrides = { { SPELLVALUE_DURATION, aurEff->GetAmount() } }
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, aurEff->GetAmountAsInt() } }
         });
     }
 
@@ -1709,7 +1709,7 @@ class spell_pal_t8_2p_bonus : public AuraScript
         Unit* target = eventInfo.GetProcTarget();
 
         SpellEffectInfo const& hotEffect = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty())->GetEffect(EFFECT_0);
-        int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+        SpellEffectValue amount = CalculatePct(static_cast<SpellEffectValue>(healInfo->GetHeal()), aurEff->GetAmount());
 
         amount /= hotEffect.GetPeriodicTickCount();
 
@@ -1739,7 +1739,7 @@ class spell_pal_t30_2p_protection_bonus : public AuraScript
 
         Unit* caster = procInfo.GetActor();
         uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
-        uint32 damage = CalculatePct(procInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
+        SpellEffectValue damage = CalculatePct(procInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
 
         caster->CastSpell(procInfo.GetActionTarget(), SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, CastSpellExtraArgs(aurEff)
             .SetTriggeringSpell(procInfo.GetProcSpell())
@@ -1815,7 +1815,7 @@ class spell_pal_zeal : public AuraScript
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_PALADIN_ZEAL_AURA, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, aurEff->GetAmount()));
+        target->CastSpell(target, SPELL_PALADIN_ZEAL_AURA, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, aurEff->GetAmountAsInt()));
 
         PreventDefaultAction();
     }

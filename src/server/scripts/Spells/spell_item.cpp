@@ -307,7 +307,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 caster->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
                 uint32 spellId = SPELL_MANIFEST_ANGER_MAIN_HAND;
                 if (Player* player = caster->ToPlayer())
-                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance_i(50))
+                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance(50))
                         spellId = SPELL_MANIFEST_ANGER_OFF_HAND;
 
                 caster->CastSpell(target, spellId, aurEff);
@@ -334,7 +334,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 // 26400 - Arcane Shroud
 class spell_item_arcane_shroud : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -420,7 +420,7 @@ class spell_item_aura_of_madness : public AuraScript
         uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->GetClass()]);
         caster->CastSpell(caster, spellId, aurEff);
 
-        if (roll_chance_i(10))
+        if (roll_chance(10))
             caster->Unit::Say(SAY_MADNESS);
     }
 
@@ -504,11 +504,11 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        int32 absorb = int32(CalculatePct(healInfo->GetHeal(), 15.0f));
+        SpellEffectValue absorb = CalculatePct(healInfo->GetHeal(), 15.0f);
         if (AuraEffect* protEff = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PROTECTION_OF_ANCIENT_KINGS, EFFECT_0, eventInfo.GetActor()->GetGUID()))
         {
             // The shield can grow to a maximum size of 20,000 damage absorbtion
-            protEff->SetAmount(std::min<int32>(protEff->GetAmount() + absorb, 20000));
+            protEff->SetAmount(std::min(protEff->GetAmount() + absorb, 20000.0));
 
             // Refresh and return to prevent replacing the aura
             protEff->GetBase()->RefreshDuration();
@@ -730,7 +730,7 @@ class spell_item_goblin_bomb_dispenser : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Item* item = GetCastItem())
-            GetCaster()->CastSpell(GetCaster(), roll_chance_i(95) ? SPELL_SUMMON_GOBLIN_BOMB : SPELL_MALFUNCTION_EXPLOSION, item);
+            GetCaster()->CastSpell(GetCaster(), roll_chance(95) ? SPELL_SUMMON_GOBLIN_BOMB : SPELL_MALFUNCTION_EXPLOSION, item);
     }
 
     void Register() override
@@ -792,7 +792,7 @@ class spell_item_defibrillate : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
-                if (roll_chance_i(_chance))
+                if (roll_chance(_chance))
                 {
                     PreventHitDefaultEffect(effIndex);
                     if (_failSpell)
@@ -1355,7 +1355,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        int32 pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
+        SpellEffectValue pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
                 if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
@@ -1692,7 +1692,7 @@ class spell_item_persistent_shield : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
-        int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
+        SpellEffectValue bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
 
         // Scarab Brooch does not replace stronger shields
         if (AuraEffect const* shield = target->GetAuraEffect(SPELL_PERSISTENT_SHIELD_TRIGGERED, EFFECT_0, caster->GetGUID()))
@@ -1978,7 +1978,7 @@ class spell_item_ultrasafe_transporter : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (!roll_chance_i(50)) // 50% success
+        if (!roll_chance(50)) // 50% success
             return;
 
         Unit* caster = GetCaster();
@@ -2045,7 +2045,7 @@ class spell_item_dimensional_ripper_area52 : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (!roll_chance_i(50)) // 50% success
+        if (!roll_chance(50)) // 50% success
             return;
 
         Unit* caster = GetCaster();
@@ -2331,7 +2331,7 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
 // 28862 - The Eye of Diminution
 class spell_item_the_eye_of_diminution : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -2748,7 +2748,7 @@ class spell_item_purify_helboar_meat : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
+        caster->CastSpell(caster, roll_chance(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
     }
 
     void Register() override
@@ -2775,7 +2775,7 @@ class spell_item_nigh_invulnerability : public SpellScript
         Unit* caster = GetCaster();
         if (Item* castItem = GetCastItem())
         {
-            if (roll_chance_i(86))                  // Nigh-Invulnerability   - success
+            if (roll_chance(86))                  // Nigh-Invulnerability   - success
                 caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, castItem);
             else                                    // Complete Vulnerability - backfire in 14% casts
                 caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, castItem);
@@ -2804,7 +2804,7 @@ class spell_item_poultryizer : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         if (GetCastItem() && GetHitUnit())
-            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, GetCastItem());
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, GetCastItem());
     }
 
     void Register() override
@@ -3012,7 +3012,7 @@ class spell_item_nitro_boosts : public SpellScript
         Unit* caster = GetCaster();
         bool success = true;
         if (!caster->GetMap()->IsDungeon())
-            success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
+            success = roll_chance(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
         caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, GetCastItem());
     }
 
@@ -3040,7 +3040,7 @@ class spell_item_nitro_boosts_backfire : public AuraScript
         float curZ = GetTarget()->GetPositionZ();
         if (curZ < lastZ)
         {
-            if (roll_chance_i(80)) // we don't have enough sniffs to verify this, guesstimate
+            if (roll_chance(80)) // we don't have enough sniffs to verify this, guesstimate
                 GetTarget()->CastSpell(GetTarget(), SPELL_NITRO_BOOSTS_PARACHUTE, effect);
             GetAura()->Remove();
         }
@@ -3137,7 +3137,7 @@ class spell_item_pygmy_oil : public SpellScript
         else
         {
             aura = caster->GetAura(SPELL_PYGMY_OIL_SMALLER_AURA);
-            if (!aura || aura->GetStackAmount() < 5 || !roll_chance_i(50))
+            if (!aura || aura->GetStackAmount() < 5 || !roll_chance(50))
                     caster->CastSpell(caster, SPELL_PYGMY_OIL_SMALLER_AURA, true);
             else
             {
@@ -3561,7 +3561,7 @@ public:
             Aura* dummy = caster->GetAura(_stackSpell); // retrieve aura
 
             //dont do anything if it's not the right amount of stacks;
-            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmount())
+            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmountAsInt())
                 return;
 
             // if right amount, remove the aura and cast real trigger
@@ -3815,8 +3815,8 @@ class spell_item_mind_control_cap : public SpellScript
         Unit* caster = GetCaster();
         if (Unit* target = GetHitUnit())
         {
-            if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
-                caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, GetCastItem());
+            if (roll_chance<int32>(ROLL_CHANCE_NO_BACKFIRE))
+                caster->CastSpell(target, roll_chance<int32>(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, GetCastItem());
             else
                 target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
         }
@@ -3941,7 +3941,7 @@ class spell_item_artifical_stamina : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
             amount = GetEffectInfo(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
@@ -3965,7 +3965,7 @@ class spell_item_artifical_damage : public AuraScript
         return GetOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
             amount = GetSpellInfo()->GetEffect(EFFECT_1).BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
@@ -4229,8 +4229,8 @@ class spell_item_eggnog : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (roll_chance_i(40))
-            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(50) ? SPELL_EGG_NOG_REINDEER : SPELL_EGG_NOG_SNOWMAN, GetCastItem());
+        if (roll_chance(40))
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance(50) ? SPELL_EGG_NOG_REINDEER : SPELL_EGG_NOG_SNOWMAN, GetCastItem());
     }
 
     void Register() override
@@ -4548,7 +4548,7 @@ class spell_item_grips_of_forsaken_sanity : public AuraScript
 
     bool CheckHealth(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetActor()->GetHealthPct() >= float(GetEffectInfo(EFFECT_1).CalcValue());
+        return eventInfo.GetActor()->GetHealthPct() >= GetEffectInfo(EFFECT_1).CalcValue();
     }
 
     void Register() override

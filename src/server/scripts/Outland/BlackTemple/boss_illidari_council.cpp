@@ -284,7 +284,7 @@ struct IllidariCouncilBossAI : public BossAI
         if (victim->GetTypeId() == TYPEID_PLAYER)
             Talk(SAY_COUNCIL_SLAY);
 
-        if (roll_chance_i(30))
+        if (roll_chance(30))
             if (Creature* boss = instance->GetCreature(GetRandomBossExcept(_bossId)))
                 boss->AI()->Talk(SAY_COUNCIL_COMNT);
     }
@@ -546,7 +546,7 @@ struct npc_veras_vanish_effect : public PassiveAI
     void Reset() override
     {
         DoCastSelf(SPELL_BIRTH, true);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_ENVENOM_DUMMY, true);
         });

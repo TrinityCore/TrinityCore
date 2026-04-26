@@ -345,7 +345,7 @@ struct npc_fel_infernal : public ScriptedAI
             return !me->HasUnitState(UNIT_STATE_CASTING);
         });
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext& context)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 DoCast(target, SPELL_FEL_STREAK_VISUAL);
@@ -487,7 +487,7 @@ class spell_mistress_kiss_area : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -508,7 +508,7 @@ class spell_mistress_kiss_area : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -523,12 +523,12 @@ class spell_fel_streak_visual : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), static_cast<uint32>(GetEffectValue()), true);
+        GetCaster()->CastSpell(GetHitUnit(), static_cast<uint32>(GetEffectValueAsInt()), true);
     }
 
     void Register() override

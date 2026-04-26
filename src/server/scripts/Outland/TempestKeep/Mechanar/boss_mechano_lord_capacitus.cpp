@@ -223,7 +223,7 @@ class spell_capacitus_polarity_shift : public SpellScript
         Unit* target = GetHitUnit();
         Unit* caster = GetCaster();
 
-        target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+        target->CastSpell(target, roll_chance(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetOriginalCaster(caster->GetGUID()));
     }
 

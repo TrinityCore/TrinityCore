@@ -85,12 +85,12 @@ void OutdoorPvP::Update(uint32 diff)
 
 int32 OutdoorPvP::GetWorldState(int32 worldStateId) const
 {
-    return sWorldStateMgr->GetValue(worldStateId, m_map);
+    return WorldStateMgr::GetValue(worldStateId, m_map);
 }
 
 void OutdoorPvP::SetWorldState(int32 worldStateId, int32 value)
 {
-    sWorldStateMgr->SetValue(worldStateId, value, false, m_map);
+    WorldStateMgr::SetValue(worldStateId, value, false, m_map);
 }
 
 void OutdoorPvP::HandleKill(Player* killer, Unit* killed)

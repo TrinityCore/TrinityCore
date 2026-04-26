@@ -104,7 +104,7 @@ struct arena_enigma_crucible : ArenaScript
         if (Creature const* creature = battlegroundMap->GetCreature(_zoSorgGUID))
             creature->AI()->Talk(EnigmaCrucible::Texts::ZoSorg::Start);
 
-        _scheduler.Schedule(10s, [&](TaskContext context)
+        _scheduler.Schedule(10s, [&](TaskContext& context)
         {
             battlegroundMap->DoOnPlayers([&](Player* player)
             {
@@ -143,7 +143,7 @@ struct arena_enigma_crucible : ArenaScript
         if (Creature const* creature = battlegroundMap->GetCreature(_zoSorgGUID))
             creature->AI()->Talk(EnigmaCrucible::Texts::ZoSorg::Prepare);
 
-        _scheduler.Schedule(10s, [&](TaskContext)
+        _scheduler.Schedule(10s, [&](TaskContext const&)
         {
             if (Creature const* creature = battlegroundMap->GetCreature(_zoSorgGUID))
                 creature->AI()->Talk(EnigmaCrucible::Texts::ZoSorg::Prepare2);

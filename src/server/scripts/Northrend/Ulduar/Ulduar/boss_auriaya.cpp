@@ -169,7 +169,7 @@ struct boss_auriaya : public BossAI
 
     void KilledUnit(Unit* who) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance_i(50))
+        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance(50))
             Talk(SAY_SLAY);
     }
 
@@ -475,7 +475,7 @@ struct npc_swarming_guardian : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoCastSelf(SPELL_AGRO_CREATOR);

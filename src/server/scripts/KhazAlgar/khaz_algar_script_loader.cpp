@@ -39,6 +39,10 @@ void AddSC_boss_ulgrax_the_devourer();
 void AddSC_instance_city_of_threads();
 void AddSC_boss_orator_krix_vizk();
 
+// Darkflame Cleft
+void AddSC_instance_darkflame_cleft();
+void AddSC_boss_the_candle_king();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKhazAlgarScripts()
@@ -64,4 +68,8 @@ void AddKhazAlgarScripts()
     // City of Threads
     AddSC_instance_city_of_threads();
     AddSC_boss_orator_krix_vizk();
+
+    // Darkflame Cleft
+    AddSC_instance_darkflame_cleft();
+    AddSC_boss_the_candle_king();
 }

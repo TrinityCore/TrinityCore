@@ -101,7 +101,7 @@ struct arena_cage_of_carnage : ArenaScript
         if (Creature const* creature = battlegroundMap->GetCreature(_naminzeGUID))
             creature->AI()->Talk(CageOfCarnage::Texts::Naminze::Start);
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             battlegroundMap->DoOnPlayers([&](Player* player)
             {
