@@ -456,6 +456,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool _regenerateHealthLock; // Dynamically set
 
         bool _isMissingCanSwimFlagOutOfCombat;
+
+        // set in UpdateLevelDependantStats, read in UpdateAttackPowerAndDamage
+        uint32 _baseAttackPower;
+        uint32 _baseRangedAttackPower;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

@@ -9015,6 +9015,54 @@ bool Unit::IsInDisallowedMountForm() const
 ########                         ########
 #######################################*/
 
+void ApplyPercentModFloatVar(float& var, float val, bool apply);
+
+void Unit::HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply)
+{
+    if (index >= AP_MODS_COUNT || modifierType >= AP_MOD_TYPE_COUNT)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in HandleAttackPowerModifier(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return;
+    }
+
+    switch (modifierType)
+    {
+        case AP_MOD_POSITIVE_FLAT:
+            m_attackPowerMods[index].PositiveMods += apply ? amount : -amount;
+            break;
+        case AP_MOD_NEGATIVE_FLAT:
+            m_attackPowerMods[index].NegativeMods += apply ? amount : -amount;
+            break;
+        case AP_MOD_PCT:
+            ApplyPercentModFloatVar(m_attackPowerMods[index].Multiplier, amount, apply);
+            break;
+        default:
+            break;
+    }
+
+    if (!CanModifyStats())
+        return;
+
+    UpdateAttackPowerAndDamage(index == RANGED_AP_MODS);
+}
+
+float Unit::GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const
+{
+    if (index >= AP_MODS_COUNT || modifierType >= AP_MOD_TYPE_COUNT)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in GetAttackPowerModifierValue(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return 0.0f;
+    }
+
+    switch (modifierType)
+    {
+        case AP_MOD_POSITIVE_FLAT: return m_attackPowerMods[index].PositiveMods;
+        case AP_MOD_NEGATIVE_FLAT: return m_attackPowerMods[index].NegativeMods;
+        case AP_MOD_PCT:           return std::max(0.0f, m_attackPowerMods[index].Multiplier);
+        default:                   return 0.0f;
+    }
+}
+
 void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply)
 {
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
@@ -9133,9 +9181,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RESISTANCE_FROST:
         case UNIT_MOD_RESISTANCE_SHADOW:
         case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
-
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
 
         case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
         case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
