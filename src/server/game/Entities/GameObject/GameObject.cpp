@@ -2625,6 +2625,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
     CastSpellExtraArgs spellArgs;
     if (ignoreCastInProgress)
         spellArgs.TriggerFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
+    bool addUse = false;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -3181,7 +3182,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellCaster.spell;
 
-            AddUse();
+            addUse = true;
             break;
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
@@ -3558,28 +3559,31 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    SpellCastResult castResult;
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, spellArgs);
+        castResult = spellCaster->CastSpell(user, spellId, spellArgs);
     else
-    {
-        SpellCastResult castResult = CastSpell(user, spellId, spellArgs);
-        if (castResult == SPELL_FAILED_SUCCESS)
-        {
-            switch (GetGoType())
-            {
-                case GAMEOBJECT_TYPE_NEW_FLAG:
-                    HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
-                    break;
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                    SetFlag(GO_FLAG_IN_USE);
-                    if (ZoneScript* zonescript = GetZoneScript())
-                        zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+        castResult = CastSpell(user, spellId, spellArgs);
 
-                    Delete();
-                    break;
-                default:
-                    break;
-            }
+    if (castResult == SPELL_FAILED_SUCCESS)
+    {
+        if (addUse)
+            AddUse();
+
+        switch (GetGoType())
+        {
+            case GAMEOBJECT_TYPE_NEW_FLAG:
+                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                break;
+            case GAMEOBJECT_TYPE_FLAGSTAND:
+                SetFlag(GO_FLAG_IN_USE);
+                if (ZoneScript* zonescript = GetZoneScript())
+                    zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+
+                Delete();
+                break;
+            default:
+                break;
         }
     }
 }
