@@ -313,6 +313,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
+    m_healthFraction = 0.f;
 
     isDebugAreaTriggers = false;
 
@@ -2048,7 +2049,12 @@ void Player::RegenerateHealth()
     if (addValue < 0.0f)
         addValue = 0.0f;
 
-    ModifyHealth(int32(addValue));
+    addValue += m_healthFraction;
+    uint32 integerValue = uint32(addValue);
+    m_healthFraction = addValue - integerValue;
+
+    if (integerValue)
+        ModifyHealth(int32(integerValue));
 }
 
 void Player::ResetAllPowers()
