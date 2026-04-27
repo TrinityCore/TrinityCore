@@ -174,19 +174,20 @@ void EscortAI::UpdateAI(uint32 diff)
                     if (_despawnAtEnd)
                     {
                         TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: reached end of waypoints, despawning at end ({})", me->GetGUID().ToString());
-                        if (_returnToStart)
-                        {
-                            Position respawnPosition = me->GetRespawnPosition();
-                            me->GetMotionMaster()->MovePoint(POINT_HOME, respawnPosition);
-                            TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition, me->GetGUID().ToString());
-                        }
-                        else if (_instantRespawn)
+                        if (_instantRespawn)
                             me->Respawn(true);
                         else
                             me->DespawnOrUnsummon();
                     }
+                    else if (_returnToStart)
+                    {
+                        Position respawnPosition = me->GetRespawnPosition();
+                        me->GetMotionMaster()->MovePoint(POINT_HOME, respawnPosition);
+                        TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition, me->GetGUID().ToString());
+                    }
+                    else
+                        RemoveEscortState(STATE_ESCORT_ESCORTING);
                     TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: reached end of waypoints ({})", me->GetGUID().ToString());
-                    RemoveEscortState(STATE_ESCORT_ESCORTING);
                     return;
                 }
 
