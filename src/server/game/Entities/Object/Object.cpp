@@ -2247,6 +2247,7 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     }
 
     spell->m_customArg = args.CustomArg;
+    spell->m_extraProcFlags = args.ExtraProcFlags;
     spell->m_scriptResult = args.ScriptResult;
     spell->m_scriptWaitsForSpellHit = args.ScriptWaitsForSpellHit;
 
