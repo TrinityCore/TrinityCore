@@ -41,6 +41,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "Item.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -914,6 +915,112 @@ void WorldSession::HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingU
                 }
             }
         }
+    }
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::HandleQueryQuestItemUsability(WorldPackets::Quest::QueryQuestItemUsability& packet)
+{
+    if (!_player)
+        return;
+
+    Creature* creature = ObjectAccessor::GetCreature(*_player, packet.CreatureGUID);
+    if (!creature)
+        return;
+
+    uint32 creatureEntry = creature->GetEntry();
+    WorldPackets::Quest::QuestItemUsabilityResponse response;
+    response.CreatureGUID = packet.CreatureGUID;
+
+    for (ObjectGuid const& itemGuid : packet.ItemGUIDs)
+    {
+        Item* item = _player->GetItemByGuid(itemGuid);
+        if (!item)
+        {
+            response.ItemsData.emplace_back(itemGuid, false);
+            continue;
+        }
+
+        ItemTemplate const* itemTemplate = item->GetTemplate();
+        if (!itemTemplate)
+        {
+            response.ItemsData.emplace_back(itemGuid, false);
+            continue;
+        }
+
+        bool isUsable = false;
+        auto bounds = sObjectMgr->GetSpellClickInfoMapBounds(creatureEntry);
+
+        for (auto const& [npcEntry, spellClickInfo] : bounds)
+        {
+            uint32 spellClickSpellId = spellClickInfo.spellId;
+            for (auto const* effect : itemTemplate->Effects)
+            {
+                if (!effect || effect->SpellID == 0)
+                    continue;
+                if (uint32(effect->SpellID) == spellClickSpellId)
+                {
+                    isUsable = true;
+                    break;
+                }
+            }
+            if (isUsable)
+                break;
+        }
+
+        if (!isUsable)
+        {
+            uint32 itemId = item->GetEntry();
+            for (auto const& [questId, statusData] : _player->m_QuestStatus)
+            {
+                if (statusData.Status != QUEST_STATUS_INCOMPLETE)
+                    continue;
+
+                Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+                if (!quest)
+                    continue;
+
+                if (quest->GetSrcItemId() != itemId)
+                    continue;
+
+                for (QuestObjective const& obj : quest->GetObjectives())
+                {
+                    if (obj.Type == QUEST_OBJECTIVE_MONSTER)
+                    {
+                        uint32 objectiveCreature = uint32(std::abs(obj.ObjectID));
+
+                        if (objectiveCreature == creatureEntry)
+                        {
+                            isUsable = true;
+                            break;
+                        }
+
+                        // Else quest have trigger or script, check linking killcredit
+                        CreatureTemplate const* cTemplate = creature->GetCreatureTemplate();
+                        if (cTemplate)
+                        {
+                            for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
+                            {
+                                if (cTemplate->KillCredit[i] == objectiveCreature && cTemplate->KillCredit[i] != 0)
+                                {
+                                    isUsable = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (isUsable)
+                            break;
+                    }
+                }
+
+                if (isUsable)
+                    break;
+            }
+        }
+
+        response.ItemsData.emplace_back(itemGuid, isUsable);
     }
 
     SendPacket(response.Write());

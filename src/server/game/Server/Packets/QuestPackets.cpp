@@ -946,4 +946,31 @@ WorldPacket const* ForceSpawnTrackingUpdate::Write()
 
     return &_worldPacket;
 }
+
+void QueryQuestItemUsability::Read()
+{
+    _worldPacket >> CreatureGUID;
+    uint32 count;
+    _worldPacket >> count;
+    ItemGUIDs.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+        _worldPacket >> ItemGUIDs[i];
+}
+
+WorldPacket const* QuestItemUsabilityResponse::Write()
+{
+    _worldPacket << CreatureGUID;
+    _worldPacket << Size<uint32>(ItemsData);
+    _worldPacket << Size<uint32>(ItemsData);
+
+    for (auto const& pair : ItemsData)
+        _worldPacket << pair.first;
+
+    for (auto const& pair : ItemsData)
+        _worldPacket.WriteBit(pair.second);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
 }
