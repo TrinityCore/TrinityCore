@@ -137,7 +137,7 @@ class spell_dustwallow_marsh_salvage_wreckage : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_SUMMON_LOCKBOX : SPELL_SUMMON_BURROWER);
+        GetCaster()->CastSpell(GetCaster(), roll_chance(50) ? SPELL_SUMMON_LOCKBOX : SPELL_SUMMON_BURROWER);
     }
 
     void Register() override

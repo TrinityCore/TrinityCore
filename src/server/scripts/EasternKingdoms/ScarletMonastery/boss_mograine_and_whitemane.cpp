@@ -187,7 +187,7 @@ public:
         // Casted from Whitemane
         if (spellInfo->Id == SPELL_SCARLET_RESURRECTION)
         {
-            scheduler.Schedule(3s, [this](TaskContext /*context*/)
+            scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
             {
                 // Say text
                 Talk(SAY_MO_RESURRECTED);
@@ -196,7 +196,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
             });
 
-            scheduler.Schedule(5s, [this](TaskContext /*context*/)
+            scheduler.Schedule(5s, [this](TaskContext const& /*context*/)
             {
                 // Schedule events after ressurrect
                 events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 10s, 15s);
@@ -271,7 +271,7 @@ public:
         me->GetMotionMaster()->MoveIdle();
 
         // Start events after 5 seconds
-        _scheduler.Schedule(5s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(5s, [this](TaskContext const& /*context*/)
         {
             _events.ScheduleEvent(EVENT_HEAL, 10s);
             _events.ScheduleEvent(EVENT_POWER_WORD_SHIELD, 15s);
@@ -387,7 +387,7 @@ public:
             me->SetFacingToObject(mograine);
 
         // After 3 seconds cast scarlet ressurection
-        _scheduler.Schedule(3s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
         {
             if (Creature* mograine = _instance->GetCreature(DATA_MOGRAINE))
                 DoCast(mograine, SPELL_SCARLET_RESURRECTION);

@@ -83,11 +83,11 @@ struct boss_ulgrax_the_devourer : public BossAI
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
 
-            scheduler.Schedule(2s, [this](TaskContext context)
+            scheduler.Schedule(2s, [this](TaskContext& context)
             {
                 DoCastSelf(SPELL_SWALLOWING_DARKNESS);
 
-                context.Schedule(11s, [this](TaskContext /*context*/)
+                context.Schedule(11s, [this](TaskContext const& /*context*/)
                 {
                     me->SetHomePosition(UlgraxStartCombatPosition);
                     me->SetImmuneToAll(false);

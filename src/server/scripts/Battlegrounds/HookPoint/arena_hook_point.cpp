@@ -155,7 +155,7 @@ struct arena_hook_point : ArenaScript
 
     void OnPrepareStage1() override
     {
-        _scheduler.Schedule(20s, [&](TaskContext)
+        _scheduler.Schedule(20s, [&](TaskContext const&)
         {
             if (GameObject* slideDoor = battlegroundMap->GetGameObject(_slideDoorGUID))
                 slideDoor->UseDoorOrButton();

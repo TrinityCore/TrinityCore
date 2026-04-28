@@ -190,7 +190,7 @@ class spell_doomwalker_earthquake : public AuraScript
 
     void HandleKnockdown(AuraEffect const* /*aurEff*/) const
     {
-        if (roll_chance_i(50))
+        if (roll_chance(50))
             GetTarget()->CastSpell(GetTarget(), SPELL_KNOCKDOWN, true);
     }
 

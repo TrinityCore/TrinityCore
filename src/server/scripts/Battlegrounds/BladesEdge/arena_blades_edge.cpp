@@ -60,7 +60,7 @@ struct arena_blades_edge : ArenaScript
             }
         }
 
-        _scheduler.Schedule(1min, [&](TaskContext)
+        _scheduler.Schedule(1min, [&](TaskContext const&)
         {
             CreateObject(BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
             CreateObject(BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);

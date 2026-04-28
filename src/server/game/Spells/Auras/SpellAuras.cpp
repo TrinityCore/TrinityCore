@@ -1976,7 +1976,7 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
         if (!target->IsStandState())
             return 0;
 
-    bool success = roll_chance_f(CalcProcChance(*procEntry, eventInfo));
+    bool success = roll_chance(CalcProcChance(*procEntry, eventInfo));
 
     const_cast<Aura*>(this)->SetLastProcAttemptTime(now);
 
@@ -2046,8 +2046,8 @@ float Aura::CalcPPMProcChance(Unit* actor) const
     float averageProcInterval = 60.0f / ppm;
 
     TimePoint currentTime = GameTime::Now();
-    float secondsSinceLastAttempt = std::min(duration_cast<FloatSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0f);
-    float secondsSinceLastProc = std::min(duration_cast<FloatSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0f);
+    float secondsSinceLastAttempt = std::min(duration_cast<FloatSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0);
+    float secondsSinceLastProc = std::min(duration_cast<FloatSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0);
 
     float chance = std::max(1.0f, 1.0f + ((secondsSinceLastProc / averageProcInterval - 1.5f) * 3.0f)) * ppm * secondsSinceLastAttempt / 60.0f;
     RoundToInterval(chance, 0.0f, 1.0f);
@@ -2586,7 +2586,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         std::vector<Unit*> units;
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
-        float radius = spellEffectInfo.CalcRadius(ref);
+        SpellRange radius = spellEffectInfo.CalcRadius(ref);
         float extraSearchRadius = 0.0f;
 
         SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
@@ -2604,7 +2604,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                 break;
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
                 selectionType = TARGET_CHECK_ENEMY;
-                extraSearchRadius = radius > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
+                extraSearchRadius = radius.Max > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
                 break;
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                 if (!condList || sConditionMgr->IsObjectMeetToConditions(unitOwner, ref, *condList))
@@ -2613,7 +2613,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             {
                 if (Unit* owner = unitOwner->GetCharmerOrOwner())
-                    if (unitOwner->IsWithinDistInMap(owner, radius))
+                    if (owner->IsInWorld() && unitOwner->InSamePhase(owner) && unitOwner->IsInRange3d(owner, radius.Min, radius.Max))
                         if (!condList || sConditionMgr->IsObjectMeetToConditions(owner, ref, *condList))
                             units.push_back(owner);
                 break;
@@ -2643,7 +2643,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             {
                 Trinity::WorldObjectSpellAreaTargetCheck check(radius, unitOwner, ref, unitOwner, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
                 Trinity::UnitListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), units, check);
-                Spell::SearchTargets(searcher, containerTypeMask, unitOwner, unitOwner, radius + extraSearchRadius);
+                Spell::SearchTargets(searcher, containerTypeMask, unitOwner, unitOwner, radius.Max + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
                 Trinity::Containers::EraseIf(units, [unitOwner](Unit const* unit) { return !unit->IsSelfOrInSameMap(unitOwner); });
@@ -2733,7 +2733,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         std::vector<Unit*> units;
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
 
-        Trinity::WorldObjectSpellAreaTargetCheck check(radius, dynObjOwner, dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck check({ .Max = radius }, dynObjOwner, dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(dynObjOwner, units, check);
         Cell::VisitAllObjects(dynObjOwner, searcher, radius);
 

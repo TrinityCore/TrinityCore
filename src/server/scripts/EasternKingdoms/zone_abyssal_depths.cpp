@@ -68,7 +68,7 @@ struct npc_abyssal_depths_whirlpool_vehicle : public ScriptedAI
         {
             owner->CastSpell(me, Spells::RideVehicleHardcoded);
 
-            _scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
+            _scheduler.Schedule(3s + 500ms, [this](TaskContext const& /*task*/)
             {
                 me->SetAIAnimKitId(822);
                 me->CastSpell(nullptr, Spells::TeleportUnderWhirlpool, CastSpellExtraArgsInit{

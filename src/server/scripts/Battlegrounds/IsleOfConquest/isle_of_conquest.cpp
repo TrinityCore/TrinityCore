@@ -165,7 +165,7 @@ struct go_ioc_contested_object : public go_ioc_capturable_object
     void Reset() override
     {
         go_ioc_capturable_object::Reset();
-        _scheduler.Schedule(1min, [&](TaskContext)
+        _scheduler.Schedule(1min, [&](TaskContext const&)
         {
             if (ZoneScript* zonescript = me->GetZoneScript())
                 zonescript->DoAction(ACTION_IOC_CAPTURE_CAPTURABLE_OBJECT, me, me);

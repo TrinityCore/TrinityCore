@@ -345,7 +345,7 @@ struct npc_fel_infernal : public ScriptedAI
             return !me->HasUnitState(UNIT_STATE_CASTING);
         });
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext& context)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 DoCast(target, SPELL_FEL_STREAK_VISUAL);

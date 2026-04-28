@@ -173,7 +173,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
-            Trinity::RaceMask<uint64> AllowableRaces = { UI64LIT(0xFFFFFFFFFFFFFFFF) };
+            Trinity::RaceMask<std::array<int32, 2>> AllowableRaces = RACEMASK_ALL_v<std::array<int32, 2>>;
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
@@ -801,6 +801,7 @@ namespace WorldPackets
             bool KeepOpenAfterChoice = false;
             bool ShowChoicesAsList = false;
             bool ForceDontShowChoicesAsList = false;
+            bool RequiresSelection = false;
         };
 
         class ChoiceResponse final : public ClientPacket

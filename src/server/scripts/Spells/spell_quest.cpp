@@ -413,7 +413,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScript
             case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
         }
         // sometimes, if you're lucky, you get a dwarf
-        if (roll_chance_i(5))
+        if (roll_chance(5))
             spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
         GetCaster()->CastSpell(GetCaster(), spellId, true);
     }
@@ -1183,7 +1183,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
 {
     void ModDest(SpellDestination& dest)
     {
-        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
+        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster()).Max;
         float angle = frand(0.75f, 1.25f) * float(M_PI);
 
         Position pos = GetCaster()->GetNearPosition(dist, angle);

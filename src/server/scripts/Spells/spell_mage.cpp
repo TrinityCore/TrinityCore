@@ -294,7 +294,7 @@ class spell_mage_arcane_explosion : public SpellScript
             if (!requiredTargets)
                 return false;
 
-            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance_f(triggerChance->GetAmount());
+            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance(triggerChance->GetAmount());
         }();
 
         if (!procTriggered)
@@ -734,13 +734,13 @@ class spell_mage_fingers_of_frost : public AuraScript
     bool CheckFrostboltProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0x2000000, 0, 0))
-            && roll_chance_f(aurEff->GetAmount());
+            && roll_chance(aurEff->GetAmount());
     }
 
     bool CheckFrozenOrbProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, flag128(0, 0, 0x80, 0))
-            && roll_chance_f(aurEff->GetAmount());
+            && roll_chance(aurEff->GetAmount());
     }
 
     void Trigger(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -891,7 +891,7 @@ struct at_mage_flame_patch : public AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetPosition(), SPELL_MAGE_FLAME_PATCH_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -1121,8 +1121,9 @@ class spell_mage_hot_streak_ignite_marker : public SpellScript
 public:
     static bool IsActive(Spell const* spell)
     {
-        if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
-            return script->_affectedByHotStreak;
+        if (spell)
+            if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
+                return script->_affectedByHotStreak;
         return false;
     }
 };
@@ -1856,20 +1857,19 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         WorldLocation const* dest = GetExplTargetDest();
-        SpellEffectInfo const& ringEffect = sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_2);
-        float outRadius = ringEffect.CalcRadius(nullptr, SpellTargetIndex::TargetB);
-        float inRadius = ringEffect.CalcRadius(nullptr, SpellTargetIndex::TargetA);
+        SpellEffectInfo const& spellEffectInfo = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_2);
+        SpellRange radius = {
+            .Min = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetA).Max,
+            .Max = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetB).Max
+        };
 
-        targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
-            {
-                Unit* unit = target->ToUnit();
-                if (!unit)
-                    return true;
-                return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY)
-                    || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE)
-                    || unit->GetExactDist(dest) > outRadius
-                    || unit->GetExactDist(dest) < inRadius;
-            });
+        targets.remove_if([dest, radius](WorldObject* target)
+        {
+            Unit* unit = target->ToUnit();
+            if (!unit)
+                return true;
+            return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || !unit->IsInRange3d(dest, radius.Min, radius.Max);
+        });
     }
 
     void Register() override

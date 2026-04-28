@@ -850,6 +850,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetId() const { return BasicData->ID; }
     uint32 GetClass() const { return BasicData->ClassID; }
     uint32 GetSubClass() const { return BasicData->SubclassID; }
+    ItemSheatheType GetSheatheType() const { return static_cast<ItemSheatheType>(BasicData->SheatheType); }
     uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
     uint32 GetOtherFactionItemId() const { return ExtendedData->FactionRelated; }
     float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }

@@ -3747,7 +3747,7 @@ struct npc_silverpine_webbed_victim : public ScriptedAI
         if (Player* player = killer->ToPlayer())
         {
             if (player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(me, roll_chance_i(50) ? SPELL_FREE_WEBBED_VICTIM : SPELL_FREE_WEBBED_VICTIM_RANDOM, true);
+                player->CastSpell(me, roll_chance(50) ? SPELL_FREE_WEBBED_VICTIM : SPELL_FREE_WEBBED_VICTIM_RANDOM, true);
         }
     }
 };
@@ -4357,7 +4357,7 @@ class spell_silverpine_notify_agatha : public SpellScript
 
                     if (Player* player = target->ToPlayer())
                     {
-                        if (roll_chance_i(50))
+                        if (roll_chance(50))
                         {
                             if (agatha->IsAIEnabled())
                                 agatha->AI()->Talk(TALK_AGATHA_RISE_FORSAKEN, player);

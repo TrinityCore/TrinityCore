@@ -808,7 +808,7 @@ class spell_dk_frost_fever_proc : public AuraScript
 {
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void Register() override
@@ -1079,7 +1079,7 @@ class spell_dk_obliteration : public AuraScript
         target->CastSpell(target, SPELL_DK_KILLING_MACHINE_PROC, aurEff);
 
         if (AuraEffect const* oblitaration = target->GetAuraEffect(SPELL_DK_OBLITERATION, EFFECT_1))
-            if (roll_chance_f(oblitaration->GetAmount()))
+            if (roll_chance(oblitaration->GetAmount()))
                 target->CastSpell(target, SPELL_DK_OBLITERATION_RUNE_ENERGIZE, aurEff);
     }
 
@@ -1262,7 +1262,7 @@ class spell_dk_rime : public AuraScript
         if (eventInfo.GetSpellInfo()->Id == SPELL_DK_FROST_SCYTHE)
             chance /= 2.f;
 
-        return roll_chance_f(chance);
+        return roll_chance(chance);
     }
 
     void Register() override

@@ -70,7 +70,7 @@ struct arena_the_robodrome : ArenaScript
             }
         }
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             for (ObjectGuid const& guid : _powerCoilGUIDs)
                 if (Creature* coil = battlegroundMap->GetCreature(guid))

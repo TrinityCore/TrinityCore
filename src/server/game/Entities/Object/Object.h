@@ -303,8 +303,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ = nullptr) const;
 
-        void GetRandomPoint(Position const& srcPos, float distance, float& rand_x, float& rand_y, float& rand_z) const;
-        Position GetRandomPoint(Position const& srcPos, float distance) const;
+        Position GetRandomPoint(Position const& srcPos, float distance, float minDistance = 0.0f) const;
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
@@ -367,8 +366,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
-        bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
-        bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
+        bool IsInRange2d(Position const* pos, float minRange, float maxRange) const;
+        bool IsInRange3d(Position const* pos, float minRange, float maxRange) const;
         bool isInFront(WorldObject const* target, float arc = float(M_PI)) const;
         bool isInBack(WorldObject const* target, float arc = float(M_PI)) const;
 
@@ -449,8 +448,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Player* GetSpellModOwner() const;
 
         // target dependent range checks
-        float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
-        float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
+        SpellRange GetSpellMinMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
         SpellEffectValue ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const;
         int32 CalcSpellDuration(SpellInfo const* spellInfo, std::vector<SpellPowerCost> const* powerCosts) const;

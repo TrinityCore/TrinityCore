@@ -380,43 +380,9 @@ namespace Trinity
     class AbsorbAuraOrderPred
     {
         public:
-            AbsorbAuraOrderPred() { }
-            bool operator() (AuraEffect* aurEffA, AuraEffect* aurEffB) const
+            bool operator()(AuraEffect const* aurEffA, AuraEffect const* aurEffB) const
             {
-                SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
-                SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();
-
-                // Fel Blossom
-                if (spellProtoA->Id == 28527)
-                    return true;
-                if (spellProtoB->Id == 28527)
-                    return false;
-
-                // Ice Barrier
-                if (spellProtoA->GetCategory() == 471)
-                    return true;
-                if (spellProtoB->GetCategory() == 471)
-                    return false;
-
-                // Sacrifice
-                if (spellProtoA->Id == 7812)
-                    return true;
-                if (spellProtoB->Id == 7812)
-                    return false;
-
-                // Cauterize (must be last)
-                if (spellProtoA->Id == 86949)
-                    return false;
-                if (spellProtoB->Id == 86949)
-                    return true;
-
-                // Spirit of Redemption (must be last)
-                if (spellProtoA->Id == 20711)
-                    return false;
-                if (spellProtoB->Id == 20711)
-                    return true;
-
-                return false;
+                return aurEffA->GetMiscValueB() < aurEffB->GetMiscValueB();
             }
     };
 }

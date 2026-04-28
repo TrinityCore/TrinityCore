@@ -64,7 +64,7 @@ struct npc_daegarn : public ScriptedAI
         _scheduler.CancelAll();
         _summons.DespawnAll();
 
-        _scheduler.Schedule(40s, [this](TaskContext context)
+        _scheduler.Schedule(40s, [this](TaskContext& context)
         {
             Talk(SAY_TEXT);
             context.Repeat(40s);
@@ -163,7 +163,7 @@ struct npc_daegarn : public ScriptedAI
             _scheduler.CancelAll();
             _summons.DespawnAll();
 
-            _scheduler.Schedule(20s, [this](TaskContext context)
+            _scheduler.Schedule(20s, [this](TaskContext& context)
             {
                 bool reset = true;
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -333,7 +333,7 @@ class spell_fjord_rivenwood_captives_on_quest : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (roll_chance_i(80))
+        if (roll_chance(80))
             target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
@@ -486,7 +486,7 @@ class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
+        caster->CastSpell(caster, roll_chance(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
     }
 
     void Register() override

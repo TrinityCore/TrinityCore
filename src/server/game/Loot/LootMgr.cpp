@@ -260,20 +260,20 @@ bool LootStoreItem::Roll(bool rate) const
 
             float qualityModifier = pProto && rate && QualityToRate[pProto->GetQuality()] != MAX_RATES ? sWorld->getRate(QualityToRate[pProto->GetQuality()]) : 1.0f;
 
-            return roll_chance_f(chance * qualityModifier);
+            return roll_chance(chance * qualityModifier);
         }
         case Type::Reference:
-            return roll_chance_f(chance * (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
+            return roll_chance(chance * (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
         case Type::Currency:
         {
             CurrencyTypesEntry const* currency = sCurrencyTypesStore.AssertEntry(itemid);
 
             float qualityModifier = currency && rate && QualityToRate[currency->Quality] != MAX_RATES ? sWorld->getRate(QualityToRate[currency->Quality]) : 1.0f;
 
-            return roll_chance_f(chance * qualityModifier);
+            return roll_chance(chance * qualityModifier);
         }
         case Type::TrackingQuest:
-            return roll_chance_f(chance);
+            return roll_chance(chance);
         default:
             break;
     }

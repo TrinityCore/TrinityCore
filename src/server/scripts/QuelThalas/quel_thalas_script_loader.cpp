@@ -17,6 +17,9 @@
 
 // This is where scripts' loading functions should be declared:
 
+// Silvermoon
+void AddSC_silvermoon_city_midnight();
+
 // Murder Row
 void AddSC_boss_kystia_manaheart();
 void AddSC_instance_murder_row();
@@ -25,6 +28,9 @@ void AddSC_instance_murder_row();
 // void Add${NameOfDirectory}Scripts()
 void AddQuelThalasScripts()
 {
+    // Silvermoon
+    AddSC_silvermoon_city_midnight();
+
     // Murder Row
     AddSC_boss_kystia_manaheart();
     AddSC_instance_murder_row();

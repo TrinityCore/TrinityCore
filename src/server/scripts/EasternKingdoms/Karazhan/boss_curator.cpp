@@ -109,7 +109,7 @@ public:
                     DoCastSelf(SPELL_ARCANE_INFUSION, true);
                     break;
                 case EVENT_SUMMON_ASTRAL_FLARE:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_SUMMON);
 
                     DoCastSelf(RAND(SPELL_SUMMON_ASTRAL_FLARE_NE, SPELL_SUMMON_ASTRAL_FLARE_NW, SPELL_SUMMON_ASTRAL_FLARE_SE, SPELL_SUMMON_ASTRAL_FLARE_SW), true);
@@ -160,7 +160,7 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetUninteractible(false);

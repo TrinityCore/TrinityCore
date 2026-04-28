@@ -285,7 +285,7 @@ class spell_monk_open_palm_strikes : public AuraScript
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
         AuraEffect const* talent = GetTarget()->GetAuraEffect(SPELL_MONK_OPEN_PALM_STRIKES_TALENT, EFFECT_1);
-        return talent && roll_chance_f(talent->GetAmount());
+        return talent && roll_chance(talent->GetAmount());
     }
 
     void Register() override

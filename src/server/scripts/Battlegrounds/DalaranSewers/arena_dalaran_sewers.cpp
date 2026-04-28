@@ -162,7 +162,7 @@ struct arena_dalaran_sewers : ArenaScript
             if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 player->RemoveAurasDueToSpell(DalaranSewers::Spells::WarlockDemonicCircle);
 
-        _scheduler.Schedule(6s, [&](TaskContext)
+        _scheduler.Schedule(6s, [&](TaskContext const&)
         {
             for (ObjectGuid const& guid : _waterSpoutEntranceGUIDs)
             {

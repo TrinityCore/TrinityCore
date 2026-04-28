@@ -394,13 +394,14 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         // Check if the spell meets our range requirements
-        if (rangeMin && me->GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
+        SpellRange spellRange = me->GetSpellMinMaxRangeForTarget(target, tempSpell);
+        if (rangeMin && spellRange.Min < rangeMin)
             continue;
-        if (rangeMax && me->GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
+        if (rangeMax && spellRange.Max > rangeMax)
             continue;
 
         // Check if our target is in range
-        if (me->IsWithinDistInMap(target, float(me->GetSpellMinRangeForTarget(target, tempSpell))) || !me->IsWithinDistInMap(target, float(me->GetSpellMaxRangeForTarget(target, tempSpell))))
+        if (me->IsWithinDistInMap(target, spellRange.Min) || !me->IsWithinDistInMap(target, spellRange.Max))
             continue;
 
         // All good so lets add it to the spell list

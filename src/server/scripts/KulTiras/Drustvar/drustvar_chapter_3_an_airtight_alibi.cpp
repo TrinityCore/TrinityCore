@@ -98,13 +98,13 @@ struct npc_drustvar_frightend_woodsman_private : public ScriptedAI
         me->SetUninteractible(true);
         me->SetImmuneToAll(true);
 
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
         {
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             Talk(SAY_FRIGHTENDED_WOODSMAN_RALLIED);
         });
 
-        _scheduler.Schedule(3s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(3s, [this](TaskContext const& /*task*/)
         {
             me->GetMotionMaster()->MovePath(GetPathId(), false);
         });

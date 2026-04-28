@@ -150,12 +150,12 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
             me->SetImmuneToPC(true);
             me->CombatStop();
 
-            _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
             {
                 Talk(SAY_FINISH_FIGHT);
             });
 
-            _scheduler.Schedule(3s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(3s, [this](TaskContext const& /*task*/)
             {
                 Position currentPosition;
                 float currentDist = 1000.0f;
@@ -186,7 +186,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
 
     void JustEngagedWith(Unit* /*attacker*/) override
     {
-        _scheduler.Schedule(4s, [this](TaskContext task)
+        _scheduler.Schedule(4s, [this](TaskContext& task)
         {
             if (me->GetVictim())
                 DoCastVictim(SPELL_BLACKOUT_KICK);
@@ -276,7 +276,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
             _scheduler.CancelAll();
 
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            _scheduler.Schedule(1s, [this](TaskContext /*task*/ )
+            _scheduler.Schedule(1s, [this](TaskContext const& /*task*/ )
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
             });
@@ -289,12 +289,12 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         me->SetEmoteState(EMOTE_ONESHOT_NONE);
         me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
 
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
         {
             me->SetEmoteState(EMOTE_STATE_MONKOFFENSE_READYUNARMED);
         });
 
-        _scheduler.Schedule(4s, [this](TaskContext task)
+        _scheduler.Schedule(4s, [this](TaskContext& task)
         {
             PlayRandomEmote();
             task.Repeat(4s);
@@ -313,7 +313,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
     void BeginSparringDelayed(ObjectGuid partnerGuid)
     {
         _partnerGuid = partnerGuid;
-        _scheduler.Schedule(1s, [this, partnerGuid](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this, partnerGuid](TaskContext const& /*task*/)
         {
             BeginSparring(partnerGuid);
         });
@@ -394,7 +394,7 @@ struct npc_tushui_leading_trainee : public npc_tushui_huojin_trainee
 
     void ScheduleEmoteExecution()
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             Emote emote = PlayRandomEmote();
             HandleEmoteNearbyTushuiTrainees(me, emote);
@@ -426,12 +426,12 @@ struct npc_instructor_zhi : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(6s, [this](TaskContext task)
+        _scheduler.Schedule(6s, [this](TaskContext& task)
         {
             Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
             me->HandleEmoteCommand(emote);
 
-            task.Schedule(1s, [this, emote](TaskContext /*task*/)
+            task.Schedule(1s, [this, emote](TaskContext const& /*task*/)
             {
                 HandleEmoteNearbyTushuiTrainees(me, emote);
             });
@@ -592,7 +592,7 @@ struct npc_jaomin_ro_hawk : public ScriptedAI
             return;
 
         DoCast(SPELL_FORCE_SUMMONER_TO_RIDE);
-        _scheduler.Schedule(1s, [this, orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation()](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this, orientation = me->GetAbsoluteAngle(victim) - me->GetOrientation()](TaskContext const& /*context*/)
         {
             me->GetMotionMaster()->MovePoint(POINT_RANDOM_DEST, me->GetFirstCollisionPosition(40.0f, orientation));
         });
@@ -756,7 +756,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
 
         amberleafScamp5->GetMotionMaster()->MovePoint(0, amberleafPos[4]);
 
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             Creature* amberleafScamp4 = me->FindNearestCreatureWithOptions(20.0f, { .StringId = "npc_amberleaf_scamp_4" });
 
@@ -767,7 +767,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
             amberleafScamp4->GetMotionMaster()->MovePoint(0, amberleafPos[3]);
         });
 
-        _scheduler.Schedule(5s, [this](TaskContext task)
+        _scheduler.Schedule(5s, [this](TaskContext& task)
         {
             Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
 
@@ -777,11 +777,11 @@ struct npc_min_dimwind_summon : public ScriptedAI
             me->SetFacingToObject(summoner);
             Talk(SAY_MIN_DIMWIND_TEXT_0, summoner);
 
-            task.Schedule(4s, [this](TaskContext task)
+            task.Schedule(4s, [this](TaskContext& task)
             {
                 Talk(SAY_MIN_DIMWIND_TEXT_1);
 
-                task.Schedule(4s, [this](TaskContext /*task*/)
+                task.Schedule(4s, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_MOVE_RUN, false);
                 });
@@ -816,7 +816,7 @@ struct npc_min_dimwind_summon : public ScriptedAI
                 me->SetFacingTo(0.575958f);
                 me->DespawnOrUnsummon(2s);
 
-                _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
                 {
                     if (me->IsSummon())
                     {
@@ -853,7 +853,7 @@ struct npc_amberleaf_scamp : public ScriptedAI
         {
             me->GetMotionMaster()->MoveRandom(10.0f);
 
-            _scheduler.Schedule(10s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(10s, [this](TaskContext const& /*task*/)
             {
                 if (!me->IsInCombat())
                     me->GetMotionMaster()->MoveTargetedHome();
@@ -905,15 +905,15 @@ struct npc_aysa_cloudsinger_summon : public ScriptedAI
 
         Talk(SAY_GO_CAVE, summoner);
 
-        _scheduler.Schedule(3s, [this](TaskContext task)
+        _scheduler.Schedule(3s, [this](TaskContext& task)
         {
             me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[0], 12.0f, {}, 5.0f);
 
-            task.Schedule(1700ms, [this](TaskContext task)
+            task.Schedule(1700ms, [this](TaskContext& task)
             {
                 me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[1], 12.0f, {}, 5.0f);
 
-                task.Schedule(2s, [this](TaskContext /*task*/)
+                task.Schedule(2s, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MoveJump(POINT_JUMP, aysaJumpPos[2], 12.0f, {}, 5.0f);
                 });
@@ -1080,35 +1080,35 @@ struct npc_master_li_fei_summon : public ScriptedAI
 
         Seconds delay = 23s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             FaceToPlayer();
         });
 
         delay += 2s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_TEXT_0);
         });
 
         delay += 10s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_TEXT_1);
         });
 
         delay += 12s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_TEXT_2);
         });
 
         delay += 11s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             FaceToPlayer();
             Talk(SAY_TEXT_3);
@@ -1116,28 +1116,28 @@ struct npc_master_li_fei_summon : public ScriptedAI
 
         delay += 11s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_TEXT_4);
         });
 
         delay += 9s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             FaceToPlayer();
         });
 
         delay += 2s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Talk(SAY_TEXT_5);
         });
 
         delay += 6s;
 
-        _scheduler.Schedule(delay, [this](TaskContext)
+        _scheduler.Schedule(delay, [this](TaskContext const&)
         {
             Creature* aysa = me->FindNearestCreatureWithOptions(40.0f, { .StringId = "npc_aysa_quest_29414" });
 

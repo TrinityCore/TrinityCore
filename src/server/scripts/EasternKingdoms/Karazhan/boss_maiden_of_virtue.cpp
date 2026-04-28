@@ -55,7 +55,7 @@ public:
 
         void KilledUnit(Unit* /*Victim*/) override
         {
-            if (roll_chance_i(50))
+            if (roll_chance(50))
                 Talk(SAY_SLAY);
         }
 

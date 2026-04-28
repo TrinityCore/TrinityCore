@@ -569,6 +569,36 @@ std::span<TraitCurrencyEntry const* const> GetSubTreeCurrency(int32 traitSubTree
     return subTree->Currencies;
 }
 
+struct TraitNodeRankCounts
+{
+    int32 Group = 0;
+    int32 Node = 0;
+    int32 Entry = 0;
+};
+
+TraitNodeRankCounts CountTraitNodeRanks(WorldPackets::Traits::TraitConfig const& traitConfig, int32 traitNodeGroupId, int32 traitNodeId, int32 traitNodeEntryId)
+{
+    TraitNodeRankCounts ranks;
+    for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
+    {
+        Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, traitEntry.TraitNodeID);
+        if (traitNodeGroupId)
+        {
+            auto groupItr = std::ranges::find(node->Groups, uint32(traitNodeGroupId), [](NodeGroup const* group) { return group->Data->ID; });
+            if (groupItr != node->Groups.end())
+                ranks.Group += traitEntry.Rank;
+        }
+
+        if (traitNodeId == traitEntry.TraitNodeID)
+            ranks.Node += traitEntry.Rank;
+
+        if (traitNodeEntryId == traitEntry.TraitNodeEntryID)
+            ranks.Entry += traitEntry.Rank;
+    }
+
+    return ranks;
+}
+
 bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, TraitCondEntry const* condition,
     Optional<std::map<int32, SpentCurrency>>& cachedCurrencies)
 {
@@ -588,7 +618,7 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
             return false;
     }
 
-    if (condition->TraitCurrencyID && condition->SpentAmountRequired)
+    if (sTraitCurrencyStore.HasRecord(condition->TraitCurrencyID))
     {
         if (!cachedCurrencies)
             FillSpentCurrenciesMap(traitConfig.Entries, cachedCurrencies.emplace());
@@ -603,6 +633,17 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
                         spentAmount += spentBeforeGate;
 
             if (spentAmount < condition->SpentAmountRequired)
+                return false;
+        }
+    }
+    else
+    {
+        if (condition->TraitNodeGroupID || condition->TraitNodeID || condition->TraitNodeEntryID)
+        {
+            TraitNodeRankCounts ranks = CountTraitNodeRanks(traitConfig, condition->TraitNodeGroupID, condition->TraitNodeID, condition->TraitNodeEntryID);
+            if (ranks.Group != condition->SpentAmountRequired
+                && ranks.Node != condition->SpentAmountRequired
+                && ranks.Entry != condition->SpentAmountRequired)
                 return false;
         }
     }
@@ -637,18 +678,30 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
 bool NodeMeetsTraitConditions(WorldPackets::Traits::TraitConfig const& traitConfig, Node const* node, uint32 traitNodeEntryId, PlayerDataAccessor player,
     Optional<std::map<int32, SpentCurrency>>& spentCurrencies)
 {
-    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions, TraitConditionType conditionType)
+    struct ConditionCheckResult
     {
-        struct
-        {
-            bool IsSufficient = false;
-            bool HasFailedConditions = false;
-        } result;
+        bool IsSufficient = false;
+        bool HasFailedConditions = false;
+    };
 
+    auto meetsConditions = [&traitConfig, player, &spentCurrencies]<Trinity::invocable_r<int32> RankSupplier>(std::vector<TraitCondEntry const*> const& conditions, TraitConditionType conditionType, RankSupplier getRank) -> ConditionCheckResult
+    {
+        ConditionCheckResult result;
+
+        Optional<int32> rank;
         for (TraitCondEntry const* condition : conditions)
         {
             if (condition->GetCondType() != conditionType)
                 continue;
+
+            if (conditionType == TraitConditionType::RanksAllowed)
+            {
+                if (!rank.has_value())
+                    rank = getRank();
+
+                if (*rank < condition->GrantedRanks)
+                    continue;
+            }
 
             if (!MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
             {
@@ -669,36 +722,42 @@ bool NodeMeetsTraitConditions(WorldPackets::Traits::TraitConfig const& traitConf
     auto meetsConditionsOfType = [&](TraitConditionType conditionType)
     {
         bool hasFailedConditions = false;
-        if (auto [IsSufficient, HasFailedConditions] = meetsConditions(node->Conditions, conditionType); IsSufficient)
+        ConditionCheckResult result = meetsConditions(node->Conditions, conditionType, [&] { return CountTraitNodeRanks(traitConfig, 0, node->Data->ID, traitNodeEntryId).Node; });
+        if (result.IsSufficient)
             return true;
-        else if (HasFailedConditions)
+        else if (result.HasFailedConditions)
             hasFailedConditions = true;
 
         for (NodeGroup const* group : node->Groups)
         {
-            auto [IsSufficient, HasFailedConditions] = meetsConditions(group->Conditions, conditionType);
-            if (IsSufficient)
+            if (group->Conditions.empty())
+                continue;
+
+            result = meetsConditions(group->Conditions, conditionType, [&]{ return CountTraitNodeRanks(traitConfig, group->Data->ID, node->Data->ID, traitNodeEntryId).Group; });
+            if (result.IsSufficient)
                 return true;
-            if (HasFailedConditions)
+            if (result.HasFailedConditions)
                 hasFailedConditions = true;
         }
 
         for (NodeEntry const& entry : node->Entries)
         {
-            if (entry.Data->ID == traitNodeEntryId)
-            {
-                auto [IsSufficient, HasFailedConditions] = meetsConditions(entry.Conditions, conditionType);
-                if (IsSufficient)
-                    return true;
-                if (HasFailedConditions)
-                    hasFailedConditions = true;
-            }
+            if (entry.Data->ID != traitNodeEntryId || entry.Conditions.empty())
+                continue;
+
+            result = meetsConditions(entry.Conditions, conditionType, [&] { return CountTraitNodeRanks(traitConfig, 0, node->Data->ID, traitNodeEntryId).Entry; });
+            if (result.IsSufficient)
+                return true;
+            if (result.HasFailedConditions)
+                hasFailedConditions = true;
         }
 
         return !hasFailedConditions;
     };
 
-    return meetsConditionsOfType(TraitConditionType::Visible) && meetsConditionsOfType(TraitConditionType::Available);
+    return meetsConditionsOfType(TraitConditionType::Visible)
+        && meetsConditionsOfType(TraitConditionType::Available)
+        && meetsConditionsOfType(TraitConditionType::RanksAllowed);
 }
 
 std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player)
@@ -734,20 +793,23 @@ std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits
         for (Node const* node : tree->Nodes)
         {
             for (NodeEntry const& entry : node->Entries)
-                for (TraitCondEntry const* condition : entry.Conditions)
-                    if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
-                        addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
+                if (NodeMeetsTraitConditions(traitConfig, node, entry.Data->ID, player, cachedCurrencies))
+                    for (TraitCondEntry const* condition : entry.Conditions)
+                        if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
+                            addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
 
             for (TraitCondEntry const* condition : node->Conditions)
                 if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
                     for (NodeEntry const& entry : node->Entries)
-                        addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
+                        if (NodeMeetsTraitConditions(traitConfig, node, entry.Data->ID, player, cachedCurrencies))
+                            addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
 
             for (NodeGroup const* group : node->Groups)
                 for (TraitCondEntry const* condition : group->Conditions)
                     if (condition->GetCondType() == TraitConditionType::Granted && MeetsTraitCondition(traitConfig, player, condition, cachedCurrencies))
                         for (NodeEntry const& entry : node->Entries)
-                            addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
+                            if (NodeMeetsTraitConditions(traitConfig, node, entry.Data->ID, player, cachedCurrencies))
+                                addGrantedRankToEntry(node->Data->ID, entry, condition->GrantedRanks);
         }
     }
 

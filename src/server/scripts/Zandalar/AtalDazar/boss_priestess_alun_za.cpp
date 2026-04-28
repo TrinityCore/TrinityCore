@@ -259,7 +259,7 @@ struct npc_priestess_alun_za_corrupted_gold : public ScriptedAI
         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, despawnPos, true, {}, 2.0f);
 
         // manually scheduling as regular timer is only scheduled on engaged unitsw
-        _scheduler.Schedule(2500ms, [this](TaskContext context)
+        _scheduler.Schedule(2500ms, [this](TaskContext& context)
         {
             CheckInRoom();
             context.Repeat();
@@ -660,7 +660,7 @@ struct at_priestess_alun_za_tainted_blood : AreaTriggerAI
         }
         else if (unit->GetEntry() == NPC_SPIRIT_OF_GOLD && !unit->HasAura(SPELL_FATALLY_CORRUPTED))
         {
-            _scheduler.Schedule(3s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(3s, [this](TaskContext const& /*task*/)
             {
                 at->Remove();
             });

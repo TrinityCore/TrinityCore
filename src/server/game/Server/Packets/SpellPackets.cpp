@@ -494,6 +494,7 @@ WorldPacket const* LearnedSpells::Write()
     _worldPacket << Size<uint32>(ClientLearnedSpellData);
     _worldPacket << uint32(SpecializationID);
     _worldPacket << Bits<1>(SuppressMessaging);
+    _worldPacket << Bits<1>(TraitGrantedByAura);
     _worldPacket.FlushBits();
 
     for (LearnedSpellInfo const& spell : ClientLearnedSpellData)
@@ -594,6 +595,7 @@ WorldPacket const* UnlearnedSpells::Write()
         _worldPacket << uint32(spellId);
 
     _worldPacket << Bits<1>(SuppressMessaging);
+    _worldPacket << Bits<1>(TraitGrantedByAura);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

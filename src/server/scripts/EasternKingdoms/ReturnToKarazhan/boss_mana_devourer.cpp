@@ -211,10 +211,11 @@ class spell_mana_devourer_energy_discharge : public SpellScript
 
     void HandleCast()
     {
+        auto [minDist, maxDist] = GetSpellInfo()->GetMinMaxRange();
         for (uint8 i = 0; i < 40; ++i)
         {
             float randomAngle = frand(0.0f, 2.0f * float(M_PI));
-            float randomDist = frand(GetSpellInfo()->GetMinRange(), GetSpellInfo()->GetMaxRange());
+            float randomDist = minDist + (maxDist - minDist) * std::sqrt(rand_norm());
 
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
@@ -267,7 +268,7 @@ struct at_mana_devourer_loose_mana : AreaTriggerAI
 
     void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
             {
@@ -332,7 +333,7 @@ struct at_mana_devourer_energy_void : AreaTriggerAI
 
         _shrinkPeriodicActive = true;
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             at->SetTimeToTargetScale(1000);
 

@@ -38,6 +38,7 @@
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "CommonPredicates.h"
+#include <queue>
 
 enum PriestSpells
 {
@@ -241,9 +242,11 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_SURGE_OF_LIGHT                     = 109186,
     SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT              = 114255,
+    SPELL_PRIEST_TITHE_EVASION                      = 373223,
     SPELL_PRIEST_TRANQUIL_LIGHT                     = 196816,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
+    SPELL_PRIEST_TRANSLUCENT_IMAGE                  = 373446,
     SPELL_PRIEST_TRINITY                            = 214205,
     SPELL_PRIEST_TRINITY_EFFECT                     = 290793,
     SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_HOLY          = 390706,
@@ -381,10 +384,10 @@ class spell_pri_angelic_feather_trigger : public SpellScript
     void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Position destPos = GetHitDest()->GetPosition();
-        float radius = GetEffectInfo().CalcRadius();
+        SpellRange radius = GetEffectInfo().CalcRadius();
 
         // Caster is prioritary
-        if (GetCaster()->IsWithinDist2d(&destPos, radius))
+        if (GetCaster()->IsInRange2d(&destPos, radius.Min, radius.Max))
         {
             GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
         }
@@ -838,7 +841,7 @@ class spell_pri_benediction : public SpellScript
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
     {
         if (AuraEffect const* benediction = GetCaster()->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
-            if (roll_chance_f(benediction->GetAmount()))
+            if (roll_chance(benediction->GetAmount()))
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_RENEW, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
@@ -1024,7 +1027,7 @@ class spell_pri_dark_indulgence : public SpellScript
         if (!aurEff)
             return;
 
-        if (roll_chance_f(aurEff->GetAmount()))
+        if (roll_chance(aurEff->GetAmount()))
             GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, true);
     }
 
@@ -1471,7 +1474,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void ReturnToCaster()
     {
-        _scheduler.Schedule(0ms, [this](TaskContext task)
+        _scheduler.Schedule(0ms, [this](TaskContext& task)
         {
             Unit* caster = at->GetCaster();
             if (!caster)
@@ -1848,14 +1851,14 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
             if (ObjectGuid const* targetGUID = std::any_cast<ObjectGuid>(&creatingSpell->m_customArg))
                 at->SetPathTarget(*targetGUID);
 
-            _searchRadius = creatingSpell->GetSpellInfo()->GetMaxRange();
+            _searchRadius = creatingSpell->GetSpellInfo()->GetMinMaxRange();
         }
 
         caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA, args);
         caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_PERIODIC, args);
 
         UpdateMovement();
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             UpdateMovement();
             task.Repeat(500ms);
@@ -1908,7 +1911,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         {
             std::vector<Unit*> targets;
             Trinity::UnitListSearcher searcher(at, targets, check);
-            Spell::SearchTargets(searcher, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER, caster, caster, _searchRadius);
+            Spell::SearchTargets(searcher, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER, caster, caster, _searchRadius.Max);
             Trinity::Containers::EraseIf(targets, [caster](Unit const* target) { return !caster->IsInCombatWith(target); });
             if (!targets.empty())
                 target = Trinity::Containers::SelectRandomContainerElement(targets);
@@ -1920,7 +1923,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
 private:
     TaskScheduler _scheduler;
     float _movementSpeed = 12.0f;
-    float _searchRadius = 0.0f;
+    SpellRange _searchRadius;
 };
 
 // 414553 - Epiphany
@@ -1933,7 +1936,7 @@ class spell_pri_epiphany : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleOnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
@@ -2896,7 +2899,7 @@ class spell_pri_mind_devourer : public SpellScript
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const
     {
         AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_MIND_DEVOURER, EFFECT_0);
-        if (aurEff && roll_chance_f(aurEff->GetAmount()))
+        if (aurEff && roll_chance(aurEff->GetAmount()))
             GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_DEVOURER_AURA, GetSpell());
     }
 
@@ -3455,7 +3458,7 @@ class spell_pri_power_word_shield : public AuraScript
         float critChanceDone = caster->SpellCritChanceDone(nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
         float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
 
-        if (roll_chance_f(critChanceTaken))
+        if (roll_chance(critChanceTaken))
             pctMod *= 2;
     }
 
@@ -3704,7 +3707,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
                 int32 newStackAmount = stackAmount - 1;
                 if (AuraEffect* sayYourPrayers = caster->GetAuraEffect(SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0))
-                    if (roll_chance_f(sayYourPrayers->GetAmount()))
+                    if (roll_chance(sayYourPrayers->GetAmount()))
                         ++newStackAmount;
 
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, newStackAmount);
@@ -3831,7 +3834,7 @@ class spell_pri_holy_10_1_class_set_2pc : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        return roll_chance_f(aurEff->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
@@ -4470,6 +4473,9 @@ class spell_pri_shadow_word_death : public SpellScript
             if (spell_pri_deaths_torment::Data const* deathsTorment = std::any_cast<spell_pri_deaths_torment::Data>(&GetSpell()->m_customArg))
                 backlashDamage = CalculatePct(backlashDamage, deathsTorment->BacklashPct);
 
+            if (AuraEffect const* titheEvasion = caster->GetAuraEffect(SPELL_PRIEST_TITHE_EVASION, EFFECT_0))
+                AddPct(backlashDamage, -titheEvasion->GetAmount());
+
             caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
             {
                 caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()
@@ -4641,7 +4647,7 @@ class spell_pri_surge_of_light : public AuraScript
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
-        if (roll_chance_f(aurEff->GetAmount()))
+        if (roll_chance(aurEff->GetAmount()))
             GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SURGE_OF_LIGHT_EFFECT, aurEff);
     }
 
@@ -4840,6 +4846,26 @@ class spell_pri_train_of_thought : public AuraScript
     }
 };
 
+// 373446 - Translucent Image
+// Triggered by 586 - Fade
+class spell_pri_translucent_image : public SpellScript
+{
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_PRIEST_TRANSLUCENT_IMAGE);
+    }
+
+    static void PreventEffect(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_translucent_image::PreventEffect, EFFECT_3, TARGET_UNIT_CASTER);
+    }
+};
+
 // 390705 - Twilight Equilibrium
 class spell_pri_twilight_equilibrium : public AuraScript
 {
@@ -5035,11 +5061,11 @@ class spell_pri_ultimate_penitence_channel : public AuraScript
         {
             Unit* caster = GetTarget();
 
-            float maxRange = spellInfo->GetMaxRange(true, caster);
+            SpellRange range =  spellInfo->GetMinMaxRange(true, caster);
 
-            Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, caster, caster, caster, spellInfo, checkType, spellEffect.ImplicitTargetConditions.get(), TARGET_OBJECT_TYPE_UNIT);
+            Trinity::WorldObjectSpellAreaTargetCheck check(range, caster, caster, caster, spellInfo, checkType, spellEffect.ImplicitTargetConditions.get(), TARGET_OBJECT_TYPE_UNIT);
             Trinity::WorldObjectListSearcher searcher(caster->GetPhaseShift(), targets, check, containerTypeMask);
-            Spell::SearchTargets(searcher, containerTypeMask, caster, caster, maxRange + EXTRA_CELL_SEARCH_RADIUS);
+            Spell::SearchTargets(searcher, containerTypeMask, caster, caster, range.Max + EXTRA_CELL_SEARCH_RADIUS);
         }
 
         return targets;
@@ -5532,6 +5558,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
+    RegisterSpellScript(spell_pri_translucent_image);
     RegisterSpellScript(spell_pri_twilight_equilibrium);
     RegisterSpellScript(spell_pri_twilight_equilibrium_shadow_word_pain);
     RegisterSpellScript(spell_pri_twist_of_fate);

@@ -1026,7 +1026,7 @@ struct npc_thorim_trashAI : public ScriptedAI
         static Unit* GetHealTarget(SpellInfo const* spellInfo, Unit* caster)
         {
             Unit* healTarget = nullptr;
-            if (!spellInfo->HasAttribute(SPELL_ATTR1_EXCLUDE_CASTER) && !roll_chance_f(caster->GetHealthPct()) && ((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) <= caster->GetMaxHealth()))
+            if (!spellInfo->HasAttribute(SPELL_ATTR1_EXCLUDE_CASTER) && !roll_chance(caster->GetHealthPct()) && ((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) <= caster->GetMaxHealth()))
                 healTarget = caster;
             else
                 healTarget = GetUnitWithMostMissingHp(spellInfo, caster);
@@ -1053,7 +1053,8 @@ struct npc_thorim_trashAI : public ScriptedAI
         if (_info->Type == MERCENARY_SOLDIER)
         {
             bool allowMove = true;
-            if (me->IsInRange(target, spellInfo->GetMinRange(), spellInfo->GetMaxRange()))
+            auto [minRange, maxRange] = spellInfo->GetMinMaxRange();
+            if (me->IsInRange(target, minRange, maxRange))
                 allowMove = false;
 
             if (IsCombatMovementAllowed() != allowMove)
