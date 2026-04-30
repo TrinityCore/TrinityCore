@@ -214,19 +214,10 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 diff)
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
-    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-    if (!active)
-        return;
+    FleeingMovementGenerator::Finalize(owner, active, movementInform);
 
-    owner->StopMoving();
-    if (owner->IsCreature() && owner->IsAlive())
-    {
-        if (Unit* victim = owner->GetVictim())
-        {
-            owner->AttackStop();
-            owner->GetAI()->AttackStart(victim);
-        }
-    }
+    if (active)
+        owner->StopMoving();
 
     if (movementInform)
     {
