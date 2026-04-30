@@ -47,6 +47,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
+#include "ReputationMgr.h"
 #include "RestMgr.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -1226,4 +1227,139 @@ void WorldSession::HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownT
 void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags const& setCurrenctFlags)
 {
     _player->SetCurrencyFlagsFromClient(setCurrenctFlags.CurrencyID, setCurrenctFlags.Flags);
+}
+
+void WorldSession::HandleSelectFactionOpcode(WorldPackets::Misc::FactionSelect& selectFaction)
+{
+    if (!_player)
+        return;
+
+    enum FactionSelection
+    {
+        JOIN_HORDE = 0,
+        JOIN_ALLIANCE = 1,
+
+        SPELL_TRIGGER_FACTION_CHOICE_ALLIANCE = 113244,
+        SPELL_TRIGGER_FACTION_CHOICE_HORDE = 113245
+    };
+
+    TC_LOG_INFO("entities.player", "HandleSelectFactionOpcode: Player {} (GUID: {}) attempting to select faction: {}",
+        _player ? _player->GetName() : "<null>",
+        _player ? _player->GetGUID().ToString() : "<null>",
+        selectFaction.FactionChoice);
+
+    if (_player->GetRace() != RACE_PANDAREN_NEUTRAL)
+    {
+        TC_LOG_WARN("entities.player", "HandleSelectFactionOpcode: Player {} (GUID: {}) is not neutral pandaren (race: {}), rejecting faction selection",
+            _player ? _player->GetName() : "<null>",
+            _player ? _player->GetGUID().ToString() : "<null>",
+            _player ? _player->GetRace() : 0);
+
+        // Send error result to client
+        WorldPackets::Character::NeutralPlayerFactionSelectResult result;
+        result.Success = false;
+        result.NewRaceID = _player ? _player->GetRace() : 0;
+        _player->GetSession()->SendPacket(result.Write());
+        return;
+    }
+
+    if (selectFaction.FactionChoice > JOIN_ALLIANCE)
+    {
+        TC_LOG_WARN("entities.player", "HandleSelectFactionOpcode: Player {} (GUID: {}) sent invalid faction choice: {}",
+            _player->GetName(), _player->GetGUID().ToString(), selectFaction.FactionChoice);
+
+        // Send error result to client
+        WorldPackets::Character::NeutralPlayerFactionSelectResult result;
+        result.Success = false;
+        result.NewRaceID = _player->GetRace();
+        _player->GetSession()->SendPacket(result.Write());
+        return;
+    }
+
+    // Additional validation: check if player already has a faction (shouldn't happen but safety check)
+    if (_player->GetRace() == RACE_PANDAREN_ALLIANCE || _player->GetRace() == RACE_PANDAREN_HORDE)
+    {
+        TC_LOG_WARN("entities.player", "HandleSelectFactionOpcode: Player {} (GUID: {}) already has faction (race: {}), rejecting faction selection",
+            _player->GetName(), _player->GetGUID().ToString(), _player->GetRace());
+
+        // Send error result to client
+        WorldPackets::Character::NeutralPlayerFactionSelectResult result;
+        result.Success = false;
+        result.NewRaceID = _player->GetRace();
+        _player->GetSession()->SendPacket(result.Write());
+        return;
+    }
+
+    Races newRace = RACE_NONE;
+    uint32 languageSpell1 = 0;
+    uint32 languageSpell2 = 0;
+    uint32 triggerSpell = 0;
+
+    switch (selectFaction.FactionChoice)
+    {
+    case JOIN_ALLIANCE:
+        newRace = RACE_PANDAREN_ALLIANCE;
+        languageSpell1 = SPELL_LEARN_LANGUAGE_COMMON;
+        languageSpell2 = SPELL_LEARN_LANGUAGE_PANDAREN_ALLIANCE;
+        triggerSpell = SPELL_TRIGGER_FACTION_CHOICE_ALLIANCE;
+        break;
+    case JOIN_HORDE:
+        newRace = RACE_PANDAREN_HORDE;
+        languageSpell1 = SPELL_LEARN_LANGUAGE_ORCISH;
+        languageSpell2 = SPELL_LEARN_LANGUAGE_PANDAREN_HORDE;
+        triggerSpell = SPELL_TRIGGER_FACTION_CHOICE_HORDE;
+        break;
+    default:
+        break;
+    }
+
+    _player->SetRace(newRace);
+    _player->SetFactionForRace(newRace);
+    _player->SaveToDB();
+    _player->LearnSpell(languageSpell1, false);
+    _player->LearnSpell(languageSpell2, false);
+    _player->CastSpell(_player, triggerSpell, true);
+
+    // Force client to refresh all reputation factions or sides
+    uint32 headerFactionId = (newRace == RACE_PANDAREN_ALLIANCE) ? 469 : 67;
+
+    for (FactionEntry const* fe : sFactionStore)
+    {
+        if (!fe->CanHaveReputation())
+            continue;
+
+        if (fe->ParentFactionID != headerFactionId)
+            continue;
+
+        _player->GetReputationMgr().SetVisible(fe);
+
+        int32 base = fe->ReputationBase[0];
+
+        // Apply the base reputation
+        _player->GetReputationMgr().SetOneFactionReputation(fe, base, false);
+
+        // Get the updated state
+        FactionState* fs = const_cast<FactionState*>(_player->GetReputationMgr().GetState(fe));
+        if (!fs)
+            continue;
+
+        // Mark for sending
+        fs->needSend = true;
+
+        // Trigger the system messages
+        fs->VisualStandingIncrease = base;
+
+        // Send the update
+        _player->GetReputationMgr().SendState(fs);
+    }
+
+    const char* sideName = (selectFaction.FactionChoice == 0) ? "Horde" : "Alliance";
+    TC_LOG_INFO("entities.player", "HandleSelectFactionOpcode: Player {} (GUID: {}) successfully joined {}",
+        _player->GetName(), _player->GetGUID().ToString(), sideName);
+
+    // Send success result to client
+    WorldPackets::Character::NeutralPlayerFactionSelectResult result;
+    result.Success = true;
+    result.NewRaceID = newRace;
+    _player->GetSession()->SendPacket(result.Write());
 }

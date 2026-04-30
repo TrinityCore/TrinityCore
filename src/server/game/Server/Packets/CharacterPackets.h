@@ -904,6 +904,17 @@ namespace WorldPackets
 
             int32 Error;
         };
+
+        class NeutralPlayerFactionSelectResult final : public ServerPacket
+        {
+        public:
+            NeutralPlayerFactionSelectResult() : ServerPacket(SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT, 4 + 1) {}
+
+            WorldPacket const* Write() override;
+
+            uint32 NewRaceID = 0;
+            bool Success = false;
+        };
     }
 }
 

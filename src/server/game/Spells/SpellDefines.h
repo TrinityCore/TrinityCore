@@ -268,6 +268,14 @@ enum SpellFacingFlags
     SPELL_FACING_FLAG_INFRONT = 0x0001
 };
 
+enum SpellLearnLanguage
+{
+    SPELL_LEARN_LANGUAGE_COMMON = 668,
+    SPELL_LEARN_LANGUAGE_ORCISH = 669,
+    SPELL_LEARN_LANGUAGE_PANDAREN_ALLIANCE = 108130,
+    SPELL_LEARN_LANGUAGE_PANDAREN_HORDE = 108131
+};
+
 enum TriggerCastFlags : uint32
 {
     TRIGGERED_NONE                                  = 0x00000000,   //!< Not triggered

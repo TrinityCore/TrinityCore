@@ -1492,6 +1492,22 @@ class spell_flying_shadow_kick : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
+// 108897 - Pandaren Faction Choice
+class spell_pandaren_faction_choice : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->IsPlayer())
+                caster->ToPlayer()->ShowNeutralPlayerFactionSelectUI();
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pandaren_faction_choice::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
 }
 
 void AddSC_zone_the_wandering_isle()
@@ -1515,6 +1531,7 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
     RegisterSpellScript(spell_flame_spout);
+    RegisterSpellScript(spell_pandaren_faction_choice);
 
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
