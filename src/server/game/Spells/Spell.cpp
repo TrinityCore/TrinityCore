@@ -6247,13 +6247,13 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     // still they need to be checked against certain mechanics
 
     // SPELL_ATTR5_USABLE_WHILE_STUNNED by default only MECHANIC_STUN (ie no sleep, knockout, freeze, etc.)
-    bool usableWhileStunned = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_STUNNED);
+    bool usableWhileStunned = m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_WHILE_STUNNED);
 
     // SPELL_ATTR5_USABLE_WHILE_FEARED by default only fear (ie no horror)
-    bool usableWhileFeared = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED);
+    bool usableWhileFeared = m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_WHILE_FLEEING);
 
     // SPELL_ATTR5_USABLE_WHILE_CONFUSED by default only disorient (ie no polymorph)
-    bool usableWhileConfused = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED);
+    bool usableWhileConfused = m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_WHILE_CONFUSED);
 
     // Glyph of Pain Suppression
     // there is no other way to handle it
