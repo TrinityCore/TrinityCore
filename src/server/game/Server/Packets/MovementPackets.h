@@ -15,22 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ChatCommandHelpers.h"
-#include "Chat.h"
-#include "ObjectMgr.h"
+#ifndef TRINITYCORE_MOVEMENT_PACKETS_H
+#define TRINITYCORE_MOVEMENT_PACKETS_H
 
-void Trinity::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
+#include "Packet.h"
+#include "ObjectGuid.h"
+
+namespace WorldPackets
 {
-    handler->SendSysMessage(str);
-    handler->SetSentErrorMessage(true);
+    namespace Movement
+    {
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            explicit FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
+    }
 }
 
-char const* Trinity::Impl::ChatCommands::GetTrinityString(ChatHandler const* handler, TrinityStrings which)
-{
-    return handler->GetTrinityString(which);
-}
-
-std::string Trinity::Impl::ChatCommands::FormatTrinityString(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
-{
-    return ChatHandler::StringVPrintf(messageFormat, messageFormatArgs);
-}
+#endif // TRINITYCORE_MOVEMENT_PACKETS_H

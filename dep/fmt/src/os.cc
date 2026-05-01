@@ -12,47 +12,51 @@
 
 #include "fmt/os.h"
 
-#include <climits>
+#ifndef FMT_MODULE
+#  include <climits>
 
-#if FMT_USE_FCNTL
-#  include <sys/stat.h>
-#  include <sys/types.h>
+#  if FMT_USE_FCNTL
+#    include <sys/stat.h>
+#    include <sys/types.h>
 
-#  ifdef _WRS_KERNEL    // VxWorks7 kernel
-#    include <ioLib.h>  // getpagesize
+#    ifdef _WRS_KERNEL    // VxWorks7 kernel
+#      include <ioLib.h>  // getpagesize
+#    endif
+
+#    ifndef _WIN32
+#      include <unistd.h>
+#    else
+#      ifndef WIN32_LEAN_AND_MEAN
+#        define WIN32_LEAN_AND_MEAN
+#      endif
+#      include <io.h>
+#    endif  // _WIN32
+#  endif    // FMT_USE_FCNTL
+
+#  ifdef _WIN32
+#    include <windows.h>
 #  endif
-
-#  ifndef _WIN32
-#    include <unistd.h>
-#  else
-#    ifndef WIN32_LEAN_AND_MEAN
-#      define WIN32_LEAN_AND_MEAN
-#    endif
-#    include <io.h>
-
-#    ifndef S_IRUSR
-#      define S_IRUSR _S_IREAD
-#    endif
-#    ifndef S_IWUSR
-#      define S_IWUSR _S_IWRITE
-#    endif
-#    ifndef S_IRGRP
-#      define S_IRGRP 0
-#    endif
-#    ifndef S_IWGRP
-#      define S_IWGRP 0
-#    endif
-#    ifndef S_IROTH
-#      define S_IROTH 0
-#    endif
-#    ifndef S_IWOTH
-#      define S_IWOTH 0
-#    endif
-#  endif  // _WIN32
-#endif    // FMT_USE_FCNTL
+#endif
 
 #ifdef _WIN32
-#  include <windows.h>
+#  ifndef S_IRUSR
+#    define S_IRUSR _S_IREAD
+#  endif
+#  ifndef S_IWUSR
+#    define S_IWUSR _S_IWRITE
+#  endif
+#  ifndef S_IRGRP
+#    define S_IRGRP 0
+#  endif
+#  ifndef S_IWGRP
+#    define S_IWGRP 0
+#  endif
+#  ifndef S_IROTH
+#    define S_IROTH 0
+#  endif
+#  ifndef S_IWOTH
+#    define S_IWOTH 0
+#  endif
 #endif
 
 namespace {
@@ -62,14 +66,14 @@ using rwresult = int;
 
 // On Windows the count argument to read and write is unsigned, so convert
 // it from size_t preventing integer overflow.
-inline unsigned convert_rwcount(std::size_t count) {
+inline unsigned convert_rwcount(size_t count) {
   return count <= UINT_MAX ? static_cast<unsigned>(count) : UINT_MAX;
 }
 #elif FMT_USE_FCNTL
 // Return type of read and write functions.
 using rwresult = ssize_t;
 
-inline std::size_t convert_rwcount(std::size_t count) { return count; }
+inline auto convert_rwcount(size_t count) -> size_t { return count; }
 #endif
 }  // namespace
 
@@ -156,7 +160,7 @@ void detail::format_windows_error(detail::buffer<char>& out, int error_code,
 }
 
 void report_windows_error(int error_code, const char* message) noexcept {
-  report_error(detail::format_windows_error, error_code, message);
+  do_report_error(detail::format_windows_error, error_code, message);
 }
 #endif  // _WIN32
 
@@ -181,13 +185,15 @@ void buffered_file::close() {
     FMT_THROW(system_error(errno, FMT_STRING("cannot close file")));
 }
 
-int buffered_file::descriptor() const {
-#if !defined(fileno)
+auto buffered_file::descriptor() const -> int {
+#ifdef FMT_HAS_SYSTEM
+  // fileno is a macro on OpenBSD.
+#  ifdef fileno
+#    undef fileno
+#  endif
   int fd = FMT_POSIX_CALL(fileno(file_));
-#elif defined(FMT_HAS_SYSTEM)
-  // fileno is a macro on OpenBSD so we cannot use FMT_POSIX_CALL.
-#  define FMT_DISABLE_MACRO
-  int fd = FMT_SYSTEM(fileno FMT_DISABLE_MACRO(file_));
+#elif defined(_WIN32)
+  int fd = _fileno(file_);
 #else
   int fd = fileno(file_);
 #endif
@@ -200,6 +206,7 @@ int buffered_file::descriptor() const {
 #  ifdef _WIN32
 using mode_t = int;
 #  endif
+
 constexpr mode_t default_open_mode =
     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
@@ -233,7 +240,7 @@ void file::close() {
     FMT_THROW(system_error(errno, FMT_STRING("cannot close file")));
 }
 
-long long file::size() const {
+auto file::size() const -> long long {
 #  ifdef _WIN32
   // Use GetFileSize instead of GetFileSizeEx for the case when _WIN32_WINNT
   // is less than 0x0500 as is the case with some default MinGW builds.
@@ -244,7 +251,7 @@ long long file::size() const {
   if (size_lower == INVALID_FILE_SIZE) {
     DWORD error = GetLastError();
     if (error != NO_ERROR)
-      FMT_THROW(windows_error(GetLastError(), "cannot get file size"));
+      FMT_THROW(windows_error(error, "cannot get file size"));
   }
   unsigned long long long_size = size_upper;
   return (long_size << sizeof(DWORD) * CHAR_BIT) | size_lower;
@@ -259,7 +266,7 @@ long long file::size() const {
 #  endif
 }
 
-std::size_t file::read(void* buffer, std::size_t count) {
+auto file::read(void* buffer, size_t count) -> size_t {
   rwresult result = 0;
   FMT_RETRY(result, FMT_POSIX_CALL(read(fd_, buffer, convert_rwcount(count))));
   if (result < 0)
@@ -267,7 +274,7 @@ std::size_t file::read(void* buffer, std::size_t count) {
   return detail::to_unsigned(result);
 }
 
-std::size_t file::write(const void* buffer, std::size_t count) {
+auto file::write(const void* buffer, size_t count) -> size_t {
   rwresult result = 0;
   FMT_RETRY(result, FMT_POSIX_CALL(write(fd_, buffer, convert_rwcount(count))));
   if (result < 0)
@@ -275,7 +282,7 @@ std::size_t file::write(const void* buffer, std::size_t count) {
   return detail::to_unsigned(result);
 }
 
-file file::dup(int fd) {
+auto file::dup(int fd) -> file {
   // Don't retry as dup doesn't return EINTR.
   // http://pubs.opengroup.org/onlinepubs/009695399/functions/dup.html
   int new_fd = FMT_POSIX_CALL(dup(fd));
@@ -301,30 +308,7 @@ void file::dup2(int fd, std::error_code& ec) noexcept {
   if (result == -1) ec = std::error_code(errno, std::generic_category());
 }
 
-void file::pipe(file& read_end, file& write_end) {
-  // Close the descriptors first to make sure that assignments don't throw
-  // and there are no leaks.
-  read_end.close();
-  write_end.close();
-  int fds[2] = {};
-#  ifdef _WIN32
-  // Make the default pipe capacity same as on Linux 2.6.11+.
-  enum { DEFAULT_CAPACITY = 65536 };
-  int result = FMT_POSIX_CALL(pipe(fds, DEFAULT_CAPACITY, _O_BINARY));
-#  else
-  // Don't retry as the pipe function doesn't return EINTR.
-  // http://pubs.opengroup.org/onlinepubs/009696799/functions/pipe.html
-  int result = FMT_POSIX_CALL(pipe(fds));
-#  endif
-  if (result != 0)
-    FMT_THROW(system_error(errno, FMT_STRING("cannot create pipe")));
-  // The following assignments don't throw because read_fd and write_fd
-  // are closed.
-  read_end = file(fds[0]);
-  write_end = file(fds[1]);
-}
-
-buffered_file file::fdopen(const char* mode) {
+auto file::fdopen(const char* mode) -> buffered_file {
 // Don't retry as fdopen doesn't return EINTR.
 #  if defined(__MINGW32__) && defined(_POSIX_)
   FILE* f = ::fdopen(fd_, mode);
@@ -352,8 +336,26 @@ file file::open_windows_file(wcstring_view path, int oflag) {
 }
 #  endif
 
+pipe::pipe() {
+  int fds[2] = {};
+#  ifdef _WIN32
+  // Make the default pipe capacity same as on Linux 2.6.11+.
+  enum { DEFAULT_CAPACITY = 65536 };
+  int result = FMT_POSIX_CALL(pipe(fds, DEFAULT_CAPACITY, _O_BINARY));
+#  else
+  // Don't retry as the pipe function doesn't return EINTR.
+  // http://pubs.opengroup.org/onlinepubs/009696799/functions/pipe.html
+  int result = FMT_POSIX_CALL(pipe(fds));
+#  endif
+  if (result != 0)
+    FMT_THROW(system_error(errno, FMT_STRING("cannot create pipe")));
+  // The following assignments don't throw.
+  read_end = file(fds[0]);
+  write_end = file(fds[1]);
+}
+
 #  if !defined(__MSDOS__)
-long getpagesize() {
+auto getpagesize() -> long {
 #    ifdef _WIN32
   SYSTEM_INFO si;
   GetSystemInfo(&si);
@@ -372,31 +374,25 @@ long getpagesize() {
 }
 #  endif
 
-namespace detail {
-
-void file_buffer::grow(size_t) {
-  if (this->size() == this->capacity()) flush();
+void ostream::grow(buffer<char>& buf, size_t) {
+  if (buf.size() == buf.capacity()) static_cast<ostream&>(buf).flush();
 }
 
-file_buffer::file_buffer(cstring_view path,
-                         const detail::ostream_params& params)
-    : file_(path, params.oflag) {
+ostream::ostream(cstring_view path, const detail::ostream_params& params)
+    : buffer<char>(grow), file_(path, params.oflag) {
   set(new char[params.buffer_size], params.buffer_size);
 }
 
-file_buffer::file_buffer(file_buffer&& other)
-    : detail::buffer<char>(other.data(), other.size(), other.capacity()),
+ostream::ostream(ostream&& other) noexcept
+    : buffer<char>(grow, other.data(), other.size(), other.capacity()),
       file_(std::move(other.file_)) {
   other.clear();
   other.set(nullptr, 0);
 }
 
-file_buffer::~file_buffer() {
+ostream::~ostream() {
   flush();
   delete[] data();
 }
-}  // namespace detail
-
-ostream::~ostream() = default;
 #endif  // FMT_USE_FCNTL
 FMT_END_NAMESPACE

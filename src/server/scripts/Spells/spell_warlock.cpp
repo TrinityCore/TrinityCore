@@ -37,6 +37,12 @@ enum WarlockSpells
 {
     SPELL_WARLOCK_DRAIN_SOUL_R1                     = 1120,
     SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1                = 29886,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R1      = 34147,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R2      = 34148,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2                = 58889,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R1      = 58892,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R2      = 58899,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -900,6 +906,39 @@ class spell_warl_ritual_of_doom_effect : public SpellScript
     }
 };
 
+// 34145, 58888 - Ritual of Souls Rank X - Trigger Create Soulwell
+class spell_warl_ritual_of_souls : public SpellScript
+{
+    PrepareSpellScript(spell_warl_ritual_of_souls);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(_createSoulwellSpellIds);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        uint32 spellId = _createSoulwellSpellIds[0];
+        if (caster->HasAura(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2))
+            spellId = _createSoulwellSpellIds[2];
+        else if (caster->HasAura(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1))
+            spellId = _createSoulwellSpellIds[1];
+
+        caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(Object::GetGUID(GetOriginalCaster())));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_ritual_of_souls::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    std::array<uint32, 3> _createSoulwellSpellIds;
+
+public:
+    spell_warl_ritual_of_souls(std::array<uint32, 3> createSoulwellSpellIds) : _createSoulwellSpellIds(createSoulwellSpellIds) { }
+};
+
 // 6358 - Seduction
 class spell_warl_seduction : public SpellScript
 {
@@ -1283,6 +1322,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_life_tap);
     RegisterSpellScript(spell_warl_nether_protection);
     RegisterSpellScript(spell_warl_ritual_of_doom_effect);
+    RegisterSpellScriptWithArgs(spell_warl_ritual_of_souls, "spell_warl_ritual_of_souls_r1", std::array<uint32, 3>{ SPELL_WARLOCK_CREATE_SOULWELL_R1, SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R1, SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R2 });
+    RegisterSpellScriptWithArgs(spell_warl_ritual_of_souls, "spell_warl_ritual_of_souls_r2", std::array<uint32, 3>{ SPELL_WARLOCK_CREATE_SOULWELL_R2, SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R1, SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R2 });
     RegisterSpellScript(spell_warl_seduction);
     RegisterSpellScript(spell_warl_seed_of_corruption);
     RegisterSpellScript(spell_warl_seed_of_corruption_dummy);
