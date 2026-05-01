@@ -2034,6 +2034,8 @@ void Spell::EffectSummonType()
             if (!summon || !summon->IsVehicle())
                 return;
 
+            summon->SetPrivateObjectOwner(privateObjectOwner);
+
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
             uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
             SpellEffectValue basePoints = effectInfo->CalcValue();
