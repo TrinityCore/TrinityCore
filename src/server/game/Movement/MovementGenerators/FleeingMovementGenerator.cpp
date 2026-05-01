@@ -22,7 +22,7 @@
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
-#include <chrono>
+#include "Duration.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
@@ -212,7 +212,7 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 diff)
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
-    FleeingMovementGenerator<Creature>::DoFinalize(static_cast<Creature*>(owner), active, movementInform);
+    FleeingMovementGenerator::Finalize(owner, active, movementInform);
 
     if (active)
         owner->StopMoving();
