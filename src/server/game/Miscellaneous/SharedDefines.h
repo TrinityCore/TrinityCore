@@ -1699,6 +1699,7 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE = 352, // MiscValue[0] = RoomComponentTexture
     SPELL_EFFECT_CREATE_AREATRIGGER_2               = 353,
     SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE        = 354, // MiscValue[0] = NeighborhoodInitiative
+    SPELL_EFFECT_LEARN_HOUSE_TYPE                   = 355, // MiscValue[0] = HouseExteriorWmoData
     TOTAL_SPELL_EFFECTS
 };
 
