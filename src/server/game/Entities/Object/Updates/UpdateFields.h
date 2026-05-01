@@ -1205,16 +1205,16 @@ struct TransmogOutfitSituationInfo : public IsUpdateFieldStructureTag, public Ha
     void ClearChangesMask();
 };
 
-struct TransmogOutfitSlotData : public IsUpdateFieldStructureTag, public HasChangesMask<8>
+struct TransmogOutfitSlotData : public IsUpdateFieldStructureTag, public HasChangesMask<11>
 {
-    UpdateField<int8, -1, 0> Slot;
-    UpdateField<uint8, -1, 1> SlotOption;
-    UpdateField<uint8, -1, 2> SheatheCategory;
-    UpdateField<uint32, -1, 3> ItemModifiedAppearanceID;
-    UpdateField<uint8, -1, 4> AppearanceDisplayType;
-    UpdateField<uint32, -1, 5> SpellItemEnchantmentID;
-    UpdateField<uint8, -1, 6> IllusionDisplayType;
-    UpdateField<uint32, -1, 7> Flags;
+    UpdateField<int8, 0, 1> Slot;
+    UpdateField<uint8, 0, 2> SlotOption;
+    UpdateField<uint8, 0, 3> SheatheCategory;
+    UpdateField<uint32, 4, 5> ItemModifiedAppearanceID;
+    UpdateField<uint8, 4, 6> AppearanceDisplayType;
+    UpdateField<uint32, 4, 7> SpellItemEnchantmentID;
+    UpdateField<uint8, 8, 9> IllusionDisplayType;
+    UpdateField<uint32, 8, 10> Flags;
 
     using OwnerObject = Player;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const;
@@ -1952,17 +1952,18 @@ struct HousingRoomComponentMeshData : public IsUpdateFieldStructureTag, public H
     void ClearChangesMask();
 };
 
-struct HousingPlayerHouseData : public IsUpdateFieldStructureTag, public HasChangesMask<10>
+struct HousingPlayerHouseData : public IsUpdateFieldStructureTag, public HasChangesMask<11>
 {
     UpdateField<ObjectGuid, 0, 1> BnetAccount;
-    UpdateField<int32, 0, 2> PlotIndex;
-    UpdateField<uint32, 0, 3> Level;
-    UpdateField<uint64, 0, 4> Favor;
-    UpdateField<uint32, 0, 5> InteriorDecorPlacementBudget;
-    UpdateField<uint32, 0, 6> ExteriorDecorPlacementBudget;
-    UpdateField<uint32, 0, 7> ExteriorFixtureBudget;
-    UpdateField<uint32, 0, 8> RoomPlacementBudget;
-    UpdateField<ObjectGuid, 0, 9> EntityGUID;
+    UpdateField<ObjectGuid, 0, 2> CosmeticOwner;
+    UpdateField<int32, 0, 3> PlotIndex;
+    UpdateField<uint32, 0, 4> Level;
+    UpdateField<uint64, 0, 5> Favor;
+    UpdateField<uint32, 0, 6> InteriorDecorPlacementBudget;
+    UpdateField<uint32, 0, 7> ExteriorDecorPlacementBudget;
+    UpdateField<uint32, 0, 8> ExteriorFixtureBudget;
+    UpdateField<uint32, 0, 9> RoomPlacementBudget;
+    UpdateField<ObjectGuid, 0, 10> EntityGUID;
 
     using OwnerObject = BaseEntity;
     void WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, ByteBuffer& data, Player const* receiver, BaseEntity const* owner) const;
@@ -2048,12 +2049,11 @@ struct MirroredPositionData : public IsUpdateFieldStructureTag, public HasChange
 
 struct PlayerMirrorHouse : public IsUpdateFieldStructureTag
 {
-    ObjectGuid Guid;
+    ObjectGuid HouseGUID;
     ObjectGuid NeighborhoodGUID;
     uint32 Level = 0;
     uint32 Favor = 0;
     uint32 InitiativeFavor = 0;
-    int32 InitiativeCycleID = 0;
     int32 MapID = 0;
     int32 PlotID = 0;
 
@@ -2111,8 +2111,8 @@ struct PlayerHouseInfoComponentData : public IsUpdateFieldStructureTag, public H
     DynamicUpdateField<ObjectGuid, 0, 5> Field_F8;
     UpdateField<UF::NeighborhoodCharter, 0, 6> Charter;
     UpdateField<uint8, 0, 7> EditorMode;
-    UpdateField<ObjectGuid, 0, 8> CurrentHouse;
-    UpdateField<UF::NeighborhoodOwnershipTransfer, 0, 9> NeighborhoodOwnershipTransfer;
+    UpdateField<UF::NeighborhoodOwnershipTransfer, 0, 8> NeighborhoodOwnershipTransfer;
+    UpdateField<ObjectGuid, 0, 9> CurrentHouse;
 
     using OwnerObject = Player;
     void WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, ByteBuffer& data, Player const* receiver, Player const* owner) const;

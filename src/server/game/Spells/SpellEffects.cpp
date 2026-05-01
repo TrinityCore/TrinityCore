@@ -1537,7 +1537,7 @@ void Spell::EffectPersistentAA()
     {
         SpellEffectInfo const& spellEffectInfo = m_spellInfo->GetEffect(SpellEffIndex(i));
         if (spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
-            radius = std::max(radius, spellEffectInfo.CalcRadius(unitCaster));
+            radius = std::max(radius, spellEffectInfo.CalcRadius(unitCaster).Max);
     }
 
     DynamicObject* dynObj = new DynamicObject(false);
@@ -1999,7 +1999,7 @@ void Spell::EffectSummonType()
                 }
                 default:
                 {
-                    float radius = effectInfo->CalcRadius();
+                    SpellRange radius = effectInfo->CalcRadius();
 
                     TempSummonType summonType = TEMPSUMMON_TIMED_DESPAWN;
                     if (duration == 0ms)
@@ -2013,10 +2013,10 @@ void Spell::EffectSummonType()
                     {
                         Position pos;
                         if (count == 0)
-                            pos = *destTarget;
+                            pos = destTarget->GetPosition();
                         else
                             // randomize position for multiple summons
-                            pos = caster->GetRandomPoint(*destTarget, radius);
+                            pos = caster->GetRandomPoint(*destTarget, radius.Max, radius.Min);
 
                         summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
                         if (!summon)
@@ -2307,7 +2307,7 @@ void Spell::EffectAddFarsight()
     if (!player)
         return;
 
-    float radius = effectInfo->CalcRadius();
+    float radius = effectInfo->CalcRadius().Max;
     int32 duration = m_spellInfo->CalcDuration(m_caster);
     // Caster not in world, might be spell triggered from aura removal
     if (!player->IsInWorld())
@@ -3148,7 +3148,7 @@ void Spell::EffectScriptEffect()
                 case 45151:
                 {
                     //Workaround for Range ... should be global for every ScriptEffect
-                    float radius = effectInfo->CalcRadius(nullptr, SpellTargetIndex::TargetB);
+                    float radius = effectInfo->CalcRadius(nullptr, SpellTargetIndex::TargetB).Max;
                     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER && unitTarget->GetDistance(m_caster) >= radius && !unitTarget->HasAura(46394) && unitTarget != m_caster)
                         unitTarget->CastSpell(unitTarget, 46394, this);
 
@@ -3160,9 +3160,9 @@ void Spell::EffectScriptEffect()
                     if (!m_targets.HasDst())
                         return;
 
-                    float radius = effectInfo->CalcRadius();
+                    SpellRange radius = effectInfo->CalcRadius();
                     for (uint8 i = 0; i < 15; ++i)
-                        m_caster->CastSpell(m_caster->GetRandomPoint(*destTarget, radius), 54522, this);
+                        m_caster->CastSpell(m_caster->GetRandomPoint(*destTarget, radius.Max, radius.Min), 54522, this);
                     break;
                 }
                 case 52173: // Coyote Spirit Despawn
@@ -4480,15 +4480,14 @@ void Spell::EffectTransmitted()
     //FIXME: this can be better check for most objects but still hack
     else if (effectInfo->HasRadius(SpellTargetIndex::TargetA) && m_spellInfo->Speed == 0)
     {
-        float dis = effectInfo->CalcRadius(unitCaster);
+        float dis = effectInfo->CalcRadius(unitCaster).Min;
         unitCaster->GetClosePoint(fx, fy, fz, DEFAULT_PLAYER_BOUNDING_RADIUS, dis);
         fo = unitCaster->GetOrientation();
     }
     else
     {
         //GO is always friendly to it's creator, get range for friends
-        float min_dis = m_spellInfo->GetMinRange(true);
-        float max_dis = m_spellInfo->GetMaxRange(true);
+        auto [min_dis, max_dis] = m_spellInfo->GetMinMaxRange(true);
         float dis = rand_norm() * (max_dis - min_dis) + min_dis;
 
         unitCaster->GetClosePoint(fx, fy, fz, DEFAULT_PLAYER_BOUNDING_RADIUS, dis);

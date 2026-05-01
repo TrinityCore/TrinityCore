@@ -779,7 +779,7 @@ bool SpellEffectInfo::HasRadius(SpellTargetIndex targetIndex) const
     }
 }
 
-float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTargetIndex targetIndex /*=SpellTargetIndex::TargetA*/, Spell* spell /*= nullptr*/) const
+SpellRange SpellEffectInfo::CalcRadius(WorldObject const* caster /*= nullptr*/, SpellTargetIndex targetIndex /*=SpellTargetIndex::TargetA*/, Spell* spell /*= nullptr*/) const
 {
     // TargetA -> TargetARadiusEntry
     // TargetB -> TargetBRadiusEntry
@@ -792,69 +792,38 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
         entry = TargetBRadiusEntry;
     }
 
+    SpellRange radius;
     if (!entry)
-        return 0.0f;
+        return radius;
 
-    float radius = entry->RadiusMin;
+    radius = { .Min = entry->RadiusMin, .Max = entry->RadiusMax };
+
+    if (caster)
+    {
+        if (Unit const* casterUnit = caster->ToUnit())
+            radius.Max = std::min(entry->Radius + entry->RadiusPerLevel * casterUnit->GetLevel(), radius.Max);
+
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius.Max, spell);
+
+        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
+        {
+            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
+            {
+                radius.Min = std::max(radius.Min - 2.0f, 0.0f);
+                radius.Max += 2.0f;
+            }
+        }
+    }
 
     // Random targets use random value between RadiusMin and RadiusMax
     // For other cases, client uses RadiusMax if RadiusMin is 0
     if (target.GetTarget() == TARGET_DEST_CASTER_RANDOM ||
         target.GetTarget() == TARGET_DEST_TARGET_RANDOM ||
         target.GetTarget() == TARGET_DEST_DEST_RANDOM)
-        radius += (entry->RadiusMax - radius) * std::sqrt(rand_norm());
-    else if (radius == 0.0f)
-        radius = entry->RadiusMax;
-
-    if (caster)
-    {
-        if (Unit const* casterUnit = caster->ToUnit())
-            radius += entry->RadiusPerLevel * casterUnit->GetLevel();
-
-        radius = std::min(radius, entry->RadiusMax);
-
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
-
-        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
-            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
-                radius += 2.0f;
-    }
+        radius.Max = (radius.Max - radius.Min) * std::sqrt(rand_norm());
 
     return radius;
-}
-
-Optional<std::pair<float, float>> SpellEffectInfo::CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const
-{
-    // TargetA -> TargetARadiusEntry
-    // TargetB -> TargetBRadiusEntry
-    // Aura effects have TargetARadiusEntry == TargetBRadiusEntry (mostly)
-    SpellRadiusEntry const* entry = TargetARadiusEntry;
-    if (targetIndex == SpellTargetIndex::TargetB && HasRadius(targetIndex))
-        entry = TargetBRadiusEntry;
-
-    Optional<std::pair<float, float>> bounds;
-    if (!entry)
-        return bounds;
-
-    bounds.emplace(entry->RadiusMin, entry->RadiusMax);
-
-    if (caster)
-    {
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, bounds->second, spell);
-
-        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
-        {
-            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
-            {
-                bounds->first = std::max(bounds->first - 2.0f, 0.0f);
-                bounds->second += 2.0f;
-            }
-        }
-    }
-
-    return bounds;
 }
 
 uint32 SpellEffectInfo::GetProvidedTargetMask() const
@@ -3962,7 +3931,7 @@ float SpellInfo::GetMinRange(bool positive /*= false*/) const
     return RangeEntry->RangeMin[positive ? 1 : 0];
 }
 
-float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
+float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject const* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
 {
     if (!RangeEntry)
         return 0.0f;
@@ -3970,6 +3939,20 @@ float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject* caster /*= 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(this, SpellModOp::Range, range, spell);
+
+    return range;
+}
+
+SpellRange SpellInfo::GetMinMaxRange(bool positive, WorldObject const* caster, Spell* spell) const
+{
+    SpellRange range;
+    if (!RangeEntry)
+        return range;
+
+    range = { .Min = RangeEntry->RangeMin[positive ? 1 : 0], .Max = RangeEntry->RangeMax[positive ? 1 : 0] };
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(this, SpellModOp::Range, range.Max, spell);
 
     return range;
 }

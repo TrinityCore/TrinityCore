@@ -9515,6 +9515,7 @@ void HousingRoomComponentMeshData::ClearChangesMask()
 void HousingPlayerHouseData::WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, ByteBuffer& data, Player const* receiver, BaseEntity const* owner) const
 {
     data << *BnetAccount;
+    data << *CosmeticOwner;
     data << int32(PlotIndex);
     data << uint32(Level);
     data << uint64(Favor);
@@ -9532,7 +9533,7 @@ void HousingPlayerHouseData::WriteUpdate(EnumFlag<UpdateFieldFlag> fieldVisibili
 
 void HousingPlayerHouseData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player const* receiver, BaseEntity const* owner, bool ignoreNestedChangesMask) const
 {
-    data.WriteBits(changesMask.GetBlock(0), 10);
+    data.WriteBits(changesMask.GetBlock(0), 11);
 
     data.FlushBits();
     if (changesMask[0])
@@ -9543,33 +9544,37 @@ void HousingPlayerHouseData::WriteUpdate(Mask const& changesMask, ByteBuffer& da
         }
         if (changesMask[2])
         {
-            data << int32(PlotIndex);
+            data << *CosmeticOwner;
         }
         if (changesMask[3])
         {
-            data << uint32(Level);
+            data << int32(PlotIndex);
         }
         if (changesMask[4])
         {
-            data << uint64(Favor);
+            data << uint32(Level);
         }
         if (changesMask[5])
         {
-            data << uint32(InteriorDecorPlacementBudget);
+            data << uint64(Favor);
         }
         if (changesMask[6])
         {
-            data << uint32(ExteriorDecorPlacementBudget);
+            data << uint32(InteriorDecorPlacementBudget);
         }
         if (changesMask[7])
         {
-            data << uint32(ExteriorFixtureBudget);
+            data << uint32(ExteriorDecorPlacementBudget);
         }
         if (changesMask[8])
         {
-            data << uint32(RoomPlacementBudget);
+            data << uint32(ExteriorFixtureBudget);
         }
         if (changesMask[9])
+        {
+            data << uint32(RoomPlacementBudget);
+        }
+        if (changesMask[10])
         {
             data << *EntityGUID;
         }
@@ -9579,6 +9584,7 @@ void HousingPlayerHouseData::WriteUpdate(Mask const& changesMask, ByteBuffer& da
 void HousingPlayerHouseData::ClearChangesMask()
 {
     Base::ClearChangesMask(BnetAccount);
+    Base::ClearChangesMask(CosmeticOwner);
     Base::ClearChangesMask(PlotIndex);
     Base::ClearChangesMask(Level);
     Base::ClearChangesMask(Favor);
@@ -9847,36 +9853,33 @@ void MirroredPositionData::ClearChangesMask()
 
 void PlayerMirrorHouse::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const
 {
-    data << Guid;
+    data << HouseGUID;
     data << NeighborhoodGUID;
     data << uint32(Level);
     data << uint32(Favor);
     data << uint32(InitiativeFavor);
-    data << int32(InitiativeCycleID);
     data << int32(MapID);
     data << int32(PlotID);
 }
 
 void PlayerMirrorHouse::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, Player const* owner) const
 {
-    data << Guid;
+    data << HouseGUID;
     data << NeighborhoodGUID;
     data << uint32(Level);
     data << uint32(Favor);
     data << uint32(InitiativeFavor);
-    data << int32(InitiativeCycleID);
     data << int32(MapID);
     data << int32(PlotID);
 }
 
 bool PlayerMirrorHouse::operator==(PlayerMirrorHouse const& right) const
 {
-    return Guid == right.Guid
+    return HouseGUID == right.HouseGUID
         && NeighborhoodGUID == right.NeighborhoodGUID
         && Level == right.Level
         && Favor == right.Favor
         && InitiativeFavor == right.InitiativeFavor
-        && InitiativeCycleID == right.InitiativeCycleID
         && MapID == right.MapID
         && PlotID == right.PlotID;
 }
@@ -10122,7 +10125,7 @@ void PlayerHouseInfoComponentData::WriteUpdate(Mask const& changesMask, ByteBuff
         {
             data << uint8(EditorMode);
         }
-        if (changesMask[8])
+        if (changesMask[9])
         {
             data << *CurrentHouse;
         }
@@ -10130,7 +10133,7 @@ void PlayerHouseInfoComponentData::WriteUpdate(Mask const& changesMask, ByteBuff
         {
             Charter->WriteUpdate(ignoreNestedChangesMask, data, receiver, owner);
         }
-        if (changesMask[9])
+        if (changesMask[8])
         {
             NeighborhoodOwnershipTransfer->WriteUpdate(ignoreNestedChangesMask, data, receiver, owner);
         }
@@ -10146,8 +10149,8 @@ void PlayerHouseInfoComponentData::ClearChangesMask()
     Base::ClearChangesMask(Field_F8);
     Base::ClearChangesMask(Charter);
     Base::ClearChangesMask(EditorMode);
-    Base::ClearChangesMask(CurrentHouse);
     Base::ClearChangesMask(NeighborhoodOwnershipTransfer);
+    Base::ClearChangesMask(CurrentHouse);
     _changesMask.ResetAll();
 }
 

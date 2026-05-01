@@ -2130,6 +2130,7 @@ CREATE TABLE `character_transmog_outfit_slot` (
   `transmogOutfitId` int NOT NULL,
   `slot` tinyint NOT NULL,
   `slotOption` tinyint NOT NULL,
+  `sheatheCategory` tinyint unsigned NOT NULL,
   `itemModifiedAppearanceID` int NOT NULL,
   `appearanceDisplayType` tinyint NOT NULL,
   `spellItemEnchantmentID` int NOT NULL,
@@ -4093,7 +4094,7 @@ INSERT INTO `updates` VALUES
 ('2026_02_06_00_characters.sql','90735F4481A137E79B8371F291008CF6051657AC','ARCHIVED','2026-02-06 12:45:48',0),
 ('2026_03_21_00_characters.sql','87963F4E341B195D4B4C4514A3119092DF127431','RELEASED','2026-03-21 00:42:13',0),
 ('2026_04_08_00_characters.sql','5A7FC8264EBD524E4EBAACF53D1CE89C6FF0D255','RELEASED','2026-04-07 10:24:16',0),
-('2026_04_22_00_characters.sql','7EA266122924A3F8940D1D2E62F7C1BBC1D10333','RELEASED','2026-04-22 19:26:05',0);
+('2026_04_22_00_characters.sql','34E7E4659F8C2FF778042CF21267F8045BDC197E','RELEASED','2026-04-22 19:26:05',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

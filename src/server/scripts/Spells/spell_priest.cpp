@@ -384,10 +384,10 @@ class spell_pri_angelic_feather_trigger : public SpellScript
     void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
     {
         Position destPos = GetHitDest()->GetPosition();
-        float radius = GetEffectInfo().CalcRadius();
+        SpellRange radius = GetEffectInfo().CalcRadius();
 
         // Caster is prioritary
-        if (GetCaster()->IsWithinDist2d(&destPos, radius))
+        if (GetCaster()->IsInRange2d(&destPos, radius.Min, radius.Max))
         {
             GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
         }
@@ -1851,7 +1851,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
             if (ObjectGuid const* targetGUID = std::any_cast<ObjectGuid>(&creatingSpell->m_customArg))
                 at->SetPathTarget(*targetGUID);
 
-            _searchRadius = creatingSpell->GetSpellInfo()->GetMaxRange();
+            _searchRadius = creatingSpell->GetSpellInfo()->GetMinMaxRange();
         }
 
         caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA, args);
@@ -1911,7 +1911,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         {
             std::vector<Unit*> targets;
             Trinity::UnitListSearcher searcher(at, targets, check);
-            Spell::SearchTargets(searcher, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER, caster, caster, _searchRadius);
+            Spell::SearchTargets(searcher, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER, caster, caster, _searchRadius.Max);
             Trinity::Containers::EraseIf(targets, [caster](Unit const* target) { return !caster->IsInCombatWith(target); });
             if (!targets.empty())
                 target = Trinity::Containers::SelectRandomContainerElement(targets);
@@ -1923,7 +1923,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
 private:
     TaskScheduler _scheduler;
     float _movementSpeed = 12.0f;
-    float _searchRadius = 0.0f;
+    SpellRange _searchRadius;
 };
 
 // 414553 - Epiphany
@@ -5061,11 +5061,11 @@ class spell_pri_ultimate_penitence_channel : public AuraScript
         {
             Unit* caster = GetTarget();
 
-            float maxRange = spellInfo->GetMaxRange(true, caster);
+            SpellRange range =  spellInfo->GetMinMaxRange(true, caster);
 
-            Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, caster, caster, caster, spellInfo, checkType, spellEffect.ImplicitTargetConditions.get(), TARGET_OBJECT_TYPE_UNIT);
+            Trinity::WorldObjectSpellAreaTargetCheck check(range, caster, caster, caster, spellInfo, checkType, spellEffect.ImplicitTargetConditions.get(), TARGET_OBJECT_TYPE_UNIT);
             Trinity::WorldObjectListSearcher searcher(caster->GetPhaseShift(), targets, check, containerTypeMask);
-            Spell::SearchTargets(searcher, containerTypeMask, caster, caster, maxRange + EXTRA_CELL_SEARCH_RADIUS);
+            Spell::SearchTargets(searcher, containerTypeMask, caster, caster, range.Max + EXTRA_CELL_SEARCH_RADIUS);
         }
 
         return targets;

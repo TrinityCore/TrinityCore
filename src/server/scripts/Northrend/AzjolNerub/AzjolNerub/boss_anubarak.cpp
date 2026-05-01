@@ -464,7 +464,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
             Position jumpTo;
             uint32 attempts = 0;
             do
-                jumpTo = anubarak->GetRandomPoint(anubarak->GetPosition(), 10.f, 30.0f);
+                jumpTo = anubarak->GetRandomPoint(anubarak->GetPosition(), 30.0f, 10.f);
             while (!CreatureAI::IsInBounds(*boundary, &jumpTo) && attempts < 10);
             me->GetMotionMaster()->MoveJump(EVENT_JUMP, jumpTo, 24.0f, 20.0f, 30.0f);
             DoCastSelf(SPELL_ASSASSIN_VISUAL, true);

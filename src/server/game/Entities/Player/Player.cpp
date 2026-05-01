@@ -515,6 +515,14 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         ab.SetActionAndType(action_itr->action, ActionButtonType(action_itr->type));
     }
 
+    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
+    {
+        SetActiveTalentGroup(defaultSpec->OrderIndex);
+        SetPrimarySpecialization(defaultSpec->ID);
+    }
+
+    EquipTransmogOutfit(0, TransmogSituationTrigger::Manual, false);
+
     // original items
     for (PlayerCreateInfoItem initialItem : info->item)
         StoreNewItemInBestSlots(initialItem.item_id, initialItem.item_amount, info->itemContext);
@@ -550,15 +558,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
     // all item positions resolved
 
-    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
-    {
-        SetActiveTalentGroup(defaultSpec->OrderIndex);
-        SetPrimarySpecialization(defaultSpec->ID);
-    }
-
     GetThreatManager().Initialize();
-
-    EquipTransmogOutfit(0, TransmogSituationTrigger::Manual, false);
 
     return true;
 }
@@ -11868,83 +11868,80 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
         bool hasTransmog = false;
         bool hasIllusion = false;
 
-        if (!m_activePlayerData->ViewedOutfit->Slots.empty())
+        TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), transmogSlotOption);
+        if (transmogSlotOption != TransmogOutfitSlotOption::None)
         {
-            TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), transmogSlotOption);
-            if (transmogSlotOption != TransmogOutfitSlotOption::None)
+            // check if artifact override is active
+            static constexpr int32 MaxArtifactSpecializations = AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecFour) - AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + 1;
+            int32 specIndex = GetPrimarySpecializationEntry()->OrderIndex;
+            if (specIndex >= 0 && specIndex < MaxArtifactSpecializations)
             {
-                // check if artifact override is active
-                static constexpr int32 MaxArtifactSpecializations = AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecFour) - AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + 1;
-                int32 specIndex = GetPrimarySpecializationEntry()->OrderIndex;
-                if (specIndex >= 0 && specIndex < MaxArtifactSpecializations)
+                TransmogOutfitSlotOption artifactOption = static_cast<TransmogOutfitSlotOption>(AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + specIndex);
+                TransmogMgr::TransmogOutfitSlotAndOptionInfo const* artifactSlotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), artifactOption);
+                if (artifactSlotInfo && static_cast<TransmogOutfitDisplayType>(*m_activePlayerData->ViewedOutfit->Slots[artifactSlotInfo->SlotIndex].AppearanceDisplayType) == TransmogOutfitDisplayType::Assigned)
                 {
-                    TransmogOutfitSlotOption artifactOption = static_cast<TransmogOutfitSlotOption>(AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + specIndex);
-                    TransmogMgr::TransmogOutfitSlotAndOptionInfo const* artifactSlotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), artifactOption);
-                    if (artifactSlotInfo && static_cast<TransmogOutfitDisplayType>(*m_activePlayerData->ViewedOutfit->Slots[artifactSlotInfo->SlotIndex].AppearanceDisplayType) == TransmogOutfitDisplayType::Assigned)
+                    transmogSlotOption = artifactOption;
+                    slotInfo = artifactSlotInfo;
+                }
+            }
+        }
+
+        if (slotInfo)
+        {
+            auto isTransmogDisplayed = [](TransmogOutfitDisplayType displayType)
+            {
+                return displayType == TransmogOutfitDisplayType::Assigned || displayType == TransmogOutfitDisplayType::Hidden;
+            };
+
+            UF::TransmogOutfitSlotData const& transmogOutfitItem = m_activePlayerData->ViewedOutfit->Slots[slotInfo->SlotIndex];
+            if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.AppearanceDisplayType)))
+            {
+                if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogOutfitItem.ItemModifiedAppearanceID))
+                {
+                    TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
+                    if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
                     {
-                        transmogSlotOption = artifactOption;
-                        slotInfo = artifactSlotInfo;
+                        itemId = itemModifiedAppearance->ItemID;
+                        itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
+                        itemModifiedAppearanceId = itemModifiedAppearance->ID;
+                        sheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(*transmogOutfitItem.SheatheCategory);
+                        hasTransmog = true;
                     }
                 }
             }
 
-            if (slotInfo)
+            auto getSecondaryItemModifiedAppearance = [isTransmogDisplayed](UF::TransmogOutfitSlotData const& secondaryTransmogOutfitItem) -> int32
             {
-                auto isTransmogDisplayed = [](TransmogOutfitDisplayType displayType)
+                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType))
+                    || static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType) == TransmogOutfitDisplayType::Equipped)
                 {
-                    return displayType == TransmogOutfitDisplayType::Assigned || displayType == TransmogOutfitDisplayType::Hidden;
-                };
-
-                UF::TransmogOutfitSlotData const& transmogOutfitItem = m_activePlayerData->ViewedOutfit->Slots[slotInfo->SlotIndex];
-                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.AppearanceDisplayType)))
-                {
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogOutfitItem.ItemModifiedAppearanceID))
+                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
                     {
                         TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
                         if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                        {
-                            itemId = itemModifiedAppearance->ItemID;
-                            itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
-                            itemModifiedAppearanceId = itemModifiedAppearance->ID;
-                            sheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(*transmogOutfitItem.SheatheCategory);
-                            hasTransmog = true;
-                        }
+                            return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
                     }
                 }
+                return 0;
+            };
 
-                auto getSecondaryItemModifiedAppearance = [isTransmogDisplayed](UF::TransmogOutfitSlotData const& secondaryTransmogOutfitItem) -> int32
-                {
-                    if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType))
-                        || static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType) == TransmogOutfitDisplayType::Equipped)
-                    {
-                        if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
-                        {
-                            TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                            if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                                return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
-                        }
-                    }
-                    return 0;
-                };
+            if (TransmogOutfitSlotInfoEntry const* secondarySlot = sTransmogOutfitSlotInfoStore.LookupEntry(slotInfo->Slot->SecondarySlotID))
+                if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(secondarySlot->GetSlot(), transmogSlotOption))
+                    secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
 
-                if (TransmogOutfitSlotInfoEntry const* secondarySlot = sTransmogOutfitSlotInfoStore.LookupEntry(slotInfo->Slot->SecondarySlotID))
-                    if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(secondarySlot->GetSlot(), transmogSlotOption))
-                        secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
+            if (TransmogOutfitSlotOptionEntry const* secondarySlotOption = sTransmogOutfitSlotOptionInfoStore.LookupEntry(slotInfo->SlotOption ? slotInfo->SlotOption->SecondaryOptionID : 0))
+                if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(slotInfo->Slot->GetSlot(), secondarySlotOption->GetOption()))
+                    secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
 
-                if (TransmogOutfitSlotOptionEntry const* secondarySlotOption = sTransmogOutfitSlotOptionInfoStore.LookupEntry(slotInfo->SlotOption ? slotInfo->SlotOption->SecondaryOptionID : 0))
-                    if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(slotInfo->Slot->GetSlot(), secondarySlotOption->GetOption()))
-                        secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
+            if (secondaryItemModifiedAppearanceId)
+                hasTransmog = true;
 
-                if (secondaryItemModifiedAppearanceId)
-                    hasTransmog = true;
+            if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.IllusionDisplayType)))
+            {
+                if (SpellItemEnchantmentEntry const* spellItemEnchantment = sSpellItemEnchantmentStore.LookupEntry(transmogOutfitItem.SpellItemEnchantmentID))
+                    itemVisual = spellItemEnchantment->ItemVisual;
 
-                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.IllusionDisplayType)))
-                {
-                    if (SpellItemEnchantmentEntry const* spellItemEnchantment = sSpellItemEnchantmentStore.LookupEntry(transmogOutfitItem.SpellItemEnchantmentID))
-                        itemVisual = spellItemEnchantment->ItemVisual;
-
-                    hasIllusion = true;
-                }
+                hasIllusion = true;
             }
         }
 
@@ -18663,6 +18660,13 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     // Load spell locations - must be after loading auras
     _LoadStoredAuraTeleportLocations(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS));
 
+    _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
+    _LoadTransmogCustomSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS));
+    _LoadTransmogOutfits(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT),
+        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION),
+        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT),
+        fields.transmogOutfitEquippedId, fields.transmogOutfitLocked);
+
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
     _LoadQuestStatusObjectives(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES));
@@ -18835,13 +18839,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         SetDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
 
     _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
-
-    _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
-    _LoadTransmogCustomSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS));
-    _LoadTransmogOutfits(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT),
-        fields.transmogOutfitEquippedId, fields.transmogOutfitLocked);
 
     _LoadCUFProfiles(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 

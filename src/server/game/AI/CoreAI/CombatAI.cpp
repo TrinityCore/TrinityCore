@@ -188,14 +188,17 @@ void CasterAI::UpdateAI(uint32 diff)
 // TurretAI
 //////////////
 
-TurretAI::TurretAI(Creature* creature, uint32 scriptId) noexcept : CreatureAI(creature, scriptId)
+TurretAI::TurretAI(Creature* creature, uint32 scriptId) noexcept : CreatureAI(creature, scriptId), _minimumRange(0.0f)
 {
     if (!creature->m_spells[0])
         TC_LOG_ERROR("scripts.ai", "TurretAI set for creature with spell1 = 0. AI will do nothing ({})", creature->GetGUID().ToString());
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0], creature->GetMap()->GetDifficultyID());
-    _minimumRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
-    creature->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0], creature->GetMap()->GetDifficultyID()))
+    {
+        auto [minRange, maxRange] = spellInfo->GetMinMaxRange(false);
+        _minimumRange = minRange;
+        creature->m_CombatDistance = maxRange;
+    }
     creature->m_SightDistance = creature->m_CombatDistance;
     creature->SetCanMelee(false);
 }

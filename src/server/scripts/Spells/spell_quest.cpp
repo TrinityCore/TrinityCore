@@ -1183,7 +1183,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
 {
     void ModDest(SpellDestination& dest)
     {
-        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
+        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster()).Max;
         float angle = frand(0.75f, 1.25f) * float(M_PI);
 
         Position pos = GetCaster()->GetNearPosition(dist, angle);

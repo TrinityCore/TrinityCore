@@ -417,7 +417,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     Position const* thisOrTransport = this;
     Position const* objOrObjTransport = obj;
 
-    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetTransportGUID() == GetTransport()->GetTransportGUID())
+    if (GetTransport() && GetTransport() == obj->GetTransport())
     {
         thisOrTransport = &m_movementInfo.transport.pos;
         objOrObjTransport = &obj->m_movementInfo.transport.pos;
@@ -614,11 +614,9 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
     return distsq < maxdist * maxdist;
 }
 
-bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) const
+bool WorldObject::IsInRange2d(Position const* pos, float minRange, float maxRange) const
 {
-    float dx = GetPositionX() - x;
-    float dy = GetPositionY() - y;
-    float distsq = dx*dx + dy*dy;
+    float distsq = GetExactDist2dSq(pos);
 
     float sizefactor = GetCombatReach();
 
@@ -634,12 +632,9 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     return distsq < maxdist * maxdist;
 }
 
-bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
+bool WorldObject::IsInRange3d(Position const* pos, float minRange, float maxRange) const
 {
-    float dx = GetPositionX() - x;
-    float dy = GetPositionY() - y;
-    float dz = GetPositionZ() - z;
-    float distsq = dx*dx + dy*dy + dz*dz;
+    float distsq = GetExactDistSq(pos);
 
     float sizefactor = GetCombatReach();
 
@@ -1667,32 +1662,10 @@ Player* WorldObject::GetSpellModOwner() const
     return nullptr;
 }
 
-float WorldObject::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
+SpellRange WorldObject::GetSpellMinMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
 {
-    if (!spellInfo->RangeEntry)
-        return 0.f;
-
-    if (spellInfo->RangeEntry->RangeMax[0] == spellInfo->RangeEntry->RangeMax[1])
-        return spellInfo->GetMaxRange();
-
-    if (!target)
-        return spellInfo->GetMaxRange(true);
-
-    return spellInfo->GetMaxRange(!IsHostileTo(target));
-}
-
-float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
-{
-    if (!spellInfo->RangeEntry)
-        return 0.f;
-
-    if (spellInfo->RangeEntry->RangeMin[0] == spellInfo->RangeEntry->RangeMin[1])
-        return spellInfo->GetMinRange();
-
-    if (!target)
-        return spellInfo->GetMinRange(true);
-
-    return spellInfo->GetMinRange(!IsHostileTo(target));
+    bool positive = target ? !IsHostileTo(target) : true;
+    return spellInfo->GetMinMaxRange(positive);
 }
 
 SpellEffectValue WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const
