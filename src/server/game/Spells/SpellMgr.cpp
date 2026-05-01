@@ -3663,7 +3663,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_EXTRA_INITIAL_PERIOD;
     });
 
     // Earthbind Totem (instant pulse)
