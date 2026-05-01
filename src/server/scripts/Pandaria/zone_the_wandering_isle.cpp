@@ -1604,29 +1604,21 @@ static CartData GetCartData(uint32 entry)
     return {};
 }
 
-// Spawned Yak Singing Pools 57207
-// Spawned Yak Farmstead 59498
-// Spawned Yak Forbidden Forest 57742
-// Spawned Cart Singing Pools 57208
-// Spawned Cart Farmstead 59496
-// Spawned Cart Forbidden Forest 57740
+// 57207 - Nourished Yak (Singing Pools)
+// 59498 - Nourished Yak (Farmstead)
+// 57742 - Nourished Yak (Forbidden Forest)
+// 57208 - Delivery Cart (Singing Pools)
+// 59496 - Delivery Cart (Farmstead)
+// 57740 - Delivery Cart (Forbidden Forest)
 struct npc_yak_cart : public ScriptedAI
 {
-    npc_yak_cart(Creature* creature) : ScriptedAI(creature), _data(GetCartData(creature->GetEntry()))
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        me->SetPrivateObjectOwner(ObjectGuid::Empty); // Needed otherwise FindCreature does not work
-        me->SetReactState(REACT_PASSIVE);
-    }
+    npc_yak_cart(Creature* creature) : ScriptedAI(creature), _data(GetCartData(creature->GetEntry())) { }
 
     void Reset() override
     {
+        me->SetImmuneToNPC(true);
+
         _events.Reset();
-        Initialize();
 
         if (!_data.IsCart)
             _events.ScheduleEvent(Events::YakCartPathStart, 1400ms); // Only yaks start moving on reset
@@ -1669,15 +1661,22 @@ struct npc_yak_cart : public ScriptedAI
         {
             switch (eventId)
             {
-            case Events::YakCartRopes:
-                if (_data.YakNPC)
-                    if (Unit* yak = me->FindNearestCreatureWithOptions(10.f,
-                        { .CreatureId = *_data.YakNPC, .IgnorePhases = true }))
+                case Events::YakCartRopes:
+                {
+                    if (!_data.YakNPC)
+                        break;
+
+                    TempSummon* summon = me->ToTempSummon();
+                    if (!summon)
+                        break;
+
+                    if (Unit* yak = me->FindNearestCreatureWithOptions(10.f, { .CreatureId = *_data.YakNPC, .IgnorePhases = true, .PrivateObjectOwnerGuid = summon->GetSummonerGUID() }))
                         me->CastSpell(yak, Spells::OxCartRopeLeft);
-                break;
-            case Events::YakCartPathStart:
-                me->GetMotionMaster()->MovePath(_data.PathId, false);
-                break;
+                    break;
+                }
+                case Events::YakCartPathStart:
+                    me->GetMotionMaster()->MovePath(_data.PathId, false);
+                    break;
             }
         }
     }
