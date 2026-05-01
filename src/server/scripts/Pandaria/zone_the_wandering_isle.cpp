@@ -83,10 +83,6 @@ namespace Creatures
     static constexpr uint32 CartVehicleSingingPools = 57208;
     static constexpr uint32 CartVehicleFarmstead = 59496;
     static constexpr uint32 CartVehicleForest = 57740;
-
-    static constexpr uint32 YakVehicleSingingPools = 57207;
-    static constexpr uint32 YakVehicleFarmstead = 59498;
-    static constexpr uint32 YakVehicleForest = 57742;
 }
 
 namespace Talks
@@ -97,9 +93,6 @@ namespace Talks
 namespace Paths
 {
     // Yak and Cart
-    static constexpr uint32 YakSingingPools = 5720700;
-    static constexpr uint32 YakFarmstead = 5949800;
-    static constexpr uint32 YakForest = 5774200;
     static constexpr uint32 CartSingingPools = 5720800;
     static constexpr uint32 CartFarmstead = 5949600;
     static constexpr uint32 CartForest = 5774000;
@@ -1539,7 +1532,6 @@ struct CartData
 {
     uint32 Entry = 0;
     uint32 PathId = 0;
-    bool IsCart = false;
     Optional<uint8> EjectNodeId;
     Optional<uint32> CreditNPC;
     Optional<uint32> QuestId;
@@ -1548,50 +1540,27 @@ struct CartData
 
 static constexpr CartData CartDataTable[] =
 {
-    // Yaks
-    {
-        .Entry = Creatures::YakVehicleSingingPools,
-        .PathId = Paths::YakSingingPools,
-        .IsCart = false
-    },
-    {
-        .Entry = Creatures::YakVehicleFarmstead,
-        .PathId = Paths::YakFarmstead,
-        .IsCart = false
-    },
-    {
-        .Entry = Creatures::YakVehicleForest,
-        .PathId = Paths::YakForest,
-        .IsCart = false
-    },
-
     // Carts
     {
         .Entry = Creatures::CartVehicleSingingPools,
         .PathId = Paths::CartSingingPools,
-        .IsCart = true,
         .EjectNodeId = Paths::NodeCartRemovePassenger,
         .CreditNPC = Creatures::CartSingingPools,
         .QuestId = Quests::TheSourceOfLivelihood,
-        .YakNPC = Creatures::YakVehicleSingingPools
     },
     {
         .Entry = Creatures::CartVehicleFarmstead,
         .PathId = Paths::CartFarmstead,
-        .IsCart = true,
         .EjectNodeId = Paths::NodeCartRemovePassenger,
         .CreditNPC = Creatures::CartFarmstead,
         .QuestId = Quests::TheSpiritAndBodyOfShenzinsu,
-        .YakNPC = Creatures::YakVehicleFarmstead
     },
     {
         .Entry = Creatures::CartVehicleForest,
         .PathId = Paths::CartForest,
-        .IsCart = true,
         .EjectNodeId = Paths::NodeForestCartRemovePassenger,
         .CreditNPC = Creatures::CartForest,
         .QuestId = Quests::NewAllies,
-        .YakNPC = Creatures::YakVehicleForest
     }
 };
 
@@ -1604,29 +1573,21 @@ static CartData GetCartData(uint32 entry)
     return {};
 }
 
-// 57207 - Nourished Yak (Singing Pools)
-// 59498 - Nourished Yak (Farmstead)
-// 57742 - Nourished Yak (Forbidden Forest)
 // 57208 - Delivery Cart (Singing Pools)
 // 59496 - Delivery Cart (Farmstead)
 // 57740 - Delivery Cart (Forbidden Forest)
-struct npc_yak_cart : public ScriptedAI
+struct npc_delivery_cart : public ScriptedAI
 {
-    npc_yak_cart(Creature* creature) : ScriptedAI(creature), _data(GetCartData(creature->GetEntry())) { }
+    npc_delivery_cart(Creature* creature) : ScriptedAI(creature), _data(GetCartData(creature->GetEntry())) { }
 
     void Reset() override
     {
-        me->SetImmuneToNPC(true);
-
         _events.Reset();
-
-        if (!_data.IsCart)
-            _events.ScheduleEvent(Events::YakCartPathStart, 1400ms); // Only yaks start moving on reset
     }
 
     void PassengerBoarded(Unit* passenger, int8 /*seat*/, bool apply) override
     {
-        if (!apply || !_data.IsCart)
+        if (!apply)
             return;
 
         Player* player = passenger->ToPlayer();
@@ -1644,7 +1605,7 @@ struct npc_yak_cart : public ScriptedAI
 
     void WaypointReached(uint32 nodeId, uint32 /*pathId*/) override
     {
-        if (_data.IsCart && _data.EjectNodeId && nodeId == *_data.EjectNodeId)
+        if (_data.EjectNodeId && nodeId == *_data.EjectNodeId)
             me->CastSpell(me, Spells::EjectPassengers);
     }
 
@@ -1662,20 +1623,12 @@ struct npc_yak_cart : public ScriptedAI
             switch (eventId)
             {
                 case Events::YakCartRopes:
-                {
-                    if (!_data.YakNPC)
-                        break;
-
-                    TempSummon* summon = me->ToTempSummon();
-                    if (!summon)
-                        break;
-
-                    if (Unit* yak = me->FindNearestCreatureWithOptions(10.f, { .CreatureId = *_data.YakNPC, .IgnorePhases = true, .PrivateObjectOwnerGuid = summon->GetSummonerGUID() }))
-                        me->CastSpell(yak, Spells::OxCartRopeLeft);
+                    me->CastSpell(me, Spells::OxCartRopeLeft);
                     break;
-                }
                 case Events::YakCartPathStart:
                     me->GetMotionMaster()->MovePath(_data.PathId, false);
+                    break;
+                default:
                     break;
             }
         }
@@ -1703,7 +1656,6 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_aysa_cloudsinger_summon);
     RegisterCreatureAI(npc_aysa_cloudsinger_cave_of_meditation);
     RegisterCreatureAI(npc_master_li_fei_summon);
-    RegisterCreatureAI(npc_yak_cart);
 
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
@@ -1725,4 +1677,6 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_li_fei_combat);
     RegisterSpellScript(spell_feet_of_fury);
     RegisterSpellScript(spell_flying_shadow_kick);
+
+    RegisterCreatureAI(npc_delivery_cart);
 }

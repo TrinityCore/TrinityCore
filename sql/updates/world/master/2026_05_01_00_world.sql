@@ -17,7 +17,15 @@
 -- Yak & Cart at Singing Pools
 -- ========================================
 UPDATE `creature_template` SET `VehicleId` = 1944 WHERE `entry` = 57208;
-UPDATE `creature_template` SET `ScriptName` = 'npc_yak_cart' WHERE `Entry` IN (57208,57207);
+UPDATE `creature_template` SET `ScriptName` = 'npc_delivery_cart' WHERE `Entry`=57208;
+
+ -- Nourished Yak smart ai
+SET @ENTRY := 57207;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 1, 1400, 1400, 0, 0, 0, 53, 0, 5720700, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Time = 1.4 seconds - Self: Start path #5720700, walk, do not repeat, Passive', ''),
+(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, 0, 0, 0, 0, 41, 1000, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of any path ended - Self: Despawn in 1 s', '');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (57710);
 INSERT INTO `npc_spellclick_spells` VALUES
@@ -107,7 +115,15 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 -- Yak & Cart at Farmstead
 -- ========================================
 UPDATE `creature_template` SET `VehicleId` = 1944 WHERE `entry` = 59496;
-UPDATE `creature_template` SET `ScriptName` = 'npc_yak_cart' WHERE `Entry` IN (59498,59496);
+UPDATE `creature_template` SET `ScriptName` = 'npc_delivery_cart' WHERE `Entry`=59496;
+
+ -- Nourished Yak smart ai
+SET @ENTRY := 59498;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 1, 1400, 1400, 0, 0, 0, 53, 0, 5949800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Time = 1.4 seconds - Self: Start path #5949800, walk, do not repeat, Passive', ''),
+(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, 0, 0, 0, 0, 41, 1000, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of any path ended - Self: Despawn in 1 s', '');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (59497);
 INSERT INTO `npc_spellclick_spells` VALUES
@@ -199,8 +215,16 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 -- ========================================
 -- Yak & Cart at the Forbidden Forest - Wreck of the Skyseeker
 -- ========================================
-UPDATE `creature_template` SET `ScriptName` = 'npc_yak_cart' WHERE `entry` IN (57740, 57742);
 UPDATE `creature_template` SET `VehicleId` = 1944 WHERE `entry` = 57740;
+UPDATE `creature_template` SET `ScriptName` = 'npc_delivery_cart' WHERE `Entry`=57740;
+
+ -- Nourished Yak smart ai
+SET @ENTRY := 57742;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 1, 1400, 1400, 0, 0, 0, 53, 0, 5774200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Time = 1.4 seconds - Self: Start path #5774200, walk, do not repeat, Passive', ''),
+(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, 0, 0, 0, 0, 41, 1000, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of any path ended - Self: Despawn in 1 s', '');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (57741);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
