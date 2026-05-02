@@ -70,18 +70,21 @@ protected:
     friend class UnitTestDataLoader;
 };
 
-template<class T>
+template <class T> requires (std::is_standard_layout_v<T> && std::is_trivially_copyable_v<T>)
 class DB2Storage : public DB2StorageBase
 {
-    static_assert(std::is_standard_layout_v<T>, "T in DB2Storage must have standard layout.");
-
 public:
     using iterator = DBStorageIterator<T const*>;
 
     using DB2StorageBase::DB2StorageBase;
 
     T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : reinterpret_cast<T const*>(_indexTable[id]); }
-    T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+    T const* AssertEntry(uint32 id) const
+    {
+        T const* record = LookupEntry(id);
+        ASSERT(record != nullptr, "LookupEntry(%u)", id);
+        return record;
+    }
 
     iterator begin() const { return iterator(reinterpret_cast<T const* const*>(_indexTable), _indexTableSize, _minId); }
     iterator end() const { return iterator(reinterpret_cast<T const* const*>(_indexTable), _indexTableSize, _indexTableSize); }
