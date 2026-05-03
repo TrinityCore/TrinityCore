@@ -1,6 +1,5 @@
-SET @CGUID := 115000000;
-
-SET @NPCTEXTID := 610020;
+SET @CGUID := 11000831;
+SET @NPCTEXTID := 610032;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
@@ -11,7 +10,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 UPDATE `creature_template` SET `faction`=35, `npcflag`=16777216, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x4000800, `unit_flags3`=0x41000001 WHERE `entry`=241042; -- Mysterious Rootway
 
 -- Difficulty
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=3313, `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `StaticFlags5`=0x1, `VerifiedBuild`=67314 WHERE (`Entry`=241042 AND `DifficultyID`=0); -- 241042 (Mysterious Rootway) - Sessile, Floating - CannotTurn - UntargetableByClient
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=3313, `StaticFlags1`=0x0, `StaticFlags3`=0x2000000, `StaticFlags5`=0x1, `VerifiedBuild`=67314 WHERE (`Entry`=241042 AND `DifficultyID`=0); -- 241042 (Mysterious Rootway) - Sessile, Floating - CannotTurn - UntargetableByClient
 
 -- Conversation
 DELETE FROM `conversation_template` WHERE `Id` = 28444;

@@ -62,13 +62,19 @@ public:
     void OnCreate(Unit* creator) override
     {
         Creature* orweynaObject = creator->FindNearestCreatureWithOptions(30.0f, { .CreatureId = Creatures::OrweynaFairbreezeVillage, .IgnorePhases = true });
+        if (!orweynaObject)
+            return;
+
         Creature* halduronObject = creator->FindNearestCreatureWithOptions(30.0f, { .CreatureId = Creatures::HalduronFairbreezeVillage, .IgnorePhases = true });
-        if (!orweynaObject || !halduronObject)
+        if (!halduronObject)
             return;
 
         TempSummon* orweynaClone = orweynaObject->SummonPersonalClone(orweynaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!orweynaClone)
+            return;
+
         TempSummon* halduronClone = halduronObject->SummonPersonalClone(halduronObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!orweynaClone || !halduronClone)
+        if (!halduronClone)
             return;
 
         orweynaClone->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
