@@ -1055,7 +1055,8 @@ void DB2Manager::IndexLoadedStores()
         _journalTiersByIndex.push_back(journalTier);
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
-        _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
+        if (sMapStore.HasRecord(entry->MapID))
+            _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
 
     std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
     mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
@@ -1953,6 +1954,14 @@ float DB2Manager::GetCurveValueAt(CurveInterpolationMode mode, std::span<DBCPosi
     }
 
     return 0.0f;
+}
+
+std::string_view DB2Manager::GetDifficultyName(Difficulty difficulty)
+{
+    if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty))
+        return difficultyEntry->Name[sWorld->GetDefaultDbcLocale()];
+
+    return "None"sv;
 }
 
 EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const
