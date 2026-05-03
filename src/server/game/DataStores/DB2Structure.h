@@ -3021,6 +3021,7 @@ struct MapDifficultyEntry
     int32 WorldStateExpressionID;
     uint32 MapID;
 
+    Difficulty GetDifficultyID() const { return static_cast<Difficulty>(DifficultyID); }
     bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
     bool IsUsingEncounterLocks() const { return GetFlags().HasFlag(MapDifficultyFlags::UseLootBasedLockInsteadOfInstanceLock); }
     bool IsRestoringDungeonState() const { return GetFlags().HasFlag(MapDifficultyFlags::ResumeDungeonProgressBasedOnLockout); }

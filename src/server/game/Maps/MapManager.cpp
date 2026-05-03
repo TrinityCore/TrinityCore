@@ -103,7 +103,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {}map instance {} for {} created with difficulty {}",
-        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name[sWorld->GetDefaultDbcLocale()]);
+        instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, DB2Manager::GetDifficultyName(difficulty));
 
     InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team, instanceLock, lfgDungeonsId);
     ASSERT(map->IsDungeon());
