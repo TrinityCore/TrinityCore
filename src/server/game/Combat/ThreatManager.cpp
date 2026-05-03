@@ -366,6 +366,22 @@ void ThreatManager::EvaluateSuppressed(bool canExpire)
 
 void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
 {
+    if (!target || target == _owner)
+        return;
+
+    ObjectGuid const guid = target->GetGUID();
+
+    if (_cycleGuard.count(guid))
+        return;
+
+    _cycleGuard.insert(guid);
+    struct CycleGuardCleaner
+    {
+        std::unordered_set<ObjectGuid>& set;
+        ObjectGuid guid;
+        ~CycleGuardCleaner() { set.erase(guid); }
+    } guard{ _cycleGuard, guid };
+
     // step 1: we can shortcut if the spell has one of the NO_THREAT attrs set - nothing will happen
     if (spell)
     {
@@ -378,10 +394,10 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     // while riding a vehicle, all threat goes to the vehicle, not the pilot
     if (Unit* vehicle = target->GetVehicleBase())
     {
-        AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
-        if (target->HasUnitTypeMask(UNIT_MASK_ACCESSORY)) // accessories are fully treated as components of the parent and cannot have threat
-            return;
-        amount = 0.0f;
+        if (vehicle != target && vehicle != _owner)
+            AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
+
+        return;
     }
 
     // If victim is personal spawn, redirect all aggro to summoner
@@ -389,7 +405,9 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     {
         if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
-            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
+            if (privateObjectOwner != target && privateObjectOwner != _owner)
+                AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
+
             amount = 0.0f;
         }
     }
@@ -420,22 +438,31 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         {
             float const origAmount = amount;
             // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
-            for (size_t i = 0; i < redirInfo.size(); ++i)
+            for (auto const& pair : redirInfo)
             {
-                auto const pair = redirInfo[i]; // (victim,pct)
                 Unit* redirTarget = nullptr;
-                auto it = _myThreatListEntries.find(pair.first); // try to look it up in our threat list first (faster)
+
+                auto it = _myThreatListEntries.find(pair.first);
                 if (it != _myThreatListEntries.end())
                     redirTarget = it->second->_victim;
                 else
                     redirTarget = ObjectAccessor::GetUnit(*_owner, pair.first);
 
-                if (redirTarget)
-                {
-                    float amountRedirected = CalculatePct(origAmount, pair.second);
-                    AddThreat(redirTarget, amountRedirected, spell, true, true);
-                    amount -= amountRedirected;
-                }
+                if (!redirTarget)
+                    continue;
+                if (redirTarget == target)
+                    continue;
+                if (redirTarget == _owner)
+                    continue;
+                if (_cycleGuard.count(redirTarget->GetGUID()))
+                    continue;
+
+                float amountRedirected = CalculatePct(origAmount, pair.second);
+                if (amountRedirected <= 0.0f)
+                    continue;
+
+                AddThreat(redirTarget, amountRedirected, spell, true, true);
+                amount -= amountRedirected;
             }
         }
     }

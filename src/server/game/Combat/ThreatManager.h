@@ -196,6 +196,9 @@ class TC_GAME_API ThreatManager
         void SendThreatListToClients(bool newHighest) const;
 
         ///== MY THREAT LIST ==
+        // this is used to prevent infinite loops in various methods that can be called from both sides of the threat list 
+        // (for example, AddThreat can be called from both owner and vehicle perspective, and we don't want to end up in an infinite loop of them calling each other back and forth)
+        std::unordered_set<ObjectGuid> _cycleGuard;
         void PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref);
         void PurgeThreatListRef(ObjectGuid const& guid);
 
