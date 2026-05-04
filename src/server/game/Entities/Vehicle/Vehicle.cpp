@@ -411,7 +411,10 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     ASSERT(accessory);
 
     if (minion)
+    {
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
+        accessory->GetThreatManager().Initialize(); // reinitialize CanHaveThreatList cached value
+    }
 
     if (rideSpellId)
         _me->HandleSpellClick(accessory, seatId, *rideSpellId);
@@ -912,7 +915,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
     for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
-        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), threatRef->GetThreat(), nullptr, true, true);
+        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), 0.0f, nullptr, true, true);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
