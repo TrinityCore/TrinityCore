@@ -186,6 +186,10 @@ void ThreatReference::HeapNotifyDecreased()
             if (tWho->GetSummonerGUID().IsPlayer())
                 return false;
 
+    // accessories are fully treated as components of the parent and cannot have threat
+    if (cWho->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+        return false;
+
     return true;
 }
 
@@ -375,18 +379,12 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
     }
 
-    // while riding a vehicle, all threat goes to the vehicle, not the pilot
-    if (Unit* vehicle = target->GetVehicleBase())
-    {
-        AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
-        if (target->HasUnitTypeMask(UNIT_MASK_ACCESSORY)) // accessories are fully treated as components of the parent and cannot have threat
-            return;
-        amount = 0.0f;
-    }
-
     // If victim is personal spawn, redirect all aggro to summoner
     if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
     {
+        if (ignoreRedirects)
+            return;
+
         if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
             AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
