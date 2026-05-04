@@ -379,19 +379,6 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
     }
 
-    // If victim is personal spawn, redirect all aggro to summoner
-    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
-    {
-        if (ignoreRedirects)
-            return;
-
-        if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
-        {
-            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
-            amount = 0.0f;
-        }
-    }
-
     // if we cannot actually have a threat list, we instead just set combat state and avoid creating threat refs altogether
     if (!CanHaveThreatList())
     {
