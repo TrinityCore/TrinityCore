@@ -84,10 +84,9 @@ namespace WorldPackets
         char const* c_str() const { return _storage.c_str(); }
 
         operator std::string_view() const { return _storage; }
-        operator std::string&() { return _storage; }
-        operator std::string const&() const { return _storage; }
-
-        std::string&& Move() { return std::move(_storage); }
+        operator std::string&() & { return _storage; }
+        operator std::string const&() const & { return _storage; }
+        operator std::string&&() && { return std::move(_storage); }
 
         friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
         {

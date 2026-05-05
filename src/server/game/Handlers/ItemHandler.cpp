@@ -643,11 +643,17 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue;
             }
 
-            uint64 price = uint64(floor(itemTemplate->GetBuyPrice() * discountMod));
-            price = itemTemplate->GetBuyPrice() > 0 ? std::max(uint64(1), price) : price;
+            uint64 basePrice = itemTemplate->GetBuyPrice();
+            if (ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
+                basePrice = iece->Money;
+
+            uint64 price = uint64(floor(basePrice * discountMod));
 
             if (float priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
+
+            if (basePrice > 0)
+                price = std::max(uint64(1), price);
 
             item.MuID = slot + 1; // client expects counting to start at 1
             item.ExtendedCostID = vendorItem->ExtendedCost;

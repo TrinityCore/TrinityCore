@@ -1842,21 +1842,24 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE })
-            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_0 } });
+            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_2 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         WorldLocation const* dest = GetExplTargetDest();
-        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).CalcRadius(nullptr, SpellTargetIndex::TargetB);
-        float inRadius = 6.5f;
+        SpellEffectInfo const& spellEffectInfo = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_2);
+        SpellRange radius = {
+            .Min = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetA).Max,
+            .Max = spellEffectInfo.CalcRadius(nullptr, SpellTargetIndex::TargetB).Max
+        };
 
-        targets.remove_if([dest, outRadius, inRadius](WorldObject* target)
+        targets.remove_if([dest, radius](WorldObject* target)
         {
             Unit* unit = target->ToUnit();
             if (!unit)
                 return true;
-            return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || unit->GetExactDist(dest) > outRadius || unit->GetExactDist(dest) < inRadius;
+            return unit->HasAura(SPELL_MAGE_RING_OF_FROST_DUMMY) || unit->HasAura(SPELL_MAGE_RING_OF_FROST_FREEZE) || !unit->IsInRange3d(dest, radius.Min, radius.Max);
         });
     }
 

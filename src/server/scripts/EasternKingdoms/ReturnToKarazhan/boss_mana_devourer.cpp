@@ -211,10 +211,11 @@ class spell_mana_devourer_energy_discharge : public SpellScript
 
     void HandleCast()
     {
+        auto [minDist, maxDist] = GetSpellInfo()->GetMinMaxRange();
         for (uint8 i = 0; i < 40; ++i)
         {
             float randomAngle = frand(0.0f, 2.0f * float(M_PI));
-            float randomDist = frand(GetSpellInfo()->GetMinRange(), GetSpellInfo()->GetMaxRange());
+            float randomDist = minDist + (maxDist - minDist) * std::sqrt(rand_norm());
 
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();

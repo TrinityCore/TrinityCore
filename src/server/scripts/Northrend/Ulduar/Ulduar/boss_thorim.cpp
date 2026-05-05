@@ -1053,7 +1053,8 @@ struct npc_thorim_trashAI : public ScriptedAI
         if (_info->Type == MERCENARY_SOLDIER)
         {
             bool allowMove = true;
-            if (me->IsInRange(target, spellInfo->GetMinRange(), spellInfo->GetMaxRange()))
+            auto [minRange, maxRange] = spellInfo->GetMinMaxRange();
+            if (me->IsInRange(target, minRange, maxRange))
                 allowMove = false;
 
             if (IsCombatMovementAllowed() != allowMove)

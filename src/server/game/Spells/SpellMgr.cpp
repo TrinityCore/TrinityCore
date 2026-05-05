@@ -2322,7 +2322,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.questEndStatus      = fields[4].GetUInt32();
         spellArea.questEnd            = fields[5].GetUInt32();
         spellArea.auraSpell           = fields[6].GetInt32();
-        spellArea.raceMask.RawValue   = fields[7].GetUInt64();
+        spellArea.raceMask            = { fields[7].GetUInt64() };
         spellArea.gender              = Gender(fields[8].GetUInt8());
         spellArea.flags               = fields[9].GetUInt8();
 
@@ -5216,6 +5216,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Eradicate, Reap, Cull
+    ApplySpellFix({ 1225826, 1226019, 1245453 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->NegativeEffects[EFFECT_0] = true;
+    });
+
     // Collective Anguish channel hack (triggered by another channel)
     ApplySpellFix({ 391057, 393831 }, [](SpellInfo* spellInfo)
     {
@@ -5524,6 +5530,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 1265579, 1265580, 1265581, 1265582 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, 1265357, EFFECT_0, {}, {});
+    });
+
+    // Eradicate
+    ApplySpellFix({ 1225827, 1279200 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 1226033, EFFECT_0, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

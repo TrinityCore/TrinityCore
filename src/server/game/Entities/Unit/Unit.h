@@ -1158,7 +1158,11 @@ class TC_GAME_API Unit : public WorldObject
         bool SetFeatherFall(bool enable);
         bool SetHover(bool enable, bool updateAnimTier = true);
         bool SetCollision(bool disable);
+        bool SetStrafingDisabled(bool disable);
+        bool SetJumpingDisabled(bool disable);
         bool SetEnableFullSpeedTurning(bool enable);
+        bool SetEnableFullSpeedPitching(bool enable);
+        bool SetAlwaysAllowPitching(bool enable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);

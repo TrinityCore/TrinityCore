@@ -2253,7 +2253,7 @@ class spell_sha_molten_assault : public SpellScript
 
         float range = 10.0f;
         std::vector<WorldObject*> targets;
-        Trinity::WorldObjectSpellAreaTargetCheck check(range, lavaLashTarget, caster, caster, sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_FLAME_SHOCK, DIFFICULTY_NONE),
+        Trinity::WorldObjectSpellAreaTargetCheck check({ .Max = range }, lavaLashTarget, caster, caster, sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_FLAME_SHOCK, DIFFICULTY_NONE),
             TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT, Trinity::WorldObjectSpellAreaTargetSearchReason::Area);
         Trinity::WorldObjectListSearcher searcher(caster, targets, check, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER);
         Cell::VisitAllObjects(lavaLashTarget, searcher, range + EXTRA_CELL_SEARCH_RADIUS);
@@ -2423,7 +2423,7 @@ class spell_sha_primordial_wave : public SpellScript
     {
         Unit* shaman = GetCaster();
         std::vector<Unit*> targets;
-        FireNovaTargetCheck check{ .MaxSearchRange = GetSpell()->GetMinMaxRange(false).second, .Shaman = shaman };
+        FireNovaTargetCheck check{ .MaxSearchRange = GetSpell()->GetMinMaxRange(false).Max, .Shaman = shaman };
         Trinity::UnitListSearcher searcher(shaman, targets, check);
         Cell::VisitAllObjects(shaman, searcher, check.MaxSearchRange);
 

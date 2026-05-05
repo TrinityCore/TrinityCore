@@ -211,10 +211,7 @@ class spell_waycrest_manor_wildfire : public AuraScript
     {
         static constexpr Position CircleCenterPos = { -422.13f, -258.28f, 233.8286f, 0.0f };
 
-        Position randomPos = CircleCenterPos;
-        GetTarget()->MovePosition(randomPos, 30.0f * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
-
-        return randomPos;
+        return GetTarget()->GetRandomPoint(CircleCenterPos, 30.0f);
     }
 
     Position GetRandomPositionInRectangle()

@@ -1612,12 +1612,12 @@ class spell_dru_luxuriant_soil : public AuraScript
         Unit* rejuvCaster = GetTarget();
 
         // let's use the ProcSpell's max. range.
-        float spellRange = eventInfo.GetSpellInfo()->GetMaxRange();
+        SpellRange spellRange = eventInfo.GetSpellInfo()->GetMinMaxRange();
 
         std::vector<Unit*> targetList;
         Trinity::WorldObjectSpellAreaTargetCheck check(spellRange, rejuvCaster, rejuvCaster, rejuvCaster, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(rejuvCaster, targetList, check);
-        Cell::VisitAllObjects(rejuvCaster, searcher, spellRange);
+        Cell::VisitAllObjects(rejuvCaster, searcher, spellRange.Max);
 
         if (targetList.empty())
             return;
@@ -1910,7 +1910,7 @@ class spell_dru_power_of_the_archdruid : public AuraScript
         float spellRange = aurEff->GetAmount();
 
         std::vector<Unit*> targetList;
-        Trinity::WorldObjectSpellAreaTargetCheck checker(spellRange, procTarget, druid, druid, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck checker({ .Max = spellRange }, procTarget, druid, druid, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(procTarget, targetList, checker);
         Cell::VisitAllObjects(procTarget, searcher, spellRange);
         std::erase(targetList, procTarget);
@@ -2870,7 +2870,7 @@ class spell_dru_twin_moonfire : public SpellScript
         float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
 
         std::list<Unit*> targets;
-        Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck check({ .Max = maxRange }, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(hitUnit, targets, check);
         Cell::VisitAllObjects(hitUnit, searcher, maxRange);
 

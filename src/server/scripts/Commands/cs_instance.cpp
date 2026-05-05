@@ -79,7 +79,7 @@ public:
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO,
                 entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                uint32(entries.MapDifficulty->DifficultyID), DB2Manager::GetDifficultyName(entries.MapDifficulty->GetDifficultyID()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
@@ -117,7 +117,7 @@ public:
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING,
                 entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                uint32(entries.MapDifficulty->DifficultyID), DB2Manager::GetDifficultyName(entries.MapDifficulty->GetDifficultyID()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
@@ -132,7 +132,7 @@ public:
             std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
             handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_FAILED,
                 entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
+                uint32(entries.MapDifficulty->DifficultyID), DB2Manager::GetDifficultyName(entries.MapDifficulty->GetDifficultyID()),
                 instanceLock->GetInstanceId(),
                 handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
                 handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),

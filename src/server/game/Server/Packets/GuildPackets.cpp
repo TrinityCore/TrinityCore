@@ -531,7 +531,8 @@ ByteBuffer& operator<<(ByteBuffer& data, GuildRewardItem const& rewardItem)
     data << uint32(rewardItem.ItemID);
     data << uint32(rewardItem.AchievementLogic);
     data << Size<uint32>(rewardItem.AchievementsRequired);
-    data << uint64(rewardItem.RaceMask.RawValue);
+    for (int32 raceMask : rewardItem.RaceMask.RawValue)
+        data << int32(raceMask);
     data << int32(rewardItem.MinGuildLevel);
     data << int32(rewardItem.MinGuildRep);
     data << uint64(rewardItem.Cost);

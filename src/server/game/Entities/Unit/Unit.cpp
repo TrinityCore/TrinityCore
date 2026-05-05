@@ -13684,11 +13684,70 @@ bool Unit::SetCollision(bool disable)
     return true;
 }
 
-bool Unit::SetEnableFullSpeedTurning(bool enable)
+bool Unit::SetStrafingDisabled(bool disable)
 {
-    if (GetTypeId() != TYPEID_PLAYER)
+    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE))
         return false;
 
+    if (disable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+
+    static OpcodeServer const disableStrafingOpcodeTable[2] =
+    {
+        SMSG_MOVE_ENABLE_STRAFING,
+        SMSG_MOVE_DISABLE_STRAFING,
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableStrafingOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetJumpingDisabled(bool disable)
+{
+    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING))
+        return false;
+
+    if (disable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+
+    static OpcodeServer const disableJumpingOpcodeTable[2] =
+    {
+        SMSG_MOVE_ENABLE_JUMPING,
+        SMSG_MOVE_DISABLE_JUMPING,
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableJumpingOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetEnableFullSpeedTurning(bool enable)
+{
     if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING))
         return false;
 
@@ -13706,6 +13765,68 @@ bool Unit::SetEnableFullSpeedTurning(bool enable)
     if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(fullSpeedTurningOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetEnableFullSpeedPitching(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+
+    static constexpr OpcodeServer fullSpeedPitchingOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_FULL_SPEED_PITCHING,
+        SMSG_MOVE_ENABLE_FULL_SPEED_PITCHING
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(fullSpeedPitchingOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetAlwaysAllowPitching(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+
+    static constexpr OpcodeServer alwaysAllowPitchingOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_ALWAYS_ALLOW_PITCHING,
+        SMSG_MOVE_SET_ALWAYS_ALLOW_PITCHING
+    };
+
+    if (Player* playerMover = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(alwaysAllowPitchingOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());

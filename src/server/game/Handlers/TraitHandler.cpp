@@ -201,7 +201,7 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
 
 void WorldSession::HandleClassTalentsRenameConfig(WorldPackets::Traits::ClassTalentsRenameConfig& classTalentsRenameConfig)
 {
-    _player->RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name.Move());
+    _player->RenameTraitConfig(classTalentsRenameConfig.ConfigID, std::move(classTalentsRenameConfig.Name));
 }
 
 void WorldSession::HandleClassTalentsDeleteConfig(WorldPackets::Traits::ClassTalentsDeleteConfig const& classTalentsDeleteConfig)

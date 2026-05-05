@@ -316,6 +316,7 @@ namespace WorldPackets
             TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
             int32 Counter = 0;
+            uint64 InstanceID = 0u;                          // Required for damageMeterResetOnNewInstance cvar to function
         };
 
         class WorldPortResponse final : public ClientPacket
