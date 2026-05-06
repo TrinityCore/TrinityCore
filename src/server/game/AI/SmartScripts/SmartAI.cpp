@@ -46,7 +46,7 @@ bool SmartAI::IsAIControlled() const
     return !_charmed;
 }
 
-void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/,
+void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/, uint32 fadeObjectDuration /*= 0*/,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult/* = {}*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -73,7 +73,12 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, {}, {}, true, std::move(scriptResult));
+    Optional<MovementFadeObject> fadeObject;
+    if (fadeObjectDuration)
+        fadeObject.emplace(Milliseconds(fadeObjectDuration));
+
+    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default,
+        {}, {}, {}, {}, true, fadeObject, std::move(scriptResult));
 }
 
 WaypointPath const* SmartAI::LoadPath(uint32 entry)

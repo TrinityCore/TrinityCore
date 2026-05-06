@@ -169,9 +169,11 @@ class TC_GAME_API MotionMaster
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         /*
          *  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
@@ -216,11 +218,13 @@ class TC_GAME_API MotionMaster
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
         /**

@@ -33,7 +33,7 @@ class PointMovementGenerator : public MovementGenerator
         explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, Optional<float> speed = {}, Optional<float> finalOrient = {},
             Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<float> closeEnoughDistance = {},
+            Optional<float> closeEnoughDistance = {}, Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         PointMovementGenerator(PointMovementGenerator const&) = delete;
         PointMovementGenerator(PointMovementGenerator&&) = delete;
@@ -66,6 +66,7 @@ class PointMovementGenerator : public MovementGenerator
         std::unique_ptr<Movement::SpellEffectExtraData> i_spellEffectExtra;
         MovementWalkRunSpeedSelectionMode _speedSelectionMode;
         Optional<float> _closeEnoughDistance;
+        Optional<MovementFadeObject> _fadeObject;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator
