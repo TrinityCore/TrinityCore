@@ -31,9 +31,10 @@
 PointMovementGenerator::PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, Optional<float> speed /*= {}*/, Optional<float> finalOrient /*= {}*/,
     Unit const* faceTarget /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
-    Optional<float> closeEnoughDistance /*= {}*/, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
+    Optional<float> closeEnoughDistance /*= {}*/, Optional<MovementFadeObject> fadeObject /*= {}*/,
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : _movementId(id), _destination(x, y, z), _speed(speed), _generatePath(generatePath), _finalOrient(finalOrient),
-    i_faceTarget(faceTarget), _speedSelectionMode(speedSelectionMode), _closeEnoughDistance(closeEnoughDistance)
+    i_faceTarget(faceTarget), _speedSelectionMode(speedSelectionMode), _closeEnoughDistance(closeEnoughDistance), _fadeObject(fadeObject)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
@@ -104,6 +105,8 @@ void PointMovementGenerator::Initialize(Unit* owner)
         init.SetSpellEffectExtraData(*i_spellEffectExtra);
     if (_finalOrient)
         init.SetFacing(*_finalOrient);
+    if (_fadeObject)
+        init.SetFadeObject(_fadeObject->Duration.value_or(1s));
     switch (_speedSelectionMode)
     {
         case MovementWalkRunSpeedSelectionMode::Default:

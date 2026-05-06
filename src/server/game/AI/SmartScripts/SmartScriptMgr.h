@@ -888,7 +888,8 @@ struct SmartAction
             SAIBool repeat;
             uint32 quest;
             uint32 despawnTime;
-            // uint32 reactState; DO NOT REUSE
+            uint32 reactState_DEPRECATED_DO_NOT_REUSE;
+            uint32 FadeObjectDuration;
         } wpStart;
 
         struct
@@ -1028,6 +1029,7 @@ struct SmartAction
             SAIBool transport;
             SAIBool disablePathfinding;
             uint32 ContactDistance;
+            uint32 FadeObjectDuration;
         } moveToPos;
 
         struct
@@ -1098,6 +1100,7 @@ struct SmartAction
         struct
         {
             uint32 PointId;
+            uint32 FadeObjectDuration;
         } moveOffset;
 
         struct

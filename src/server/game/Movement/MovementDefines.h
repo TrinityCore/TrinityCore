@@ -19,6 +19,7 @@
 #define TRINITY_MOVEMENTDEFINES_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
@@ -159,6 +160,15 @@ struct JumpChargeParams
 };
 
 using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*, float>;
+
+struct MovementFadeObject
+{
+    constexpr MovementFadeObject() = default;
+    constexpr MovementFadeObject(Milliseconds duration) : Duration(duration) { }
+    constexpr MovementFadeObject(Optional<Milliseconds> duration) : Duration(duration) { }
+
+    Optional<Milliseconds> Duration;
+};
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }
 inline bool IsInvalidMovementSlot(uint8 const slot) { return slot >= MAX_MOTION_SLOT; }
