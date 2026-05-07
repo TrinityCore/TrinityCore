@@ -52,7 +52,9 @@ These control the version of Winsock used by G3D.
 
 #ifndef _MSC_VER
 /// Fast call is a register-based optimized calling convention supported only by Visual C++
+#ifndef __fastcall
 #define __fastcall
+#endif
 #endif
 
 /** \def G3D_WINDOWS*/
@@ -64,8 +66,10 @@ These control the version of Winsock used by G3D.
 #   define G3D_WINDOWS
 #elif defined(__MINGW32__)
     #define G3D_WINDOWS
-    #undef __MSVCRT_VERSION__
-    #define __MSVCRT_VERSION__ 0x0601
+    #if !defined(__MSVCRT_VERSION__) || __MSVCRT_VERSION__ < 0x0601
+        #undef __MSVCRT_VERSION__
+        #define __MSVCRT_VERSION__ 0x0601
+    #endif
     #include <windows.h>
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
