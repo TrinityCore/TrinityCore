@@ -38,6 +38,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -1400,9 +1401,10 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 
     if (moveStop)
     {
-        uint32 opcode;
-        recvPacket >> opcode;
-        recvPacket.SetOpcode(opcode);
-        HandleMovementOpcodes(recvPacket);
+        OpcodeClient opcode = static_cast<OpcodeClient>(recvPacket.read<uint32>());
+        MovementInfo movementInfo;
+        recvPacket >> movementInfo.guid.ReadAsPacked();
+        recvPacket >> movementInfo;
+        HandleMovementOpcode(opcode, movementInfo);
     }
 }

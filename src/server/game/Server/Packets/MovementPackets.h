@@ -19,12 +19,33 @@
 #define TRINITYCORE_MOVEMENT_PACKETS_H
 
 #include "Packet.h"
+#include "MovementInfo.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
 {
     namespace Movement
     {
+        class ClientPlayerMovement final : public ClientPacket
+        {
+        public:
+            explicit ClientPlayerMovement(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo Status;
+        };
+
+        class TC_GAME_API MoveUpdate final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdate(OpcodeServer opcode = MSG_MOVE_HEARTBEAT) : ServerPacket(opcode, 100) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
+
         class FlightSplineSync final : public ServerPacket
         {
         public:
@@ -37,5 +58,8 @@ namespace WorldPackets
         };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo);
+ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
 
 #endif // TRINITYCORE_MOVEMENT_PACKETS_H

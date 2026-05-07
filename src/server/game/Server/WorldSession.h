@@ -231,6 +231,11 @@ namespace WorldPackets
         class ResurrectResponse;
     }
 
+    namespace Movement
+    {
+        class ClientPlayerMovement;
+    }
+
     namespace NPC
     {
         class Hello;
@@ -772,7 +777,8 @@ class TC_GAME_API WorldSession
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
         void HandleMoveWorldportAck();                // for server-side calls
 
-        void HandleMovementOpcodes(WorldPacket& recvPacket);
+        void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
+        void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
         void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleDismissControlledVehicle(WorldPacket& recvData);

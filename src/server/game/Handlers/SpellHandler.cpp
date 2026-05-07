@@ -25,6 +25,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Item.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -56,8 +57,11 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
         recvPacket >> hasMovementData;
         if (hasMovementData)
         {
-            recvPacket.SetOpcode(recvPacket.read<uint32>());
-            HandleMovementOpcodes(recvPacket);
+            OpcodeClient opcode = static_cast<OpcodeClient>(recvPacket.read<uint32>());
+            MovementInfo movementInfo;
+            recvPacket >> movementInfo.guid.ReadAsPacked();
+            recvPacket >> movementInfo;
+            HandleMovementOpcode(opcode, movementInfo);
         }
     }
 }

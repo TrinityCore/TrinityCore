@@ -10345,13 +10345,6 @@ void Unit::ResumeMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
         movementGenerator->Resume(timer);
 }
 
-void Unit::SendMovementFlagUpdate(bool self /* = false */)
-{
-    WorldPacket data;
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, self);
-}
-
 bool Unit::IsSitState() const
 {
     uint8 s = GetStandState();
@@ -12843,13 +12836,6 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
     }
-}
-
-void Unit::BuildHeartBeatMsg(WorldPacket* data) const
-{
-    data->Initialize(MSG_MOVE_HEARTBEAT, 32);
-    *data << GetPackGUID();
-    BuildMovementPacket(data);
 }
 
 void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*= false*/)
