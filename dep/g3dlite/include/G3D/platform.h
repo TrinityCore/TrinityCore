@@ -366,29 +366,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 
 
 // Bring in shared_ptr and weak_ptr
-#if (defined(__GNUC__) && defined(__APPLE__)) || defined(__linux__)
-#include <ciso646> // Defines _LIBCC_VERSION if linking against libc++ or does nothing
-#endif
-#if (!defined(_LIBCPP_VERSION) && defined(__APPLE__)) || (!defined(_LIBCPP_VERSION) && defined(__linux__))
-#   include <tr1/memory>
-#else
-#   include <memory>
-#endif
+#include <memory>
 
 namespace G3D {
-#if (!defined(_LIBCPP_VERSION) && defined(__APPLE__)) || (!defined(_LIBCPP_VERSION) && defined(__linux__))
-    using std::tr1::shared_ptr;
-    using std::tr1::weak_ptr;
-    using std::tr1::dynamic_pointer_cast;
-    using std::tr1::static_pointer_cast;
-    using std::tr1::enable_shared_from_this;
-#else
     using std::shared_ptr;
     using std::weak_ptr;
     using std::dynamic_pointer_cast;
     using std::static_pointer_cast;
     using std::enable_shared_from_this;
-#endif
 
     /** Options for initG3D and initGLG3D. */
     class G3DSpecification {
