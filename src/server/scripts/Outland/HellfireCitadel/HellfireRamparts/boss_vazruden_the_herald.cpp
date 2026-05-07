@@ -371,11 +371,11 @@ struct boss_vazruden_the_herald : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_DRAGON_HOVER);
                     me->SetReactState(REACT_PASSIVE);
 
-                    std::unordered_set<uint32> AvailableFlyToSpells = { SPELL_FLY_NORTH, SPELL_FLY_WEST, SPELL_FLY_EAST };
+                    std::vector<uint32> availableFlyToSpells = { SPELL_FLY_NORTH, SPELL_FLY_WEST, SPELL_FLY_EAST };
 
-                    AvailableFlyToSpells.erase(_lastFlyToSpell);
+                    std::erase(availableFlyToSpells, _lastFlyToSpell);
 
-                    uint32 selectedSpell = Trinity::Containers::SelectRandomContainerElement(AvailableFlyToSpells);
+                    uint32 selectedSpell = Trinity::Containers::SelectRandomContainerElement(availableFlyToSpells);
 
                     _lastFlyToSpell = selectedSpell;
 

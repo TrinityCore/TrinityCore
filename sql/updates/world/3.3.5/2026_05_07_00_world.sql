@@ -62,22 +62,18 @@ UPDATE `gameobject_template_addon` SET `faction` = 14 WHERE `entry` = 182533;
 UPDATE `gameobject_template` SET `ScriptName` = 'go_vazruden_liquid_fire' WHERE `entry` IN (180125,181890,182533);
 
 -- Spawn groups
-UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID+0 WHERE `spawnId` = 202693 AND `spawnType` = 0;
-UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID+1 WHERE `spawnId` = 202705 AND `spawnType` = 0;
-UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID+2 WHERE `spawnId` = 202706 AND `spawnType` = 0;
+UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID WHERE `spawnId` = 202693 AND `spawnType` = 0;
+UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID WHERE `spawnId` = 202705 AND `spawnType` = 0;
+UPDATE `spawn_group` SET `groupId` = @SPAWN_GROUP_ID WHERE `spawnId` = 202706 AND `spawnType` = 0;
 
 DELETE FROM `spawn_group_template` WHERE `groupId` = 51;
-DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWN_GROUP_ID+0 AND @SPAWN_GROUP_ID+2;
+DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP_ID;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(@SPAWN_GROUP_ID+0,"Hellfire Ramparts - Vazruden the Herald",0),
-(@SPAWN_GROUP_ID+1,"Hellfire Ramparts - Hellfire Sentry 000",0),
-(@SPAWN_GROUP_ID+2,"Hellfire Ramparts - Hellfire Sentry 001",0);
+(@SPAWN_GROUP_ID+0,"Hellfire Ramparts - Vazruden the Herald",0);
 
 DELETE FROM `instance_spawn_groups` WHERE `instanceMapId` = 543 AND `bossStateId` = 3;
 DELETE FROM `instance_spawn_groups` WHERE `instanceMapId` = 543 AND `bossStateId` = 2 AND `spawnGroupId` = 51;
-DELETE FROM `instance_spawn_groups` WHERE `instanceMapId` = 543 AND `bossStateId` = 2 AND `spawnGroupId` BETWEEN @SPAWN_GROUP_ID+0 AND @SPAWN_GROUP_ID+2;
+DELETE FROM `instance_spawn_groups` WHERE `instanceMapId` = 543 AND `bossStateId` = 2 AND `spawnGroupId` = @SPAWN_GROUP_ID;
 
 INSERT INTO `instance_spawn_groups` (`instanceMapId`, `bossStateId`, `bossStates`, `spawnGroupId`, `flags`) VALUES
-(543,2,23,@SPAWN_GROUP_ID+0,1),
-(543,2,23,@SPAWN_GROUP_ID+1,1),
-(543,2,23,@SPAWN_GROUP_ID+2,1);
+(543,2,23,@SPAWN_GROUP_ID+0,1);

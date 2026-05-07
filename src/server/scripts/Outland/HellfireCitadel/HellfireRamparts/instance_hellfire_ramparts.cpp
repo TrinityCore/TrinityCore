@@ -105,8 +105,6 @@ class instance_ramparts : public InstanceMapScript
                 if (Events.ExecuteEvent() == EVENT_RESET_VAZRUDEN)
                 {
                     instance->SpawnGroupSpawn(SPAWN_GROUP_VAZRUDEN, true);
-                    instance->SpawnGroupSpawn(SPAWN_GROUP_HELLFIRE_SENTRY_1, true);
-                    instance->SpawnGroupSpawn(SPAWN_GROUP_HELLFIRE_SENTRY_2, true);
 
                     HellfireSentryDeadCount = 0;
 

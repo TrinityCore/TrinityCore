@@ -56,9 +56,7 @@ enum HRActionIds
 
 enum HRSpawnGroups
 {
-    SPAWN_GROUP_VAZRUDEN          = 357,
-    SPAWN_GROUP_HELLFIRE_SENTRY_1 = 358,
-    SPAWN_GROUP_HELLFIRE_SENTRY_2 = 359
+    SPAWN_GROUP_VAZRUDEN          = 357
 };
 
 enum HREventsIds
