@@ -1753,10 +1753,12 @@ void SpellMgr::LoadSpellProcs()
     count = 0;
     oldMSTime = getMSTime();
 
+    std::unordered_map<std::pair<uint32, Difficulty>, SpellProcEntry> generatedSpellProcMap;
+
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
         // Data already present in DB, overwrites default proc
-        if (mSpellProcMap.find({ spellInfo.Id, spellInfo.Difficulty }) != mSpellProcMap.end())
+        if (GetSpellProcEntry(&spellInfo) != nullptr)
             continue;
 
         // Nothing to do if no flags set
@@ -1899,9 +1901,11 @@ void SpellMgr::LoadSpellProcs()
             continue;
         }
 
-        mSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
+        generatedSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
         ++count;
     }
+
+    mSpellProcMap.merge(generatedSpellProcMap);
 
     TC_LOG_INFO("server.loading", ">> Generated spell proc data for {} spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
