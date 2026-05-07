@@ -184,8 +184,4 @@ namespace Movement
             data << (move_spline.isCyclic() ? G3D::Vector3::zero() : move_spline.FinalDestination());
         }
     }
-    void PacketBuilder::WriteSplineSync(MoveSpline const& move_spline, ByteBuffer& data)
-    {
-        data << (float)move_spline.timePassed() / move_spline.Duration();
-    }
 }

@@ -66,9 +66,9 @@ class TC_GAME_API ChatHandler
         void SendSysMessage(uint32 entry);
 
         template<typename... Args>
-        void PSendSysMessage(const char* fmt, Args&&... args)
+        void PSendSysMessage(char const* fmt, Args&&... args)
         {
-            SendSysMessage(fmt::sprintf(fmt, std::forward<Args>(args)...));
+            SendSysMessage(StringVPrintf(fmt, fmt::make_printf_args(args...)));
         }
 
         template<typename... Args>
@@ -78,10 +78,18 @@ class TC_GAME_API ChatHandler
         }
 
         template<typename... Args>
+        static std::string PGetParseString(std::string_view fmt, Args&&... args)
+        {
+            return StringVPrintf(fmt, fmt::make_printf_args(args...));
+        }
+
+        template<typename... Args>
         std::string PGetParseString(uint32 entry, Args&&... args) const
         {
-            return fmt::sprintf(GetTrinityString(entry), std::forward<Args>(args)...);
+            return PGetParseString(GetTrinityString(entry), std::forward<Args>(args)...);
         }
+
+        static std::string StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs);
 
         bool _ParseCommands(std::string_view text);
         virtual bool ParseCommands(std::string_view text);
