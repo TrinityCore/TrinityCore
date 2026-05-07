@@ -94,12 +94,12 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
         if (!player->HasSkill(pProto->RequiredSkill))
             return false;
 
-        for (_Spell const& itemEffect : pProto->Spells)
+        for (ItemEffect const& itemEffect : pProto->Effects)
         {
-            if (itemEffect.SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+            if (itemEffect.TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 continue;
 
-            if (player->HasSpell(itemEffect.SpellId))
+            if (player->HasSpell(itemEffect.SpellID))
                 return false;
         }
     }
@@ -107,12 +107,12 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
     // Don't allow to loot soulbound recipes that the player has already learned
     if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP)
     {
-        for (_Spell const& itemEffect : pProto->Spells)
+        for (ItemEffect const& itemEffect : pProto->Effects)
         {
-            if (itemEffect.SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+            if (itemEffect.TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 continue;
 
-            if (player->HasSpell(itemEffect.SpellId))
+            if (player->HasSpell(itemEffect.SpellID))
                 return false;
         }
     }

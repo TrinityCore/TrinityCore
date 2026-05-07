@@ -137,9 +137,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->IsInCombat())
     {
-        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (ItemEffect const& effectData : proto->Effects)
         {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[i].SpellId))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData.SpellID))
             {
                 if (!spellInfo->CanBeUsedInCombat())
                 {

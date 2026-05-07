@@ -3037,13 +3037,13 @@ void ObjectMgr::LoadItemTemplates()
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            itemTemplate.Spells[i].SpellId               = fields[66 + i*7  ].GetInt32();
-            itemTemplate.Spells[i].SpellTrigger          = uint32(fields[67 + i*7].GetUInt8());
-            itemTemplate.Spells[i].SpellCharges          = int32(fields[68 + i*7].GetInt16());
-            itemTemplate.Spells[i].SpellPPMRate          = fields[69 + i*7].GetFloat();
-            itemTemplate.Spells[i].SpellCooldown         = fields[70 + i*7].GetInt32();
-            itemTemplate.Spells[i].SpellCategory         = uint32(fields[71 + i*7].GetUInt16());
-            itemTemplate.Spells[i].SpellCategoryCooldown = fields[72 + i*7].GetInt32();
+            itemTemplate.Effects[i].SpellID              = fields[66 + i * 7].GetInt32();
+            itemTemplate.Effects[i].TriggerType          = uint32(fields[67 + i * 7].GetUInt8());
+            itemTemplate.Effects[i].Charges              = int32(fields[68 + i * 7].GetInt16());
+            itemTemplate.Effects[i].SpellPPMRate         = fields[69 + i * 7].GetFloat();
+            itemTemplate.Effects[i].CoolDownMSec         = fields[70 + i * 7].GetInt32();
+            itemTemplate.Effects[i].SpellCategoryID      = uint32(fields[71 + i * 7].GetUInt16());
+            itemTemplate.Effects[i].CategoryCoolDownMSec = fields[72 + i * 7].GetInt32();
         }
 
         itemTemplate.Bonding        = uint32(fields[101].GetUInt8());
@@ -3151,18 +3151,18 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.Quality = ITEM_QUALITY_NORMAL;
         }
 
-        if (itemTemplate.Flags2 & ITEM_FLAG2_FACTION_HORDE)
+        if (itemTemplate.HasFlag(ITEM_FLAG2_FACTION_HORDE))
         {
             if (FactionEntry const* faction = sFactionStore.LookupEntry(HORDE))
                 if ((itemTemplate.AllowableRace & faction->ReputationRaceMask[0]) == 0)
                     TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has value ({}) in `AllowableRace` races, not compatible with ITEM_FLAG2_FACTION_HORDE ({}) in Flags field, item cannot be equipped or used by these races.",
                         entry, itemTemplate.AllowableRace, ITEM_FLAG2_FACTION_HORDE);
 
-            if (itemTemplate.Flags2 & ITEM_FLAG2_FACTION_ALLIANCE)
+            if (itemTemplate.HasFlag(ITEM_FLAG2_FACTION_ALLIANCE))
                 TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has value ({}) in `Flags2` flags (ITEM_FLAG2_FACTION_ALLIANCE) and ITEM_FLAG2_FACTION_HORDE ({}) in Flags field, this is a wrong combination.",
                     entry, ITEM_FLAG2_FACTION_ALLIANCE, ITEM_FLAG2_FACTION_HORDE);
         }
-        else if (itemTemplate.Flags2 & ITEM_FLAG2_FACTION_ALLIANCE)
+        else if (itemTemplate.HasFlag(ITEM_FLAG2_FACTION_ALLIANCE))
         {
             if (FactionEntry const* faction = sFactionStore.LookupEntry(ALLIANCE))
                 if ((itemTemplate.AllowableRace & faction->ReputationRaceMask[0]) == 0)
@@ -3194,7 +3194,7 @@ void ObjectMgr::LoadItemTemplates()
             if (!req)
                 for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
                 {
-                    if (itemTemplate.Spells[j].SpellId > 0)
+                    if (itemTemplate.Effects[j].SpellID > 0)
                     {
                         req = true;
                         break;
@@ -3286,20 +3286,20 @@ void ObjectMgr::LoadItemTemplates()
 
         for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
         {
-            if (itemTemplate.Spells[j].SpellTrigger >= MAX_ITEM_SPELLTRIGGER)
+            if (itemTemplate.Effects[j].TriggerType >= MAX_ITEM_SPELLTRIGGER)
             {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong item spell trigger value in spelltrigger_{} ({})", entry, j+1, itemTemplate.Spells[j].SpellTrigger);
-                itemTemplate.Spells[j].SpellId = 0;
-                itemTemplate.Spells[j].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
+                TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong item spell trigger value in spelltrigger_{} ({})", entry, j+1, itemTemplate.Effects[j].TriggerType);
+                itemTemplate.Effects[j].SpellID = 0;
+                itemTemplate.Effects[j].TriggerType = ITEM_SPELLTRIGGER_ON_USE;
             }
 
-            if (itemTemplate.Spells[j].SpellId > 0)
+            if (itemTemplate.Effects[j].SpellID > 0)
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Spells[j].SpellId);
-                if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[j].SpellId, nullptr))
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Effects[j].SpellID);
+                if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Effects[j].SpellID, nullptr))
                 {
-                    TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong (not existing) spell in spellid_{} ({})", entry, j+1, itemTemplate.Spells[j].SpellId);
-                    itemTemplate.Spells[j].SpellId = 0;
+                    TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong (not existing) spell in spellid_{} ({})", entry, j+1, itemTemplate.Effects[j].SpellID);
+                    itemTemplate.Effects[j].SpellID = 0;
                 }
             }
         }

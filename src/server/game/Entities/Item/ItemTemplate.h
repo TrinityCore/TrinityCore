@@ -574,15 +574,16 @@ struct _ItemStat
     uint32  ItemStatType = 0;
     int32   ItemStatValue = 0;
 };
-struct _Spell
+
+struct ItemEffect
 {
-    int32 SpellId = 0;                                      // id from Spell.dbc
-    uint32 SpellTrigger = 0;
-    int32  SpellCharges = 0;
+    int32  SpellID = 0;                                     // id from Spell.dbc
+    uint32 TriggerType = 0;
+    int32  Charges = 0;
     float  SpellPPMRate = 0.0f;
-    int32  SpellCooldown = -1;
-    uint32 SpellCategory = 0;                               // id from SpellCategory.dbc
-    int32  SpellCategoryCooldown = -1;
+    int32  CoolDownMSec = -1;
+    uint32 SpellCategoryID = 0;                             // id from SpellCategory.dbc
+    int32  CategoryCoolDownMSec = -1;
 };
 
 struct _Socket
@@ -644,7 +645,7 @@ struct TC_GAME_API ItemTemplate
     uint32 Delay;
     uint32 AmmoType;
     float  RangedModRange;
-    std::array<_Spell, MAX_ITEM_PROTO_SPELLS> Spells;
+    std::array<ItemEffect, MAX_ITEM_PROTO_SPELLS> Effects;
     uint32 Bonding;
     std::string  Description;
     uint32 PageText;

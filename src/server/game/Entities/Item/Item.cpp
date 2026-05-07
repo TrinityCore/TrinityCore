@@ -286,7 +286,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        SetSpellCharges(i, itemProto->Spells[i].SpellCharges);
+        SetSpellCharges(i, itemProto->Effects[i].Charges);
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -454,7 +454,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
             if (Optional<int32> charges = Trinity::StringTo<int32>(tokens[i]))
                 SetSpellCharges(i, *charges);
             else
-                TC_LOG_ERROR("entities.item", "Invalid charge info '{}' for item {}, charge data not loaded.", std::string(tokens[i]), GetGUID().ToString());
+                TC_LOG_ERROR("entities.item", "Invalid charge info '{}' for item {}, charge data not loaded.", tokens[i], GetGUID());
         }
     }
 

@@ -639,13 +639,13 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
     {
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
-            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+            for (ItemEffect const& itemEffect : proto->Effects)
             {
-                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
+                if (uint32(itemEffect.SpellID) == spellInfo->Id)
                 {
-                    tmpCooldown = proto->Spells[idx].SpellCooldown;
-                    tmpCategoryId = proto->Spells[idx].SpellCategory;
-                    tmpCategoryCooldown = proto->Spells[idx].SpellCategoryCooldown;
+                    tmpCooldown = itemEffect.CoolDownMSec;
+                    tmpCategoryId = itemEffect.SpellCategoryID;
+                    tmpCategoryCooldown = itemEffect.CategoryCoolDownMSec;
                     break;
                 }
             }

@@ -147,9 +147,9 @@ void ItemTemplate::_LoadTotalAP()
             totalAP += ItemStat[i].ItemStatValue;
 
     // some items can have equip spells with +AP
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        if (Spells[i].SpellId > 0 && Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spells[i].SpellId))
+    for (ItemEffect const& itemEffect : Effects)
+        if (itemEffect.SpellID > 0 && itemEffect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP)
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemEffect.SpellID))
                 for (SpellEffectInfo const& effect : spellInfo->GetEffects())
                     if (effect.IsAura(SPELL_AURA_MOD_ATTACK_POWER))
                         totalAP += effect.CalcValue();
@@ -235,12 +235,12 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
 
     for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
     {
-        response.Stats.Spells[s].SpellId = Spells[s].SpellId;
-        response.Stats.Spells[s].SpellTrigger = Spells[s].SpellTrigger;
-        response.Stats.Spells[s].SpellCharges = Spells[s].SpellCharges;
-        response.Stats.Spells[s].SpellCooldown = Spells[s].SpellCooldown;
-        response.Stats.Spells[s].SpellCategory = Spells[s].SpellCategory;
-        response.Stats.Spells[s].SpellCategoryCooldown = Spells[s].SpellCategoryCooldown;
+        response.Stats.Spells[s].SpellId = Effects[s].SpellID;
+        response.Stats.Spells[s].SpellTrigger = Effects[s].TriggerType;
+        response.Stats.Spells[s].SpellCharges = Effects[s].Charges;
+        response.Stats.Spells[s].SpellCooldown = Effects[s].CoolDownMSec;
+        response.Stats.Spells[s].SpellCategory = Effects[s].SpellCategoryID;
+        response.Stats.Spells[s].SpellCategoryCooldown = Effects[s].CategoryCoolDownMSec;
     }
 
     response.Stats.Bonding = Bonding;
