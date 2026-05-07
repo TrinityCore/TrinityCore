@@ -2712,34 +2712,23 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
 void Player::SendInitialSpells()
 {
-    uint16 spellCooldowns = GetSpellHistory()->GetCooldownsSizeForPacket();
-    uint16 spellCount = 0;
+    WorldPackets::Spells::InitialSpells initialSpells;
+    initialSpells.InitialLogin = IsLoading();
 
-    WorldPacket data(SMSG_INITIAL_SPELLS, (1 + 2 + 4 * m_spells.size() + 2 + spellCooldowns * (2 + 2 + 2 + 4 + 4)));
-    data << uint8(0);
-
-    size_t countPos = data.wpos();
-    data << uint16(spellCount);                             // spell count placeholder
-
-    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    for (PlayerSpellMap::value_type const& spell : m_spells)
     {
-        if (itr->second.state == PLAYERSPELL_REMOVED)
+        if (spell.second.state == PLAYERSPELL_REMOVED)
             continue;
 
-        if (!itr->second.active || itr->second.disabled)
+        if (!spell.second.active || spell.second.disabled)
             continue;
 
-        data << uint32(itr->first);
-        data << uint16(0);                                  // it's not slot id
-
-        ++spellCount;
+        initialSpells.Spells.push_back({ .SpellID = spell.first, .ActionBarSlot = 0 });
     }
 
-    data.put<uint16>(countPos, spellCount);                  // write real count value
+    GetSpellHistory()->WritePacket(&initialSpells);
 
-    GetSpellHistory()->WritePacket<Player>(data);
-
-    SendDirectMessage(&data);
+    SendDirectMessage(initialSpells.Write());
 }
 
 void Player::SendUnlearnSpells()

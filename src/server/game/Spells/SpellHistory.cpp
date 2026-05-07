@@ -25,6 +25,7 @@
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "WorldPacket.h"
 
 SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH));
@@ -236,47 +237,34 @@ void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
     }
 }
 
-template<>
-void SpellHistory::WritePacket<Player>(WorldPacket& packet) const
+void SpellHistory::WritePacket(WorldPackets::Spells::InitialSpells* initialSpells) const
 {
     Clock::time_point now = GameTime::GetSystemTime();
-    Clock::time_point infTime = now + InfinityCooldownDelayCheck;
-
-    packet << uint16(_spellCooldowns.size());
 
     for (auto const& spellCooldown : _spellCooldowns)
     {
-        packet << uint32(spellCooldown.first);
-        packet << uint16(spellCooldown.second.ItemId);        // cast item id
-        packet << uint16(spellCooldown.second.CategoryId);    // spell category
+        WorldPackets::Spells::SpellHistoryEntry historyEntry;
+        historyEntry.SpellID = spellCooldown.first;
+        historyEntry.ItemID = spellCooldown.second.ItemId;
+        historyEntry.Category = spellCooldown.second.CategoryId;
 
-        // send infinity cooldown in special format
-        if (spellCooldown.second.CooldownEnd >= infTime)
-        {
-            packet << uint32(1);                              // cooldown
-            packet << uint32(0x80000000);                     // category cooldown
-            continue;
-        }
-
-        std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CooldownEnd - now);
-        if (cooldownDuration.count() <= 0)
-        {
-            packet << uint32(0);
-            packet << uint32(0);
-            continue;
-        }
-
-        std::chrono::milliseconds categoryDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CategoryEnd - now);
-        if (categoryDuration.count() >= 0)
-        {
-            packet << uint32(0);                              // cooldown
-            packet << uint32(categoryDuration.count());       // category cooldown
-        }
+        if (spellCooldown.second.OnHold)
+            historyEntry.OnHold = true;
         else
         {
-            packet << uint32(cooldownDuration.count());       // cooldown
-            packet << uint32(0);                              // category cooldown
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(spellCooldown.second.CooldownEnd - now);
+            if (cooldownDuration <= 0ms)
+                continue;
+
+            Milliseconds categoryDuration = duration_cast<Milliseconds>(spellCooldown.second.CategoryEnd - now);
+            if (categoryDuration >= 0ms)
+                historyEntry.CategoryRecoveryTime = categoryDuration.count();
+
+            if (cooldownDuration > categoryDuration)
+                historyEntry.RecoveryTime = cooldownDuration.count();
         }
+
+        initialSpells->SpellHistory.push_back(historyEntry);
     }
 }
 

@@ -83,6 +83,34 @@ namespace WorldPackets
             uint32 SpellID = 0;
         };
 
+        struct InitialSpell
+        {
+            uint32 SpellID = 0;
+            uint16 ActionBarSlot = 0; // unused on client
+        };
+
+        struct SpellHistoryEntry
+        {
+            uint32 SpellID = 0;
+            uint16 ItemID = 0;
+            uint16 Category = 0;
+            int32 RecoveryTime = 0;
+            int32 CategoryRecoveryTime = 0;
+            bool OnHold = false;
+        };
+
+        class InitialSpells final : public ServerPacket
+        {
+        public:
+            explicit InitialSpells() : ServerPacket(SMSG_INITIAL_SPELLS, 1 + 2 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            bool InitialLogin = false;
+            std::vector<InitialSpell> Spells;
+            std::vector<SpellHistoryEntry> SpellHistory;
+        };
+
         struct TargetLocation
         {
             ObjectGuid Transport;
