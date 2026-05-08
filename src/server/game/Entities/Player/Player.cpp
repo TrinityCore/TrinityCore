@@ -17451,6 +17451,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     {
         TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player {} ({}) has invalid SpecCount = {} and/or invalid ActiveSpec = {}.",
             GetName(), GetGUID().ToString(), uint32(GetTalentGroupsCount()), uint32(GetActiveTalentGroup()));
+        SetTalentGroupsCount(std::min(GetTalentGroupsCount(), uint8(MAX_TALENT_GROUPS)));
         SetActiveTalentGroup(0);
     }
 
@@ -25259,57 +25260,49 @@ void Player::BuildPlayerTalentsInfoData(WorldPackets::Talent::TalentInfoUpdate& 
     talentInfo.TalentGroups.resize(GetTalentGroupsCount());        // talent group count (0, 1 or 2)
     talentInfo.ActiveGroup = GetActiveTalentGroup();               // talent group index (0 or 1)
 
-    uint8 groupsCount = GetTalentGroupsCount();
-
-    for (uint8 i = 0; i < groupsCount; ++i)
+    // loop through all specs (only 1 for now)
+    for (uint32 specIdx = 0; specIdx < GetTalentGroupsCount(); ++specIdx)
     {
-        if (GetTalentGroupsCount() > MAX_TALENT_GROUPS)
-            SetTalentGroupsCount(MAX_TALENT_GROUPS);
+        WorldPackets::Talent::TalentGroupInfo& talentGroupInfo = talentInfo.TalentGroups[specIdx];
 
-        // loop through all specs (only 1 for now)
-        for (uint32 specIdx = 0; specIdx < GetTalentGroupsCount(); ++specIdx)
+        // find class talent tabs (all players have 3 talent tabs)
+        uint32 const* talentTabIds = GetTalentTabPages(GetClass());
+
+        for (uint8 i = 0; i < MAX_TALENT_TABS; ++i)
         {
-            WorldPackets::Talent::TalentGroupInfo& talentGroupInfo = talentInfo.TalentGroups[specIdx];
+            uint32 talentTabId = talentTabIds[i];
 
-            // find class talent tabs (all players have 3 talent tabs)
-            uint32 const* talentTabIds = GetTalentTabPages(GetClass());
-
-            for (uint8 i = 0; i < MAX_TALENT_TABS; ++i)
+            for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
             {
-                uint32 talentTabId = talentTabIds[i];
+                TalentEntry const* talent = sTalentStore.LookupEntry(talentId);
+                if (!talent)
+                    continue;
 
-                for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+                // skip another tab talents
+                if (talent->TabID != talentTabId)
+                    continue;
+
+                // find max talent rank (0~4)
+                int8 curtalent_maxrank = -1;
+                for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
                 {
-                    TalentEntry const* talent = sTalentStore.LookupEntry(talentId);
-                    if (!talent)
-                        continue;
-
-                    // skip another tab talents
-                    if (talent->TabID != talentTabId)
-                        continue;
-
-                    // find max talent rank (0~4)
-                    int8 curtalent_maxrank = -1;
-                    for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
+                    if (talent->SpellRank[rank] && HasTalent(talent->SpellRank[rank], specIdx))
                     {
-                        if (talent->SpellRank[rank] && HasTalent(talent->SpellRank[rank], specIdx))
-                        {
-                            curtalent_maxrank = rank;
-                            break;
-                        }
+                        curtalent_maxrank = rank;
+                        break;
                     }
-
-                    // not learned talent
-                    if (curtalent_maxrank < 0)
-                        continue;
-
-                    talentGroupInfo.Talents.push_back({ .TalentID = talent->ID, .Rank = curtalent_maxrank });
                 }
-            }
 
-            for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-                talentGroupInfo.GlyphIDs[i] = GetGlyph(specIdx, i);  // GlyphProperties.dbc
+                // not learned talent
+                if (curtalent_maxrank < 0)
+                    continue;
+
+                talentGroupInfo.Talents.push_back({ .TalentID = talent->ID, .Rank = curtalent_maxrank });
+            }
         }
+
+        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
+            talentGroupInfo.GlyphIDs[i] = GetGlyph(specIdx, i);  // GlyphProperties.dbc
     }
 }
 
