@@ -79,6 +79,7 @@ namespace Movement
         float velocity;
         float parabolic_amplitude;
         int32 effect_start_point;
+        int32 fade_object_duration_ms;
         uint32 splineId;
         float initialOrientation;
         Optional<SpellEffectExtraData> spellEffectExtra;

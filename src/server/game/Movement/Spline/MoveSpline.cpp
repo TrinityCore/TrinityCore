@@ -213,7 +213,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     spell_effect_extra = args.spellEffectExtra;
     turn = args.turnData;
     anim_tier = args.animTier;
-    splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
+    splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).squaredLength() < 0.01f);
 
     velocity = args.velocity;
 
@@ -228,7 +228,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags.HasFlag(MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::FadeObject) || args.animTier)
+    if (args.flags.Parabolic || args.animTier)
     {
         int32 spline_duration = Duration();
         effect_start_time = spline.length(spline.first() + args.effect_start_point);
@@ -244,6 +244,8 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
             }
         }
     }
+    else if (args.flags.FadeObject)
+        effect_start_time = std::max(Duration() - args.fade_object_duration_ms, 0);
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
@@ -310,7 +312,7 @@ bool MoveSplineInitArgs::_checkPathLengths()
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs() : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), effect_start_point(0),
+parabolic_amplitude(0.f), effect_start_point(0), fade_object_duration_ms(0),
 splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {
