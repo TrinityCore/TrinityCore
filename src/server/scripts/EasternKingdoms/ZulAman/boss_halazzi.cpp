@@ -22,6 +22,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
