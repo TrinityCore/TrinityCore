@@ -1369,6 +1369,9 @@ class TC_GAME_API WorldSession
         void HandleMoveWorldportAck();                // for server-side calls
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
+        // Validates that correct unit is moved, coords are in valid range and movement flags
+        bool ValidateMovementInfo(MovementInfo* mi) const;
+
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
         void HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet);
