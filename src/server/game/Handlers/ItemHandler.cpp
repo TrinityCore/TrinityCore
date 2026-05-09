@@ -440,6 +440,16 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
             if (pProto->SellPrice > 0)
             {
                 uint32 money = pProto->SellPrice * count;
+                uint32 durabilityPenalty = pItem->CalculateDurabilitySellPenalty();
+
+                if (durabilityPenalty)
+                {
+                    if (durabilityPenalty > money)
+                        money = 1;
+                    else
+                        money -= durabilityPenalty;
+                }
+
                 if (_player->GetMoney() >= MAX_MONEY_AMOUNT - money)               // prevent exceeding gold limit
                 {
                     _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
