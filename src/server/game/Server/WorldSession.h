@@ -1375,7 +1375,7 @@ class TC_GAME_API WorldSession
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         // Validates that correct unit is moved, coords are in valid range and movement flags
-        bool ValidateMovementInfo(MovementInfo* mi) const;
+        bool ValidateMovementInfo(Unit const* mover, MovementInfo* mi) const;
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
@@ -1980,6 +1980,9 @@ class TC_GAME_API WorldSession
         {
             return _legitCharacters.find(lowGUID) != _legitCharacters.end();
         }
+
+        // Movement helpers
+        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, bool forStatusAck) const;
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
