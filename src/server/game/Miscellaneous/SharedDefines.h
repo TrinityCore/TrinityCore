@@ -5607,7 +5607,7 @@ enum QuestInfo
     QUEST_INFO_PREY_WORLD_QUEST                     = 295
 };
 
-// QuestSort.dbc (11.2.5.62687)
+// QuestSort.db2 (12.0.5.67186)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
@@ -5791,8 +5791,19 @@ enum QuestSort
     QUEST_SORT_META_QUESTS                      = 645,
     QUEST_SORT_SECRETS_OF_AZEROTH               = 646,
     QUEST_SORT_LOREWALKING                      = 647,
+    QUEST_SORT_MIDNIGHT                         = 649,
+    QUEST_SORT_ABUNDANCE                        = 650,
     QUEST_SORT_DASTARDLY_DUOS                   = 651,
     QUEST_SORT_DELVES                           = 652,
+    QUEST_SORT_ARATORS_JOURNEY                  = 653,
+    QUEST_SORT_NEIGHBORHOOD                     = 655,
+    QUEST_SORT_PREY                             = 656,
+    QUEST_SORT_CATCH_UP                         = 657,
+    QUEST_SORT_SIEGE_OF_ARATHI_HIGHLANDS        = 658,
+    QUEST_SORT_DEPTH_DIVERS                     = 659,
+    QUEST_SORT_CLOAK_AND_CAPTURE                = 661,
+    QUEST_SORT_HARANIR                          = 664,
+    QUEST_SORT_DECOR_DUEL                       = 665,
 };
 
 constexpr uint8 ClassByQuestSort(int32 QuestSort)
