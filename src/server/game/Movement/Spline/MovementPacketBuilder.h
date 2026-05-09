@@ -19,22 +19,21 @@
 #define TRINITYSERVER_PACKET_BUILDER_H
 
 #include "Define.h"
+#include "G3D/Vector3.h"
+#include "MovementPackets.h"
+using G3D::Vector3;
 
 class ByteBuffer;
-namespace G3D
-{
-    class Vector3;
-}
+class WorldPacket;
 
 namespace Movement
 {
     class MoveSpline;
     class PacketBuilder
     {
-        static void WriteCommonMonsterMovePart(MoveSpline const& mov, ByteBuffer& data);
     public:
 
-        static void WriteMonsterMove(MoveSpline const& mov, ByteBuffer& data);
+        static void WriteMonsterMove(MoveSpline const& mov, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline);
         static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
         static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);

@@ -16,7 +16,24 @@
  */
 
 #include "MovementPackets.h"
+#include "MovementPacketBuilder.h"
+#include "MoveSpline.h"
+#include "MoveSplineFlag.h"
+#include "MovementTypedefs.h"
+#include "Position.h"
 #include "UnitDefines.h"
+
+ByteBuffer& operator << (ByteBuffer& data, const G3D::Vector3& v)
+{
+    data << v.x << v.y << v.z;
+    return data;
+}
+
+ByteBuffer& operator >> (ByteBuffer& data, G3D::Vector3& v)
+{
+    data >> v.x >> v.y >> v.z;
+    return data;
+}
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 {
@@ -92,12 +109,93 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline)
+{
+    data << uint8(movementSpline.Face);
+    switch (movementSpline.Face)
+    {
+        case MONSTER_MOVE_FACING_SPOT:
+            data << movementSpline.FaceSpot;
+            break;
+        case MONSTER_MOVE_FACING_TARGET:
+            data << movementSpline.FaceGUID;
+            break;
+        case MONSTER_MOVE_FACING_ANGLE:
+            data << float(movementSpline.FaceDirection);
+            break;
+        default:
+            break;
+    }
+
+    data << uint32(movementSpline.Flags);
+
+    if (movementSpline.Flags & ::Movement::MoveSplineFlag::Animation)
+    {
+        data << uint8(movementSpline.AnimTier);
+        data << uint32(movementSpline.TierTransStartTime);
+    }
+
+    data << uint32(movementSpline.MoveTime);
+
+    if (movementSpline.Flags & ::Movement::MoveSplineFlag::Parabolic)
+    {
+        data << float(movementSpline.JumpGravity);
+        data << uint32(movementSpline.SpecialTime);
+    }
+
+    if (movementSpline.Flags & ::Movement::MoveSplineFlag::Mask_CatmullRom)
+    {
+        data << uint32(movementSpline.Points.size());
+        for (G3D::Vector3 const& point : movementSpline.Points)
+            data << point;
+    }
+    else
+    {
+        // Linear path: Points[0] = destination, PackedDeltas = intermediate offsets
+        uint32 lastIdx = uint32(movementSpline.PackedDeltas.size()) + 1;
+        data << uint32(lastIdx);
+        if (!movementSpline.Points.empty())
+            data << movementSpline.Points.front();
+        for (G3D::Vector3 const& offset : movementSpline.PackedDeltas)
+            data << TaggedPosition<Position::PackedXYZ>(offset.x, offset.y, offset.z);
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline)
+{
+    if (!movementMonsterSpline.TransportGUID.IsEmpty())
+    {
+        data << movementMonsterSpline.TransportGUID.WriteAsPacked();
+        data << int8(movementMonsterSpline.VehicleSeat);
+    }
+
+    data << uint8(0);                                       // sets/unsets MOVEMENTFLAG2_UNK7 (0x40)
+    data << movementMonsterSpline.Destination;
+    data << uint32(movementMonsterSpline.ID);
+    data << movementMonsterSpline.Move;
+    return data;
+}
+
 namespace WorldPackets::Movement
 {
 void ClientPlayerMovement::Read()
 {
     _worldPacket >> Status.guid.ReadAsPacked();
     _worldPacket >> Status;
+}
+
+WorldPacket const* MonsterMove::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+
+    if (!SplineData.TransportGUID.IsEmpty())
+        _worldPacket.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
+
+    _worldPacket << SplineData;
+
+    return &_worldPacket;
 }
 
 WorldPacket const* MoveUpdate::Write()

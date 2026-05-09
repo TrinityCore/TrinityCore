@@ -18,6 +18,7 @@
 #include "MoveSplineInit.h"
 #include "Creature.h"
 #include "MoveSpline.h"
+#include "MovementPackets.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
 #include "PathGenerator.h"
@@ -128,17 +129,15 @@ namespace Movement
         unit->m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        data << unit->GetPackGUID();
+        WorldPackets::Movement::MonsterMove packet;
+        packet.MoverGUID = unit->GetGUID();
         if (transport)
         {
-            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data << unit->GetTransGUID().WriteAsPacked();
-            data << int8(unit->GetTransSeat());
+            packet.SplineData.TransportGUID = unit->GetTransGUID();
+            packet.SplineData.VehicleSeat = unit->GetTransSeat();
         }
-
-        PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit->SendMessageToSet(&data, true);
+        PacketBuilder::WriteMonsterMove(move_spline, packet.SplineData);
+        unit->SendMessageToSet(packet.Write(), true);
 
         return move_spline.Duration();
     }

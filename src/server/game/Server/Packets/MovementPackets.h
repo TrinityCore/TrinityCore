@@ -20,7 +20,9 @@
 
 #include "Packet.h"
 #include "MovementInfo.h"
+#include "MoveSpline.h"
 #include "ObjectGuid.h"
+#include <G3D/Vector3.h>
 
 namespace WorldPackets
 {
@@ -34,6 +36,42 @@ namespace WorldPackets
             void Read() override;
 
             MovementInfo Status;
+        };
+
+        struct MovementSpline
+        {
+            uint32 Flags                = 0;        // Spline flags (see MoveSplineFlag)
+            uint8 Face                  = 0;        // Movement direction (see MonsterMoveType)
+            uint8 AnimTier              = 0;
+            uint32 TierTransStartTime   = 0;
+            uint32 MoveTime             = 0;
+            float JumpGravity           = 0.0f;
+            uint32 SpecialTime          = 0;
+            std::vector<G3D::Vector3> Points;       // Spline path (CatmullRom) or single destination point (Linear)
+            std::vector<G3D::Vector3> PackedDeltas; // Linear path offsets (encoded as PackedXYZ on the wire)
+            float FaceDirection         = 0.0f;
+            ObjectGuid FaceGUID;
+            G3D::Vector3 FaceSpot;
+        };
+
+        struct MovementMonsterSpline
+        {
+            uint32 ID = 0;
+            ObjectGuid TransportGUID;
+            int8 VehicleSeat = -1;
+            G3D::Vector3 Destination;
+            MovementSpline Move;
+        };
+
+        class MonsterMove final : public ServerPacket
+        {
+        public:
+            MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            MovementMonsterSpline SplineData;
         };
 
         class TC_GAME_API MoveUpdate final : public ServerPacket
@@ -59,7 +97,11 @@ namespace WorldPackets
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, const G3D::Vector3& v);
+ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo);
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline);
 
 #endif // TRINITYCORE_MOVEMENT_PACKETS_H
