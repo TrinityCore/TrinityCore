@@ -551,7 +551,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //479
     &AuraEffect::HandleNULL,                                      //480 SPELL_AURA_MOD_ARTIFACT_ITEM_LEVEL
     &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
-    &AuraEffect::HandleNULL,                                      //482
+    &AuraEffect::HandleSelfieCamera,                              //482 SPELL_AURA_SELFIE_CAMERA
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
     &AuraEffect::HandleNoImmediateEffect,                         //484 SPELL_AURA_ALLOW_INTERRUPT_SPELL implemented in SpellInfo::CanBeInterrupted
     &AuraEffect::HandleModMovementForceMagnitude,                 //485 SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE
@@ -3482,6 +3482,28 @@ void AuraEffect::HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, ui
     Unit* target = aurApp->GetTarget();
 
     target->UpdateSpeed(MOVE_RUN);
+}
+
+void AuraEffect::HandleSelfieCamera(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    if (apply)
+    {
+        // TODO: Have to investigate what is this spell do...
+        //target->CastSpell(nullptr, 342460, true); // [DNT] Steward Selfie
+        target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SELFIE_CAMERA, 2, 0);
+    }
+    else
+    {
+        //target->RemoveAurasDueToSpell(342460); // [DNT] Steward Selfie
+        target->SendCancelSpellVisualKit(SPELL_VISUAL_KIT_SELFIE_CAMERA);
+    }
 }
 
 void AuraEffect::HandleModMovementForceMagnitude(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

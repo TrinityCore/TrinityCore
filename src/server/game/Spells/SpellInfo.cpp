@@ -2853,6 +2853,7 @@ void SpellInfo::_LoadSpellSpecific()
                             break;
                     }
                 }
+
                 break;
             }
             case SPELLFAMILY_MAGE:

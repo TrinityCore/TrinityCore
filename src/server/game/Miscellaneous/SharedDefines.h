@@ -401,7 +401,8 @@ enum SpellCategory
 enum SpellVisualKit
 {
     SPELL_VISUAL_KIT_FOOD           = 406,
-    SPELL_VISUAL_KIT_DRINK          = 438
+    SPELL_VISUAL_KIT_DRINK          = 438,
+    SPELL_VISUAL_KIT_SELFIE_CAMERA  = 142351
 };
 
 uint32 constexpr ItemQualityColors[MAX_ITEM_QUALITY] =

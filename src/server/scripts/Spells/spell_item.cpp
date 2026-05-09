@@ -4692,6 +4692,42 @@ class spell_item_infurious_crafted_gear_mettle : public AuraScript
     }
 };
 
+// 181884 - S.E.L.F.I.E. Camera MkII
+class spell_item_selfie_camera_mk2 : public AuraScript
+{
+    bool Load() override
+    {
+        return GetOwner()->IsPlayer();
+    }
+
+    void HandleApply(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetOwner()->ToPlayer();
+        uint32 backgroundFilterId = target->GetBackgroundFilterByIndex(target->m_backgroundFilterIndex);
+        if (backgroundFilterId)
+        {
+            target->CastSpell(target, backgroundFilterId, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = effect
+            });
+        }
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Player* target = GetOwner()->ToPlayer();
+        uint32 backgroundFilterId = target->GetBackgroundFilterByIndex(target->m_backgroundFilterIndex);
+        if (backgroundFilterId)
+            target->RemoveAurasDueToSpell(backgroundFilterId);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_item_selfie_camera_mk2::HandleApply, EFFECT_0, SPELL_AURA_SELFIE_CAMERA, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_selfie_camera_mk2::HandleRemove, EFFECT_0, SPELL_AURA_SELFIE_CAMERA, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4849,4 +4885,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_phial_of_the_arcane_tempest_periodic);
 
     RegisterSpellScript(spell_item_infurious_crafted_gear_mettle);
+    RegisterSpellScript(spell_item_selfie_camera_mk2);
 }

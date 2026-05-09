@@ -5627,6 +5627,148 @@ class spell_gen_abandon_vehicle : public SpellScript
     }
 };
 
+// 258730 - Background Filter
+class spell_gen_background_filter : public SpellScript
+{
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    SpellCastResult CheckRequirement()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster->HasBackgroundFilters())
+        {
+            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_YOU_HAVE_NOT_OBTAINED_ANY_BACKGROUND_FILTERS);
+            return SPELL_FAILED_CUSTOM_ERROR;
+        }
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+
+        uint32 prevBackgroundFilterId = caster->GetBackgroundFilterByIndex(caster->m_backgroundFilterIndex);
+        if (prevBackgroundFilterId)
+            caster->RemoveAurasDueToSpell(prevBackgroundFilterId);
+
+        uint32 backgroundFilterId = caster->GetBackgroundFilterByIndex(++caster->m_backgroundFilterIndex);
+        if (backgroundFilterId)
+        {
+            caster->CastSpell(nullptr, backgroundFilterId, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+        }
+        else
+            caster->m_backgroundFilterIndex = -1; // reset cycle
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_gen_background_filter::CheckRequirement);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_background_filter::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 181767 - Sketch Filter
+// 181779 - Death Filter
+// 181773 - Black and White Filter
+class spell_gen_selfie_camera_filter : public AuraScript
+{
+    bool Load() override
+    {
+        return GetOwner()->IsPlayer();
+    }
+
+    void HandleDummy(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        // TODO: Quest stuff?
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_selfie_camera_filter::HandleDummy, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum TakeSelfieQuestCompleteSpells : uint32
+{
+    SPELL_TWILIGHT_FILTER_COMPLETE_QUEST    = 258815,
+    SPELL_ARGUS_FILTER_COMPLETE_QUEST       = 258817,
+    SPELL_FROSTMOURNE_FILTER_COMPLETE_QUEST = 258818,
+    SPELL_SHA_FILTER_COMPLETE_QUEST         = 258819,
+    SPELL_FIRELANDS_FILTER_COMPLETE_QUEST   = 258820
+};
+
+enum TakeSelfieQuestCompleteEntrys : uint32
+{
+    NPC_LICH_KING   = 36597,
+    NPC_CHOGALL     = 43324,
+    NPC_RAGNAROS    = 52409,
+    NPC_SHA_OF_FEAR = 60999,
+    NPC_ARGUS       = 124828
+};
+
+// 181842 - Take Selfie
+class spell_gen_take_selfie : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_FROSTMOURNE_FILTER_COMPLETE_QUEST,
+            SPELL_TWILIGHT_FILTER_COMPLETE_QUEST,
+            SPELL_FIRELANDS_FILTER_COMPLETE_QUEST,
+            SPELL_SHA_FILTER_COMPLETE_QUEST,
+            SPELL_ARGUS_FILTER_COMPLETE_QUEST
+        });
+    }
+
+    inline static std::unordered_map<uint32, uint32> const SelfieQuestMap =
+    {
+        { NPC_LICH_KING, SPELL_FROSTMOURNE_FILTER_COMPLETE_QUEST },
+        { NPC_CHOGALL, SPELL_TWILIGHT_FILTER_COMPLETE_QUEST },
+        { NPC_RAGNAROS, SPELL_FIRELANDS_FILTER_COMPLETE_QUEST },
+        { NPC_SHA_OF_FEAR, SPELL_SHA_FILTER_COMPLETE_QUEST },
+        { NPC_ARGUS, SPELL_ARGUS_FILTER_COMPLETE_QUEST }
+    };
+
+    static uint32 GetSpellQuestCompleteIdForEntry(uint32 entry)
+    {
+        if (uint32 const* spellId = Trinity::Containers::MapGetValuePtr(SelfieQuestMap, entry))
+            return *spellId;
+
+        return 0;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        uint32 spellId = GetSpellQuestCompleteIdForEntry(target->GetEntry());
+        if (!spellId)
+            return;
+
+        caster->CastSpell(nullptr, spellId, true);
+    }
+
+    void SetDest(SpellDestination& dest)
+    {
+        // TODO
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_take_selfie::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_gen_take_selfie::SetDest, EFFECT_1, TARGET_UNIT_CONE_CASTER_TO_DEST_ENTRY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5815,4 +5957,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_force_phase_update);
     RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
     RegisterSpellScript(spell_gen_abandon_vehicle);
+    RegisterSpellScript(spell_gen_background_filter);
+    RegisterSpellScript(spell_gen_selfie_camera_filter);
+    RegisterSpellScript(spell_gen_take_selfie);
 }

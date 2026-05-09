@@ -196,6 +196,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
     m_customizationsChanged = false;
 
+    m_backgroundFiltersChanged = false;
+
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
 
     m_social = nullptr;
@@ -351,6 +353,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _restMgr = std::make_unique<RestMgr>(this);
 
     _usePvpItemLevels = false;
+    m_backgroundFilterIndex = -1;
 }
 
 Player::~Player()
@@ -15260,11 +15263,21 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(quest->GetRewSpell(), GetMap()->GetDifficultyID());
-        Unit* caster = this;
-        if (questGiver && questGiver->IsUnit() && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
-            caster = questGiver->ToUnit();
 
-        caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
+        if (spellInfo->HasAura(SPELL_AURA_SCREEN_EFFECT))
+        {
+            std::string text = fmt::sprintf(GetSession()->GetTrinityString(LANG_SELFIE_CAMERA_BG_FILTER_CAPTURED), spellInfo->SpellName->Str[GetSession()->GetSessionDbcLocale()]);
+            if (AddBackgroundFilter(spellInfo->Id))
+                TextEmote(text, nullptr, true);
+        }
+        else
+        {
+            Unit* caster = this;
+            if (questGiver && questGiver->IsUnit() && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+                caster = questGiver->ToUnit();
+
+            caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
+        }
     }
     else
     {
@@ -18844,6 +18857,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     _LoadPlayerData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DATA_ELEMENTS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DATA_FLAGS));
 
+    _LoadBackgroundFilters(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BACKGROUND_FILTERS));
+
     std::unique_ptr<Garrison> garrison = std::make_unique<Garrison>(this);
     if (garrison->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
         holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
@@ -18939,6 +18954,31 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
         _CUFProfiles[id] = std::make_unique<CUFProfile>(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
     }
     while (result->NextRow());
+}
+
+void Player::_LoadBackgroundFilters(PreparedQueryResult filtersResult)
+{
+    if (!filtersResult)
+        return;
+
+    do
+    {
+        // SELECT filter_id, date FROM character_background_filters WHERE guid = ?
+        Field* fields = filtersResult->Fetch();
+
+        uint32 filterId = fields[0].GetUInt32();
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(filterId, GetMap()->GetDifficultyID());
+        if (!spellInfo)
+        {
+            TC_LOG_ERROR("entities.player", "Player::_LoadBackgroundFilters: Player '{}' ({}) has an invalid selfie filter (SpellID: {}), ignoring.",
+                GetName(), GetGUID().ToString(), filterId);
+            continue;
+        }
+
+        m_backgroundFilters.push_back(filterId);
+
+    }
+    while (filtersResult->NextRow());
 }
 
 bool Player::isAllowedToLoot(const Creature* creature) const
@@ -20803,6 +20843,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveCUFProfiles(trans);
     _SavePlayerData(trans);
     _SaveCharacterBankTabSettings(trans);
+    _SaveBackgroundFilters(trans);
     if (_garrison)
         _garrison->SaveToDB(trans);
 
@@ -21175,6 +21216,28 @@ void Player::_SaveCUFProfiles(CharacterDatabaseTransaction trans)
             stmt->setUInt16(13, _CUFProfiles[i]->LeftOffset);
         }
 
+        trans->Append(stmt);
+    }
+}
+
+void Player::_SaveBackgroundFilters(CharacterDatabaseTransaction trans)
+{
+    if (!m_backgroundFiltersChanged)
+        return;
+
+    m_backgroundFiltersChanged = false;
+
+    // DELETE FROM character_background_filters WHERE guid = ?
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_BACKGROUND_FILTERS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    for (uint32 filterId : m_backgroundFilters)
+    {
+        // INSERT INTO character_background_filters (guid, filter_id) VALUES (?, ?)
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_BACKGROUND_FILTERS);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, filterId);
         trans->Append(stmt);
     }
 }
@@ -22348,13 +22411,15 @@ void Player::Yell(uint32 textId, WorldObject const* target /*= nullptr*/)
     Talk(textId, CHAT_MSG_YELL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), target);
 }
 
-void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, bool /*= false*/)
+void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, bool isBossEmote /*= false*/)
 {
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
+    ChatMsg chatType = isBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_EMOTE;
+
+    sScriptMgr->OnPlayerChat(this, chatType, LANG_UNIVERSAL, _text);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initialize(CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
+    packet.Initialize(chatType, LANG_UNIVERSAL, this, this, _text);
     SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT), true);
 }
 
@@ -22371,9 +22436,9 @@ void Player::WhisperAddon(std::string const& text, std::string const& prefix, bo
     receiver->SendDirectMessage(packet.Write());
 }
 
-void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, bool /*isBossEmote = false*/)
+void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, bool isBossEmote /*= false*/)
 {
-    Talk(textId, CHAT_MSG_EMOTE, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
+    Talk(textId, isBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_EMOTE, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
 }
 
 void Player::Whisper(std::string_view text, Language language, Player* target, bool /*= false*/)
@@ -30144,6 +30209,35 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
             return true;
 
     return false;
+}
+
+
+bool Player::AddBackgroundFilter(uint32 filterId)
+{
+    if (std::find(m_backgroundFilters.begin(), m_backgroundFilters.end(), filterId) != m_backgroundFilters.end())
+        return false;
+
+    m_backgroundFilters.push_back(filterId);
+    m_backgroundFiltersChanged = true;
+
+    return true;
+}
+
+void Player::DeleteBackgroundFilter(uint32 filterId)
+{
+    auto it = std::find(m_backgroundFilters.begin(), m_backgroundFilters.end(), filterId);
+    if (it == m_backgroundFilters.end())
+        return;
+
+    m_backgroundFilters.erase(it);
+    m_backgroundFiltersChanged = true;
+}
+
+uint32 Player::GetBackgroundFilterByIndex(int32 index) const
+{
+    if (index == -1 || index >= m_backgroundFilters.size())
+        return 0;
+    return m_backgroundFilters[index];
 }
 
 void Player::CreateGarrison(uint32 garrSiteId)
