@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include "StringFormatFwd.h"
 #include <span>
 #include <string>
 #include <cmath>
@@ -226,6 +227,7 @@ TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position:
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer);
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::PackedXYZ> const& streamer);
 
 template<class Tag>
 struct TaggedPosition
@@ -244,13 +246,50 @@ struct TaggedPosition
 
     constexpr operator Position() const { return Pos; }
 
-    friend constexpr bool operator==(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos == right.Pos; }
-    friend constexpr bool operator!=(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos != right.Pos; }
+    friend bool operator==(TaggedPosition const& left, TaggedPosition const& right) = default;
 
     friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
     friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }
 
     Position Pos;
+};
+
+template <>
+struct fmt::formatter<Position, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(Position const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<WorldLocation, char, void> : fmt::formatter<Position, char, void>
+{
+    template <typename FormatContext>
+    auto format(WorldLocation const& worldLocation, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XY>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(TaggedPosition<Position::XY> const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XYZ>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    auto format(TaggedPosition<Position::XYZ> const& position, FormatContext& ctx) const -> decltype(ctx.out());
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::XYZO>, char, void> : fmt::formatter<Position, char, void>
+{
+};
+
+template <>
+struct fmt::formatter<TaggedPosition<Position::PackedXYZ>, char, void> : fmt::formatter<TaggedPosition<Position::XYZ>, char, void>
+{
 };
 
 #endif // Trinity_game_Position_h__
