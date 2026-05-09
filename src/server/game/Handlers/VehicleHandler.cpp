@@ -26,18 +26,18 @@
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
-    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
-    if (vehicleGUID.IsEmpty())
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveDismissVehicle.Status.guid, false);
+    if (!ValidateMovementInfo(mover, &moveDismissVehicle.Status))
         return;
 
-    if (moveDismissVehicle.Status.guid != vehicleGUID)
+    moveDismissVehicle.Status.time = AdjustClientMovementTime(moveDismissVehicle.Status.time);
+    mover->m_movementInfo = moveDismissVehicle.Status;
+
+    if (Unit* vehicleBase = _player->GetVehicleBase())
     {
-        TC_LOG_ERROR("network", "Player {} tried to dismiss a controlled vehicle ({}) that he has no control over. Possible cheater or malformed packet.",
-            GetPlayer()->GetGUID().ToString().c_str(), vehicleGUID.ToString().c_str());
-        return;
+        vehicleBase->SendPetDismissSound();
+        _player->ExitVehicle();
     }
-
-    _player->ExitVehicle();
 }
 
 void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& /*requestVehiclePrevSeat*/)
