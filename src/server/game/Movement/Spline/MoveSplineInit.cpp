@@ -176,17 +176,17 @@ namespace Movement
         return move_spline.Duration();
     }
 
-    void MoveSplineInit::Stop()
+    void MoveSplineInit::Stop(bool force /*= false*/)
     {
         MoveSpline& move_spline = *unit->movespline;
 
         // No need to stop if we are not moving
-        if (move_spline.Finalized())
+        if (!force && move_spline.Finalized())
             return;
 
         bool transport = !unit->GetTransGUID().IsEmpty();
         Location loc;
-        if (move_spline.onTransport == transport)
+        if (move_spline.onTransport == transport && !move_spline.Finalized())
             loc = move_spline.ComputePosition();
         else
         {
