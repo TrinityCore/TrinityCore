@@ -201,7 +201,7 @@ bool Position::HasInLine(Position const* pos, float objSize, float width) const
 
 std::string Position::ToString() const
 {
-    return Trinity::StringFormat("X: {} Y: {} Z: {} O: {}", m_positionX, m_positionY, m_positionZ, m_orientation);
+    return Trinity::StringFormat("{}", *this);
 }
 
 float Position::NormalizeOrientation(float o)
@@ -265,16 +265,56 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer)
 {
     int32 packed = 0;
-    packed |= (int32(streamer.Pos->GetPositionX() / 0.25f) & 0x7FF);
-    packed |= (int32(streamer.Pos->GetPositionY() / 0.25f) & 0x7FF) << 11;
-    packed |= (int32(streamer.Pos->GetPositionZ() / 0.25f) & 0x3FF) << 22;
+    packed |= (int32(streamer.Pos->GetPositionX() * 4.0f) & 0x7FF);
+    packed |= (int32(streamer.Pos->GetPositionY() * 4.0f) & 0x7FF) << 11;
+    packed |= (int32(streamer.Pos->GetPositionZ() * 4.0f) & 0x3FF) << 22;
     buf << int32(packed);
     return buf;
 }
 
+ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::PackedXYZ> const& streamer)
+{
+    int32 packed;
+    buf >> packed;
+    streamer.Pos->Relocate(float((packed << 21) >> 21) * 0.25f, float((packed << 10) >> 21) * 0.25f, float(packed >> 22) * 0.25f);
+    return buf;
+}
+
+template <typename FormatContext>
+auto fmt::formatter<Position>::format(Position const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {} Z: {} O: {}",
+        position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation());
+}
+
+template <typename FormatContext>
+auto fmt::formatter<WorldLocation>::format(WorldLocation const& worldLocation, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    ctx.advance_to(Trinity::StringFormatTo(ctx.out(), "MapID: {} ", worldLocation.GetMapId()));
+    return fmt::formatter<Position>::format(worldLocation, ctx);
+}
+
+template <typename FormatContext>
+auto fmt::formatter<TaggedPosition<Position::XY>>::format(TaggedPosition<Position::XY> const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {}",
+        position.Pos.GetPositionX(), position.Pos.GetPositionY());
+}
+
+template <typename FormatContext>
+auto fmt::formatter<TaggedPosition<Position::XYZ>>::format(TaggedPosition<Position::XYZ> const& position, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    return Trinity::StringFormatTo(ctx.out(), "X: {} Y: {} Z: {}",
+        position.Pos.GetPositionX(), position.Pos.GetPositionY(), position.Pos.GetPositionZ());
+}
+
+template TC_GAME_API fmt::appender fmt::formatter<Position>::format<fmt::format_context>(Position const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<WorldLocation>::format<fmt::format_context>(WorldLocation const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<TaggedPosition<Position::XY>>::format<fmt::format_context>(TaggedPosition<Position::XY> const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<TaggedPosition<Position::XYZ>>::format<fmt::format_context>(TaggedPosition<Position::XYZ> const&, format_context&) const;
+
 std::string WorldLocation::GetDebugInfo() const
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
-    return Trinity::StringFormat("MapID: {} Map name: '{}' {}",
-        m_mapId, mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>", Position::ToString());
+    return Trinity::StringFormat("Map name: '{}' {}", mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>", *this);
 }

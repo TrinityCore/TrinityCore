@@ -2231,7 +2231,7 @@ void ObjectMgr::LoadCreatures()
                     VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
-                            guid, data.id, data.mapId, data.spawnPoint.ToString());
+                            guid, data.id, data.mapId, data.spawnPoint);
                 }
             }
         }
@@ -2587,7 +2587,7 @@ void ObjectMgr::LoadGameObjects()
                     VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
-                            guid, data.id, data.mapId, data.spawnPoint.ToString());
+                            guid, data.id, data.mapId, data.spawnPoint);
                 }
             }
         }
@@ -6805,7 +6805,7 @@ void ObjectMgr::LoadWorldSafeLocs()
             WorldLocation loc(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), DegToRad(fields[5].GetFloat()));
             if (!MapManager::IsValidMapCoord(loc))
             {
-                TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid position MapID: {} {}, skipped", id, loc.GetMapId(), loc.ToString());
+                TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid position {}, skipped", id, loc);
                 continue;
             }
 
@@ -9844,16 +9844,12 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
     if (it != _creatureBaseStatsStore.end())
         return &(it->second);
 
-    struct DefaultCreatureBaseStats : public CreatureBaseStats
+    static constexpr CreatureBaseStats defStats
     {
-        DefaultCreatureBaseStats()
-        {
-            BaseMana = 0;
-            AttackPower = 0;
-            RangedAttackPower = 0;
-        }
+        .BaseMana = 0,
+        .AttackPower = 0,
+        .RangedAttackPower = 0
     };
-    static const DefaultCreatureBaseStats defStats;
     return &defStats;
 }
 

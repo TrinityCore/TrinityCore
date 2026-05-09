@@ -2726,9 +2726,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
         bool CanEnterWater() const override { return true; }
 
-        std::string GetMapAreaAndZoneString() const;
-        std::string GetCoordsMapAreaAndZoneString() const;
-
         // Void Storage
         bool IsVoidStorageUnlocked() const { return HasPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
         void UnlockVoidStorage() { SetPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }

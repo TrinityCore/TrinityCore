@@ -600,7 +600,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         _plagueCrates.push_back(creature->GetGUID());
                         break;
                     case NPC_ARTHAS:
-                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at {}", creature->GetPosition().ToString());
+                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at {}", creature->GetPosition());
                         _arthasGUID = creature->GetGUID();
                         creature->setActive(true);
                         break;
