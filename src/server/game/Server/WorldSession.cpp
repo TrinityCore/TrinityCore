@@ -951,7 +951,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         return;
     }
 
-    ValidateMovementInfo(mi);
+    Unit* mover = ValidateAndGetUnitBeingMoved(mi->guid, true /*all remaining uses are ack handlers*/);
+    ValidateMovementInfo(mover, mi);
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
@@ -1531,40 +1532,4 @@ void WorldSession::SendTimeSync()
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
-}
-
-uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
-{
-    int64 movementTime = int64(time) + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        return GameTime::GetGameTimeMS();
-    }
-    else
-        return uint32(movementTime);
-}
-
-bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid) const
-{
-    GameClient* client = GetGameClient();
-
-    // the client is attempting to tamper movement data
-    // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
-    if (!client->GetActivelyMovedUnit() || client->GetActivelyMovedUnit()->GetGUID() != guid)
-    {
-        TC_LOG_DEBUG("entities.unit", "Attempt at tampering movement data by Player {}", _player->GetName());
-        return false;
-    }
-
-    // This can happen if a legitimate client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
-    // sending this packet yet. The server should silently ignore all MOVE messages coming from the client as soon
-    // as control over that unit is revoked (through a 'SMSG_CONTROL_UPDATE allowMove=false' message).
-    if (!client->IsAllowedToMove(guid))
-    {
-        TC_LOG_DEBUG("entities.unit", "Bad or outdated movement data by Player {}", _player->GetName());
-        return false;
-    }
-
-    return true;
 }

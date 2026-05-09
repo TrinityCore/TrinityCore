@@ -778,7 +778,7 @@ class TC_GAME_API WorldSession
         void HandleMoveWorldportAck();                // for server-side calls
 
         // Validates that correct unit is moved, coords are in valid range and movement flags
-        bool ValidateMovementInfo(MovementInfo* mi) const;
+        bool ValidateMovementInfo(Unit const* mover, MovementInfo* mi) const;
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
@@ -1237,7 +1237,7 @@ class TC_GAME_API WorldSession
         }
 
         // Movement helpers
-        bool IsRightUnitBeingMoved(ObjectGuid guid) const;
+        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, bool forStatusAck) const;
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
