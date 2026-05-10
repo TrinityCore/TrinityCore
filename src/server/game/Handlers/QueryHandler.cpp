@@ -259,43 +259,32 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleQueryPageText(WorldPacket& recvData)
+void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
-
-    uint32 pageID;
-    recvData >> pageID;
-    recvData.read_skip<uint64>();                          // guid
-
+    uint32 pageID = packet.PageTextID;
     while (pageID)
     {
-        PageText const* pageText = sObjectMgr->GetPageText(pageID);
-                                                            // guess size
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
-        data << pageID;
+        WorldPackets::Query::QueryPageTextResponse response;
+        response.PageTextID = pageID;
+        if (PageText const* pageText = sObjectMgr->GetPageText(pageID))
+        {
+            response.Allow = true;
 
-        if (!pageText)
-        {
-            data << "Item page missing.";
-            data << uint32(0);
-            pageID = 0;
-        }
-        else
-        {
-            std::string Text = pageText->Text;
+            WorldPackets::Query::QueryPageTextResponse::PageTextInfo& page = response.Page;
+            page.NextPageID = pageText->NextPageID;
+            page.Text = pageText->Text;
 
             LocaleConstant localeConstant = GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
                 if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, page.Text);
 
-            data << Text;
-            data << uint32(pageText->NextPageID);
             pageID = pageText->NextPageID;
         }
-        SendPacket(&data);
+        else
+            pageID = 0;
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        SendPacket(response.Write());
     }
 }
 

@@ -104,6 +104,35 @@ namespace WorldPackets
             Optional<PlayerGuidLookupData> Data;
         };
 
+        class QueryPageText final : public ClientPacket
+        {
+        public:
+            explicit QueryPageText(WorldPacket&& packet) : ClientPacket(CMSG_PAGE_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGUID;
+            uint32 PageTextID = 0;
+        };
+
+        class QueryPageTextResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryPageTextResponse() : ServerPacket(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            struct PageTextInfo
+            {
+                uint32 NextPageID = 0;
+                std::string Text;
+            };
+
+            uint32 PageTextID = 0;
+            bool Allow = false;
+            PageTextInfo Page;
+        };
+
         class QueryGameObject final : public ClientPacket
         {
             public:

@@ -260,6 +260,7 @@ namespace WorldPackets
     {
         class QueryCreature;
         class QueryPlayerName;
+        class QueryPageText;
         class QueryGameObject;
         class QueryCorpseLocationFromClient;
         class QueryCorpseTransport;
@@ -997,7 +998,7 @@ class TC_GAME_API WorldSession
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
         void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
 
-        void HandleQueryPageText(WorldPacket& recvPacket);
+        void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 
         void HandleTutorialFlag (WorldPacket& recvData);
         void HandleTutorialClear(WorldPacket& recvData);

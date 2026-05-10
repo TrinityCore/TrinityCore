@@ -81,6 +81,30 @@ WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Query::QueryPageText::Read()
+{
+    _worldPacket >> PageTextID;
+    _worldPacket >> ItemGUID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
+{
+    data << page.Text;
+    data << uint32(page.NextPageID);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
+{
+    _worldPacket << uint32(PageTextID | (Allow ? 0x00000000 : 0x80000000));
+
+    if (Allow)
+        _worldPacket << Page;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;
