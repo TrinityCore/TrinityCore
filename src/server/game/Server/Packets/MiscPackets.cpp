@@ -41,46 +41,6 @@ WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
-{
-    _worldPacket << SequenceIndex;
-
-    return &_worldPacket;
-}
-
-void WorldPackets::Misc::TimeSyncResponse::Read()
-{
-    _worldPacket >> SequenceIndex;
-    _worldPacket >> ClientTime;
-}
-
-WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
-{
-    _worldPacket << uint32(Timer);
-    _worldPacket << uint32(Value);
-    _worldPacket << uint32(MaxValue);
-    _worldPacket << int32(Scale);
-    _worldPacket << uint8(Paused);
-    _worldPacket << uint32(SpellID);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
-{
-    _worldPacket << uint32(Timer);
-    _worldPacket << uint8(Paused);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
-{
-    _worldPacket << uint32(Timer);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
 {
     _worldPacket << Guid;
@@ -97,12 +57,19 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
+WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
 {
-    _worldPacket << uint32(MovieID);
+    _worldPacket << SequenceIndex;
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::TimeSyncResponse::Read()
+{
+    _worldPacket >> SequenceIndex;
+    _worldPacket >> ClientTime;
+}
+
 WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
@@ -110,86 +77,9 @@ WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
-
-WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
-    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
-
-WorldPacket const* WorldPackets::Misc::Weather::Write()
+WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
 {
-    _worldPacket << uint32(WeatherID);
-    _worldPacket << float(Intensity);
-    _worldPacket << uint8(Abrupt);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
-{
-    _worldPacket << uint32(Level);
-    _worldPacket << uint32(HealthDelta);
-
-    for (uint32 power : PowerDelta)
-        _worldPacket << power;
-
-    for (uint32 stat : StatDelta)
-        _worldPacket << stat;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
-{
-    _worldPacket << SoundKitID;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
-{
-    _worldPacket << SoundKitID;
-    _worldPacket << SourceObjectGUID;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::PlaySound::Write()
-{
-    _worldPacket << SoundKitID;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
-{
-    _worldPacket << Guid;
-    _worldPacket << uint32(Threshold);
-    _worldPacket << uint32(ItemID);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
-{
-    _worldPacket << int32(AreaLightID);
-    _worldPacket << int32(OverrideLightID);
-    _worldPacket << int32(TransitionMilliseconds);
-
-    return &_worldPacket;
-}
-
-void WorldPackets::Misc::RandomRollClient::Read()
-{
-    _worldPacket >> Min;
-    _worldPacket >> Max;
-}
-
-WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
-{
-    _worldPacket << uint32(Min);
-    _worldPacket << uint32(Max);
-    _worldPacket << uint32(Result);
-    _worldPacket << Roller;
+    _worldPacket << uint32(MovieID);
 
     return &_worldPacket;
 }
@@ -199,20 +89,6 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
     _worldPacket << uint32(Time);
 
     return &_worldPacket;
-}
-
-void WorldPackets::Misc::TogglePvP::Read()
-{
-    if (HasPvPStatus())
-        Enable = _worldPacket.read<uint8>() != 0;
-}
-
-void WorldPackets::Misc::WorldTeleport::Read()
-{
-    _worldPacket >> Time;
-    _worldPacket >> MapID;
-    _worldPacket >> Pos;
-    _worldPacket >> Facing;
 }
 
 WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
@@ -251,4 +127,129 @@ void WorldPackets::Misc::ResurrectResponse::Read()
 {
     _worldPacket >> Resurrecter;
     _worldPacket >> Response;
+}
+
+WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
+
+WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
+
+WorldPacket const* WorldPackets::Misc::Weather::Write()
+{
+    _worldPacket << uint32(WeatherID);
+    _worldPacket << float(Intensity);
+    _worldPacket << uint8(Abrupt);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint32(Value);
+    _worldPacket << uint32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << uint8(Paused);
+    _worldPacket << uint32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+    _worldPacket << uint8(Paused);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << uint32(Timer);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
+{
+    _worldPacket << uint32(Level);
+    _worldPacket << uint32(HealthDelta);
+
+    for (uint32 power : PowerDelta)
+        _worldPacket << power;
+
+    for (uint32 stat : StatDelta)
+        _worldPacket << stat;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
+{
+    _worldPacket << SoundKitID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::RandomRollClient::Read()
+{
+    _worldPacket >> Min;
+    _worldPacket >> Max;
+}
+
+WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
+{
+    _worldPacket << uint32(Min);
+    _worldPacket << uint32(Max);
+    _worldPacket << uint32(Result);
+    _worldPacket << Roller;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << SoundKitID;
+    _worldPacket << SourceObjectGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySound::Write()
+{
+    _worldPacket << SoundKitID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::TogglePvP::Read()
+{
+    if (HasPvPStatus())
+        Enable = _worldPacket.read<uint8>() != 0;
+}
+
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << uint32(Threshold);
+    _worldPacket << uint32(ItemID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
+{
+    _worldPacket << int32(AreaLightID);
+    _worldPacket << int32(OverrideLightID);
+    _worldPacket << int32(TransitionMilliseconds);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> Time;
+    _worldPacket >> MapID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
 }

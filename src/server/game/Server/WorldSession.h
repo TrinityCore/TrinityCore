@@ -220,16 +220,17 @@ namespace WorldPackets
     namespace Misc
     {
         class TimeSyncResponse;
+        class ReclaimCorpse;
+        class RepopRequest;
+        class ResurrectResponse;
+        class UITimeRequest;
+        class RandomRollClient;
         class CompleteCinematic;
         class CompleteMovie;
         class NextCinematicCamera;
         class OpeningCinematic;
-        class RandomRollClient;
         class TogglePvP;
         class WorldTeleport;
-        class ReclaimCorpse;
-        class RepopRequest;
-        class ResurrectResponse;
     }
 
     namespace Movement
@@ -1171,7 +1172,7 @@ class TC_GAME_API WorldSession
         void HandleEquipmentSetSave(WorldPacket& recvData);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
-        void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
+        void HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& recvData);
         void HandleReadyForAccountDataTimes(WorldPacket& recvData);
         void HandleQueryQuestsCompleted(WorldPacket& recvData);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& query);

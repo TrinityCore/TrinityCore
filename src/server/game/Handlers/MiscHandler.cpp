@@ -1324,7 +1324,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->SendRespondInspectAchievements(_player);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
+void WorldSession::HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
