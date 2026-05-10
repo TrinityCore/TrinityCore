@@ -8,6 +8,7 @@
 #include "GitRevision.h"
 #include "Memory.h"
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <stdexcept>
 #include <utility>
@@ -18,6 +19,7 @@
 #endif
 
 #include <comdef.h>
+#include <crtdbg.h>
 #include <ehdata.h>
 #include <rttidata.h>
 #include <tchar.h>
