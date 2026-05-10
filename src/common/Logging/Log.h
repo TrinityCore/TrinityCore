@@ -155,24 +155,16 @@ class TC_COMMON_API Log
 
 #define sLog Log::instance()
 
-#define TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ...)                                                         \
+#ifdef PERFORMANCE_PROFILING
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) ((void)0)
+#else
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...)                                                              \
         do {                                                                                                                    \
             Log* logInstance = sLog;                                                                                            \
             if (Logger const* loggerInstance = logInstance->GetEnabledLogger(Log::make_string_view((filterType__)), (level__))) \
                 logInstance->OutMessageTo(loggerInstance, Log::make_string_view((filterType__)), (level__),                     \
                     Log::make_format_string_view((message__)), ## __VA_ARGS__);                                                 \
         } while (0)
-
-#ifdef PERFORMANCE_PROFILING
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) ((void)0)
-#elif !TRINITY_COMPILER_IS_MICROSOFT
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ## __VA_ARGS__)
-#else
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...)                 \
-        __pragma(warning(push))                                                    \
-        __pragma(warning(disable:4127))                                            \
-        TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ## __VA_ARGS__) \
-        __pragma(warning(pop))
 #endif
 
 #define TC_LOG_TRACE(filterType__, message__, ...) \
