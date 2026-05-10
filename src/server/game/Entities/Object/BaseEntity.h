@@ -371,14 +371,14 @@ class TC_GAME_API BaseEntity
 
 inline BaseEntity* UF::UpdateFieldHolder::GetOwner()
 {
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
 
     return reinterpret_cast<BaseEntity*>(reinterpret_cast<std::byte*>(this) - offsetof(BaseEntity, m_values));
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GNU
 #pragma GCC diagnostic pop
 #endif
 }

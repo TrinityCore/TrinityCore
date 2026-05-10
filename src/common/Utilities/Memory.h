@@ -22,7 +22,7 @@
 #include <concepts>
 #include <memory>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-attributes"
 #endif
@@ -167,7 +167,7 @@ inline std::unique_ptr<T, Impl::stateless_unique_ptr_deleter<Ptr, Del>> make_uni
 }
 }
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic pop
 #endif
 
