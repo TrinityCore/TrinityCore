@@ -437,7 +437,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
     return variablesMap;
 }
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if TRINITY_COMPILER_IS_MICROSOFT
 #include "WheatyExceptionReport.h"
 // must be at end of file because of init_seg pragma
 INIT_CRASH_HANDLER();

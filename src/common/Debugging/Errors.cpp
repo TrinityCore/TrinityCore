@@ -33,7 +33,7 @@
     terminates the application.
  */
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if TRINITY_COMPILER_IS_MICROSOFT
 #define Unreachable() (__assume(false))
 #else
 #define Unreachable() (__builtin_unreachable())

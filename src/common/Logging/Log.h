@@ -165,7 +165,7 @@ class TC_COMMON_API Log
 
 #ifdef PERFORMANCE_PROFILING
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) ((void)0)
-#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#elif !TRINITY_COMPILER_IS_MICROSOFT
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...) TC_LOG_MESSAGE_BODY_CORE(filterType__, level__, message__, ## __VA_ARGS__)
 #else
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, message__, ...)                 \

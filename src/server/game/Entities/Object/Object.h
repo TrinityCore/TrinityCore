@@ -464,14 +464,14 @@ class TC_GAME_API Object
 
 inline Object* UF::UpdateFieldHolder::GetOwner()
 {
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
 
     return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic pop
 #endif
 }

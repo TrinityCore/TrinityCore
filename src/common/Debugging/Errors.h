@@ -52,7 +52,7 @@ namespace Trinity
     }
 } // namespace Trinity
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if TRINITY_COMPILER_IS_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
 #define ASSERT_END __pragma(warning(pop))
 #else
