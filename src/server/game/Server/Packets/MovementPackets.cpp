@@ -112,6 +112,10 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline)
 {
     data << uint8(movementSpline.Face);
+
+    if (movementSpline.Face == MONSTER_MOVE_STOP)
+        return data;
+
     switch (movementSpline.Face)
     {
         case MONSTER_MOVE_FACING_SPOT:

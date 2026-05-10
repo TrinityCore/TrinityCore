@@ -34,7 +34,6 @@ namespace Movement
     public:
 
         static void WriteMonsterMove(MoveSpline const& mov, WorldPackets::Movement::MovementMonsterSpline& movementMonsterSpline);
-        static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
         static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);
     };
