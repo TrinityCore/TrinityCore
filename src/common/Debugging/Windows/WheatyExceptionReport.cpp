@@ -1410,7 +1410,7 @@ EnumerateSymbolsCallbackContext* pCtx)
             m_symbolDetails.top().Name = pSym->Name;
 
         char buffer[50];
-        FormatOutputValue(buffer, basicType, pSym->Size, (PVOID)pVariable, sizeof(buffer));
+        FormatOutputValue(buffer, basicType, pSym->Size, (PVOID)pVariable, sizeof(buffer), 1);
         m_symbolDetails.top().Value = buffer;
     }
 
@@ -1756,7 +1756,7 @@ bool logChildren)
             SymGetTypeInfo(m_process, modBase, typeId, TI_GET_LENGTH, &length);
 
             char buffer[50];
-            FormatOutputValue(buffer, basicType, length, (PVOID)dwFinalOffset, sizeof(buffer));
+            FormatOutputValue(buffer, basicType, length, (PVOID)dwFinalOffset, sizeof(buffer), 1);
             m_symbolDetails.top().Value = buffer;
         }
 
