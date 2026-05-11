@@ -40,37 +40,16 @@ class WorldPacket : public ByteBuffer
 
         explicit WorldPacket(uint32 opcode, size_t res, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : WorldPacket(opcode, res, Reserve{}, connection) { }
 
-        WorldPacket(WorldPacket&& packet) noexcept : ByteBuffer(std::move(packet)),
-            m_opcode(packet.m_opcode), _connection(packet._connection), m_receivedTime(packet.m_receivedTime) { }
-
-        WorldPacket(WorldPacket const& right) = default;
-
         explicit WorldPacket(std::vector<uint8>&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)),
             m_opcode(UNKNOWN_OPCODE), _connection(connection) { }
 
-        WorldPacket& operator=(WorldPacket const& right)
-        {
-            if (this != &right)
-            {
-                m_opcode = right.m_opcode;
-                _connection = right._connection;
-                ByteBuffer::operator =(right);
-            }
+        WorldPacket(WorldPacket const& right) = default;
 
-            return *this;
-        }
+        WorldPacket(WorldPacket&& packet) noexcept = default;
 
-        WorldPacket& operator=(WorldPacket&& right) noexcept
-        {
-            if (this != &right)
-            {
-                m_opcode = right.m_opcode;
-                _connection = right._connection;
-                ByteBuffer::operator=(std::move(right));
-            }
+        WorldPacket& operator=(WorldPacket const& right) = default;
 
-            return *this;
-        }
+        WorldPacket& operator=(WorldPacket&& right) noexcept = default;
 
         void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
         {
