@@ -743,7 +743,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
-uint32 Item::CalculateDurabilityRepairCost(float discount) const
+uint32 Item::CalculateDurabilityRepairCost(float discount, bool useRateConf /*= true*/) const
 {
     uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     if (!maxDurability)
@@ -782,7 +782,7 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
     }
 
     uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->QualityMod)));
-    cost = uint32(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint32(cost * discount * (useRateConf ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
@@ -792,48 +792,7 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
 
 uint32 Item::CalculateDurabilitySellPenalty() const
 {
-    uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
-    if (!maxDurability)
-        return 0;
-
-    uint32 curDurability = GetUInt32Value(ITEM_FIELD_DURABILITY);
-    ASSERT(maxDurability >= curDurability);
-
-    uint32 lostDurability = maxDurability - curDurability;
-    if (!lostDurability)
-        return 0;
-
-    ItemTemplate const* itemTemplate = GetTemplate();
-
-    DurabilityCostsEntry const* durabilityCost = sDurabilityCostsStore.LookupEntry(itemTemplate->ItemLevel);
-    if (!durabilityCost)
-        return 0;
-
-    uint32 durabilityQualityEntryId = (itemTemplate->Quality + 1) * 2;
-    DurabilityQualityEntry const* durabilityQualityEntry = sDurabilityQualityStore.LookupEntry(durabilityQualityEntryId);
-    if (!durabilityQualityEntry)
-        return 0;
-
-    uint32 dmultiplier;
-    switch (itemTemplate->Class)
-    {
-        case ITEM_CLASS_WEAPON:
-            dmultiplier = durabilityCost->WeaponSubClassCost[itemTemplate->SubClass];
-            break;
-        case ITEM_CLASS_ARMOR:
-            dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->SubClass];
-            break;
-        default:
-            dmultiplier = 0;
-            break;
-    }
-
-    uint32 penalty = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->QualityMod)));
-
-    if (penalty == 0)
-        penalty = 1;
-
-    return penalty;
+    return CalculateDurabilityRepairCost(1.0f, false);
 }
 
 bool Item::HasEnchantRequiredSkill(Player const* player) const
