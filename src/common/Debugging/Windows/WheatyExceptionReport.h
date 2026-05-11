@@ -1,8 +1,6 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#define _NO_CVCONST_H
-
 #include "Define.h"
 #include "Optional.h"
 #include <Windows.h>
@@ -41,6 +39,10 @@ enum BasicType                                              // Stolen from CVCON
     btBit = 29,
     btBSTR = 30,
     btHresult = 31,
+    btChar16 = 32,  // char16_t
+    btChar32 = 33,  // char32_t
+    btChar8 = 34,  // char8_t
+    btVector = 35,
 
     // Custom types
     btStdString = 101
@@ -58,6 +60,55 @@ enum DataKind                                              // Stolen from CVCONS
     DataIsMember,
     DataIsStaticMember,
     DataIsConstant
+};
+
+enum SymTagEnum                                              // Stolen from CVCONST.H in the DIA 2.0 SDK
+{
+    SymTagNull,
+    SymTagExe,
+    SymTagCompiland,
+    SymTagCompilandDetails,
+    SymTagCompilandEnv,
+    SymTagFunction,
+    SymTagBlock,
+    SymTagData,
+    SymTagAnnotation,
+    SymTagLabel,
+    SymTagPublicSymbol,
+    SymTagUDT,
+    SymTagEnum,
+    SymTagFunctionType,
+    SymTagPointerType,
+    SymTagArrayType,
+    SymTagBaseType,
+    SymTagTypedef,
+    SymTagBaseClass,
+    SymTagFriend,
+    SymTagFunctionArgType,
+    SymTagFuncDebugStart,
+    SymTagFuncDebugEnd,
+    SymTagUsingNamespace,
+    SymTagVTableShape,
+    SymTagVTable,
+    SymTagCustom,
+    SymTagThunk,
+    SymTagCustomType,
+    SymTagManagedType,
+    SymTagDimension,
+    SymTagCallSite,
+    SymTagInlineSite,
+    SymTagBaseInterface,
+    SymTagVectorType,
+    SymTagMatrixType,
+    SymTagHLSLType,
+    SymTagCaller,
+    SymTagCallee,
+    SymTagExport,
+    SymTagHeapAllocationSite,
+    SymTagCoffGroup,
+    SymTagInlinee,
+    SymTagTaggedUnionCase,
+    SymTagMax
 };
 
 enum CpuRegister                                           // Stolen from CVCONST.H in the DIA SDK
@@ -284,7 +335,11 @@ char const* const rgBaseType[] =
     "<complex>",                                          // btComplex = 28,
     "<bit>",                                              // btBit = 29,
     "BSTR",                                               // btBSTR = 30,
-    "HRESULT"                                             // btHresult = 31
+    "HRESULT",                                            // btHresult = 31
+    "char16_t",
+    "char32_t",
+    "char8_t",
+    "<vector>"
 };
 
 struct SymbolPair
