@@ -5373,7 +5373,7 @@ void SpellMgr::LoadSpellInfoImmunities()
             for (std::string_view token : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
                 if (Optional<uint32> effect = Trinity::StringTo<uint32>(token); effect && effect < uint32(TOTAL_SPELL_EFFECTS))
-                    immunities.Effect.push_back(SpellEffectName(*effect));
+                    immunities.Effect.push_back(SpellEffects(*effect));
                 else
                     TC_LOG_ERROR("sql.sql", "Invalid effect type in `Effects` {} for creature immunities {}, skipped", token, id);
             }

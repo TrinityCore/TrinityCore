@@ -1342,7 +1342,7 @@ constexpr TeamId GetTeamIdForTeam(Team team)
     return TEAM_NEUTRAL;
 }
 
-enum SpellEffectName
+enum SpellEffects
 {
     SPELL_EFFECT_NONE                               = 0,
     SPELL_EFFECT_INSTAKILL                          = 1,
