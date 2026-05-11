@@ -781,7 +781,7 @@ uint32 Item::CalculateDurabilityRepairCost(float discount, bool useRateConf /*= 
             break;
     }
 
-    uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->QualityMod)));
+    uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->Data)));
     cost = uint32(cost * discount * (useRateConf ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
