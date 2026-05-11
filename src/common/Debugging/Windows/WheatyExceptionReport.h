@@ -372,10 +372,15 @@ class TC_COMMON_API WheatyExceptionReport
 
         void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char const*, bool, bool);
 
-        static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
+        template <typename T>
+        void FormatOutputValueNumeric(char* buffer, size_t bufferSize, char const* format, LPCVOID address);
+
+        void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 
         BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase) const;
-        static DWORD_PTR DereferenceUnsafePointer(DWORD_PTR address);
+
+        template <typename T> requires (std::is_scalar_v<T>)
+        Optional<T> DereferenceUnsafePointer(LPCVOID address);
 
         int Log(const TCHAR * format, ...);
 
