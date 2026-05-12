@@ -61,7 +61,7 @@ WorldPackets::Chat::Chat::Chat(Chat const& chat) : ServerPacket(chat.GetOpcode()
 }
 
 void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message,
-    uint32 achievementId /*= 0*/, std::string_view channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/)
+    uint32 achievementId /*= 0*/, std::string_view channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string_view addonPrefix /*= ""*/)
 {
     // Clear everything because same packet can be used multiple times
     Clear();
@@ -85,6 +85,13 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     AchievementID = achievementId;
     _Channel = channelName;
     ChatText = message;
+    if (!addonPrefix.empty())
+    {
+        // addon prefix is not really a separate thing in 3.3.5
+        // it can be either passed as part of the message directly (from client packet)
+        // or separately in addonPrefix argument (server initiated send) to minimize API difference between 3.3.5 and master branch
+        ChatText.insert(0, 1, '\t').insert(0, addonPrefix);
+    }
 }
 
 void WorldPackets::Chat::Chat::SetSender(WorldObject const* sender, LocaleConstant locale)

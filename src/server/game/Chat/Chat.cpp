@@ -681,6 +681,8 @@ int CliHandler::GetSessionDbLocaleIndex() const
     return sObjectMgr->GetDBCLocaleIndex();
 }
 
+std::string_view const AddonChannelCommandHandler::PREFIX = "TrinityCore";
+
 bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
 {
     if (str.length() < 17)
@@ -723,39 +725,36 @@ bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
     }
 }
 
-void AddonChannelCommandHandler::Send(std::string const& msg)
+void AddonChannelCommandHandler::Send(std::string_view msg)
 {
     WorldPackets::Chat::Chat chat;
-    chat.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg, 0, "", LOCALE_enUS);
+    chat.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg, 0, "", LOCALE_enUS, PREFIX);
     GetSession()->SendPacket(chat.Write());
 }
 
 void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 {
     ASSERT(echo);
-    char ack[18] = "TrinityCore\ta";
-    memcpy(ack+13, echo, 4);
-    ack[17] = '\0';
-    Send(ack);
+    char ack[5] = "a";
+    memcpy(ack + 1, echo, 4);
+    Send(std::string_view(ack, 5));
     hadAck = true;
 }
 
 void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 {
     ASSERT(echo);
-    char ok[18] = "TrinityCore\to";
-    memcpy(ok+13, echo, 4);
-    ok[17] = '\0';
-    Send(ok);
+    char ok[5] = "o";
+    memcpy(ok + 1, echo, 4);
+    Send(std::string_view(ok, 5));
 }
 
 void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 {
     ASSERT(echo);
-    char fail[18] = "TrinityCore\tf";
-    memcpy(fail + 13, echo, 4);
-    fail[17] = '\0';
-    Send(fail);
+    char fail[5] = "f";
+    memcpy(fail + 1, echo, 4);
+    Send(std::string_view(fail, 5));
 }
 
 // m Command message, message in body
@@ -765,7 +764,7 @@ void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escap
     if (!hadAck)
         SendAck();
 
-    std::string msg = "TrinityCore\tm";
+    std::string msg = "m";
     msg.append(echo, 4);
     std::string body(str);
     if (escapeCharacters)
