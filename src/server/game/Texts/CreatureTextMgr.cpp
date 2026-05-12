@@ -18,7 +18,7 @@
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
 #include "CellImpl.h"
-#include "Chat.h"
+#include "ChatPackets.h"
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
@@ -39,7 +39,13 @@ class CreatureTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
 
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            packet.Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            packet.Write();
+
+            *data = packet.Move();
+
+            return packet.TargetGUIDPos;
         }
 
     private:
@@ -62,7 +68,13 @@ class PlayerTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
 
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            packet.Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            packet.Write();
+
+            *data = packet.Move();
+
+            return packet.TargetGUIDPos;
         }
 
     private:

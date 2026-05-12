@@ -16,30 +16,37 @@
  */
 
 #include "ChatTextBuilder.h"
-#include "Chat.h"
+#include "ChatPackets.h"
 #include "ObjectMgr.h"
 #include <cstdarg>
 
-void Trinity::BroadcastTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
+std::size_t Trinity::BroadcastTextBuilder::operator()(WorldPacket* data, LocaleConstant locale) const
 {
     BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
-}
+    WorldPackets::Chat::Chat chat;
+    chat.Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    chat.Write();
 
-size_t Trinity::BroadcastTextBuilder::operator()(WorldPacket* data, LocaleConstant locale) const
-{
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    *data = chat.Move();
+
+    return chat.TargetGUIDPos;
 }
 
 void Trinity::CustomChatTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
 {
-    ChatHandler::BuildChatPacket(data, _msgType, _language, _source, _target, _text, 0, "", locale);
+    WorldPackets::Chat::Chat chat;
+    chat.Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
+    chat.Write();
+
+    data = chat.Move();
 }
 
 void Trinity::TrinityStringChatBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
 {
     char const* text = sObjectMgr->GetTrinityString(_textId, locale);
+
+    WorldPackets::Chat::Chat chat;
+    chat.Initialize(_msgType, LANG_UNIVERSAL, _source, _target, "", 0, "", locale);
 
     if (_args)
     {
@@ -52,8 +59,12 @@ void Trinity::TrinityStringChatBuilder::operator()(WorldPacket& data, LocaleCons
         vsnprintf(strBuffer, BufferSize, text, ap);
         va_end(ap);
 
-        ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _source, _target, strBuffer, 0, "", locale);
+        chat.ChatText = strBuffer;
     }
     else
-        ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+        chat.ChatText = text;
+
+    chat.Write();
+
+    data = chat.Move();
 }

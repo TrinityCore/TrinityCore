@@ -277,7 +277,7 @@ void OpcodeTable::Initialize()
     /*0x092*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_EVENT,               STATUS_NEVER);
     /*0x093*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_COMMAND_RESULT,      STATUS_NEVER);
     /*0x094*/ DEFINE_HANDLER(UMSG_UPDATE_GUILD,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    /*0x095*/ DEFINE_HANDLER(CMSG_MESSAGECHAT,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
+    /*0x095*/ DEFINE_HANDLER(CMSG_MESSAGECHAT,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleChatMessageOpcode         );
     /*0x096*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_MESSAGECHAT,               STATUS_NEVER);
     /*0x097*/ DEFINE_HANDLER(CMSG_JOIN_CHANNEL,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleJoinChannel               );
     /*0x098*/ DEFINE_HANDLER(CMSG_LEAVE_CHANNEL,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLeaveChannel              );
