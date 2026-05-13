@@ -43,6 +43,16 @@ if(APPLE)
     message(STATUS "Homebrew installation found at ${HOMEBREW_PREFIX}")
     set(CMAKE_PREFIX_PATH "${HOMEBREW_PREFIX}")
   endif()
+
+  # Apple's ranlib supports -no_warning_for_no_symbols; llvm-ranlib does not.
+  # Check that we are using the system Apple ranlib before applying the flag.
+  if(CMAKE_RANLIB MATCHES ".*/usr/bin/ranlib$")
+    # Suppress "has no symbols" warnings for static libraries.
+    set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> -Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+    set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+  endif()
 endif()
 
 message(STATUS "UNIX: Detected compiler: ${CMAKE_C_COMPILER}")
