@@ -301,9 +301,9 @@ class TC_GAME_API Aura
         AuraEffect* m_effects[MAX_SPELL_EFFECTS];
         ApplicationMap m_applications;
 
-        bool m_isRemoved:1;
-        bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
-        bool m_isUsingCharges:1;
+        bool m_isRemoved;
+        bool m_isSingleTarget;                              // true if it's a single target spell and registered at caster - can change at spell steal for example
+        bool m_isUsingCharges;
 
         ChargeDropEvent* m_dropEvent;
 
