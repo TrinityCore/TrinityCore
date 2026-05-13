@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameClient.h"
 #include "MovementPacketSender.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "GameClient.h"
+#include "MovementPackets.h"
+#include "Unit.h"
 
 // SMSG_SPLINE_SET_* messages are for units controlled by the server.
 // SMSG_FORCE_*_SPEED_CHANGE messages are for units controlled by a player and require the client to respond with an ACK message.
@@ -68,14 +67,11 @@ void MovementPacketSender::SendSpeedChangeToMover(Unit* unit, UnitMoveType mtype
     pendingChange.movementChangeType = MovementPacketSender::GetChangeTypeByMoveType(mtype);
     unit->PushPendingMovementChange(pendingChange);
 
-    WorldPacket data;
-    data.Initialize(moveTypeToOpcode[mtype][1], mtype != MOVE_RUN ? 8 + 4 + 4 : 8 + 4 + 1 + 4);
-    data << unit->GetPackGUID();
-    data << mCounter;
-    if (mtype == MOVE_RUN)
-        data << uint8(1);                               // unknown byte added in 2.1.0
-    data << newSpeedFlat;
-    controller->SendDirectMessage(&data);
+    WorldPackets::Movement::MoveSetSpeed packet(moveTypeToOpcode[mtype][1]);
+    packet.MoverGUID = unit->GetGUID();
+    packet.SequenceIndex = mCounter;
+    packet.Speed = newSpeedFlat;
+    controller->SendDirectMessage(packet.Write());
 }
 
 void MovementPacketSender::SendSpeedChangeToObservers(Unit* unit, UnitMoveType mtype, float newSpeedFlat)
@@ -84,11 +80,10 @@ void MovementPacketSender::SendSpeedChangeToObservers(Unit* unit, UnitMoveType m
 
     ASSERT(controller);
 
-    WorldPacket data;
-    data.Initialize(moveTypeToOpcode[mtype][2], 8 + 30 + 4);
-    WorldSession::WriteMovementInfo(&data, &unit->m_movementInfo);
-    data << newSpeedFlat;
-    unit->SendMessageToSet(&data, controller->GetBasePlayer());
+    WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
+    packet.Status = &unit->m_movementInfo;
+    packet.Speed = newSpeedFlat;
+    unit->SendMessageToSet(packet.Write(), controller->GetBasePlayer());
 }
 
 void MovementPacketSender::SendSpeedChangeToAll(Unit* unit, UnitMoveType mtype, float newSpeedFlat)
@@ -97,10 +92,8 @@ void MovementPacketSender::SendSpeedChangeToAll(Unit* unit, UnitMoveType mtype, 
 
     ASSERT(!controller);
 
-    WorldPacket data;
-    data.Initialize(moveTypeToOpcode[mtype][0], 8 + 4);
-    data << unit->GetPackGUID();
-    data << newSpeedFlat;
-    unit->SendMessageToSet(&data, true);
+    WorldPackets::Movement::MoveSplineSetSpeed packet(moveTypeToOpcode[mtype][0]);
+    packet.MoverGUID = unit->GetGUID();
+    packet.Speed = newSpeedFlat;
+    unit->SendMessageToSet(packet.Write(), true);
 }
-

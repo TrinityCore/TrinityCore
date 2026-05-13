@@ -57,6 +57,41 @@ namespace WorldPackets
             float SplineDist = 0.0f;
         };
 
+        class MoveSplineSetSpeed : public ServerPacket
+        {
+        public:
+            explicit MoveSplineSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            float Speed = 1.0f;
+        };
+
+        class MoveSetSpeed : public ServerPacket
+        {
+        public:
+            explicit MoveSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+            float Speed = 1.0f;
+            bool Unknown = true;
+        };
+
+        class MoveUpdateSpeed : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 30 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            float Speed = 1.0f;
+        };
+
         class NewWorld final : public ServerPacket
         {
         public:

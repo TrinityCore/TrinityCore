@@ -116,6 +116,35 @@ WorldPacket const* FlightSplineSync::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* MoveSplineSetSpeed::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+    _worldPacket << float(Speed);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveSetSpeed::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+    _worldPacket << uint32(SequenceIndex);
+    if (GetOpcode() == SMSG_FORCE_RUN_SPEED_CHANGE)
+        _worldPacket << uint8(Unknown);
+
+    _worldPacket << float(Speed);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveUpdateSpeed::Write()
+{
+    _worldPacket << Status->guid.WriteAsPacked();
+    _worldPacket << *Status;
+    _worldPacket << float(Speed);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* NewWorld::Write()
 {
     _worldPacket << MapID;

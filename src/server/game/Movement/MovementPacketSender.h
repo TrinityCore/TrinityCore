@@ -23,6 +23,7 @@
 class Player;
 class Unit;
 struct MovementInfo;
+enum Opcodes : uint16;
 enum class MovementChangeType : uint8;
 
 //!
