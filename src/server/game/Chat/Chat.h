@@ -159,7 +159,7 @@ class TC_GAME_API CliHandler : public ChatHandler
 class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 {
     public:
-        static std::string const PREFIX;
+        static std::string_view const PREFIX;
 
         using ChatHandler::ChatHandler;
         bool ParseCommands(std::string_view str) override;
@@ -168,7 +168,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
         bool IsHumanReadable() const override { return humanReadable; }
 
     private:
-        void Send(std::string const& msg);
+        void Send(std::string_view msg);
         void SendAck();
         void SendOK();
         void SendFailed();
