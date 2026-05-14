@@ -21,6 +21,12 @@
 #include "Packet.h"
 #include "MovementInfo.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
+
+namespace Movement
+{
+    class MoveSpline;
+}
 
 namespace WorldPackets
 {
@@ -44,6 +50,66 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
+        };
+
+        struct MonsterSplineJumpExtraData
+        {
+            float JumpGravity = 0.0f;
+            uint32 StartTime = 0;
+        };
+
+        struct MonsterSplineAnimTierTransition
+        {
+            uint32 StartTime = 0;
+            uint8 AnimTier = 0;
+        };
+
+        struct MovementSpline
+        {
+            uint32 Flags = 0;    // Spline flags
+            uint8 Face = 0;    // Movement direction (see MonsterMoveType enum)
+            uint32 MoveTime = 0;
+            std::vector<TaggedPosition<Position::XYZ>> Points;   // Spline path
+            std::vector<TaggedPosition<Position::PackedXYZ>> PackedDeltas;
+            Optional<MonsterSplineJumpExtraData> JumpExtraData;
+            Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
+            float FaceDirection = 0.0f;
+            ObjectGuid FaceGUID;
+            TaggedPosition<Position::XYZ> FaceSpot;
+        };
+
+        struct MovementMonsterSpline
+        {
+            uint32 ID = 0;
+            MovementSpline Move;
+        };
+
+        struct MovementSplineTransport
+        {
+            ObjectGuid TransportGUID;
+            int8 VehicleSeat = -1;
+        };
+
+        class CommonMovement
+        {
+        public:
+            static void WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data);
+        };
+
+        class MonsterMove final : public ServerPacket
+        {
+        public:
+            explicit MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE, 64) { }
+
+            void InitializeSplineData(::Movement::MoveSpline const& moveSpline);
+
+            WorldPacket const* Write() override;
+
+            MovementMonsterSpline SplineData;
+            ObjectGuid MoverGUID;
+            Optional<MovementSplineTransport> Transport;
+            bool VehicleExitVoluntary = false;
+            TaggedPosition<Position::XYZ> Pos;
         };
 
         class FlightSplineSync final : public ServerPacket
