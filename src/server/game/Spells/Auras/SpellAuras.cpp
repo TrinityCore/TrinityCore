@@ -514,14 +514,14 @@ AuraScript* Aura::GetScriptByType(std::type_info const& type) const
 void Aura::_InitEffects(uint32 effMask, Unit* caster, SpellEffectValue const* baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
-    _effects.resize(GetSpellInfo()->GetEffects().size());
+    m_effects.resize(GetSpellInfo()->GetEffects().size());
 
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
         if (effMask & (1 << spellEffectInfo.EffectIndex))
-            _effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
+            m_effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
 
-    while (!_effects.back())
-        _effects.pop_back();
+    while (!m_effects.back())
+        m_effects.pop_back();
 }
 
 bool Aura::CanPeriodicTickCrit() const
@@ -544,7 +544,7 @@ Aura::~Aura()
         delete script;
     }
 
-    for (AuraEffect* effect : _effects)
+    for (AuraEffect* effect : m_effects)
         delete effect;
 
     ASSERT(m_applications.empty());
@@ -575,10 +575,10 @@ WorldObject* Aura::GetWorldObjectCaster() const
 
 AuraEffect* Aura::GetEffect(uint32 index) const
 {
-    if (index >= _effects.size())
+    if (index >= m_effects.size())
         return nullptr;
 
-    return _effects[index];
+    return m_effects[index];
 }
 
 AuraObjectType Aura::GetType() const
@@ -1260,9 +1260,9 @@ AuraKey Aura::GenerateKey(uint32& recalculateMask) const
     key.SpellId = GetId();
     key.EffectMask = 0;
     recalculateMask = 0;
-    for (uint32 i = 0; i < _effects.size(); ++i)
+    for (uint32 i = 0; i < m_effects.size(); ++i)
     {
-        if (AuraEffect const* effect = _effects[i])
+        if (AuraEffect const* effect = m_effects[i])
         {
             key.EffectMask |= 1 << i;
             if (effect->CanBeRecalculated())

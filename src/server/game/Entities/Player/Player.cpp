@@ -1435,14 +1435,14 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
                 transferPending.TransferSpellID = teleportSpellId;
             if (teleportLocation.TransportGuid.has_value())
             {
-                transferPending.Ship.emplace();
+                WorldPackets::Movement::ShipTransferPending& shipTransferPending = transferPending.Ship.emplace();
                 if (TransportSpawn const* transportSpawn = sTransportMgr->GetTransportSpawn(teleportLocation.TransportGuid->GetCounter()))
                 {
-                    transferPending.Ship->ID = transportSpawn->TransportGameObjectId;
+                    shipTransferPending.ID = transportSpawn->TransportGameObjectId;
                     if (dynamic_cast<Transport*>(GetTransport()))
-                        transferPending.Ship->OriginMapID = GetMapId();
+                        shipTransferPending.OriginMapID = GetMapId();
                     else
-                        transferPending.Ship->OriginMapID = -1;
+                        shipTransferPending.OriginMapID = -1;
                 }
             }
 
@@ -6103,9 +6103,9 @@ void Player::SendActionButtons(uint32 state) const
 {
     WorldPackets::Spells::UpdateActionButtons packet;
 
-    for (auto itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
-        if (itr->second.uState != ACTIONBUTTON_DELETED && itr->first < packet.ActionButtons.size())
-            packet.ActionButtons[itr->first] = itr->second.packedData;
+    for (auto const& [i, button] : m_actionButtons)
+        if (button.uState != ACTIONBUTTON_DELETED && i < packet.ActionButtons.size())
+            packet.ActionButtons[i] = button.packedData;
 
     packet.Reason = state;
 
@@ -28203,7 +28203,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
     if (newEqSet.Guid != 0)
     {
         // something wrong...
-        EquipmentSetContainer::const_iterator itr = _equipmentSets.find(newEqSet.Guid);
+        auto itr = _equipmentSets.find(newEqSet.Guid);
         if (itr == _equipmentSets.end() || itr->second.Data.Guid != newEqSet.Guid)
         {
             TC_LOG_ERROR("entities.player", "Player::SetEquipmentSet: Player '{}' ({}) tried to save nonexistent equipment set {} (index: {})",
