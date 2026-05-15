@@ -25,31 +25,28 @@ BossBoundaryData const boundaries =
     { DATA_AMALGAM_OF_SOULS, new CircleBoundary(Position(3251.350098f, 7582.790039f), 40.0f) }
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_AMALGAM_OF_SOULS,         DATA_AMALGAM_OF_SOULS         },
     { BOSS_ILLYSANNA_RAVENCREST,     DATA_ILLYSANNA_RAVENCREST     },
     { BOSS_SMASHPITE_THE_HATEFUL,    DATA_SMASHPITE_THE_HATEFUL    },
     { BOSS_LORD_KURTALOS_RAVENCREST, DATA_LORD_KURTALOS_RAVENCREST },
-    { 0,                             0                             }  // END
 };
 
-ObjectData const gameobjectData[] =
+static constexpr ObjectData gameobjectData[] =
 {
     { GO_BOSS_1_POST_BOSS_DOOR, DATA_BOSS_1_POST_BOSS_DOOR   },
-    { 0,                        0                            } // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_BOSS_1_DOOR_1, DATA_AMALGAM_OF_SOULS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_BOSS_1_DOOR_2, DATA_AMALGAM_OF_SOULS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_BOSS_1_DOOR_3, DATA_AMALGAM_OF_SOULS, EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_BOSS_1_DOOR_4, DATA_AMALGAM_OF_SOULS, EncounterDoorBehavior::OpenWhenNotInProgress },
-    { 0,                0,                     EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_AMALGAM_OF_SOULS,         {{ 1832 }} },
     { DATA_ILLYSANNA_RAVENCREST,     {{ 1833 }} },

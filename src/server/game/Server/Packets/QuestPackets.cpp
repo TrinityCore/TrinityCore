@@ -104,6 +104,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.RewardSpell);
         _worldPacket << int32(Info.RewardHonor);
         _worldPacket << float(Info.RewardKillHonor);
+        _worldPacket << int32(Info.RewardFavor);
         _worldPacket << int32(Info.RewardArtifactXPDifficulty);
         _worldPacket << float(Info.RewardArtifactXPMultiplier);
         _worldPacket << int32(Info.RewardArtifactCategoryID);
@@ -166,9 +167,10 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int64(Info.TimeAllowed);
 
         _worldPacket << Size<uint32>(Info.Objectives);
-        _worldPacket << uint64(Info.AllowableRaces.RawValue);
+        for (int32 allowableRaces : Info.AllowableRaces.RawValue)
+            _worldPacket << int32(allowableRaces);
         _worldPacket << Size<uint32>(Info.TreasurePickerID);
-        _worldPacket << Size<uint32>(Info.TreasurePickerID2);
+        _worldPacket << Size<uint32>(Info.NonDisplayableTreasurePickerIDs);
         _worldPacket << int32(Info.Expansion);
         _worldPacket << int32(Info.ManagedWorldStateID);
         _worldPacket << int32(Info.QuestSessionBonus);
@@ -186,8 +188,8 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         if (!Info.TreasurePickerID.empty())
             _worldPacket.append(Info.TreasurePickerID.data(), Info.TreasurePickerID.size());
 
-        if (!Info.TreasurePickerID2.empty())
-            _worldPacket.append(Info.TreasurePickerID2.data(), Info.TreasurePickerID2.size());
+        if (!Info.NonDisplayableTreasurePickerIDs.empty())
+            _worldPacket.append(Info.NonDisplayableTreasurePickerIDs.data(), Info.NonDisplayableTreasurePickerIDs.size());
 
         if (!Info.RewardHouseRoomIDs.empty())
             _worldPacket.append(Info.RewardHouseRoomIDs.data(), Info.RewardHouseRoomIDs.size());
@@ -208,14 +210,14 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << Bits<1>(Info.ReadyForTranslation);
         _worldPacket.FlushBits();
 
-        for (QuestObjective const& questObjective : Info.Objectives)
+        for (QuestInfoObjective const& questObjective : Info.Objectives)
         {
             _worldPacket << uint32(questObjective.ID);
             _worldPacket << int32(questObjective.Type);
             _worldPacket << int8(questObjective.StorageIndex);
             _worldPacket << int32(questObjective.ObjectID);
             _worldPacket << int32(questObjective.Amount);
-            _worldPacket << int32(questObjective.SecondaryAmount); // only objective type 22
+            _worldPacket << int32(questObjective.ConditionalAmount); // only objective type 22
             _worldPacket << uint32(questObjective.Flags);
             _worldPacket << uint32(questObjective.Flags2);
             _worldPacket << float(questObjective.ProgressBarWeight);
@@ -263,7 +265,7 @@ WorldPacket const* QuestUpdateAddCredit::Write()
     _worldPacket << uint32(ObjectiveType);
 
     return &_worldPacket;
-};
+}
 
 WorldPacket const* QuestUpdateAddCreditSimple::Write()
 {
@@ -431,7 +433,7 @@ WorldPacket const* QuestGiverOfferRewardMessage::Write()
     _worldPacket << SizedString::Data(PortraitTurnInName);
 
     return &_worldPacket;
-};
+}
 
 void QuestGiverChooseReward::Read()
 {
@@ -630,6 +632,8 @@ WorldPacket const* QuestGiverQuestListMessage::Write()
 WorldPacket const* QuestUpdateComplete::Write()
 {
     _worldPacket << int32(QuestID);
+    _worldPacket << Bits<1>(HideCreditMessage);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -849,6 +853,7 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << Bits<1>(KeepOpenAfterChoice);
     _worldPacket << Bits<1>(ShowChoicesAsList);
     _worldPacket << Bits<1>(ForceDontShowChoicesAsList);
+    _worldPacket << Bits<1>(RequiresSelection);
     _worldPacket.FlushBits();
 
     for (PlayerChoiceResponse const& response : Responses)

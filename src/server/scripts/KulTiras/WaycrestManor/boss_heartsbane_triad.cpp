@@ -199,7 +199,7 @@ struct HeartsbaneTriadSharedAI : public BossAI
     virtual void ScheduleEvents()
     {
         events.ScheduleEvent(EVENT_CHECK_POWER, 1000ms);
-    };
+    }
 
     virtual void HandleDropIris(bool /*skipShieldPhase*/, bool /*skipIrisDrop*/)
     {
@@ -676,7 +676,7 @@ class spell_heartsbane_triad_jagged_nettles : public AuraScript
     {
         if (aurEff->GetTickNumber() > 1)
         {
-            if (GetTarget()->GetHealthPct() >= float(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
+            if (GetTarget()->GetHealthPct() >= GetEffectInfo(EFFECT_2).CalcValue(GetCaster()))
                 Remove();
         }
     }

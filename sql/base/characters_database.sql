@@ -547,8 +547,8 @@ CREATE TABLE `character_aura_effect` (
   `spell` int unsigned NOT NULL,
   `effectMask` int unsigned NOT NULL,
   `effectIndex` tinyint unsigned NOT NULL,
-  `amount` int NOT NULL DEFAULT '0',
-  `baseAmount` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `baseAmount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1602,6 +1602,180 @@ LOCK TABLES `character_reputation` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_select_screen_equipment_cache`
+--
+
+DROP TABLE IF EXISTS `character_select_screen_equipment_cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_select_screen_equipment_cache` (
+  `guid` bigint unsigned NOT NULL,
+  `headEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `headVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `headSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `headInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `headDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `headDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `headSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `headSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `neckEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `neckVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `neckSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `neckInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `neckDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `neckDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `neckSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `neckSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `shoulderEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `shoulderVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `shoulderSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `shoulderInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `shoulderDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `shoulderDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `shoulderSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `shoulderSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `bodyEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `bodyVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `bodySubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `bodyInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `bodyDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `bodyDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `bodySecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `bodySheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `chestEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `chestVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `chestSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `chestInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `chestDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `chestDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `chestSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `chestSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `waistEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `waistVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `waistSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `waistInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `waistDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `waistDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `waistSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `waistSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `legsEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `legsVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `legsSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `legsInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `legsDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `legsDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `legsSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `legsSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `feetEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `feetVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `feetSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `feetInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `feetDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `feetDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `feetSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `feetSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `wristsEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `wristsVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `wristsSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `wristsInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `wristsDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `wristsDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `wristsSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `wristsSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `handsEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `handsVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `handsSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `handsInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `handsDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `handsDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `handsSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `handsSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger1EquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `finger1VisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `finger1Subclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger1InvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger1DisplayID` int unsigned NOT NULL DEFAULT '0',
+  `finger1DisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `finger1SecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `finger1SheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger2EquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `finger2VisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `finger2Subclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger2InvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `finger2DisplayID` int unsigned NOT NULL DEFAULT '0',
+  `finger2DisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `finger2SecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `finger2SheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket1EquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `trinket1VisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `trinket1Subclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket1InvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket1DisplayID` int unsigned NOT NULL DEFAULT '0',
+  `trinket1DisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `trinket1SecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `trinket1SheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket2EquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `trinket2VisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `trinket2Subclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket2InvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `trinket2DisplayID` int unsigned NOT NULL DEFAULT '0',
+  `trinket2DisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `trinket2SecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `trinket2SheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `backEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `backVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `backSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `backInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `backDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `backDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `backSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `backSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `mainHandEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `mainHandVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `mainHandSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `mainHandInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `mainHandDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `mainHandDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `mainHandSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `mainHandSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `offHandEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `offHandVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `offHandSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `offHandInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `offHandDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `offHandDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `offHandSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `offHandSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `rangedEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `rangedVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `rangedSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `rangedInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `rangedDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `rangedDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `rangedSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `rangedSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  `tabardEquippedItemID` int unsigned NOT NULL DEFAULT '0',
+  `tabardVisibleItemID` int unsigned NOT NULL DEFAULT '0',
+  `tabardSubclass` tinyint unsigned NOT NULL DEFAULT '0',
+  `tabardInvType` tinyint unsigned NOT NULL DEFAULT '0',
+  `tabardDisplayID` int unsigned NOT NULL DEFAULT '0',
+  `tabardDisplayEnchantID` int unsigned NOT NULL DEFAULT '0',
+  `tabardSecondaryItemModifiedAppearanceID` int NOT NULL DEFAULT '0',
+  `tabardSheatheCategory` tinyint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_select_screen_equipment_cache`
+--
+
+LOCK TABLES `character_select_screen_equipment_cache` WRITE;
+/*!40000 ALTER TABLE `character_select_screen_equipment_cache` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_select_screen_equipment_cache` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_skills`
 --
 
@@ -1777,6 +1951,7 @@ CREATE TABLE `character_stats` (
   `agility` int unsigned NOT NULL DEFAULT '0',
   `stamina` int unsigned NOT NULL DEFAULT '0',
   `intellect` int unsigned NOT NULL DEFAULT '0',
+  `spirit` int unsigned NOT NULL DEFAULT '0',
   `armor` int unsigned NOT NULL DEFAULT '0',
   `resHoly` int unsigned NOT NULL DEFAULT '0',
   `resFire` int unsigned NOT NULL DEFAULT '0',
@@ -1888,6 +2063,90 @@ CREATE TABLE `character_trait_entry` (
 LOCK TABLES `character_trait_entry` WRITE;
 /*!40000 ALTER TABLE `character_trait_entry` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_trait_entry` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_transmog_outfit`
+--
+
+DROP TABLE IF EXISTS `character_transmog_outfit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_transmog_outfit` (
+  `guid` bigint NOT NULL,
+  `transmogOutfitId` int NOT NULL,
+  `name` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `icon` int NOT NULL,
+  `situationsEnabled` tinyint(1) NOT NULL,
+  PRIMARY KEY (`guid`,`transmogOutfitId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_transmog_outfit`
+--
+
+LOCK TABLES `character_transmog_outfit` WRITE;
+/*!40000 ALTER TABLE `character_transmog_outfit` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_transmog_outfit` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_transmog_outfit_situation`
+--
+
+DROP TABLE IF EXISTS `character_transmog_outfit_situation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_transmog_outfit_situation` (
+  `guid` bigint NOT NULL,
+  `transmogOutfitId` int NOT NULL,
+  `situationID` int NOT NULL,
+  `specID` int NOT NULL,
+  `loadoutID` int NOT NULL,
+  `equipmentSetID` int NOT NULL,
+  PRIMARY KEY (`guid`,`transmogOutfitId`,`situationID`,`specID`,`loadoutID`,`equipmentSetID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_transmog_outfit_situation`
+--
+
+LOCK TABLES `character_transmog_outfit_situation` WRITE;
+/*!40000 ALTER TABLE `character_transmog_outfit_situation` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_transmog_outfit_situation` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_transmog_outfit_slot`
+--
+
+DROP TABLE IF EXISTS `character_transmog_outfit_slot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_transmog_outfit_slot` (
+  `guid` bigint NOT NULL,
+  `transmogOutfitId` int NOT NULL,
+  `slot` tinyint NOT NULL,
+  `slotOption` tinyint NOT NULL,
+  `sheatheCategory` tinyint unsigned NOT NULL,
+  `itemModifiedAppearanceID` int NOT NULL,
+  `appearanceDisplayType` tinyint NOT NULL,
+  `spellItemEnchantmentID` int NOT NULL,
+  `illusionDisplayType` tinyint NOT NULL,
+  `flags` int NOT NULL,
+  PRIMARY KEY (`guid`,`transmogOutfitId`,`slot`,`slotOption`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_transmog_outfit_slot`
+--
+
+LOCK TABLES `character_transmog_outfit_slot` WRITE;
+/*!40000 ALTER TABLE `character_transmog_outfit_slot` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_transmog_outfit_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2026,7 +2285,6 @@ CREATE TABLE `characters` (
   `activeTalentGroup` tinyint unsigned NOT NULL DEFAULT '0',
   `lootSpecId` int unsigned NOT NULL DEFAULT '0',
   `exploredZones` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `equipmentCache` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `knownTitles` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `actionBars` tinyint unsigned NOT NULL DEFAULT '0',
   `deleteInfos_Account` int unsigned DEFAULT NULL,
@@ -2042,6 +2300,8 @@ CREATE TABLE `characters` (
   `personalTabardBorderStyle` int NOT NULL DEFAULT '-1',
   `personalTabardBorderColor` int NOT NULL DEFAULT '-1',
   `personalTabardBackgroundColor` int NOT NULL DEFAULT '-1',
+  `transmogOutfitEquippedId` int NOT NULL DEFAULT '2',
+  `transmogOutfitLocked` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   UNIQUE KEY `idx_name` (`name`),
   KEY `idx_account` (`account`),
@@ -3306,8 +3566,8 @@ CREATE TABLE `pet_aura_effect` (
   `spell` int unsigned NOT NULL,
   `effectMask` int unsigned NOT NULL,
   `effectIndex` tinyint unsigned NOT NULL,
-  `amount` int NOT NULL DEFAULT '0',
-  `baseAmount` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `baseAmount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`,`effectIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3829,7 +4089,12 @@ INSERT INTO `updates` VALUES
 ('2025_10_10_00_characters.sql','F1EF875805AF1E87A413387F5449FE37D5205E94','ARCHIVED','2025-10-09 23:58:44',0),
 ('2025_10_29_00_characters.sql','DC6A5D66E866352AC243869B627D282EE6A8B4F2','ARCHIVED','2025-10-29 06:57:00',0),
 ('2025_11_25_00_characters.sql','A0C04B2404B1832421402F78436DDC4AA18EBAD8','ARCHIVED','2025-11-25 22:28:32',0),
-('2026_01_14_00_characters.sql','FF5D889A41BBD9F9827489DEC08BCA9DB457933E','ARCHIVED','2026-01-14 23:40:33',0);
+('2026_01_14_00_characters.sql','FF5D889A41BBD9F9827489DEC08BCA9DB457933E','ARCHIVED','2026-01-14 23:40:33',0),
+('2026_01_28_00_characters.sql','807B6622970E81089806C3B45C6C7A32EF531BCA','ARCHIVED','2026-01-25 21:53:51',0),
+('2026_02_06_00_characters.sql','90735F4481A137E79B8371F291008CF6051657AC','ARCHIVED','2026-02-06 12:45:48',0),
+('2026_03_21_00_characters.sql','87963F4E341B195D4B4C4514A3119092DF127431','RELEASED','2026-03-21 00:42:13',0),
+('2026_04_08_00_characters.sql','5A7FC8264EBD524E4EBAACF53D1CE89C6FF0D255','RELEASED','2026-04-07 10:24:16',0),
+('2026_04_22_00_characters.sql','34E7E4659F8C2FF778042CF21267F8045BDC197E','RELEASED','2026-04-22 19:26:05',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3857,6 +4122,7 @@ INSERT INTO `updates_include` VALUES
 ('$/sql/custom/characters','RELEASED'),
 ('$/sql/old/10.x/characters','ARCHIVED'),
 ('$/sql/old/11.x/characters','ARCHIVED'),
+('$/sql/old/12.x/characters','ARCHIVED'),
 ('$/sql/old/6.x/characters','ARCHIVED'),
 ('$/sql/old/7/characters','ARCHIVED'),
 ('$/sql/old/8.x/characters','ARCHIVED'),
@@ -3934,4 +4200,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-14 23:40:35
+-- Dump completed on 2026-02-06 12:45:50

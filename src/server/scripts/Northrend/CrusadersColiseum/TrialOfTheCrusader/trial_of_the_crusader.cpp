@@ -646,7 +646,7 @@ struct npc_open_portal_target_toc : public ScriptedAI
     {
         if (spellInfo->Id == SPELL_OPEN_PORTAL)
         {
-            _scheduler.Schedule(2s, [this](TaskContext /*wilfredPortal*/)
+            _scheduler.Schedule(2s, [this](TaskContext const& /*wilfredPortal*/)
             {
                 DoCastSelf(SPELL_WILFRED_PORTAL);
                 me->DespawnOrUnsummon(9s);

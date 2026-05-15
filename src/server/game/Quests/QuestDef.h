@@ -27,13 +27,13 @@
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UniqueTrackablePtr.h"
-#include "WorldPacket.h"
 #include <bitset>
 #include <unordered_set>
 #include <vector>
 
 class Player;
-enum Difficulty : uint8;
+class WorldPacket;
+enum Difficulty : int16;
 
 namespace WorldPackets
 {
@@ -485,7 +485,7 @@ struct QuestObjective
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;
     int32  Amount       = 0;
-    int32  SecondaryAmount = 0;
+    int32  ConditionalAmount = 0;
     uint32 Flags        = 0;
     uint32 Flags2       = 0;
     float  ProgressBarWeight = 0.0f;
@@ -642,7 +642,7 @@ class TC_GAME_API Quest
         uint32 GetMaxLevel() const { return _maxLevel; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
-        Trinity::RaceMask<uint64> GetAllowableRaces() const { return _allowableRaces; }
+        Trinity::RaceMask<std::array<int32, 2>> GetAllowableRaces() const { return _allowableRaces; }
         uint32 GetRequiredSkill() const { return _requiredSkillId; }
         uint32 GetRequiredSkillValue() const { return _requiredSkillPoints; }
         uint32 GetRequiredMinRepFaction() const { return _requiredMinRepFaction; }
@@ -682,6 +682,7 @@ class TC_GAME_API Quest
         uint32 GetRewMoneyDifficulty() const { return _rewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return _rewardHonor; }
         uint32 GetRewKillHonor() const { return _rewardKillHonor; }
+        int32 GetRewardFavor() const { return _rewardFavor; }
         uint32 GetArtifactXPDifficulty() const { return _rewardArtifactXPDifficulty; }
         float GetArtifactXPMultiplier() const { return _rewardArtifactXPMultiplier; }
         uint32 GetArtifactCategoryId() const { return _rewardArtifactCategoryID; }
@@ -777,7 +778,7 @@ class TC_GAME_API Quest
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
-        std::array<WorldPacket, TOTAL_LOCALES> QueryData;
+        std::unique_ptr<WorldPacket[]> QueryData;
 
     private:
         uint32 _rewItemsCount = 0;
@@ -801,6 +802,7 @@ class TC_GAME_API Quest
         uint32 _rewardSpell = 0;
         uint32 _rewardHonor = 0;
         uint32 _rewardKillHonor = 0;
+        int32 _rewardFavor = 0;
         uint32 _rewardArtifactXPDifficulty = 0;
         float _rewardArtifactXPMultiplier = 0.f;
         uint32 _rewardArtifactCategoryID = 0;
@@ -826,7 +828,7 @@ class TC_GAME_API Quest
         uint32 _soundTurnIn = 0;
         uint32 _areaGroupID = 0;
         int64 _limitTime = 0;
-        Trinity::RaceMask<uint64> _allowableRaces;
+        Trinity::RaceMask<std::array<int32, 2>> _allowableRaces;
         std::vector<int32> _treasurePickerID;
         int32 _expansion = 0;
         int32 _managedWorldStateID = 0;

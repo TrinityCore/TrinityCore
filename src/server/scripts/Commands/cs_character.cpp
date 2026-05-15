@@ -45,7 +45,7 @@ class character_commandscript : public CommandScript
 public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable pdumpCommandTable =
         {
@@ -103,7 +103,7 @@ public:
     * @param searchString the search string which either contains a player GUID or a part fo the character-name
     * @return             returns false if there was a problem while selecting the characters (e.g. player name not normalizeable)
     */
-    static bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string& searchString)
+    static bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string_view searchString)
     {
         PreparedQueryResult result;
         CharacterDatabasePreparedStatement* stmt;
@@ -119,11 +119,12 @@ public:
             // search by name
             else
             {
-                if (!normalizePlayerName(searchString))
+                std::string normalizedName(searchString);
+                if (!normalizePlayerName(normalizedName))
                     return false;
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);
-                stmt->setString(0, searchString);
+                stmt->setString(0, normalizedName);
                 result = CharacterDatabase.Query(stmt);
             }
         }
@@ -181,11 +182,11 @@ public:
 
             if (!handler->GetSession())
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
-                    itr->guid.ToString().c_str(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
+                    Trinity::ToString(itr->guid.GetCounter()), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
             else
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CHAT,
-                    itr->guid.ToString().c_str(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
+                    Trinity::ToString(itr->guid.GetCounter()), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
         }
 
@@ -207,7 +208,7 @@ public:
     {
         if (delInfo.accountName.empty())                    // account does not exist
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), Trinity::ToString(delInfo.guid.GetCounter()), delInfo.accountId);
             return;
         }
 
@@ -215,13 +216,13 @@ public:
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
         if (charcount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), Trinity::ToString(delInfo.guid.GetCounter()), delInfo.accountId);
             return;
         }
 
         if (!sCharacterCache->GetCharacterGuidByName(delInfo.name).IsEmpty())
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), Trinity::ToString(delInfo.guid.GetCounter()), delInfo.accountId);
             return;
         }
 
@@ -573,15 +574,12 @@ public:
     * @see HandleCharacterDeletedDeleteCommand
     * @see DeletedInfoList
     *
-    * @param args the search string which either contains a player GUID or a part fo the character-name
+    * @param needle the search string which either contains a player GUID or a part fo the character-name
     */
-    static bool HandleCharacterDeletedListCommand(ChatHandler* handler, Optional<std::string_view> needleStr)
+    static bool HandleCharacterDeletedListCommand(ChatHandler* handler, Optional<std::string_view> const& needle)
     {
-        std::string needle;
-        if (needleStr)
-            needle.assign(*needleStr);
         DeletedInfoList foundList;
-        if (!GetDeletedCharacterInfoList(foundList, needle))
+        if (!GetDeletedCharacterInfoList(foundList, needle.value_or(""sv)))
             return false;
 
         // if no characters have been found, output a warning
@@ -606,9 +604,11 @@ public:
      * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedDeleteCommand
      *
-     * @param args the search string which either contains a player GUID or a part of the character-name
+     * @param needle the search string which either contains a player GUID or a part of the character-name
+     * @param newCharName new character name after restoring
+     * @param newAccount account to attach restored character to
      */
-    static bool HandleCharacterDeletedRestoreCommand(ChatHandler* handler, std::string needle, Optional<std::string_view> newCharName, Optional<AccountIdentifier> newAccount)
+    static bool HandleCharacterDeletedRestoreCommand(ChatHandler* handler, std::string_view needle, Optional<std::string_view> const& newCharName, Optional<AccountIdentifier> const& newAccount)
     {
         DeletedInfoList foundList;
         if (!GetDeletedCharacterInfoList(foundList, needle))
@@ -664,9 +664,9 @@ public:
      * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedRestoreCommand
      *
-     * @param args the search string which either contains a player GUID or a part fo the character-name
+     * @param needle the search string which either contains a player GUID or a part fo the character-name
      */
-    static bool HandleCharacterDeletedDeleteCommand(ChatHandler* handler, std::string needle)
+    static bool HandleCharacterDeletedDeleteCommand(ChatHandler* handler, std::string_view needle)
     {
         DeletedInfoList foundList;
         if (!GetDeletedCharacterInfoList(foundList, needle))
@@ -698,7 +698,7 @@ public:
      * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedRestoreCommand
      *
-     * @param args the search string which either contains a player GUID or a part fo the character-name
+     * @param days removes characters deleted more than this many days ago
      */
     static bool HandleCharacterDeletedOldCommand(ChatHandler* /*handler*/, Optional<uint16> days)
     {

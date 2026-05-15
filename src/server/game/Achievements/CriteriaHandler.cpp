@@ -40,6 +40,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestMgr.h"
 #include "RBAC.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -124,7 +125,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Class);
                 return false;
             }
-            if (!Trinity::RaceMask<uint64>{ RACEMASK_ALL_PLAYABLE }.HasRace(ClassRace.Race))
+            if (!RACEMASK_ALL_PLAYABLE.HasRace(ClassRace.Race))
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: {} Type: {}) for data type CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({}) contains a non-existing race in value2 ({}), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, ClassRace.Race);
@@ -1363,7 +1364,7 @@ bool CriteriaHandler::CanUpdateCriteria(Criteria const* criteria, CriteriaTreeLi
     }
 
     if (criteria->Entry->EligibilityWorldStateID != 0)
-        if (sWorldStateMgr->GetValue(criteria->Entry->EligibilityWorldStateID, referencePlayer->GetMap()) != criteria->Entry->EligibilityWorldStateValue)
+        if (WorldStateMgr::GetValue(criteria->Entry->EligibilityWorldStateID, referencePlayer->GetMap()) != criteria->Entry->EligibilityWorldStateValue)
             return false;
 
     return true;
@@ -2087,7 +2088,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
-            if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
+            if (referencePlayer->GetMap()->GetDifficultyID() != int32(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerLevelEqualOrGreaterThan: // 69
@@ -2295,7 +2296,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::PlayersRealmWorldState: // 108
-            if (sWorldStateMgr->GetValue(reqValue, referencePlayer->GetMap()) != int32(secondaryAsset))
+            if (WorldStateMgr::GetValue(reqValue, referencePlayer->GetMap()) != int32(secondaryAsset))
                 return false;
             break;
         case ModifierTreeType::TimeBetween: // 109
@@ -3090,7 +3091,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             Scenario const* scenario = referencePlayer->GetScenario();
             if (!scenario)
                 return false;
-            if (scenario->GetEntry()->Type != reqValue)
+            if (scenario->GetEntry()->Type != int32(reqValue))
                 return false;
             break;
         }
@@ -3226,10 +3227,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     itemSubclass = itemTemplate->GetSubClass();
 
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID))
-                        if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(itemModifiedAppearance->ID))
-                            if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
-                                itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
+                    if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(visibleItem.ItemModifiedAppearanceID))
+                        if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
+                            itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
                 }
             }
             if (itemSubclass != reqValue)
@@ -3246,10 +3246,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     itemSubclass = itemTemplate->GetSubClass();
 
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(visibleItem.ItemID, visibleItem.ItemAppearanceModID))
-                        if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(itemModifiedAppearance->ID))
-                            if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
-                                itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
+                    if (ItemModifiedAppearanceExtraEntry const* itemModifiedAppearaceExtra = sItemModifiedAppearanceExtraStore.LookupEntry(visibleItem.ItemModifiedAppearanceID))
+                        if (itemModifiedAppearaceExtra->DisplayWeaponSubclassID > 0)
+                            itemSubclass = itemModifiedAppearaceExtra->DisplayWeaponSubclassID;
                 }
             }
             if (itemSubclass != reqValue)
@@ -3277,15 +3276,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerIsOnQuestInQuestline: // 236
         {
-            bool isOnQuest = false;
-            if (std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue))
-            {
-                isOnQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-                {
-                    return referencePlayer->FindQuestSlot(questLineQuest->QuestID) < MAX_QUEST_LOG_SIZE;
-                });
-            }
-            if (!isOnQuest)
+            if (!QuestMgr::IsQuestLineQuestActiveForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
@@ -3312,52 +3303,26 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerCanAcceptQuestInQuestline: // 240
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            bool canTakeQuest = std::any_of(questLineQuests->begin(), questLineQuests->end(), [referencePlayer](QuestLineXQuestEntry const* questLineQuest)
-            {
-                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
-                    return referencePlayer->CanTakeQuest(quest, false);
-                return false;
-            });
-            if (!canTakeQuest)
+            if (!QuestMgr::IsQuestLineQuestAvailableForPlayer(reqValue, referencePlayer))
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestline: // 241
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
+            if (!QuestMgr::IsQuestLineCompletedByPlayer(reqValue, referencePlayer))
                 return false;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (!referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedQuestlineQuestCount: // 242
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests)
-                return false;
-            uint32 completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (completedQuests < reqValue)
+            if (QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer).Completed < reqValue)
                 return false;
             break;
         }
         case ModifierTreeType::PlayerHasCompletedPercentageOfQuestline: // 243
         {
-            std::vector<QuestLineXQuestEntry const*> const* questLineQuests = sDB2Manager.GetQuestsForQuestLine(reqValue);
-            if (!questLineQuests || questLineQuests->empty())
-                return false;
-            std::size_t completedQuests = 0;
-            for (QuestLineXQuestEntry const* questLineQuest : *questLineQuests)
-                if (referencePlayer->GetQuestRewardStatus(questLineQuest->QuestID))
-                    ++completedQuests;
-            if (GetPctOf(completedQuests, questLineQuests->size()) < reqValue)
+            QuestMgr::QuestLineStats questLineStats = QuestMgr::GetQuestLineStatsForPlayer(reqValue, referencePlayer);
+            if (GetPctOf(questLineStats.Completed, questLineStats.Total) < reqValue)
                 return false;
             break;
         }
@@ -4029,6 +3994,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerIsInTimerunningSeason: // 386
             if (referencePlayer->m_activePlayerData->TimerunningSeasonID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerHasCompletedCampaign: // 388
+            if (!QuestMgr::IsCampaignCompletedByPlayer(reqValue, referencePlayer))
                 return false;
             break;
         case ModifierTreeType::TargetCreatureClassificationEqual: // 389
@@ -4748,7 +4717,7 @@ T GetEntry(std::unordered_map<uint32, T> const& map, CriteriaTreeEntry const* tr
         return nullptr;
 
     return itr->second;
-};
+}
 
 void CriteriaMgr::LoadCriteriaList()
 {

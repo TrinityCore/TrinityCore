@@ -212,7 +212,7 @@ class TC_GAME_API SpellEffectInfo
     SpellInfo const* _spellInfo;
 public:
     SpellEffIndex EffectIndex;
-    SpellEffectName Effect;
+    SpellEffects Effect;
     AuraType  ApplyAuraName;
     uint32    ApplyAuraPeriod;
     float     BasePoints;
@@ -254,7 +254,7 @@ public:
     ~SpellEffectInfo();
 
     bool IsEffect() const;
-    bool IsEffect(SpellEffectName effectName) const;
+    bool IsEffect(SpellEffects effectName) const;
     bool IsAura() const;
     bool IsAura(AuraType aura) const;
     bool IsTargetingArea() const;
@@ -263,14 +263,17 @@ public:
 
     uint32 GetPeriodicTickCount() const;
 
-    int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
-    int32 CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
+    static constexpr SpellEffectValue MinValue = -2000000000.0;
+    static constexpr SpellEffectValue MaxValue = 2000000000.0;
+
+    int32 CalcValueAsInt(WorldObject const* caster = nullptr, SpellEffectValue const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
+    SpellEffectValue CalcValue(WorldObject const* caster = nullptr, SpellEffectValue const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
+    SpellEffectValue CalcBaseValue(WorldObject const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius(SpellTargetIndex targetIndex) const;
-    float CalcRadius(WorldObject* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
-    Optional<std::pair<float, float>> CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const;
+    SpellRange CalcRadius(WorldObject const* caster = nullptr, SpellTargetIndex targetIndex = SpellTargetIndex::TargetA, Spell* spell = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool dstSet = false, uint32 mask = 0) const;
@@ -343,6 +346,7 @@ class TC_GAME_API SpellInfo
         uint32 AttributesEx13 = 0;
         uint32 AttributesEx14 = 0;
         uint32 AttributesEx15 = 0;
+        uint32 AttributesEx16 = 0;
         uint32 AttributesCu = 0;
         std::bitset<MAX_SPELL_EFFECTS> NegativeEffects;
         uint64 Stances = 0;
@@ -422,7 +426,6 @@ class TC_GAME_API SpellInfo
         {
             uint32 MinScalingLevel = 0;
             uint32 MaxScalingLevel = 0;
-            uint32 ScalesFromItemLevel = 0;
         } Scaling;
 
         uint32 ExplicitTargetMask = 0;
@@ -444,7 +447,7 @@ class TC_GAME_API SpellInfo
         SpellInfo& operator=(SpellInfo&&) noexcept = delete;
 
         uint32 GetCategory() const;
-        bool HasEffect(SpellEffectName effect) const;
+        bool HasEffect(SpellEffects effect) const;
         bool HasAura(AuraType aura) const;
         bool HasAreaAuraEffect() const;
         bool HasOnlyDamageEffects() const;
@@ -466,6 +469,7 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
         bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellAttr15 attribute) const { return !!(AttributesEx15 & attribute); }
+        bool HasAttribute(SpellAttr16 attribute) const { return !!(AttributesEx16 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
         bool CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget, bool ignoreImmunity = false) const;
@@ -520,7 +524,7 @@ class TC_GAME_API SpellInfo
         bool IsAffected(uint32 familyName, flag128 const& familyFlags) const;
 
         bool IsAffectedBySpellMods() const;
-        uint32 IsAffectedBySpellMod(SpellModifier const* mod) const;
+        int32 IsAffectedBySpellMod(SpellModifier const* mod) const;
         bool IsUpdatingTemporaryAuraValuesBySpellMod() const;
 
         bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
@@ -550,7 +554,8 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, WorldObject* caster = nullptr, Spell* spell = nullptr) const;
+        float GetMaxRange(bool positive = false, WorldObject const* caster = nullptr, Spell* spell = nullptr) const;
+        SpellRange GetMinMaxRange(bool positive = false, WorldObject const* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 CalcDuration(WorldObject const* caster = nullptr) const;
         int32 GetDuration() const;

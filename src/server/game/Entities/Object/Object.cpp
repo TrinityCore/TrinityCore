@@ -61,12 +61,21 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
+struct Object::ObjectFragmentInfoInitializer
+{
+    ObjectFragmentInfoInitializer()
+    {
+        WowCS::EntityFragmentInfos::Register(WowCS::EntityFragment::CGObject,
+            &Object::BuildObjectFragmentCreate, &Object::BuildObjectFragmentUpdate,
+            &Object::IsObjectFragmentChanged, &Object::ClearObjectFragmentChanged);
+    }
+} static InitObjectFragment;
+
 Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
 
-    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false,
-        &Object::BuildObjectFragmentCreate, &Object::BuildObjectFragmentUpdate, &Object::IsObjectFragmentChanged);
+    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false, this);
 }
 
 Object::~Object() = default;
@@ -94,14 +103,14 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 
     std::size_t sizePos = buf.wpos();
     buf << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buf, flags);
-    BuildValuesUpdateWithFlag(&buf, flags, target);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buf, flags);
+    BuildValuesUpdateWithFlag(flags, buf, target);
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
 
-void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer& data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
     uint8 contentsChangedMask = 0;
     for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
@@ -113,35 +122,39 @@ void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* da
             contentsChangedMask |= m_entityFragments.Updateable.Masks[i];
     }
 
-    *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
-    *data << uint8(false);                                  // m_entityFragments.IdsChanged
-    *data << uint8(contentsChangedMask);
+    data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
+    data << uint8(false);                                  // m_entityFragments.IdsChanged
+    data << uint8(contentsChangedMask);
 }
 
-void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const
-{
-    *data << uint32(0);
-}
-
-void Object::ClearUpdateMask(bool remove)
+void Object::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Object::m_objectData);
-    BaseEntity::ClearUpdateMask(remove);
 }
 
-void Object::BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+void Object::BuildValuesUpdateWithFlag(UF::UpdateFieldFlag /*flags*/, ByteBuffer& data, Player const* /*target*/) const
 {
-    static_cast<Object const*>(entity)->BuildValuesCreate(&data, flags, target);
+    data << uint32(0);
 }
 
-void Object::BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+void Object::BuildObjectFragmentCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* /*entity*/)
 {
-    static_cast<Object const*>(entity)->BuildValuesUpdate(&data, flags, target);
+    static_cast<Object const*>(rawFragmentData)->BuildValuesCreate(flags, data, target);
 }
 
-bool Object::IsObjectFragmentChanged(BaseEntity const* entity)
+void Object::BuildObjectFragmentUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* /*entity*/)
 {
-    return entity->m_values.GetChangedObjectTypeMask() != 0;
+    static_cast<Object const*>(rawFragmentData)->BuildValuesUpdate(flags, data, target);
+}
+
+bool Object::IsObjectFragmentChanged(void const* rawFragmentData)
+{
+    return static_cast<Object const*>(rawFragmentData)->m_values.GetChangedObjectTypeMask() != 0;
+}
+
+void Object::ClearObjectFragmentChanged(void const* rawFragmentData)
+{
+    const_cast<Object*>(static_cast<Object const*>(rawFragmentData))->ClearValuesChangesMask();
 }
 
 std::string Object::GetDebugInfo() const
@@ -157,14 +170,14 @@ void MovementInfo::OutDebug()
     TC_LOG_DEBUG("misc", "{}", guid.ToString());
     TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(MovementFlags(flags)), flags);
     TC_LOG_DEBUG("misc", "flags2 {} ({})", Movement::MovementFlags_ToString(MovementFlags2(flags2)), flags2);
-    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags2);
+    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags3);
     TC_LOG_DEBUG("misc", "time {} current time {}", time, getMSTime());
-    TC_LOG_DEBUG("misc", "position: `{}`", pos.ToString());
+    TC_LOG_DEBUG("misc", "position: `{}`", pos);
     if (!transport.guid.IsEmpty())
     {
         TC_LOG_DEBUG("misc", "TRANSPORT:");
         TC_LOG_DEBUG("misc", "{}", transport.guid.ToString());
-        TC_LOG_DEBUG("misc", "position: `{}`", transport.pos.ToString());
+        TC_LOG_DEBUG("misc", "position: `{}`", transport.pos);
         TC_LOG_DEBUG("misc", "seat: {}", transport.seat);
         TC_LOG_DEBUG("misc", "time: {}", transport.time);
         if (transport.prevTime)
@@ -189,7 +202,7 @@ void MovementInfo::OutDebug()
     if (inertia)
     {
         TC_LOG_DEBUG("misc", "inertia->id: {}", inertia->id);
-        TC_LOG_DEBUG("misc", "inertia->force: {}", inertia->force.ToString());
+        TC_LOG_DEBUG("misc", "inertia->force: {}", inertia->force);
         TC_LOG_DEBUG("misc", "inertia->lifetime: {}", inertia->lifetime);
     }
 
@@ -404,7 +417,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     Position const* thisOrTransport = this;
     Position const* objOrObjTransport = obj;
 
-    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetTransportGUID() == GetTransport()->GetTransportGUID())
+    if (GetTransport() && GetTransport() == obj->GetTransport())
     {
         thisOrTransport = &m_movementInfo.transport.pos;
         objOrObjTransport = &obj->m_movementInfo.transport.pos;
@@ -601,11 +614,9 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
     return distsq < maxdist * maxdist;
 }
 
-bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) const
+bool WorldObject::IsInRange2d(Position const* pos, float minRange, float maxRange) const
 {
-    float dx = GetPositionX() - x;
-    float dy = GetPositionY() - y;
-    float distsq = dx*dx + dy*dy;
+    float distsq = GetExactDist2dSq(pos);
 
     float sizefactor = GetCombatReach();
 
@@ -621,12 +632,9 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     return distsq < maxdist * maxdist;
 }
 
-bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
+bool WorldObject::IsInRange3d(Position const* pos, float minRange, float maxRange) const
 {
-    float dx = GetPositionX() - x;
-    float dy = GetPositionY() - y;
-    float dz = GetPositionZ() - z;
-    float distsq = dx*dx + dy*dy + dz*dz;
+    float distsq = GetExactDistSq(pos);
 
     float sizefactor = GetCombatReach();
 
@@ -669,32 +677,23 @@ bool WorldObject::isInBack(WorldObject const* target, float arc) const
     return !HasInArc(2 * float(M_PI) - arc, target);
 }
 
-void WorldObject::GetRandomPoint(Position const& pos, float distance, float& rand_x, float& rand_y, float& rand_z) const
-{
-    if (!distance)
-    {
-        pos.GetPosition(rand_x, rand_y, rand_z);
-        return;
-    }
-
-    // angle to face `obj` to `this`
-    float angle = rand_norm() * static_cast<float>(2 * M_PI);
-    float new_dist = rand_norm() + rand_norm();
-    new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
-
-    rand_x = pos.m_positionX + new_dist * std::cos(angle);
-    rand_y = pos.m_positionY + new_dist * std::sin(angle);
-    rand_z = pos.m_positionZ;
-
-    Trinity::NormalizeMapCoord(rand_x);
-    Trinity::NormalizeMapCoord(rand_y);
-    UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
-}
-
-Position WorldObject::GetRandomPoint(Position const& srcPos, float distance) const
+Position WorldObject::GetRandomPoint(Position const& srcPos, float distance, float minDistance /*= 0.0f*/) const
 {
     float x, y, z;
-    GetRandomPoint(srcPos, distance, x, y, z);
+    srcPos.GetPosition(x, y, z);
+    if (distance)
+    {
+        // angle to face `obj` to `this`
+        float angle = rand_norm() * static_cast<float>(2 * M_PI);
+        float new_dist = minDistance + (distance - minDistance) * std::sqrt(rand_norm());
+
+        x += new_dist * std::cos(angle);
+        y += new_dist * std::sin(angle);
+
+        Trinity::NormalizeMapCoord(x);
+        Trinity::NormalizeMapCoord(y);
+        UpdateGroundPositionZ(x, y, z);            // update to LOS height if available
+    }
     return Position(x, y, z, GetOrientation());
 }
 
@@ -866,7 +865,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    if (!args.IncludeAnyPrivateObject && !obj->CheckPrivateObjectOwnerVisibility(this))
+    if (!args.IncludeAnyPrivateObject && (!obj->CheckPrivateObjectOwnerVisibility(this) || !CheckPrivateObjectOwnerVisibility(obj)))
         return false;
 
     if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
@@ -1663,44 +1662,13 @@ Player* WorldObject::GetSpellModOwner() const
     return nullptr;
 }
 
-// function uses real base points (typically value - 1)
-int32 WorldObject::CalculateSpellDamage(Unit const* target, SpellEffectInfo const& spellEffectInfo, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
+SpellRange WorldObject::GetSpellMinMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
 {
-    if (variance)
-        *variance = 0.0f;
-
-    return spellEffectInfo.CalcValue(this, basePoints, target, variance, castItemId, itemLevel);
+    bool positive = target ? !IsHostileTo(target) : true;
+    return spellInfo->GetMinMaxRange(positive);
 }
 
-float WorldObject::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
-{
-    if (!spellInfo->RangeEntry)
-        return 0.f;
-
-    if (spellInfo->RangeEntry->RangeMax[0] == spellInfo->RangeEntry->RangeMax[1])
-        return spellInfo->GetMaxRange();
-
-    if (!target)
-        return spellInfo->GetMaxRange(true);
-
-    return spellInfo->GetMaxRange(!IsHostileTo(target));
-}
-
-float WorldObject::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
-{
-    if (!spellInfo->RangeEntry)
-        return 0.f;
-
-    if (spellInfo->RangeEntry->RangeMin[0] == spellInfo->RangeEntry->RangeMin[1])
-        return spellInfo->GetMinRange();
-
-    if (!target)
-        return spellInfo->GetMinRange(true);
-
-    return spellInfo->GetMinRange(!IsHostileTo(target));
-}
-
-double WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, double value) const
+SpellEffectValue WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const
 {
     if (Player* modOwner = GetSpellModOwner())
     {
@@ -1739,33 +1707,14 @@ int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo, std::vector<Spe
     if (minduration == maxduration)
         return minduration;
 
-    Unit const* unit = ToUnit();
-    if (!unit)
-        return minduration;
-
     if (!powerCosts)
         return minduration;
 
-    // we want only baseline cost here
-    auto itr = std::find_if(spellInfo->PowerCosts.begin(), spellInfo->PowerCosts.end(), [=](SpellPowerEntry const* powerEntry)
-    {
-        return powerEntry && powerEntry->PowerType == POWER_COMBO_POINTS && (!powerEntry->RequiredAuraSpellID || unit->HasAura(powerEntry->RequiredAuraSpellID));
-    });
-
-    if (itr == spellInfo->PowerCosts.end())
-        return minduration;
-
-    auto consumedItr = std::find_if(powerCosts->begin(), powerCosts->end(),
-        [](SpellPowerCost const& consumed) { return consumed.Power == POWER_COMBO_POINTS; });
+    auto consumedItr = std::ranges::find(*powerCosts, POWER_COMBO_POINTS, &SpellPowerCost::Power);
     if (consumedItr == powerCosts->end())
         return minduration;
 
-    int32 baseComboCost = (*itr)->ManaCost + (*itr)->OptionalCost;
-    if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_COMBO_POINTS))
-        baseComboCost += int32(CalculatePct(powerTypeEntry->MaxBasePower, (*itr)->PowerCostPct + (*itr)->OptionalCostPct));
-
-    float durationPerComboPoint = float(maxduration - minduration) / baseComboCost;
-    return minduration + int32(durationPerComboPoint * consumedItr->Amount);
+    return std::min(minduration + spellInfo->DurationEntry->DurationPerResource * consumedItr->Amount, maxduration);
 }
 
 int32 WorldObject::ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const
@@ -1918,7 +1867,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
         int32 levelBasedHitDiff = leveldif;
 
         // Base hit chance from attacker and victim levels
-        int32 modHitChance = 100;
+        float modHitChance = 100;
         if (levelBasedHitDiff >= 0)
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
@@ -1965,7 +1914,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
         return SPELL_MISS_MISS;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100;
+    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100.0f;
 
     // Roll chance
     if (resist_chance > 0 && rand < (tmp += resist_chance))
@@ -1974,7 +1923,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     // cast by caster in front of victim
     if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
-        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100.0f;
         if (deflect_chance > 0 && rand < (tmp += deflect_chance))
             return SPELL_MISS_DEFLECT;
     }
@@ -2016,10 +1965,10 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
     // Try victim reflect spell
     if (canReflect)
     {
-        int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
+        float reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
 
-        if (reflectchance > 0 && roll_chance_i(reflectchance))
+        if (reflectchance > 0 && roll_chance(reflectchance))
             return spellInfo->HasAttribute(SPELL_ATTR7_REFLECTION_ONLY_DEFENDS) ? SPELL_MISS_DEFLECT : SPELL_MISS_REFLECT;
     }
 
@@ -2581,7 +2530,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE)) && unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE_2))
         return false;
 
-    if (unitTarget && unitTarget->IsUninteractible())
+    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR11_CAN_ASSIST_UNINTERACTIBLE)) && unitTarget && unitTarget->IsUninteractible())
         return false;
 
     // check flags for negative spells
@@ -2820,7 +2769,7 @@ Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
 Position WorldObject::GetRandomNearPosition(float radius)
 {
     Position pos = GetPosition();
-    MovePosition(pos, radius * rand_norm(), rand_norm() * static_cast<float>(2 * M_PI));
+    MovePosition(pos, radius * std::sqrt(rand_norm()), rand_norm() * static_cast<float>(2 * M_PI));
     return pos;
 }
 

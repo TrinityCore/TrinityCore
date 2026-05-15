@@ -100,8 +100,6 @@ class TC_GAME_API Object : public BaseEntity
 
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
-        void ClearUpdateMask(bool remove) override;
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
 
@@ -173,17 +171,21 @@ class TC_GAME_API Object : public BaseEntity
     protected:
         Object();
 
-        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
+        virtual void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const = 0;
+        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer& data, EnumFlag<UF::UpdateFieldFlag> flags) const;
+        virtual void ClearValuesChangesMask();
 
     public:
-        virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
+        virtual void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const;
 
     private:
-        static void BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
-        static void BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target);
-        static bool IsObjectFragmentChanged(BaseEntity const* entity);
+        struct ObjectFragmentInfoInitializer;
+        friend ObjectFragmentInfoInitializer;
+        static void BuildObjectFragmentCreate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* entity);
+        static void BuildObjectFragmentUpdate(void const* rawFragmentData, UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target, BaseEntity const* entity);
+        static bool IsObjectFragmentChanged(void const* rawFragmentData);
+        static void ClearObjectFragmentChanged(void const* rawFragmentData);
 
         struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Object> m_scriptRef;
@@ -301,8 +303,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ = nullptr) const;
 
-        void GetRandomPoint(Position const& srcPos, float distance, float& rand_x, float& rand_y, float& rand_z) const;
-        Position GetRandomPoint(Position const& srcPos, float distance) const;
+        Position GetRandomPoint(Position const& srcPos, float distance, float minDistance = 0.0f) const;
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
@@ -365,8 +366,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
-        bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
-        bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
+        bool IsInRange2d(Position const* pos, float minRange, float maxRange) const;
+        bool IsInRange3d(Position const* pos, float minRange, float maxRange) const;
         bool isInFront(WorldObject const* target, float arc = float(M_PI)) const;
         bool isInBack(WorldObject const* target, float arc = float(M_PI)) const;
 
@@ -445,13 +446,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Player* GetAffectingPlayer() const;
 
         Player* GetSpellModOwner() const;
-        int32 CalculateSpellDamage(Unit const* target, SpellEffectInfo const& spellEffectInfo, int32 const* basePoints = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
 
         // target dependent range checks
-        float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
-        float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
+        SpellRange GetSpellMinMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        double ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, double value) const;
+        SpellEffectValue ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectValue value) const;
         int32 CalcSpellDuration(SpellInfo const* spellInfo, std::vector<SpellPowerCost> const* powerCosts) const;
         int32 ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const;
         void ModSpellCastTime(SpellInfo const* spellInfo, int32& castTime, Spell* spell = nullptr) const;

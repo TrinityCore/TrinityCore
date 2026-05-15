@@ -41,17 +41,11 @@ struct DBCPosition3D
 
 enum LevelLimit
 {
-    // Client expected level limitation, like as used in DBC item max levels for "until max player level"
-    // use as default max player level, must be fit max level for used client
-    // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 80,
-
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
-    // also see GT_MAX_LEVEL define
     MAX_LEVEL = 123,
 
     // Server side limitation. Base at used code requirements.
-    // also see MAX_LEVEL and GT_MAX_LEVEL define
+    // also see MAX_LEVEL
     STRONG_MAX_LEVEL = 255,
 };
 
@@ -290,6 +284,14 @@ enum class BattlemasterListFlags : uint32
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
 
+enum class CampaignFlags : int32
+{
+    DontUseJourneyQuestBang = 0x01,
+    IsContainer             = 0x02
+};
+
+DEFINE_ENUM_FLAG(CampaignFlags);
+
 enum class CfgCategoriesCharsets : uint8
 {
     Any     = 0x00,
@@ -431,6 +433,7 @@ enum class ChrSpecialization : uint32
     MonkMistweaver              = 270,
     DemonHunterHavoc            = 577,
     DemonHunterVengeance        = 581,
+    DemonHunterDevourer         = 1480,
     EvokerDevastation           = 1467,
     EvokerPreservation          = 1468,
     EvokerAugmentation          = 1473
@@ -799,7 +802,7 @@ enum class CriteriaType : int16
     RemoveDecor                                    = 271, /*NYI*/ // Remove any decor
     CollectUniqueDecor                             = 272, /*NYI*/ // Collect Unique Decor
 
-    Count                                          = 279
+    Count                                          = 284
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -925,7 +928,7 @@ enum class CurveInterpolationMode : uint8
     Constant    = 6,
 };
 
-enum Difficulty : uint8
+enum Difficulty : int16
 {
     DIFFICULTY_NONE                 = 0,
     DIFFICULTY_NORMAL               = 1,
@@ -1149,6 +1152,7 @@ enum class GameRule : int32
     GdapiCharacterProfileDisabled           = 153,
     HousingEnabled                          = 154,
     RestrictedAchievementCategoryID         = 155,
+    EjJourneysDisabled                      = 156,
     LootMethodStyle                         = 157,
     ExperienceBarDisabled                   = 159,
     HideUnavailableTransmogSlots            = 160,
@@ -1160,6 +1164,7 @@ enum class GameRule : int32
     RecommendLeastPopulatedRealm            = 169,
     BagSpaceOverride                        = 172,
     UnflaggedPlayersCanAttackPvPFlaggedPlayers = 173,
+    PvPInitialRatingOverride                = 190,
 };
 
 enum class GlobalCurve : int32
@@ -1188,6 +1193,16 @@ enum class GlobalCurve : int32
     MythicPlusEndOfRunGearSequenceLevel = 23,
 
     SpellAreaEffectWarningRadius = 26,  // ground spell effect warning circle radius (based on spell radius)
+
+    HouseLevelFavorForLevel = 37,
+    HouseInteriorDecorBudget = 38,
+    HouseExteriorDecorBudget = 39,
+    HouseRoomPlacementBudget = 40,
+    HouseFixtureBudget = 41,
+
+    TransmogCost = 43,
+
+    MaxHouseSizeForLevel = 46,
 };
 
 #define MAX_ITEM_PROTO_FLAGS 5
@@ -1276,6 +1291,7 @@ enum ItemBonusType
     ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
     ITEM_BONUS_ITEM_OFFSET_CURVE                = 48,
     ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL     = 49,
+    ITEM_BONUS_ITEM_BONUS_LIST                  = 50,
     ITEM_BONUS_SCALING_CONFIG                   = 51,
 };
 
@@ -1498,6 +1514,25 @@ enum ItemSetFlags
     ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
 };
 
+enum class ItemSheatheType : uint8
+{
+    None                    = 0,
+    Shoulder                = 1,
+    Inverted                = 2,
+    Hip                     = 3,
+    Shield                  = 4,
+    Crossbow                = 5,
+    ShoulderInvis           = 6,
+    InvertedInvis           = 7,
+    HipInvis                = 8,
+    ShieldInvis             = 9,
+    CrossbowInvis           = 10,
+    InvertedDualWield       = 11,
+    InvertedDualWieldInvis  = 12,
+
+    Max
+};
+
 enum ItemSpecStat
 {
     ITEM_SPEC_STAT_INTELLECT        = 0,
@@ -1546,12 +1581,15 @@ enum ItemSpecStat
 
 enum MapTypes                                               // Lua_IsInInstance
 {
-    MAP_COMMON          = 0,                                // none
-    MAP_INSTANCE        = 1,                                // party
-    MAP_RAID            = 2,                                // raid
-    MAP_BATTLEGROUND    = 3,                                // pvp
-    MAP_ARENA           = 4,                                // arena
-    MAP_SCENARIO        = 5                                 // scenario
+    MAP_COMMON              = 0,                            // none
+    MAP_INSTANCE            = 1,                            // party
+    MAP_RAID                = 2,                            // raid
+    MAP_BATTLEGROUND        = 3,                            // pvp
+    MAP_ARENA               = 4,                            // arena
+    MAP_SCENARIO            = 5,                            // scenario
+    MAP_WOWLABS             = 6,                            // wowlabs
+    MAP_HOUSE_INTERIOR      = 7,                            // interior
+    MAP_HOUSE_NEIGHBORHOOD  = 8                             // neighborhood
 };
 
 enum class MapFlags : uint32
@@ -1618,6 +1656,13 @@ enum class MapFlags2 : uint32
 };
 
 DEFINE_ENUM_FLAG(MapFlags2);
+
+enum class MapFlags3 : uint32
+{
+    IsDelve = 0x00000100,
+};
+
+DEFINE_ENUM_FLAG(MapFlags3);
 
 enum class MapDifficultyFlags : uint8
 {
@@ -2024,7 +2069,7 @@ enum class ModifierTreeType : int32
     PlayerHasActiveTraitSubTree                                         = 385, // Player has active trait config with {TraitSubTree}
     PlayerIsInTimerunningSeason                                         = 386, // Player is timerunning {TimerunningSeason}
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
-    PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
+    PlayerHasCompletedCampaign                                          = 388, // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
     PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
     PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
@@ -2269,6 +2314,13 @@ enum PrestigeLevelInfoFlags : uint8
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
+enum class QuestLineXQuestFlags : int32
+{
+    IgnoreForCompletion = 0x01
+};
+
+DEFINE_ENUM_FLAG(QuestLineXQuestFlags);
+
 enum QuestPackageFilter
 {
     QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION    = 0,    // Players can select this quest reward if it matches their selected loot specialization
@@ -2487,6 +2539,189 @@ enum class TransmogIllusionFlags : int32
 
 DEFINE_ENUM_FLAG(TransmogIllusionFlags);
 
+enum class TransmogOutfitDisplayType : uint8
+{
+    Unassigned  = 0,
+    Assigned    = 1,
+    Equipped    = 2,
+    Hidden      = 3,
+    Disabled    = 4,
+
+    Max
+};
+
+enum class TransmogOutfitEquipAction : uint8
+{
+    Equip           = 0,
+    EquipAndLock    = 1,
+    Remove          = 2,
+    RemoveAndLock   = 3,
+    Unlock          = 4,
+    Lock            = 5,
+};
+
+enum class TransmogOutfitEntryFlags : int32
+{
+    AutomaticallyAwardedOnLogin = 0x01,
+    UseOverrideName             = 0x02,
+    OnlyAvailableDuringEvent    = 0x04,
+    SortedToTopOfList           = 0x08,
+    UseOverrideCostModifier     = 0x10,
+    IsDefaultEquipped           = 0x20
+};
+
+DEFINE_ENUM_FLAG(TransmogOutfitEntryFlags);
+
+enum class TransmogOutfitEntrySource : uint8
+{
+    StampedSource           = 0,
+    AutomaticallyAwarded    = 1,
+    PlayerPurchased         = 2,
+
+    Max
+};
+
+enum class TransmogOutfitSetType : uint8
+{
+    Equipped    = 0,
+    Outfit      = 1,
+    CustomSet   = 2
+};
+
+enum class TransmogOutfitSlot : int8
+{
+    Head            = 0,
+    ShoulderRight   = 1,
+    ShoulderLeft    = 2,
+    Back            = 3,
+    Chest           = 4,
+    Tabard          = 5,
+    Body            = 6,
+    Wrist           = 7,
+    Hand            = 8,
+    Waist           = 9,
+    Legs            = 10,
+    Feet            = 11,
+    WeaponMainHand  = 12,
+    WeaponOffHand   = 13,
+    WeaponRanged    = 14,
+
+    Max
+};
+
+enum class TransmogOutfitSlotFlags : int32
+{
+    CannotBeHidden      = 0x01,
+    CanHaveIllusions    = 0x02,
+    IsSecondarySlot     = 0x04
+};
+
+DEFINE_ENUM_FLAG(TransmogOutfitSlotFlags);
+
+enum class TransmogOutfitSlotOption : uint8
+{
+    None                = 0,
+    OneHandedWeapon     = 1,
+    TwoHandedWeapon     = 2,
+    RangedWeapon        = 3,
+    OffHand             = 4,
+    Shield              = 5,
+    DeprecatedReuseMe   = 6,
+    FuryTwoHandedWeapon = 7,
+    ArtifactSpecOne     = 8,
+    ArtifactSpecTwo     = 9,
+    ArtifactSpecThree   = 10,
+    ArtifactSpecFour    = 11,
+
+    Max
+};
+
+enum class TransmogOutfitSlotOptionFlags : int32
+{
+    IllusionNotAllowed  = 0x01,
+    DynamicOptionName   = 0x02,
+    DisablesOffhandSlot = 0x04
+};
+
+DEFINE_ENUM_FLAG(TransmogOutfitSlotOptionFlags);
+
+enum class TransmogOutfitSlotOptionSheatheCategory : uint8
+{
+    Default = 0,
+    Back    = 1,
+    Side    = 2,
+    Hide    = 3,
+
+    Max
+};
+
+enum class TransmogSituation : int8
+{
+    AllSpecs                = 0,
+    Spec                    = 1,
+    AllLocations            = 2,
+    LocationRested          = 3,
+    LocationHouse           = 4,
+    LocationCharacterSelect = 5,
+    LocationWorld           = 6,
+    LocationDelves          = 7,
+    LocationDungeons        = 8,
+    LocationRaids           = 9,
+    LocationArenas          = 10,
+    LocationBattlegrounds   = 11,
+    AllMovement             = 12,
+    MovementUnmounted       = 13,
+    MovementSwimming        = 14,
+    MovementGroundMount     = 15,
+    MovementFlyingMount     = 16,
+    AllEquipmentSets        = 17,
+    EquipmentSets           = 18,
+    AllRacialForms          = 19,
+    FormNative              = 20,
+    FormNonNative           = 21,
+
+    Max
+};
+
+enum class TransmogSituationFlags : int32
+{
+    IsPlayerFacing          = 0x01,
+    SpecUseTalentLoadout    = 0x02,
+    AllSituation            = 0x04,
+    DefaultsToOn            = 0x08,
+    DynamicallyNamed        = 0x10,
+    NoneSituation           = 0x20,
+    DisabledSituation       = 0x40
+};
+
+DEFINE_ENUM_FLAG(TransmogSituationFlags);
+
+enum class TransmogSituationTrigger : uint8
+{
+    None            = 0,
+    Manual          = 1,
+    TransmogUpdate  = 2,
+    Location        = 3,
+    Movement        = 4,
+    Specialization  = 5,
+    EquipmentSet    = 6,
+    Forms           = 7,
+    EventOutfit     = 8,
+
+    Max
+};
+
+enum class TransmogSituationTriggerFlags : int32
+{
+    CanLockOutfit           = 0x01,
+    CanChangeLockedOutfit   = 0x02,
+    IsPlayerFacing          = 0x04,
+    SituationsAreExclusive  = 0x08,
+    DisabledTrigger         = 0x10
+};
+
+DEFINE_ENUM_FLAG(TransmogSituationTriggerFlags);
+
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
 {
@@ -2608,7 +2843,8 @@ enum class TraitConditionType : int32
     Visible         = 1,
     Granted         = 2,
     Increased       = 3,
-    DisplayError    = 4
+    DisplayError    = 4,
+    RanksAllowed    = 5
 };
 
 enum class TraitConfigType : int32
@@ -2902,6 +3138,13 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
+enum class VehicleSeatFlagsC : int32
+{
+    NoFatigue                       = 0x00000040
+};
+
+DEFINE_ENUM_FLAG(VehicleSeatFlagsC);
+
 enum class VignetteFlags
 {
     InfiniteAOI             = 0x000001,
@@ -2933,6 +3176,20 @@ enum class WarbandSceneFlags : uint8
 };
 
 DEFINE_ENUM_FLAG(WarbandSceneFlags);
+
+enum class WMOAreaTableFlags : int32
+{
+    RenderMinimap               = 0x01,
+    ForceIndoors                = 0x02,
+    ForceOutdoors               = 0x04,
+    GenerateSingleExteriorMap   = 0x08,
+    Stormwind                   = 0x10,
+    ChunkUsesTerrainForMinimap  = 0x20,
+    IgnoreForMinimapAndEffects  = 0x40,
+    IgnoreFatigue               = 0x80
+};
+
+DEFINE_ENUM_FLAG(WMOAreaTableFlags);
 
 enum WorldMapTransformsFlags
 {

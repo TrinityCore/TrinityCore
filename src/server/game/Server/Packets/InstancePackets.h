@@ -49,9 +49,9 @@ namespace WorldPackets
 
         struct InstanceLock
         {
-            uint64 InstanceID = 0u;
             uint32 MapID = 0u;
-            uint32 DifficultyID = 0u;
+            int16 DifficultyID = 0;
+            uint64 InstanceID = 0u;
             int32 TimeRemaining = 0;
             uint32 CompletedMask = 0u;
 
@@ -159,7 +159,7 @@ namespace WorldPackets
 
             int32 Type = 0;
             uint32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 TimeLeft = 0;
             std::string_view WarningMessage;    // GlobalStrings tag
             bool Locked = false;

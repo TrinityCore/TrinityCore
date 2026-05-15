@@ -147,7 +147,7 @@ namespace WorldPackets
             void Read() override;
 
             Optional<uint8> PartyIndex;
-            ObjectGuid TargetGUID;
+            Array<ObjectGuid, 40> Targets;
         };
 
         struct PartyMemberPhase
@@ -561,17 +561,17 @@ namespace WorldPackets
 
         struct PartyDifficultySettings
         {
-            uint32 DungeonDifficultyID = 0u;
-            uint32 RaidDifficultyID = 0u;
-            uint32 LegacyRaidDifficultyID = 0u;
+            int16 DungeonDifficultyID = 0u;
+            int16 RaidDifficultyID = 0u;
+            int16 LegacyRaidDifficultyID = 0u;
         };
 
         struct ChallengeModeData
         {
-            int32 Unknown_1120_1 = 0;
-            int32 Unknown_1120_2 = 0;
-            uint64 Unknown_1120_3 = 0;
-            int64 Unknown_1120_4 = 0;
+            int32 MapID = 0;
+            int32 InitialPlayerCount = 0;
+            uint64 InstanceID = 0;
+            Timestamp<> StartTime;
             ObjectGuid KeystoneOwnerGUID;
             ObjectGuid LeaverGUID;
             Duration<Milliseconds> InstanceAbandonVoteCooldown;

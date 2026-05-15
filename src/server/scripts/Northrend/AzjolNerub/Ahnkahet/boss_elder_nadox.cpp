@@ -140,7 +140,7 @@ struct boss_elder_nadox : public BossAI
                 case EVENT_SUMMON_SWARMER:
                     /// @todo: summoned by egg
                     DoCast(me, SPELL_SUMMON_SWARMERS);
-                    if (roll_chance_i(33)) // 33% chance of dialog
+                    if (roll_chance(33)) // 33% chance of dialog
                         Talk(SAY_EGG_SAC);
                     events.Repeat(10s);
                     break;

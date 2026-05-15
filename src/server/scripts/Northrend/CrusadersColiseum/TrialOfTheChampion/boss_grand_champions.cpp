@@ -638,7 +638,7 @@ public:
         {
             DoCast(me, SPELL_EARTH_SHIELD);
             DoCast(who, SPELL_HEX_OF_MENDING);
-        };
+        }
 
         void JustReachedHome() override
         {
@@ -694,7 +694,7 @@ public:
 
             if (uiHealingWaveTimer <= uiDiff)
             {
-                bool bChance = roll_chance_i(50);
+                bool bChance = roll_chance(50);
 
                 if (!bChance)
                 {

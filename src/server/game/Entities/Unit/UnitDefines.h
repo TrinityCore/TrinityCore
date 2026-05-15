@@ -374,6 +374,7 @@ enum NPCFlags2 : uint32
     UNIT_NPC_FLAG_2_AZERITE_RESPEC                                  = 0x00004000,   // TITLE is azerite respec
     UNIT_NPC_FLAG_2_ISLANDS_QUEUE                                   = 0x00008000,   // TITLE is islands queue
     UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
+    UNIT_NPC_FLAG_2_PERKS_VENDOR                                    = 0x00080000,   // TITLE is trading post vendor
     UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER                        = 0x00200000,   // TITLE is personal tabard designer
 };
 
@@ -471,7 +472,7 @@ enum MovementFlags3 : uint32
     MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
     MOVEMENTFLAG3_CAN_ADV_FLY       = 0x00000002,
     MOVEMENTFLAG3_ADV_FLYING        = 0x00000004,
-    MOVEMENTFLAG3_CANT_SWIM         = 0x00002000,
+    MOVEMENTFLAG3_CANNOT_SWIM       = 0x00002000,
     MOVEMENTFLAG3_CAN_DRIVE         = 0x00004000,
     MOVEMENTFLAG3_DRIVING_FORWARD   = 0x00008000,
     MOVEMENTFLAG3_DRIVING_BACKWARD  = 0x00010000,

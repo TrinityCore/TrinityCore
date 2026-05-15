@@ -162,7 +162,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
     header->Ticket.Time = joinTime;
     header->QueueID.push_back(queueId.GetPacked());
     header->RangeMin = 0; // seems to always be 0
-    header->RangeMax = DEFAULT_MAX_LEVEL; // alwyas max level of current expansion. Might be limited to account
+    header->RangeMax = GetMaxLevelForExpansion(CURRENT_EXPANSION); // alwyas max level of current expansion. Might be limited to account
     header->TeamSize = queueId.TeamSize;
     header->InstanceID = 0; // seems to always be 0
     header->RegisteredMatch = queueId.Rated;
@@ -487,7 +487,7 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     Team team = player->GetBGTeam();
 
     WorldSafeLocsEntry const* pos = battleground->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
-    TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), battleground->GetTypeID());
+    TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc, battleground->GetTypeID());
     player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
 }
 

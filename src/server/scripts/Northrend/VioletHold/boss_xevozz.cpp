@@ -133,20 +133,20 @@ struct boss_xevozz : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext& task)
         {
             DoCastAOE(SPELL_ARCANE_BARRAGE_VOLLEY);
             task.Repeat(Seconds(8), Seconds(10));
         });
 
-        scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
+        scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                 DoCast(target, SPELL_ARCANE_BUFFET);
             task.Repeat(Seconds(15), Seconds(20));
         });
 
-        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        scheduler.Schedule(Seconds(5), [this](TaskContext& task)
         {
             Talk(SAY_REPEAT_SUMMON);
 
@@ -159,13 +159,13 @@ struct boss_xevozz : public BossAI
             if (IsHeroic())
             {
                 spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
-                task.Schedule(Milliseconds(2500), [this, spell](TaskContext /*task*/)
+                task.Schedule(Milliseconds(2500), [this, spell](TaskContext const& /*task*/)
                 {
                     DoCast(me, EtherealSphereHeroicSummonSpells[spell]);
                 });
             }
 
-            task.Schedule(Seconds(33), Seconds(35), [this](TaskContext /*task*/)
+            task.Schedule(Seconds(33), Seconds(35), [this](TaskContext const& /*task*/)
             {
                 DummyEntryCheckPredicate pred;
                 summons.DoAction(ACTION_SUMMON, pred);
@@ -210,7 +210,7 @@ struct npc_ethereal_sphere : public ScriptedAI
 
     void ScheduledTasks()
     {
-        scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        scheduler.Schedule(Seconds(1), [this](TaskContext& task)
         {
             if (Creature* xevozz = instance->GetCreature(DATA_XEVOZZ))
             {

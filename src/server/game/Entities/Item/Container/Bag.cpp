@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "DatabaseEnv.h"
-
 #include "Bag.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
-#include "UpdateData.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include <sstream>
+#include "UpdateData.h"
+#include "WorldPacket.h"
 
 Bag::Bag(): Item()
 {
@@ -183,29 +182,30 @@ void Bag::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) cons
             m_bagslot[i]->BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Bag::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Bag::BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    m_objectData->WriteCreate(*data, flags, this, target);
-    m_itemData->WriteCreate(*data, flags, this, target);
-    m_containerData->WriteCreate(*data, flags, this, target);
+    m_objectData->WriteCreate(flags, data, target, this);
+    m_itemData->WriteCreate(flags, data, target, this);
+    m_containerData->WriteCreate(flags, data, target, this);
 }
 
-void Bag::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+void Bag::BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const
 {
-    *data << uint32(m_values.GetChangedObjectTypeMask());
+    data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
-        m_objectData->WriteUpdate(*data, flags, this, target);
+        m_objectData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_ITEM))
-        m_itemData->WriteUpdate(*data, flags, this, target);
+        m_itemData->WriteUpdate(flags, data, target, this);
 
     if (m_values.HasChanged(TYPEID_CONTAINER))
-        m_containerData->WriteUpdate(*data, flags, this, target);
+        m_containerData->WriteUpdate(flags, data, target, this);
 }
 
 void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-    UF::ItemData::Mask const& requestedItemMask, UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const
+    UF::ItemData::Mask const& requestedItemMask, UF::ContainerData::Mask const& requestedContainerMask,
+    Player const* target, bool ignoreNestedChangesMask) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
@@ -213,7 +213,7 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
         valuesMask.Set(TYPEID_OBJECT);
 
     UF::ItemData::Mask itemMask = requestedItemMask;
-    m_itemData->FilterDisallowedFieldsMaskForFlag(itemMask, flags);
+    UF::ItemData::FilterDisallowedFieldsMaskForFlag(itemMask, flags);
     if (itemMask.IsAnySet())
         valuesMask.Set(TYPEID_ITEM);
 
@@ -223,17 +223,17 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
     ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
-    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
-        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+        m_objectData->WriteUpdate(requestedObjectMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_ITEM])
-        m_itemData->WriteUpdate(buffer, itemMask, true, this, target);
+        m_itemData->WriteUpdate(itemMask, buffer, target, this, ignoreNestedChangesMask);
 
     if (valuesMask[TYPEID_CONTAINER])
-        m_containerData->WriteUpdate(buffer, requestedContainerMask, true, this, target);
+        m_containerData->WriteUpdate(requestedContainerMask, buffer, target, this, ignoreNestedChangesMask);
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
@@ -245,16 +245,17 @@ void Bag::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) 
     UpdateData udata(player->GetMapId());
     WorldPacket packet;
 
-    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), ContainerMask.GetChangesMask(), player);
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), ContainerMask.GetChangesMask(),
+        player, IgnoreNestedChangesMask);
 
     udata.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
 }
 
-void Bag::ClearUpdateMask(bool remove)
+void Bag::ClearValuesChangesMask()
 {
     m_values.ClearChangesMask(&Bag::m_containerData);
-    Item::ClearUpdateMask(remove);
+    Item::ClearValuesChangesMask();
 }
 
 // If the bag is empty returns true
@@ -283,13 +284,6 @@ Item* Bag::GetItemByPos(uint8 slot) const
         return m_bagslot[slot];
 
     return nullptr;
-}
-
-std::string Bag::GetDebugInfo() const
-{
-    std::stringstream sstr;
-    sstr << Item::GetDebugInfo();
-    return sstr.str();
 }
 
 uint32 GetBagSize(Bag const* bag)

@@ -245,7 +245,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
     void OnInit() override
     {
         // setup spawning of cosmetic carts
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             for (auto const& [pathId, spawnPosition] : SilvershardMines::SpawnPositions::CosmeticCartsSpawnPositions)
             {
@@ -288,7 +288,7 @@ struct battleground_silvershard_mines final : BattlegroundScript
         }
 
         SpawnEasternMineCart();
-        _scheduler.Schedule(2s, [&](TaskContext context)
+        _scheduler.Schedule(2s, [&](TaskContext& context)
         {
             uint32 const underAllianceControl = std::ranges::count_if(SilvershardMines::WorldStates::AllianceControlWorldStates, [&](int32 worldState)
             {
@@ -645,7 +645,7 @@ public:
         DoCastSelf(SilvershardMines::Spells::DefendingCartAura, true);
 
         // give a bit of grace time for The Long Rider achievement (guessed behaviour)
-        _scheduler.Schedule(2s, [&](TaskContext context)
+        _scheduler.Schedule(2s, [&](TaskContext& context)
         {
             _theLongRidersSpawnTime = GameTime::GetGameTime();
 
@@ -657,7 +657,7 @@ public:
             });
 
             // each second, check if eligible players are still inside
-            context.Schedule(1s, [&](TaskContext context2)
+            context.Schedule(1s, [&](TaskContext& context2)
             {
                 if (GameObject const* controlZone = GetControlZone())
                 {

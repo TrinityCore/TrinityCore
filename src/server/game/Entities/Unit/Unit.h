@@ -174,10 +174,11 @@ enum WeaponDamageRange
 
 enum UnitMods
 {
-    UNIT_MOD_STAT_STRENGTH,                                 // UNIT_MOD_STAT_STRENGTH..UNIT_MOD_STAT_INTELLECT must be in existed order, it's accessed by index values of Stats enum.
+    UNIT_MOD_STAT_STRENGTH,                                 // UNIT_MOD_STAT_STRENGTH..UNIT_MOD_STAT_SPIRIT must be in existed order, it's accessed by index values of Stats enum.
     UNIT_MOD_STAT_AGILITY,
     UNIT_MOD_STAT_STAMINA,
     UNIT_MOD_STAT_INTELLECT,
+    UNIT_MOD_STAT_SPIRIT,
     UNIT_MOD_HEALTH,
     UNIT_MOD_MANA,                                          // UNIT_MOD_MANA..UNIT_MOD_PAIN must be listed in existing order, it is accessed by index values of Powers enum.
     UNIT_MOD_RAGE,
@@ -220,13 +221,14 @@ enum UnitMods
     UNIT_MOD_END,
     // synonyms
     UNIT_MOD_STAT_START = UNIT_MOD_STAT_STRENGTH,
-    UNIT_MOD_STAT_END = UNIT_MOD_STAT_INTELLECT + 1,
+    UNIT_MOD_STAT_END = UNIT_MOD_STAT_SPIRIT + 1,
     UNIT_MOD_RESISTANCE_START = UNIT_MOD_ARMOR,
     UNIT_MOD_RESISTANCE_END = UNIT_MOD_RESISTANCE_ARCANE + 1,
     UNIT_MOD_POWER_START = UNIT_MOD_MANA,
     UNIT_MOD_POWER_END = UNIT_MOD_ALTERNATE_MOUNT + 1
 };
 
+static_assert(UNIT_MOD_STAT_END - UNIT_MOD_STAT_START == MAX_STATS, "UnitMods stats section does not match Stats enum!");
 static_assert(UNIT_MOD_POWER_END - UNIT_MOD_POWER_START == MAX_POWERS, "UnitMods powers section does not match Powers enum!");
 
 enum BaseModGroup
@@ -481,8 +483,8 @@ class TC_GAME_API HealInfo
         uint32 GetOriginalHeal() const { return _originalHeal; }
         uint32 GetEffectiveHeal() const { return _effectiveHeal; }
         uint32 GetAbsorb() const { return _absorb; }
-        SpellInfo const* GetSpellInfo() const { return _spellInfo; };
-        SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
+        SpellInfo const* GetSpellInfo() const { return _spellInfo; }
+        SpellSchoolMask GetSchoolMask() const { return _schoolMask; }
 
         uint32 GetHitMask() const;
 };
@@ -565,6 +567,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 resist;
     bool   periodicLog;
     uint32 blocked;
+    uint32 reflectingSpellId;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
@@ -786,13 +789,13 @@ class TC_GAME_API Unit : public WorldObject
         uint64 GetMaxHealth() const { return m_unitData->MaxHealth; }
 
         bool IsFullHealth() const { return GetHealth() == GetMaxHealth(); }
-        bool HealthBelowPct(int32 pct) const { return GetHealth() < CountPctFromMaxHealth(pct); }
-        bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
-        bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
-        bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
+        bool HealthBelowPct(float pct) const { return GetHealth() < CountPctFromMaxHealth(pct); }
+        bool HealthBelowPctDamaged(float pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
+        bool HealthAbovePct(float pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
+        bool HealthAbovePctHealed(float pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
         float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
-        uint64 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
-        uint64 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
+        uint64 CountPctFromMaxHealth(float pct) const { return CalculatePct(GetMaxHealth(), pct); }
+        uint64 CountPctFromCurHealth(float pct) const { return CalculatePct(GetHealth(), pct); }
 
         void SetHealth(uint64 val);
         void SetMaxHealth(uint64 val);
@@ -979,7 +982,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetUnitCriticalChanceDone(WeaponAttackType attackType) const;
         float GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType attackType, float critDone) const;
         float GetUnitCriticalChanceAgainst(WeaponAttackType attackType, Unit const* victim) const;
-        int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
+        float GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
         virtual float GetBlockPercent(uint8 /*attackerLevel*/) const { return 30.0f; }
@@ -1080,7 +1083,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag128 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
-        bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = nullptr) const;
+        bool HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel = nullptr) const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
@@ -1155,7 +1158,11 @@ class TC_GAME_API Unit : public WorldObject
         bool SetFeatherFall(bool enable);
         bool SetHover(bool enable, bool updateAnimTier = true);
         bool SetCollision(bool disable);
+        bool SetStrafingDisabled(bool disable);
+        bool SetJumpingDisabled(bool disable);
         bool SetEnableFullSpeedTurning(bool enable);
+        bool SetEnableFullSpeedPitching(bool enable);
+        bool SetAlwaysAllowPitching(bool enable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);
@@ -1375,30 +1382,30 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetDiseasesByCaster(ObjectGuid casterGUID, bool remove = false);
         uint32 GetDoTsByCaster(ObjectGuid casterGUID) const;
 
-        int32 GetTotalAuraModifier(AuraType auraType) const;
+        float GetTotalAuraModifier(AuraType auraType) const;
         float GetTotalAuraMultiplier(AuraType auraType) const;
-        int32 GetMaxPositiveAuraModifier(AuraType auraType) const;
-        int32 GetMaxNegativeAuraModifier(AuraType auraType) const;
+        float GetMaxPositiveAuraModifier(AuraType auraType) const;
+        float GetMaxNegativeAuraModifier(AuraType auraType) const;
 
-        int32 GetTotalAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
+        float GetTotalAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
         float GetTotalAuraMultiplier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
-        int32 GetMaxPositiveAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
-        int32 GetMaxNegativeAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
+        float GetMaxPositiveAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
+        float GetMaxNegativeAuraModifier(AuraType auraType, std::function<bool(AuraEffect const*)> const& predicate) const;
 
-        int32 GetTotalAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask) const;
+        float GetTotalAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask) const;
         float GetTotalAuraMultiplierByMiscMask(AuraType auraType, uint32 misc_mask) const;
-        int32 GetMaxPositiveAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask, AuraEffect const* except = nullptr) const;
-        int32 GetMaxNegativeAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask) const;
+        float GetMaxPositiveAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask, AuraEffect const* except = nullptr) const;
+        float GetMaxNegativeAuraModifierByMiscMask(AuraType auraType, uint32 misc_mask) const;
 
-        int32 GetTotalAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
+        float GetTotalAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
         float GetTotalAuraMultiplierByMiscValue(AuraType auraType, int32 misc_value) const;
-        int32 GetMaxPositiveAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
-        int32 GetMaxNegativeAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
+        float GetMaxPositiveAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
+        float GetMaxNegativeAuraModifierByMiscValue(AuraType auraType, int32 misc_value) const;
 
-        int32 GetTotalAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
+        float GetTotalAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
         float GetTotalAuraMultiplierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
-        int32 GetMaxPositiveAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
-        int32 GetMaxNegativeAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
+        float GetMaxPositiveAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
+        float GetMaxNegativeAuraModifierByAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
 
         void InitStatBuffMods();
         void UpdateStatBuffMod(Stats stat);
@@ -1497,7 +1504,7 @@ class TC_GAME_API Unit : public WorldObject
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);
         void CancelShapeshiftForm(bool onlyTravelShapeshiftForm = false, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false);
-        void CancelTravelShapeshiftForm(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false) { CancelShapeshiftForm(true, removeMode, force); };
+        void CancelTravelShapeshiftForm(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false) { CancelShapeshiftForm(true, removeMode, force); }
 
         bool IsInFeralForm() const;
 
@@ -1830,9 +1837,9 @@ class TC_GAME_API Unit : public WorldObject
         // Movement info
         std::unique_ptr<Movement::MoveSpline> movespline;
 
-        int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
+        SpellEffectValue GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
-        bool IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, int32 effectAmount, uint32 auraEffectMask, bool removeOtherAuraApplications = false);
+        bool IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, SpellEffectValue effectAmount, uint32 auraEffectMask, bool removeOtherAuraApplications = false);
 
         virtual void Talk(std::string_view text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
         virtual void Say(std::string_view text, Language language, WorldObject const* target = nullptr);
@@ -1879,7 +1886,7 @@ class TC_GAME_API Unit : public WorldObject
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
 
         void DestroyForPlayer(Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void ClearValuesChangesMask() override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
@@ -1964,7 +1971,7 @@ class TC_GAME_API Unit : public WorldObject
         void DisableSpline();
 
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
-        virtual void ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData);
+        void UpdateLiquidStatusOnPositionChange(Optional<LiquidData> const& newLiquidData);
 
         // notifiers
         virtual void AtEnterCombat();

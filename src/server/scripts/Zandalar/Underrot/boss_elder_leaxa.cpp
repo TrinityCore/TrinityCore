@@ -212,13 +212,13 @@ class spell_sanguine_feast_selector : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(GetHitUnit(), uint32(GetEffectInfo().CalcValue(caster)));
+        caster->CastSpell(GetHitUnit(), uint32(GetEffectInfo().CalcValueAsInt(caster)));
     }
 
     void Register() override

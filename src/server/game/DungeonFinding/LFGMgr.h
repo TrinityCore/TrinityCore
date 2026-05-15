@@ -32,7 +32,7 @@ class Player;
 class Quest;
 class Map;
 struct LFGDungeonsEntry;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 
 namespace WorldPackets
 {

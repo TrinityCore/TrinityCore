@@ -80,7 +80,7 @@ struct GameobjectDisplayInfoLoadInfo
         .ParentIndexField   = -1,
         .FieldCount         = 9,
         .FileFieldCount     = 9,
-        .LayoutHash         = 0xD85414D1,
+        .LayoutHash         = 0x16D1DD61,
         .Fields             = MetaFields
     };
 
@@ -191,8 +191,8 @@ struct LiquidTypeLoadInfo
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  6, .IsSigned = false },
-        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
-        { .Type = FT_FLOAT,                .ArraySize = 18, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  3, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize = 38, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned = false },
         { .Type = FT_FLOAT,                .ArraySize =  4, .IsSigned =  true },
     };
@@ -204,11 +204,11 @@ struct LiquidTypeLoadInfo
         .ParentIndexField   = -1,
         .FieldCount         = 21,
         .FileFieldCount     = 21,
-        .LayoutHash         = 0x4397CEE6,
+        .LayoutHash         = 0xD1ECEEC9,
         .Fields             = MetaFields
     };
 
-    static constexpr DB2FieldMeta Fields[56] =
+    static constexpr DB2FieldMeta Fields[77] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Name" },
@@ -240,6 +240,7 @@ struct LiquidTypeLoadInfo
         { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture6" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Color1" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Color2" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Color3" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float1" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float2" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float3" },
@@ -258,6 +259,26 @@ struct LiquidTypeLoadInfo
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float16" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float17" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float18" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float19" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float20" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float21" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float22" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float23" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float24" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float25" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float26" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float27" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float28" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float29" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float30" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float31" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float32" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float33" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float34" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float35" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float36" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float37" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float38" },
         { .IsSigned = false, .Type = FT_INT, .Name = "Int1" },
         { .IsSigned = false, .Type = FT_INT, .Name = "Int2" },
         { .IsSigned = false, .Type = FT_INT, .Name = "Int3" },
@@ -268,7 +289,7 @@ struct LiquidTypeLoadInfo
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "Coefficient4" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 56, &MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 77, &MetaInstance };
 };
 
 struct MapLoadInfo

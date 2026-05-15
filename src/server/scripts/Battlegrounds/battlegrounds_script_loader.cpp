@@ -83,6 +83,7 @@ void AddSC_arena_nokhudon_proving_grounds();
 void AddSC_arena_cage_of_carnage();
 
 void AddSC_arena_black_rook_hold_arena();
+void AddSC_arena_empyrean_domain();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -152,4 +153,5 @@ void AddBattlegroundsScripts()
     AddSC_arena_cage_of_carnage();
 
     AddSC_arena_black_rook_hold_arena();
+    AddSC_arena_empyrean_domain();
 }

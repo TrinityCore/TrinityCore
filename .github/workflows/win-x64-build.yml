@@ -84,10 +84,10 @@ jobs:
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/legacy.dll" legacy.dll
-      
+        # mysql may depend on a different version of openssl so copy its dlls first (override later with openssl's own if same version)
+        Copy-Item -Path "${{ env.MYSQL_ROOT_DIR }}/bin/*" -Include libcrypto*,libssl* -Destination .
+        Copy-Item -Path "${{ env.OPENSSL_ROOT_DIR }}/bin/*" -Include libcrypto*,libssl*,legacy* -Destination .
+
     - name: Check binaries
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}

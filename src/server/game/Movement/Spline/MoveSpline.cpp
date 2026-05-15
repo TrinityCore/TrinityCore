@@ -54,7 +54,7 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     }
     else if (splineflags.Turning)
     {
-        c.orientation = Position::NormalizeOrientation(turn->StartFacing + float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec);
+        c.orientation = Position::NormalizeOrientation(turn->StartFacing + std::copysign(float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec, turn->TotalTurnRads));
     }
     else
     {
@@ -192,7 +192,7 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
 
     if (turn)
     {
-        MySpline::LengthType totalTurnTime = static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS));
+        MySpline::LengthType totalTurnTime = std::abs(static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS)));
         spline.set_length(spline.last(), std::max(spline.length(), totalTurnTime));
     }
 
@@ -213,7 +213,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     spell_effect_extra = args.spellEffectExtra;
     turn = args.turnData;
     anim_tier = args.animTier;
-    splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
+    splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).squaredLength() < 0.01f);
 
     velocity = args.velocity;
 
@@ -228,7 +228,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags.HasFlag(MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::FadeObject) || args.animTier)
+    if (args.flags.Parabolic || args.animTier)
     {
         int32 spline_duration = Duration();
         effect_start_time = spline.length(spline.first() + args.effect_start_point);
@@ -244,6 +244,8 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
             }
         }
     }
+    else if (args.flags.FadeObject)
+        effect_start_time = std::max(Duration() - args.fade_object_duration_ms, 0);
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
@@ -271,6 +273,11 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
     {
         CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), unit->GetDebugInfo());
         CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), unit->GetDebugInfo());
+    }
+    if (turnData)
+    {
+        CHECK(G3D::fuzzyNe(turnData->TotalTurnRads, 0.0f), unit->GetDebugInfo());
+        CHECK(turnData->RadsPerSec > 0.0f, unit->GetDebugInfo());
     }
     return true;
 #undef CHECK
@@ -305,7 +312,7 @@ bool MoveSplineInitArgs::_checkPathLengths()
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs() : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), effect_start_point(0),
+parabolic_amplitude(0.f), effect_start_point(0), fade_object_duration_ms(0),
 splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {

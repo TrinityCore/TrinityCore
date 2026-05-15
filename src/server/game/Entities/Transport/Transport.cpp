@@ -29,6 +29,7 @@
 #include "Totem.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
+#include "WorldPacket.h"
 #include <boost/dynamic_bitset.hpp>
 #include <sstream>
 
@@ -523,6 +524,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
 
     Relocate(x, y, z, o);
     m_stationaryPosition.SetOrientation(o);
+    SetLocalRotationAngles(o, 0.0f, 0.0f);
     UpdateModelPosition();
 
     UpdatePassengerPositions(_passengers);

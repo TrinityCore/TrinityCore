@@ -171,7 +171,7 @@ struct boss_erekem : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(20), [this](TaskContext task)
+        scheduler.Schedule(Seconds(20), [this](TaskContext& task)
         {
             if (Unit* ally = DoSelectLowestHpFriendly(30.0f))
                 DoCast(ally, SPELL_EARTH_SHIELD);
@@ -179,13 +179,13 @@ struct boss_erekem : public BossAI
             task.Repeat(Seconds(20));
         });
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext task)
+        scheduler.Schedule(Seconds(2), [this](TaskContext& task)
         {
             DoCast(SPELL_BLOODLUST);
             task.Repeat(Seconds(35), Seconds(45));
         });
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext task)
+        scheduler.Schedule(Seconds(2), [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                 DoCast(target, SPELL_LIGHTNING_BOLT);
@@ -193,7 +193,7 @@ struct boss_erekem : public BossAI
             task.Repeat(Milliseconds(2500));
         });
 
-        scheduler.Schedule(Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(Seconds(10), [this](TaskContext& task)
         {
             if (Unit* ally = DoSelectLowestHpFriendly(40.0f))
                 DoCast(ally, SPELL_CHAIN_HEAL);
@@ -204,13 +204,13 @@ struct boss_erekem : public BossAI
                 task.Repeat(Seconds(8), Seconds(11));
         });
 
-        scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
+        scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext& task)
         {
             DoCastVictim(SPELL_EARTH_SHOCK);
             task.Repeat(Seconds(8), Seconds(13));
         });
 
-        scheduler.Schedule(0s, [this](TaskContext task)
+        scheduler.Schedule(0s, [this](TaskContext& task)
         {
             for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
             {
@@ -262,19 +262,19 @@ struct npc_erekem_guard : public ScriptedAI
 
     void ScheduledTasks()
     {
-        scheduler.Schedule(Seconds(4), Seconds(8), [this](TaskContext task)
+        scheduler.Schedule(Seconds(4), Seconds(8), [this](TaskContext& task)
         {
             DoCastVictim(SPELL_STRIKE);
             task.Repeat(Seconds(4), Seconds(8));
         });
 
-        scheduler.Schedule(Seconds(8), Seconds(13), [this](TaskContext task)
+        scheduler.Schedule(Seconds(8), Seconds(13), [this](TaskContext& task)
         {
             DoCastAOE(SPELL_HOWLING_SCREECH);
             task.Repeat(Seconds(8), Seconds(13));
         });
 
-        scheduler.Schedule(Seconds(1), Seconds(3), [this](TaskContext task)
+        scheduler.Schedule(Seconds(1), Seconds(3), [this](TaskContext& task)
         {
             DoCastVictim(SPELL_GUSHING_WOUND);
             task.Repeat(Seconds(7), Seconds(12));

@@ -1,4 +1,3 @@
-#define JEMALLOC_MUTEX_C_
 #include "jemalloc/internal/jemalloc_preamble.h"
 #include "jemalloc/internal/jemalloc_internal_includes.h"
 
@@ -6,9 +5,15 @@
 #include "jemalloc/internal/malloc_io.h"
 #include "jemalloc/internal/spin.h"
 
-#ifndef _CRT_SPINCOUNT
-#define _CRT_SPINCOUNT 4000
+#if defined(_WIN32) && !defined(_CRT_SPINCOUNT)
+#	define _CRT_SPINCOUNT 4000
 #endif
+
+/*
+ * Based on benchmark results, a fixed spin with this amount of retries works
+ * well for our critical sections.
+ */
+int64_t opt_mutex_max_spin = 600;
 
 /******************************************************************************/
 /* Data. */
@@ -17,8 +22,8 @@
 bool isthreaded = false;
 #endif
 #ifdef JEMALLOC_MUTEX_INIT_CB
-static bool		postpone_init = true;
-static malloc_mutex_t	*postponed_mutexes = NULL;
+static bool            postpone_init = true;
+static malloc_mutex_t *postponed_mutexes = NULL;
 #endif
 
 /******************************************************************************/
@@ -39,28 +44,28 @@ pthread_create(pthread_t *__restrict thread,
 /******************************************************************************/
 
 #ifdef JEMALLOC_MUTEX_INIT_CB
-JEMALLOC_EXPORT int	_pthread_mutex_init_calloc_cb(pthread_mutex_t *mutex,
-    void *(calloc_cb)(size_t, size_t));
+JEMALLOC_EXPORT int _pthread_mutex_init_calloc_cb(
+    pthread_mutex_t *mutex, void *(calloc_cb)(size_t, size_t));
 #endif
 
 void
 malloc_mutex_lock_slow(malloc_mutex_t *mutex) {
 	mutex_prof_data_t *data = &mutex->prof_data;
-	nstime_t before = NSTIME_ZERO_INITIALIZER;
+	nstime_t           before;
 
 	if (ncpus == 1) {
 		goto label_spin_done;
 	}
 
-	int cnt = 0, max_cnt = MALLOC_MUTEX_MAX_SPIN;
+	int cnt = 0;
 	do {
 		spin_cpu_spinwait();
 		if (!atomic_load_b(&mutex->locked, ATOMIC_RELAXED)
-                    && !malloc_mutex_trylock_final(mutex)) {
+		    && !malloc_mutex_trylock_final(mutex)) {
 			data->n_spin_acquired++;
 			return;
 		}
-	} while (cnt++ < max_cnt);
+	} while (cnt++ < opt_mutex_max_spin || opt_mutex_max_spin == -1);
 
 	if (!config_stats) {
 		/* Only spin is useful when stats is off. */
@@ -68,12 +73,13 @@ malloc_mutex_lock_slow(malloc_mutex_t *mutex) {
 		return;
 	}
 label_spin_done:
-	nstime_update(&before);
+	nstime_init_update(&before);
 	/* Copy before to after to avoid clock skews. */
 	nstime_t after;
 	nstime_copy(&after, &before);
-	uint32_t n_thds = atomic_fetch_add_u32(&data->n_waiting_thds, 1,
-	    ATOMIC_RELAXED) + 1;
+	uint32_t n_thds = atomic_fetch_add_u32(
+	                      &data->n_waiting_thds, 1, ATOMIC_RELAXED)
+	    + 1;
 	/* One last try as above two calls may take quite some cycles. */
 	if (!malloc_mutex_trylock_final(mutex)) {
 		atomic_fetch_sub_u32(&data->n_waiting_thds, 1, ATOMIC_RELAXED);
@@ -104,8 +110,8 @@ label_spin_done:
 static void
 mutex_prof_data_init(mutex_prof_data_t *data) {
 	memset(data, 0, sizeof(mutex_prof_data_t));
-	nstime_init(&data->max_wait_time, 0);
-	nstime_init(&data->tot_wait_time, 0);
+	nstime_init_zero(&data->max_wait_time);
+	nstime_init_zero(&data->tot_wait_time);
 	data->prev_owner = NULL;
 }
 
@@ -132,27 +138,28 @@ mutex_addr_comp(const witness_t *witness1, void *mutex1,
 }
 
 bool
-malloc_mutex_init(malloc_mutex_t *mutex, const char *name,
-    witness_rank_t rank, malloc_mutex_lock_order_t lock_order) {
+malloc_mutex_init(malloc_mutex_t *mutex, const char *name, witness_rank_t rank,
+    malloc_mutex_lock_order_t lock_order) {
 	mutex_prof_data_init(&mutex->prof_data);
 #ifdef _WIN32
-#  if _WIN32_WINNT >= 0x0600
+#	if _WIN32_WINNT >= 0x0600
 	InitializeSRWLock(&mutex->lock);
-#  else
-	if (!InitializeCriticalSectionAndSpinCount(&mutex->lock,
-	    _CRT_SPINCOUNT)) {
+#	else
+	if (!InitializeCriticalSectionAndSpinCount(
+	        &mutex->lock, _CRT_SPINCOUNT)) {
 		return true;
 	}
-#  endif
+#	endif
 #elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
-       mutex->lock = OS_UNFAIR_LOCK_INIT;
+	mutex->lock = OS_UNFAIR_LOCK_INIT;
 #elif (defined(JEMALLOC_MUTEX_INIT_CB))
 	if (postpone_init) {
 		mutex->postponed_next = postponed_mutexes;
 		postponed_mutexes = mutex;
 	} else {
-		if (_pthread_mutex_init_calloc_cb(&mutex->lock,
-		    bootstrap_calloc) != 0) {
+		if (_pthread_mutex_init_calloc_cb(
+		        &mutex->lock, bootstrap_calloc)
+		    != 0) {
 			return true;
 		}
 	}
@@ -196,9 +203,10 @@ malloc_mutex_postfork_child(tsdn_t *tsdn, malloc_mutex_t *mutex) {
 #ifdef JEMALLOC_MUTEX_INIT_CB
 	malloc_mutex_unlock(tsdn, mutex);
 #else
-	if (malloc_mutex_init(mutex, mutex->witness.name,
-	    mutex->witness.rank, mutex->lock_order)) {
-		malloc_printf("<jemalloc>: Error re-initializing mutex in "
+	if (malloc_mutex_init(mutex, mutex->witness.name, mutex->witness.rank,
+	        mutex->lock_order)) {
+		malloc_printf(
+		    "<jemalloc>: Error re-initializing mutex in "
 		    "child\n");
 		if (opt_abort) {
 			abort();
@@ -212,8 +220,9 @@ malloc_mutex_boot(void) {
 #ifdef JEMALLOC_MUTEX_INIT_CB
 	postpone_init = false;
 	while (postponed_mutexes != NULL) {
-		if (_pthread_mutex_init_calloc_cb(&postponed_mutexes->lock,
-		    bootstrap_calloc) != 0) {
+		if (_pthread_mutex_init_calloc_cb(
+		        &postponed_mutexes->lock, bootstrap_calloc)
+		    != 0) {
 			return true;
 		}
 		postponed_mutexes = postponed_mutexes->postponed_next;

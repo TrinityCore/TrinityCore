@@ -309,7 +309,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     // calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance && !(e.event.event_flags & SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL))
     {
-        if (!roll_chance_i(e.event.event_chance))
+        if (!roll_chance(e.event.event_chance))
             return;
     }
 
@@ -1178,6 +1178,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_MOVE_OFFSET:
         {
+            Optional<MovementFadeObject> fadeObject;
+            if (e.action.moveOffset.FadeObjectDuration)
+                fadeObject.emplace(Milliseconds(e.action.moveOffset.FadeObjectDuration));
+
             std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
 
             for (WorldObject* target : targets)
@@ -1203,7 +1207,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
                 creatureTarget->GetMotionMaster()->MovePoint(e.action.moveOffset.PointId, x, y, z,
-                    true, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));
+                    true, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, std::move(scriptResult));
             }
             if (waitEvent && !waitEvent->Results.empty())
                 mTimedActionWaitEvent = std::move(waitEvent);
@@ -1428,7 +1432,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (waitEvent)
                 scriptResult = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
 
-            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit, 0, std::move(scriptResult));
+            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit, 0, e.action.wpStart.FadeObjectDuration, std::move(scriptResult));
             mTimedActionWaitEvent = std::move(waitEvent);
 
             uint32 quest = e.action.wpStart.quest;
@@ -1498,6 +1502,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets.empty())
                 target = Trinity::Containers::SelectRandomContainerElement(targets);
 
+            Optional<MovementFadeObject> fadeObject;
+            if (e.action.moveToPos.FadeObjectDuration)
+                fadeObject.emplace(Milliseconds(e.action.moveToPos.FadeObjectDuration));
+
             std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<MovementStopReason>(e);
             Scripting::v2::ActionResultSetter<MovementStopReason> scriptResult;
             if (waitEvent)
@@ -1509,7 +1517,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 target->GetPosition(x, y, z);
                 if (e.action.moveToPos.ContactDistance > 0)
                     target->GetContactPoint(me, x, y, z, e.action.moveToPos.ContactDistance);
-                me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, x + e.target.x, y + e.target.y, z + e.target.z, e.action.moveToPos.disablePathfinding == 0);
+                me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, x + e.target.x, y + e.target.y, z + e.target.z, e.action.moveToPos.disablePathfinding == 0,
+                    {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, fadeObject, std::move(scriptResult));
                 mTimedActionWaitEvent = std::move(waitEvent);
             }
 
@@ -1522,7 +1531,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     dest = trans->GetPositionWithOffset(dest);
 
             me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0, {}, {},
-                MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));
+                MovementWalkRunSpeedSelectionMode::Default, {}, fadeObject, std::move(scriptResult));
             mTimedActionWaitEvent = std::move(waitEvent);
             break;
         }
@@ -2142,7 +2151,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             if (waitEvent)
                                 actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
 
-                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second, std::move(actionResultSetter));
+                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second, 0, std::move(actionResultSetter));
                         }
                     }
                 }
@@ -3752,7 +3761,7 @@ void SmartScript::RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max)
 {
     // min/max was checked at loading!
     e.timer = urand(min, max);
-    e.active = e.timer ? false : true;
+    e.active = e.timer == 0;
 }
 
 void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
@@ -3855,20 +3864,6 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         e.timer -= diff;
 }
 
-bool SmartScript::CheckTimer(SmartScriptHolder const& e) const
-{
-    return e.active;
-}
-
-void SmartScript::InstallEvents()
-{
-    if (!mInstallEvents.empty())
-    {
-        mEvents.insert(mEvents.end(), std::move_iterator(mInstallEvents.begin()), std::move_iterator(mInstallEvents.end()));
-        mInstallEvents.clear();
-    }
-}
-
 void SmartScript::RemoveStoredEvent(uint32 id)
 {
     if (!mStoredEvents.empty())
@@ -3932,8 +3927,6 @@ void SmartScript::OnUpdate(uint32 const diff)
 
         return;
     }
-
-    InstallEvents();//before UpdateTimers
 
     if (mEventSortingRequired)
     {
@@ -4220,7 +4213,6 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
         InitTimer(event);//calculate timers for first time use
 
     ProcessEventsFor(SMART_EVENT_AI_INIT);
-    InstallEvents();
     ProcessEventsFor(SMART_EVENT_JUST_CREATED);
     mCounterList.clear();
 }

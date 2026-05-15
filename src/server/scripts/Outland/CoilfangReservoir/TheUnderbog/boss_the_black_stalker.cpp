@@ -142,7 +142,7 @@ struct boss_the_black_stalker : public BossAI
 
         if (waypointId == 2 || waypointId == 4 || waypointId == 6)
         {
-            scheduler.Schedule(2s, [this](TaskContext /*task*/)
+            scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EAT);
             });

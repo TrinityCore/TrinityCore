@@ -469,7 +469,7 @@ struct at_orator_krix_vizk_doubt : AreaTriggerAI
         at->InitSplines(path.GetPath());
 
         _canHitOrigin = false;
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
         {
             _canHitOrigin = true;
         });

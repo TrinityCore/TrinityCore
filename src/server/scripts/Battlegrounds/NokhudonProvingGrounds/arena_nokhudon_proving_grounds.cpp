@@ -227,14 +227,14 @@ struct npc_nokhudon_proving_grounds_nokhud_combatant : ScriptedAI
         me->HandleEmoteCommand(EMOTE_ONESHOT_JUMPSTART);
         me->SetStandState(UNIT_STAND_STATE_STAND);
 
-        _scheduler.Schedule(2s, [&](TaskContext context)
+        _scheduler.Schedule(2s, [&](TaskContext& context)
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
             if (context.GetRepeatCounter() < 2)
                 context.Repeat(1s);
             else
             {
-                context.Schedule(1s, [&](TaskContext)
+                context.Schedule(1s, [&](TaskContext const&)
                 {
                     me->SetStandState(UNIT_STAND_STATE_SIT);
                 });

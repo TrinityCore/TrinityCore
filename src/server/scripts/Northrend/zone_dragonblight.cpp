@@ -615,14 +615,14 @@ class spell_dragonblight_moti_hourglass_cast_see_invis_on_master : public SpellS
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+                summoner->CastSpell(summoner, uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -911,12 +911,12 @@ class spell_dragonblight_fill_blood_unholy_frost_gem : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
@@ -930,18 +930,18 @@ class spell_dragonblight_corrosive_spit : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValueAsInt()))
             GetAura()->Remove();
     }
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValueAsInt()))
         {
             PreventDefaultAction();
             GetAura()->Remove();

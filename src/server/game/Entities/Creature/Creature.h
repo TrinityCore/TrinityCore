@@ -157,7 +157,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanOnlySwimIfTargetSwims() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS); }
 
         bool CanSwim() const override;
-        bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); };
+        bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); }
         bool CanFly()  const override { return (IsFlying() || HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY)); }
 
         MovementGeneratorType GetDefaultMovementType() const override;
@@ -492,28 +492,27 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         UF::OptionalUpdateField<UF::VendorData, int32(WowCS::EntityFragment::FVendor_C), 0> m_vendorData;
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
 
     public:
-        void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
+            UF::UnitData::Mask const& requestedUnitMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Creature const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Creature const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Creature const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::UnitData::Base UnitMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
 
     protected:
-        void ClearUpdateMask(bool remove) override;
-
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
 

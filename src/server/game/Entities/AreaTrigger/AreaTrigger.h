@@ -78,21 +78,22 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         ~AreaTrigger();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target) const;
+            UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(AreaTrigger const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(AreaTrigger const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             AreaTrigger const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::AreaTriggerData::Base AreaTriggerMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

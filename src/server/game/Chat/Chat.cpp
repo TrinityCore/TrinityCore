@@ -149,9 +149,18 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(GetTrinityString(entry));
 }
 
-std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+void ChatHandler::SendSysMessage(std::string_view messageFormat, fmt::printf_args messageFormatArgs) noexcept
+{
+    SendSysMessage(StringVPrintf(messageFormat, messageFormatArgs));
+}
+
+std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs) noexcept try
 {
     return fmt::vsprintf<char>(messageFormat, messageFormatArgs);
+}
+catch (std::exception const& formatError)
+{
+    return fmt::format(R"(An error occurred formatting string "{}" : {})", messageFormat, formatError.what());
 }
 
 bool ChatHandler::_ParseCommands(std::string_view text)
@@ -689,7 +698,7 @@ LocaleConstant CliHandler::GetSessionDbLocaleIndex() const
     return sObjectMgr->GetDBCLocaleIndex();
 }
 
-std::string const AddonChannelCommandHandler::PREFIX = "TrinityCore";
+std::string_view const AddonChannelCommandHandler::PREFIX = "TrinityCore";
 
 bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
 {
@@ -731,7 +740,7 @@ bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
     }
 }
 
-void AddonChannelCommandHandler::Send(std::string const& msg)
+void AddonChannelCommandHandler::Send(std::string_view msg)
 {
     WorldPackets::Chat::Chat chat;
     chat.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg, 0, "", LOCALE_enUS, PREFIX);
@@ -741,29 +750,26 @@ void AddonChannelCommandHandler::Send(std::string const& msg)
 void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 {
     ASSERT(echo);
-    char ack[6] = "a";
+    char ack[5] = "a";
     memcpy(ack + 1, echo, 4);
-    ack[5] = '\0';
-    Send(ack);
+    Send(std::string_view(ack, 5));
     hadAck = true;
 }
 
 void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 {
     ASSERT(echo);
-    char ok[6] = "o";
+    char ok[5] = "o";
     memcpy(ok + 1, echo, 4);
-    ok[5] = '\0';
-    Send(ok);
+    Send(std::string_view(ok, 5));
 }
 
 void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 {
     ASSERT(echo);
-    char fail[6] = "f";
+    char fail[5] = "f";
     memcpy(fail + 1, echo, 4);
-    fail[5] = '\0';
-    Send(fail);
+    Send(std::string_view(fail, 5));
 }
 
 // m Command message, message in body

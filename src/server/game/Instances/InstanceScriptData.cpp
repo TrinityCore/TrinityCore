@@ -184,7 +184,7 @@ uint32 InstanceScriptDataReader::GetInstanceId() const { return _instance.instan
 uint32 InstanceScriptDataReader::GetMapId() const { return _instance.instance->GetId(); }
 char const* InstanceScriptDataReader::GetMapName() const { return _instance.instance->GetMapName(); }
 uint32 InstanceScriptDataReader::GetDifficultyId() const { return uint32(_instance.instance->GetDifficultyID()); }
-char const* InstanceScriptDataReader::GetDifficultyName() const { return sDifficultyStore.AssertEntry(_instance.instance->GetDifficultyID())->Name[sWorld->GetDefaultDbcLocale()]; }
+std::string_view InstanceScriptDataReader::GetDifficultyName() const { return DB2Manager::GetDifficultyName(_instance.instance->GetDifficultyID()); }
 
 std::string InstanceScriptDataWriter::GetString()
 {

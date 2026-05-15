@@ -50,7 +50,8 @@ public:
     ObjectGuid ScenarioGUID;
     int32 ScenarioID = 0;
     int32 CurrentStep = -1;
-    uint32 DifficultyID = 0;
+    bool ScenarioComplete = false;
+    int16 DifficultyID = 0;
     uint32 WaveCurrent = 0;
     uint32 WaveMax = 0;
     uint32 TimerDuration = 0;
@@ -59,7 +60,6 @@ public:
     std::vector<uint32> PickedSteps;
     std::vector<ScenarioSpellUpdate> Spells;
     ObjectGuid PlayerGUID;
-    bool ScenarioComplete = false;
 };
 
 class ScenarioProgressUpdate final : public ServerPacket

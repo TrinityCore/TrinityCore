@@ -168,7 +168,7 @@ struct boss_edna : public BossAI
             return;
 
         Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty);
-        scheduler.Schedule(3s, [this](TaskContext /*context*/)
+        scheduler.Schedule(3s, [this](TaskContext const& /*context*/)
         {
             me->RemoveAurasDueToSpell(SPELL_SKARDEN_SPAWN_PERIODIC);
             me->GetMotionMaster()->MovePoint(POINT_START_COMBAT, EdnaCombatPosition, true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
@@ -183,7 +183,7 @@ struct boss_edna : public BossAI
         if (id != POINT_START_COMBAT)
             return;
 
-        scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
         {
             instance->SetData(DATA_EDNA_INTRO_STATE, DONE);
             Talk(SAY_INTRO);
@@ -316,7 +316,7 @@ struct npc_skardyn_invader : public ScriptedAI
     {
         DoCastSelf(SPELL_SHADOW_DISSOLVE_IN);
 
-        _scheduler.Schedule(2400ms, [this](TaskContext /*context*/)
+        _scheduler.Schedule(2400ms, [this](TaskContext const& /*context*/)
         {
             TempSummon* summon = me->ToTempSummon();
             if (!summon)
@@ -474,7 +474,7 @@ class spell_edna_refracting_beam_selector : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_REFRACTING_BEAM_DAMAGE, GetCastDifficulty());
-        uint32 maxTargets = spell->GetEffect(EFFECT_3).CalcValue(GetCaster());
+        uint32 maxTargets = spell->GetEffect(EFFECT_3).CalcValueAsInt(GetCaster());
 
         if (targets.size() > maxTargets)
             targets.resize(maxTargets);

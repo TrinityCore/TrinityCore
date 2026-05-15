@@ -34,14 +34,12 @@ static constexpr ObjectData creatureData[] =
     { BOSS_AZUREBLADE,          DATA_AZUREBLADE         },
     { BOSS_TELASH_GREYWING,     DATA_TELASH_GREYWING    },
     { BOSS_UMBRELSKUL,          DATA_UMBRELSKUL         },
-    { 0,                        0                       }  // END
 };
 
 static constexpr DoorData doorData[] =
 {
     { GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE,    DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  EncounterDoorBehavior::OpenWhenDone },
-    { 0,                                        0,            EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
 static constexpr DungeonEncounterData encounters[] =
@@ -63,7 +61,7 @@ class instance_azure_vault : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, {});
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);

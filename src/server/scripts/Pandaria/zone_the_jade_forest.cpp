@@ -314,7 +314,7 @@ struct npc_rappelling_rope : public ScriptedAI
         if (apply)
         {
             passenger->SetDisableGravity(true);
-            _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+            _scheduler.Schedule(1500ms, [this](TaskContext const& /*context*/)
             {
                 auto closestPosition = std::ranges::min_element(Positions::RappellingRopeDestinations, std::ranges::less(),
                     [this](Position const& pos) { return me->GetDistance(pos); });

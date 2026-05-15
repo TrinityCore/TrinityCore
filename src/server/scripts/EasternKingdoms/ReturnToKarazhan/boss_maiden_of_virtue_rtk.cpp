@@ -222,7 +222,7 @@ class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/) const
@@ -230,7 +230,7 @@ class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
         if (!GetCaster())
             return;
 
-        GetCaster()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_0).CalcValueAsInt(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override

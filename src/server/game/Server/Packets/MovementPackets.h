@@ -105,16 +105,16 @@ namespace WorldPackets
             uint8 AnimTier = 0;
         };
 
-        struct MonsterSplineUnknown901
+        struct MonsterSplineSpellVisualNodeInfo
         {
-            struct Inner
-            {
-                int32 Unknown_1 = 0;
-                Spells::SpellCastVisual Visual;
-                uint32 Unknown_4 = 0;
-            };
+            int32 SpellID = 0;
+            Spells::SpellCastVisual Visual;
+            uint32 StartNodeIndex = 0;
+        };
 
-            std::array<Inner, 16> Data;
+        struct MonsterSplineClientSpellVisualData
+        {
+            std::array<MonsterSplineSpellVisualNodeInfo, 16> NodeInfo;
         };
 
         struct MovementSpline
@@ -136,7 +136,7 @@ namespace WorldPackets
             Optional<MonsterSplineJumpExtraData> JumpExtraData;
             Optional<MonsterSplineTurnData> TurnData;
             Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
-            Optional<MonsterSplineUnknown901> Unknown901;
+            Optional<MonsterSplineClientSpellVisualData> SpellVisualData;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
             TaggedPosition<Position::XYZ> FaceSpot;
@@ -316,6 +316,7 @@ namespace WorldPackets
             TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
             int32 Counter = 0;
+            uint64 InstanceID = 0u;                          // Required for damageMeterResetOnNewInstance cvar to function
         };
 
         class WorldPortResponse final : public ClientPacket

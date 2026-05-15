@@ -340,25 +340,25 @@ struct npc_dancing_flames : public ScriptedAI
             switch (emote)
             {
                 case TEXT_EMOTE_KISS:
-                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    _scheduler.Schedule(1500ms, [this](TaskContext const& /*context*/)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
                     });
                     break;
                 case TEXT_EMOTE_WAVE:
-                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    _scheduler.Schedule(1500ms, [this](TaskContext const& /*context*/)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
                     });
                     break;
                 case TEXT_EMOTE_BOW:
-                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    _scheduler.Schedule(1500ms, [this](TaskContext const& /*context*/)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
                     });
                     break;
                 case TEXT_EMOTE_JOKE:
-                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    _scheduler.Schedule(1500ms, [this](TaskContext const& /*context*/)
                     {
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     });
@@ -398,10 +398,10 @@ public:
 
         void Reset() override
         {
-            _scheduler.Schedule(Seconds(2), [this](TaskContext context)
+            _scheduler.Schedule(Seconds(2), [this](TaskContext& context)
             {
                 me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
-                _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                 {
                     me->CastSpell(nullptr, SPELL_TORCH_TARGET_PICKER);
                 });
@@ -1519,7 +1519,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                 }
                 case EVENT_EMOTE:
                     // Play random emote or dance
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                     {
                         me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
                         _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
@@ -1536,7 +1536,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
 
                     // Random EVENT_EMOTE or EVENT_FACETO
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         _events.ScheduleEvent(EVENT_FACE_TO, 1s);
                     else
                         _events.ScheduleEvent(EVENT_EMOTE, 1s);
@@ -2265,7 +2265,7 @@ struct npc_gen_void_zone : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             DoCastSelf(SPELL_CONSUMPTION);
         });

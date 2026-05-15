@@ -289,7 +289,7 @@ void GameEventMgr::LoadFromDB()
                 SetHolidayEventTime(pGameEvent);
             }
 
-            if (pGameEvent.WorldStateId && !sWorldStateMgr->GetWorldStateTemplate(*pGameEvent.WorldStateId))
+            if (pGameEvent.WorldStateId && !WorldStateMgr::GetWorldStateTemplate(*pGameEvent.WorldStateId))
             {
                 TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has an invalid world state Id {}, set to 0.", event_id, *pGameEvent.WorldStateId);
                 pGameEvent.WorldStateId.reset();
@@ -1519,7 +1519,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
 void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
     if (Optional<int32> worldStateId = mGameEvent[event_id].WorldStateId)
-        sWorldStateMgr->SetValue(*worldStateId, Activate ? 1 : 0, false, nullptr);
+        WorldStateMgr::SetValue(*worldStateId, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false)
@@ -1698,7 +1698,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     for (uint8 i = 0; i < stageIndex; ++i)
         stageOffset += Hours(holiday->Duration[i]);
 
-    switch (holiday->CalendarFilterType)
+    switch (static_cast<std::make_signed_t<decltype(holiday->CalendarFilterType)>>(holiday->CalendarFilterType))
     {
         case -1: // Yearly
             event.occurence = YEAR / MINUTE; // Not all too useful

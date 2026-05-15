@@ -28,13 +28,13 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class TC_GAME_API AuraEffect
 {
-    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount);
+    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, SpellEffectValue const* baseAmount);
     friend Aura::~Aura();
     friend class Unit;
 
     private:
         ~AuraEffect();
-        explicit AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster);
+        explicit AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, SpellEffectValue const* baseAmount, Unit* caster);
 
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
@@ -50,27 +50,28 @@ class TC_GAME_API AuraEffect
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
         SpellEffIndex GetEffIndex() const { return m_effectInfo.EffectIndex; }
-        int32 GetBaseAmount() const { return m_baseAmount; }
+        SpellEffectValue GetBaseAmount() const { return m_baseAmount; }
         int32 GetPeriod() const { return _period; }
 
         int32 GetMiscValueB() const { return GetSpellEffectInfo().MiscValueB; }
         int32 GetMiscValue() const { return GetSpellEffectInfo().MiscValue; }
         AuraType GetAuraType() const { return GetSpellEffectInfo().ApplyAuraName; }
-        int32 GetAmount() const { return _amount; }
-        void SetAmount(int32 amount) { _amount = amount; m_canBeRecalculated = false; }
+        int32 GetAmountAsInt() const { return static_cast<int32>(_amount); }
+        SpellEffectValue GetAmount() const { return _amount; }
+        void SetAmount(SpellEffectValue amount) { _amount = amount; m_canBeRecalculated = false; }
 
-        Optional<float> GetEstimatedAmount() const { return _estimatedAmount; }
+        Optional<SpellEffectValue> GetEstimatedAmount() const { return _estimatedAmount; }
 
         int32 GetPeriodicTimer() const { return _periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
-        int32 CalculateAmount(Unit* caster);
-        static Optional<float> CalculateEstimatedAmount(Unit const* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, int32 amount, uint8 stack, AuraEffect const* aurEff);
-        Optional<float> CalculateEstimatedAmount(Unit const* caster, int32 amount) const;
-        static float CalculateEstimatedfTotalPeriodicAmount(Unit* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, float amount, uint8 stack);
+        SpellEffectValue CalculateAmount(Unit* caster);
+        static Optional<SpellEffectValue> CalculateEstimatedAmount(Unit const* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, SpellEffectValue amount, uint8 stack, AuraEffect const* aurEff);
+        Optional<SpellEffectValue> CalculateEstimatedAmount(Unit const* caster, SpellEffectValue amount) const;
+        static SpellEffectValue CalculateEstimatedfTotalPeriodicAmount(Unit const* caster, Unit* target, SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, SpellEffectValue amount, uint8 stack);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
-        void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false, AuraEffect const* triggeredBy = nullptr);
+        void ChangeAmount(SpellEffectValue newAmount, bool mark = true, bool onStackOrReapply = false, AuraEffect const* triggeredBy = nullptr);
         void RecalculateAmount(AuraEffect const* triggeredBy = nullptr) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false, false, triggeredBy); }
         void RecalculateAmount(Unit* caster, AuraEffect const* triggeredBy = nullptr) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false, false, triggeredBy); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
@@ -103,10 +104,6 @@ class TC_GAME_API AuraEffect
 
         SpellEffectInfo const& GetSpellEffectInfo() const { return m_effectInfo; }
 
-        bool IsEffect() const { return m_effectInfo.Effect != 0; }
-        bool IsEffect(SpellEffectName effectName) const { return m_effectInfo.Effect == effectName; }
-        bool IsAreaAuraEffect() const;
-
     private:
         Aura* const m_base;
 
@@ -115,9 +112,9 @@ class TC_GAME_API AuraEffect
 
         SpellModifier* m_spellmod;
 
-        int32 const m_baseAmount;
-        int32 _amount;
-        Optional<float> _estimatedAmount;   // for periodic damage and healing auras this will include damage done bonuses
+        SpellEffectValue const m_baseAmount;
+        SpellEffectValue _amount;
+        Optional<SpellEffectValue> _estimatedAmount;   // for periodic damage and healing auras this will include damage done bonuses
 
         // periodic stuff
         int32 _periodicTimer;
@@ -253,6 +250,7 @@ class TC_GAME_API AuraEffect
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleConvertCritToParry(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -378,43 +376,9 @@ namespace Trinity
     class AbsorbAuraOrderPred
     {
         public:
-            AbsorbAuraOrderPred() { }
-            bool operator() (AuraEffect* aurEffA, AuraEffect* aurEffB) const
+            bool operator()(AuraEffect const* aurEffA, AuraEffect const* aurEffB) const
             {
-                SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
-                SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();
-
-                // Fel Blossom
-                if (spellProtoA->Id == 28527)
-                    return true;
-                if (spellProtoB->Id == 28527)
-                    return false;
-
-                // Ice Barrier
-                if (spellProtoA->GetCategory() == 471)
-                    return true;
-                if (spellProtoB->GetCategory() == 471)
-                    return false;
-
-                // Sacrifice
-                if (spellProtoA->Id == 7812)
-                    return true;
-                if (spellProtoB->Id == 7812)
-                    return false;
-
-                // Cauterize (must be last)
-                if (spellProtoA->Id == 86949)
-                    return false;
-                if (spellProtoB->Id == 86949)
-                    return true;
-
-                // Spirit of Redemption (must be last)
-                if (spellProtoA->Id == 20711)
-                    return false;
-                if (spellProtoB->Id == 20711)
-                    return true;
-
-                return false;
+                return aurEffA->GetMiscValueB() < aurEffB->GetMiscValueB();
             }
     };
 }

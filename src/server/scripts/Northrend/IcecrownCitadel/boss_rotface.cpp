@@ -419,7 +419,7 @@ class spell_rotface_ooze_flood : public SpellScript
             return;
 
         triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValueAsInt()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetOriginalCaster(GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty));
     }
 
@@ -478,13 +478,13 @@ class spell_rotface_mutated_infection_aura : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValueAsInt()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValueAsInt()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetTriggeringAura(aurEff)
             .SetOriginalCaster(GetCasterGUID()));
     }

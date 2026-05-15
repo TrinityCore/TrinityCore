@@ -56,21 +56,22 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
         ~Corpse();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::CorpseData::Mask const& requestedCorpseMask, Player const* target) const;
+            UF::CorpseData::Mask const& requestedCorpseMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(Corpse const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(Corpse const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             Corpse const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::CorpseData::Base CorpseMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };

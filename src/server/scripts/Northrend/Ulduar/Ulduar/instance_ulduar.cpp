@@ -45,7 +45,7 @@ static BossBoundaryData const boundaries =
     { DATA_YOGG_SARON, new CircleBoundary(Position(1980.42f, -27.68f), 105.0f) }
 };
 
-static DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_LEVIATHAN_DOOR,                DATA_FLAME_LEVIATHAN,   EncounterDoorBehavior::OpenWhenNotInProgress },
     { GO_XT_002_DOOR,                   DATA_XT002,             EncounterDoorBehavior::OpenWhenNotInProgress },
@@ -69,18 +69,16 @@ static DoorData const doorData[] =
     { GO_DOODAD_UL_UNIVERSEFLOOR_02,    DATA_ALGALON,           EncounterDoorBehavior::OpenWhenInProgress },
     { GO_DOODAD_UL_UNIVERSEGLOBE01,     DATA_ALGALON,           EncounterDoorBehavior::OpenWhenInProgress },
     { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03,  DATA_ALGALON,           EncounterDoorBehavior::OpenWhenInProgress },
-    { 0,                                0,                      EncounterDoorBehavior::OpenWhenNotInProgress },
 };
 
-MinionData const minionData[] =
+static constexpr MinionData minionData[] =
 {
     { NPC_STEELBREAKER,   DATA_ASSEMBLY_OF_IRON },
     { NPC_MOLGEIM,        DATA_ASSEMBLY_OF_IRON },
     { NPC_BRUNDIR,        DATA_ASSEMBLY_OF_IRON },
-    { 0,                  0                     } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_FLAME_LEVIATHAN,          DATA_FLAME_LEVIATHAN          },
     { NPC_IGNIS,                    DATA_IGNIS                    },
@@ -114,10 +112,9 @@ ObjectData const creatureData[] =
     { NPC_BRONZEBEARD_RADIO,        DATA_BRONZEBEARD_RADIO        },
     { NPC_HEART_OF_DECONSTRUCTOR,   DATA_XT002_HEART              },
     { NPC_AZEROTH,                  DATA_AZEROTH                  },
-    { 0,                            0,                            }
 };
 
-ObjectData const objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_MIMIRON_ELEVATOR,             DATA_MIMIRON_ELEVATOR     },
     { GO_MIMIRON_BUTTON,               DATA_MIMIRON_BUTTON       },
@@ -137,10 +134,9 @@ ObjectData const objectData[] =
     { GO_DOODAD_UL_UNIVERSEFLOOR_02,   DATA_UNIVERSE_FLOOR_02    },
     { GO_GIFT_OF_THE_OBSERVER_10,      DATA_GIFT_OF_THE_OBSERVER },
     { GO_GIFT_OF_THE_OBSERVER_25,      DATA_GIFT_OF_THE_OBSERVER },
-    { 0,                               0                         }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_FLAME_LEVIATHAN, {{ 1132 }} },
     { DATA_IGNIS, {{ 1136 }} },

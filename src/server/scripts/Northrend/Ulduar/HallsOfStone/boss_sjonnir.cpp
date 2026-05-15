@@ -312,7 +312,7 @@ struct npc_malformed_ooze : public ScriptedAI
                 me->GetMotionMaster()->MoveIdle();
                 me->GetMotionMaster()->MovePoint(POINT_COMBINE, creatureTarget->GetPosition());
 
-                _scheduler.Schedule(1s, [this](TaskContext task)
+                _scheduler.Schedule(1s, [this](TaskContext& task)
                 {
                     Creature* combineTarget = ObjectAccessor::GetCreature(*me, _combineTarget);
                     // Completely unclear what should happen in this case or in case when caster dies
@@ -364,7 +364,7 @@ struct npc_iron_sludge : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(3s, 6s, [this](TaskContext task)
+        _scheduler.Schedule(3s, 6s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_TOXIC_VOLLEY);
             task.Repeat(3s, 6s);

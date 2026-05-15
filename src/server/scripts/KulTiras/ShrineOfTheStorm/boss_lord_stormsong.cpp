@@ -159,7 +159,7 @@ struct boss_lord_stormsong : public BossAI
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 me->GetMap()->SummonCreature(instance->instance->GetTeamInInstance() == HORDE ? NPC_LORD_STORMSONG_REXXAR : NPC_LORD_STORMSONG_BROTHER_PIKE, IntroPosition);
 
-                scheduler.Schedule(11s, [this](TaskContext task)
+                scheduler.Schedule(11s, [this](TaskContext& task)
                 {
                     me->SetFacingTo(1.047197f);
                     me->SetOrientation(me->GetOrientation());
@@ -169,11 +169,11 @@ struct boss_lord_stormsong : public BossAI
 
                     azshara->DespawnOrUnsummon();
 
-                    task.Schedule(16s, [this](TaskContext task)
+                    task.Schedule(16s, [this](TaskContext& task)
                     {
                         DoCastSelf(SPELL_DARK_BINDING);
 
-                        task.Schedule(6s, [this](TaskContext)
+                        task.Schedule(6s, [this](TaskContext const&)
                         {
                             me->SetImmuneToPC(false);
                             me->SetEmoteState(EMOTE_STATE_READY1H);
@@ -472,12 +472,12 @@ class spell_lord_stormsong_surrender_to_the_void : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleDummy(SpellEffIndex /* effIndex */) const
     {
-        GetHitUnit()->m_Events.AddEvent([hitUnit = GetHitUnit(), casterGUID = GetCaster()->GetGUID(), spellId = GetEffectValue()]()
+        GetHitUnit()->m_Events.AddEvent([hitUnit = GetHitUnit(), casterGUID = GetCaster()->GetGUID(), spellId = GetEffectValueAsInt()]()
         {
             if (Unit* caster = ObjectAccessor::GetUnit(*hitUnit, casterGUID))
                 hitUnit->CastSpell(caster, uint32(spellId), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -495,13 +495,13 @@ class spell_lord_stormsong_disciple_of_the_vol_zith : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(target, GetEffectInfo(EFFECT_0).CalcValueAsInt(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
