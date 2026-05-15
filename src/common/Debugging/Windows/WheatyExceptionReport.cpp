@@ -8,6 +8,7 @@
 #include "GitRevision.h"
 #include "Memory.h"
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <stdexcept>
 #include <utility>
@@ -18,6 +19,7 @@
 #endif
 
 #include <comdef.h>
+#include <crtdbg.h>
 #include <ehdata.h>
 #include <rttidata.h>
 #include <tchar.h>
@@ -630,7 +632,7 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
 {
   THREADENTRY32 te32;
 
-  DWORD dwOwnerPID = GetCurrentProcessId();
+  DWORD dwOwnerPID = GetProcessId(m_process);
   DWORD dwCurrentTID = GetCurrentThreadId();
   // Take a snapshot of all running threads
   HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -679,212 +681,205 @@ void WheatyExceptionReport::printTracesForAllThreads(bool bWriteVariables)
 void WheatyExceptionReport::GenerateExceptionReport(
 PEXCEPTION_POINTERS pExceptionInfo)
 {
-    __try
+    SYSTEMTIME systime;
+    GetLocalTime(&systime);
+
+    // Start out with a banner
+    Log(_T("Revision: %" PRSTRc "\r\n"), GitRevision::GetFullVersion());
+    Log(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
+    PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
+
+    PrintSystemInfo();
+    // First print information about the type of fault
+    Log(_T("\r\n//=====================================================\r\n"));
+    Log(_T("Exception code: %08X %s\r\n"),
+        pExceptionRecord->ExceptionCode,
+        GetExceptionString(pExceptionRecord->ExceptionCode));
+    if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
     {
-        SYSTEMTIME systime;
-        GetLocalTime(&systime);
+        pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
+        Log(_T("Assertion message: %" PRSTRc "\r\n"), pExceptionRecord->ExceptionInformation[0]);
+    }
 
-        // Start out with a banner
-        Log(_T("Revision: %" PRSTRc "\r\n"), GitRevision::GetFullVersion());
-        Log(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
-        PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
-
-        PrintSystemInfo();
-        // First print information about the type of fault
-        Log(_T("\r\n//=====================================================\r\n"));
-        Log(_T("Exception code: %08X %s\r\n"),
-            pExceptionRecord->ExceptionCode,
-            GetExceptionString(pExceptionRecord->ExceptionCode));
-        if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
-        {
-            pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
-            Log(_T("Assertion message: %" PRSTRc "\r\n"), pExceptionRecord->ExceptionInformation[0]);
-        }
-
-        // Now print information about where the fault occured
-        TCHAR* szFaultingModule = m_tempPathBuffer;
-        DWORD section;
-        DWORD_PTR offset;
-        GetLogicalAddress(pExceptionRecord->ExceptionAddress,
-            szFaultingModule,
-            m_tempPathBufferChars,
-            section, offset);
+    // Now print information about where the fault occured
+    TCHAR* szFaultingModule = m_tempPathBuffer;
+    DWORD section;
+    DWORD_PTR offset;
+    GetLogicalAddress(pExceptionRecord->ExceptionAddress,
+        szFaultingModule,
+        m_tempPathBufferChars,
+        section, offset);
 
 #if defined(_M_IX86) || defined(_M_ARM)
-        Log(_T("Fault address:  %08X %02X:%08X %s\r\n"),
-            pExceptionRecord->ExceptionAddress,
-            section, offset, szFaultingModule);
+    Log(_T("Fault address:  %08X %02X:%08X %s\r\n"),
+        pExceptionRecord->ExceptionAddress,
+        section, offset, szFaultingModule);
 #endif
 #if defined(_M_X64) || defined(_M_ARM64) || defined(_M_HYBRID_X86_ARM64) || defined (_M_ARM64EC)
-        Log(_T("Fault address:  %016I64X %02X:%016I64X %s\r\n"),
-            pExceptionRecord->ExceptionAddress,
-            section, offset, szFaultingModule);
+    Log(_T("Fault address:  %016I64X %02X:%016I64X %s\r\n"),
+        pExceptionRecord->ExceptionAddress,
+        section, offset, szFaultingModule);
 #endif
 
-        PCONTEXT pCtx = pExceptionInfo->ContextRecord;
+    PCONTEXT pCtx = pExceptionInfo->ContextRecord;
 
-        // Show the registers
+    // Show the registers
 #ifdef _M_IX86                                          // X86 Only!
-        Log(_T("\r\nRegisters:\r\n"));
+    Log(_T("\r\nRegisters:\r\n"));
 
-        Log(_T("EAX:%08X\r\nEBX:%08X\r\nECX:%08X\r\nEDX:%08X\r\nESI:%08X\r\nEDI:%08X\r\n")
-            , pCtx->Eax, pCtx->Ebx, pCtx->Ecx, pCtx->Edx,
-            pCtx->Esi, pCtx->Edi);
+    Log(_T("EAX:%08X\r\nEBX:%08X\r\nECX:%08X\r\nEDX:%08X\r\nESI:%08X\r\nEDI:%08X\r\n")
+        , pCtx->Eax, pCtx->Ebx, pCtx->Ecx, pCtx->Edx,
+        pCtx->Esi, pCtx->Edi);
 
-        Log(_T("CS:EIP:%04X:%08X\r\n"), pCtx->SegCs, pCtx->Eip);
-        Log(_T("SS:ESP:%04X:%08X  EBP:%08X\r\n"),
-            pCtx->SegSs, pCtx->Esp, pCtx->Ebp);
-        Log(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
-            pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
-        Log(_T("Flags:%08X\r\n"), pCtx->EFlags);
+    Log(_T("CS:EIP:%04X:%08X\r\n"), pCtx->SegCs, pCtx->Eip);
+    Log(_T("SS:ESP:%04X:%08X  EBP:%08X\r\n"),
+        pCtx->SegSs, pCtx->Esp, pCtx->Ebp);
+    Log(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
+        pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
+    Log(_T("Flags:%08X\r\n"), pCtx->EFlags);
 #endif
 
 #ifdef _M_X64
-        Log(_T("\r\nRegisters:\r\n"));
-        Log(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
-            _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
-            , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
-            pCtx->Rsi, pCtx->Rdi, pCtx->R8, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
-        Log(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
-        Log(_T("SS:RSP:%04X:%016I64X  RBP:%08X\r\n"),
-            pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);
-        Log(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
-            pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
-        Log(_T("Flags:%08X\r\n"), pCtx->EFlags);
+    Log(_T("\r\nRegisters:\r\n"));
+    Log(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
+        _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
+        , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
+        pCtx->Rsi, pCtx->Rdi, pCtx->R8, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
+    Log(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
+    Log(_T("SS:RSP:%04X:%016I64X  RBP:%08X\r\n"),
+        pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);
+    Log(_T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\r\n"),
+        pCtx->SegDs, pCtx->SegEs, pCtx->SegFs, pCtx->SegGs);
+    Log(_T("Flags:%08X\r\n"), pCtx->EFlags);
 #endif
 
 #ifdef _M_ARM64
-        Log(_T("\r\nRegisters:\r\n"));
-        Log(_T("X0:%016I64X\r\nX1:%016I64X\r\nX2:%016I64X\r\nX3:%016I64X\r\nX4:%016I64X\r\nX5:%016I64X\r\n"),
-            _T("X6:%016I64X\r\nX7:%016I64X\r\nX8:%016I64X\r\nX9:%016I64X\r\nX10:%016I64X\r\nX11:%016I64X\r\nX12:%016I64X\r\nX13:%016I64X\r\n"),
-            _T("X14:%016I64X\r\nX15:%016I64X\r\nX16:%016I64X\r\nX17:%016I64X\r\nX18:%016I64X\r\nX19:%016I64X\r\nX20:%016I64X\r\nX21:%016I64X\r\n"),
-            _T("X22:%016I64X\r\nX23:%016I64X\r\nX24:%016I64X\r\nX25:%016I64X\r\nX26:%016I64X\r\nX27:%016I64X\r\nX28:%016I64X\r\n"),
-            pCtx->X0, pCtx->X1, pCtx->X2, pCtx->X3, pCtx->X4, pCtx->X5,
-            pCtx->X6, pCtx->X7, pCtx->X8, pCtx->X9, pCtx->X10, pCtx->X11, pCtx->X12, pCtx->X13,
-            pCtx->X14, pCtx->X15, pCtx->X16, pCtx->X17, pCtx->X18, pCtx->X19, pCtx->X20, pCtx->X21,
-            pCtx->X22, pCtx->X23, pCtx->X24, pCtx->X25, pCtx->X26, pCtx->X27, pCtx->X28);
-        Log(_T("LR:%016I64X\r\n"), pCtx->Lr);
-        Log(_T("PC:%016I64X\r\n"), pCtx->Pc);
-        Log(_T("SP:%016I64X FP:%016I64X\r\n"), pCtx->Sp, pCtx->Fp);
-        Log(_T("Flags:%08X\r\n"), pCtx->Cpsr);
+    Log(_T("\r\nRegisters:\r\n"));
+    Log(_T("X0:%016I64X\r\nX1:%016I64X\r\nX2:%016I64X\r\nX3:%016I64X\r\nX4:%016I64X\r\nX5:%016I64X\r\n"),
+        _T("X6:%016I64X\r\nX7:%016I64X\r\nX8:%016I64X\r\nX9:%016I64X\r\nX10:%016I64X\r\nX11:%016I64X\r\nX12:%016I64X\r\nX13:%016I64X\r\n"),
+        _T("X14:%016I64X\r\nX15:%016I64X\r\nX16:%016I64X\r\nX17:%016I64X\r\nX18:%016I64X\r\nX19:%016I64X\r\nX20:%016I64X\r\nX21:%016I64X\r\n"),
+        _T("X22:%016I64X\r\nX23:%016I64X\r\nX24:%016I64X\r\nX25:%016I64X\r\nX26:%016I64X\r\nX27:%016I64X\r\nX28:%016I64X\r\n"),
+        pCtx->X0, pCtx->X1, pCtx->X2, pCtx->X3, pCtx->X4, pCtx->X5,
+        pCtx->X6, pCtx->X7, pCtx->X8, pCtx->X9, pCtx->X10, pCtx->X11, pCtx->X12, pCtx->X13,
+        pCtx->X14, pCtx->X15, pCtx->X16, pCtx->X17, pCtx->X18, pCtx->X19, pCtx->X20, pCtx->X21,
+        pCtx->X22, pCtx->X23, pCtx->X24, pCtx->X25, pCtx->X26, pCtx->X27, pCtx->X28);
+    Log(_T("LR:%016I64X\r\n"), pCtx->Lr);
+    Log(_T("PC:%016I64X\r\n"), pCtx->Pc);
+    Log(_T("SP:%016I64X FP:%016I64X\r\n"), pCtx->Sp, pCtx->Fp);
+    Log(_T("Flags:%08X\r\n"), pCtx->Cpsr);
 #endif
 
-        SymSetOptions(SYMOPT_DEFERRED_LOADS);
+    SymSetOptions(SYMOPT_DEFERRED_LOADS);
 
-        // Initialize DbgHelp
-        if (!SymInitialize(m_process, nullptr, TRUE))
-        {
-            Log(_T("\r\n"));
-            Log(_T("----\r\n"));
-            Log(_T("SYMBOL HANDLER ERROR (THIS IS NOT THE CRASH ERROR)\r\n\r\n"));
-            Log(_T("Couldn't initialize symbol handler for process when generating crash report\r\n"));
-            Log(_T("Error: %s\r\n"), ErrorMessage(GetLastError()));
-            Log(_T("THE BELOW CALL STACKS MIGHT HAVE MISSING OR INACCURATE FILE/FUNCTION NAMES\r\n\r\n"));
-            Log(_T("----\r\n"));
-        }
+    // Initialize DbgHelp
+    if (!SymInitialize(m_process, nullptr, TRUE))
+    {
+        Log(_T("\r\n"));
+        Log(_T("----\r\n"));
+        Log(_T("SYMBOL HANDLER ERROR (THIS IS NOT THE CRASH ERROR)\r\n\r\n"));
+        Log(_T("Couldn't initialize symbol handler for process when generating crash report\r\n"));
+        Log(_T("Error: %s\r\n"), ErrorMessage(GetLastError()));
+        Log(_T("THE BELOW CALL STACKS MIGHT HAVE MISSING OR INACCURATE FILE/FUNCTION NAMES\r\n\r\n"));
+        Log(_T("----\r\n"));
+    }
 
-        if (pExceptionRecord->ExceptionCode == 0xE06D7363 && pExceptionRecord->NumberParameters >= 2)
-        {
-            PVOID exceptionObject = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
-            ThrowInfo const* throwInfo = reinterpret_cast<ThrowInfo const*>(pExceptionRecord->ExceptionInformation[2]);
+    if (pExceptionRecord->ExceptionCode == 0xE06D7363 && pExceptionRecord->NumberParameters >= 2)
+    {
+        PVOID exceptionObject = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
+        ThrowInfo const* throwInfo = reinterpret_cast<ThrowInfo const*>(pExceptionRecord->ExceptionInformation[2]);
 #if _EH_RELATIVE_TYPEINFO
-            // When _EH_RELATIVE_TYPEINFO is defined, the pointers need to be retrieved with some pointer math
-            auto resolveExceptionRVA = [pExceptionRecord](int32 rva) -> DWORD_PTR
-            {
-                return rva + (pExceptionRecord->NumberParameters >= 4 ? pExceptionRecord->ExceptionInformation[3] : 0);
-            };
+        // When _EH_RELATIVE_TYPEINFO is defined, the pointers need to be retrieved with some pointer math
+        auto resolveExceptionRVA = [pExceptionRecord](int32 rva) -> DWORD_PTR
+        {
+            return rva + (pExceptionRecord->NumberParameters >= 4 ? pExceptionRecord->ExceptionInformation[3] : 0);
+        };
 #else
-            // Otherwise the pointers are already there in the API types
-            auto resolveExceptionRVA = [](void const* input) -> void const* { return input; };
+        // Otherwise the pointers are already there in the API types
+        auto resolveExceptionRVA = [](void const* input) -> void const* { return input; };
 #endif
 
-            CatchableTypeArray const* catchables = reinterpret_cast<CatchableTypeArray const*>(resolveExceptionRVA(throwInfo->pCatchableTypeArray));
-            CatchableType const* catchable = catchables->nCatchableTypes ? reinterpret_cast<CatchableType const*>(resolveExceptionRVA(catchables->arrayOfCatchableTypes[0])) : nullptr;
-            TypeDescriptor const* exceptionTypeinfo = catchable ? reinterpret_cast<TypeDescriptor const*>(resolveExceptionRVA(catchable->pType)) : nullptr;
+        CatchableTypeArray const* catchables = reinterpret_cast<CatchableTypeArray const*>(resolveExceptionRVA(throwInfo->pCatchableTypeArray));
+        CatchableType const* catchable = catchables->nCatchableTypes ? reinterpret_cast<CatchableType const*>(resolveExceptionRVA(catchables->arrayOfCatchableTypes[0])) : nullptr;
+        TypeDescriptor const* exceptionTypeinfo = catchable ? reinterpret_cast<TypeDescriptor const*>(resolveExceptionRVA(catchable->pType)) : nullptr;
 
-            if (exceptionTypeinfo)
+        if (exceptionTypeinfo)
+        {
+            void* stdExceptionTypeInfo = []() -> void*
             {
-                void* stdExceptionTypeInfo = []() -> void*
+                try
                 {
-                    try
-                    {
-                        std::exception fake;
-                        return __RTtypeid(&fake);
-                    }
-                    catch (...)
-                    {
-                        return nullptr;
-                    }
-                }();
-                std::exception const* exceptionPtr = [](void* object, TypeDescriptor const* typeInfo, void* stdExceptionTypeInfo) -> std::exception const*
+                    std::exception fake;
+                    return __RTtypeid(&fake);
+                }
+                catch (...)
                 {
-                    try
-                    {
-                        // real_type descriptor is obtained by parsing throwinfo
-                        // equivalent to expression like this
-                        // std::exception* e = object;
-                        // real_type* r = dynamic_cast<real_type*>(e);
-                        // return r;
-                        return reinterpret_cast<std::exception const*>(__RTDynamicCast(object, 0, stdExceptionTypeInfo, (void*)typeInfo, false));
-                    }
-                    catch (...)
-                    {
-                        return nullptr;
-                    }
-                }(exceptionObject, exceptionTypeinfo, stdExceptionTypeInfo);
-
-                // dynamic_cast<type>(variable_that_already_has_that_type) is optimized away by compiler and attempting to call __RTDynamicCast fails for it
-                if (!exceptionPtr && exceptionTypeinfo == stdExceptionTypeInfo)
-                    exceptionPtr = reinterpret_cast<std::exception*>(exceptionObject);
-
-                Log(_T("\r\nUncaught C++ exception info:"));
-                if (exceptionPtr)
-                    Log(_T(" %s"), exceptionPtr->what());
-
-                Log(_T("\r\n"));
-
-                char undName[MAX_SYM_NAME] = { };
-                if (UnDecorateSymbolName(&exceptionTypeinfo->name[1], &undName[0], MAX_SYM_NAME, UNDNAME_32_BIT_DECODE | UNDNAME_NAME_ONLY | UNDNAME_NO_ARGUMENTS))
+                    return nullptr;
+                }
+            }();
+            std::exception const* exceptionPtr = [](void* object, TypeDescriptor const* typeInfo, void* stdExceptionTypeInfo) -> std::exception const*
+            {
+                try
                 {
-                    char buf[MAX_SYM_NAME + sizeof(SYMBOL_INFO)] = { };
-                    PSYMBOL_INFO sym = (PSYMBOL_INFO)&buf[0];
-                    sym->SizeOfStruct = sizeof(SYMBOL_INFO);
-                    sym->MaxNameLen = MAX_SYM_NAME;
-                    if (SymGetTypeFromName(m_process, (ULONG64)GetModuleHandle(nullptr), undName, sym))
-                    {
-                        sym->Address = pExceptionRecord->ExceptionInformation[1];
-                        sym->Flags = 0;
-                        char const* variableName = "uncaught_exception";
-                        memset(sym->Name, 0, MAX_SYM_NAME);
-                        memcpy(sym->Name, variableName, strlen(variableName));
-                        FormatSymbolValue(sym, nullptr);
-                    }
+                    // real_type descriptor is obtained by parsing throwinfo
+                    // equivalent to expression like this
+                    // std::exception* e = object;
+                    // real_type* r = dynamic_cast<real_type*>(e);
+                    // return r;
+                    return reinterpret_cast<std::exception const*>(__RTDynamicCast(object, 0, stdExceptionTypeInfo, (void*)typeInfo, false));
+                }
+                catch (...)
+                {
+                    return nullptr;
+                }
+            }(exceptionObject, exceptionTypeinfo, stdExceptionTypeInfo);
+
+            // dynamic_cast<type>(variable_that_already_has_that_type) is optimized away by compiler and attempting to call __RTDynamicCast fails for it
+            if (!exceptionPtr && exceptionTypeinfo == stdExceptionTypeInfo)
+                exceptionPtr = reinterpret_cast<std::exception*>(exceptionObject);
+
+            Log(_T("\r\nUncaught C++ exception info:"));
+            if (exceptionPtr)
+                Log(_T(" %s"), exceptionPtr->what());
+
+            Log(_T("\r\n"));
+
+            char undName[MAX_SYM_NAME] = { };
+            if (UnDecorateSymbolName(&exceptionTypeinfo->name[1], &undName[0], MAX_SYM_NAME, UNDNAME_32_BIT_DECODE | UNDNAME_NAME_ONLY | UNDNAME_NO_ARGUMENTS))
+            {
+                char buf[MAX_SYM_NAME + sizeof(SYMBOL_INFO)] = { };
+                PSYMBOL_INFO sym = (PSYMBOL_INFO)&buf[0];
+                sym->SizeOfStruct = sizeof(SYMBOL_INFO);
+                sym->MaxNameLen = MAX_SYM_NAME;
+                if (SymGetTypeFromName(m_process, (ULONG64)GetModuleHandle(nullptr), undName, sym))
+                {
+                    sym->Address = pExceptionRecord->ExceptionInformation[1];
+                    sym->Flags = 0;
+                    char const* variableName = "uncaught_exception";
+                    memset(sym->Name, 0, MAX_SYM_NAME);
+                    memcpy(sym->Name, variableName, strlen(variableName));
+                    FormatSymbolValue(sym, nullptr);
                 }
             }
         }
-
-        CONTEXT trashableContext = *pCtx;
-
-        WriteStackDetails(&trashableContext, false, nullptr);
-        printTracesForAllThreads(false);
-
-        //    #ifdef _M_IX86                                          // X86 Only!
-
-        Log(_T("========================\r\n"));
-        Log(_T("Local Variables And Parameters\r\n"));
-
-        trashableContext = *pCtx;
-        WriteStackDetails(&trashableContext, true, nullptr);
-        printTracesForAllThreads(true);
-
-        SymCleanup(m_process);
-
-        Log(_T("\r\n"));
     }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        Log(_T("Error writing the crash log\r\n"));
-    }
+
+    CONTEXT trashableContext = *pCtx;
+
+    WriteStackDetails(&trashableContext, false, GetCurrentThread());
+    printTracesForAllThreads(false);
+
+    //    #ifdef _M_IX86                                          // X86 Only!
+
+    Log(_T("========================\r\n"));
+    Log(_T("Local Variables And Parameters\r\n"));
+
+    trashableContext = *pCtx;
+    WriteStackDetails(&trashableContext, true, GetCurrentThread());
+    printTracesForAllThreads(true);
+
+    SymCleanup(m_process);
+
+    Log(_T("\r\n"));
 }
 
 //======================================================================
@@ -1063,7 +1058,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
         // Get the next stack frame
         if (!StackWalkEx(dwMachineType,
             m_process,
-            pThreadHandle != nullptr ? pThreadHandle : GetCurrentThread(),
+            pThreadHandle,
             &sf,
             pContext,
             nullptr,
@@ -1156,17 +1151,8 @@ ULONG         /*SymbolSize*/,
 PVOID         UserContext)
 {
     EnumerateSymbolsCallbackContext* context = static_cast<EnumerateSymbolsCallbackContext*>(UserContext);
-    __try
-    {
-        context->report->ClearSymbols();
-        context->report->FormatSymbolValue(pSymInfo, context);
-
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        context->report->Log(_T("punting on symbol %" PRSTRc ", partial output:\r\n"), pSymInfo->Name);
-    }
-
+    context->report->ClearSymbols();
+    context->report->FormatSymbolValue(pSymInfo, context);
     return TRUE;
 }
 
@@ -1424,7 +1410,7 @@ EnumerateSymbolsCallbackContext* pCtx)
             m_symbolDetails.top().Name = pSym->Name;
 
         char buffer[50];
-        FormatOutputValue(buffer, basicType, pSym->Size, (PVOID)pVariable, sizeof(buffer));
+        FormatOutputValue(buffer, basicType, pSym->Size, (PVOID)pVariable, sizeof(buffer), 1);
         m_symbolDetails.top().Value = buffer;
     }
 
@@ -1521,7 +1507,7 @@ bool logChildren)
                     m_symbolDetails.top().Suffix += "*";
 
                 // Try to dereference the pointer in a try/except block since it might be invalid
-                DWORD_PTR address = DereferenceUnsafePointer(offset);
+                DWORD_PTR address = DereferenceUnsafePointer<DWORD_PTR>(reinterpret_cast<LPCVOID>(offset)).value_or(DWORD_PTR(-1));
 
                 char buffer[WER_SMALL_BUFFER_SIZE];
                 FormatOutputValue(buffer, btVoid, sizeof(PVOID), (PVOID)offset, sizeof(buffer));
@@ -1770,7 +1756,7 @@ bool logChildren)
             SymGetTypeInfo(m_process, modBase, typeId, TI_GET_LENGTH, &length);
 
             char buffer[50];
-            FormatOutputValue(buffer, basicType, length, (PVOID)dwFinalOffset, sizeof(buffer));
+            FormatOutputValue(buffer, basicType, length, (PVOID)dwFinalOffset, sizeof(buffer), 1);
             m_symbolDetails.top().Value = buffer;
         }
 
@@ -1780,6 +1766,15 @@ bool logChildren)
     bHandled = true;
 }
 
+template <typename T>
+void WheatyExceptionReport::FormatOutputValueNumeric(char* buffer, size_t bufferSize, char const* format, LPCVOID address)
+{
+    if (Optional<T> value = DereferenceUnsafePointer<T>(address))
+        (void)::snprintf(buffer, bufferSize, format, *value);
+    else
+        (void)snprintf(buffer, bufferSize, "%p <Unable to read memory>", address);
+}
+
 void WheatyExceptionReport::FormatOutputValue(char * pszCurrBuffer,
 BasicType basicType,
 DWORD64 length,
@@ -1787,66 +1782,114 @@ PVOID pAddress,
 size_t bufferSize,
 size_t countOverride)
 {
-    __try
+    switch (basicType)
     {
-        switch (basicType)
+        case btChar:
         {
-            case btChar:
+            // Special case handling for char[] type
+            if (countOverride != 0)
             {
-                // Special case handling for char[] type
-                if (countOverride != 0)
-                    length = countOverride;
-                else
-                    length = strlen((char*)pAddress);
-                if (length > bufferSize - 6)
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), (char*)pAddress);
-                else
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s\"", (int)length, (char*)pAddress);
-                break;
-            }
-            case btStdString:
-            {
-                std::string* value = static_cast<std::string*>(pAddress);
-                if (value->length() > bufferSize - 6)
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%.*s...\"", (int)(bufferSize - 6), value->c_str());
-                else
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "\"%s\"", value->c_str());
-                break;
-            }
-            default:
-                // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
-                if (length == 1)
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PBYTE)pAddress);
-                else if (length == 2)
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PWORD)pAddress);
-                else if (length == 4)
+                *pszCurrBuffer = '"';
+                if (countOverride > bufferSize - 3)
                 {
-                    if (basicType == btFloat)
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f", *(PFLOAT)pAddress);
-                    else
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%lX", *(PDWORD)pAddress);
-                }
-                else if (length == 8)
-                {
-                    if (basicType == btFloat)
+                    if (ReadProcessMemory(m_process, pAddress, pszCurrBuffer + 1, bufferSize - 6, nullptr))
                     {
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f",
-                            *(double *)pAddress);
+                        strcpy(pszCurrBuffer + bufferSize - 5, "...\"");
+                        return;
                     }
-                    else
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%llX",
-                        *(DWORD64*)pAddress);
                 }
                 else
                 {
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%p", pAddress);
+                    if (ReadProcessMemory(m_process, pAddress, pszCurrBuffer + 1, countOverride, nullptr))
+                    {
+                        strcpy(pszCurrBuffer + 1 + countOverride, "\"");
+                        return;
+                    }
                 }
-                break;
+
+                (void)snprintf(pszCurrBuffer, bufferSize, "%p <Unable to read memory>", pAddress);
+            }
+            else
+            {
+                *pszCurrBuffer = '"';
+                size_t i = 1;
+                for (; i < bufferSize - 2; ++i)
+                {
+                    Optional<char> character = DereferenceUnsafePointer<char>(static_cast<char const*>(pAddress) + i - 1);
+                    if (!character)
+                    {
+                        (void)snprintf(pszCurrBuffer, bufferSize, "%p <Unable to read memory>", pAddress);
+                        return;
+                    }
+                    *(pszCurrBuffer + i) = *character;
+                    if (!*character)
+                        break; // end of string
+                }
+                if (i == bufferSize - 2)
+                {
+                    // too long
+                    strcpy(pszCurrBuffer + bufferSize - 6, "...");
+                }
+
+                *(pszCurrBuffer + i) = '"';
+                *(pszCurrBuffer + i + 1) = '\0';
+            }
+            break;
         }
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%p <Unable to read memory>", pAddress);
+        case btStdString:
+        {
+            alignas(std::string) std::array<char, sizeof(std::string)> rawBytes = { };
+            if (ReadProcessMemory(m_process, pAddress, rawBytes.data(), rawBytes.size(), nullptr))
+            {
+                std::string const* value = reinterpret_cast<std::string const*>(rawBytes.data());
+
+                *pszCurrBuffer = '"';
+                if (value->length() > bufferSize - 3)
+                {
+                    if (ReadProcessMemory(m_process, value->data(), pszCurrBuffer + 1, bufferSize - 6, nullptr))
+                    {
+                        strcpy(pszCurrBuffer + bufferSize - 6, "...\"");
+                        return;
+                    }
+                }
+                else
+                {
+                    if (ReadProcessMemory(m_process, value->data(), pszCurrBuffer + 1, value->length(), nullptr))
+                    {
+                        strcpy(pszCurrBuffer + 1 + value->length(), "\"");
+                        return;
+                    }
+                }
+            }
+
+            (void)snprintf(pszCurrBuffer, bufferSize, "%p <Unable to read memory>", pAddress);
+
+            break;
+        }
+        default:
+            // Format appropriately (assuming it's a 1, 2, or 4 bytes (!!!)
+            if (length == 1)
+                FormatOutputValueNumeric<BYTE>(pszCurrBuffer, bufferSize, "0x%X", pAddress);
+            else if (length == 2)
+                FormatOutputValueNumeric<WORD>(pszCurrBuffer, bufferSize, "0x%X", pAddress);
+            else if (length == 4)
+            {
+                if (basicType == btFloat)
+                    FormatOutputValueNumeric<float>(pszCurrBuffer, bufferSize, "%f", pAddress);
+                else
+                    FormatOutputValueNumeric<DWORD>(pszCurrBuffer, bufferSize, "0x%lX", pAddress);
+            }
+            else if (length == 8)
+            {
+                if (basicType == btFloat)
+                    FormatOutputValueNumeric<double>(pszCurrBuffer, bufferSize, "%f", pAddress);
+                else
+                    FormatOutputValueNumeric<DWORD64>(pszCurrBuffer, bufferSize, "0x%llX", pAddress);
+            }
+            else
+                (void)snprintf(pszCurrBuffer, bufferSize, "%p", pAddress);
+
+            break;
     }
 }
 
@@ -1875,16 +1918,15 @@ WheatyExceptionReport::GetBasicType(DWORD typeIndex, DWORD64 modBase) const
     return btNoType;
 }
 
-DWORD_PTR WheatyExceptionReport::DereferenceUnsafePointer(DWORD_PTR address)
+template <typename T> requires (std::is_scalar_v<T>)
+Optional<T> WheatyExceptionReport::DereferenceUnsafePointer(LPCVOID address)
 {
-    __try
-    {
-        return *(PDWORD_PTR)address;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        return DWORD_PTR(-1);
-    }
+    Optional<T> result;
+    SIZE_T numberOfBytesRead = 0;
+    if (!::ReadProcessMemory(m_process, address, &result.emplace(), sizeof(T), &numberOfBytesRead) || numberOfBytesRead != sizeof(T))
+        result.reset();
+
+    return result;
 }
 
 //============================================================================

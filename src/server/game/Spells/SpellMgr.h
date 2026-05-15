@@ -565,7 +565,7 @@ struct CreatureImmunities
     std::bitset<MAX_SPELL_SCHOOL> School;
     std::bitset<DISPEL_MAX> DispelType;
     std::bitset<MAX_MECHANIC> Mechanic;
-    std::vector<SpellEffectName> Effect;
+    std::vector<SpellEffects> Effect;
     std::vector<AuraType> Aura;
     EnumFlag<SpellOtherImmunity> Other = SpellOtherImmunity::None;
 };

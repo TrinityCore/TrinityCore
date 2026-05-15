@@ -239,7 +239,7 @@ struct SpellEffectInfo::ImmunityInfo
     uint8 OtherImmuneMask = 0;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
-    Trinity::Containers::FlatSet<SpellEffectName> SpellEffectImmune;
+    Trinity::Containers::FlatSet<SpellEffects> SpellEffectImmune;
 };
 
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
@@ -415,7 +415,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
 
     _spellInfo = spellInfo;
     EffectIndex = SpellEffIndex(_effect.EffectIndex);
-    Effect = SpellEffectName(_effect.Effect);
+    Effect = SpellEffects(_effect.Effect);
     ApplyAuraName = AuraType(_effect.EffectAura);
     ApplyAuraPeriod = _effect.EffectAuraPeriod;
     BasePoints = _effect.EffectBasePoints;
@@ -456,7 +456,7 @@ bool SpellEffectInfo::IsEffect() const
     return Effect != 0;
 }
 
-bool SpellEffectInfo::IsEffect(SpellEffectName effectName) const
+bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
     return Effect == effectName;
 }
@@ -1548,7 +1548,7 @@ uint32 SpellInfo::GetCategory() const
     return CategoryId;
 }
 
-bool SpellInfo::HasEffect(SpellEffectName effect) const
+bool SpellInfo::HasEffect(SpellEffects effect) const
 {
     for (SpellEffectInfo const& eff : GetEffects())
         if (eff.IsEffect(effect))
@@ -3497,7 +3497,7 @@ void SpellInfo::_LoadImmunityInfo()
                     dispelImmunityMask |= creatureImmunities->DispelType.to_ulong();
                     mechanicImmunityMask |= creatureImmunities->Mechanic.to_ullong();
                     otherImmunityMask |= creatureImmunities->Other.AsUnderlyingType();
-                    for (SpellEffectName effectType : creatureImmunities->Effect)
+                    for (SpellEffects effectType : creatureImmunities->Effect)
                         immuneInfo.SpellEffectImmune.insert(effectType);
                     for (AuraType aura : creatureImmunities->Aura)
                         immuneInfo.AuraTypeImmune.insert(aura);
@@ -3538,7 +3538,7 @@ void SpellInfo::_LoadImmunityInfo()
             }
             case SPELL_AURA_EFFECT_IMMUNITY:
             {
-                immuneInfo.SpellEffectImmune.insert(static_cast<SpellEffectName>(miscVal));
+                immuneInfo.SpellEffectImmune.insert(static_cast<SpellEffects>(miscVal));
                 break;
             }
             case SPELL_AURA_STATE_IMMUNITY:
@@ -3784,7 +3784,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             });
     }
 
-    for (SpellEffectName effectType : immuneInfo->SpellEffectImmune)
+    for (SpellEffects effectType : immuneInfo->SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
 
     if (uint8 otherImmuneMask = immuneInfo->OtherImmuneMask)
