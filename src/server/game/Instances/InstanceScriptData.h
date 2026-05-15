@@ -60,7 +60,7 @@ private:
     uint32 GetMapId() const;
     char const* GetMapName() const;
     uint32 GetDifficultyId() const;
-    char const* GetDifficultyName() const;
+    std::string_view GetDifficultyName() const;
 
     InstanceScript& _instance;
     rapidjson::Document _doc;

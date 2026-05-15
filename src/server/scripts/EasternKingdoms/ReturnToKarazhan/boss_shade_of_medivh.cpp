@@ -146,7 +146,7 @@ struct boss_shade_of_medivh : public BossAI
         me->SetPowerType(POWER_MANA);
         me->SetPower(POWER_MANA, 0);
 
-        scheduler.Schedule(2s, [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext& task)
         {
             static constexpr uint8 VisualCount = 5;
             static constexpr float TravelSpeed = 8.0f;
@@ -679,7 +679,7 @@ class spell_shade_of_medivh_arcane_bolt_selector : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
         });

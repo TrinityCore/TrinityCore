@@ -1687,7 +1687,7 @@ class spell_arcane_overload : public SpellScript
     {
         Creature* arcaneOverload = GetCaster()->ToCreature();
         targets.remove_if(ExactDistanceCheck(arcaneOverload,
-            GetEffectInfo(EFFECT_0).CalcRadius(arcaneOverload) * arcaneOverload->GetObjectScale()));
+            GetEffectInfo(EFFECT_0).CalcRadius(arcaneOverload).Max * arcaneOverload->GetObjectScale()));
     }
 
     void Register() override
@@ -1916,7 +1916,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
-            target->CastSpell(GetCaster(), GetEffectValue(), true);
+            target->CastSpell(GetCaster(), GetEffectValueAsInt(), true);
     }
 
     void Register() override

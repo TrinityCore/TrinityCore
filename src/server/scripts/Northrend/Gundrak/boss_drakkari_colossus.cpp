@@ -362,12 +362,12 @@ struct npc_living_mojo : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(2s, [this](TaskContext task)
+        _scheduler.Schedule(2s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_MOJO_WAVE);
             task.Repeat(15s);
         })
-        .Schedule(7s, [this](TaskContext task)
+        .Schedule(7s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_MOJO_PUDDLE);
             task.Repeat(18s);

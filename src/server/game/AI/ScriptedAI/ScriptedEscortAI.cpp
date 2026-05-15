@@ -178,7 +178,7 @@ void EscortAI::UpdateAI(uint32 diff)
                         {
                             Position respawnPosition = me->GetRespawnPosition();
                             me->GetMotionMaster()->MovePoint(POINT_HOME, respawnPosition);
-                            TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition.ToString(), me->GetGUID().ToString());
+                            TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::UpdateAI: returning to spawn location: {} ({})", respawnPosition, me->GetGUID().ToString());
                         }
                         else if (_instantRespawn)
                             me->Respawn(true);

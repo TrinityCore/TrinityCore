@@ -417,8 +417,8 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
 
             if (!MapManager::IsValidMapCoord(location))
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed an invalid position: SpawnId: {}, MapId {}, Position {{}}",
-                    spawnId, location.GetMapId(), location.ToString());
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed an invalid position: SpawnId: {}, Location {}",
+                    spawnId, location);
                 continue;
             }
 

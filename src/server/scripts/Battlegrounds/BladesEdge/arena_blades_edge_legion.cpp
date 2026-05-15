@@ -109,7 +109,7 @@ struct arena_blades_edge_legion : ArenaScript
         if (Creature const* maulgar = battlegroundMap->GetCreature(_maulgarGUID))
             maulgar->AI()->DoAction(BladesEdge::Actions::ArenaStart);
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             if (_scheduleBored)
                 context.Repeat(1min, 2min);

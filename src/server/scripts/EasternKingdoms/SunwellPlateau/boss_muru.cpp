@@ -144,13 +144,13 @@ struct boss_entropius : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+        scheduler.Schedule(Milliseconds(2000), [this](TaskContext const& /*context*/)
         {
             DoResetPortals();
             DoCastAOE(SPELL_NEGATIVE_ENERGY_PERIODIC_E, true);
         });
 
-        scheduler.Schedule(Seconds(15), [this](TaskContext context)
+        scheduler.Schedule(Seconds(15), [this](TaskContext& context)
         {
             DoCastAOE(SPELL_DARKNESS_E, true);
             DoCastAOE(SPELL_BLACKHOLE, true);
@@ -242,7 +242,7 @@ struct boss_muru : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Minutes(10), [this](TaskContext /*context*/)
+        scheduler.Schedule(Minutes(10), [this](TaskContext const& /*context*/)
         {
             if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
                 entropius->CastSpell(entropius, SPELL_ENRAGE);
@@ -250,7 +250,7 @@ struct boss_muru : public BossAI
             _hasEnraged = true;
         });
 
-        scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
+        scheduler.Schedule(Seconds(10), [this](TaskContext const& /*context*/)
         {
             DoCast(me, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
             DoCast(me, SPELL_SUMMON_BLOOD_ELVES_PERIODIC, true);
@@ -278,7 +278,7 @@ struct boss_muru : public BossAI
             DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
             me->SetUninteractible(true);
 
-            scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+            scheduler.Schedule(Seconds(6), [this](TaskContext const& /*context*/)
             {
                 DoCast(me, SPELL_SUMMON_ENTROPIUS, true);
             });
@@ -334,7 +334,7 @@ struct npc_muru_portal : public ScriptedAI
                 break;
             case SPELL_OPEN_PORTAL_2:
                 DoCastAOE(SPELL_OPEN_PORTAL, true);
-                _scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(6), [this](TaskContext const& /*context*/)
                 {
                     DoCastAOE(SPELL_SUMMON_VOID_SENTINEL_SUMMONER, true);
                 });
@@ -366,7 +366,7 @@ struct npc_dark_fiend : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCast(me, SPELL_DARKFIEND_SKIN, true);
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetUninteractible(false);
@@ -376,7 +376,7 @@ struct npc_dark_fiend : public ScriptedAI
                     AttackStart(target);
         });
 
-        _scheduler.Schedule(Seconds(3), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(3), [this](TaskContext& context)
         {
             if (me->IsWithinDist(me->GetVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
             {
@@ -425,7 +425,7 @@ struct npc_void_sentinel : public ScriptedAI
     {
         DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
 
-        _scheduler.Schedule(Seconds(45), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(45), [this](TaskContext& context)
         {
             DoCastVictim(SPELL_VOID_BLAST, false);
 
@@ -461,12 +461,12 @@ struct npc_blackhole : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
 
-        _scheduler.Schedule(Seconds(15), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(15), [this](TaskContext const& /*context*/)
         {
             me->DisappearAndDie();
         });
 
-        _scheduler.Schedule(Seconds(1), [this](TaskContext context)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext& context)
         {
             switch (context.GetRepeatCounter())
             {

@@ -681,7 +681,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint32 AchievementLogic = 0;
             std::vector<uint32> AchievementsRequired;
-            Trinity::RaceMask<uint64> RaceMask = { };
+            Trinity::RaceMask<std::array<int32, 2>> RaceMask = { };
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;

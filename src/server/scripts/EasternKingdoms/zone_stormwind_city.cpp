@@ -226,7 +226,7 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
             me->SetFacingTo(5.1164f);
             DoCastAOE(SPELL_JAINA_ARCANE_CHANNEL);
 
-            _scheduler.Schedule(14s, [this](TaskContext /*context*/)
+            _scheduler.Schedule(14s, [this](TaskContext const& /*context*/)
             {
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 me->GetMotionMaster()->MovePath(PATH_JAINA_VISION_FINISH, false);
@@ -240,13 +240,13 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
     {
         if (action == ACTION_JAINA_LEAVE_COUNCIL)
         {
-            _scheduler.Schedule(1s, [this](TaskContext task)
+            _scheduler.Schedule(1s, [this](TaskContext& task)
             {
                 Talk(SAY_JAINA_LEAVE_COUNCIL, me);
-                task.Schedule(4s, [this](TaskContext task)
+                task.Schedule(4s, [this](TaskContext& task)
                 {
                     DoCastSelf(SPELL_JAINA_TELEPORT);
-                    task.Schedule(2s, [this](TaskContext /*task*/)
+                    task.Schedule(2s, [this](TaskContext const& /*task*/)
                     {
                         Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
                         if (!privateObjectOwner)
@@ -353,13 +353,13 @@ class spell_stormwind_harbor_to_boralus_transition : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt()) });
     }
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, aurEff->GetAmount(), false);
+            caster->CastSpell(caster, aurEff->GetAmountAsInt(), false);
     }
 
     void Register() override
@@ -409,7 +409,7 @@ struct npc_arkonarin_starshade_ancient_curses : public ScriptedAI
         {
             me->SetDisableGravity(true, true);
             me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
-            _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
+            _scheduler.Schedule(2s + 500ms, [this](TaskContext const& /*context*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_ARKONARIN_FLY_TO_FELWOOD, false);
                 me->DespawnOrUnsummon(5s);
@@ -437,7 +437,7 @@ struct npc_lysande_starshade_ancient_curses : public ScriptedAI
         {
             me->SetDisableGravity(true, true);
             me->SetMountDisplayId(DISPLAY_ID_STARSHADE_MOUNT);
-            _scheduler.Schedule(2s + 500ms, [this](TaskContext /*context*/)
+            _scheduler.Schedule(2s + 500ms, [this](TaskContext const& /*context*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_LYSANDER_FLY_TO_FELWOOD, false);
                 me->DespawnOrUnsummon(5s);

@@ -342,9 +342,9 @@ public:
                 me->Mount(25279);
                 me->SetVisible(true);
 
-                sWorldStateMgr->SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 0, false, me->GetMap());
-                //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
-                sWorldStateMgr->SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 0, false, me->GetMap());
+                WorldStateMgr::SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 0, false, me->GetMap());
+                //WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
+                WorldStateMgr::SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 0, false, me->GetMap());
 
                 if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID))
                     temp->setDeathState(JUST_DIED);
@@ -582,13 +582,13 @@ public:
                     switch (uiStep)
                     {
                         case 0:  // countdown
-                            //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 1, false, me->GetMap());
+                            //WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 1, false, me->GetMap());
                             break;
 
                         case 1:  // just delay
-                            //sWorldStateMgr->SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 1, false, me->GetMap());
-                            sWorldStateMgr->SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
-                            sWorldStateMgr->SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 1, false, me->GetMap());
+                            //WorldStateMgr::SetValue(WORLD_STATE_SHOW_FORCES_REMAINING, 1, false, me->GetMap());
+                            WorldStateMgr::SetValue(WORLD_STATE_SHOW_MINUTES_UNTIL_BATTLE, 0, false, me->GetMap());
+                            WorldStateMgr::SetValue(WORLD_STATE_BATTLE_IN_PROGRESS, 1, false, me->GetMap());
                             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             JumpToNextStep(3000);
                             break;

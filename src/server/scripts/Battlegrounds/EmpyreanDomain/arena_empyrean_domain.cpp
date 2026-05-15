@@ -138,7 +138,7 @@ struct arena_empyrean_domain : ArenaScript
             if (Creature* stalker = battlegroundMap->GetCreature(guid))
                 stalker->CastSpell(nullptr, EmpyreanDomain::Spells::WindDrift);
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             battlegroundMap->DoOnPlayers([&](Player* player)
             {

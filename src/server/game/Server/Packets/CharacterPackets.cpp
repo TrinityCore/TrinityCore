@@ -22,7 +22,6 @@
 #include "ObjectMgr.h"
 #include "PacketOperators.h"
 #include "Player.h"
-#include "StringConvert.h"
 #include "World.h"
 
 namespace UF
@@ -84,13 +83,14 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.level, "
     //  6                7               8                      9                      10
     // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
-    //  11                    12                      13                   14                   15                     16                   17
-    // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  18                     19               20                     21                      22                            23
+    //  11                    12                      13                   14                   15                     16
+    // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, "
+    //  17                     18               19                     20                      21                            22
     // "character_banned.guid, characters.slot, characters.createTime, characters.logout_time, characters.activeTalentGroup, characters.lastLoginBuild, "
-    //  24                                    25                                    26                                    27                                    28
+    //  23                                    24                                    25                                    26                                    27
     // "characters.personalTabardEmblemStyle, characters.personalTabardEmblemColor, characters.personalTabardBorderStyle, characters.personalTabardBorderColor, characters.personalTabardBackgroundColor "
-    //  29
+    // 19 * 8 fields of equipment cache...
+    //  180
     // "character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
@@ -126,10 +126,10 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (atLoginFlags & AT_LOGIN_RENAME)
         Flags |= CHARACTER_FLAG_RENAME;
 
-    if (fields[18].GetUInt64())
+    if (fields[17].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[29].GetStringView().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[180].GetStringView().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -170,31 +170,33 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     ProfessionIds[0] = 0;
     ProfessionIds[1] = 0;
 
-    std::vector<std::string_view> equipment = Trinity::Tokenize(fields[17].GetStringView(), ' ', false);
-    ListPosition = fields[19].GetUInt8();
-    CreateTime = fields[20].GetInt64();
-    LastActiveTime = fields[21].GetInt64();
-    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[22].GetUInt8()))
+    ListPosition = fields[18].GetUInt8();
+    CreateTime = fields[19].GetInt64();
+    LastActiveTime = fields[20].GetInt64();
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
         SpecID = spec->ID;
 
-    LastLoginVersion = fields[23].GetUInt32();
+    LastLoginVersion = fields[22].GetUInt32();
 
-    PersonalTabard.EmblemStyle = fields[24].GetInt32();
-    PersonalTabard.EmblemColor = fields[25].GetInt32();
-    PersonalTabard.BorderStyle = fields[26].GetInt32();
-    PersonalTabard.BorderColor = fields[27].GetInt32();
-    PersonalTabard.BackgroundColor = fields[28].GetInt32();
+    PersonalTabard.EmblemStyle = fields[23].GetInt32();
+    PersonalTabard.EmblemColor = fields[24].GetInt32();
+    PersonalTabard.BorderStyle = fields[25].GetInt32();
+    PersonalTabard.BorderColor = fields[26].GetInt32();
+    PersonalTabard.BackgroundColor = fields[27].GetInt32();
 
-    constexpr std::size_t equipmentFieldsPerSlot = 5;
-
-    for (std::size_t slot = 0; slot < VisualItems.size() && (slot + 1) * equipmentFieldsPerSlot <= equipment.size(); ++slot)
+    for (std::size_t slot = 0; slot < VisualItems.size(); ++slot)
     {
-        std::size_t visualBase = slot * equipmentFieldsPerSlot;
-        VisualItems[slot].InvType = Trinity::StringTo<uint8>(equipment[visualBase + 0]).value_or(0);
-        VisualItems[slot].DisplayID = Trinity::StringTo<uint32>(equipment[visualBase + 1]).value_or(0);
-        VisualItems[slot].DisplayEnchantID = Trinity::StringTo<uint32>(equipment[visualBase + 2]).value_or(0);
-        VisualItems[slot].Subclass = Trinity::StringTo<uint8>(equipment[visualBase + 3]).value_or(0);
-        VisualItems[slot].SecondaryItemModifiedAppearanceID = Trinity::StringTo<int32>(equipment[visualBase + 4]).value_or(0);
+        constexpr std::size_t equipmentFieldsPerSlot = 8;
+
+        std::size_t visualBase = 28 + slot * equipmentFieldsPerSlot;
+        VisualItems[slot].ItemID = fields[visualBase + 0].GetUInt32();
+        VisualItems[slot].TransmogrifiedItemID = fields[visualBase + 1].GetUInt32();
+        VisualItems[slot].Subclass = fields[visualBase + 2].GetUInt8();
+        VisualItems[slot].InvType = fields[visualBase + 3].GetUInt8();
+        VisualItems[slot].DisplayID = fields[visualBase + 4].GetUInt32();
+        VisualItems[slot].DisplayEnchantID = fields[visualBase + 5].GetUInt32();
+        VisualItems[slot].SecondaryItemModifiedAppearanceID = fields[visualBase + 6].GetInt32();
+        VisualItems[slot].SheatheCategory = fields[visualBase + 7].GetUInt8();
     }
 }
 
@@ -207,6 +209,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint32(visualItem.DisplayID);
     data << uint32(visualItem.DisplayEnchantID);
     data << int32(visualItem.SecondaryItemModifiedAppearanceID);
+    data << uint8(visualItem.SheatheCategory);
 
     return data;
 }

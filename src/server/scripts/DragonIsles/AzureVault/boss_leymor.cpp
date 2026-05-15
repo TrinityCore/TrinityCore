@@ -109,7 +109,7 @@ struct boss_leymor : public BossAI
     {
         if (action == ACTION_FINISH_LEYMOR_INTRO)
         {
-            scheduler.Schedule(1s, [this](TaskContext /*context*/)
+            scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_STASIS);
                 me->SetImmuneToAll(false);

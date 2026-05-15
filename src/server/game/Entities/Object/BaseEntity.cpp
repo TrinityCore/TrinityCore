@@ -41,7 +41,6 @@ struct FragmentInfoInitializer
         EntityFragmentInfos::Register(EntityFragment::FHousingRoomComponentMesh_C, WowCS::FragmentSerializationTraits<UF::HousingRoomComponentMeshData>{});
         EntityFragmentInfos::Register(EntityFragment::FHousingPlayerHouse_C, WowCS::FragmentSerializationTraits<UF::HousingPlayerHouseData>{});
         EntityFragmentInfos::Register(EntityFragment::FJamHousingCornerstone_C, WowCS::FragmentSerializationTraits<UF::HousingCornerstoneData>{});
-        EntityFragmentInfos::Register(EntityFragment::FHousingPlotAreaTrigger_C, WowCS::FragmentSerializationTraits<UF::HousingPlotAreaTriggerData>{});
         EntityFragmentInfos::Register(EntityFragment::FNeighborhoodMirrorData_C, WowCS::FragmentSerializationTraits<UF::NeighborhoodMirrorData>{});
         EntityFragmentInfos::Register(EntityFragment::FMirroredPositionData_C, WowCS::FragmentSerializationTraits<UF::MirroredPositionData>{});
         EntityFragmentInfos::Register(EntityFragment::PlayerHouseInfoComponent_C, WowCS::FragmentSerializationTraits<UF::PlayerHouseInfoComponentData>{});

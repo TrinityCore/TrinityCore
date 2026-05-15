@@ -71,7 +71,7 @@ struct npc_helena_gentle_witch_hunt : public ScriptedAI
 
     void JustAppeared() override
     {
-        _oocScheduler.Schedule(0ms, [this](TaskContext context)
+        _oocScheduler.Schedule(0ms, [this](TaskContext& context)
         {
             if (Creature* hexboundSnarler = me->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_HEXBOUND_SNARLER, .StringId = "HelenaSummon", .IsAlive = FindCreatureAliveState::Alive }))
             {

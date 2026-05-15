@@ -318,13 +318,13 @@ struct npc_amalgam_of_souls_lord_etheldrin_ravencrest : public ScriptedAI
             return;
 
         Milliseconds delay = 1s;
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
         {
             Talk(SAY_OUTRO);
         });
 
         delay += 4s;
-        _scheduler.Schedule(delay, [this](TaskContext /*task*/)
+        _scheduler.Schedule(delay, [this](TaskContext const& /*task*/)
         {
             if (Creature* velandras = me->FindNearestCreature(NPC_LADY_VELANDRAS_RAVENCREST, 100.0f))
             {
@@ -343,7 +343,7 @@ struct npc_amalgam_of_souls_lord_etheldrin_ravencrest : public ScriptedAI
         });
 
         delay += 6s;
-        _scheduler.Schedule(delay, [this](TaskContext /*task*/)
+        _scheduler.Schedule(delay, [this](TaskContext const& /*task*/)
         {
             if (GameObject* door = me->GetInstanceScript()->GetGameObject(DATA_BOSS_1_POST_BOSS_DOOR))
                 door->SetGoState(GO_STATE_ACTIVE);

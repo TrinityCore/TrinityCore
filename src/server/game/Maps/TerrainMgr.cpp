@@ -387,19 +387,16 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
     {
         if (wmoData->areaInfo)
         {
-            data.wmoLocation.emplace(wmoData->areaInfo->groupId, wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->uniqueId);
             // wmo found
-            WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
-            if (!wmoEntry)
-                wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, -1);
-
+            data.wmoLocation.emplace(wmoData->areaInfo->groupId, wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->uniqueId);
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
-            if (wmoEntry)
+
+            if (WMOAreaTableEntry const* wmoEntry = DB2Manager::GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId, true))
             {
                 data.areaId = wmoEntry->AreaTableID;
-                if (wmoEntry->Flags & 4)
+                if (wmoEntry->HasFlag(WMOAreaTableFlags::ForceOutdoors))
                     data.outdoors = true;
-                else if (wmoEntry->Flags & 2)
+                else if (wmoEntry->HasFlag(WMOAreaTableFlags::ForceIndoors))
                     data.outdoors = false;
             }
 
@@ -430,32 +427,24 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
         if (GetId() == 530 && liquidType == 2) // gotta love hacks
             liquidType = 15;
 
-        uint32 liquidFlagType = 0;
-        if (LiquidTypeEntry const* liquidData = sLiquidTypeStore.LookupEntry(liquidType))
-            liquidFlagType = liquidData->SoundBank;
-
         if (liquidType && liquidType < 21 && areaEntry)
         {
-            uint32 overrideLiquid = areaEntry->LiquidTypeID[liquidFlagType];
+            uint32 overrideLiquid = areaEntry->LiquidTypeID[(liquidType - 1) & 3];
             if (!overrideLiquid && areaEntry->ParentAreaID)
             {
-                AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID);
-                if (zoneEntry)
-                    overrideLiquid = zoneEntry->LiquidTypeID[liquidFlagType];
+                if (AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+                    overrideLiquid = zoneEntry->LiquidTypeID[(liquidType - 1) & 3];
             }
 
-            if (LiquidTypeEntry const* overrideData = sLiquidTypeStore.LookupEntry(overrideLiquid))
-            {
+            if (sLiquidTypeStore.HasRecord(overrideLiquid))
                 liquidType = overrideLiquid;
-                liquidFlagType = overrideData->SoundBank;
-            }
         }
 
         data.liquidInfo.emplace();
         data.liquidInfo->level = wmoData->liquidInfo->level;
         data.liquidInfo->depth_level = wmoData->floorZ;
         data.liquidInfo->entry = liquidType;
-        data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
+        data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(DB2Manager::GetLiquidFlags(liquidType));
 
         float delta = wmoData->liquidInfo->level - z;
         uint32 status = LIQUID_MAP_ABOVE_WATER;
@@ -508,27 +497,20 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 
                 if (GetId() == 530 && vmapData.liquidInfo->type == 2)
                     vmapData.liquidInfo->type = 15;
 
-                uint32 liquidFlagType = 0;
-                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(vmapData.liquidInfo->type))
-                    liquidFlagType = liq->SoundBank;
-
                 if (vmapData.liquidInfo->type && vmapData.liquidInfo->type < 21)
                 {
                     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseShift, mapId, x, y, z)))
                     {
-                        uint32 overrideLiquid = area->LiquidTypeID[liquidFlagType];
+                        uint32 overrideLiquid = area->LiquidTypeID[(vmapData.liquidInfo->type - 1) & 3];
                         if (!overrideLiquid && area->ParentAreaID)
                         {
                             area = sAreaTableStore.LookupEntry(area->ParentAreaID);
                             if (area)
-                                overrideLiquid = area->LiquidTypeID[liquidFlagType];
+                                overrideLiquid = area->LiquidTypeID[(vmapData.liquidInfo->type - 1) & 3];
                         }
 
-                        if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
-                        {
+                        if (sLiquidTypeStore.HasRecord(overrideLiquid))
                             vmapData.liquidInfo->type = overrideLiquid;
-                            liquidFlagType = liq->SoundBank;
-                        }
                     }
                 }
 
@@ -536,7 +518,7 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 
                 data->depth_level = vmapData.floorZ;
 
                 data->entry = vmapData.liquidInfo->type;
-                data->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
+                data->type_flags = map_liquidHeaderTypeFlags(DB2Manager::GetLiquidFlags(vmapData.liquidInfo->type));
             }
 
             float delta = vmapData.liquidInfo->level - z;
@@ -648,7 +630,7 @@ uint32 TerrainInfo::GetAreaId(PhaseShift const& phaseShift, uint32 mapId, float 
     if (hasVmapArea && G3D::fuzzyGe(z, vmapZ - GROUND_HEIGHT_TOLERANCE) && (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapZ > gridMapHeight))
     {
         // wmo found
-        if (WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId))
+        if (WMOAreaTableEntry const* wmoEntry = DB2Manager::GetWMOAreaTable(rootId, adtId, groupId, false))
             areaId = wmoEntry->AreaTableID;
 
         if (!areaId)

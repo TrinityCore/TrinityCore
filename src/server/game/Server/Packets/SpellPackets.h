@@ -422,6 +422,7 @@ namespace WorldPackets
             std::vector<LearnedSpellInfo> ClientLearnedSpellData;
             uint32 SpecializationID = 0;
             bool SuppressMessaging = false;
+            bool TraitGrantedByAura = false;
         };
 
         class SupercededSpells final : public ServerPacket
@@ -525,6 +526,7 @@ namespace WorldPackets
 
             std::vector<uint32> SpellID;
             bool SuppressMessaging = false;
+            bool TraitGrantedByAura = false;
         };
 
         class CooldownEvent final : public ServerPacket

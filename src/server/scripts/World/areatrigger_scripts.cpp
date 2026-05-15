@@ -519,9 +519,9 @@ struct at_abyssal_portal_harbinger : AreaTriggerAI
     void OnCreate(Spell const* creatingSpell) override
     {
         if (Unit* caster = at->GetCaster())
-            _remainingSummons = creatingSpell->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster);
+            _remainingSummons = creatingSpell->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt(caster);
 
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetRandomNearPosition(3.0f), SPELL_ABYSSAL_PORTAL_SUMMON, true);

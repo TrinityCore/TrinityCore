@@ -167,7 +167,8 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int64(Info.TimeAllowed);
 
         _worldPacket << Size<uint32>(Info.Objectives);
-        _worldPacket << uint64(Info.AllowableRaces.RawValue);
+        for (int32 allowableRaces : Info.AllowableRaces.RawValue)
+            _worldPacket << int32(allowableRaces);
         _worldPacket << Size<uint32>(Info.TreasurePickerID);
         _worldPacket << Size<uint32>(Info.NonDisplayableTreasurePickerIDs);
         _worldPacket << int32(Info.Expansion);
@@ -852,6 +853,7 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << Bits<1>(KeepOpenAfterChoice);
     _worldPacket << Bits<1>(ShowChoicesAsList);
     _worldPacket << Bits<1>(ForceDontShowChoicesAsList);
+    _worldPacket << Bits<1>(RequiresSelection);
     _worldPacket.FlushBits();
 
     for (PlayerChoiceResponse const& response : Responses)
