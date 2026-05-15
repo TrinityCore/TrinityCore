@@ -20675,6 +20675,9 @@ void Player::VehicleSpellInitialize()
             continue;
         }
 
+        if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED))
+            continue;
+
         if (!sConditionMgr->IsObjectMeetingVehicleSpellConditions(vehicle->GetEntry(), spellId, this, vehicle))
         {
             TC_LOG_DEBUG("condition", "Player::VehicleSpellInitialize: Player '{}' ({}) doesn't meet conditions for vehicle (Entry: {}, Spell: {})",
@@ -23449,8 +23452,8 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
 
 bool Player::CanNoReagentCast(SpellInfo const* spellInfo) const
 {
-    // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
-    if (spellInfo->HasAttribute(SPELL_ATTR5_NO_REAGENT_WHILE_PREP) &&
+    // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_COST_WITH_AURA
+    if (spellInfo->HasAttribute(SPELL_ATTR5_NO_REAGENT_COST_WITH_AURA) &&
         HasUnitFlag(UNIT_FLAG_PREPARATION))
         return true;
 
