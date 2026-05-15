@@ -370,6 +370,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void ExitVehicle(Position const* exitPosition = nullptr) override;
 
+        bool HasFlag(CreatureStaticFlags flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags2 flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags3 flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags4 flag) const { return _staticFlags.HasFlag(flag); }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -450,6 +455,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
+
+        void ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags);
+
+        CreatureStaticFlagsHolder _staticFlags;
 
         // Regenerate health
         bool _regenerateHealth; // Set on creation

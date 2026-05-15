@@ -19,6 +19,7 @@
 #define CreatureData_h__
 
 #include "DBCEnums.h"
+#include "EnumFlag.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "UnitDefines.h"
@@ -67,6 +68,8 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags);
+
 enum CreatureStaticFlags2
 {
     CREATURE_STATIC_FLAG_2_NO_PET_SCALING                  = 0x00000001,
@@ -102,6 +105,8 @@ enum CreatureStaticFlags2
     CREATURE_STATIC_FLAG_2_NO_SKILL_GAINS                  = 0x40000000, // CREATURE_FLAG_EXTRA_NO_SKILL_GAINS
     CREATURE_STATIC_FLAG_2_NO_PET_BAR                      = 0x80000000  // CREATURE_TYPE_FLAG_NO_PET_BAR
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags2);
 
 enum CreatureStaticFlags3
 {
@@ -139,6 +144,8 @@ enum CreatureStaticFlags3
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_LAND_IN_COMBAT     = 0x80000000
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags3);
+
 enum CreatureStaticFlags4
 {
     CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM                       = 0x00000001, // SMSG_UPDATE_OBJECT's "NoBirthAnim"
@@ -173,6 +180,34 @@ enum CreatureStaticFlags4
     CREATURE_STATIC_FLAG_4_DO_NOT_TARGET_ON_INTERACTION        = 0x20000000, // CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION, original description: Doesn't change target on right click
     CREATURE_STATIC_FLAG_4_DO_NOT_RENDER_OBJECT_NAME           = 0x40000000, // CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME, original description: Hide name in world frame
     CREATURE_STATIC_FLAG_4_QUEST_BOSS                          = 0x80000000  // CREATURE_TYPE_FLAG_QUEST_BOSS
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags4);
+
+class CreatureStaticFlagsHolder
+{
+public:
+    explicit CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
+        CreatureStaticFlags3 flags3 = CreatureStaticFlags3(), CreatureStaticFlags4 flags4 = CreatureStaticFlags4())
+            : _flags(flags), _flags2(flags2), _flags3(flags3), _flags4(flags4)
+    {
+    }
+
+    bool HasFlag(CreatureStaticFlags flag) const { return _flags.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags2 flag) const { return _flags2.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags3 flag) const { return _flags3.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags4 flag) const { return _flags4.HasFlag(flag); }
+
+    void ApplyFlag(CreatureStaticFlags flag, bool apply) { if (apply) _flags |= flag; else _flags &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags2 flag, bool apply) { if (apply) _flags2 |= flag; else _flags2 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags3 flag, bool apply) { if (apply) _flags3 |= flag; else _flags3 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags4 flag, bool apply) { if (apply) _flags4 |= flag; else _flags4 &= ~flag; }
+
+private:
+    EnumFlag<CreatureStaticFlags> _flags;
+    EnumFlag<CreatureStaticFlags2> _flags2;
+    EnumFlag<CreatureStaticFlags3> _flags3;
+    EnumFlag<CreatureStaticFlags4> _flags4;
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -355,6 +390,8 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
+
+    CreatureStaticFlagsHolder StaticFlags;
 
     // helpers
     SkillType GetRequiredLootSkill() const
