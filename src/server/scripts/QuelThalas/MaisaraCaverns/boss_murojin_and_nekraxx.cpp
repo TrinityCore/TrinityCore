@@ -125,14 +125,17 @@ namespace Scripts::QuelThalas::MaisaraCaverns::MurojinAndNekraxx
         static constexpr uint32 ConvoStart                 = 31838;
     }
 
+    namespace Positions
+    {
+        static constexpr Position NekraxxLandingPosition = {-914.7274f, 162.20312f, 99.76655f};
+        static constexpr Position NekraxxCombatPosition = {-919.3368f, 165.42708f, 99.7619f};
+    }
+
     uint32 const MurojinAndNekraxx[2] =
     {
         DATA_MUROJIN,
         DATA_NEKRAXX
     };
-
-    Position const NekraxxLandingPosition = {-914.7274f, 162.20312f, 99.76655f};
-    Position const NekraxxCombatPosition = {-919.3368f, 165.42708f, 99.7619f};
 
     namespace
     {
@@ -449,7 +452,7 @@ struct boss_nekraxx : public MurojinAndNekraxxSharedAI
 
         if (waypointId == Misc::WaypointId)
         {
-            me->GetMotionMaster()->MoveLand(Misc::PointLand, NekraxxLandingPosition, Misc::AnimTierLanding);
+            me->GetMotionMaster()->MoveLand(Misc::PointLand, Positions::NekraxxLandingPosition, Misc::AnimTierLanding);
 
             scheduler.Schedule(800ms, [this](TaskContext context)
             {
@@ -458,7 +461,7 @@ struct boss_nekraxx : public MurojinAndNekraxxSharedAI
 
                 context.Schedule(2s, [this](TaskContext context)
                 {
-                    me->GetMotionMaster()->MovePoint(Misc::NekraxxPointCombat, NekraxxCombatPosition);
+                    me->GetMotionMaster()->MovePoint(Misc::NekraxxPointCombat, Positions::NekraxxCombatPosition);
 
                     context.Schedule(800ms, [this](TaskContext context)
                     {
