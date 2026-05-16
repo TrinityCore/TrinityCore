@@ -65,7 +65,7 @@ class spell_maisara_caverns_release_captive : public SpellScript
         if (!instance)
             return;
 
-        uint8 prisonersFreed = WorldStateMgr::GetValue(Misc::PrisonersFreedWorldState, GetCaster()->GetMap());
+        uint8 const prisonersFreed = WorldStateMgr::GetValue(Misc::PrisonersFreedWorldState, GetCaster()->GetMap());
         instance->DoUpdateWorldState(Misc::PrisonersFreedWorldState, prisonersFreed + 1);
     }
 
