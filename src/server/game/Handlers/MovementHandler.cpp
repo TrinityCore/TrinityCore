@@ -344,11 +344,11 @@ void WorldSession::HandleMoveWorldportAck()
     else if (player->IsPvP() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         player->UpdatePvP(false, false);
 
-    // resummon pet
-    player->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     player->ProcessDelayedOperations();
+
+    // resummon pet
+    player->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
@@ -398,11 +398,11 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
             plMover->UpdatePvP(false, false);
     }
 
-    // resummon pet
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+
+    // resummon pet
+    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
@@ -483,6 +483,26 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     // interrupt parachutes upon falling or landing in water
     if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
+
+    // unsummon pet if player is airborne on a flying mount
+    if (plrMover && plrMover->IsMounted())
+    {
+        bool wasFlying = mover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool isNowFlying = movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+
+        if (!wasFlying && isNowFlying)
+            plrMover->UnsummonPetTemporaryIfAny();
+    }
+
+    // resummon pet after dismount mid-air
+    if (plrMover && !plrMover->IsMounted())
+    {
+        bool wasFalling = mover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING);
+        bool isNowFalling = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING);
+
+        if (wasFalling && !isNowFalling)
+            plrMover->ResummonPetTemporaryUnSummonedIfAny();
+    }
 
     /* process position-change */
     movementInfo.guid = mover->GetGUID();
