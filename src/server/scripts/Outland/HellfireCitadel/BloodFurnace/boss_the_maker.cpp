@@ -15,9 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blood_furnace.h"
+#include "ScriptedCreature.h"
 
 enum MakerTexts
 {
@@ -28,18 +32,15 @@ enum MakerTexts
 
 enum MakerSpells
 {
-    SPELL_ACID_SPRAY            = 38153,
-    SPELL_EXPLODING_BREAKER     = 30925,
-    SPELL_KNOCKDOWN             = 20276,
-    SPELL_DOMINATION            = 25772
+    SPELL_DOMINATION            = 30923,
+    SPELL_EXPLODING_BEAKER      = 30925,
+    SPELL_EXPLODING_BEAKER_H    = 40059
 };
 
 enum MakerEvents
 {
-    EVENT_ACID_SPRAY            = 1,
-    EVENT_EXPLODING_BREAKER,
-    EVENT_DOMINATION,
-    EVENT_KNOCKDOWN
+    EVENT_DOMINATION            = 1,
+    EVENT_EXPLODING_BEAKER
 };
 
 // 17381 - The Maker
@@ -50,12 +51,22 @@ struct boss_the_maker : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
 
-        events.ScheduleEvent(EVENT_ACID_SPRAY, 15s);
-        events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6s);
-        events.ScheduleEvent(EVENT_DOMINATION, 120s);
-        events.ScheduleEvent(EVENT_KNOCKDOWN, 10s);
+        events.ScheduleEvent(EVENT_EXPLODING_BEAKER, 5s, 15s);
+        events.ScheduleEvent(EVENT_DOMINATION, 20s, 30s);
+    }
+
+    uint8 GetEngagedPlayersCount()
+    {
+        uint8 count = 0;
+
+        for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+            if (ref->GetVictim()->IsPlayer())
+                ++count;
+
+        return count;
     }
 
     void KilledUnit(Unit* who) override
@@ -74,23 +85,15 @@ struct boss_the_maker : public BossAI
     {
         switch (eventId)
         {
-            case EVENT_ACID_SPRAY:
-                DoCastVictim(SPELL_ACID_SPRAY);
-                events.Repeat(15s, 23s);
-                break;
-            case EVENT_EXPLODING_BREAKER:
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
-                    DoCast(target, SPELL_EXPLODING_BREAKER);
-                events.Repeat(4s, 12s);
-                break;
             case EVENT_DOMINATION:
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                    DoCast(target, SPELL_DOMINATION);
-                events.Repeat(120s);
+                if (GetEngagedPlayersCount() > 1)
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                        DoCast(target, SPELL_DOMINATION);
+                events.Repeat(20s, 30s);
                 break;
-            case EVENT_KNOCKDOWN:
-                DoCastVictim(SPELL_KNOCKDOWN);
-                events.Repeat(4s, 12s);
+            case EVENT_EXPLODING_BEAKER:
+                DoCastVictim(DUNGEON_MODE(SPELL_EXPLODING_BEAKER, SPELL_EXPLODING_BEAKER_H));
+                events.Repeat(10s, 20s);
                 break;
             default:
                 break;
