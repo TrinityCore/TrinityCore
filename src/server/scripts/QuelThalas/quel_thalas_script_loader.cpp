@@ -16,8 +16,6 @@
  */
 
 // This is where scripts' loading functions should be declared:
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
 
 // Silvermoon
 void AddSC_silvermoon_city_midnight();
@@ -34,6 +32,8 @@ void AddSC_instance_maisara_caverns();
 void AddSC_boss_kystia_manaheart();
 void AddSC_instance_murder_row();
 
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
 void AddQuelThalasScripts()
 {
     // Silvermoon
