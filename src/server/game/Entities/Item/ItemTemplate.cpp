@@ -17,11 +17,9 @@
 
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
+#include "QueryPackets.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-
-#include "Packets/QueryPackets.h"
 
 bool ItemTemplate::HasSignature() const
 {
@@ -167,26 +165,16 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
 {
     WorldPackets::Query::QueryItemSingleResponse response;
 
-    std::string locName = Name1;
-    std::string locDescription = Description;
-
-    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
-    {
-        ObjectMgr::GetLocaleString(il->Name, loc, locName);
-        ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
-    }
-
     response.ItemID = ItemId;
     response.Allow = true;
 
     response.Stats.Class = Class;
     response.Stats.SubClass = SubClass;
     response.Stats.SoundOverrideSubclass = SoundOverrideSubclass;
-    response.Stats.Name = locName;
+    response.Stats.Name = Name1;
     response.Stats.DisplayInfoID = DisplayInfoID;
     response.Stats.Quality = Quality;
     response.Stats.Flags = Flags;
-    response.Stats.Flags2 = Flags2;
     response.Stats.BuyPrice = BuyPrice;
     response.Stats.SellPrice = SellPrice;
     response.Stats.InventoryType = InventoryType;
@@ -244,7 +232,7 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     }
 
     response.Stats.Bonding = Bonding;
-    response.Stats.Description = locDescription;
+    response.Stats.Description = Description;
     response.Stats.PageText = PageText;
     response.Stats.LanguageID = LanguageID;
     response.Stats.PageMaterial = PageMaterial;
@@ -275,6 +263,12 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.Stats.Duration = Duration;
     response.Stats.ItemLimitCategory = ItemLimitCategory;
     response.Stats.HolidayId = HolidayId;
+
+    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+    {
+        ObjectMgr::GetLocaleString(il->Name, loc, response.Stats.Name);
+        ObjectMgr::GetLocaleString(il->Description, loc, response.Stats.Description);
+    }
 
     response.Write();
     response.ShrinkToFit();

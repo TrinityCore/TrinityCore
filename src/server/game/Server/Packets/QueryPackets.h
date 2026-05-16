@@ -290,11 +290,10 @@ namespace WorldPackets
             uint32 Class = 0;
             uint32 SubClass = 0;
             int32 SoundOverrideSubclass = 0;
-            std::string Name;
+            std::string_view Name;
             uint32 DisplayInfoID = 0;
             uint32 Quality = 0;
-            uint32 Flags = 0;
-            uint32 Flags2 = 0;
+            std::array<uint32, MAX_ITEM_PROTO_FLAGS> Flags = { };
             int32 BuyPrice = 0;
             uint32 SellPrice = 0;
             uint32 InventoryType = 0;
@@ -323,7 +322,7 @@ namespace WorldPackets
             float RangedModRange = 0.0f;
             ItemSpellData Spells[MAX_ITEM_PROTO_SPELLS];
             uint32 Bonding = 0;
-            std::string Description;
+            std::string_view Description;
             uint32 PageText = 0;
             uint32 LanguageID = 0;
             uint32 PageMaterial = 0;

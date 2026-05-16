@@ -209,8 +209,7 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         _worldPacket << uint8(0x00);                              //Name4; // blizz not send name there, just uint8(0x00);
         _worldPacket << Stats.DisplayInfoID;
         _worldPacket << Stats.Quality;
-        _worldPacket << Stats.Flags;
-        _worldPacket << Stats.Flags2;
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
         _worldPacket << Stats.BuyPrice;
         _worldPacket << Stats.SellPrice;
         _worldPacket << Stats.InventoryType;

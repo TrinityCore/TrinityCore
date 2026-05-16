@@ -560,8 +560,6 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH
 };
 
-#pragma pack(push, 1)
-
 struct _Damage
 {
     float   DamageMin = 0.0f;
@@ -592,8 +590,7 @@ struct _Socket
     uint32 Content = 0;
 };
 
-#pragma pack(pop)
-
+#define MAX_ITEM_PROTO_FLAGS   2
 #define MAX_ITEM_PROTO_DAMAGES 2                            // changed in 3.1.0
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_SPELLS  5
@@ -610,8 +607,7 @@ struct TC_GAME_API ItemTemplate
     std::string Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
-    uint32 Flags;
-    uint32 Flags2;
+    std::array<uint32, MAX_ITEM_PROTO_FLAGS> Flags;
     uint32 BuyCount;
     int32  BuyPrice;
     uint32 SellPrice;
@@ -705,8 +701,8 @@ struct TC_GAME_API ItemTemplate
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && HasFlag(ITEM_FLAG_CONJURED); }
     bool HasSignature() const;
 
-    inline bool HasFlag(ItemFlags flag) const { return (Flags & flag) != 0; }
-    inline bool HasFlag(ItemFlags2 flag) const { return (Flags2 & flag) != 0; }
+    inline bool HasFlag(ItemFlags flag) const { return (Flags[0] & flag) != 0; }
+    inline bool HasFlag(ItemFlags2 flag) const { return (Flags[1] & flag) != 0; }
     inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
 
     void InitializeQueryData();
