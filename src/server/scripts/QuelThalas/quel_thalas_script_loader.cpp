@@ -41,7 +41,7 @@ void AddQuelThalasScripts()
 
     // Harandar
     AddSC_harandar_chapter_1_of_caves_and_cradles();
-  
+
     // Maisara Caverns
     AddSC_boss_murojin_and_nekraxx();
     AddSC_maisara_caverns();
