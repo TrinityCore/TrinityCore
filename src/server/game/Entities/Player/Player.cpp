@@ -22884,17 +22884,16 @@ void Player::SendAurasForTarget(Unit* target, bool force /*= false*/) const
     if (!target || (!force && target->GetVisibleAuras().empty()))                  // speedup things
         return;
 
-    WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data << target->GetPackGUID();
-
     Unit::VisibleAuraMap const& visibleAuras = target->GetVisibleAuras();
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras.begin(); itr != visibleAuras.end(); ++itr)
-    {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildUpdatePacket(data, false);
-    }
 
-    SendDirectMessage(&data);
+    WorldPackets::Spells::AuraUpdateAll update;
+    update.UnitGUID = target->GetGUID();
+    update.Auras.reserve(visibleAuras.size());
+
+    for (auto [_, auraApp] : visibleAuras)
+        auraApp->BuildUpdatePacket(update.Auras.emplace_back(), false);
+
+    SendDirectMessage(update.Write());
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)

@@ -27,6 +27,14 @@ struct SpellModifier;
 struct ProcTriggerSpell;
 struct SpellProcEntry;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct AuraInfo;
+    }
+}
+
 // forward decl
 class Aura;
 class AuraEffect;
@@ -71,7 +79,7 @@ class TC_GAME_API AuraApplication
         uint8 GetEffectMask() const { return _flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_flags & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_SELF_CAST) != 0; }
 
         uint8 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewEffects);
@@ -81,7 +89,7 @@ class TC_GAME_API AuraApplication
 
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const;
         void ClientUpdate(bool remove = false);
 
         std::string GetDebugInfo() const;

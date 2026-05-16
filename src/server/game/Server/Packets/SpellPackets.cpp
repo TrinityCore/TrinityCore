@@ -18,6 +18,7 @@
 #include "SpellPackets.h"
 #include "SharedDefines.h"
 #include "Spell.h"
+#include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include <span>
 
@@ -53,6 +54,53 @@ WorldPacket const* SendUnlearnSpells::Write()
     _worldPacket << uint32(Spells.size());
     for (uint32 spellId : Spells)
         _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
+{
+    data << int32(auraData.SpellID);
+    data << uint8(auraData.Flags);
+    data << uint8(auraData.CastLevel);
+    data << uint8(auraData.Applications);
+    if (!(auraData.Flags & AFLAG_SELF_CAST))
+        data << auraData.CastUnit.WriteAsPacked();
+
+    if (auraData.Flags & AFLAG_DURATION)
+    {
+        data << int32(auraData.Duration);
+        data << int32(auraData.Remaining);
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
+{
+    data << uint8(aura.Slot);
+
+    if (aura.AuraData)
+        data << *aura.AuraData;
+    else
+        data << int32(0); // SpellID
+
+    return data;
+}
+
+WorldPacket const* AuraUpdate::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << Aura; // this packet can carry multiple auras, just like SMSG_AURA_UPDATE_ALL but we don't use this, skip putting it in a vector
+
+    return &_worldPacket;
+}
+
+WorldPacket const* AuraUpdateAll::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    for (AuraInfo const& aura : Auras)
+        _worldPacket << aura;
 
     return &_worldPacket;
 }
