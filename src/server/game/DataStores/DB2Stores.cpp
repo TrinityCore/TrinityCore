@@ -1376,7 +1376,8 @@ void DB2Manager::IndexLoadedStores()
         _journalTiersByIndex.push_back(journalTier);
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
-        _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
+        if (sMapStore.HasRecord(entry->MapID))
+            _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
 
     std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
     mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
@@ -1488,6 +1489,9 @@ void DB2Manager::IndexLoadedStores()
     {
         ASSERT(entry->RangeIndex < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->RangeIndex, MAX_BATTLEGROUND_BRACKETS);
     }
+
+    for (PVPStatEntry const* pvpStat : sPVPStatStore)
+        _pvpStatIdsByMap[pvpStat->MapID].insert(pvpStat->ID);
 
     for (PvpTalentSlotUnlockEntry const* talentUnlock : sPvpTalentSlotUnlockStore)
     {
@@ -1705,9 +1709,6 @@ void DB2Manager::IndexLoadedStores()
         if (uiMapId == 985 || uiMapId == 986)
             sOldContinentsNodesMask[field] |= submask;
     }
-
-    for (PVPStatEntry const* pvpStat : sPVPStatStore)
-        _pvpStatIdsByMap[pvpStat->MapID].insert(pvpStat->ID);
 
     TC_LOG_INFO("server.loading", ">> Indexed DB2 data stores in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2425,6 +2426,14 @@ float DB2Manager::GetCurveValueAt(CurveInterpolationMode mode, std::span<DBCPosi
     }
 
     return 0.0f;
+}
+
+std::string_view DB2Manager::GetDifficultyName(Difficulty difficulty)
+{
+    if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty))
+        return difficultyEntry->Name[sWorld->GetDefaultDbcLocale()];
+
+    return "None"sv;
 }
 
 EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const
@@ -3416,9 +3425,13 @@ bool DB2Manager::IsUiMapPhase(uint32 phaseId) const
     return _uiMapPhases.find(phaseId) != _uiMapPhases.end();
 }
 
-WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
+WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId, bool allowGroupFallback)
 {
-    return Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
+    WMOAreaTableEntry const* wmoAreaTableEntry = Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
+    if (!wmoAreaTableEntry && allowGroupFallback)
+        wmoAreaTableEntry = Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), -1));
+
+    return wmoAreaTableEntry;
 }
 
 std::unordered_set<uint32> const* DB2Manager::GetPVPStatIDsForMap(uint32 mapId) const

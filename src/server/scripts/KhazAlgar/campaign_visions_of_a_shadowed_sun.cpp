@@ -33,6 +33,7 @@ namespace Creatures
 {
     static constexpr uint32 VereesaWindrunnerOztanIsle = 231042;
     static constexpr uint32 AratorOztanIsle = 231039;
+    static constexpr uint32 SummonedSilverHandAvenger = 233329;
 }
 
 namespace Mounts
@@ -77,6 +78,7 @@ namespace Conversations
     {
         static constexpr uint32 VereesaActorOztanIsle = 102984;
         static constexpr uint32 AratorActorOztanIsle = 102985;
+        static constexpr uint32 SummonedSilverHandAvenger = 103060;
     }
 
     namespace Lines
@@ -136,7 +138,7 @@ struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
             me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
             aratorClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-            _scheduler.Schedule(1s, [this, aratorGuid = aratorClone->GetGUID()](TaskContext task)
+            _scheduler.Schedule(1s, [this, aratorGuid = aratorClone->GetGUID()](TaskContext& task)
             {
                 Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
                 if (!aratorClone)
@@ -144,7 +146,7 @@ struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
 
                 me->SetMountDisplayId(Mounts::VereesaWindrunnerMount);
                 aratorClone->SetMountDisplayId(Mounts::AratorMount);
-                task.Schedule(2s, [this, aratorGuid](TaskContext /*task*/)
+                task.Schedule(2s, [this, aratorGuid](TaskContext const& /*task*/)
                 {
                     Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
                     if (!aratorClone)
@@ -257,6 +259,23 @@ public:
         }, conversation->GetLastLineEndTime(privateOwnerLocale) + 2s);
     }
 };
+
+// 28287 - Conversation: After Vereesas Ceremony
+class conversation_after_vereesas_ceremony : public ConversationAI
+{
+public:
+    using ConversationAI::ConversationAI;
+
+    void OnCreate(Unit* creator) override
+    {
+        Creature* summonedAvenger = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = Creatures::SummonedSilverHandAvenger, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
+        if (!summonedAvenger)
+            return;
+
+        conversation->AddActor(Conversations::Actors::SummonedSilverHandAvenger, 1, summonedAvenger->GetGUID());
+        conversation->Start();
+    }
+};
 }
 
 void AddSC_campaign_visions_of_a_shadowed_sun()
@@ -268,4 +287,5 @@ void AddSC_campaign_visions_of_a_shadowed_sun()
 
     // Conversation
     RegisterConversationAI(conversation_vereesas_tale);
+    RegisterConversationAI(conversation_after_vereesas_ceremony);
 }

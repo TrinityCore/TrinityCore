@@ -345,7 +345,10 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
         // Make sure we don't loop indefinetly
         if (seat->first == seatId)
-            return Seats.end();
+        {
+            seat = Seats.end();
+            break;
+        }
     }
 
     return seat;
@@ -408,7 +411,10 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     ASSERT(accessory);
 
     if (minion)
+    {
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
+        accessory->GetThreatManager().Initialize(); // reinitialize CanHaveThreatList cached value
+    }
 
     if (rideSpellId)
         _me->HandleSpellClick(accessory, seatId, *rideSpellId);
@@ -685,8 +691,7 @@ VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) cons
 
 SeatMap::iterator Vehicle::GetSeatIteratorForPassenger(Unit* passenger)
 {
-    SeatMap::iterator itr;
-    for (itr = Seats.begin(); itr != Seats.end(); ++itr)
+    for (SeatMap::iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
         if (itr->second.Passenger.Guid == passenger->GetGUID())
             return itr;
 
@@ -910,7 +915,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
     for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
-        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), threatRef->GetThreat(), nullptr, true, true);
+        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), 0.0f, nullptr, true, true);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {

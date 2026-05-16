@@ -186,6 +186,10 @@ void ThreatReference::HeapNotifyDecreased()
             if (tWho->GetSummonerGUID().IsPlayer())
                 return false;
 
+    // accessories are fully treated as components of the parent and cannot have threat
+    if (cWho->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+        return false;
+
     return true;
 }
 
@@ -373,25 +377,6 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
         if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT))
             return;
-    }
-
-    // while riding a vehicle, all threat goes to the vehicle, not the pilot
-    if (Unit* vehicle = target->GetVehicleBase())
-    {
-        AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
-        if (target->HasUnitTypeMask(UNIT_MASK_ACCESSORY)) // accessories are fully treated as components of the parent and cannot have threat
-            return;
-        amount = 0.0f;
-    }
-
-    // If victim is personal spawn, redirect all aggro to summoner
-    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
-    {
-        if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
-        {
-            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
-            amount = 0.0f;
-        }
     }
 
     // if we cannot actually have a threat list, we instead just set combat state and avoid creating threat refs altogether
@@ -776,7 +761,7 @@ void ThreatManager::RemoveMeFromThreatLists(bool (*unitFilter)(Unit const* other
 
 void ThreatManager::UpdateMyTempModifiers()
 {
-    int32 mod = 0;
+    SpellEffectValue mod = 0;
     for (AuraEffect const* eff : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_THREAT))
         mod += eff->GetAmount();
 
@@ -802,7 +787,7 @@ void ThreatManager::UpdateMySpellSchoolModifiers()
     _multiSchoolModifiers.clear();
 }
 
-void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, uint32 pct)
+void ThreatManager::RegisterRedirectThreat(uint32 spellId, ObjectGuid const& victim, float pct)
 {
     _redirectRegistry[spellId][victim] = pct;
     UpdateRedirectInfo();
@@ -927,11 +912,11 @@ void ThreatManager::PurgeThreatenedByMeRef(ObjectGuid const& guid)
 void ThreatManager::UpdateRedirectInfo()
 {
     _redirectInfo.clear();
-    uint32 totalPct = 0;
+    float totalPct = 0;
     for (auto const& pair : _redirectRegistry) // (spellid, victim -> pct)
         for (auto const& victimPair : pair.second) // (victim,pct)
         {
-            uint32 thisPct = std::min<uint32>(100 - totalPct, victimPair.second);
+            float thisPct = std::min(100.0f - totalPct, victimPair.second);
             if (thisPct > 0)
             {
                 _redirectInfo.push_back({ victimPair.first, thisPct });

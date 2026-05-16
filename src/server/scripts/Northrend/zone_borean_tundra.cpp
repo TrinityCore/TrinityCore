@@ -1397,12 +1397,12 @@ class spell_borean_tundra_nerubar_web_random_unit_not_on_quest : public SpellScr
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
     }
 
     void Register() override
@@ -1449,7 +1449,7 @@ class spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy : public SpellS
 
         // Always summon peon if has 3 soldiers
         Aura* aura = caster->GetAura(SPELL_FREED_SOLDIER_DEBUFF);
-        if ((!aura || aura->GetStackAmount() < 3) && roll_chance_i(75))
+        if ((!aura || aura->GetStackAmount() < 3) && roll_chance(75))
             caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             caster->CastSpell(nullptr, SPELL_FREED_WARSONG_PEON, true);
@@ -1466,12 +1466,12 @@ class spell_borean_tundra_dispel_freed_soldier_debuff : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Aura* aura = GetHitUnit()->GetAura(uint32(GetEffectValue())))
+        if (Aura* aura = GetHitUnit()->GetAura(uint32(GetEffectValueAsInt())))
             aura->ModStackAmount(-1);
     }
 

@@ -205,7 +205,7 @@ struct npc_doom_blossom : public NullCreatureAI
         DoCast(SPELL_SUMMON_BLOSSOM_MOVE_TARGET);
         _scheduler.CancelAll();
         DoZoneInCombat();
-        _scheduler.Schedule(Seconds(12), [this](TaskContext shadowBolt)
+        _scheduler.Schedule(Seconds(12), [this](TaskContext& shadowBolt)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_SHADOWBOLT);
@@ -241,12 +241,12 @@ struct npc_shadowy_construct : public ScriptedAI
 
         targetGUID.Clear();
         _scheduler.CancelAll();
-        _scheduler.Schedule(Seconds(12), [this](TaskContext atrophy)
+        _scheduler.Schedule(Seconds(12), [this](TaskContext& atrophy)
         {
             DoCastVictim(SPELL_ATROPHY);
             atrophy.Repeat(Seconds(10), Seconds(12));
         });
-        _scheduler.Schedule(Milliseconds(200), [this](TaskContext checkPlayer)
+        _scheduler.Schedule(Milliseconds(200), [this](TaskContext& checkPlayer)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {

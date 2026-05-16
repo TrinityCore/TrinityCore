@@ -71,7 +71,7 @@ struct boss_ironaya : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         _JustEngagedWith(who);
-        scheduler.Schedule(3s, [this](TaskContext task)
+        scheduler.Schedule(3s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_ARCINGSMASH);
             task.Repeat(13s);

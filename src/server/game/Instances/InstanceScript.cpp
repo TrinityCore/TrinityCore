@@ -649,7 +649,7 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn 
 
 void InstanceScript::DoUpdateWorldState(int32 worldStateId, int32 value)
 {
-    sWorldStateMgr->SetValue(worldStateId, value, false, instance);
+    WorldStateMgr::SetValue(worldStateId, value, false, instance);
 }
 
 // Send Notify to all players in instance

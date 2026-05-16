@@ -2461,7 +2461,7 @@ void Creature::LoadTemplateImmunities(int32 creatureImmunitiesId)
             if (immunities->Mechanic[i])
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, apply);
 
-        for (SpellEffectName effect : immunities->Effect)
+        for (SpellEffects effect : immunities->Effect)
             ApplySpellImmune(placeholderSpellId, IMMUNITY_EFFECT, effect, apply);
 
         for (AuraType aura : immunities->Aura)

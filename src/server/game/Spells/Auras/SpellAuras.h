@@ -113,7 +113,7 @@ struct TC_GAME_API AuraCreateInfo
 
     AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
     AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
-    AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
+    AuraCreateInfo& SetBaseAmount(SpellEffectValue const* bp) { BaseAmount = bp; return *this; }
     AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
     AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
     AuraCreateInfo& SetIsRefresh(bool* isRefresh) { IsRefresh = isRefresh; return *this; }
@@ -126,7 +126,7 @@ struct TC_GAME_API AuraCreateInfo
 
     ObjectGuid CasterGUID;
     Unit* Caster = nullptr;
-    int32 const* BaseAmount = nullptr;
+    SpellEffectValue const* BaseAmount = nullptr;
     ObjectGuid CastItemGUID;
     uint32 CastItemId = 0;
     int32 CastItemLevel = -1;
@@ -160,8 +160,8 @@ struct AuraKey
 
 struct AuraLoadEffectInfo
 {
-    std::array<int32, MAX_SPELL_EFFECTS> Amounts;
-    std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
+    std::array<SpellEffectValue, MAX_SPELL_EFFECTS> Amounts;
+    std::array<SpellEffectValue, MAX_SPELL_EFFECTS> BaseAmounts;
 };
 
 class TC_GAME_API Aura
@@ -176,7 +176,7 @@ class TC_GAME_API Aura
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
-        void _InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount);
+        void _InitEffects(uint32 effMask, Unit* caster, SpellEffectValue const* baseAmount);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
@@ -269,7 +269,7 @@ class TC_GAME_API Aura
         * @return Aura key.
         */
         AuraKey GenerateKey(uint32& recalculateMask) const;
-        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, SpellEffectValue const* amount);
 
         // helpers for aura effects
         bool CanPeriodicTickCrit() const;
@@ -323,7 +323,7 @@ class TC_GAME_API Aura
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
-        void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated);
+        void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier*& spellMod);
         void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance);
@@ -362,16 +362,16 @@ class TC_GAME_API Aura
         Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
         {
             return Trinity::Containers::MakeIteratorPair(
-                DBStorageIterator(_effects.data(), _effects.size()),
-                DBStorageIterator(_effects.data(), _effects.size(), _effects.size()));
+                DBStorageIterator(m_effects.data(), m_effects.size()),
+                DBStorageIterator(m_effects.data(), m_effects.size(), m_effects.size()));
         }
         Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
         {
             return Trinity::Containers::MakeIteratorPair(
-                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size()),
-                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size(), _effects.size()));
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size()),
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size(), m_effects.size()));
         }
-        std::size_t GetAuraEffectCount() const { return _effects.size(); }
+        std::size_t GetAuraEffectCount() const { return m_effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 
@@ -410,6 +410,7 @@ class TC_GAME_API Aura
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
+        AuraEffectVector m_effects;
         ApplicationMap m_applications;
 
         bool m_isRemoved;
@@ -424,8 +425,6 @@ class TC_GAME_API Aura
 
     private:
         std::vector<AuraApplication*> _removedApplications;
-
-        AuraEffectVector _effects;
 
         struct NoopAuraDeleter { void operator()(Aura*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Aura> m_scriptRef;

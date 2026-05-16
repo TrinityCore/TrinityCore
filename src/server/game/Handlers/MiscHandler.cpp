@@ -87,9 +87,9 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 {
     WorldPackets::Who::WhoRequest& request = whoRequest.Request;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: MinLevel: {}, MaxLevel: {}, Name: {} (VirtualRealmName: {}), Guild: {} (GuildVirtualRealmName: {}), RaceFilter: {}, ClassFilter: {}, Areas: {}, Words: {}.",
+    TC_LOG_DEBUG("network", "WorldSession::HandleWhoOpcode: MinLevel: {}, MaxLevel: {}, Name: {} (VirtualRealmName: {}), Guild: {} (GuildVirtualRealmName: {}), RaceFilter: 0x{:X}{:08X}, ClassFilter: {}, Areas: {}, Words: {}.",
         request.MinLevel, request.MaxLevel, request.Name, request.VirtualRealmName, request.Guild, request.GuildVirtualRealmName,
-        request.RaceFilter.RawValue, request.ClassFilter, whoRequest.Areas.size(), request.Words.size());
+        request.RaceFilter.RawValue[1], request.RaceFilter.RawValue[0], request.ClassFilter, whoRequest.Areas.size(), request.Words.size());
 
     // zones count, client limit = 10 (2.0.10)
     // can't be received from real client or broken packet

@@ -239,7 +239,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
 
     void OnPrepareStage3() override
     {
-        _scheduler.Schedule(24s, [&](TaskContext)
+        _scheduler.Schedule(24s, [&](TaskContext const&)
         {
             for (ObjectGuid const& door : _walls)
                 if (GameObject* gameObject = battlegroundMap->GetGameObject(door))
@@ -253,7 +253,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
             if (GameObject* gameObject = battlegroundMap->GetGameObject(door))
                 gameObject->UseDoorOrButton();
 
-        _scheduler.Schedule(5s, [&](TaskContext context)
+        _scheduler.Schedule(5s, [&](TaskContext& context)
         {
             for (ObjectGuid const& guid : _orbHolders)
             {
@@ -393,7 +393,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
         player->CastSpell(player, TempleOfKotmogu::Spells::Restoration, true);
         trigger->Remove();
 
-        _scheduler.Schedule(90s, [&, index](TaskContext)
+        _scheduler.Schedule(90s, [&, index](TaskContext const&)
         {
             SpawnHealingBuff(index);
         });
@@ -401,7 +401,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
 
     bool CheckWinner() const
     {
-        uint32 const maxScore = sWorldStateMgr->GetValue(TempleOfKotmogu::WorldStates::MaxPoints, battlegroundMap);
+        uint32 const maxScore = WorldStateMgr::GetValue(TempleOfKotmogu::WorldStates::MaxPoints, battlegroundMap);
         if (battleground->GetTeamScore(TEAM_HORDE) == maxScore && battleground->GetTeamScore(TEAM_ALLIANCE) == maxScore)
         {
             UpdateWorldState(TempleOfKotmogu::WorldStates::AlliancePoints, maxScore);
@@ -529,15 +529,15 @@ public:
         if (!bg)
             return;
 
-        uint32 const maxScore = sWorldStateMgr->GetValue(TempleOfKotmogu::WorldStates::MaxPoints, player->GetMap());
+        uint32 const maxScore = WorldStateMgr::GetValue(TempleOfKotmogu::WorldStates::MaxPoints, player->GetMap());
         bg->UpdatePvpStat(player, TempleOfKotmogu::PvpStats::VictoryPoints, Points);
         Team const team = player->GetBGTeam();
         uint32 const score = bg->GetTeamScore(GetTeamIdForTeam(team));
 
         int32 const amount = std::min(maxScore, score + Points);
         bg->SetTeamPoint(team, amount);
-        sWorldStateMgr->SetValue(TempleOfKotmogu::WorldStates::AlliancePoints, bg->GetTeamScore(TEAM_ALLIANCE), false, player->GetMap());
-        sWorldStateMgr->SetValue(TempleOfKotmogu::WorldStates::HordePoints, bg->GetTeamScore(TEAM_HORDE), false, player->GetMap());
+        WorldStateMgr::SetValue(TempleOfKotmogu::WorldStates::AlliancePoints, bg->GetTeamScore(TEAM_ALLIANCE), false, player->GetMap());
+        WorldStateMgr::SetValue(TempleOfKotmogu::WorldStates::HordePoints, bg->GetTeamScore(TEAM_HORDE), false, player->GetMap());
     }
 
     void Register() override

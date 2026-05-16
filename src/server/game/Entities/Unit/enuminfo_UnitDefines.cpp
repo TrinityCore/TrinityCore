@@ -565,13 +565,14 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags2>::ToString(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return { "UNIT_NPC_FLAG_2_AZERITE_RESPEC", "is azerite respec", "" };
         case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return { "UNIT_NPC_FLAG_2_ISLANDS_QUEUE", "is islands queue", "" };
         case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return { "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "" };
+        case UNIT_NPC_FLAG_2_PERKS_VENDOR: return { "UNIT_NPC_FLAG_2_PERKS_VENDOR", "is trading post vendor", "" };
         case UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER: return { "UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER", "is personal tabard designer", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 16; }
+TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 17; }
 
 template <>
 TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
@@ -593,7 +594,8 @@ TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
         case 12: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
         case 13: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
         case 14: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
-        case 15: return UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER;
+        case 15: return UNIT_NPC_FLAG_2_PERKS_VENDOR;
+        case 16: return UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER;
         default: throw std::out_of_range("index");
     }
 }
@@ -618,7 +620,8 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags2>::ToIndex(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 12;
         case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 13;
         case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 14;
-        case UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER: return 15;
+        case UNIT_NPC_FLAG_2_PERKS_VENDOR: return 15;
+        case UNIT_NPC_FLAG_2_PERSONAL_TABARD_DESIGNER: return 16;
         default: throw std::out_of_range("value");
     }
 }

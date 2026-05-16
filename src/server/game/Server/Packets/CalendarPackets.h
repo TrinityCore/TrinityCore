@@ -78,7 +78,7 @@ namespace WorldPackets
             uint8 EventType = 0;
             int32 TextureID = 0;
             WowTime Time;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             Array<CalendarAddEventInviteInfo, CALENDAR_MAX_INVITES> Invites;
         };
 

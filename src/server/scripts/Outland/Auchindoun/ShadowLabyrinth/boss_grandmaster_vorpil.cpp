@@ -152,7 +152,7 @@ struct boss_grandmaster_vorpil : public BossAI
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_DRAW_SHADOWS:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_DRAW);
                     DoCastSelf(SPELL_DRAW_SHADOWS);
                     events.Repeat(35s, 45s);
@@ -175,7 +175,7 @@ struct npc_voidwalker_summoner : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(10s, [this](TaskContext task)
+        _scheduler.Schedule(10s, [this](TaskContext& task)
         {
             DoCastSelf(Trinity::Containers::SelectRandomContainerElement(VoidwalkerSummonSpells));
             task.Repeat(10s, 15s);
@@ -206,7 +206,7 @@ struct npc_void_traveler : public ScriptedAI
         if (Creature* vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL)))
             me->GetMotionMaster()->MoveFollow(vorpil, 0, 0);
 
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Creature* vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL)))
             {
@@ -214,7 +214,7 @@ struct npc_void_traveler : public ScriptedAI
                 {
                     DoCastSelf(SPELL_SACRIFICE);
 
-                    task.Schedule(1s, [this](TaskContext /*task*/)
+                    task.Schedule(1s, [this](TaskContext const& /*task*/)
                     {
                         DoCastSelf(SPELL_EMPOWERING_SHADOWS);
                         DoCastSelf(SPELL_SHADOW_NOVA);

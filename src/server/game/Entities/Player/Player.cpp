@@ -210,12 +210,9 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_atLoginFlags = AT_LOGIN_NONE;
 
-    mSemaphoreTeleport_Near = false;
-    mSemaphoreTeleport_Far = false;
-
     m_DelayedOperations = 0;
     m_bCanDelayTeleport = false;
-    m_bHasDelayedTeleport = false;
+    m_teleport_state = TeleportState::NotTeleporting;
     m_teleport_options = TELE_TO_NONE;
     m_teleportSpellId = 0;
     m_newWorldCounter = 0;
@@ -518,6 +515,14 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         ab.SetActionAndType(action_itr->action, ActionButtonType(action_itr->type));
     }
 
+    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
+    {
+        SetActiveTalentGroup(defaultSpec->OrderIndex);
+        SetPrimarySpecialization(defaultSpec->ID);
+    }
+
+    EquipTransmogOutfit(0, TransmogSituationTrigger::Manual, false);
+
     // original items
     for (PlayerCreateInfoItem initialItem : info->item)
         StoreNewItemInBestSlots(initialItem.item_id, initialItem.item_amount, info->itemContext);
@@ -553,15 +558,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
     // all item positions resolved
 
-    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
-    {
-        SetActiveTalentGroup(defaultSpec->OrderIndex);
-        SetPrimarySpecialization(defaultSpec->ID);
-    }
-
     GetThreatManager().Initialize();
-
-    EquipTransmogOutfit(0, TransmogSituationTrigger::Manual, false);
 
     return true;
 }
@@ -1121,8 +1118,11 @@ void Player::Update(uint32 p_time)
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
-    if (IsHasDelayedTeleport() && IsAlive())
+    if ((GetTeleportState() == TeleportState::DelayedTeleport || GetTeleportState() == TeleportState::DelayedWorldPort) && IsAlive())
+    {
+        SetTeleportState(TeleportState::NotTeleporting); // skip state check inside TeleportTo
         TeleportTo(m_teleport_dest, m_teleport_options, m_teleportSpellId);
+    }
 }
 
 void Player::Heartbeat()
@@ -1237,8 +1237,8 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
 {
     if (!MapManager::IsValidMapCoord(teleportLocation.Location))
     {
-        TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map ({}) or invalid coordinates ({}) given when teleporting player '{}' ({}, MapID: {}, {}).",
-            teleportLocation.Location.GetMapId(), teleportLocation.Location.ToString(), GetGUID().ToString(), GetName(), GetMapId(), GetPosition().ToString());
+        TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map ({}) or invalid coordinates ({}) given when teleporting player '{}' ({}, {}).",
+            teleportLocation.Location, GetGUID().ToString(), GetName(), GetMapId(), GetPosition());
         return false;
     }
 
@@ -1248,6 +1248,9 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
         SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
+
+    if (GetTeleportState() != TeleportState::NotTeleporting)
+        return false;
 
     // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
     Pet* pet = GetPet();
@@ -1300,15 +1303,12 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
 
     if (GetMapId() == teleportLocation.Location.GetMapId() && (!teleportLocation.InstanceId || GetInstanceId() == teleportLocation.InstanceId))
     {
-        //lets reset far teleport flag if it wasn't reset during chained teleport
-        SetSemaphoreTeleportFar(false);
-        //setup delayed teleport flag
-        SetDelayedTeleportFlag(IsCanDelayTeleport());
+        SetTeleportState(TeleportState::Initiated);
         //if teleport spell is cast in Unit::Update() func
         //then we need to delay it until update process will be finished
-        if (IsHasDelayedTeleport())
+        if (IsCanDelayTeleport())
         {
-            SetSemaphoreTeleportNear(true);
+            SetTeleportState(TeleportState::DelayedTeleport);
             //lets save teleport destination for player
             m_teleport_dest = teleportLocation;
             m_teleport_options = options;
@@ -1337,16 +1337,13 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet CMSG_MOVE_TELEPORT_ACK
-        SetSemaphoreTeleportNear(true);
+        SetTeleportState(TeleportState::WaitingForTeleportAck);
         // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
             SendTeleportPacket(m_teleport_dest);
     }
     else
     {
-        if (IsBeingTeleportedFar())
-            return false;
-
         if (GetClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
         {
             SendTransferAborted(teleportLocation.Location.GetMapId(), TRANSFER_ABORT_UNIQUE_MESSAGE, 1);
@@ -1371,16 +1368,13 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
             !((oldmap->GetEntry()->CosmeticParentMapID != -1) ^ (oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID))))
             options &= ~TELE_TO_SEAMLESS;
 
-        //lets reset near teleport flag if it wasn't reset during chained teleports
-        SetSemaphoreTeleportNear(false);
-        //setup delayed teleport flag
-        SetDelayedTeleportFlag(IsCanDelayTeleport());
-        SetSemaphoreTeleportFar(true);
+        SetTeleportState(TeleportState::Initiated);
         //if teleport spell is cast in Unit::Update() func
         //then we need to delay it until update process will be finished
-        if (IsHasDelayedTeleport())
+        if (IsCanDelayTeleport())
         {
             //lets save teleport destination for player
+            SetTeleportState(TeleportState::DelayedWorldPort);
             m_teleport_dest = teleportLocation;
             m_teleport_options = options;
             m_teleportSpellId = teleportSpellId;
@@ -1441,14 +1435,14 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
                 transferPending.TransferSpellID = teleportSpellId;
             if (teleportLocation.TransportGuid.has_value())
             {
-                transferPending.Ship.emplace();
+                WorldPackets::Movement::ShipTransferPending& shipTransferPending = transferPending.Ship.emplace();
                 if (TransportSpawn const* transportSpawn = sTransportMgr->GetTransportSpawn(teleportLocation.TransportGuid->GetCounter()))
                 {
-                    transferPending.Ship->ID = transportSpawn->TransportGameObjectId;
+                    shipTransferPending.ID = transportSpawn->TransportGameObjectId;
                     if (dynamic_cast<Transport*>(GetTransport()))
-                        transferPending.Ship->OriginMapID = GetMapId();
+                        shipTransferPending.OriginMapID = GetMapId();
                     else
-                        transferPending.Ship->OriginMapID = -1;
+                        shipTransferPending.OriginMapID = -1;
                 }
             }
 
@@ -1466,6 +1460,8 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
         // if the player is saved before worldportack (at logout for example)
         // this will be used instead of the current location in SaveToDB
 
+        SetTeleportState(TeleportState::WaitingForSuspendTokenResponse);
+
         if (!GetSession()->PlayerLogout())
         {
             ++m_newWorldCounter;
@@ -1475,10 +1471,6 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
             suspendToken.Reason = options & TELE_TO_SEAMLESS ? 2 : 1;
             SendDirectMessage(suspendToken.Write());
         }
-
-        // move packet sent by client always after far teleport
-        // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
-        SetSemaphoreTeleportFar(true);
     }
     return true;
 }
@@ -3982,6 +3974,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SELECT_EQUIPMENT_CACHE_CUSTOMIZATIONS);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
@@ -5350,7 +5346,7 @@ void Player::UpdateRating(CombatRating cr)
     if (amount < 0)
         amount = 0;
 
-    uint32 oldRating = m_activePlayerData->CombatRatings[cr];
+    int32 oldRating = m_activePlayerData->CombatRatings[cr];
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CombatRatings, cr), amount);
 
     bool affectStats = CanModifyStats();
@@ -6107,9 +6103,9 @@ void Player::SendActionButtons(uint32 state) const
 {
     WorldPackets::Spells::UpdateActionButtons packet;
 
-    for (auto itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
-        if (itr->second.uState != ACTIONBUTTON_DELETED && itr->first < packet.ActionButtons.size())
-            packet.ActionButtons[itr->first] = itr->second.packedData;
+    for (auto const& [i, button] : m_actionButtons)
+        if (button.uState != ACTIONBUTTON_DELETED && i < packet.ActionButtons.size())
+            packet.ActionButtons[i] = button.packedData;
 
     packet.Reason = state;
 
@@ -7428,7 +7424,7 @@ uint32 Player::GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool o
 
     uint32 maxQuantity = currency->MaxQty;
     if (currency->MaxQtyWorldStateID)
-        maxQuantity = sWorldStateMgr->GetValue(currency->MaxQtyWorldStateID, GetMap());
+        maxQuantity = WorldStateMgr::GetValue(currency->MaxQtyWorldStateID, GetMap());
 
     uint32 increasedCap = 0;
     if (currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
@@ -7716,7 +7712,7 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
     {
         if (area)
         {
-            if (InBattleground() || area->GetFlags().HasFlag(AreaFlags::CombatZone) || (area->PvpCombatWorldStateID != -1 && sWorldStateMgr->GetValue(area->PvpCombatWorldStateID, GetMap()) != 0))
+            if (InBattleground() || area->GetFlags().HasFlag(AreaFlags::CombatZone) || (area->PvpCombatWorldStateID != -1 && WorldStateMgr::GetValue(area->PvpCombatWorldStateID, GetMap()) != 0))
                 pvpInfo.IsInHostileArea = true;
             else if (IsWarModeLocalActive() || (area->GetFlags().HasFlag(AreaFlags::EnemiesPvPFlagged)))
             {
@@ -8536,7 +8532,7 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
             args.SetCastItem(artifact);
             if (artifactPowerRank->AuraPointsOverride)
                 for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), artifactPowerRank->AuraPointsOverride);
+                    args.AddSpellMod(SpellValueModFloat(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), artifactPowerRank->AuraPointsOverride);
 
             CastSpell(this, artifactPowerRank->SpellID, args);
         }
@@ -8751,7 +8747,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                 else if (chance > 100.0f)
                     chance = GetWeaponProcChance();
 
-                if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
+                if (roll_chance(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
                     CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
         }
@@ -8814,7 +8810,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
                 chance = 100.0f;
 
-            if (roll_chance_f(chance))
+            if (roll_chance(chance))
             {
                 if (spellInfo->IsPositive())
                     CastSpell(this, spellInfo->Id, item);
@@ -8822,7 +8818,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                     CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
 
-            if (roll_chance_f(chance))
+            if (roll_chance(chance))
             {
                 Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetVictim();
 
@@ -8837,7 +8833,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
                     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
                         if (spellEffectInfo.IsEffect())
-                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
+                            args.AddSpellMod(static_cast<SpellValueModFloat>(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
                 }
                 CastSpell(target, spellInfo->Id, args);
             }
@@ -9232,9 +9228,7 @@ void Player::SendUpdateWorldState(uint32 variable, uint32 value, bool hidden /*=
     SendDirectMessage(worldstate.Write());
 }
 
-// TODO - InitWorldStates should NOT always send the same states
-//        Some should keep the same value between different zoneIds and areaIds on the same map
-void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
+void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId) const
 {
     uint32 mapId = GetMapId();
 
@@ -9245,7 +9239,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.AreaID = zoneId;
     packet.SubareaID = areaId;
 
-    sWorldStateMgr->FillInitialWorldStates(packet, GetMap(), areaId);
+    WorldStateMgr::FillInitialWorldStates(packet, GetMap(), areaId);
 
     SendDirectMessage(packet.Write());
 }
@@ -11837,7 +11831,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
 {
     auto setVisibleItemSlot = [this](uint32 slot, int32 itemId, int32 secondaryItemModifiedAppearanceId, int32 conditionalItemAppearanceId,
         uint16 itemAppearanceModId, uint16 itemVisual, uint32 itemModifiedAppearanceId, TransmogOutfitSlotOption transmogSlotOption,
-        bool hasTransmog, bool hasIllusion)
+        TransmogOutfitSlotOptionSheatheCategory sheatheCategory, bool hasTransmog, bool hasIllusion)
     {
         auto itemField = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VisibleItems, slot);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemID), itemId);
@@ -11847,6 +11841,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemVisual), itemVisual);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::ItemModifiedAppearanceID), itemModifiedAppearanceId);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::TransmogSlotOption), AsUnderlyingType(transmogSlotOption));
+        SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::SheatheCategory), AsUnderlyingType(sheatheCategory));
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasTransmog), hasTransmog);
         SetUpdateFieldValue(itemField.ModifyValue(&UF::VisibleItem::HasIllusion), hasIllusion);
 
@@ -11869,93 +11864,92 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
         uint16 itemAppearanceModId = item->GetVisibleAppearanceModId(this);
         uint16 itemVisual = item->GetVisibleItemVisual(this);
         uint32 itemModifiedAppearanceId = item->GetVisibleModifiedAppearanceId(this);
+        TransmogOutfitSlotOptionSheatheCategory sheatheCategory = TransmogOutfitSlotOptionSheatheCategory::Default;
         bool hasTransmog = false;
         bool hasIllusion = false;
 
-        if (!m_activePlayerData->ViewedOutfit->Slots.empty())
+        TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), transmogSlotOption);
+        if (transmogSlotOption != TransmogOutfitSlotOption::None)
         {
-            TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), transmogSlotOption);
-            if (transmogSlotOption != TransmogOutfitSlotOption::None)
+            // check if artifact override is active
+            static constexpr int32 MaxArtifactSpecializations = AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecFour) - AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + 1;
+            int32 specIndex = GetPrimarySpecializationEntry()->OrderIndex;
+            if (specIndex >= 0 && specIndex < MaxArtifactSpecializations)
             {
-                // check if artifact override is active
-                static constexpr int32 MaxArtifactSpecializations = AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecFour) - AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + 1;
-                int32 specIndex = GetPrimarySpecializationEntry()->OrderIndex;
-                if (specIndex >= 0 && specIndex < MaxArtifactSpecializations)
+                TransmogOutfitSlotOption artifactOption = static_cast<TransmogOutfitSlotOption>(AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + specIndex);
+                TransmogMgr::TransmogOutfitSlotAndOptionInfo const* artifactSlotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), artifactOption);
+                if (artifactSlotInfo && static_cast<TransmogOutfitDisplayType>(*m_activePlayerData->ViewedOutfit->Slots[artifactSlotInfo->SlotIndex].AppearanceDisplayType) == TransmogOutfitDisplayType::Assigned)
                 {
-                    TransmogOutfitSlotOption artifactOption = static_cast<TransmogOutfitSlotOption>(AsUnderlyingType(TransmogOutfitSlotOption::ArtifactSpecOne) + specIndex);
-                    TransmogMgr::TransmogOutfitSlotAndOptionInfo const* artifactSlotInfo = TransmogMgr::GetSlotAndOption(EquipmentSlots(slot), artifactOption);
-                    if (artifactSlotInfo && static_cast<TransmogOutfitDisplayType>(*m_activePlayerData->ViewedOutfit->Slots[artifactSlotInfo->SlotIndex].AppearanceDisplayType) == TransmogOutfitDisplayType::Assigned)
-                    {
-                        transmogSlotOption = artifactOption;
-                        slotInfo = artifactSlotInfo;
-                    }
-                }
-            }
-
-            if (slotInfo)
-            {
-                auto isTransmogDisplayed = [](TransmogOutfitDisplayType displayType)
-                {
-                    return displayType == TransmogOutfitDisplayType::Assigned || displayType == TransmogOutfitDisplayType::Hidden;
-                };
-
-                UF::TransmogOutfitSlotData const& transmogOutfitItem = m_activePlayerData->ViewedOutfit->Slots[slotInfo->SlotIndex];
-                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.AppearanceDisplayType)))
-                {
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogOutfitItem.ItemModifiedAppearanceID))
-                    {
-                        TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                        if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                        {
-                            itemId = itemModifiedAppearance->ItemID;
-                            itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
-                            itemModifiedAppearanceId = itemModifiedAppearance->ID;
-                            hasTransmog = true;
-                        }
-                    }
-                }
-
-                auto getSecondaryItemModifiedAppearance = [isTransmogDisplayed](UF::TransmogOutfitSlotData const& secondaryTransmogOutfitItem) -> int32
-                {
-                    if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType))
-                        || static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType) == TransmogOutfitDisplayType::Equipped)
-                    {
-                        if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
-                        {
-                            TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                            if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                                return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
-                        }
-                    }
-                    return 0;
-                };
-
-                if (TransmogOutfitSlotInfoEntry const* secondarySlot = sTransmogOutfitSlotInfoStore.LookupEntry(slotInfo->Slot->SecondarySlotID))
-                    if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(secondarySlot->GetSlot(), transmogSlotOption))
-                        secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
-
-                if (TransmogOutfitSlotOptionEntry const* secondarySlotOption = sTransmogOutfitSlotOptionInfoStore.LookupEntry(slotInfo->SlotOption ? slotInfo->SlotOption->SecondaryOptionID : 0))
-                    if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(slotInfo->Slot->GetSlot(), secondarySlotOption->GetOption()))
-                        secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
-
-                if (secondaryItemModifiedAppearanceId)
-                    hasTransmog = true;
-
-                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.IllusionDisplayType)))
-                {
-                    if (SpellItemEnchantmentEntry const* spellItemEnchantment = sSpellItemEnchantmentStore.LookupEntry(transmogOutfitItem.SpellItemEnchantmentID))
-                        itemVisual = spellItemEnchantment->ItemVisual;
-
-                    hasIllusion = true;
+                    transmogSlotOption = artifactOption;
+                    slotInfo = artifactSlotInfo;
                 }
             }
         }
 
+        if (slotInfo)
+        {
+            auto isTransmogDisplayed = [](TransmogOutfitDisplayType displayType)
+            {
+                return displayType == TransmogOutfitDisplayType::Assigned || displayType == TransmogOutfitDisplayType::Hidden;
+            };
+
+            UF::TransmogOutfitSlotData const& transmogOutfitItem = m_activePlayerData->ViewedOutfit->Slots[slotInfo->SlotIndex];
+            if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.AppearanceDisplayType)))
+            {
+                if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogOutfitItem.ItemModifiedAppearanceID))
+                {
+                    TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
+                    if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
+                    {
+                        itemId = itemModifiedAppearance->ItemID;
+                        itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
+                        itemModifiedAppearanceId = itemModifiedAppearance->ID;
+                        sheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(*transmogOutfitItem.SheatheCategory);
+                        hasTransmog = true;
+                    }
+                }
+            }
+
+            auto getSecondaryItemModifiedAppearance = [isTransmogDisplayed](UF::TransmogOutfitSlotData const& secondaryTransmogOutfitItem) -> int32
+            {
+                if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType))
+                    || static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType) == TransmogOutfitDisplayType::Equipped)
+                {
+                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
+                    {
+                        TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
+                        if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
+                            return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
+                    }
+                }
+                return 0;
+            };
+
+            if (TransmogOutfitSlotInfoEntry const* secondarySlot = sTransmogOutfitSlotInfoStore.LookupEntry(slotInfo->Slot->SecondarySlotID))
+                if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(secondarySlot->GetSlot(), transmogSlotOption))
+                    secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
+
+            if (TransmogOutfitSlotOptionEntry const* secondarySlotOption = sTransmogOutfitSlotOptionInfoStore.LookupEntry(slotInfo->SlotOption ? slotInfo->SlotOption->SecondaryOptionID : 0))
+                if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* secondarySlotInfo = TransmogMgr::GetSlotAndOption(slotInfo->Slot->GetSlot(), secondarySlotOption->GetOption()))
+                    secondaryItemModifiedAppearanceId = getSecondaryItemModifiedAppearance(m_activePlayerData->ViewedOutfit->Slots[secondarySlotInfo->SlotIndex]);
+
+            if (secondaryItemModifiedAppearanceId)
+                hasTransmog = true;
+
+            if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitItem.IllusionDisplayType)))
+            {
+                if (SpellItemEnchantmentEntry const* spellItemEnchantment = sSpellItemEnchantmentStore.LookupEntry(transmogOutfitItem.SpellItemEnchantmentID))
+                    itemVisual = spellItemEnchantment->ItemVisual;
+
+                hasIllusion = true;
+            }
+        }
+
         setVisibleItemSlot(slot, itemId, secondaryItemModifiedAppearanceId, conditionalItemAppearanceId, itemAppearanceModId,
-            itemVisual, itemModifiedAppearanceId, transmogSlotOption, hasTransmog, hasIllusion);
+            itemVisual, itemModifiedAppearanceId, transmogSlotOption, sheatheCategory, hasTransmog, hasIllusion);
     }
     else
-        setVisibleItemSlot(slot, 0, 0, 0, 0, 0, 0, TransmogOutfitSlotOption::None, false, false);
+        setVisibleItemSlot(slot, 0, 0, 0, 0, 0, 0, TransmogOutfitSlotOption::None, TransmogOutfitSlotOptionSheatheCategory::Default, false, false);
 }
 
 void Player::VisualizeItem(uint8 slot, Item* pItem)
@@ -14833,7 +14827,9 @@ bool Player::CanRewardQuest(Quest const* quest, LootItemType rewardType, uint32 
 
 void Player::AddQuest(Quest const* quest, Object* questGiver)
 {
-    uint16 log_slot = FindQuestSlot(0);
+    uint16 log_slot = 0;
+    while (GetQuestSlotQuestId(log_slot) && log_slot < MAX_QUEST_LOG_SIZE)
+        ++log_slot;
 
     if (log_slot >= MAX_QUEST_LOG_SIZE) // Player does not have any free slot in the quest log
         return;
@@ -15491,8 +15487,9 @@ bool Player::SatisfyQuestMaxLevel(Quest const* qInfo, bool msg) const
 bool Player::SatisfyQuestLog(bool msg) const
 {
     // exist free slot
-    if (FindQuestSlot(0) < MAX_QUEST_LOG_SIZE)
-        return true;
+    for (uint32 log_slot = 0; log_slot < MAX_QUEST_LOG_SIZE; ++log_slot)
+        if (!GetQuestSlotQuestId(log_slot))
+            return true;
 
     if (msg)
     {
@@ -16385,11 +16382,8 @@ void Player::AdjustQuestObjectiveProgress(Quest const* quest)
 
 uint16 Player::FindQuestSlot(uint32 quest_id) const
 {
-    for (uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
-        if (GetQuestSlotQuestId(i) == quest_id)
-            return i;
-
-    return MAX_QUEST_LOG_SIZE;
+    auto itr = m_QuestStatus.find(quest_id);
+    return itr != m_QuestStatus.end() ? itr->second.Slot : MAX_QUEST_LOG_SIZE;
 }
 
 uint32 Player::GetQuestSlotQuestId(uint16 slot) const
@@ -16458,13 +16452,21 @@ int32 Player::GetQuestObjectiveData(uint32 questId, uint32 objectiveId) const
 
 void Player::SetQuestSlot(uint16 slot, uint32 quest_id)
 {
-    auto questLogField = m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::QuestLog, slot);
-    SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::QuestID), quest_id);
+    auto playerData = m_values.ModifyValue(&Player::m_playerData);
+    auto questLogField = playerData.ModifyValue(&UF::PlayerData::QuestLog, slot);
+    auto questLogQuestIdField = questLogField.ModifyValue(&UF::QuestLog::QuestID);
+    uint32 oldQuestId = questLogQuestIdField.GetValue();
+    SetUpdateFieldValue(questLogQuestIdField, quest_id);
     SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::StateFlags), 0);
     SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::EndTime), 0);
     SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::ObjectiveFlags), 0);
     for (uint32 i = 0; i < MAX_QUEST_COUNTS; ++i)
         SetUpdateFieldValue(questLogField.ModifyValue(&UF::QuestLog::ObjectiveProgress, i), 0);
+
+    if (quest_id)
+        SetUpdateFieldValue(playerData.ModifyValue(&UF::PlayerData::QuestLogQuestIdToIndex, quest_id), slot);
+    if (oldQuestId)
+        RemoveMapUpdateFieldValue(playerData.ModifyValue(&UF::PlayerData::QuestLogQuestIdToIndex), oldQuestId);
 }
 
 void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
@@ -17757,12 +17759,12 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
         } while (situationsResult->NextRow());
     }
 
-    // SELECT transmogOutfitId, slot, slotOption, itemModifiedAppearanceID, appearanceDisplayType, spellItemEnchantmentID, illusionDisplayType, flags FROM character_transmog_outfit_slot guid = ?
+    // SELECT transmogOutfitId, slot, slotOption, sheatheCategory, itemModifiedAppearanceID, appearanceDisplayType, spellItemEnchantmentID, illusionDisplayType, flags FROM character_transmog_outfit_slot guid = ?
     if (slotsResult)
     {
         do
         {
-            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(PreparedResultSet, (transmogOutfitId)(slot)(slotOption)(itemModifiedAppearanceID)(appearanceDisplayType)
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(PreparedResultSet, (transmogOutfitId)(slot)(slotOption)(sheatheCategory)(itemModifiedAppearanceID)(appearanceDisplayType)
                 (spellItemEnchantmentID)(illusionDisplayType)(flags)) fields { *slotsResult };
 
             uint32 transmogOutfitId = fields.transmogOutfitId().GetUInt32();
@@ -17770,6 +17772,7 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
             WorldPackets::Transmogrification::TransmogOutfitSlotData& slot = sets[transmogOutfitId].slots.emplace_back();
             slot.Slot = static_cast<TransmogOutfitSlot>(fields.slot().GetInt8());
             slot.SlotOption = static_cast<TransmogOutfitSlotOption>(fields.slotOption().GetUInt8());
+            slot.SheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(fields.sheatheCategory().GetUInt8());
             slot.ItemModifiedAppearanceID = fields.itemModifiedAppearanceID().GetUInt32();
             slot.AppearanceDisplayType = static_cast<TransmogOutfitDisplayType>(fields.appearanceDisplayType().GetUInt8());
             slot.SpellItemEnchantmentID = fields.spellItemEnchantmentID().GetUInt32();
@@ -17798,7 +17801,7 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
 
             WorldPackets::Transmogrification::TransmogOutfitDataInfo outfitInfo;
             outfitInfo.SetType = transmogOutfitEntry->GetSetType();
-            outfitInfo.Name = fields.name().GetString();
+            outfitInfo.Name = fields.name().GetStringView();
             outfitInfo.Icon = fields.icon().GetUInt32();
             outfitInfo.SituationsEnabled = fields.situationsEnabled().GetBool();
 
@@ -17829,6 +17832,7 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryR
                 auto slot = transmogOutfit.ModifyValue(&UF::TransmogOutfitData::Slots, slotInfo->SlotIndex);
                 SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::Slot), AsUnderlyingType(slotData.Slot));
                 SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::SlotOption), AsUnderlyingType(slotData.SlotOption));
+                SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::SheatheCategory), AsUnderlyingType(slotData.SheatheCategory));
                 SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::ItemModifiedAppearanceID), slotData.ItemModifiedAppearanceID);
                 SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::AppearanceDisplayType), AsUnderlyingType(slotData.AppearanceDisplayType));
                 SetUpdateFieldValue(slot.ModifyValue(&UF::TransmogOutfitSlotData::SpellItemEnchantmentID), slotData.SpellItemEnchantmentID);
@@ -18397,7 +18401,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
                 std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
             {
                 TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid transport coordinates ({}). Teleport to bind location.",
-                    guid.ToString(), globalPosition.ToString());
+                    guid.ToString(), globalPosition);
 
                 m_movementInfo.transport.Reset();
 
@@ -18656,6 +18660,13 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     // Load spell locations - must be after loading auras
     _LoadStoredAuraTeleportLocations(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS));
 
+    _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
+    _LoadTransmogCustomSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS));
+    _LoadTransmogOutfits(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT),
+        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION),
+        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT),
+        fields.transmogOutfitEquippedId, fields.transmogOutfitLocked);
+
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
     _LoadQuestStatusObjectives(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES));
@@ -18828,13 +18839,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         SetDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
 
     _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
-
-    _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
-    _LoadTransmogCustomSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS));
-    _LoadTransmogOutfits(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION),
-        holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT),
-        fields.transmogOutfitEquippedId, fields.transmogOutfitLocked);
 
     _LoadCUFProfiles(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
@@ -19040,8 +19044,8 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
                 itemGuid.SetRawValue(rawGuidBytes);
                 AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt32() };
                 AuraLoadEffectInfo& info = effectInfo[key];
-                info.Amounts[effectIndex] = fields[5].GetInt32();
-                info.BaseAmounts[effectIndex] = fields[6].GetInt32();
+                info.Amounts[effectIndex] = fields[5].GetDouble();
+                info.BaseAmounts[effectIndex] = fields[6].GetDouble();
             }
         }
         while (effectResult->NextRow());
@@ -19662,7 +19666,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
             else
                 endTime = 0;
 
-            TC_LOG_DEBUG("entities.player.loading", "Player::_LoadQuestStatus: Quest status is {{{}}} for quest {{{}}} for player ({})", questStatusData.Status, quest_id, GetGUID().ToString());
+            TC_LOG_DEBUG("entities.player.loading", "Player::_LoadQuestStatus: Quest status is {} for quest {} for player ({})", questStatusData.Status, quest_id, GetGUID().ToString());
 
             // add to quest log
             if (slot < MAX_QUEST_LOG_SIZE && questStatusData.Status != QUEST_STATUS_NONE)
@@ -19986,8 +19990,8 @@ void Player::_LoadStoredAuraTeleportLocations(PreparedQueryResult result)
             WorldLocation location(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
             if (!MapManager::IsValidMapCoord(location))
             {
-                TC_LOG_ERROR("spells", "Player::_LoadStoredAuraTeleportLocations: Player {} ({}) spell (ID: {}) has invalid position on map {}, {{{}}}.",
-                    GetName(), GetGUID().ToString(), spellId, location.GetMapId(), location.ToString());
+                TC_LOG_ERROR("spells", "Player::_LoadStoredAuraTeleportLocations: Player {} ({}) spell (ID: {}) has invalid position {}.",
+                    GetName(), GetGUID().ToString(), spellId, location);
                 continue;
             }
 
@@ -20579,8 +20583,6 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         }
         stmt->setString(index++, ss.str());
 
-        stmt->setString(index++, GetCharacterSelectOutfit());
-
         ss.str("");
         for (uint32 i = 0; i < m_activePlayerData->KnownTitles.size(); ++i)
         {
@@ -20726,8 +20728,6 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         }
         stmt->setString(index++, ss.str());
 
-        stmt->setString(index++, GetCharacterSelectOutfit());
-
         ss.str("");
         for (uint32 i = 0; i < m_activePlayerData->KnownTitles.size(); ++i)
         {
@@ -20796,6 +20796,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     m_questObjectiveCriteriaMgr->SaveToDB(trans);
     _SaveEquipmentSets(trans);
     _SaveTransmogOutfits(trans);
+    _SaveCharacterSelectOutfit(trans);
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
@@ -21001,8 +21002,8 @@ void Player::_SaveAuras(CharacterDatabaseTransaction trans)
             stmt->setUInt32(index++, key.SpellId);
             stmt->setUInt32(index++, key.EffectMask);
             stmt->setUInt8(index++, effect->GetEffIndex());
-            stmt->setInt32(index++, effect->GetAmount());
-            stmt->setInt32(index++, effect->GetBaseAmount());
+            stmt->setDouble(index++, effect->GetAmount());
+            stmt->setDouble(index++, effect->GetBaseAmount());
             trans->Append(stmt);
         }
     }
@@ -22625,7 +22626,7 @@ void Player::SendRemoveControlBar() const
     SendDirectMessage(packet.Write());
 }
 
-uint32 Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell)
+int32 Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell const* spell)
 {
     if (!mod || !spellInfo)
         return 0;
@@ -22672,8 +22673,7 @@ uint32 Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier co
     return spellInfo->IsAffectedBySpellMod(mod);
 }
 
-template <class T>
-void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, T base, int32* flat, float* pct) const
+void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, double base, int32* flat, float* pct) const
 {
     ASSERT(flat && pct);
 
@@ -22737,7 +22737,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (base < T(10000) && static_cast<SpellModifierByClassMask*>(mod)->value <= -100)
+                if (base < 10000.0 && static_cast<SpellPctModifierByClassMask*>(mod)->value <= -100)
                 {
                     modInstantSpell = mod;
                     break;
@@ -22751,7 +22751,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                     if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                         continue;
 
-                    if (base < T(10000) && static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue <= -1.0f)
+                    if (base < 10000.0 && static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue <= -1.0f)
                     {
                         modInstantSpell = mod;
                         break;
@@ -22776,7 +22776,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (static_cast<SpellModifierByClassMask*>(mod)->value >= 100)
+                if (static_cast<SpellFlatModifierByClassMask*>(mod)->value >= 100)
                 {
                     modCritical = mod;
                     break;
@@ -22812,11 +22812,11 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_FLAT))
     {
-        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        int32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
         if (!applyCount)
             continue;
 
-        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        int32 value = static_cast<SpellFlatModifierByClassMask*>(mod)->value;
         if (value == 0)
             continue;
 
@@ -22826,7 +22826,7 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_FLAT))
     {
-        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        int32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
         if (!applyCount)
             continue;
 
@@ -22840,37 +22840,37 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_PCT))
     {
-        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        int32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
         if (!applyCount)
             continue;
 
         // skip percent mods for null basevalue (most important for spell mods with charges)
-        if (base + *flat == T(0))
+        if (base + *flat == 0)
             continue;
 
-        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        float value = static_cast<SpellPctModifierByClassMask*>(mod)->value;
         if (value == 0)
             continue;
 
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SpellModOp::ChangeCastTime)
         {
-            if (base >= T(10000) && value <= -100)
+            if (base >= 10000.0 && value <= -100)
                 continue;
         }
 
-        *pct *= std::pow(1.0f + CalculatePct(1.0f, value), applyCount);
+        *pct *= std::pow(1.0f + CalculatePct(1.0f, value), float(applyCount));
         Player::ApplyModToSpell(mod, spell);
     }
 
     for (SpellModifier* mod : spellModTypeRange(SPELLMOD_LABEL_PCT))
     {
-        uint32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
+        int32 applyCount = IsAffectedBySpellmod(spellInfo, mod, spell);
         if (!applyCount)
             continue;
 
         // skip percent mods for null basevalue (most important for spell mods with charges)
-        if (base + *flat == T(0))
+        if (base + *flat == 0)
             continue;
 
         float value = static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue;
@@ -22880,19 +22880,14 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SpellModOp::ChangeCastTime)
         {
-            if (base >= T(10000) && value <= -1.0f)
+            if (base >= 10000.0 && value <= -1.0f)
                 continue;
         }
 
-        *pct *= std::pow(value, applyCount);
+        *pct *= std::pow(value, float(applyCount));
         Player::ApplyModToSpell(mod, spell);
     }
 }
-
-template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, int32 base, int32* flat, float* pct) const;
-template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, uint32 base, int32* flat, float* pct) const;
-template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, float base, int32* flat, float* pct) const;
-template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, double base, int32* flat, float* pct) const;
 
 template <class T>
 void Player::ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/) const
@@ -22900,9 +22895,9 @@ void Player::ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, T& baseval
     float totalmul = 1.0f;
     int32 totalflat = 0;
 
-    GetSpellModValues(spellInfo, op, spell, basevalue, &totalflat, &totalmul);
+    this->GetSpellModValues(spellInfo, op, spell, basevalue, &totalflat, &totalmul);
 
-    basevalue = T(double(basevalue + totalflat) * totalmul);
+    basevalue = T((double(basevalue) + totalflat) * totalmul);
 }
 
 template TC_GAME_API void Player::ApplySpellMod(SpellInfo const* spellInfo, SpellModOp op, int32& basevalue, Spell* spell) const;
@@ -22954,7 +22949,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_FLAT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_FLAT)
                         {
-                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            SpellFlatModifierByClassMask const* spellMod = static_cast<SpellFlatModifierByClassMask const*>(*itr++);
                             if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
                                 modData.ModifierValue += spellMod->value;
                         }
@@ -22965,7 +22960,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         auto itr = std::ranges::lower_bound(m_spellMods, std::make_pair(mod->op, SPELLMOD_PCT), std::ranges::less(), [](SpellModifier const* sm) { return std::make_pair(sm->op, sm->type); });
                         while (itr != m_spellMods.end() && (*itr)->op == mod->op && (*itr)->type == SPELLMOD_PCT)
                         {
-                            SpellModifierByClassMask const* spellMod = static_cast<SpellModifierByClassMask const*>(*itr++);
+                            SpellPctModifierByClassMask const* spellMod = static_cast<SpellPctModifierByClassMask const*>(*itr++);
                             if (spellMod->mask[classIndex / 32] & (1u << (classIndex % 32)))
                                 modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
                         }
@@ -23059,9 +23054,6 @@ void Player::SendSpellModifiers() const
 
     for (SpellModifier const* mod : m_spellMods)
     {
-        if (mod->type != SPELLMOD_FLAT && mod->type != SPELLMOD_PCT)
-            continue;
-
         switch (mod->type)
         {
             case SPELLMOD_FLAT:
@@ -23074,7 +23066,7 @@ void Player::SendSpellModifiers() const
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
                     float& modifierValue = getOrCreateModifierData(flatModifier->ModifierData, classIndex, 0.0f);
-                    modifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
+                    modifierValue += static_cast<SpellFlatModifierByClassMask const*>(mod)->value;
                 }
                 break;
             case SPELLMOD_PCT:
@@ -23087,7 +23079,7 @@ void Player::SendSpellModifiers() const
                 for (std::size_t classIndex = mask.find_first(); classIndex != decltype(mask)::npos; classIndex = mask.find_next(classIndex))
                 {
                     float& modifierValue = getOrCreateModifierData(pctModifier->ModifierData, classIndex, 1.0f);
-                    modifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
+                    modifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellPctModifierByClassMask const*>(mod)->value);
                 }
                 break;
             default:
@@ -23596,6 +23588,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
         return false;
     }
 
+    uint64 price = 0;
     uint32 stacks = count / crItem->maxcount;
     ItemExtendedCostEntry const* iece;
     if (crItem->ExtendedCost)
@@ -23605,6 +23598,24 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
         {
             TC_LOG_ERROR("entities.player", "Player::BuyCurrencyFromVendorSlot: Currency {} has wrong ExtendedCost field value {}", currency, crItem->ExtendedCost);
             return false;
+        }
+
+        if (iece->Money)
+        {
+            uint64 maxStacks = MAX_MONEY_AMOUNT / crItem->maxcount;
+            if (uint64(stacks) > maxStacks)
+            {
+                TC_LOG_ERROR("entities.player.cheat", "Player::BuyCurrencyFromVendorSlot: Player '{}' ({}) tried to buy currency (ItemID: {}, Count: {}), causing money overflow",
+                    GetName(), GetGUID(), currency, count);
+                count = uint32(maxStacks * crItem->maxcount);
+                stacks = maxStacks;
+            }
+            price = uint64(iece->Money * count); //it should not exceed MAX_MONEY_AMOUNT
+            if (!HasEnoughMoney(price))
+            {
+                SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, currency, 0);
+                return false;
+            }
         }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
@@ -23676,6 +23687,8 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     AddCurrency(currency, count, CurrencyGainSource::Vendor);
     if (iece)
     {
+        ModifyMoney(-int64(price));
+
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             if (!iece->ItemID[i])
@@ -23788,6 +23801,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
+    uint64 basePrice = pProto->GetBuyPrice();
     if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
@@ -23863,12 +23877,14 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, nullptr, nullptr); // Find correct error
             return false;
         }
+
+        basePrice = iece->Money;
     }
 
     uint64 price = 0;
-    if (pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (basePrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        double buyPricePerItem = double(pProto->GetBuyPrice()) / pProto->GetBuyCount();
+        double buyPricePerItem = double(basePrice) / pProto->GetBuyCount();
         uint64 maxCount = MAX_MONEY_AMOUNT / buyPricePerItem;
         if (uint64(count) > maxCount)
         {
@@ -23880,9 +23896,10 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         // reputation discount
         price = uint64(floor(price * GetReputationPriceDiscount(creature)));
-        price = pProto->GetBuyPrice() > 0 ? std::max(uint64(1), price) : price;
+        if (basePrice > 0)
+            price = std::max(uint64(1), price);
 
-        if (int32 priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
+        if (float priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
             price -= CalculatePct(price, priceMod);
 
         if (!HasEnoughMoney(price))
@@ -25139,8 +25156,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetMap()->IsRaid())
     {
         Difficulty mapDifficulty = GetMap()->GetDifficultyID();
-        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(mapDifficulty);
-        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, mapDifficulty);
+        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(mapDifficulty);
+        SendRaidDifficulty(difficulty && (difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, mapDifficulty);
     }
     else if (GetMap()->IsNonRaidDungeon())
         SendDungeonDifficulty(GetMap()->GetDifficultyID());
@@ -26320,7 +26337,7 @@ void Player::InitializeSelfResurrectionSpells()
         if ((*itr)->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_WARLOCK && (*itr)->GetSpellInfo()->SpellFamilyFlags[1] & 0x1000000)
             spells[0] = 3026;
         // Twisting Nether                                  // prio: 2 (max)
-        else if ((*itr)->GetId() == 23701 && roll_chance_i(10))
+        else if ((*itr)->GetId() == 23701 && roll_chance(10))
             spells[1] = 23700;
     }
 
@@ -26785,11 +26802,20 @@ int32 Player::NextGroupUpdateSequenceNumber(GroupCategory category)
     return m_groupUpdateSequences[category].UpdateSequenceNumber++;
 }
 
-void Player::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
+void Player::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
-    // process liquid auras using generic unit code
-    Unit::ProcessTerrainStatusUpdate(oldLiquidStatus, newLiquidData);
+    ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
+    Unit::ProcessPositionDataChanged(data);
 
+    UpdateLiquidMirrorTimerFlagsOnPositionChange(data.liquidInfo);
+
+    // mount capability depends on liquid state change
+    if (oldLiquidStatus != GetLiquidStatus())
+        UpdateMountCapability();
+}
+
+void Player::UpdateLiquidMirrorTimerFlagsOnPositionChange(Optional<LiquidData> const& newLiquidData)
+{
     m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWATER_INDARKWATER);
 
     // player specific logic for mirror timers
@@ -26802,7 +26828,21 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<
 
         // Fatigue bar state (if not on flight path or transport)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::DarkWater) && !IsInFlight() && !GetTransport())
-            m_MirrorTimerFlags |= UNDERWATER_INDARKWATER;
+        {
+            bool ignoreFatigue = false;
+            if (WmoLocation const* wmoLocation = GetCurrentWmo())
+                if (WMOAreaTableEntry const* wmoEntry = DB2Manager::GetWMOAreaTable(wmoLocation->RootId, wmoLocation->NameSetId, wmoLocation->GroupId, true))
+                    if (wmoEntry->HasFlag(WMOAreaTableFlags::IgnoreFatigue))
+                        ignoreFatigue = true;
+
+            if (Vehicle const* vehicle = GetVehicle())
+                if (VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(this))
+                    if (vehicleSeat->HasFlag(VehicleSeatFlagsC::NoFatigue))
+                        ignoreFatigue = true;
+
+            if (!ignoreFatigue)
+                m_MirrorTimerFlags |= UNDERWATER_INDARKWATER;
+        }
 
         // Lava state (any contact)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::Magma))
@@ -27056,12 +27096,12 @@ uint8 Player::GetRunesState() const
 
 uint32 Player::GetRuneBaseCooldown() const
 {
-    float cooldown = RUNE_BASE_COOLDOWN;
+    double cooldown = RUNE_BASE_COOLDOWN;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
         if ((*i)->GetMiscValue() == POWER_RUNES)
-            cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
+            cooldown *= 1.0 - (*i)->GetAmount() / 100.0;
 
     // Runes cooldown are now affected by player's haste from equipment ...
     float hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
@@ -27071,9 +27111,9 @@ uint32 Player::GetRuneBaseCooldown() const
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
 
-    cooldown *=  1.0f - (hastePct / 100.0f);
+    cooldown *= 1.0f - (hastePct / 100.0f);
 
-    return cooldown;
+    return static_cast<float>(cooldown);
 }
 
 void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
@@ -27469,7 +27509,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         !HasAuraType(SPELL_AURA_FLY) && !IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
     {
         //Safe fall, fall height reduction
-        int32 safe_fall = GetTotalAuraModifier(SPELL_AURA_SAFE_FALL);
+        float safe_fall = GetTotalAuraModifier(SPELL_AURA_SAFE_FALL);
 
         float damageperc = 0.018f*(z_diff-safe_fall)-0.2426f;
 
@@ -28163,7 +28203,7 @@ void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet)
     if (newEqSet.Guid != 0)
     {
         // something wrong...
-        EquipmentSetContainer::const_iterator itr = _equipmentSets.find(newEqSet.Guid);
+        auto itr = _equipmentSets.find(newEqSet.Guid);
         if (itr == _equipmentSets.end() || itr->second.Data.Guid != newEqSet.Guid)
         {
             TC_LOG_ERROR("entities.player", "Player::SetEquipmentSet: Player '{}' ({}) tried to save nonexistent equipment set {} (index: {})",
@@ -28337,11 +28377,12 @@ void Player::_SaveTransmogOutfits(CharacterDatabaseTransaction trans)
             stmt->setUInt32(1, transmogOutfitId);
             stmt->setInt8(2, *slot.Slot);
             stmt->setUInt8(3, *slot.SlotOption);
-            stmt->setUInt32(4, *slot.ItemModifiedAppearanceID);
-            stmt->setUInt8(5, *slot.AppearanceDisplayType);
-            stmt->setUInt32(6, *slot.SpellItemEnchantmentID);
-            stmt->setUInt8(7, *slot.IllusionDisplayType);
-            stmt->setUInt32(8, *slot.Flags);
+            stmt->setUInt8(4, *slot.SheatheCategory);
+            stmt->setUInt32(5, *slot.ItemModifiedAppearanceID);
+            stmt->setUInt8(6, *slot.AppearanceDisplayType);
+            stmt->setUInt32(7, *slot.SpellItemEnchantmentID);
+            stmt->setUInt8(8, *slot.IllusionDisplayType);
+            stmt->setUInt32(9, *slot.Flags);
             trans->Append(stmt);
         }
     }
@@ -30175,6 +30216,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.KeepOpenAfterChoice = playerChoice->KeepOpenAfterChoice;
     displayPlayerChoice.ShowChoicesAsList = playerChoice->ShowChoicesAsList;
     displayPlayerChoice.ForceDontShowChoicesAsList = playerChoice->ForceDontShowChoicesAsList;
+    displayPlayerChoice.RequiresSelection = playerChoice->RequiresSelection;
 
     for (std::size_t i = 0; i < playerChoice->Responses.size() && (!playerChoice->MaxResponses || displayPlayerChoice.Responses.size() < *playerChoice->MaxResponses); ++i)
     {
@@ -30466,31 +30508,6 @@ bool Player::IsFriendlyArea(AreaTableEntry const* areaEntry) const
     return true;
 }
 
-std::string Player::GetMapAreaAndZoneString() const
-{
-    uint32 areaId = GetAreaId();
-    std::string areaName = "Unknown";
-    std::string zoneName = "Unknown";
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
-    {
-        areaName = area->AreaName[GetSession()->GetSessionDbcLocale()];
-        if (area->GetFlags().HasFlag(AreaFlags::IsSubzone))
-            if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-                zoneName = zone->AreaName[GetSession()->GetSessionDbcLocale()];
-    }
-
-    std::ostringstream str;
-    str << "Map: " << GetMapId() << " (" << (FindMap() ? FindMap()->GetMapName() : "Unknown") << ") Area: " << areaId << " (" << areaName.c_str() << ") Zone: " << zoneName.c_str();
-    return str.str();
-}
-
-std::string Player::GetCoordsMapAreaAndZoneString() const
-{
-    std::ostringstream str;
-    str << Position::ToString() << " " << GetMapAreaAndZoneString();
-    return str.str();
-}
-
 Guild* Player::GetGuild()
 {
     ObjectGuid::LowType guildId = GetGuildId();
@@ -30596,95 +30613,6 @@ bool Player::CanUseMastery() const
         return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
 
     return false;
-}
-
-void Player::ValidateMovementInfo(MovementInfo* mi)
-{
-    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
-    //! Might be subject to latency, so just remove improper flags.
-    #ifdef TRINITY_DEBUG
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-    { \
-        if (check) \
-        { \
-            TC_LOG_DEBUG("entities.unit", "Player::ValidateMovementInfo: Violation of MovementFlags found ({}). " \
-                "MovementFlags: {}, MovementFlags2: {} for player {}. Mask {} will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUID().ToString(), maskToRemove); \
-            mi->RemoveMovementFlag((maskToRemove)); \
-        } \
-    }
-    #else
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-        if (check) \
-            mi->RemoveMovementFlag((maskToRemove));
-    #endif
-
-    if (!m_unitMovedByMe->GetVehicleBase() || !(m_unitMovedByMe->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
-        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
-
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
-        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
-        It will freeze clients that receive this player's movement info.
-    */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_MASK_MOVING),
-        MOVEMENTFLAG_MASK_MOVING);
-
-    //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !m_unitMovedByMe->HasAuraType(SPELL_AURA_HOVER),
-        MOVEMENTFLAG_HOVER);
-
-    //! Cannot ascend and descend at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
-        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
-
-    //! Cannot move left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
-
-    //! Cannot strafe left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
-        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
-
-    //! Cannot pitch up and down at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
-        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
-
-    //! Cannot move forwards and backwards at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
-        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-        !m_unitMovedByMe->HasAuraType(SPELL_AURA_WATER_WALK) &&
-        !m_unitMovedByMe->HasAuraType(SPELL_AURA_GHOST),
-        MOVEMENTFLAG_WATERWALKING);
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !m_unitMovedByMe->HasAuraType(SPELL_AURA_FEATHER_FALL),
-        MOVEMENTFLAG_FALLING_SLOW);
-
-    /*! Cannot fly if no fly auras present. Exception is being a GM.
-        Note that we check for account level instead of Player::IsGameMaster() because in some
-        situations it may be feasable to use .gm fly on as a GM without having .gm on,
-        e.g. aerial combat.
-    */
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSession()->GetSecurity() == SEC_PLAYER &&
-        !m_unitMovedByMe->HasAuraType(SPELL_AURA_FLY) &&
-        !m_unitMovedByMe->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) &&
-        !m_unitMovedByMe->HasAuraType(SPELL_AURA_ADV_FLYING),
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
-        MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) && G3D::fuzzyEq(mi->stepUpStartElevation, 0.0f), MOVEMENTFLAG_SPLINE_ELEVATION);
-
-    // Client first checks if spline elevation != 0, then verifies flag presence
-    if (G3D::fuzzyNe(mi->stepUpStartElevation, 0.0f))
-        mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
-
-    #undef REMOVE_VIOLATING_FLAGS
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
@@ -31309,6 +31237,7 @@ void Player::UpdateTransmogOutfitSlots(uint32 id, std::span<WorldPackets::Transm
         auto viewedOutfitSlot = outfit.ModifyValue(&UF::TransmogOutfitData::Slots, outfitSlotIndex);
         SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::Slot), AsUnderlyingType(slot.Slot));
         SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SlotOption), AsUnderlyingType(slot.SlotOption));
+        SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SheatheCategory), AsUnderlyingType(slot.SheatheCategory));
         SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::ItemModifiedAppearanceID), slot.ItemModifiedAppearanceID);
         SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::AppearanceDisplayType), AsUnderlyingType(slot.AppearanceDisplayType));
         SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SpellItemEnchantmentID), slot.SpellItemEnchantmentID);
@@ -31337,6 +31266,7 @@ void Player::EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Op
         {
             uint32 slotIndex = TransmogMgr::GetSlotAndOption(static_cast<TransmogOutfitSlot>(*slot.Slot), static_cast<TransmogOutfitSlotOption>(*slot.SlotOption))->SlotIndex;
             auto viewedOutfitSlot = viewedOutfit.ModifyValue(&UF::TransmogOutfitData::Slots, slotIndex);
+            SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SheatheCategory), slot.SheatheCategory);
             if (static_cast<TransmogOutfitDisplayType>(*slot.AppearanceDisplayType) != TransmogOutfitDisplayType::Unassigned)
             {
                 SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::ItemModifiedAppearanceID), slot.ItemModifiedAppearanceID);
@@ -31359,6 +31289,7 @@ void Player::EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Op
 
             TransmogOutfitSlotOption slotOption = slotInfo.SlotOption ? slotInfo.SlotOption->GetOption() : TransmogOutfitSlotOption::None;
             SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SlotOption), AsUnderlyingType(slotOption));
+            SetUpdateFieldValue(viewedOutfitSlot.ModifyValue(&UF::TransmogOutfitSlotData::SheatheCategory), AsUnderlyingType(TransmogOutfitSlotOptionSheatheCategory::Default));
 
             if (Item const* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slotInfo.Slot->InventorySlotEnum))
             {
@@ -31395,7 +31326,7 @@ void Player::EquipTransmogOutfit(uint32 id, TransmogSituationTrigger trigger, Op
         SetVisibleItemSlot(equipSlot, GetItemByPos(INVENTORY_SLOT_BAG_0, equipSlot));
 }
 
-std::string Player::GetCharacterSelectOutfit() const
+void Player::_SaveCharacterSelectOutfit(CharacterDatabaseTransaction trans) const
 {
     std::vector<UF::TransmogOutfitData const*> outfits;
     for (auto const& [_, transmogOutfit] : m_activePlayerData->TransmogOutfits)
@@ -31423,7 +31354,13 @@ std::string Player::GetCharacterSelectOutfit() const
         return displayType == TransmogOutfitDisplayType::Assigned || displayType == TransmogOutfitDisplayType::Hidden;
     };
 
-    std::string result;
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SELECT_EQUIPMENT_CACHE_CUSTOMIZATIONS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SELECT_EQUIPMENT_CACHE_CUSTOMIZATIONS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+
     for (EquipmentSlots i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i = EquipmentSlots(i + 1))
     {
         TransmogOutfitSlotOption transmogSlotOption = TransmogOutfitSlotOption::None;
@@ -31439,6 +31376,15 @@ std::string Player::GetCharacterSelectOutfit() const
                 break;
         }
 
+        uint32 itemId = 0;
+        uint32 visibleItemId = 0;
+        uint8 subClass = 0;
+        InventoryType inventoryType = INVTYPE_NON_EQUIP;
+        int32 displayId = 0;
+        uint16 itemVisual = 0;
+        int32 secondaryItemModifiedAppearanceId = 0;
+        uint8 sheatheCategory = 0;
+
         if (TransmogMgr::TransmogOutfitSlotAndOptionInfo const* slotInfo = TransmogMgr::GetSlotAndOption(i, transmogSlotOption))
         {
             UF::TransmogOutfitSlotData const& transmogOutfitSlot = outfit->Slots[slotInfo->SlotIndex];
@@ -31447,11 +31393,9 @@ std::string Player::GetCharacterSelectOutfit() const
             if (!isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*transmogOutfitSlot.AppearanceDisplayType)))
                 itemModifiedAppearanceId = m_playerData->VisibleItems[i].ItemModifiedAppearanceID;
 
-            InventoryType inventoryType = INVTYPE_NON_EQUIP;
-            int32 displayId = 0;
-            uint16 itemVisual = 0;
-            uint8 subClass = 0;
-            uint32 secondaryItemModifiedAppearanceId = 0;
+            if (Item const* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                itemId = item->GetEntry();
+
             if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId))
             {
                 TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
@@ -31459,6 +31403,7 @@ std::string Player::GetCharacterSelectOutfit() const
                 {
                     if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
                     {
+                        visibleItemId = item->ID;
                         subClass = item->SubclassID;
                         inventoryType = static_cast<InventoryType>(item->InventoryType);
                     }
@@ -31491,16 +31436,20 @@ std::string Player::GetCharacterSelectOutfit() const
                 }
             }
 
-            Trinity::StringFormatTo(std::back_inserter(result), "{} {} {} {} {} ", inventoryType, displayId, itemVisual, subClass, secondaryItemModifiedAppearanceId);
+            sheatheCategory = transmogOutfitSlot.SheatheCategory;
         }
-        else
-            result += "0 0 0 0 0 "sv;
+
+        stmt->setUInt32(1 + (i * 8) + 0, itemId);
+        stmt->setUInt32(1 + (i * 8) + 1, visibleItemId);
+        stmt->setUInt8(1 + (i * 8) + 2, subClass);
+        stmt->setUInt8(1 + (i * 8) + 3, inventoryType);
+        stmt->setUInt32(1 + (i * 8) + 4, displayId);
+        stmt->setUInt32(1 + (i * 8) + 5, itemVisual);
+        stmt->setInt32(1 + (i * 8) + 6, secondaryItemModifiedAppearanceId);
+        stmt->setUInt8(1 + (i * 8) + 7, sheatheCategory);
     }
 
-    for (uint32 i = EQUIPMENT_SLOT_END; i < REAGENT_BAG_SLOT_END; ++i)
-        result += "0 0 0 0 0 "sv;
-
-    return result;
+    trans->Append(stmt);
 }
 
 void Player::OnPhaseChange()

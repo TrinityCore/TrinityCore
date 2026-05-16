@@ -333,49 +333,49 @@ struct npc_aqusirr_intro_lord_stormsong : public CreatureAI
 
             Milliseconds delay = 1s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 me->SetFacingTo(0.1939797f);
             });
 
             delay += 3s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 Talk(SAY_AQUSIRR_INTRO_1);
             });
 
             delay += 6s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 Talk(SAY_AQUSIRR_INTRO_2);
             });
 
             delay += 6s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS);
             });
 
             delay += 1s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 DoCastSelf(SPELL_REQUIEM_OF_THE_ABYSS_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             });
 
             delay += 6s;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ID_AQUSIRR);
             });
 
             delay += 3800ms;
 
-            _scheduler.Schedule(delay, [this](TaskContext)
+            _scheduler.Schedule(delay, [this](TaskContext const&)
             {
                 DoCastSelf(SPELL_SPLASHING_WATERS);
             });

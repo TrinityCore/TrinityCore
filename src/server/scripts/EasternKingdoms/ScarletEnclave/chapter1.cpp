@@ -1220,11 +1220,12 @@ struct npc_hearthglen_crusader : public ScriptedAI
         if (!spellInfo)
             return;
 
-        _minimumRange = spellInfo->GetMinRange(false);
+        auto [minRange, maxRange] = spellInfo->GetMinMaxRange(false);
+        _minimumRange = minRange;
 
         if (!_minimumRange)
             _minimumRange = MELEE_RANGE;
-        creature->m_CombatDistance = spellInfo->GetMaxRange(false);
+        creature->m_CombatDistance = maxRange;
         creature->m_SightDistance = creature->m_CombatDistance;
     }
 

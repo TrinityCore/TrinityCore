@@ -2211,7 +2211,7 @@ void ObjectMgr::LoadCreatures()
                     VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
-                            guid, data.id, data.mapId, data.spawnPoint.ToString());
+                            guid, data.id, data.mapId, data.spawnPoint);
                 }
             }
         }
@@ -2349,7 +2349,7 @@ void ObjectMgr::LoadCreatures()
                 *data.unit_flags2 &= UNIT_FLAG2_ALLOWED;
             }
 
-            if (*data.unit_flags2 & UNIT_FLAG2_FEIGN_DEATH && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))))
+            if (*data.unit_flags2 & UNIT_FLAG2_FEIGN_DEATH && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))) && !(cInfo->unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG2_FEIGN_DEATH set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
                 *data.unit_flags2 &= ~UNIT_FLAG2_FEIGN_DEATH;
@@ -2364,7 +2364,7 @@ void ObjectMgr::LoadCreatures()
                 *data.unit_flags3 &= UNIT_FLAG3_ALLOWED;
             }
 
-            if (*data.unit_flags3 & UNIT_FLAG3_FAKE_DEAD && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))))
+            if (*data.unit_flags3 & UNIT_FLAG3_FAKE_DEAD && (!data.unit_flags.has_value() || !(*data.unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC))) && !(cInfo->unit_flags & (UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) has UNIT_FLAG3_FAKE_DEAD set without IMMUNE_TO_PC | IMMUNE_TO_NPC, removing incorrect flag.", guid, data.id);
                 *data.unit_flags3 &= ~UNIT_FLAG3_FAKE_DEAD;
@@ -2567,7 +2567,7 @@ void ObjectMgr::LoadGameObjects()
                     VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
-                            guid, data.id, data.mapId, data.spawnPoint.ToString());
+                            guid, data.id, data.mapId, data.spawnPoint);
                 }
             }
         }
@@ -4829,12 +4829,13 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be -1/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->_allowableRaces.RawValue != uint64(-1))
+        if (qinfo->_allowableRaces != RACEMASK_ALL_v<std::array<int32, 2>>)
         {
-            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE).IsEmpty())
+            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE_v<std::array<int32, 2>>).IsEmpty())
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} does not contain any playable races in `AllowableRaces` ({}), value set to -1 (all races).", qinfo->GetQuestId(), qinfo->_allowableRaces.RawValue);
-                qinfo->_allowableRaces.RawValue = uint64(-1);
+                TC_LOG_ERROR("sql.sql", "Quest {} does not contain any playable races in `AllowableRaces` (0x{:X}{:08X}), value set to -1 (all races).",
+                    qinfo->GetQuestId(), qinfo->_allowableRaces.RawValue[1], qinfo->_allowableRaces.RawValue[0]);
+                qinfo->_allowableRaces = RACEMASK_ALL_v<std::array<int32, 2>>;
             }
         }
         // RequiredSkillId, can be 0
@@ -7029,7 +7030,7 @@ void ObjectMgr::LoadWorldSafeLocs()
             WorldLocation loc(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), DegToRad(fields[5].GetFloat()));
             if (!MapManager::IsValidMapCoord(loc))
             {
-                TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid position MapID: {} {}, skipped", id, loc.GetMapId(), loc.ToString());
+                TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid position {}, skipped", id, loc);
                 continue;
             }
 
@@ -10054,16 +10055,12 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
     if (it != _creatureBaseStatsStore.end())
         return &(it->second);
 
-    struct DefaultCreatureBaseStats : public CreatureBaseStats
+    static constexpr CreatureBaseStats defStats
     {
-        DefaultCreatureBaseStats()
-        {
-            BaseMana = 0;
-            AttackPower = 0;
-            RangedAttackPower = 0;
-        }
+        .BaseMana = 0,
+        .AttackPower = 0,
+        .RangedAttackPower = 0
     };
-    static const DefaultCreatureBaseStats defStats;
     return &defStats;
 }
 
@@ -11045,7 +11042,7 @@ void ObjectMgr::LoadPlayerChoices()
     _playerChoices.clear();
 
     QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, "
-        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, ForceDontShowChoicesAsList, MaxResponses, ScriptName FROM playerchoice");
+        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, ForceDontShowChoicesAsList, RequiresSelection, MaxResponses, ScriptName FROM playerchoice");
     if (!choices)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
@@ -11064,7 +11061,7 @@ void ObjectMgr::LoadPlayerChoices()
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(UiTextureKitId)(SoundKitId)(CloseSoundKitId)(Duration)(Question)(PendingChoiceText)
-                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(MaxResponses)(ScriptName)) fields { *choices };
+                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(RequiresSelection)(MaxResponses)(ScriptName)) fields { *choices };
 
             int32 choiceId = fields.ChoiceId().GetInt32();
 
@@ -11082,6 +11079,7 @@ void ObjectMgr::LoadPlayerChoices()
             choice.KeepOpenAfterChoice = fields.KeepOpenAfterChoice().GetBool();
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
             choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
+            choice.RequiresSelection = fields.RequiresSelection().GetBool();
             choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
             choice.ScriptId = GetScriptId(fields.ScriptName().GetStringView());
 

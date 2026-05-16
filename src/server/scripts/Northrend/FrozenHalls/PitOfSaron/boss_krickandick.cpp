@@ -600,7 +600,7 @@ class spell_krick_pursuit : public SpellScript
             ick->AI()->Talk(SAY_ICK_CHASE_1, target);
             ick->AddAura(GetSpellInfo()->Id, target);
             ick->AI()->DoAction(ACTION_STORE_OLD_TARGET);
-            ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
+            ick->GetThreatManager().AddThreat(target, GetEffectValue(), GetSpellInfo(), true, true);
             ick->GetThreatManager().FixateTarget(target);
         }
     }

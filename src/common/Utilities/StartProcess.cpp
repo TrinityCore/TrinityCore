@@ -75,7 +75,7 @@ public:
     {
         ASSERT(!my_child, "Process started already!");
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if TRINITY_COMPILER_IS_MICROSOFT
 #pragma warning(push)
 #pragma warning(disable:4297)
 /*
@@ -89,7 +89,7 @@ public:
 #endif
         bp::ipstream outStream;
         bp::ipstream errStream;
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if TRINITY_COMPILER_IS_MICROSOFT
 #pragma warning(pop)
 #endif
 

@@ -16,19 +16,38 @@
  */
 
 // This is where scripts' loading functions should be declared:
-
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
+
+// Silvermoon
+void AddSC_silvermoon_city_midnight();
+
+// Harandar
+void AddSC_harandar_chapter_1_of_caves_and_cradles();
 
 // Maisara Caverns
 void AddSC_boss_murojin_and_nekraxx();
 void AddSC_maisara_caverns();
 void AddSC_instance_maisara_caverns();
 
+// Murder Row
+void AddSC_boss_kystia_manaheart();
+void AddSC_instance_murder_row();
+
 void AddQuelThalasScripts()
 {
+    // Silvermoon
+    AddSC_silvermoon_city_midnight();
+
+    // Harandar
+    AddSC_harandar_chapter_1_of_caves_and_cradles();
+  
     // Maisara Caverns
     AddSC_boss_murojin_and_nekraxx();
     AddSC_maisara_caverns();
     AddSC_instance_maisara_caverns();
+
+    // Murder Row
+    AddSC_boss_kystia_manaheart();
+    AddSC_instance_murder_row();
 }

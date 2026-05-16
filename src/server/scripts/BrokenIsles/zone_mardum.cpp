@@ -187,7 +187,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
             wrathWarrior->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_WRATH_WARRIOR_DIE, 0, 0);
             wrathWarrior->KillSelf();
 
-            _scheduler.Schedule(600ms, [this](TaskContext /*context*/)
+            _scheduler.Schedule(600ms, [this](TaskContext const& /*context*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_KAYN_AFTER_DEMON, false);
             });
@@ -562,7 +562,7 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
 
     void ScheduleTargetSelection()
     {
-        _oocScheduler.Schedule(200ms, [this](TaskContext context)
+        _oocScheduler.Schedule(200ms, [this](TaskContext& context)
         {
             Unit* target = GetNextTarget();
             if (!target)
@@ -696,7 +696,7 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
 
         ObjectGuid korvasGuid = korvasObject->GetGUID();
 
-        _scheduler.Schedule(1s, [this, korvasGuid](TaskContext task)
+        _scheduler.Schedule(1s, [this, korvasGuid](TaskContext& task)
         {
             Unit* privateObjectOwner = ObjectAccessor::GetUnit(*me, me->GetPrivateObjectOwner());
             if (!privateObjectOwner)
@@ -710,11 +710,11 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
             me->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
             korvas->CastSpell(privateObjectOwner, SPELL_TRACK_TARGET_IN_CHANNEL, false);
 
-            task.Schedule(6s, [this, korvasGuid](TaskContext task)
+            task.Schedule(6s, [this, korvasGuid](TaskContext& task)
             {
                 Talk(SAY_KAYN_CUT_A_HOLE, me);
 
-                task.Schedule(6s, [this, korvasGuid](TaskContext task)
+                task.Schedule(6s, [this, korvasGuid](TaskContext& task)
                 {
                     Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
                     if (!korvas)
@@ -729,7 +729,7 @@ struct npc_kayn_sunfury_ashtongue_intro_private : public ScriptedAI
                     me->SetAIAnimKitId(ANIM_DH_RUN);
                     me->DespawnOrUnsummon(10s);
 
-                    task.Schedule(2s, [this, korvasGuid](TaskContext /*task*/)
+                    task.Schedule(2s, [this, korvasGuid](TaskContext const& /*task*/)
                     {
                         Creature* korvas = ObjectAccessor::GetCreature(*me, korvasGuid);
                         if (!korvas)
@@ -797,16 +797,16 @@ struct npc_sevis_brightflame_ashtongue_gateway_private : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             Talk(SAY_SEVIS_SAY_FIND_ALLARI, me);
 
-            task.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext& task)
             {
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
                 me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
 
-                task.Schedule(3s, [this](TaskContext /*task*/)
+                task.Schedule(3s, [this](TaskContext const& /*task*/)
                 {
                     me->InterruptNonMeleeSpells(true);
                     me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_GATEWAY, false);
@@ -903,16 +903,16 @@ struct npc_sevis_brightflame_coilskar_gateway_private : public ScriptedAI
         me->SetFacingToObject(summoner);
         me->DespawnOrUnsummon(14s);
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             Talk(SAY_SEVIS_SAY_MEET_AT_LAST_GATEWAY, me);
 
-            task.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext& task)
             {
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
                 me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
 
-                task.Schedule(3s, [this](TaskContext /*task*/)
+                task.Schedule(3s, [this](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(PATH_SEVIS_BRIGHTFLAME_COILSKAR, false);
                 });
@@ -1230,11 +1230,11 @@ struct npc_cyana_nightglaive_freed_private : public ScriptedAI
     {
         me->DespawnOrUnsummon(19s);
 
-        _scheduler.Schedule(2s + 500ms, [this](TaskContext task)
+        _scheduler.Schedule(2s + 500ms, [this](TaskContext& task)
         {
             Talk(SAY_CYANA_NIGHTGLAIVE_FREED, me);
 
-            task.Schedule(3s, [this](TaskContext /*task*/)
+            task.Schedule(3s, [this](TaskContext const& /*task*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_CYANA_NIGHTGLAIVE_FREED, false);
             });
@@ -1266,11 +1266,11 @@ struct npc_izal_whitemoon_freed_private : public ScriptedAI
     {
         me->DespawnOrUnsummon(18s);
 
-        _scheduler.Schedule(2s, [this](TaskContext task)
+        _scheduler.Schedule(2s, [this](TaskContext& task)
         {
             Talk(SAY_IZAL_WHITEMOON_FREED, me);
 
-            task.Schedule(3s, [this](TaskContext /*task*/)
+            task.Schedule(3s, [this](TaskContext const& /*task*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_CYANA_NIGHTGLAIVE_FREED, false);
             });
@@ -1302,11 +1302,11 @@ struct npc_belath_dawnblade_freed_private : public ScriptedAI
     {
         me->DespawnOrUnsummon(5min); // wtf blizz
 
-        _scheduler.Schedule(3s, [this](TaskContext task)
+        _scheduler.Schedule(3s, [this](TaskContext& task)
         {
             Talk(SAY_BELATH_DAWNBLADE_FREED, me);
 
-            task.Schedule(6s, [this](TaskContext /*task*/)
+            task.Schedule(6s, [this](TaskContext const& /*task*/)
             {
                 me->GetMotionMaster()->MovePath(PATH_BELATH_DAWNBLADE_FREED, false);
             });
@@ -1338,11 +1338,11 @@ struct npc_mannethrel_darkstar_freed_private : public ScriptedAI
     {
         me->DespawnOrUnsummon(28s);
 
-        _scheduler.Schedule(2s, [this](TaskContext task)
+        _scheduler.Schedule(2s, [this](TaskContext& task)
         {
             Talk(SAY_BELATH_DAWNBLADE_FREED, me);
 
-            task.Schedule(6s, [this](TaskContext /*task*/)
+            task.Schedule(6s, [this](TaskContext const& /*task*/)
             {
                 me->SetAIAnimKitId(ANIM_DH_WALK_DAZED);
                 me->GetMotionMaster()->MovePath(PATH_MANNETHREL_DARKSTAR_FREED, false);
@@ -1472,12 +1472,12 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
         me->PlayOneShotAnimKitId(ANIM_KIT_ONESHOT_GET_HIT);
         Talk(SAY_SEVIS_GET_SACRIFICED, me);
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             me->KillSelf();
 
             _soulMissileCounter = 0;
-            task.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext& task)
             {
                 DoCast(SPELL_SEVIS_SOUL_MISSILE_02);
                 _soulMissileCounter++;
@@ -1493,7 +1493,7 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
         me->DespawnOrUnsummon(22s);
         Talk(SAY_SEVIS_PLAYER_SACRIFICE, me);
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             TempSummon* summon = me->ToTempSummon();
             if (!summon)
@@ -1505,26 +1505,26 @@ struct npc_sevis_brightflame_shivarra_gateway : public ScriptedAI
 
             me->GetMotionMaster()->MoveCloserAndStop(POINT_SEVIS_GATEWAY_SHIVARRA, summoner, 2.0f);
 
-            task.Schedule(2s, [this](TaskContext task)
+            task.Schedule(2s, [this](TaskContext& task)
             {
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_SACRIFICE_PLAYER, 4, 1000);
                 me->SetAIAnimKitId(ANIM_KIT_SWING_WEAPON);
                 DoCast(SPELL_SEVIS_CHAOS_STRIKE);
 
-                task.Schedule(2s, [this](TaskContext task)
+                task.Schedule(2s, [this](TaskContext& task)
                 {
                     me->SetAIAnimKitId(ANIM_KIT_KNEEL);
 
-                    task.Schedule(5s, [this](TaskContext task)
+                    task.Schedule(5s, [this](TaskContext& task)
                     {
                         me->SetAIAnimKitId(ANIM_KIT_SALUTE);
 
-                        task.Schedule(3s, [this](TaskContext task)
+                        task.Schedule(3s, [this](TaskContext& task)
                         {
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SEVIS_MOUNT, 0, 0);
                             me->SetMountDisplayId(DISPLAY_ID_SEVIS_MOUNT);
 
-                            task.Schedule(2s, [this](TaskContext /*task*/)
+                            task.Schedule(2s, [this](TaskContext const& /*task*/)
                             {
                                 me->GetMotionMaster()->MovePath(PATH_SEVIS_GATEWAY_SHIVARRA, false);
                             });
@@ -1785,7 +1785,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
         if (!shivarraClone)
             return;
 
-        _scheduler.Schedule(4s, [this, shivarraGuid = shivarraClone->GetGUID()](TaskContext task)
+        _scheduler.Schedule(4s, [this, shivarraGuid = shivarraClone->GetGUID()](TaskContext& task)
         {
             Creature* shivarraClone = ObjectAccessor::GetCreature(*me, shivarraGuid);
             if (!shivarraClone)
@@ -1793,7 +1793,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
 
             shivarraClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SHIVARRA_TELEPORT, 4, 2000);
             shivarraClone->SetEmoteState(EMOTE_STATE_READY_SPELL_OMNI);
-            task.Schedule(3s, [this, shivarraGuid](TaskContext /*task*/)
+            task.Schedule(3s, [this, shivarraGuid](TaskContext const& /*task*/)
             {
                 Creature* shivarraClone = ObjectAccessor::GetCreature(*me, shivarraGuid);
                 if (!shivarraClone)
@@ -1830,7 +1830,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
 
         player->KilledMonsterCredit(NPC_ROCKSLIDE_KILLCREDIT);
         Talk(SAY_JAYCE_ATTACK_ILLIDARI);
-        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(1s, [this](TaskContext const& /*task*/)
         {
             me->GetMotionMaster()->MovePoint(POINT_JAYCE_DARKWEAVER_PREPARE_JUMP, JaycePrepareJump);
             for (ObjectGuid const& guid : _cloneGuids)
@@ -1896,7 +1896,7 @@ struct npc_basic_hidden_no_more_private : public ScriptedAI
         {
             case ACTION_HIDDEN_NO_MORE_MOVE:
             {
-                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
                     me->DespawnOrUnsummon(6s);
@@ -1942,7 +1942,7 @@ struct npc_demon_hunter_hidden_no_more_private : public npc_basic_hidden_no_more
         {
             case ACTION_HIDDEN_NO_MORE_EYEBEAM:
             {
-                _scheduler.Schedule(pathDelay->ActionDelay, [this](TaskContext /*task*/)
+                _scheduler.Schedule(pathDelay->ActionDelay, [this](TaskContext const& /*task*/)
                 {
                     me->CastSpell(me, (me->GetGender() == GENDER_FEMALE ? SPELL_COSMETIC_EYE_BEAM_01_FEMALE : SPELL_COSMETIC_EYE_BEAM_01_MALE), false);
                 });
@@ -1951,7 +1951,7 @@ struct npc_demon_hunter_hidden_no_more_private : public npc_basic_hidden_no_more
             case ACTION_HIDDEN_NO_MORE_MOVE:
             {
                 me->SetAIAnimKitId(ANIM_DH_RUN);
-                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext /*task*/)
+                _scheduler.Schedule(pathDelay->MoveDelay, [this, pathDelay](TaskContext const& /*task*/)
                 {
                     me->GetMotionMaster()->MovePath(pathDelay->PathId, false);
                     me->DespawnOrUnsummon(6s);
