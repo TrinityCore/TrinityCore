@@ -409,6 +409,36 @@ WorldPacket const* SpellFailedOther::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* CastFailed::Write()
+{
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    if (FailedArg1 || FailedArg2)
+        _worldPacket << int32(FailedArg1.value_or(0));
+
+    if (FailedArg2)
+        _worldPacket << int32(*FailedArg2);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* PetCastFailed::Write()
+{
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    if (FailedArg1 || FailedArg2)
+        _worldPacket << int32(FailedArg1.value_or(0));
+
+    if (FailedArg2)
+        _worldPacket << int32(*FailedArg2);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, SpellModifier const& spellModifier)
 {
     data << uint8(spellModifier.ClassIndex);

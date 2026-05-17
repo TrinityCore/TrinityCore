@@ -1673,7 +1673,8 @@ class spell_dk_raise_dead : public SpellScript
 
                 if (!player->HasItemCount(reagentSpell->Reagent[i], reagentSpell->ReagentCount[i]))
                 {
-                    Spell::SendCastResult(player, reagentSpell, 0, SPELL_FAILED_REAGENTS);
+                    uint32 param1 = reagentSpell->Reagent[i];
+                    Spell::SendCastResult(player, reagentSpell, 0, SPELL_FAILED_REAGENTS, SPELL_CUSTOM_ERROR_NONE, &param1);
                     return SPELL_FAILED_DONT_REPORT;
                 }
             }

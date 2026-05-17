@@ -4038,40 +4038,42 @@ void Spell::finish(bool ok)
         unitCaster->AttackStop();
 }
 
-void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/)
+template<class T>
+inline void FillSpellCastFailedArgs(T& packet, uint8 castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError, uint32* param1, uint32* param2)
 {
-    data << uint8(castCount);                               // single cast or multi 2.3 (0/1)
-    data << uint32(spellInfo->Id);
-    data << uint8(result);                                  // problem
+    packet.CastID = castId;
+    packet.SpellID = spellInfo->Id;
+    packet.Reason = result;
+
     switch (result)
     {
         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
             if (param1)
-                data << uint32(*param1);
+                packet.FailedArg1 = *param1;
             else
-                data << uint32(spellInfo->RequiresSpellFocus);  // SpellFocusObject.dbc id
+                packet.FailedArg1 = spellInfo->RequiresSpellFocus;  // SpellFocusObject.dbc id
             break;
-        case SPELL_FAILED_REQUIRES_AREA:                    // AreaTable.dbc id
+        case SPELL_FAILED_REQUIRES_AREA:                            // AreaTable.dbc id
             if (param1)
-                data << uint32(*param1);
+                packet.FailedArg1 = *param1;
             else
             {
                 // hardcode areas limitation case
                 switch (spellInfo->Id)
                 {
-                    case 41617:                                 // Cenarion Mana Salve
-                    case 41619:                                 // Cenarion Healing Salve
-                        data << uint32(3905);
+                    case 41617:                                     // Cenarion Mana Salve
+                    case 41619:                                     // Cenarion Healing Salve
+                        packet.FailedArg1 = 3905;
                         break;
-                    case 41618:                                 // Bottled Nethergon Energy
-                    case 41620:                                 // Bottled Nethergon Vapor
-                        data << uint32(3842);
+                    case 41618:                                     // Bottled Nethergon Energy
+                    case 41620:                                     // Bottled Nethergon Vapor
+                        packet.FailedArg1 = 3842;
                         break;
-                    case 45373:                                 // Bloodberry Elixir
-                        data << uint32(4075);
+                    case 45373:                                     // Bloodberry Elixir
+                        packet.FailedArg1 = 4075;
                         break;
-                    default:                                    // default case (don't must be)
-                        data << uint32(0);
+                    default:                                        // default case (don't must be)
+                        packet.FailedArg1 = 0;
                         break;
                 }
             }
@@ -4079,31 +4081,27 @@ void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo con
         case SPELL_FAILED_TOTEMS:
             if (param1)
             {
-                data << uint32(*param1);
-                if (param2)
-                    data << uint32(*param2);
+                packet.FailedArg1 = *param1;
             }
             else
             {
                 if (spellInfo->Totem[0])
-                    data << uint32(spellInfo->Totem[0]);
-                if (spellInfo->Totem[1])
-                    data << uint32(spellInfo->Totem[1]);
+                    packet.FailedArg1 = spellInfo->Totem[0];
+                else if (spellInfo->Totem[1])
+                    packet.FailedArg1 = spellInfo->Totem[1];
             }
             break;
         case SPELL_FAILED_TOTEM_CATEGORY:
             if (param1)
             {
-                data << uint32(*param1);
-                if (param2)
-                    data << uint32(*param2);
+                packet.FailedArg1 = *param1;
             }
             else
             {
                 if (spellInfo->TotemCategory[0])
-                    data << uint32(spellInfo->TotemCategory[0]);
-                if (spellInfo->TotemCategory[1])
-                    data << uint32(spellInfo->TotemCategory[1]);
+                    packet.FailedArg1 = spellInfo->TotemCategory[0];
+                else if (spellInfo->TotemCategory[1])
+                    packet.FailedArg1 = spellInfo->TotemCategory[1];
             }
             break;
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS:
@@ -4111,107 +4109,51 @@ void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo con
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND:
             if (param1 && param2)
             {
-                data << uint32(*param1);
-                data << uint32(*param2);
+                packet.FailedArg1 = *param1;
+                packet.FailedArg2 = *param2;
             }
             else
             {
-                data << uint32(spellInfo->EquippedItemClass);
-                data << uint32(spellInfo->EquippedItemSubClassMask);
+                packet.FailedArg1 = spellInfo->EquippedItemClass;
+                packet.FailedArg2 = spellInfo->EquippedItemSubClassMask;
             }
             break;
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
-        {
             if (param1)
-                data << uint32(*param1);
-            else
-            {
-                uint32 item = 0;
-                for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                {
-                    if (uint32 itemType = spellEffectInfo.ItemType)
-                    {
-                        item = itemType;
-                        break;
-                    }
-                }
-
-                ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-                if (proto && proto->ItemLimitCategory)
-                    data << uint32(proto->ItemLimitCategory);
-            }
+                packet.FailedArg1 = *param1;                        // ItemLimitCategory id
             break;
-        }
-        case SPELL_FAILED_CUSTOM_ERROR:
-            data << uint32(customError);
-            break;
-        case SPELL_FAILED_REAGENTS:
-        {
-            if (param1)
-                data << uint32(*param1);
-            else
-            {
-                uint32 missingItem = 0;
-                for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
-                {
-                    if (spellInfo->Reagent[i] <= 0)
-                        continue;
-
-                    uint32 itemid = spellInfo->Reagent[i];
-                    uint32 itemcount = spellInfo->ReagentCount[i];
-
-                    if (!caster->HasItemCount(itemid, itemcount))
-                    {
-                        missingItem = itemid;
-                        break;
-                    }
-                }
-
-                data << uint32(missingItem);  // first missing item
-            }
-            break;
-        }
         case SPELL_FAILED_PREVENTED_BY_MECHANIC:
             if (param1)
-                data << uint32(*param1);
-            else
-                data << uint32(spellInfo->Mechanic);
+                packet.FailedArg1 = *param1;
             break;
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
             if (param1)
-                data << uint32(*param1);
-            else
-                data << uint32(spellInfo->EquippedItemSubClassMask);
+                packet.FailedArg1 = *param1;                        // weapon subclass id
             break;
         case SPELL_FAILED_NEED_MORE_ITEMS:
             if (param1 && param2)
             {
-                data << uint32(*param1);
-                data << uint32(*param2);
-            }
-            else
-            {
-                data << uint32(0); // Item entry
-                data << uint32(0); // Count
+                packet.FailedArg1 = *param1;                        // Item id
+                packet.FailedArg2 = *param2;                        // Item count
             }
             break;
         case SPELL_FAILED_MIN_SKILL:
             if (param1 && param2)
             {
-                data << uint32(*param1);
-                data << uint32(*param2);
-            }
-            else
-            {
-                data << uint32(0); // SkillLine.dbc Id
-                data << uint32(0); // Amount
+                packet.FailedArg1 = *param1;                        // SkillLine.dbc id
+                packet.FailedArg2 = *param2;                        // required skill value
             }
             break;
         case SPELL_FAILED_FISHING_TOO_LOW:
             if (param1)
-                data << uint32(*param1);
-            else
-                data << uint32(0); // Skill level
+                packet.FailedArg1 = *param1;                        // required fishing skill
+            break;
+        case SPELL_FAILED_CUSTOM_ERROR:
+            packet.FailedArg1 = customError;
+            break;
+        case SPELL_FAILED_REAGENTS:
+            if (param1)
+                packet.FailedArg1 = *param1;
             break;
         default:
             break;
@@ -4223,10 +4165,9 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket data(SMSG_CAST_FAILED, 1 + 4 + 1);
-    WriteCastResultInfo(data, caster, spellInfo, castCount, result, customError, param1, param2);
-
-    caster->SendDirectMessage(&data);
+    WorldPackets::Spells::CastFailed castFailed;
+    FillSpellCastFailedArgs(castFailed, castCount, spellInfo, result, customError, param1, param2);
+    caster->SendDirectMessage(castFailed.Write());
 }
 
 void Spell::SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const
@@ -4262,10 +4203,9 @@ void Spell::SendPetCastResult(SpellCastResult result)
     if (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR)
         result = SPELL_FAILED_DONT_REPORT;
 
-    WorldPacket data(SMSG_PET_CAST_FAILED, 1 + 4 + 1);
-    WriteCastResultInfo(data, player, m_spellInfo, m_cast_count, result, m_customError);
-
-    player->SendDirectMessage(&data);
+    WorldPackets::Spells::PetCastFailed petCastFailed;
+    FillSpellCastFailedArgs(petCastFailed, m_cast_count, m_spellInfo, result, m_customError, nullptr, nullptr);
+    player->SendDirectMessage(petCastFailed.Write());
 }
 
 void Spell::SendMountResult(MountResult result)
@@ -6868,40 +6808,26 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         }
 
         // check totem-item requirements (items presence in inventory)
-        uint32 totems = 2;
-        for (uint8 i = 0; i < 2; ++i)
+        for (uint32 totem : m_spellInfo->Totem)
         {
-            if (m_spellInfo->Totem[i] != 0)
+            if (totem && !player->HasItemCount(totem))
             {
-                if (player->HasItemCount(m_spellInfo->Totem[i]))
-                {
-                    totems -= 1;
-                    continue;
-                }
+                if (param1)
+                    *param1 = totem;
+                return SPELL_FAILED_TOTEMS;
             }
-            else
-                totems -= 1;
         }
-        if (totems != 0)
-            return SPELL_FAILED_TOTEMS;                         //0x7C
 
         // Check items for TotemCategory  (items presence in inventory)
-        uint32 TotemCategory = 2;
-        for (uint8 i = 0; i < 2; ++i)
+        for (uint32 totemCategory : m_spellInfo->TotemCategory)
         {
-            if (m_spellInfo->TotemCategory[i] != 0)
+            if (totemCategory && !player->HasItemTotemCategory(totemCategory))
             {
-                if (player->HasItemTotemCategory(m_spellInfo->TotemCategory[i]))
-                {
-                    TotemCategory -= 1;
-                    continue;
-                }
+                if (param1)
+                    *param1 = totemCategory;
+                return SPELL_FAILED_TOTEM_CATEGORY;
             }
-            else
-                TotemCategory -= 1;
         }
-        if (TotemCategory != 0)
-            return SPELL_FAILED_TOTEM_CATEGORY;                 //0x7B
     }
 
     // special checks for spell effects

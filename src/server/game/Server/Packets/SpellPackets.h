@@ -357,6 +357,34 @@ namespace WorldPackets
             uint8 CastID    = 0;
         };
 
+        class TC_GAME_API CastFailed final : public ServerPacket
+        {
+        public:
+            explicit CastFailed() : ServerPacket(SMSG_CAST_FAILED, 1 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            Optional<int32> FailedArg1;
+            Optional<int32> FailedArg2;
+        };
+
+        class TC_GAME_API PetCastFailed final : public ServerPacket
+        {
+        public:
+            explicit PetCastFailed() : ServerPacket(SMSG_PET_CAST_FAILED, 1 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            Optional<int32> FailedArg1;
+            Optional<int32> FailedArg2;
+        };
+
         struct SpellModifier
         {
             uint8 ClassIndex = 0;
