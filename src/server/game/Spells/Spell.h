@@ -277,6 +277,7 @@ class TC_GAME_API Spell
         void EffectRemoveAura();
         void EffectCastButtons();
         void EffectRechargeManaGem();
+        void EffectTeleportGraveyard();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -459,6 +460,8 @@ class TC_GAME_API Spell
         void SetSpellValue(SpellValueMod mod, int32 value);
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
+
+        int32 GetTimer() const { return m_timer; }
 
         std::string GetDebugInfo() const;
 
