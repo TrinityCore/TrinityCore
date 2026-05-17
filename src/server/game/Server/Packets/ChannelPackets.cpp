@@ -21,13 +21,13 @@
 
 WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 {
-    _worldPacket.WriteBit(_Display);
+    _worldPacket.WriteBit(Display);
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket << uint32(_ChannelFlags);
-    _worldPacket << uint32(_Members.size());
+    _worldPacket << uint32(Members.size());
     _worldPacket.WriteString(_Channel);
 
-    for (ChannelPlayer const& player : _Members)
+    for (ChannelPlayer const& player : Members)
     {
         _worldPacket << player.Guid;
         _worldPacket << uint32(player.VirtualRealmAddress);

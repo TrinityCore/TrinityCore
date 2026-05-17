@@ -300,7 +300,6 @@ public:
         castFailed.FailedArg1 = failArg1.value_or(-1);
         castFailed.FailedArg2 = failArg2.value_or(-1);
         handler->GetSession()->SendPacket(castFailed.Write());
-
         return true;
     }
 

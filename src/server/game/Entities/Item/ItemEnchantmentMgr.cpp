@@ -318,6 +318,8 @@ TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uin
         case ITEM_QUALITY_LEGENDARY:
         case ITEM_QUALITY_ARTIFACT:
             return randPropPointsEntry->Epic[propIndex];
+        default:
+            break;
     }
 
     return 0;
