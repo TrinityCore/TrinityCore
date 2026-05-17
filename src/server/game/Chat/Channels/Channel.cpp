@@ -214,12 +214,6 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     PlayerInfo& playerInfo = _playersStore[guid];
     playerInfo.SetInvisible(!player->isGMVisible());
 
-    /*
-    YouJoinedAppend appender;
-    ChannelNameBuilder<YouJoinedAppend> builder(this, appender);
-    SendToOne(builder, guid);
-    */
-
     auto builder = [&](LocaleConstant locale)
     {
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
@@ -237,7 +231,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     SendToOne(builder, guid);
 
-    JoinNotify(player);
+    JoinNotify(guid);
 
     // Custom channel handling
     if (!IsConstant())
@@ -269,16 +263,8 @@ void Channel::LeaveChannel(Player* player, bool send, bool suspend)
         return;
     }
 
-    player->LeftChannel(this);
-
     if (send)
     {
-        /*
-        YouLeftAppend appender;
-        ChannelNameBuilder<YouLeftAppend> builder(this, appender);
-        SendToOne(builder, guid);
-        */
-
         auto builder = [&](LocaleConstant locale)
         {
             LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
@@ -292,11 +278,12 @@ void Channel::LeaveChannel(Player* player, bool send, bool suspend)
         };
 
         SendToOne(builder, guid);
+
+        player->LeftChannel(this);
     }
 
-    PlayerInfo& info = _playersStore.at(guid);
+    PlayerInfo info = _playersStore.extract(guid).mapped();
     bool changeowner = info.IsOwner();
-    _playersStore.erase(guid);
 
     if (_announceEnabled && !player->GetSession()->HasPermission(rbac::RBAC_PERM_SILENTLY_JOIN_CHANNEL))
     {
@@ -305,11 +292,11 @@ void Channel::LeaveChannel(Player* player, bool send, bool suspend)
         SendToAll(builder);
     }
 
-    LeaveNotify(player);
+    LeaveNotify(guid);
 
     if (!IsConstant())
     {
-        // If the channel owner left and there are still playersStore inside, pick a new owner
+        // If the channel owner left and there are players still inside, pick a new owner
         // do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
         if (changeowner && _ownershipEnabled && !_playersStore.empty())
         {
@@ -323,10 +310,10 @@ void Channel::LeaveChannel(Player* player, bool send, bool suspend)
             if (itr == _playersStore.end())
                 itr = _playersStore.begin();
 
-            ObjectGuid const& newowner = itr->first;
+            ObjectGuid const& newOwner = itr->first;
             itr->second.SetModerator(true);
 
-            SetOwner(newowner);
+            SetOwner(newOwner);
 
             // if the new owner is invisible gm, set flag to automatically choose a new owner
             if (itr->second.IsInvisible())
@@ -541,6 +528,40 @@ void Channel::SetInvisible(Player const* player, bool on)
         _isOwnerInvisible = on;
 }
 
+void Channel::SetModerator(ObjectGuid const& guid, bool set)
+{
+    if (!IsOn(guid))
+        return;
+
+    PlayerInfo& playerInfo = _playersStore.at(guid);
+    if (playerInfo.IsModerator() != set)
+    {
+        uint8 oldFlag = playerInfo.GetFlags();
+        playerInfo.SetModerator(set);
+
+        ModeChangeAppend appender(guid, oldFlag, playerInfo.GetFlags());
+        ChannelNameBuilder<ModeChangeAppend> builder(this, appender);
+        SendToAll(builder);
+    }
+}
+
+void Channel::SetMute(ObjectGuid const& guid, bool set)
+{
+    if (!IsOn(guid))
+        return;
+
+    PlayerInfo& playerInfo = _playersStore.at(guid);
+    if (playerInfo.IsMuted() != set)
+    {
+        uint8 oldFlag = playerInfo.GetFlags();
+        playerInfo.SetMuted(set);
+
+        ModeChangeAppend appender(guid, oldFlag, playerInfo.GetFlags());
+        ChannelNameBuilder<ModeChangeAppend> builder(this, appender);
+        SendToAll(builder);
+    }
+}
+
 void Channel::SetOwner(Player const* player, std::string const& newname)
 {
     ObjectGuid const& guid = player->GetGUID();
@@ -597,7 +618,7 @@ void Channel::SendWhoOwner(Player const* player)
     }
 }
 
-void Channel::List(Player const* player)
+void Channel::List(Player const* player) const
 {
     ObjectGuid const& guid = player->GetGUID();
     if (!IsOn(guid))
@@ -613,13 +634,13 @@ void Channel::List(Player const* player)
         player->GetSession()->GetPlayerInfo(), channelName);
 
     WorldPackets::Channel::ChannelListResponse list;
-    list._Display = true; /// always true?
+    list.Display = true; /// always true?
     list._Channel = channelName;
     list._ChannelFlags = GetFlags();
 
     uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
-    list._Members.reserve(_playersStore.size());
+    list.Members.reserve(_playersStore.size());
     for (PlayerContainer::value_type const& i : _playersStore)
     {
         Player* member = ObjectAccessor::FindConnectedPlayer(i.first);
@@ -631,7 +652,7 @@ void Channel::List(Player const* player)
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            list._Members.emplace_back(i.first, *member->m_playerData->VirtualPlayerRealm, i.second.GetFlags());
+            list.Members.emplace_back(i.first, *member->m_playerData->VirtualPlayerRealm, i.second.GetFlags());
         }
     }
 
@@ -661,7 +682,6 @@ void Channel::Announce(Player const* player)
 
     _announceEnabled = !_announceEnabled;
 
-    WorldPackets::Channel::ChannelNotify notify;
     if (_announceEnabled)
     {
         AnnouncementsOnAppend appender(guid);
@@ -841,7 +861,6 @@ void Channel::SetOwner(ObjectGuid const& guid, bool exclaim)
 {
     if (!_ownerGuid.IsEmpty())
     {
-        // [] will re-add player after it possible removed
         auto itr = _playersStore.find(_ownerGuid);
         if (itr != _playersStore.end())
             itr->second.SetOwner(false);
@@ -850,15 +869,15 @@ void Channel::SetOwner(ObjectGuid const& guid, bool exclaim)
     _ownerGuid = guid;
     if (!_ownerGuid.IsEmpty())
     {
-        uint8 oldFlag = GetPlayerFlags(_ownerGuid);
         auto itr = _playersStore.find(_ownerGuid);
         if (itr == _playersStore.end())
             return;
 
+        uint8 oldFlag = itr->second.GetFlags();
         itr->second.SetModerator(true);
         itr->second.SetOwner(true);
 
-        ModeChangeAppend appender(_ownerGuid, oldFlag, GetPlayerFlags(_ownerGuid));
+        ModeChangeAppend appender(_ownerGuid, oldFlag, itr->second.GetFlags());
         ChannelNameBuilder<ModeChangeAppend> builder(this, appender);
         SendToAll(builder);
 
@@ -885,10 +904,8 @@ void Channel::DeclineInvite(Player const* /*player*/)
 {
 }
 
-void Channel::JoinNotify(Player const* player)
+void Channel::JoinNotify(ObjectGuid const& guid) const
 {
-    ObjectGuid const& guid = player->GetGUID();
-
     if (IsConstant())
     {
         auto builder = [&](LocaleConstant locale)
@@ -927,10 +944,8 @@ void Channel::JoinNotify(Player const* player)
     }
 }
 
-void Channel::LeaveNotify(Player const* player)
+void Channel::LeaveNotify(ObjectGuid const& guid) const
 {
-    ObjectGuid const& guid = player->GetGUID();
-
     auto builder = [&](LocaleConstant locale)
     {
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
@@ -948,40 +963,6 @@ void Channel::LeaveNotify(Player const* player)
         SendToAllButOne(builder, guid);
     else
         SendToAll(builder);
-}
-
-void Channel::SetModerator(ObjectGuid const& guid, bool set)
-{
-    if (!IsOn(guid))
-        return;
-
-    PlayerInfo& playerInfo = _playersStore.at(guid);
-    if (playerInfo.IsModerator() != set)
-    {
-        uint8 oldFlag = playerInfo.GetFlags();
-        playerInfo.SetModerator(set);
-
-        ModeChangeAppend appender(guid, oldFlag, playerInfo.GetFlags());
-        ChannelNameBuilder<ModeChangeAppend> builder(this, appender);
-        SendToAll(builder);
-    }
-}
-
-void Channel::SetMute(ObjectGuid const& guid, bool set)
-{
-    if (!IsOn(guid))
-        return;
-
-    PlayerInfo& playerInfo = _playersStore.at(guid);
-    if (playerInfo.IsMuted() != set)
-    {
-        uint8 oldFlag = playerInfo.GetFlags();
-        playerInfo.SetMuted(set);
-
-        ModeChangeAppend appender(guid, oldFlag, playerInfo.GetFlags());
-        ChannelNameBuilder<ModeChangeAppend> builder(this, appender);
-        SendToAll(builder);
-    }
 }
 
 template <class Builder>

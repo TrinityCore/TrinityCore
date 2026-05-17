@@ -559,7 +559,7 @@ class TC_GAME_API Spell
         void CheckSrc();
         void CheckDst();
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellCastVisual spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, int32* param1 = nullptr, int32* param2 = nullptr);
+        static void SendCastResult(Player const* caster, SpellInfo const* spellInfo, SpellCastVisual spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, int32* param1 = nullptr, int32* param2 = nullptr);
         void SendCastResult(SpellCastResult result, int32* param1 = nullptr, int32* param2 = nullptr) const;
         void SendPetCastResult(SpellCastResult result, int32* param1 = nullptr, int32* param2 = nullptr) const;
         void SendMountResult(MountResult result);

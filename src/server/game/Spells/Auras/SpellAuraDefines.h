@@ -24,7 +24,7 @@
 enum AURA_FLAGS
 {
     AFLAG_NONE                   = 0x0000,
-    AFLAG_NOCASTER               = 0x0001,
+    AFLAG_SELF_CAST              = 0x0001,
     AFLAG_POSITIVE               = 0x0002,
     AFLAG_DURATION               = 0x0004,
     AFLAG_SCALABLE               = 0x0008,

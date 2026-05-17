@@ -620,7 +620,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             if (!itemTemplate)
                 continue;
 
-            int32 leftInStock = !vendorItem->maxcount ? -1 : vendor->GetVendorItemCurrentCount(vendorItem);
+            int32 leftInStock = !vendorItem->maxcount ? -1 : int32(vendor->GetVendorItemCurrentCount(vendorItem));
             if (!_player->IsGameMaster()) // ignore conditions if GM on
             {
                 // Respect allowed class
@@ -656,20 +656,20 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 price = std::max(uint64(1), price);
 
             item.MuID = slot + 1; // client expects counting to start at 1
-            item.ExtendedCostID = vendorItem->ExtendedCost;
             item.Type = vendorItem->Type;
-            item.Quantity = leftInStock;
-            item.StackCount = itemTemplate->GetBuyCount();
-            item.Price = price;
-            item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
-            item.Refundable = itemTemplate->HasFlag(ITEM_FLAG_ITEM_PURCHASE_RECORD) && vendorItem->ExtendedCost && itemTemplate->GetMaxStackSize() == 1;
-
             item.Item.ItemID = vendorItem->item;
             if (!vendorItem->BonusListIDs.empty())
             {
                 item.Item.ItemBonus.emplace();
                 item.Item.ItemBonus->BonusListIDs = vendorItem->BonusListIDs;
             }
+            item.Quantity = leftInStock;
+            item.Price = price;
+            item.StackCount = itemTemplate->GetBuyCount();
+            item.ExtendedCostID = vendorItem->ExtendedCost;
+            item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
+            item.Refundable = itemTemplate->HasFlag(ITEM_FLAG_ITEM_PURCHASE_RECORD) && vendorItem->ExtendedCost && itemTemplate->GetMaxStackSize() == 1;
+
         }
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
@@ -681,10 +681,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue; // there's no price defined for currencies, only extendedcost is used
 
             item.MuID = slot + 1; // client expects counting to start at 1
-            item.ExtendedCostID = vendorItem->ExtendedCost;
-            item.Item.ItemID = vendorItem->item;
             item.Type = vendorItem->Type;
+            item.Item.ItemID = vendorItem->item;
             item.StackCount = vendorItem->maxcount;
+            item.ExtendedCostID = vendorItem->ExtendedCost;
             item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
         }
         else

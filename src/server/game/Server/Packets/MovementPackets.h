@@ -246,7 +246,7 @@ namespace WorldPackets
         class MoveSplineSetFlag final : public ServerPacket
         {
         public:
-            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 8) { }
+            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 18) { }
 
             WorldPacket const* Write() override;
 
@@ -256,7 +256,7 @@ namespace WorldPackets
         class MoveSetFlag final : public ServerPacket
         {
         public:
-            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 18 + 4) { }
 
             WorldPacket const* Write() override;
 

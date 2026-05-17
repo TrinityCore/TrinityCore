@@ -4441,7 +4441,7 @@ void Spell::finish(SpellCastResult result)
 }
 
 template<class T>
-inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/, Player* caster)
+inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError, int32* param1, int32* param2)
 {
     packet.CastID = castId;
     packet.SpellID = spellInfo->Id;
@@ -4490,30 +4490,26 @@ inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo cons
             if (param1)
             {
                 packet.FailedArg1 = *param1;
-                if (param2)
-                    packet.FailedArg2 = *param2;
             }
             else
             {
                 if (spellInfo->Totem[0])
                     packet.FailedArg1 = spellInfo->Totem[0];
-                if (spellInfo->Totem[1])
-                    packet.FailedArg2 = spellInfo->Totem[1];
+                else if (spellInfo->Totem[1])
+                    packet.FailedArg1 = spellInfo->Totem[1];
             }
             break;
         case SPELL_FAILED_TOTEM_CATEGORY:
             if (param1)
             {
                 packet.FailedArg1 = *param1;
-                if (param2)
-                    packet.FailedArg2 = *param2;
             }
             else
             {
                 if (spellInfo->TotemCategory[0])
                     packet.FailedArg1 = spellInfo->TotemCategory[0];
-                if (spellInfo->TotemCategory[1])
-                    packet.FailedArg2 = spellInfo->TotemCategory[1];
+                else if (spellInfo->TotemCategory[1])
+                    packet.FailedArg1 = spellInfo->TotemCategory[1];
             }
             break;
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS:
@@ -4531,68 +4527,34 @@ inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo cons
             }
             break;
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
-        {
             if (param1)
-                packet.FailedArg1 = *param1;
-            else
-            {
-                uint32 item = 0;
-                for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                {
-                    if (uint32 itemType = spellEffectInfo.ItemType)
-                    {
-                        item = itemType;
-                        break;
-                    }
-                }
-
-                ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-                if (proto && proto->GetItemLimitCategory())
-                    packet.FailedArg1 = proto->GetItemLimitCategory();
-            }
+                packet.FailedArg1 = *param1;                        // ItemLimitCategory id
             break;
-        }
         case SPELL_FAILED_PREVENTED_BY_MECHANIC:
             if (param1)
                 packet.FailedArg1 = *param1;
-            else
-                packet.FailedArg1 = spellInfo->GetAllEffectsMechanicMask();  // SpellMechanic.dbc id
             break;
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
             if (param1)
-                packet.FailedArg1 = *param1;
-            else
-                packet.FailedArg1 = spellInfo->EquippedItemSubClassMask; // seems correct...
+                packet.FailedArg1 = *param1;                        // weapon subclass id
             break;
         case SPELL_FAILED_NEED_MORE_ITEMS:
             if (param1 && param2)
             {
-                packet.FailedArg1 = *param1;
-                packet.FailedArg2 = *param2;
-            }
-            else
-            {
-                packet.FailedArg1 = 0;                              // Item id
-                packet.FailedArg2 = 0;                              // Item count?
+                packet.FailedArg1 = *param1;                        // Item id
+                packet.FailedArg2 = *param2;                        // Item count
             }
             break;
         case SPELL_FAILED_MIN_SKILL:
             if (param1 && param2)
             {
-                packet.FailedArg1 = *param1;
-                packet.FailedArg2 = *param2;
-            }
-            else
-            {
-                packet.FailedArg1 = 0;                              // SkillLine.dbc id
-                packet.FailedArg2 = 0;                              // required skill value
+                packet.FailedArg1 = *param1;                        // SkillLine.dbc id
+                packet.FailedArg2 = *param2;                        // required skill value
             }
             break;
         case SPELL_FAILED_FISHING_TOO_LOW:
             if (param1)
-                packet.FailedArg1 = *param1;
-            else
-                packet.FailedArg1 = 0;                              // required fishing skill
+                packet.FailedArg1 = *param1;                        // required fishing skill
             break;
         case SPELL_FAILED_CUSTOM_ERROR:
             packet.FailedArg1 = customError;
@@ -4604,44 +4566,9 @@ inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo cons
                 packet.FailedArg1 = 0;                              // Unknown
             break;
         case SPELL_FAILED_REAGENTS:
-        {
             if (param1)
                 packet.FailedArg1 = *param1;
-            else
-            {
-                for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
-                {
-                    if (spellInfo->Reagent[i] <= 0)
-                        continue;
-
-                    uint32 itemid = spellInfo->Reagent[i];
-                    uint32 itemcount = spellInfo->ReagentCount[i];
-
-                    if (caster && !caster->HasItemCount(itemid, itemcount))
-                    {
-                        packet.FailedArg1 = itemid;  // first missing item
-                        break;
-                    }
-                }
-            }
-
-            if (param2)
-                packet.FailedArg2 = *param2;
-            else if (!param1)
-            {
-                for (SpellReagentsCurrencyEntry const* reagentsCurrency : spellInfo->ReagentsCurrency)
-                {
-                    if (caster && !caster->HasCurrency(reagentsCurrency->CurrencyTypesID, reagentsCurrency->CurrencyCount))
-                    {
-                        packet.FailedArg1 = -1;
-                        packet.FailedArg2 = reagentsCurrency->CurrencyTypesID;
-                        break;
-                    }
-                }
-            }
-
             break;
-        }
         case SPELL_FAILED_CANT_UNTALENT:
         {
             ASSERT(param1);
@@ -4675,7 +4602,7 @@ void Spell::SendCastResult(SpellCastResult result, int32* param1 /*= nullptr*/, 
 
     WorldPackets::Spells::CastFailed castFailed;
     castFailed.Visual = m_SpellVisual;
-    FillSpellCastFailedArgs(castFailed, m_castId, m_spellInfo, result, m_customError, param1, param2, m_caster->ToPlayer());
+    FillSpellCastFailedArgs(castFailed, m_castId, m_spellInfo, result, m_customError, param1, param2);
     receiver->SendDirectMessage(castFailed.Write());
 }
 
@@ -4692,18 +4619,18 @@ void Spell::SendPetCastResult(SpellCastResult result, int32* param1 /*= nullptr*
         result = SPELL_FAILED_DONT_REPORT;
 
     WorldPackets::Spells::PetCastFailed petCastFailed;
-    FillSpellCastFailedArgs(petCastFailed, m_castId, m_spellInfo, result, SPELL_CUSTOM_ERROR_NONE, param1, param2, owner->ToPlayer());
+    FillSpellCastFailedArgs(petCastFailed, m_castId, m_spellInfo, result, SPELL_CUSTOM_ERROR_NONE, param1, param2);
     owner->ToPlayer()->SendDirectMessage(petCastFailed.Write());
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellCastVisual spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/)
+void Spell::SendCastResult(Player const* caster, SpellInfo const* spellInfo, SpellCastVisual spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/)
 {
     if (result == SPELL_CAST_OK)
         return;
 
     WorldPackets::Spells::CastFailed packet;
     packet.Visual = spellVisual;
-    FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, param1, param2, caster);
+    FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, param1, param2);
     caster->SendDirectMessage(packet.Write());
 }
 

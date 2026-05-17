@@ -228,13 +228,13 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
     }
 }
 
-void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
+void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest)
 {
     // Skip casting invalid spells right away
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID, _player->GetMap()->GetDifficultyID());
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(castRequest.Cast.SpellID, _player->GetMap()->GetDifficultyID());
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandleCastSpellOpcode: attempted to cast a non-existing spell (Id: {})", cast.Cast.SpellID);
+        TC_LOG_ERROR("network", "WorldSession::HandleCastSpellOpcode: attempted to cast a non-existing spell (Id: {})", castRequest.Cast.SpellID);
         return;
     }
 
@@ -254,13 +254,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         castingUnit = _player;
     }
 
-    if (cast.Cast.MoveUpdate.has_value())
-        HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
+    if (castRequest.Cast.MoveUpdate.has_value())
+        HandleMovementOpcode(CMSG_MOVE_STOP, *castRequest.Cast.MoveUpdate);
 
     if (_player->CanRequestSpellCast(spellInfo, castingUnit))
-        _player->RequestSpellCast(std::make_unique<SpellCastRequest>(std::move(cast.Cast), castingUnit->GetGUID()));
+        _player->RequestSpellCast(std::make_unique<SpellCastRequest>(std::move(castRequest.Cast), castingUnit->GetGUID()));
     else
-        Spell::SendCastResult(_player, spellInfo, {}, cast.Cast.CastID, SPELL_FAILED_SPELL_IN_PROGRESS);
+        Spell::SendCastResult(_player, spellInfo, {}, castRequest.Cast.CastID, SPELL_FAILED_SPELL_IN_PROGRESS);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet)

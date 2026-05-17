@@ -2096,6 +2096,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             log.damage = splitDamage;
             log.originalDamage = splitDamage;
             log.absorb = split_absorb;
+            log.periodicLog = damageInfo.GetDamageType() == DOT;
+            log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
             caster->SendSpellNonMeleeDamageLog(&log);
 
             // break 'Fear' and similar auras
@@ -12982,7 +12984,6 @@ void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
     moveUpdateTeleport.Status = &m_movementInfo;
     if (_movementForces)
         moveUpdateTeleport.MovementForces = _movementForces->GetForces();
-    Unit* broadcastSource = this;
 
     // should this really be the unit _being_ moved? not the unit doing the moving?
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
@@ -12995,14 +12996,15 @@ void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
         moveTeleport.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(moveTeleport.Write());
 
-        broadcastSource = playerMover;
+        // Broadcast the packet to everyone except self.
+        SendMessageToSet(moveUpdateTeleport.Write(), playerMover);
     }
     else
     {
         // This is the only packet sent for creatures which contains MovementInfo structure
         // we do not update m_movementInfo for creatures so it needs to be done manually here
         moveUpdateTeleport.Status->guid = GetGUID();
-        moveUpdateTeleport.Status->time = getMSTime();
+        moveUpdateTeleport.Status->time = GameTime::GetGameTimeMS();
 
         if (teleportLocation.TransportGuid)
         {
@@ -13018,10 +13020,9 @@ void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
             moveUpdateTeleport.Status->pos.Relocate(teleportLocation.Location);
             moveUpdateTeleport.Status->transport.Reset();
         }
-    }
 
-    // Broadcast the packet to everyone except self.
-    broadcastSource->SendMessageToSet(moveUpdateTeleport.Write(), false);
+        SendMessageToSet(moveUpdateTeleport.Write(), true);
+    }
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)

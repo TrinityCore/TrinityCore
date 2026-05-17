@@ -86,7 +86,7 @@ class TC_GAME_API AuraApplication
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_NOCASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_SELF_CAST) != 0; }
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);

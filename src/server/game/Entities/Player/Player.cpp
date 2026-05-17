@@ -22932,8 +22932,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
                 spellModifier.ModIndex = AsUnderlyingType(mod->op);
 
-                boost::dynamic_bitset<uint32> mask;
-                mask.resize(128);
+                boost::dynamic_bitset<uint32> mask(128, 0);
 
                 boost::from_block_range(
                     &static_cast<SpellModifierByClassMask const*>(mod)->mask[0],
@@ -25543,11 +25542,7 @@ void Player::SendAurasForTarget(Unit* target) const
     update.Auras.reserve(visibleAuras.size());
 
     for (AuraApplication* auraApp : visibleAuras)
-    {
-        WorldPackets::Spells::AuraInfo auraInfo;
-        auraApp->BuildUpdatePacket(auraInfo, false);
-        update.Auras.push_back(auraInfo);
-    }
+        auraApp->BuildUpdatePacket(update.Auras.emplace_back(), false);
 
     SendDirectMessage(update.Write());
 }

@@ -139,7 +139,7 @@ namespace WorldPackets
         class SetActionButton final : public ClientPacket
         {
         public:
-            explicit SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) {}
+            explicit SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) { }
 
             void Read() override;
 

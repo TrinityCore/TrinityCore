@@ -24,13 +24,13 @@ namespace WorldPackets::Channel
 {
 WorldPacket const* ChannelListResponse::Write()
 {
-    _worldPacket << Bits<1>(_Display);
+    _worldPacket << Bits<1>(Display);
     _worldPacket << SizedString::BitsSize<7>(_Channel);
     _worldPacket << uint32(_ChannelFlags);
-    _worldPacket << Size<uint32>(_Members);
+    _worldPacket << Size<uint32>(Members);
     _worldPacket << SizedString::Data(_Channel);
 
-    for (ChannelPlayer const& player : _Members)
+    for (ChannelPlayer const& player : Members)
     {
         _worldPacket << player.Guid;
         _worldPacket << uint32(player.VirtualRealmAddress);
