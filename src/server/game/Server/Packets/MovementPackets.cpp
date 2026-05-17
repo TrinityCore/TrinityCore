@@ -396,4 +396,28 @@ WorldPacket const* NewWorld::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* MoveTeleport::Write()
+{
+    _worldPacket << Status->guid.WriteAsPacked();
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << *Status;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveUpdateTeleport::Write()
+{
+    _worldPacket << Status->guid.WriteAsPacked();
+    _worldPacket << *Status;
+
+    return &_worldPacket;
+}
+
+void MoveTeleportAck::Read()
+{
+    _worldPacket >> MoverGUID.ReadAsPacked();
+    _worldPacket >> AckIndex;
+    _worldPacket >> MoveTime;
+}
 }

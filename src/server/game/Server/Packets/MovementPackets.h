@@ -226,6 +226,39 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class MoveTeleport final : public ServerPacket
+        {
+        public:
+            explicit MoveTeleport() : ServerPacket(MSG_MOVE_TELEPORT_ACK, 100) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            uint32 SequenceIndex = 0;
+        };
+
+        class MoveUpdateTeleport final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateTeleport() : ServerPacket(MSG_MOVE_TELEPORT, 100) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
+
+        class MoveTeleportAck final : public ClientPacket
+        {
+        public:
+            explicit MoveTeleportAck(WorldPacket&& packet) : ClientPacket(MSG_MOVE_TELEPORT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            int32 AckIndex = 0;
+            int32 MoveTime = 0;
+        };
     }
 }
 

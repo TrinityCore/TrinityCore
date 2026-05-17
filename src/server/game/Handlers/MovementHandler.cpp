@@ -351,22 +351,13 @@ void WorldSession::HandleMoveWorldportAck()
     player->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
+void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
-    TC_LOG_DEBUG("network", "MSG_MOVE_TELEPORT_ACK");
-    ObjectGuid guid;
+    TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: {}, Sequence: {}, Time: {}", packet.MoverGUID.ToString(), packet.AckIndex, packet.MoveTime);
 
-    recvPacket >> guid.ReadAsPacked();
-
-    Unit* mover = ValidateAndGetUnitBeingMoved(guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(packet.MoverGUID, false);
     if (!mover)
-    {
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
-    }
-
-    uint32 sequenceIndex, time;
-    recvPacket >> sequenceIndex >> time;
 
     Player* plMover = mover->ToPlayer();
 

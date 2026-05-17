@@ -12825,7 +12825,6 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 
     MovementInfo teleportMovementInfo = m_movementInfo;
     teleportMovementInfo.pos.Relocate(pos);
-    Position transportPos = m_movementInfo.transport.pos;
     if (TransportBase* transportBase = GetDirectTransport())
     {
         // if its the transport that is teleported then we have old transport position here and cannot use it to calculate offsets
@@ -12835,28 +12834,34 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
             float x, y, z, o;
             pos.GetPosition(x, y, z, o);
             transportBase->CalculatePassengerOffset(x, y, z, &o);
-            transportPos.Relocate(x, y, z, o);
+            teleportMovementInfo.transport.pos.Relocate(x, y, z, o);
         }
     }
 
-    WorldPacket moveUpdateTeleport(MSG_MOVE_TELEPORT, 38);
-    moveUpdateTeleport << GetPackGUID();
-    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
+    WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
+    moveUpdateTeleport.Status = &teleportMovementInfo;
 
     if (IsMovedByClient())
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
-        WorldPacket moveTeleport(MSG_MOVE_TELEPORT_ACK, 41);
-        moveTeleport << GetPackGUID();
-        moveTeleport << uint32(0);                                     // this value increments every time
-        Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveTeleport);
-        playerMover->SendDirectMessage(&moveTeleport);
+
+        WorldPackets::Movement::MoveTeleport moveTeleport;
+        moveTeleport.Status = &teleportMovementInfo;
+        moveTeleport.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(moveTeleport.Write());
 
         // Broadcast the packet to everyone except self.
-        SendMessageToSet(&moveUpdateTeleport, playerMover);
+        SendMessageToSet(moveUpdateTeleport.Write(), playerMover);
     }
     else
-        SendMessageToSet(&moveUpdateTeleport, true);
+    {
+        // This is the only packet sent for creatures which contains MovementInfo structure
+        // we do not update m_movementInfo for creatures so it needs to be done manually here
+        moveUpdateTeleport.Status->guid = GetGUID();
+        moveUpdateTeleport.Status->time = GameTime::GetGameTimeMS();
+
+        SendMessageToSet(moveUpdateTeleport.Write(), true);
+    }
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
