@@ -739,10 +739,10 @@ enum TrinityStrings
     LANG_DIST_ARENA_POINTS_END            = 746, // 3.3.5 RESERVED
     LANG_BG_DISABLED                      = 747,
     LANG_ARENA_DISABLED                   = 748,
-//                                        = 749, see LANG_PINFO_ACC_OS
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
-//                                        = 752, see LANG_PINFO_ACC_IP
+    //                                    = 749, see LANG_PINFO_ACC_OS
+    //                                    = 750,
+    //                                    = 751,
+    //                                    = 752, see LANG_PINFO_ACC_IP
     // 753-755 - free
 
     // Room for BG/ARENA                  = 773-784
