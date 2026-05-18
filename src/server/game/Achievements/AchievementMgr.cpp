@@ -657,6 +657,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         achievementEarned.AchievementID = achievement->ID;
         achievementEarned.Time = *GameTime::GetUtcWowTime();
         achievementEarned.Time += receiver->GetSession()->GetTimezoneOffset();
+        achievementEarned.Initial = receiver->HasAtLoginFlag(AT_LOGIN_FIRST);
         receiver->SendDirectMessage(achievementEarned.Write());
     };
 
