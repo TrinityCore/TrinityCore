@@ -27,6 +27,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EarnedAchievement const& earned)
     data << earned.Owner;
     data << uint32(earned.VirtualRealmAddress);
     data << uint32(earned.NativeRealmAddress);
+
     return data;
 }
 
