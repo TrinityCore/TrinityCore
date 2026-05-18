@@ -22,7 +22,7 @@
 
 std::size_t Trinity::BroadcastTextBuilder::operator()(WorldPacket* data, LocaleConstant locale) const
 {
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(_textId);
     WorldPackets::Chat::Chat chat;
     chat.Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
     chat.Write();

@@ -448,7 +448,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
         locale = DEFAULT_LOCALE;
 
     std::string baseText = "";
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(groupItr->BroadcastTextId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(groupItr->BroadcastTextId);
 
     if (bct)
         baseText = bct->GetText(locale, gender);

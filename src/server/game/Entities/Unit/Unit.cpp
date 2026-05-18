@@ -13851,7 +13851,7 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     if (!target)
         return;
 
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(textId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(textId);
     if (!bct)
     {
         TC_LOG_ERROR("entities.unit", "WorldObject::MonsterWhisper: `broadcast_text` was not {} found", textId);

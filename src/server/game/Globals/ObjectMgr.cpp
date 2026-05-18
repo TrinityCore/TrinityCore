@@ -6229,7 +6229,7 @@ void ObjectMgr::LoadGossipText()
             // check broadcast_text correctness
             if (gOption.BroadcastTextID)
             {
-                if (BroadcastText const* bcText = sObjectMgr->GetBroadcastText(gOption.BroadcastTextID))
+                if (BroadcastTextEntry const* bcText = sObjectMgr->GetBroadcastText(gOption.BroadcastTextID))
                 {
                     if (bcText->Text[DEFAULT_LOCALE] != gOption.Text_0)
                         TC_LOG_ERROR("sql.sql", "Row {} in table `npc_text` has mismatch between text{}_0 and the corresponding Text in `broadcast_text` row {}", id, i, gOption.BroadcastTextID);
@@ -9771,24 +9771,24 @@ void ObjectMgr::LoadBroadcastTexts()
         return;
     }
 
-    _broadcastTextStore.rehash(result->GetRowCount());
+    _broadcastTextStore.reserve(result->GetRowCount());
 
     do
     {
         Field* fields = result->Fetch();
 
-        BroadcastText bct;
+        uint32 id = fields[0].GetUInt32();
+        BroadcastTextEntry& bct = _broadcastTextStore.emplace(id, id).first->second;
 
-        bct.Id = fields[0].GetUInt32();
         bct.LanguageID = fields[1].GetUInt32();
-        bct.Text[DEFAULT_LOCALE] = fields[2].GetString();
-        bct.Text1[DEFAULT_LOCALE] = fields[3].GetString();
-        bct.EmoteId1 = fields[4].GetUInt32();
-        bct.EmoteId2 = fields[5].GetUInt32();
-        bct.EmoteId3 = fields[6].GetUInt32();
-        bct.EmoteDelay1 = fields[7].GetUInt32();
-        bct.EmoteDelay2 = fields[8].GetUInt32();
-        bct.EmoteDelay3 = fields[9].GetUInt32();
+        bct.Text[DEFAULT_LOCALE] = fields[2].GetStringView();
+        bct.Text1[DEFAULT_LOCALE] = fields[3].GetStringView();
+        bct.EmoteID[0] = fields[4].GetUInt32();
+        bct.EmoteID[1] = fields[5].GetUInt32();
+        bct.EmoteID[2] = fields[6].GetUInt32();
+        bct.EmoteDelay[0] = fields[7].GetUInt32();
+        bct.EmoteDelay[1] = fields[8].GetUInt32();
+        bct.EmoteDelay[2] = fields[9].GetUInt32();
         bct.SoundEntriesID = fields[10].GetUInt32();
         bct.EmotesID = fields[11].GetUInt32();
         bct.Flags = fields[12].GetUInt32();
@@ -9808,36 +9808,15 @@ void ObjectMgr::LoadBroadcastTexts()
             bct.LanguageID = LANG_UNIVERSAL;
         }
 
-        if (bct.EmoteId1)
+        for (std::size_t i = 0; i < bct.EmoteID.size(); ++i)
         {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId1))
+            if (bct.EmoteID[i] &&!sEmotesStore.LookupEntry(bct.EmoteID[i]))
             {
-                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId1 {} but emote does not exist.", bct.Id, bct.EmoteId1);
-                bct.EmoteId1 = 0;
+                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId{} {} but emote does not exist.", bct.Id, i + 1, bct.EmoteID[i]);
+                bct.EmoteID[i] = 0;
             }
         }
-
-        if (bct.EmoteId2)
-        {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId2))
-            {
-                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId2 {} but emote does not exist.", bct.Id, bct.EmoteId2);
-                bct.EmoteId2 = 0;
-            }
-        }
-
-        if (bct.EmoteId3)
-        {
-            if (!sEmotesStore.LookupEntry(bct.EmoteId3))
-            {
-                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId3 {} but emote does not exist.", bct.Id, bct.EmoteId3);
-                bct.EmoteId3 = 0;
-            }
-        }
-
-        _broadcastTextStore[bct.Id] = bct;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} broadcast texts in {} ms", _broadcastTextStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }

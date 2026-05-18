@@ -14007,8 +14007,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
-            BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
+            BroadcastTextEntry const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
+            BroadcastTextEntry const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
@@ -20543,7 +20543,7 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
     if (!target)
         return;
 
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(textId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(textId);
     if (!bct)
     {
         TC_LOG_ERROR("entities.unit", "WorldObject::MonsterWhisper: `broadcast_text` was not {} found", textId);

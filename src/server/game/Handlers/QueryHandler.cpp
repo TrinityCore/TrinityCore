@@ -191,7 +191,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             response.Options[i].Probability = npcText->Options[i].Probability;
-            if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(npcText->Options[i].BroadcastTextID))
+            if (BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(npcText->Options[i].BroadcastTextID))
             {
                 response.Options[i].Text = bct->GetText(locale, GENDER_MALE, true);
                 response.Options[i].Text1 = bct->GetText(locale, GENDER_FEMALE, true);
