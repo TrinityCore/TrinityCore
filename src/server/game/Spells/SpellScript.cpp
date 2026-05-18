@@ -900,6 +900,16 @@ void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _di
     (auraScript->*pHandlerScript)(_dispelInfo);
 }
 
+AuraScript::AuraInterruptHandler::AuraInterruptHandler(AuraInterruptFnType _pHandlerScript)
+{
+    pHandlerScript = _pHandlerScript;
+}
+
+bool AuraScript::AuraInterruptHandler::Call(AuraScript* auraScript, AuraApplication const* aurApp, uint32 interruptMask)
+{
+    return (auraScript->*pHandlerScript)(aurApp, interruptMask);
+}
+
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex) { }
 
