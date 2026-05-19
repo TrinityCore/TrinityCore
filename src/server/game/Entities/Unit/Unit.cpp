@@ -2347,16 +2347,12 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     SendMessageToSet(packet.Write(), true);
 }
 
-void Unit::SendMeleeAttackStop(Unit* victim)
+void Unit::SendMeleeAttackStop(Unit const* victim) const
 {
     WorldPackets::Combat::SAttackStop attackStop;
-    attackStop.Attacker = GetPackGUID();
-    if (victim)
-    {
-        attackStop.Victim = victim->GetPackGUID();
-        attackStop.NowDead = !victim->IsAlive();
-    }
-
+    attackStop.Attacker = GetGUID();
+    attackStop.Victim = Object::GetGUID(victim);
+    attackStop.NowDead = victim && !victim->IsAlive();
     SendMessageToSet(attackStop.Write(), true);
 
     if (victim)

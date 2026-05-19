@@ -588,8 +588,6 @@ class TC_GAME_API WorldSession
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
 
-        void SendAttackStop(Unit const* enemy);
-
         void SendTradeStatus(TradeStatusInfo const& status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade(TradeStatus status);
