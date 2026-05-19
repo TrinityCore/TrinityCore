@@ -31,16 +31,6 @@ WorldPacket const* WorldPackets::Combat::AttackStart::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const* victim) : ServerPacket(SMSG_ATTACK_STOP, 16 + 16 + 1)
-{
-    Attacker = attacker->GetGUID();
-    if (victim)
-    {
-        Victim = victim->GetGUID();
-        NowDead = !victim->IsAlive(); // using isAlive instead of isDead to catch JUST_DIED death states as well
-    }
-}
-
 WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 {
     _worldPacket << Attacker;

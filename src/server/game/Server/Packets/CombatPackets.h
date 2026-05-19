@@ -73,7 +73,6 @@ namespace WorldPackets
         {
         public:
             SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 16 + 16 + 1) { }
-            SAttackStop(Unit const* attacker, Unit const* victim);
 
             WorldPacket const* Write() override;
 
