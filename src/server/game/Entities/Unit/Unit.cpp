@@ -8574,12 +8574,12 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
 
     if (Creature* creature = ToCreature())
     {
-        if (creature->HasUnitTypeMask(UNIT_MASK_MINION) && !creature->IsInCombat())
+        if (creature->HasUnitTypeMask(UNIT_MASK_MINION))
         {
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE)
             {
                 Unit* followed = ASSERT_NOTNULL(dynamic_cast<AbstractFollower*>(GetMotionMaster()->GetCurrentMovementGenerator()))->GetTarget();
-                if (followed && followed->GetGUID() == GetOwnerGUID() && !followed->IsInCombat())
+                if (followed && followed->GetGUID() == GetOwnerGUID())
                 {
                     float ownerSpeed = followed->GetSpeedRate(mtype);
                     if (speed < ownerSpeed || creature->IsWithinDist3d(followed, 10.0f))
