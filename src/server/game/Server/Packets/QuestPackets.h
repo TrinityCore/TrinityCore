@@ -142,7 +142,7 @@ namespace WorldPackets
             uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT] = { };
 
             uint32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
-            // uint32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
+            uint32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
 
             uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
             uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
