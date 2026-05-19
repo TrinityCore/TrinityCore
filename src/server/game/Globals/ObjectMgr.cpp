@@ -4666,8 +4666,8 @@ void ObjectMgr::LoadQuests()
         "ItemDrop1, ItemDrop2, ItemDrop3, ItemDrop4, ItemDropQuantity1, ItemDropQuantity2, ItemDropQuantity3, ItemDropQuantity4, "
         //      87               88               89               90               91               92                93                  94                  95                  96                  97                  98
         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //  99          100             101             102             103
-        "Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4"
+        //  99                    100             101             102             103
+        "RewardFactionFlags, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4"
         " FROM quest_template");
     if (!result)
     {

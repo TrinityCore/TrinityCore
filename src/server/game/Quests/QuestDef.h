@@ -286,6 +286,7 @@ class TC_GAME_API Quest
         bool IsAutoAccept() const;
         bool IsAutoComplete() const;
         uint32 GetFlags() const { return _flags; }
+        uint32 GetRewardReputationMask() const { return _rewardReputationMask; }
         bool IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
         bool IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
         bool IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
@@ -366,6 +367,7 @@ class TC_GAME_API Quest
         uint32 _requiredPlayerKills = 0;
         uint32 _rewardTalents = 0;
         int32 _rewardArenaPoints = 0;
+        uint32 _rewardReputationMask = 0;
         uint32 _rewardNextQuest = 0;
         uint32 _rewardXPDifficulty = 0;
         uint32 _startItem = 0;
