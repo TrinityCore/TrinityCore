@@ -15,398 +15,491 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Combat timers requires to be revisited
+ * SAY_EVENT is NYI
+ */
+
 #include "ScriptMgr.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
+#include "Containers.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "zulaman.h"
 
-enum Spells
-{
-    SPELL_DUAL_WIELD            = 29651,
-    SPELL_SABER_LASH            = 43267,
-    SPELL_FRENZY                = 43139,
-    SPELL_FLAMESHOCK            = 43303,
-    SPELL_EARTHSHOCK            = 43305,
-    SPELL_TRANSFORM_SPLIT       = 43142,
-    SPELL_TRANSFORM_SPLIT2      = 43573,
-    SPELL_TRANSFORM_MERGE       = 43271,
-    SPELL_SUMMON_LYNX           = 43143,
-    SPELL_SUMMON_TOTEM          = 43302,
-    SPELL_BERSERK               = 45078,
-    SPELL_LYNX_FRENZY           = 43290, // Used by Spirit Lynx
-    SPELL_SHRED_ARMOR           = 43243  // Used by Spirit Lynx
-};
-
-enum Hal_CreatureIds
-{
-    NPC_SPIRIT_LYNX             = 24143,
-    NPC_TOTEM                   = 24224
-};
-
-enum PhaseHalazzi
-{
-    PHASE_NONE                  = 0,
-    PHASE_LYNX                  = 1,
-    PHASE_SPLIT                 = 2,
-    PHASE_HUMAN                 = 3,
-    PHASE_MERGE                 = 4,
-    PHASE_ENRAGE                = 5
-};
-
-enum Yells
+enum HalazziTexts
 {
     SAY_AGGRO                   = 0,
-    SAY_SABER                   = 1,
-    SAY_SPLIT                   = 2,
-    SAY_MERGE                   = 3,
-    SAY_KILL                    = 4,
-    SAY_DEATH                   = 5,
-    SAY_BERSERK                 = 6
+    SAY_SPLIT                   = 1,
+    SAY_MERGE                   = 2,
+    SAY_MELEE                   = 3,
+    SAY_BERSERK                 = 4,
+    SAY_SLAY                    = 5,
+    SAY_DEATH                   = 6,
+    SAY_EVENT                   = 7
 };
 
-class boss_halazzi : public CreatureScript
+enum HalazziSpells
 {
-    public:
-        boss_halazzi() : CreatureScript("boss_halazzi") { }
+    // Halazzi - Combat - Lynx Phase & Last Phase
+    SPELL_ENRAGE                = 43139,
+    SPELL_SABER_LASH            = 43267,
 
-        struct boss_halazziAI : public BossAI
-        {
-            boss_halazziAI(Creature* creature) : BossAI(creature, BOSS_HALAZZI)
-            {
-                Initialize();
-                Phase = PHASE_NONE;
-                FrenzyTimer = 0;
-                SaberlashTimer = 0;
-                ShockTimer = 0;
-                TotemTimer = 0;
-            }
+    // Halazzi - Combat - Split
+    SPELL_TRANSFIGURE           = 44054,
+    SPELL_SUMMON_SPIRIT_LYNX    = 43143,
 
-            void Initialize()
-            {
-                LynxGUID.Clear();
-                TransformCount = 0;
-                BerserkTimer = 600000;
-                CheckTimer = 1000;
-            }
+    // Halazzi - Combat - Merge
+    SPELL_TRANSFORM_75_HEALTH   = 43145,
+    SPELL_TRANSFORM_50_HEALTH   = 43271,
+    SPELL_TRANSFORM_25_HEALTH   = 43272,
 
-            PhaseHalazzi Phase;
+    // Halazzi - Combat - Spirit Phase & Last Phase
+    SPELL_LIGHTNING_TOTEM       = 43302,
+    SPELL_FLAME_SHOCK           = 43303,
+    SPELL_EARTH_SHOCK           = 43305,
 
-            uint32 FrenzyTimer;
-            uint32 SaberlashTimer;
-            uint32 ShockTimer;
-            uint32 TotemTimer;
-            uint32 CheckTimer;
-            uint32 BerserkTimer;
-            uint32 TransformCount;
+    // Halazzi - Combat - All Phases
+    SPELL_BERSERK               = 45078,
 
-            ObjectGuid LynxGUID;
+    // Halazzi - Combat - Misc
+    SPELL_TRANSFORM_MAX_HEALTH  = 43311,
 
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
+    // Spirit of the Lynx
+    SPELL_SPIRIT_CHANNEL        = 43615,
+    SPELL_SPIRIT_EFFECT         = 42466,
+    SPELL_SHRED_ARMOR           = 43243,
+    SPELL_LYNX_FLURRY           = 43290,
 
-                DoCast(me, SPELL_DUAL_WIELD, true);
-
-                Phase = PHASE_NONE;
-                EnterPhase(PHASE_LYNX);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                EnterPhase(PHASE_LYNX);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summon->AI()->AttackStart(me->GetVictim());
-                if (summon->GetEntry() == NPC_SPIRIT_LYNX)
-                    LynxGUID = summon->GetGUID();
-                summons.Summon(summon);
-            }
-
-            void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-            {
-                if (damage >= me->GetHealth() && Phase != PHASE_ENRAGE)
-                    damage = 0;
-            }
-
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_TRANSFORM_SPLIT2)
-                    EnterPhase(PHASE_HUMAN);
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (Phase != PHASE_MERGE)
-                    ScriptedAI::AttackStart(who);
-            }
-
-            void EnterPhase(PhaseHalazzi NextPhase)
-            {
-                switch (NextPhase)
-                {
-                    case PHASE_LYNX:
-                    case PHASE_ENRAGE:
-                        if (Phase == PHASE_MERGE)
-                        {
-                            DoCast(me, SPELL_TRANSFORM_MERGE, true);
-                            me->Attack(me->GetVictim(), true);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        }
-                        if (Creature* Lynx = ObjectAccessor::GetCreature(*me, LynxGUID))
-                            Lynx->DisappearAndDie();
-                        me->SetMaxHealth(600000);
-                        me->SetHealth(600000 - 150000 * TransformCount);
-                        FrenzyTimer = 16000;
-                        SaberlashTimer = 20000;
-                        ShockTimer = 10000;
-                        TotemTimer = 12000;
-                        break;
-                    case PHASE_SPLIT:
-                        Talk(SAY_SPLIT);
-                        DoCast(me, SPELL_TRANSFORM_SPLIT, true);
-                        break;
-                    case PHASE_HUMAN:
-                        //DoCast(me, SPELL_SUMMON_LYNX, true);
-                        DoSpawnCreature(NPC_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0s);
-                        me->SetMaxHealth(400000);
-                        me->SetHealth(400000);
-                        ShockTimer = 10000;
-                        TotemTimer = 12000;
-                        break;
-                    case PHASE_MERGE:
-                        if (Unit* pLynx = ObjectAccessor::GetUnit(*me, LynxGUID))
-                        {
-                            Talk(SAY_MERGE);
-                            pLynx->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                            pLynx->GetMotionMaster()->Clear();
-                            pLynx->GetMotionMaster()->MoveFollow(me, 0, 0);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveFollow(pLynx, 0, 0);
-                            ++TransformCount;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                Phase = NextPhase;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (BerserkTimer <= diff)
-                {
-                    Talk(SAY_BERSERK);
-                    DoCast(me, SPELL_BERSERK, true);
-                    BerserkTimer = 60000;
-                }
-                else
-                    BerserkTimer -= diff;
-
-                if (Phase == PHASE_LYNX || Phase == PHASE_ENRAGE)
-                {
-                    if (SaberlashTimer <= diff)
-                    {
-                        // A tank with more than 490 defense skills should receive no critical hit
-                        //DoCast(me, 41296, true);
-                        DoCastVictim(SPELL_SABER_LASH, true);
-                        //me->RemoveAurasDueToSpell(41296);
-                        SaberlashTimer = 30000;
-                    }
-                    else
-                        SaberlashTimer -= diff;
-
-                    if (FrenzyTimer <= diff)
-                    {
-                        DoCast(me, SPELL_FRENZY);
-                        FrenzyTimer = urand(10000, 15000);
-                    }
-                    else
-                        FrenzyTimer -= diff;
-
-                    if (Phase == PHASE_LYNX)
-                    {
-                        if (CheckTimer <= diff)
-                        {
-                            if (HealthBelowPct(25 * (3 - TransformCount)))
-                                EnterPhase(PHASE_SPLIT);
-                            CheckTimer = 1000;
-                        }
-                        else
-                            CheckTimer -= diff;
-                    }
-                }
-
-                if (Phase == PHASE_HUMAN || Phase == PHASE_ENRAGE)
-                {
-                    if (TotemTimer <= diff)
-                    {
-                        DoCast(me, SPELL_SUMMON_TOTEM);
-                        TotemTimer = 20000;
-                    }
-                    else
-                        TotemTimer -= diff;
-
-                    if (ShockTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        {
-                            if (target->IsNonMeleeSpellCast(false))
-                                DoCast(target, SPELL_EARTHSHOCK);
-                            else
-                                DoCast(target, SPELL_FLAMESHOCK);
-                            ShockTimer = urand(10000, 15000);
-                        }
-                    }
-                    else
-                        ShockTimer -= diff;
-
-                    if (Phase == PHASE_HUMAN)
-                    {
-                        if (CheckTimer <= diff)
-                        {
-                            if (!HealthAbovePct(20) /*HealthBelowPct(10)*/)
-                                EnterPhase(PHASE_MERGE);
-                            else
-                            {
-                                Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
-                                if (Lynx && !Lynx->HealthAbovePct(20) /*Lynx->HealthBelowPct(10)*/)
-                                    EnterPhase(PHASE_MERGE);
-                            }
-                            CheckTimer = 1000;
-                        }
-                        else
-                            CheckTimer -= diff;
-                    }
-                }
-
-                if (Phase == PHASE_MERGE)
-                {
-                    if (CheckTimer <= diff)
-                    {
-                        Unit* Lynx = ObjectAccessor::GetUnit(*me, LynxGUID);
-                        if (Lynx)
-                        {
-                            Lynx->GetMotionMaster()->MoveFollow(me, 0, 0);
-                            me->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
-                            if (me->IsWithinDistInMap(Lynx, 6.0f))
-                            {
-                                if (TransformCount < 3)
-                                    EnterPhase(PHASE_LYNX);
-                                else
-                                    EnterPhase(PHASE_ENRAGE);
-                            }
-                        }
-                        CheckTimer = 1000;
-                    }
-                    else
-                        CheckTimer -= diff;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                Talk(SAY_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulAmanAI<boss_halazziAI>(creature);
-        }
+    // Corrupted Lightning Totem
+    SPELL_LIGHTNING             = 43301
 };
 
-// Spirits Lynx AI
-class npc_halazzi_lynx : public CreatureScript
+enum HalazziEvents
 {
-    public:
-        npc_halazzi_lynx() : CreatureScript("npc_halazzi_lynx") { }
+    // Lynx Phase & Last Phase
+    EVENT_ENRAGE                = 1,
+    EVENT_SABER_LASH,
 
-        struct npc_halazzi_lynxAI : public ScriptedAI
+    // Split
+    EVENT_SPLIT_1,
+    EVENT_SPLIT_2,
+
+    // Merge
+    EVENT_MERGE_1,
+    EVENT_MERGE_2,
+
+    // Spirit Phase & Last Phase
+    EVENT_LIGHTNING_TOTEM,
+    EVENT_FLAME_SHOCK,
+    EVENT_EARTH_SHOCK,
+
+    // All Phases
+    EVENT_BERSERK
+};
+
+enum HalazziPhases
+{
+    PHASE_LYNX                  = 1,
+    PHASE_SPIRIT,
+    PHASE_FINAL
+};
+
+enum HalazziMisc
+{
+    NPC_HALAZZI_LYNX            = 23577,
+    NPC_HALAZZI_TROLL           = 24144,
+    NPC_SPIRIT_LYNX             = 24143,
+    ACTION_BEGIN_MERGE          = 0,
+    ACTION_INFORM_LYNX          = 1
+};
+
+// 23577 - Halazzi
+struct boss_halazzi : public BossAI
+{
+    boss_halazzi(Creature* creature) : BossAI(creature, BOSS_HALAZZI), _transformCount(3) { }
+
+    void Reset() override
+    {
+        _Reset();
+
+        _transformCount = 3;
+
+        me->SetCanDualWield(true);
+        me->SetReactState(REACT_AGGRESSIVE);
+
+        events.SetPhase(PHASE_LYNX);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_ENRAGE, 15s, 25s);
+        events.ScheduleEvent(EVENT_SABER_LASH, 10s, 15s);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetEntry() == NPC_HALAZZI_TROLL && damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+
+        if (events.IsInPhase(PHASE_LYNX) && me->HealthBelowPctDamaged(25 * _transformCount, damage))
         {
-            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
-                shredder_timer = 4000;
-            }
-
-            uint32 FrenzyTimer;
-            uint32 shredder_timer;
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-            {
-                if (damage >= me->GetHealth())
-                    damage = 0;
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
-                    ScriptedAI::AttackStart(who);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override {/*DoZoneInCombat();*/ }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (FrenzyTimer <= diff)
-                {
-                    DoCast(me, SPELL_LYNX_FRENZY);
-                    FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
-                } else FrenzyTimer -= diff;
-
-                if (shredder_timer <= diff)
-                {
-                    DoCastVictim(SPELL_SHRED_ARMOR);
-                    shredder_timer = 4000;
-                } else shredder_timer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulAmanAI<npc_halazzi_lynxAI>(creature);
+            events.SetPhase(PHASE_SPIRIT);
+            events.ScheduleEvent(EVENT_SPLIT_1, 0s);
         }
+
+        if (events.IsInPhase(PHASE_SPIRIT) && me->HealthBelowPctDamaged(20, damage))
+        {
+            events.SetPhase(PHASE_LYNX);
+            events.ScheduleEvent(EVENT_MERGE_1, 0s);
+        }
+    }
+
+    void PerformAdditionalEvents()
+    {
+        switch (_transformCount)
+        {
+            case 3:
+                DoCastSelf(SPELL_TRANSFORM_75_HEALTH);
+                break;
+            case 2:
+                DoCastSelf(SPELL_TRANSFORM_50_HEALTH);
+                break;
+            case 1:
+                DoCastSelf(SPELL_TRANSFORM_25_HEALTH);
+                break;
+            default:
+                break;
+        }
+
+        if (Creature* spirit = me->FindNearestCreature(NPC_SPIRIT_LYNX, 200.0f))
+            spirit->AI()->DoAction(ACTION_INFORM_LYNX);
+
+        --_transformCount;
+
+        if (_transformCount)
+        {
+            events.CancelEvent(EVENT_LIGHTNING_TOTEM);
+            events.CancelEvent(EVENT_FLAME_SHOCK);
+            events.CancelEvent(EVENT_EARTH_SHOCK);
+            events.ScheduleEvent(EVENT_ENRAGE, 15s, 25s);
+            events.ScheduleEvent(EVENT_SABER_LASH, 10s, 15s);
+        }
+        else
+        {
+            events.SetPhase(PHASE_FINAL);
+            events.ScheduleEvent(EVENT_ENRAGE, 15s, 25s);
+            events.ScheduleEvent(EVENT_SABER_LASH, 10s, 15s);
+            events.RescheduleEvent(EVENT_LIGHTNING_TOTEM, 10s, 15s);
+            events.RescheduleEvent(EVENT_FLAME_SHOCK, 10s, 25s);
+            events.RescheduleEvent(EVENT_EARTH_SHOCK, 10s, 20s);
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_BEGIN_MERGE && events.IsInPhase(PHASE_SPIRIT))
+        {
+            events.SetPhase(PHASE_LYNX);
+            events.ScheduleEvent(EVENT_MERGE_1, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_SABER_LASH:
+                Talk(SAY_MELEE);
+                break;
+            case SPELL_BERSERK:
+                Talk(SAY_BERSERK);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        DoCastSelf(SPELL_TRANSFORM_MAX_HEALTH);
+
+        if (me->GetEntry() == NPC_HALAZZI_TROLL)
+            me->UpdateEntry(NPC_HALAZZI_LYNX);
+
+        BossAI::EnterEvadeMode(why);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                // Lynx Phase & Last Phase
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE);
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_SABER_LASH:
+                    DoCastVictim(SPELL_SABER_LASH);
+                    events.Repeat(20s);
+                    break;
+
+                // Split
+                case EVENT_SPLIT_1:
+                    Talk(SAY_SPLIT);
+                    DoCastSelf(SPELL_TRANSFIGURE);
+                    me->SetReactState(REACT_PASSIVE);
+                    events.CancelEvent(EVENT_ENRAGE);
+                    events.CancelEvent(EVENT_SABER_LASH);
+                    events.ScheduleEvent(EVENT_SPLIT_2, 3s);
+                    break;
+                case EVENT_SPLIT_2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->UpdateEntry(NPC_HALAZZI_TROLL);
+                    DoCastSelf(SPELL_SUMMON_SPIRIT_LYNX);
+                    events.ScheduleEvent(EVENT_LIGHTNING_TOTEM, 10s, 15s);
+                    events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s, 25s);
+                    events.ScheduleEvent(EVENT_EARTH_SHOCK, 10s, 20s);
+                    break;
+
+                // Merge
+                case EVENT_MERGE_1:
+                    me->UpdateEntry(NPC_HALAZZI_LYNX);
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_MERGE);
+                    PerformAdditionalEvents();
+                    events.ScheduleEvent(EVENT_MERGE_2, 5s);
+                    break;
+                case EVENT_MERGE_2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+
+                // Spirit Phase & Last Phase
+                case EVENT_LIGHTNING_TOTEM:
+                    DoCastSelf(SPELL_LIGHTNING_TOTEM);
+                    events.Repeat(10s, 25s);
+                    break;
+                case EVENT_FLAME_SHOCK:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FLAME_SHOCK);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_EARTH_SHOCK:
+                {
+                    std::vector<Player*> playerList;
+                    GetPlayerListInGrid(playerList, me, 30.0f);
+                    for (Player* player : playerList)
+                    {
+                        if (player->IsNonMeleeSpellCast(false))
+                        {
+                            DoCast(player, SPELL_EARTH_SHOCK);
+                            break;
+                        }
+                    }
+                    events.Repeat(10s, 20s);
+                    break;
+                }
+
+                // All Phases
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint8 _transformCount;
+};
+
+// 24143 - Spirit of the Lynx
+struct npc_spirit_of_the_lynx : public ScriptedAI
+{
+    npc_spirit_of_the_lynx(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript()), _hasReachedLowHealth(false) { }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(0s, [this](TaskContext task)
+        {
+            switch (task.GetRepeatCounter())
+            {
+                case 0:
+                    DoZoneInCombat();
+                    DoCastSelf(SPELL_SPIRIT_CHANNEL);
+                    task.Repeat(1200ms);
+                    break;
+                case 1:
+                    DoCastSelf(SPELL_SPIRIT_EFFECT, true);
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler
+            .Schedule(4s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_SHRED_ARMOR);
+                task.Repeat(4s);
+            })
+            .Schedule(5s, 10s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_LYNX_FLURRY);
+                task.Repeat(15s, 20s);
+            });
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+
+        if (!_hasReachedLowHealth && me->HealthBelowPctDamaged(20, damage))
+        {
+            _hasReachedLowHealth = true;
+
+            if (Creature* halazzi = _instance->GetCreature(BOSS_HALAZZI))
+                halazzi->AI()->DoAction(ACTION_BEGIN_MERGE);
+
+            /// @todo: This part requires sniff verification. Basically copied from Halazzi's low health actions
+            me->SetReactState(REACT_PASSIVE);
+            me->DespawnOrUnsummon(3s);
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_INFORM_LYNX)
+        {
+            me->SetReactState(REACT_PASSIVE);
+            me->DespawnOrUnsummon(3s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (UpdateVictim())
+            DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+    InstanceScript* _instance;
+    bool _hasReachedLowHealth;
+};
+
+// 24224 - Corrupted Lightning Totem
+struct npc_corrupted_lightning_totem : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+
+        _scheduler.Schedule(2400ms, [this](TaskContext task)
+        {
+            std::vector<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 30.0f);
+
+            Trinity::Containers::RandomResize(playerList, 1);
+
+            for (Player* player : playerList)
+                DoCast(player, SPELL_LIGHTNING);
+
+            task.Repeat(2400ms);
+        });
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 43536 - Set Health
+// 43537 - Set Health
+// 43538 - Set Health
+class spell_halazzi_set_health : public SpellScript
+{
+    PrepareSpellScript(spell_halazzi_set_health);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetHealth(GetCaster()->CountPctFromMaxHealth(uint32(GetEffectValue())));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_halazzi_set_health::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_halazzi()
 {
-    new boss_halazzi();
-    new npc_halazzi_lynx();
+    RegisterZulAmanCreatureAI(boss_halazzi);
+    RegisterZulAmanCreatureAI(npc_spirit_of_the_lynx);
+    RegisterZulAmanCreatureAI(npc_corrupted_lightning_totem);
+    RegisterSpellScript(spell_halazzi_set_health);
 }
