@@ -2563,7 +2563,7 @@ void Unit::SendMeleeAttackStop(Unit const* victim) const
     WorldPackets::Combat::SAttackStop attackStop;
     attackStop.Attacker = GetGUID();
     attackStop.Victim = Object::GetGUID(victim);
-    attackStop.NowDead = victim && !victim->IsAlive();
+    attackStop.NowDead = !IsAlive();
     SendMessageToSet(attackStop.Write(), true);
 
     if (victim)
