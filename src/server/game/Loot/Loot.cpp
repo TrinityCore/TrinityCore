@@ -973,7 +973,7 @@ void Loot::AddItem(LootStoreItem const& item)
     }
 }
 
-bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool createdByPlayer)
+bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool pushed, bool createdByPlayer)
 {
     bool allLooted = true;
     for (uint32 i = 0; i < items.size(); ++i)
@@ -1013,7 +1013,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
                 if (Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs))
                 {
-                    player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast, GetDungeonEncounterId());
+                    player->SendNewItem(pItem, lootItem->count, pushed, createdByPlayer, broadcast, GetDungeonEncounterId());
                     player->ApplyItemLootedSpell(pItem, true);
                 }
                 else

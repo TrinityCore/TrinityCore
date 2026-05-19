@@ -1484,7 +1484,7 @@ void Spell::EffectCreateItem2()
     // Pick a random item from spell_loot_template
     if (m_spellInfo->IsLootCrafting())
     {
-        player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context, false, true);
+        player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context, false, false, true);
         if (!m_CastItem)
             player->UpdateCraftSkill(m_spellInfo);
     }
