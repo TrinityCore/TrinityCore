@@ -720,8 +720,9 @@ enum PlayerSlots
 
 static_assert(UF::size<decltype(UF::ActivePlayerData::InvSlots)>() == PLAYER_SLOT_END);
 
-#define INVENTORY_SLOT_BAG_0    255
-#define INVENTORY_DEFAULT_SIZE  16
+static constexpr uint8 INVENTORY_SLOT_BAG_0 = 255;
+static constexpr uint8 INVENTORY_DEFAULT_SIZE = 16;
+static constexpr uint8 INVENTORY_ACCOUNT_SECURED_SIZE = INVENTORY_DEFAULT_SIZE + 4; // 4 slots are provided for having a secured account
 
 enum EquipmentSlots : uint8                                 // 19 slots
 {
