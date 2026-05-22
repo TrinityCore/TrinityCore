@@ -767,7 +767,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
     {
         switch (action)
         {
-            case Actions::LousPartingThoughts::ThugReset:
+            case Events::LousPartingThoughts::ThugReset:
                 _events.ScheduleEvent(Events::LousPartingThoughts::SummonThugs, 60s);
                 break;
         }
