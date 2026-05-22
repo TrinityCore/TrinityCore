@@ -1,8 +1,8 @@
 -- Delete static spawns
-DELETE FROM `creature` WHERE  `guid`=275910;
-DELETE FROM `creature` WHERE  `guid`=275911;
-DELETE FROM `creature` WHERE  `guid`=275915;
-DELETE FROM `creature` WHERE  `guid`=275916;
+DELETE FROM `creature` WHERE `guid`=275910;
+DELETE FROM `creature` WHERE `guid`=275911;
+DELETE FROM `creature` WHERE `guid`=275915;
+DELETE FROM `creature` WHERE `guid`=275916;
 
 -- Areatrigger Scripts
 DELETE FROM `areatrigger_scripts` WHERE `entry`=5988;
@@ -13,9 +13,9 @@ DELETE FROM `areatrigger_scripts` WHERE `entry`=5987;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (5987, 'at_westfall_small_time_hustler');
 
-DELETE FROM areatrigger_scripts WHERE entry = 5989;
-INSERT INTO areatrigger_scripts(entry, ScriptName) VALUES
-(5989, "SmartTrigger");
+DELETE FROM `areatrigger_scripts` WHERE `entry` = 5989;
+INSERT INTO `areatrigger_scripts` (entry, ScriptName) VALUES
+(5989, 'SmartTrigger');
 
 -- Template
 UPDATE `creature_template` SET `ScriptName`='npc_westfall_small_time_hustler' WHERE  `entry`=42390;
@@ -67,34 +67,34 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (42558, 3, 0, 'It would appear that poor Lou really put his foot...', 12, 7, 100, 0, 0, 0, 42451, 'Lieutenant Horatio Laine to Player'),
 (42558, 4, 0, 'In his mouth.', 12, 7, 100, 0, 0, 0, 42452, 'Lieutenant Horatio Laine to Player');
 
--- Clientside area trigger 5989
+-- Clientside area trigger 5989 smart ai
 SET @ENTRY := 5989;
-DELETE FROM smart_scripts WHERE entryOrGuid = @ENTRY AND source_type = 2;
-INSERT INTO smart_scripts (entryorguid, source_type, id, link, event_type, event_phase_mask, event_chance, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, target_type, target_param1, target_param2, target_param3, target_x, target_y, target_z, target_o, comment) VALUES
-(@ENTRY, 2, 0, 0, 46, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 10, 251575, 42558, 0, 0, 0, 0, 0, "On trigger - Creature Lieutenant Horatio Laine (42558) with guid 251575: Set creature data #1 to 1");
+DELETE FROM `areatrigger_scripts` WHERE `entry` = @ENTRY;
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES (@ENTRY, 'SmartTrigger');
+DELETE FROM `smart_scripts` WHERE `source_type` = 2 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 2, 0, 0, 46, 0, 100, 0, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 0, 10, 251575, 42558, 0, 0, 0, 0, 0, 'On trigger - Creature Lieutenant Horatio Laine (42558) with guid 251575 (fetching): Set creature data #1 to 1', '');
 
-DELETE FROM conditions WHERE SourceTypeOrReferenceId = 22 AND SourceEntry = 5989 AND SourceId = 2;
-INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, Comment) VALUES
-(22, 1, 5989, 2, 0, 28, 0, 26232, 0, 0, 0, "Action invoker has completed quest quest Lou's Parting Thoughts (26232) (but not yet rewarded)");
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 5989 AND `SourceId` = 2;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 5989, 2, 0, 28, 0, 26232, 0, 0, '', 0, 'Action invoker has completed quest quest Lou\'s Parting Thoughts (26232) (but not yet rewarded)');
 
- -- Lieutenant Horatio Laine
+-- Lieutenant Horatio Laine smart ai
 SET @ENTRY := 42558;
-DELETE FROM smart_scripts WHERE entryOrGuid = @ENTRY AND source_type = 0;
-UPDATE creature_template SET AIName="SmartAI" WHERE entry= @ENTRY;
-INSERT INTO smart_scripts (entryorguid, source_type, id, link, event_type, event_phase_mask, event_chance, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, target_type, target_param1, target_param2, target_param3, target_x, target_y, target_z, target_o, comment) VALUES
-(@ENTRY, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 4255800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On data[1] set to 1 - Self: Start timed action list id #4255800 (update out of combat)");
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 80, 4255800, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[1] set to 1 - Self: Start timed action list id #Lieutenant Horatio Laine #0 (4255800) (update out of combat)', '');
 
-DELETE FROM conditions WHERE SourceTypeOrReferenceId = 22 AND SourceEntry = 42558 AND SourceId = 0;
-
- -- Timed list 4255800
+-- Timed list 4255800 smart ai
 SET @ENTRY := 4255800;
-DELETE FROM smart_scripts WHERE entryOrGuid = @ENTRY AND source_type = 9;
-INSERT INTO smart_scripts (entryorguid, source_type, id, link, event_type, event_phase_mask, event_chance, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, target_type, target_param1, target_param2, target_param3, target_x, target_y, target_z, target_o, comment) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 10, 251574, 42559, 0, 0, 0, 0, 0, "After 0 seconds - Creature Stormwind Investigator (42559) with guid 251574: Talk 0 to invoker"),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 4500, 4500, 0, 0, 1, 11, 0, 0, 0, 0, 0, 10, 251572, 42384, 0, 0, 0, 0, 0, "After 4.5 seconds - Creature Homeless Stormwind Citizen (42384) with guid 251572: Talk 11 to invoker"),
-(@ENTRY, 9, 2, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 10, 251574, 42559, 0, 0, 0, 0, 0, "After 4 seconds - Creature Stormwind Investigator (42559) with guid 251574: Talk 1 to invoker"),
-(@ENTRY, 9, 3, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "After 10 seconds - Self: Talk 0 to invoker"),
-(@ENTRY, 9, 4, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "After 5 seconds - Self: Talk 1 to invoker"),
-(@ENTRY, 9, 5, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "After 6 seconds - Self: Talk 2 to invoker"),
-(@ENTRY, 9, 6, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "After 6 seconds - Self: Talk 3 to invoker"),
-(@ENTRY, 9, 7, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "After 3.5 seconds - Self: Talk 4 to invoker");
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 10, 251574, 42559, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Stormwind Investigator (42559) with guid 251574 (fetching): Talk 0 to invoker', ''),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 4500, 4500, 0, 0, 0, 1, 11, 0, 0, 0, 0, 0, 0, 10, 251572, 42384, 0, 0, 0, 0, 0, 'After 4.5 seconds - Creature Homeless Stormwind Citizen (42384) with guid 251572 (fetching): Talk 11 to invoker', ''),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 10, 251574, 42559, 0, 0, 0, 0, 0, 'After 4 seconds - Creature Stormwind Investigator (42559) with guid 251574 (fetching): Talk 1 to invoker', ''),
+(@ENTRY, 9, 3, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Talk 0 to invoker', ''),
+(@ENTRY, 9, 4, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Talk 1 to invoker', ''),
+(@ENTRY, 9, 5, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6 seconds - Self: Talk 2 to invoker', ''),
+(@ENTRY, 9, 6, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6 seconds - Self: Talk 3 to invoker', ''),
+(@ENTRY, 9, 7, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Talk 4 to invoker', '');
