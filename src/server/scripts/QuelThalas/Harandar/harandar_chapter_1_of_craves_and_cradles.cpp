@@ -145,7 +145,6 @@ public:
         if (!halduronClone)
             return;
 
-
         orweynaClone->SetScriptStringId("Cave");
         halduronClone->SetScriptStringId("Cave");
         orweynaClone->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
