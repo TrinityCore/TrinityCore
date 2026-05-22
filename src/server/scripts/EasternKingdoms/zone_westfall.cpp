@@ -697,8 +697,7 @@ public:
         if (player->IsAlive())
             if (player->GetQuestStatus(Quests::LousPartingThoughts) == QUEST_STATUS_INCOMPLETE)
                 if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(Creatures::LousPartingThoughtsTrigger, 50.0f, true))
-                    if (lousPartingThoughtsTrigger->IsAIEnabled())
-                        lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID(), 0);
+                    lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID(), 0);
 
         return true;
     }
@@ -709,29 +708,20 @@ struct npc_westfall_thug : public ScriptedAI
 {
     npc_westfall_thug(Creature* creature) : ScriptedAI(creature) {}
 
-    void Reset() override
-    {
-        ScriptedAI::Reset();
-    }
-
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        if (Unit* summon = me->ToTempSummon())
-            if (Unit* summon = me->ToTempSummon()->GetSummonerUnit())
-                if (Creature* creature = summon->ToCreature())
-                    if (creature->IsAIEnabled())
-                        creature->AI()->DoAction(Actions::LousPartingThoughts::ThugReset);
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Creature* summoner = summon->GetSummonerCreatureBase())
+                summoner->AI()->DoAction(Actions::LousPartingThoughts::ThugReset);
 
         me->DespawnOrUnsummon();
     }
 
     void JustDied(Unit* /*who*/) override
     {
-        if (Unit* summon = me->ToTempSummon())
-            if (Unit* summon = me->ToTempSummon()->GetSummonerUnit())
-                if (Creature* creature = summon->ToCreature())
-                    if (creature->IsAIEnabled())
-                        creature->AI()->SetData(0, Data::DataThugDeath);
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Creature* summoner = summon->GetSummonerCreatureBase())
+                summoner->AI()->SetData(0, Data::DataThugDeath);
     }
 };
 
@@ -776,9 +766,9 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
     {
         switch (action)
         {
-        case Actions::LousPartingThoughts::ThugReset:
-            _events.ScheduleEvent(Events::LousPartingThoughts::SummonThugs, 60s);
-            break;
+            case Actions::LousPartingThoughts::ThugReset:
+                _events.ScheduleEvent(Events::LousPartingThoughts::SummonThugs, 60s);
+                break;
         }
     }
 
@@ -792,164 +782,146 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
         _events.Update(diff);
         while (uint32 eventId = _events.ExecuteEvent())
         {
+            Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+
             switch (eventId)
             {
-            case Events::LousPartingThoughts::SummonThugs:
-                _summons[0] = me->SummonCreature(Creatures::Thug, ThugPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
-                _summons[1] = me->SummonCreature(Creatures::Thug, ThugPos[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
-                _summons[2] = me->SummonCreature(Creatures::Thug, ThugPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
-                _summons[3] = me->SummonCreature(Creatures::Thug, ThugPos[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
-                _eventInvokerGUID = ObjectGuid::Empty;
-                _thugDeathCount = 0;
-                break;
-            case Events::LousPartingThoughts::ThugSay0:
-            {
-                Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug1)
-                    if (thug1->IsAIEnabled())
-                        thug1->AI()->Talk(Text::ThugText::ThugSay0, invoker);
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay1, 5s);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay1:
-            {
-                Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug2)
-                    if (thug2->IsAIEnabled())
-                        thug2->AI()->Talk(Text::ThugText::ThugSay1, invoker);
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay2, 5s);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay2:
-            {
-                Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug2)
-                    if (thug2->IsAIEnabled())
-                        thug2->AI()->Talk(Text::ThugText::ThugSay2, invoker);
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay3, 8s + 500ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay3:
-            {
-                Creature* thug3 = ObjectAccessor::GetCreature(*me, _summons[2]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug3)
-                    if (thug3->IsAIEnabled())
-                        thug3->AI()->Talk(Text::ThugText::ThugSay3, invoker);
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay4, 5s);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay4:
-            {
-                Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug1)
+                case Events::LousPartingThoughts::SummonThugs:
+                    for (uint8 i = 0; i < 4; i++)
+                    {
+                        _summons[i] = me->SummonCreature(Creatures::Thug, ThugPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                    }
+                    _eventInvokerGUID = ObjectGuid::Empty;
+                    _thugDeathCount = 0;
+                    break;
+                case Events::LousPartingThoughts::ThugSay0:
                 {
-                    if (thug1->IsAIEnabled())
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    if (invoker && thug1)
+                        thug1->AI()->Talk(Text::ThugText::ThugSay0, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay1, 5s);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay1:
+                {
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    if (invoker && thug2)
+                        thug2->AI()->Talk(Text::ThugText::ThugSay1, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay2, 5s);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay2:
+                {
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    if (invoker && thug2)
+                        thug2->AI()->Talk(Text::ThugText::ThugSay2, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay3, 8s + 500ms);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay3:
+                {
+                    Creature* thug3 = ObjectAccessor::GetCreature(*me, _summons[2]);
+                    if (invoker && thug3)
+                        thug3->AI()->Talk(Text::ThugText::ThugSay3, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay4, 5s);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay4:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    if (invoker && thug1)
+                    {
                         thug1->AI()->Talk(Text::ThugText::ThugSay4, invoker);
 
-                    for (ObjectGuid const& guid : _summons)
-                        if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
-                            thug->SetFacingToObject(invoker);
-                }
+                        for (ObjectGuid const& guid : _summons)
+                            if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
+                                thug->SetFacingToObject(invoker);
+                    }
 
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay5, 8s + 500ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay5:
-            {
-                Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug1)
-                    if (thug1->IsAIEnabled())
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay5, 8s + 500ms);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay5:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    if (invoker && thug1)
                         thug1->AI()->Talk(Text::ThugText::ThugSay5, invoker);
 
 
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay6, 5s);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugSay6:
-            {
-                Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker && thug1)
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay6, 5s);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugSay6:
                 {
-                    if (thug1->IsAIEnabled())
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    if (invoker && thug1)
+                    {
                         thug1->AI()->Talk(Text::ThugText::ThugSay6, invoker);
 
-                    for (ObjectGuid const& guid : _summons)
-                        if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
-                        {
-                            thug->SetImmuneToAll(false);
-                            if (thug->IsAIEnabled())
-                                thug->AI()->AttackStart(invoker);
-                        }
-                }
-                break;
-            }
-            case Events::LousPartingThoughts::ThugCredit:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
-                {
-                    invoker->CastSpell(invoker, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
-
-                    /*
-                    if (Group* group = invoker->GetGroup())
-                    {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                        {
-                            Player* groupMember = itr->GetSource();
-                            if (groupMember && groupMember->IsInMap(invoker) && groupMember->GetQuestStatus(Quests::LousPartingThoughts) == QUEST_STATUS_INCOMPLETE && groupMember->GetDistance(me) <= 75.f)
+                        for (ObjectGuid const& guid : _summons)
+                            if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
                             {
-                                groupMember->CastSpell(groupMember, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
+                                thug->SetImmuneToAll(false);
+                                thug->AI()->AttackStart(invoker);
+                            }
+                    }
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugCredit:
+                {
+                    if (invoker)
+                    {
+                        invoker->CastSpell(invoker, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
+
+                        /*
+                        if (Group* group = invoker->GetGroup())
+                        {
+                            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                            {
+                                Player* groupMember = itr->GetSource();
+                                if (groupMember && groupMember->IsInMap(invoker) && groupMember->GetQuestStatus(Quests::LousPartingThoughts) == QUEST_STATUS_INCOMPLETE && groupMember->GetDistance(me) <= 75.f)
+                                {
+                                    groupMember->CastSpell(groupMember, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
+                                }
                             }
                         }
+                        */
                     }
-                    */
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugShoot1, 1s + 500ms);
+                    break;
                 }
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugShoot1, 1s + 500ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugShoot1:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
-                    me->PlayDistanceSound(Sounds::Shooting, invoker);
+                case Events::LousPartingThoughts::ThugShoot1:
+                {
+                    if (invoker)
+                        me->PlayDistanceSound(Sounds::Shooting, invoker);
 
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugShoot2, 1s + 200ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugShoot2:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
-                    me->PlayDistanceSound(Sounds::Shooting, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugShoot2, 1s + 200ms);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugShoot2:
+                {
+                    if (invoker)
+                        me->PlayDistanceSound(Sounds::Shooting, invoker);
 
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugScream, 1s + 200ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugScream:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
-                    me->PlayDistanceSound(Sounds::Scream, invoker);
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugScream, 1s + 200ms);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugScream:
+                {
+                    if (invoker)
+                        me->PlayDistanceSound(Sounds::Scream, invoker);
 
-                _events.ScheduleEvent(Events::LousPartingThoughts::ThugWarning, 2s + 500ms);
-                break;
-            }
-            case Events::LousPartingThoughts::ThugWarning:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
-                    Talk(Text::ThugText::SayWarning, invoker);
-                break;
-            }
-            default:
-                break;
+                    _events.ScheduleEvent(Events::LousPartingThoughts::ThugWarning, 2s + 500ms);
+                    break;
+                }
+                case Events::LousPartingThoughts::ThugWarning:
+                {
+                    if (invoker)
+                        Talk(Text::ThugText::SayWarning, invoker);
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
@@ -971,8 +943,7 @@ public:
     {
         if (player->IsAlive())
             if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(Creatures::SmallTimeHustler, 10.0f, true))
-                if (lousPartingThoughtsTrigger->IsAIEnabled())
-                    lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID(), 0);
+                lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID(), 0);
 
         return true;
     }
@@ -1000,34 +971,34 @@ struct npc_westfall_small_time_hustler : public ScriptedAI
         {
             switch (eventId)
             {
-            case Events::LousPartingThoughts::HustlerSay0:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
+                case Events::LousPartingThoughts::HustlerSay0:
                 {
-                    me->SetFacingToObject(invoker);
-                    Talk(Text::SmallTimeHustlerText::HustlerSay0, invoker);
-                    _events.ScheduleEvent(Events::LousPartingThoughts::HustlerSay1, 4s);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                    {
+                        me->SetFacingToObject(invoker);
+                        Talk(Text::SmallTimeHustlerText::HustlerSay0, invoker);
+                        _events.ScheduleEvent(Events::LousPartingThoughts::HustlerSay1, 4s);
+                    }
+                    break;
                 }
-                break;
-            }
-            case Events::LousPartingThoughts::HustlerSay1:
-            {
-                Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
-                if (invoker)
+                case Events::LousPartingThoughts::HustlerSay1:
                 {
-                    Talk(Text::SmallTimeHustlerText::HustlerSay1, invoker);
-                    _events.ScheduleEvent(Events::LousPartingThoughts::HustlerEventReset, 60s);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                    {
+                        Talk(Text::SmallTimeHustlerText::HustlerSay1, invoker);
+                        _events.ScheduleEvent(Events::LousPartingThoughts::HustlerEventReset, 60s);
+                    }
+                    break;
                 }
-                break;
-            }
-            case Events::LousPartingThoughts::HustlerEventReset:
-            {
-                _eventInvokerGUID = ObjectGuid::Empty;
-                break;
-            }
-            default:
-                break;
+                case Events::LousPartingThoughts::HustlerEventReset:
+                {
+                    _eventInvokerGUID = ObjectGuid::Empty;
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
