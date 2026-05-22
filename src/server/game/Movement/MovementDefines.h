@@ -164,8 +164,12 @@ using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*,
 struct MovementFadeObject
 {
     constexpr MovementFadeObject() = default;
-    constexpr MovementFadeObject(Milliseconds duration) : Duration(duration) { }
-    constexpr MovementFadeObject(Optional<Milliseconds> duration) : Duration(duration) { }
+
+    template <typename DurationRep, typename DurationPeriod>
+    constexpr MovementFadeObject(std::chrono::duration<DurationRep, DurationPeriod> duration) : Duration(duration) { }
+
+    template <typename DurationRep, typename DurationPeriod>
+    constexpr MovementFadeObject(Optional<std::chrono::duration<DurationRep, DurationPeriod>> duration) : Duration(duration) { }
 
     Optional<Milliseconds> Duration;
 };
