@@ -26,6 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SharedDefines.h"
+#include "TemporarySummon.h"
 
 namespace Scripts::EasternKingdoms::Westfall
 {
@@ -847,7 +848,6 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     if (invoker && thug1)
                         thug1->AI()->Talk(Text::ThugText::ThugSay5, invoker);
 
-
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay6, 5s);
                     break;
                 }
@@ -872,7 +872,6 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     if (invoker)
                     {
                         invoker->CastSpell(invoker, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
-
                         /*
                         if (Group* group = invoker->GetGroup())
                         {
