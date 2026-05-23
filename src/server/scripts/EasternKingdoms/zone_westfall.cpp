@@ -166,7 +166,7 @@ namespace Text
         static constexpr uint32 ThugSay4 = 4;
         static constexpr uint32 ThugSay5 = 5;
         static constexpr uint32 ThugSay6 = 6;
-        static constexpr uint32 SayWarning = 7;
+        static constexpr uint32 SayWarning = 0;
     }
     namespace SmallTimeHustlerText
     {
