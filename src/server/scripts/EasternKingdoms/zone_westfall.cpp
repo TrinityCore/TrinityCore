@@ -726,7 +726,7 @@ struct npc_westfall_thug : public ScriptedAI
     }
 };
 
-Position const ThugPos[4] =
+Position constexpr ThugPos[4] =
 {
     { -9859.36f, 1332.42f, 41.9859f, 2.49582f  },
     { -9862.52f, 1332.08f, 41.9859f, 0.855211f },
@@ -767,7 +767,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
     {
         switch (action)
         {
-            case Events::LousPartingThoughts::ThugReset:
+            case Actions::LousPartingThoughts::ThugReset:
                 _events.ScheduleEvent(Events::LousPartingThoughts::SummonThugs, 60s);
                 break;
         }

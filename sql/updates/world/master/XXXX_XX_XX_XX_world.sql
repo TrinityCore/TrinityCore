@@ -14,7 +14,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (5987, 'at_westfall_small_time_hustler');
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 5989;
-INSERT INTO `areatrigger_scripts` (entry, ScriptName) VALUES
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (5989, 'SmartTrigger');
 
 -- Template
