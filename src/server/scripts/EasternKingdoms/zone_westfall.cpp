@@ -108,14 +108,13 @@ namespace Events
         static constexpr uint32 ThugSay5 = 7;
         static constexpr uint32 ThugSay6 = 8;
         static constexpr uint32 ThugCredit = 9;
-        static constexpr uint32 ThugReset = 10;
-        static constexpr uint32 ThugShoot1 = 11;
-        static constexpr uint32 ThugShoot2 = 12;
-        static constexpr uint32 ThugScream = 13;
-        static constexpr uint32 ThugWarning = 14;
-        static constexpr uint32 HustlerSay0 = 15;
-        static constexpr uint32 HustlerSay1 = 16;
-        static constexpr uint32 HustlerEventReset = 17;
+        static constexpr uint32 ThugShoot1 = 10;
+        static constexpr uint32 ThugShoot2 = 11;
+        static constexpr uint32 ThugScream = 12;
+        static constexpr uint32 ThugWarning = 13;
+        static constexpr uint32 HustlerSay0 = 14;
+        static constexpr uint32 HustlerSay1 = 15;
+        static constexpr uint32 HustlerEventReset = 16;
     }
 }
 
