@@ -4755,7 +4755,7 @@ void Spell::TakeCastItem()
     for (uint32 i = 0; i < proto->Effects.size(); ++i)
     {
         ItemEffect const& itemEffect = proto->Effects[i];
-        if (itemEffect.SpellID > 0)
+        if (itemEffect.TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect.SpellID > 0)
         {
             // item has limited charges
             if (itemEffect.Charges)
