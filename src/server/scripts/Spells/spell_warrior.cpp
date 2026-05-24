@@ -366,14 +366,14 @@ class spell_warr_bloodthirst_enrage : public SpellScript
     bool CheckEnrageProc() const
     {
         Unit const* caster = GetCaster();
+        Unit const* hitUnit = GetHitUnit();
+
+        if (hitUnit != GetExplTargetUnit())
+            return false;
 
         if (caster->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
-        {
-            Unit const* hitUnit = GetHitUnit();
-            if (hitUnit == GetExplTargetUnit())
-                if (!hitUnit->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
-                    return true;
-        }
+            if (!hitUnit->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
+                return true;
 
         return roll_chance(GetEffectInfo(EFFECT_2).CalcValue(caster));
     }
@@ -402,7 +402,6 @@ class spell_warr_bloodthirst_enrage : public SpellScript
                     .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
                 });
         }
-
     }
 
     void Register() override
