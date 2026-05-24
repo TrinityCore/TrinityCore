@@ -342,10 +342,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
     }
 
     if (destroyItem.Count)
-    {
-        uint32 i_count = destroyItem.Count;
-        _player->DestroyItemCount(item, i_count, true);
-    }
+        _player->DestroyItemCount(item, destroyItem.Count, true);
     else
         _player->DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
 }
