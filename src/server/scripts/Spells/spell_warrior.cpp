@@ -363,24 +363,35 @@ class spell_warr_bloodthirst_enrage : public SpellScript
             && ValidateSpellEffect({{ spellInfo->Id, EFFECT_2 }});
     }
 
-    bool CheckEnrageProc() const
+    enum class EnrageResult
+    {
+        No,
+        Yes,
+        FreshMeat
+    };
+
+    EnrageResult CheckEnrageProc() const
     {
         Unit const* caster = GetCaster();
         Unit const* hitUnit = GetHitUnit();
 
         if (hitUnit != GetExplTargetUnit())
-            return false;
+            return EnrageResult::No;
 
         if (caster->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
             if (!hitUnit->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
-                return true;
+                return EnrageResult::FreshMeat;
 
-        return roll_chance(GetEffectInfo(EFFECT_2).CalcValue(caster));
+        if (roll_chance(GetEffectInfo(EFFECT_2).CalcValue(caster)))
+            return EnrageResult::Yes;
+
+        return EnrageResult::No;
     }
 
     void Enrage(SpellEffIndex /*effIndex*/) const
     {
-        if (!CheckEnrageProc())
+        EnrageResult procResult = CheckEnrageProc();
+        if (procResult == EnrageResult::No)
             return;
 
         Unit* caster = GetCaster();
@@ -391,17 +402,10 @@ class spell_warr_bloodthirst_enrage : public SpellScript
         });
 
         // Fresh Meat talent handling
-        if (caster->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
-        {
-            Unit* hitUnit = GetHitUnit();
-            if (hitUnit != GetExplTargetUnit())
-                return;
-
-            if (!hitUnit->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
-                caster->CastSpell(hitUnit, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
-                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-                });
-        }
+        if (procResult == EnrageResult::FreshMeat)
+            caster->CastSpell(GetHitUnit(), SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
     }
 
     void Register() override
@@ -1072,7 +1076,7 @@ class spell_warr_heroic_leap : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_HEROIC_LEAP_DAMAGE, SPELL_WARRIOR_TAUNT });
+        return ValidateSpellInfo({ SPELL_WARRIOR_TAUNT });
     }
 
     SpellCastResult CheckElevation() const
@@ -1868,8 +1872,7 @@ class spell_warr_strategist : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER })
-            && ValidateSpellEffect({ { SPELL_WARRIOR_STRATEGIST, EFFECT_0 } });
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM, SPELL_WARRIOR_SHIELD_SLAM_MARKER });
     }
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
