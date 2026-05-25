@@ -1693,15 +1693,13 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     else
     {
         if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_INVISIBILITY, type))
-        {
-            // if not have invisibility auras of type INVISIBILITY_GENERAL
-            // remove glow vision
-            if (type == INVISIBILITY_GENERAL)
-                if (Player* playerTarget = target->ToPlayer())
-                    playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-
             target->m_invisibility.DelFlag(type);
-        }
+
+        // if not have invisibility auras of type INVISIBILITY_GENERAL
+        // remove glow vision
+        if (!target->m_invisibility.HasFlag(INVISIBILITY_GENERAL))
+            if (Player* playerTarget = target->ToPlayer())
+                playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
             target->RemoveVisFlag(UNIT_VIS_FLAGS_INVISIBLE);

@@ -823,7 +823,7 @@ class TC_GAME_API Quest
         int32 _questGiverPortraitMount = 0;
         int32 _questGiverPortraitModelSceneId = 0;
         uint32 _questTurnInPortrait = 0;
-        uint32 _rewardReputationMask;
+        uint32 _rewardReputationMask = 0;
         uint32 _soundAccept = 0;
         uint32 _soundTurnIn = 0;
         uint32 _areaGroupID = 0;
