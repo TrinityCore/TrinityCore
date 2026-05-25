@@ -548,6 +548,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = go->HasStringId(ConditionStringValue1);
             break;
         }
+        case CONDITION_GROUP:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->GetGroup();
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -749,6 +755,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_STRING_ID:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        case CONDITION_GROUP:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2406,6 +2415,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_TAXI:
         case CONDITION_GAMEMASTER:
         case CONDITION_STRING_ID:
+        case CONDITION_GROUP:
         default:
             break;
         case CONDITION_BATTLE_PET_COUNT:

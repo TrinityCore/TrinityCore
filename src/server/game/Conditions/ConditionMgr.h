@@ -95,6 +95,7 @@ enum ConditionTypes
     CONDITION_PRIVATE_OBJECT           = 57,                   // 0                      0              0                  true if entity is private object
     CONDITION_STRING_ID                = 58,
     CONDITION_LABEL                    = 59,                   //                                                          only for master branch
+    CONDITION_GROUP                    = 60,                   // 0                      0              0                  true if player is in group
     CONDITION_MAX
 };
 
