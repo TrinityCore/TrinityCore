@@ -23,6 +23,7 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "EquipmentSetPackets.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "GitRevision.h"
@@ -36,6 +37,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -880,7 +882,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
     {
         pCurrChar->ResetTalents(true);
-        pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
+        pCurrChar->SendTalentsInfoData(false); // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
     }
 
     bool firstLogin = pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST);
@@ -1024,29 +1026,26 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
     GetPlayer()->GetReputationMgr().SendState(nullptr);
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
+void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet)
 {
-    uint32 data;
-    recvData >> data;
-
-    uint8 index = uint8(data / 32);
+    uint8 index = uint8(packet.TutorialBit / 32);
     if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
         return;
 
-    uint32 value = (data % 32);
+    uint32 value = (packet.TutorialBit % 32);
 
     uint32 flag = GetTutorialInt(index);
     flag |= (1 << value);
     SetTutorialInt(index, flag);
 }
 
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialClear(WorldPackets::Misc::TutorialClear& /*tutorialClear*/)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0xFFFFFFFF);
 }
 
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialReset(WorldPackets::Misc::TutorialReset& /*tutorialReset*/)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0x00000000);
@@ -1331,7 +1330,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
         return;
     }
 
-    if (uint32 glyph = _player->GetGlyph(_player->GetActiveSpec(), slot))
+    if (uint32 glyph = _player->GetGlyph(_player->GetActiveTalentGroup(), slot))
     {
         if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
@@ -1475,56 +1474,34 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
         GetAccountId(), GetRemoteAddress(), oldName, customizeInfo->CharGUID.ToString(), customizeInfo->CharName);
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& saveEquipmentSet)
 {
-    TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
-
-    uint64 setGuid;
-    recvData.readPackGUID(setGuid);
-
-    uint32 index;
-    recvData >> index;
-    if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
+    if (saveEquipmentSet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
-
-    std::string name;
-    recvData >> name;
-
-    std::string iconName;
-    recvData >> iconName;
-
-    EquipmentSetInfo::EquipmentSetData eqData;
-    eqData.Guid    = setGuid;
-    eqData.SetID   = index;
-    eqData.SetName = name;
-    eqData.SetIcon = iconName;
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        ObjectGuid itemGuid;
-        recvData >> itemGuid.ReadAsPacked();
+        ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
 
         // if client sends 0, it means empty slot
         if (itemGuid.IsEmpty())
             continue;
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid.GetRawValue() == 1)
+        if (itemGuid == EquipmentSetInfo::IgnoredSlot)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
-            eqData.IgnoreMask |= 1 << i;
+            saveEquipmentSet.Set.IgnoreMask |= 1 << i;
             continue;
         }
 
         // some cheating checks
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (!item || item->GetGUID() != itemGuid)
-            continue;
-
-        eqData.Pieces[i] = itemGuid;
+            saveEquipmentSet.Set.Pieces[i].Clear();
     }
 
-    _player->SetEquipmentSet(eqData);
+    _player->SetEquipmentSet(saveEquipmentSet.Set);
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -1552,7 +1529,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         TC_LOG_DEBUG("entities.player.items", "{}: srcbag {}, srcslot {}", itemGuid.ToString(), srcbag, srcslot);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid.GetRawValue() == 1)
+        if (itemGuid == EquipmentSetInfo::IgnoredSlot)
             continue;
 
         // Only equip weapons in combat

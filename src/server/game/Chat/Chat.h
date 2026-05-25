@@ -49,14 +49,6 @@ class TC_GAME_API ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string_view message, uint8 chatTag,
-                                    std::string const& senderName = "", std::string const& receiverName = "",
-                                    uint32 achievementId = 0, bool gmMessage = false, std::string const& channelName = "");
-
-        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
-
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
@@ -102,7 +94,7 @@ class TC_GAME_API ChatHandler
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
-        virtual int GetSessionDbLocaleIndex() const;
+        virtual LocaleConstant GetSessionDbLocaleIndex() const;
 
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
@@ -156,7 +148,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
-        int GetSessionDbLocaleIndex() const override;
+        LocaleConstant GetSessionDbLocaleIndex() const override;
 
     private:
         void* m_callbackArg;
@@ -166,6 +158,8 @@ class TC_GAME_API CliHandler : public ChatHandler
 class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 {
     public:
+        static std::string_view const PREFIX;
+
         using ChatHandler::ChatHandler;
         bool ParseCommands(std::string_view str) override;
         void SendSysMessage(std::string_view, bool escapeCharacters) override;
@@ -173,7 +167,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
         bool IsHumanReadable() const override { return humanReadable; }
 
     private:
-        void Send(std::string const& msg);
+        void Send(std::string_view msg);
         void SendAck();
         void SendOK();
         void SendFailed();

@@ -84,6 +84,27 @@ WorldPacket const* UpdateTalentData::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, LearnTalentEntry& learnTalentEntry)
+{
+    data >> learnTalentEntry.TalentID;
+    data >> learnTalentEntry.Rank;
+
+    return data;
+}
+
+void LearnTalent::Read()
+{
+    _worldPacket >> Talent;
+}
+
+void LearnPreviewTalents::Read()
+{
+    Talents.resize(_worldPacket.read<uint32>());
+
+    for (LearnTalentEntry& learnTalentEntry : Talents)
+        _worldPacket >> learnTalentEntry;
+}
+
 WorldPacket const* RespecWipeConfirm::Write()
 {
     _worldPacket << RespecMaster;
