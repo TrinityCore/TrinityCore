@@ -219,20 +219,14 @@ typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
 
-static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
-{
-    TC_LOG_ERROR("misc", "Size of '{}' set by format string ({}) not equal size of C++ structure ({}).", filename, fsize, rsize);
-
-    // ASSERT must fail after function call
-    return false;
-}
-
 template<class T>
 inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename,
                     char const* dbTable = nullptr, char const* dbFormat = nullptr, char const* dbIndexName = nullptr)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;

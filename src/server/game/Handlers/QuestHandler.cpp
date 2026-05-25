@@ -35,16 +35,14 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-    uint32 questStatus = DIALOG_STATUS_NONE;
+    QuestGiverStatus questStatus = DIALOG_STATUS_NONE;
 
-    Object* questGiver = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+    Object* questGiver = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
     if (!questGiver)
     {
-        TC_LOG_INFO("network", "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver ({})", guid.ToString());
+        TC_LOG_INFO("network", "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver ({})", packet.QuestGiverGUID.ToString());
         return;
     }
 
@@ -69,7 +67,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
     }
 
     // inform client about status of quest
-    _player->PlayerTalkClass->SendQuestGiverStatus(uint8(questStatus), guid);
+    _player->PlayerTalkClass->SendQuestGiverStatus(questStatus, packet.QuestGiverGUID);
 }
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
@@ -662,7 +660,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     _player->ClearQuestSharingInfo();
 }
 
-void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
 

@@ -1450,7 +1450,7 @@ public:
         ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
         for (auto const& itemTemplatePair : its)
         {
-            if (itemTemplatePair.second.ItemSet != *itemSetId)
+            if (itemTemplatePair.second.GetItemSet() != *itemSetId)
                 continue;
 
             found = true;

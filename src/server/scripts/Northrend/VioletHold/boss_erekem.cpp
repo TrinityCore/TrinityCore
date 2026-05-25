@@ -44,6 +44,11 @@ enum ErekemSpells
     SPELL_WINDFURY            = 54493
 };
 
+enum ErekemActions
+{
+    ACTION_EREKEM_GUARD_DIED = 1
+};
+
 // 29315 - Erekem
 // 32226 - Arakkoa Windwalker
 struct boss_erekem : public BossAI
@@ -56,6 +61,7 @@ struct boss_erekem : public BossAI
     void Initialize()
     {
         _phase = 0;
+        _addsKilled = 0;
     }
 
     void Reset() override
@@ -82,6 +88,24 @@ struct boss_erekem : public BossAI
     {
         BossAI::JustReachedHome();
         instance->SetData(DATA_HANDLE_CELLS, DATA_EREKEM);
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        switch (actionId)
+        {
+            case ACTION_EREKEM_GUARD_DIED:
+                if (!me->IsAlive())
+                    break;
+
+                if (_addsKilled++ == 0)
+                    Talk(SAY_ADD_KILLED);
+                else
+                    Talk(SAY_BOTH_ADDS_KILLED);
+                break;
+            default:
+                break;
+        }
     }
 
     void KilledUnit(Unit* victim) override
@@ -239,6 +263,7 @@ struct boss_erekem : public BossAI
 
 private:
     uint8 _phase;
+    uint8 _addsKilled;
 };
 
 enum GuardSpells
@@ -252,7 +277,13 @@ enum GuardSpells
 // 32228 - Arakkoa Talon Guard
 struct npc_erekem_guard : public ScriptedAI
 {
-    npc_erekem_guard(Creature* creature) : ScriptedAI(creature) { }
+    npc_erekem_guard(Creature* creature) : ScriptedAI(creature)
+    {
+        scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
 
     void Reset() override
     {
@@ -261,7 +292,15 @@ struct npc_erekem_guard : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
+        ScheduledTasks();
         DoZoneInCombat();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (InstanceScript* instance = me->GetInstanceScript())
+            if (Creature* erekem = instance->GetCreature(DATA_EREKEM))
+                erekem->AI()->DoAction(ACTION_EREKEM_GUARD_DIED);
     }
 
     void UpdateAI(uint32 diff) override

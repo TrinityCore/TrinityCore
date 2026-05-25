@@ -17,6 +17,31 @@
 
 #include "QuestPackets.h"
 
+void WorldPackets::Quest::QuestGiverStatusQuery::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatus::Write()
+{
+    _worldPacket << QuestGiver.Guid;
+    _worldPacket << uint8(QuestGiver.Status);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
+{
+    _worldPacket << uint32(QuestGiver.size());
+    for (QuestGiverInfo const& questGiver : QuestGiver)
+    {
+        _worldPacket << questGiver.Guid;
+        _worldPacket << uint8(questGiver.Status);
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Quest::QueryQuestInfo::Read()
 {
     _worldPacket >> QuestID;
@@ -42,11 +67,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.RewardNextQuest);
     _worldPacket << uint32(Info.RewardXPDifficulty);
 
-    if ((Info.Flags & QUEST_FLAGS_HIDDEN_REWARDS) != 0)
-        _worldPacket << uint32(0);
-    else
-        _worldPacket << uint32(Info.RewardMoney);
-
+    _worldPacket << uint32(Info.RewardMoney);
     _worldPacket << uint32(Info.RewardBonusMoney);
     _worldPacket << uint32(Info.RewardDisplaySpell);
     _worldPacket << int32(Info.RewardSpell);
@@ -61,25 +82,15 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.RewardArenaPoints);
     _worldPacket << uint32(Info.RewardFactionFlags);
 
-    if ((Info.Flags & QUEST_FLAGS_HIDDEN_REWARDS) != 0)
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-            _worldPacket << uint32(0) << uint32(0);
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-            _worldPacket << uint32(0) << uint32(0);
+        _worldPacket << uint32(Info.RewardItems[i]);
+        _worldPacket << uint32(Info.RewardAmount[i]);
     }
-    else
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        {
-            _worldPacket << uint32(Info.RewardItems[i]);
-            _worldPacket << uint32(Info.RewardAmount[i]);
-        }
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        {
-            _worldPacket << uint32(Info.UnfilteredChoiceItems[i].ItemID);
-            _worldPacket << uint32(Info.UnfilteredChoiceItems[i].Quantity);
-        }
+        _worldPacket << uint32(Info.UnfilteredChoiceItems[i].ItemID);
+        _worldPacket << uint32(Info.UnfilteredChoiceItems[i].Quantity);
     }
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
@@ -105,14 +116,14 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
         if (Info.RequiredNpcOrGo[i] < 0)
-            _worldPacket << uint32((Info.RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
+            _worldPacket << uint32(-Info.RequiredNpcOrGo[i] | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
         else
             _worldPacket << uint32(Info.RequiredNpcOrGo[i]);
 
         _worldPacket << uint32(Info.RequiredNpcOrGoCount[i]);
 
         _worldPacket << uint32(Info.ItemDrop[i]);
-        _worldPacket << uint32(0);                                     // req source count?
+        _worldPacket << uint32(Info.ItemDropQuantity[i]);
     }
 
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)

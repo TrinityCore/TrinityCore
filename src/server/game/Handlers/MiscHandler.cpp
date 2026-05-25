@@ -21,6 +21,7 @@
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
+#include "ClientConfigPackets.h"
 #include "Common.h"
 #include "Corpse.h"
 #include "Creature.h"
@@ -38,6 +39,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -47,6 +49,7 @@
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "SpellPackets.h"
 #include "WhoListStorage.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -466,24 +469,21 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
-void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    _player->SetSelection(guid);
+    _player->SetSelection(packet.Selection);
 
     // Update target of current autoshoot spell
-    if (!guid.IsEmpty())
+    if (!packet.Selection.IsEmpty())
     {
         if (Spell* autoReapeatSpell = _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (!autoReapeatSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK24) // client automatically handles spells with SPELL_ATTR4_AUTO_RANGED_COMBAT
-                && autoReapeatSpell->m_targets.GetUnitTargetGUID() != guid)
+                && autoReapeatSpell->m_targets.GetUnitTargetGUID() != packet.Selection)
             {
                 Unit* unitTarget = [&]() -> Unit*
                 {
-                    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+                    Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Selection);
                     if (unit && _player->IsValidAttackTarget(unit, autoReapeatSpell->GetSpellInfo()))
                         return unit;
                     return nullptr;
@@ -762,110 +762,91 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
-void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
+void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type {}, time {}, decompressedSize {}",
+        packet.DataType, packet.Time, packet.Size);
 
-    uint32 type, timestamp, decompressedSize;
-    recvData >> type >> timestamp >> decompressedSize;
-
-    TC_LOG_DEBUG("network", "UAD: type {}, time {}, decompressedSize {}", type, timestamp, decompressedSize);
-
-    if (type >= NUM_ACCOUNT_DATA_TYPES)
+    if (packet.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    if (decompressedSize == 0)                               // erase
+    if (packet.Size == 0)                               // erase
     {
-        SetAccountData(AccountDataType(type), 0, "");
+        SetAccountData(AccountDataType(packet.DataType), 0, "");
 
-        WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-        data << uint32(type);
-        data << uint32(0);
-        SendPacket(&data);
+        WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+        updateAccountDataComplete.DataType = packet.DataType;
+        updateAccountDataComplete.Result = 0;
+        SendPacket(updateAccountDataComplete.Write());
 
         return;
     }
 
-    if (decompressedSize > 0xFFFF)
+    if (packet.Size > 0xFFFF)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
-        TC_LOG_ERROR("network", "UAD: Account data packet too big, size {}", decompressedSize);
+        TC_LOG_ERROR("network", "UAD: Account data packet too big, size {}", packet.Size);
         return;
     }
 
-    ByteBuffer dest;
-    dest.resize(decompressedSize);
+    std::string dest;
+    dest.resize(packet.Size);
 
-    uLongf realSize = decompressedSize;
-    if (uncompress(dest.contents(), &realSize, recvData.contents() + recvData.rpos(), recvData.size() - recvData.rpos()) != Z_OK)
+    uLongf realSize = packet.Size;
+    if (uncompress(reinterpret_cast<Bytef*>(dest.data()), &realSize, packet.CompressedData.data(), packet.CompressedData.size()) != Z_OK)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
         TC_LOG_ERROR("network", "UAD: Failed to decompress account data");
         return;
     }
 
-    recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
+    SetAccountData(AccountDataType(packet.DataType), packet.Time, dest);
 
-    std::string adata;
-    dest >> adata;
-
-    SetAccountData(AccountDataType(type), timestamp, adata);
-
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-    data << uint32(type);
-    data << uint32(0);
-    SendPacket(&data);
+    WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+    updateAccountDataComplete.DataType = packet.DataType;
+    updateAccountDataComplete.Result = 0;
+    SendPacket(updateAccountDataComplete.Write());
 }
 
-void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
+void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA: type {}", request.DataType);
 
-    uint32 type;
-    recvData >> type;
-
-    TC_LOG_DEBUG("network", "RAD: type {}", type);
-
-    if (type >= NUM_ACCOUNT_DATA_TYPES)
+    if (request.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    AccountData* adata = GetAccountData(AccountDataType(type));
+    AccountData const* adata = GetAccountData(AccountDataType(request.DataType));
 
-    uint32 size = adata->Data.size();
+    WorldPackets::ClientConfig::UpdateAccountData data;
+    data.Player = _player ? _player->GetGUID() : ObjectGuid::Empty;
+    data.Time = adata->Time;
+    data.Size = adata->Data.size();
+    data.DataType = request.DataType;
 
-    uLongf destSize = compressBound(size);
+    uLongf destSize = compressBound(data.Size);
 
-    ByteBuffer dest;
-    dest.resize(destSize);
+    data.CompressedData.resize(destSize);
 
-    if (size && compress(dest.contents(), &destSize, (uint8 const*)adata->Data.c_str(), size) != Z_OK)
+    if (data.Size && compress(data.CompressedData.data(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
     {
-        TC_LOG_DEBUG("network", "RAD: Failed to compress account data");
+        TC_LOG_ERROR("network", "RAD: Failed to compress account data");
         return;
     }
 
-    dest.resize(destSize);
+    data.CompressedData.resize(destSize);
 
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 8+4+4+4+destSize);
-    data << (_player ? _player->GetGUID() : ObjectGuid::Empty);
-    data << uint32(type);                                   // type (0-7)
-    data << uint32(adata->Time);                            // unix time
-    data << uint32(size);                                   // decompressed length
-    data.append(dest);                                      // compressed data
-    SendPacket(&data);
+    SendPacket(data.Write());
 }
 
-void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
-    uint8 button;
-    uint32 packetData;
-    recvData >> button >> packetData;
-    TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: {} Data: {}", button, packetData);
+    uint32 action = ACTION_BUTTON_ACTION(packet.Action);
+    uint8 type = ACTION_BUTTON_TYPE(packet.Action);
 
-    if (!packetData)
-        GetPlayer()->removeActionButton(button);
+    TC_LOG_DEBUG("network", "CMSG_SET_ACTION_BUTTON Button: {} Action: {} Type: {}", packet.Index, action, uint32(type));
+
+    if (!packet.Action)
+        GetPlayer()->removeActionButton(packet.Index);
     else
-        GetPlayer()->addActionButton(button, ACTION_BUTTON_ACTION(packetData), ACTION_BUTTON_TYPE(packetData));
+        GetPlayer()->addActionButton(packet.Index, action, type);
 }
 
 void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
@@ -1323,7 +1304,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->SendRespondInspectAchievements(_player);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
+void WorldSession::HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
     // empty opcode
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
@@ -1395,14 +1376,15 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     spell->m_targets.ModSrc(firePos);
     spell->m_targets.ModDst(impactPos);
 
-    spell->m_targets.SetElevation(elevation);
+    spell->m_targets.SetPitch(elevation);
     spell->m_targets.SetSpeed(speed);
 
     if (moveStop)
     {
-        uint32 opcode;
-        recvPacket >> opcode;
-        recvPacket.SetOpcode(opcode);
-        HandleMovementOpcodes(recvPacket);
+        OpcodeClient opcode = static_cast<OpcodeClient>(recvPacket.read<uint32>());
+        MovementInfo movementInfo;
+        recvPacket >> movementInfo.guid.ReadAsPacked();
+        recvPacket >> movementInfo;
+        HandleMovementOpcode(opcode, movementInfo);
     }
 }

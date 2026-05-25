@@ -92,7 +92,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Channel* channel = nullptr;
 
-        if (ChannelMgr* cMgr = ChannelMgr::forTeam(player->GetTeam()))
+        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(player->GetTeam()))
             channel = cMgr->GetChannel(channelId, channelName, player, false, zoneEntry);
 
         if (grantOwnership)
