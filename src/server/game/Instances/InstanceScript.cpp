@@ -778,8 +778,9 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
 {
     for (BossInfo const& boss : bosses)
-        if (advstd::ranges::contains(boss.DungeonEncounters, dungeonEncounterId, &DungeonEncounterEntry::ID))
-            return boss.state == DONE;
+        for (DungeonEncounterEntry const* dungeonEncounter : boss.DungeonEncounters)
+            if (dungeonEncounter && dungeonEncounter->ID == dungeonEncounterId)
+                return boss.state == DONE;
 
     return false;
 }
