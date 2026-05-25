@@ -110,7 +110,6 @@ public:
             player->SetShapeshiftForm(FORM_NONE);
 
         player->SetFactionForRace(player->GetRace());
-
         player->SetPowerType(Powers(powerType), false);
 
         // reset only if player not in some form;

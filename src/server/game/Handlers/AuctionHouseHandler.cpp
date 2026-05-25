@@ -231,11 +231,11 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         }
 
         if (itemEntry == 0)
-            itemEntry = item->GetTemplate()->ItemId;
+            itemEntry = item->GetTemplate()->GetId();
 
         if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             item->GetTemplate()->HasFlag(ITEM_FLAG_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
-            item->GetCount() < count[i] || itemEntry != item->GetTemplate()->ItemId)
+            item->GetCount() < count[i] || itemEntry != item->GetTemplate()->GetId())
         {
             SendAuctionCommandResult(nullptr, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
@@ -321,7 +321,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             sLog->OutCommand(GetAccountId(), "GM {} (Account: {}) create auction: {} (Entry: {} Count: {})",
-                GetPlayerName(), GetAccountId(), item->GetTemplate()->Name1, item->GetEntry(), item->GetCount());
+                GetPlayerName(), GetAccountId(), item->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()), item->GetEntry(), item->GetCount());
         }
 
         AH->Id = sObjectMgr->GenerateAuctionID();
@@ -340,7 +340,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-            _player->GetGUID().ToString(), _player->GetName(), item->GetGUID().ToString(), item->GetTemplate()->Name1,
+            _player->GetGUID().ToString(), _player->GetName(), item->GetGUID().ToString(), item->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()),
             creature->GetGUID().ToString(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
@@ -380,7 +380,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             sLog->OutCommand(GetAccountId(), "GM {} (Account: {}) create auction: {} (Entry: {} Count: {})",
-                GetPlayerName(), GetAccountId(), newItem->GetTemplate()->Name1, newItem->GetEntry(), newItem->GetCount());
+                GetPlayerName(), GetAccountId(), newItem->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()), newItem->GetEntry(), newItem->GetCount());
         }
 
         AH->Id = sObjectMgr->GenerateAuctionID();
@@ -399,7 +399,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-            _player->GetGUID().ToString(), _player->GetName(), newItem->GetGUID().ToString(), newItem->GetTemplate()->Name1,
+            _player->GetGUID().ToString(), _player->GetName(), newItem->GetGUID().ToString(), newItem->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()),
             creature->GetGUID().ToString(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error

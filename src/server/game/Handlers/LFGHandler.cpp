@@ -209,7 +209,7 @@ void WorldSession::SendLfgPlayerLockInfo()
                     {
                         ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                         data << uint32(itemId);
-                        data << uint32(item ? item->DisplayInfoID : 0);
+                        data << uint32(item ? item->GetDisplayId() : 0);
                         data << uint32(quest->RewardItemIdCount[i]);
                     }
             }
@@ -514,7 +514,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
             {
                 ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
                 data << uint32(itemId);
-                data << uint32(item ? item->DisplayInfoID : 0);
+                data << uint32(item ? item->GetDisplayId() : 0);
                 data << uint32(rewardData.quest->RewardItemIdCount[i]);
             }
     }

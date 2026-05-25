@@ -1053,7 +1053,7 @@ bool CanRollOnItem(const LootItem& item, Player const* player)
         return false;
 
     uint32 itemCount = player->GetItemCount(item.itemid, true);
-    if (proto->MaxCount > 0 && static_cast<int32>(itemCount) >= proto->MaxCount)
+    if (proto->GetMaxCount() > 0 && static_cast<int32>(itemCount) >= proto->GetMaxCount())
         return false;
 
     if (!item.AllowedForPlayer(player))
@@ -1081,7 +1081,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         }
 
         //roll for over-threshold item if it's one-player loot
-        if (item->Quality >= uint32(m_lootThreshold))
+        if (item->GetQuality() >= uint32(m_lootThreshold))
         {
             ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
             Roll* r = new Roll(newitemGUID, *i);
@@ -1109,7 +1109,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                if (item->DisenchantID && m_maxEnchantingLevel >= item->GetRequiredDisenchantSkill())
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
                 loot->items[itemSlot].is_blocked = true;
@@ -1230,7 +1230,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         ASSERT(item);
 
         //roll for over-threshold item if it's one-player loot
-        if (item->Quality >= uint32(m_lootThreshold))
+        if (item->GetQuality() >= uint32(m_lootThreshold))
         {
             ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
             Roll* r = new Roll(newitemGUID, *i);
@@ -1258,7 +1258,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                if (item->DisenchantID && m_maxEnchantingLevel >= item->GetRequiredDisenchantSkill())
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
                 if (item->HasFlag(ITEM_FLAG2_CAN_ONLY_ROLL_GREED))

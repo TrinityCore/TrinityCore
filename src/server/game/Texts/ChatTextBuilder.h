@@ -33,7 +33,7 @@ namespace Trinity
             BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, uint8 gender, WorldObject const* target = nullptr, uint32 achievementId = 0)
                 : _source(obj), _msgType(msgType), _textId(textId), _gender(gender), _target(target), _achievementId(achievementId) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale) const;
+            size_t operator()(WorldPacket& data, LocaleConstant locale) const { return (*this)(&data, locale); }
             size_t operator()(WorldPacket* data, LocaleConstant locale) const;
 
         private:

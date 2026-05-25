@@ -130,8 +130,6 @@ struct LinkValidator<LinkTags::item>
 {
     static bool IsTextValid(ItemLinkData const& data, std::string_view text)
     {
-        ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
-
         std::array<char const*, 16> const* randomSuffixes = nullptr;
         if (data.RandomProperty)
             randomSuffixes = &data.RandomProperty->Name;
@@ -143,9 +141,7 @@ struct LinkValidator<LinkTags::item>
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (!locale && i != DEFAULT_LOCALE)
-                continue;
-            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : ObjectMgr::GetLocaleString(locale->Name, i);
+            std::string_view name = data.Item->GetName(LocaleConstant(i));
             if (name.empty())
                 continue;
             if (randomSuffixes)
@@ -168,7 +164,7 @@ struct LinkValidator<LinkTags::item>
 
     static bool IsColorValid(ItemLinkData const& data, HyperlinkColor c)
     {
-        return c == ItemQualityColors[data.Item->Quality];
+        return c == ItemQualityColors[data.Item->GetQuality()];
     }
 };
 
@@ -192,7 +188,7 @@ struct LinkValidator<LinkTags::quest>
             if (i == DEFAULT_LOCALE)
                 continue;
 
-            std::string_view name = ObjectMgr::GetLocaleString(locale->Title, i);
+            std::string_view name = ObjectMgr::GetLocaleString(locale->Title, LocaleConstant(i));
             if (!name.empty() && (text == name))
                 return true;
         }

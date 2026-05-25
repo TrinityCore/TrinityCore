@@ -277,8 +277,8 @@ namespace WorldPackets
             uint32 RankID = 0;
             uint32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;
-            uint32 TabFlags[GUILD_BANK_MAX_TABS];
-            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+            uint32 TabFlags[GUILD_BANK_MAX_TABS] = { };
+            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS] = { };
             String<15, Strings::NoHyperlinks> RankName;
         };
 
