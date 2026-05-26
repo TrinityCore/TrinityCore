@@ -24,9 +24,6 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 (@HEROD, 0, 0, @TRAINEE, 1926.01416015625, -382.297515869140625, 18.09128379821777343, 3.752457857131958007, 6, 600000, "Herod - Group 0 - Scarlet Trainee"),
 (@HEROD, 0, 0, @TRAINEE, 1927.543212890625, -423.765655517578125, 18.06177902221679687, 4.754923820495605468, 6, 600000, "Herod - Group 0 - Scarlet Trainee");
 
--- I don't think this ever had any waypoints, but only movementId in creature_template
-DELETE FROM `script_waypoint` WHERE `entry`=@TRAINEE;
-
 -- Should all of them say texts ?
 DELETE FROM `creature_text` WHERE `CreatureID`=@TRAINEE;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
