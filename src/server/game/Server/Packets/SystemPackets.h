@@ -35,6 +35,16 @@ namespace WorldPackets
             uint8 ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
             bool VoiceEnabled = false;
         };
+
+        class MOTD final : public ServerPacket
+        {
+        public:
+            MOTD() : ServerPacket(SMSG_MOTD) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<std::string> const* Text = nullptr;
+        };
     }
 }
 

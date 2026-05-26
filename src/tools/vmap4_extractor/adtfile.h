@@ -56,7 +56,7 @@ private:
     MPQFile _file;
     std::string Adtfilename;
 public:
-    ADTFile(char* filename);
+    ADTFile(char const* filename);
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;
@@ -72,11 +72,11 @@ public:
 */
 };
 
-const char * GetPlainName(const char * FileName);
-char * GetPlainName(char * FileName);
-char * GetExtension(char * FileName);
-void fixnamen(char *name, size_t len);
-void fixname2(char *name, size_t len);
+char const* GetPlainName(char const* FileName);
+char* GetPlainName(char* FileName);
+char* GetExtension(char* FileName);
+void FixNameCase(char* name, size_t len);
+void FixNameSpaces(char* name, size_t len);
 //void fixMapNamen(char *name, size_t len);
 
 #endif

@@ -31,6 +31,7 @@ ObjectData const creatureData[] =
 {
     { NPC_VEM,       DATA_VEM       },
     { NPC_KRI,       DATA_KRI       },
+    { NPC_YAUJ,      DATA_YAUJ      },
     { NPC_VEKLOR,    DATA_VEKLOR    },
     { NPC_VEKNILASH, DATA_VEKNILASH },
     { NPC_VISCIDUS,  DATA_VISCIDUS  },
@@ -67,15 +68,13 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 LoadDoorData(doorData);
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
-                IsBossDied[2] = false;
 
                 BugTrioDeathCount = 0;
 
                 CthunPhase = 0;
             }
 
-            //If Vem is dead...
-            bool IsBossDied[3];
+            bool IsBossDied[2];
 
             uint32 BugTrioDeathCount;
 
@@ -91,18 +90,13 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_VEMISDEAD:
+                    case DATA_VEKLORISDEAD:
                         if (IsBossDied[0])
                             return 1;
                         break;
 
-                    case DATA_VEKLORISDEAD:
-                        if (IsBossDied[1])
-                            return 1;
-                        break;
-
                     case DATA_VEKNILASHISDEAD:
-                        if (IsBossDied[2])
+                        if (IsBossDied[1])
                             return 1;
                         break;
 
@@ -119,21 +113,17 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_VEM_DEATH:
-                        IsBossDied[0] = true;
-                        break;
-
                     case DATA_BUG_TRIO_DEATH:
                         if (++BugTrioDeathCount >= 3)
                             SetBossState(DATA_BUG_TRIO, DONE);
                         break;
 
                     case DATA_VEKLOR_DEATH:
-                        IsBossDied[1] = true;
+                        IsBossDied[0] = true;
                         break;
 
                     case DATA_VEKNILASH_DEATH:
-                        IsBossDied[2] = true;
+                        IsBossDied[1] = true;
                         break;
 
                     case DATA_CTHUN_PHASE:

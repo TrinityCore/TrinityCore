@@ -134,9 +134,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     m_spawnId = 0;
 
-    m_lootRecipientGroup = 0;
     m_groupLootTimer = 0;
-    lootingGroupLowGUID = 0;
     m_lootGenerationTime = 0;
 
     ResetLootMode(); // restore default loot mode
@@ -289,16 +287,16 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    if (goinfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT)
+    if (goinfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: gameobject type GAMEOBJECT_TYPE_MO_TRANSPORT cannot be manually created.", guidlow, name_id);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {} Entry: {}) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", guidlow, name_id);
         return false;
     }
 
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag = (m_updateFlag | UPDATEFLAG_TRANSPORT) & ~UPDATEFLAG_POSITION;
 
-    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
+    Object::_Create(ObjectGuid::Create<HighGuid::GameObject>(goinfo->entry, guidlow));
 
     m_goInfo = goinfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(name_id);
@@ -345,7 +343,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
             SetGoAnimProgress(animprogress);
-            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, std::max(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens));
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
             m_goValue.Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
@@ -454,7 +452,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
 void GameObject::Update(uint32 diff)
 {
-    m_Events.Update(diff);
+    WorldObject::Update(diff);
 
     if (AI())
         AI()->UpdateAI(diff);
@@ -576,7 +574,7 @@ void GameObject::Update(uint32 diff)
                     time_t now = GameTime::GetGameTime();
                     if (m_respawnTime <= now)            // timer expired
                     {
-                        ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_spawnId);
+                        ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::GameObject>(GetEntry(), m_spawnId);
                         time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                         if (linkedRespawntime)             // Can't respawn, the master is dead
                         {
@@ -617,7 +615,7 @@ void GameObject::Update(uint32 diff)
                                 break;
                             case GAMEOBJECT_TYPE_FISHINGHOLE:
                                 // Initialize a new max fish count on respawn
-                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, std::max(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens));
                                 break;
                             default:
                                 break;
@@ -747,13 +745,14 @@ void GameObject::Update(uint32 diff)
                     {
                         if (m_groupLootTimer <= diff)
                         {
-                            Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
-                            if (group)
+                            if (Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID))
                                 group->EndRoll(&loot, GetMap());
+
                             m_groupLootTimer = 0;
-                            lootingGroupLowGUID = 0;
+                            lootingGroupLowGUID.Clear();
                         }
-                        else m_groupLootTimer -= diff;
+                        else
+                            m_groupLootTimer -= diff;
                     }
 
                     // Non-consumable chest was partially looted and restock time passed, restock all loot now
@@ -852,7 +851,7 @@ void GameObject::Update(uint32 diff)
                 UpdateObjectVisibility();
                 return;
             }
-            else if (GetOwnerGUID() || GetSpellId())
+            else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
                 Delete();
@@ -1244,7 +1243,7 @@ bool GameObject::IsTransport() const
     if (!gInfo)
         return false;
 
-    return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT;
+    return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT;
 }
 
 // is Dynamic transport = non-stop Transport
@@ -1255,7 +1254,7 @@ bool GameObject::IsDynTransport() const
     if (!gInfo)
         return false;
 
-    return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
+    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
 }
 
 bool GameObject::IsDestructibleBuilding() const
@@ -1309,9 +1308,9 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
         return false;
 
     // Always seen by owner and friendly units
-    if (ObjectGuid guid = GetOwnerGUID())
+    if (!GetOwnerGUID().IsEmpty())
     {
-        if (seer->GetGUID() == guid)
+        if (seer->GetGUID() == GetOwnerGUID())
             return true;
 
         Unit* owner = GetOwner();
@@ -1366,6 +1365,9 @@ void GameObject::SetRespawnTime(int32 respawn)
     m_respawnDelayTime = respawn > 0 ? respawn : 0;
     if (respawn && !m_spawnedByDefault)
         UpdateObjectVisibility(true);
+
+    if (m_spawnedByDefault && !m_respawnCompatibilityMode && m_respawnTime > 0)
+        SetLootState(GO_JUST_DEACTIVATED);
 }
 
 void GameObject::Respawn()
@@ -1614,6 +1616,7 @@ void GameObject::Use(Unit* user)
     Unit* spellCaster = user;
     uint32 spellId = 0;
     bool triggered = false;
+    bool addUse = false;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -1710,7 +1713,7 @@ void GameObject::Use(Unit* user)
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
-                if (itr->second)
+                if (!itr->second.IsEmpty())
                 {
                     if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
                     {
@@ -1922,7 +1925,7 @@ void GameObject::Use(Unit* user)
             return;
         }
 
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:              //18
+        case GAMEOBJECT_TYPE_RITUAL:              //18
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1934,7 +1937,7 @@ void GameObject::Use(Unit* user)
             GameObjectTemplate const* info = GetGOInfo();
 
             Player* m_ritualOwner = nullptr;
-            if (m_ritualOwnerGUID)
+            if (!m_ritualOwnerGUID.IsEmpty())
                 m_ritualOwner = ObjectAccessor::FindPlayer(m_ritualOwnerGUID);
 
             // ritual owner is set for GO's without owner (not summoned)
@@ -2032,18 +2035,29 @@ void GameObject::Use(Unit* user)
 
             if (info->spellcaster.partyOnly)
             {
-                Unit* caster = GetOwner();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                ObjectGuid ownerGuid = GetOwnerGUID();
+                if (ownerGuid.IsEmpty())
                     return;
 
-                if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
-                    return;
+                if (ownerGuid != user->GetGUID())
+                {
+                    if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGuid))
+                        ownerGuid = owner->GetCharmerOrOwnerOrOwnGUID();
+
+                    Player const* playerUser = user->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (!playerUser)
+                        return;
+
+                    Group const* group = playerUser->GetGroup();
+                    if (!group || !group->IsMember(ownerGuid))
+                        return;
+                }
             }
 
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellcaster.spellId;
 
-            AddUse();
+            addUse = true;
             break;
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
@@ -2210,10 +2224,14 @@ void GameObject::Use(Unit* user)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    SpellCastResult castResult;
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        castResult = spellCaster->CastSpell(user, spellId, triggered);
     else
-        CastSpell(user, spellId);
+        castResult = CastSpell(user, spellId);
+
+    if (addUse && castResult == SPELL_CAST_OK)
+        AddUse();
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
@@ -2641,7 +2659,7 @@ void GameObject::SetLootRecipient(Unit* unit, Group* group)
     if (!unit)
     {
         m_lootRecipient.Clear();
-        m_lootRecipientGroup = group ? group->GetLowGUID() : 0;
+        m_lootRecipientGroup = group ? group->GetGUID() : ObjectGuid::Empty;
         return;
     }
 
@@ -2656,9 +2674,9 @@ void GameObject::SetLootRecipient(Unit* unit, Group* group)
 
     // either get the group from the passed parameter or from unit's one
     if (group)
-        m_lootRecipientGroup = group->GetLowGUID();
+        m_lootRecipientGroup = group->GetGUID();
     else if (Group* unitGroup = player->GetGroup())
-        m_lootRecipientGroup = unitGroup->GetLowGUID();
+        m_lootRecipientGroup = unitGroup->GetGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
@@ -2728,7 +2746,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player co
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
                     case GAMEOBJECT_TYPE_TRANSPORT:
-                    case GAMEOBJECT_TYPE_MO_TRANSPORT:
+                    case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                     {
                         if (uint32 transportPeriod = GetTransportPeriod())
                         {

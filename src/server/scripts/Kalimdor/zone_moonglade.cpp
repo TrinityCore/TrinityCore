@@ -196,7 +196,7 @@ public:
                     AddWaypoint(i, Clintar_spirit_WP[i].X, Clintar_spirit_WP[i].Y, Clintar_spirit_WP[i].Z, Clintar_spirit_WP[i].O, Clintar_spirit_WP[i].waitTime);
                 }
                 PlayerGUID = player->GetGUID();
-                Start(true, false, PlayerGUID);
+                Start(true, player->GetGUID());
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }

@@ -31,9 +31,9 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : _file(file_name)
+WDTFile::WDTFile(char const* file_name, char const* file_name1) : _file(file_name)
 {
-    filename.append(file_name1,strlen(file_name1));
+    filename.append(file_name1, strlen(file_name1));
 }
 
 bool WDTFile::init(uint32 mapId)
@@ -82,8 +82,8 @@ bool WDTFile::init(uint32 mapId)
                     std::string path(p);
 
                     char* s = wdtGetPlainName(p);
-                    fixnamen(s, strlen(s));
-                    fixname2(s, strlen(s));
+                    FixNameCase(s, strlen(s));
+                    FixNameSpaces(s, strlen(s));
                     p = p + strlen(p) + 1;
                     _wmoNames.push_back(s);
 
@@ -125,8 +125,5 @@ ADTFile* WDTFile::GetMap(int x, int z)
     if(!(x>=0 && z >= 0 && x<64 && z<64))
         return nullptr;
 
-    char name[512];
-
-    sprintf(name,"World\\Maps\\%s\\%s_%d_%d.adt", filename.c_str(), filename.c_str(), x, z);
-    return new ADTFile(name);
+    return new ADTFile(Trinity::StringFormat("World\\Maps\\{}\\{}_{}_{}.adt", filename, filename, x, z).c_str());
 }

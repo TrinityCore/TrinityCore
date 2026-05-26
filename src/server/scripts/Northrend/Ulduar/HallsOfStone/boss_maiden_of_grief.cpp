@@ -22,7 +22,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
-enum Texts
+enum MaidenOfGriefTexts
 {
     SAY_AGGRO                           = 0,
     SAY_SLAY                            = 1,
@@ -30,7 +30,7 @@ enum Texts
     SAY_STUN                            = 3
 };
 
-enum Spells
+enum MaidenOfGriefSpells
 {
     SPELL_PARTING_SORROW                = 59723,
     SPELL_STORM_OF_GRIEF                = 50752,
@@ -38,7 +38,7 @@ enum Spells
     SPELL_PILLAR_OF_WOE                 = 50761
 };
 
-enum Events
+enum MaidenOfGriefEvents
 {
     EVENT_PARTING_SORROW                = 1,
     EVENT_STORM_OF_GRIEF,
@@ -46,11 +46,12 @@ enum Events
     EVENT_PILLAR_OF_WOE
 };
 
-enum Achievements
+enum MaidenOfGriefAchievements
 {
     ACHIEV_GOOD_GRIEF_START_EVENT       = 20383,
 };
 
+// 27975 - Maiden of Grief
 struct boss_maiden_of_grief : public BossAI
 {
     boss_maiden_of_grief(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_GRIEF) { }
@@ -76,15 +77,15 @@ struct boss_maiden_of_grief : public BossAI
         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
     }
 
-    void KilledUnit(Unit* /*who*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
     void OnSpellCast(SpellInfo const* spell) override
     {
         if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHOCK_OF_SORROW, me))
             Talk(SAY_STUN);
+    }
+
+    void KilledUnit(Unit* /*who*/) override
+    {
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override

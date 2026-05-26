@@ -20,7 +20,6 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "ServerMotd.h"
 #include "SRP6.h"
 #include "Util.h"
 #include "World.h"
@@ -33,9 +32,11 @@ using boost::asio::ip::tcp;
 
 void RASession::Start()
 {
+    _socket.non_blocking(false);
+
     // wait 1 second for active connections to send negotiation request
     for (int counter = 0; counter < 10 && _socket.available() == 0; counter++)
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(100ms);
 
     // Check if there are bytes available, if they are, then the client is requesting the negotiation
     if (_socket.available() > 0)
@@ -75,7 +76,9 @@ void RASession::Start()
     TC_LOG_INFO("commands.ra", "User {} (IP: {}) authenticated correctly to RA", username, GetRemoteIpAddress());
 
     // Authentication successful, send the motd
-    Send(std::string(std::string(Motd::GetMotd()) + "\r\n").c_str());
+    for (std::string const& line : sWorld->GetMotd())
+        Send(line.c_str());
+    Send("\r\n");
 
     // Read commands
     for (;;)

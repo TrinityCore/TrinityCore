@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NPCPackets_h__
-#define NPCPackets_h__
+#ifndef TRINITYCORE_NPC_PACKETS_H
+#define TRINITYCORE_NPC_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include <array>
+
+enum GossipOptionIcon : uint8;
 
 namespace WorldPackets
 {
@@ -41,6 +43,66 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Unit;
+        };
+
+        struct ClientGossipOptions
+        {
+            int32 GossipOptionID = 0;
+            GossipOptionIcon OptionNPC = {};
+            int32 OptionFlags = 0;
+            uint32 OptionCost = 0;
+            std::string_view Text;
+            std::string_view Confirm;
+        };
+
+        struct ClientGossipText
+        {
+            int32 QuestID = 0;
+            int32 QuestLevel = 0;
+            int32 QuestType = 0;
+            bool Repeatable = false;
+            std::string_view QuestTitle;
+            int32 QuestFlags = 0;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);
+
+        class GossipMessage final : public ServerPacket
+        {
+        public:
+            explicit GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 200) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ClientGossipOptions> GossipOptions;
+            ObjectGuid GossipGUID;
+            std::vector<ClientGossipText> GossipText;
+            int32 RandomTextID = 0;
+            int32 GossipID = 0;
+        };
+
+        struct VendorItem
+        {
+            int32 MuID = 0;
+            uint32 Item = 0;
+            uint32 ItemDisplayInfoID = 0;
+            int32 Quantity = -1;
+            int32 Price = 0;
+            int32 Durability = 0;
+            int32 StackCount = 0;
+            int32 ExtendedCostID = 0;
+        };
+
+        class VendorInventory final : public ServerPacket
+        {
+        public:
+            explicit VendorInventory() : ServerPacket(SMSG_LIST_INVENTORY, 600) { }
+
+            WorldPacket const* Write() override;
+
+            int8 Reason = 0;
+            std::vector<VendorItem> Items;
+            ObjectGuid Vendor;
         };
 
         struct TrainerListSpell
@@ -118,4 +180,4 @@ namespace WorldPackets
     }
 }
 
-#endif // NPCPackets_h__
+#endif // TRINITYCORE_NPC_PACKETS_H

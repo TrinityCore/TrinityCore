@@ -35,16 +35,14 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-    uint32 questStatus = DIALOG_STATUS_NONE;
+    QuestGiverStatus questStatus = DIALOG_STATUS_NONE;
 
-    Object* questGiver = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+    Object* questGiver = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
     if (!questGiver)
     {
-        TC_LOG_INFO("network", "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver ({})", guid.ToString());
+        TC_LOG_INFO("network", "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver ({})", packet.QuestGiverGUID.ToString());
         return;
     }
 
@@ -69,7 +67,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
     }
 
     // inform client about status of quest
-    _player->PlayerTalkClass->SendQuestGiverStatus(uint8(questStatus), guid);
+    _player->PlayerTalkClass->SendQuestGiverStatus(questStatus, packet.QuestGiverGUID);
 }
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
@@ -134,7 +132,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     if (Player* playerQuestObject = object->ToPlayer())
     {
-        if ((_player->GetPlayerSharingQuest() && _player->GetPlayerSharingQuest() != guid) || !playerQuestObject->CanShareQuest(questId))
+        if ((!_player->GetPlayerSharingQuest().IsEmpty() && _player->GetPlayerSharingQuest() != guid) || !playerQuestObject->CanShareQuest(questId))
         {
             CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
@@ -238,16 +236,13 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
-        // not sure here what should happen to quests with QUEST_FLAGS_AUTOCOMPLETE
-        // if this breaks them, add && object->GetTypeId() == TYPEID_ITEM to this check
-        // item-started quests never have that flag
         if (!_player->CanTakeQuest(quest, true))
             return;
 
         if (quest->IsAutoAccept() && _player->CanAddQuest(quest, true))
             _player->AddQuestAndCheckCompletion(quest, object);
 
-        if (quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        if (quest->IsAutoComplete())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
             _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
@@ -503,17 +498,30 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         return;
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-    if (!object || !object->hasInvolvedQuest(questId))
+
+    if (!object)
         return;
 
-    // some kind of WPE protection
-    if (!_player->CanInteractWithQuestGiver(object))
-        return;
+    if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+    {
+        if (!object->hasInvolvedQuest(questId))
+            return;
+
+        // some kind of WPE protection
+        if (!_player->CanInteractWithQuestGiver(object))
+            return;
+    }
+    else
+    {
+        // Do not allow completing quests on other players.
+        if (guid != _player->GetGUID())
+            return;
+    }
 
     if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} {} tried to complete quest [entry: {}] without being in possession of the quest!",
-                      _player->GetName(), _player->GetGUID().ToString(), questId);
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} [{}] tried to complete quest [entry: {}] without being in possession of the quest!",
+            _player->GetName(), _player->GetGUID().ToString(), questId);
         return;
     }
 
@@ -614,7 +622,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
         sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
 
-        if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
@@ -652,7 +660,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     _player->ClearQuestSharingInfo();
 }
 
-void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
 

@@ -363,22 +363,21 @@ public:
 
                     if (factionState) // and then target != NULL also
                     {
-                        uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                        std::string rankName = handler->GetTrinityString(index);
+                        std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
 
                         ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-                        if (factionState->Flags & FACTION_FLAG_VISIBLE)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Visible))
                             ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
-                        if (factionState->Flags & FACTION_FLAG_AT_WAR)
+                        if (factionState->Flags.HasFlag(ReputationFlags::AtWar))
                             ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
-                        if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Peaceful))
                             ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
-                        if (factionState->Flags & FACTION_FLAG_HIDDEN)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Hidden))
                             ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
-                        if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Header))
                             ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-                        if (factionState->Flags & FACTION_FLAG_INACTIVE)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Inactive))
                             ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
                     }
                     else
@@ -419,35 +418,7 @@ public:
         ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
         for (auto const& itemTemplatePair : its)
         {
-            uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplatePair.first))
-            {
-                if (il->Name.size() > localeIndex && !il->Name[localeIndex].empty())
-                {
-                    std::string const& name = il->Name[localeIndex];
-
-                    if (Utf8FitTo(name, wNamePart))
-                    {
-                        if (maxResults && count++ == maxResults)
-                        {
-                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                            return true;
-                        }
-
-                        if (handler->GetSession())
-                            handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itemTemplatePair.first, itemTemplatePair.first, name.c_str());
-                        else
-                            handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itemTemplatePair.first, name.c_str());
-
-                        if (!found)
-                            found = true;
-
-                        continue;
-                    }
-                }
-            }
-
-            std::string const& name = itemTemplatePair.second.Name1;
+            std::string name = itemTemplatePair.second.GetName(handler->GetSessionDbLocaleIndex());
             if (name.empty())
                 continue;
 
@@ -484,7 +455,7 @@ public:
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(id))
         {
-            std::string name = itemTemplate->Name1;
+            std::string name = itemTemplate->GetName(handler->GetSessionDbLocaleIndex());
 
             if (name.empty())
             {
@@ -1252,56 +1223,60 @@ public:
         // Search in CharTitles.dbc
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
         {
-            CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
-            if (titleInfo)
+            if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id))
             {
-                /// @todo: implement female support
-                uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = titleInfo->Name[locale];
-                if (name.empty())
-                    continue;
-
-                if (!Utf8FitTo(name, wNamePart))
+                for (uint8 gender = GENDER_MALE; gender <= GENDER_FEMALE; ++gender)
                 {
-                    locale = 0;
-                    for (; locale < TOTAL_LOCALES; ++locale)
+                    if (target && target->GetGender() != gender)
+                        continue;
+
+                    LocaleConstant locale = handler->GetSessionDbcLocale();
+                    std::string_view name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+
+                    if (name.empty())
+                        continue;
+
+                    if (!Utf8FitTo(name, wNamePart))
                     {
-                        if (locale == handler->GetSessionDbcLocale())
-                            continue;
+                        locale = LOCALE_enUS;
+                        for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
+                        {
+                            if (locale == handler->GetSessionDbcLocale())
+                                continue;
 
-                        name = titleInfo->Name[locale];
-                        if (name.empty())
-                            continue;
+                            name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+                            if (name.empty())
+                                continue;
 
-                        if (Utf8FitTo(name, wNamePart))
-                            break;
-                    }
-                }
-
-                if (locale < TOTAL_LOCALES)
-                {
-                    if (maxResults && counter == maxResults)
-                    {
-                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                        return true;
+                            if (Utf8FitTo(name, wNamePart))
+                                break;
+                        }
                     }
 
-                    char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
+                    if (locale < TOTAL_LOCALES)
+                    {
+                        if (maxResults && counter == maxResults)
+                        {
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
 
-                    char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
-                        ? handler->GetTrinityString(LANG_ACTIVE)
-                        : "";
+                        char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                    char titleNameStr[80];
-                    snprintf(titleNameStr, 80, name.c_str(), targetName);
+                        char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                            ? handler->GetTrinityString(LANG_ACTIVE)
+                            : "";
 
-                    // send title in "id (idx:idx) - [namedlink locale]" format
-                    if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[locale], knownStr, activeStr);
-                    else
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
 
-                    ++counter;
+                        // send title in "id (idx:idx) - [namedlink locale]" format
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[locale], knownStr, activeStr);
+                        else
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, localeNames[locale], knownStr, activeStr);
+
+                        ++counter;
+                    }
                 }
             }
         }

@@ -19,10 +19,11 @@
 #include "mechanar.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Texts
+enum SepethreaTexts
 {
     SAY_AGGRO                      = 0,
     SAY_SUMMON                     = 1,     // Was never used or used under unknown conditions
@@ -31,7 +32,7 @@ enum Texts
     SAY_DEATH                      = 4
 };
 
-enum Spells
+enum SepethreaSpells
 {
     SPELL_FROST_ATTACK             = 45196, // This is definitely spell added in TBC but did it replaced both 35264 and 39086 or only normal version?
     SPELL_SUMMON_RAGING_FLAMES     = 35275,
@@ -47,12 +48,13 @@ enum Spells
     SPELL_INFERNO_DAMAGE           = 35283
 };
 
-enum Events
+enum SepethreaEvents
 {
     EVENT_ARCANE_BLAST             = 1,
     EVENT_DRAGONS_BREATH
 };
 
+// 19221 - Nethermancer Sepethrea
 struct boss_nethermancer_sepethrea : public BossAI
 {
     boss_nethermancer_sepethrea(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) { }
@@ -70,6 +72,13 @@ struct boss_nethermancer_sepethrea : public BossAI
         events.ScheduleEvent(EVENT_DRAGONS_BREATH, 20s, 30s);
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_SUMMON_RAGING_FLAMES);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_DRAGONS_BREATH)
+            if (roll_chance_i(50))
+                Talk(SAY_DRAGONS_BREATH);
     }
 
     void KilledUnit(Unit* victim) override
@@ -124,8 +133,6 @@ struct boss_nethermancer_sepethrea : public BossAI
                 case EVENT_DRAGONS_BREATH:
                     DoCastSelf(SPELL_DRAGONS_BREATH);
                     events.Repeat(25s, 35s);
-                    if (roll_chance_i(50))
-                        Talk(SAY_DRAGONS_BREATH);
                     break;
                 default:
                     break;
@@ -139,6 +146,7 @@ struct boss_nethermancer_sepethrea : public BossAI
     }
 };
 
+// 20481 - Raging Flames
 struct npc_raging_flames : public ScriptedAI
 {
     npc_raging_flames(Creature* creature) : ScriptedAI(creature) { }

@@ -19,9 +19,9 @@
 #define _CHANNELAPPENDERS_H
 
 #include "Channel.h"
+#include "ChannelPackets.h"
 #include "CharacterCache.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 // initial packet data (notify type and channel name)
 template<class PacketModifier>
@@ -36,10 +36,13 @@ class ChannelNameBuilder
             // LocalizedPacketDo sends client DBC locale, we need to get available to server locale
             LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
-            data.Initialize(SMSG_CHANNEL_NOTIFY, 60); // guess size
-            data << uint8(_modifier.NotificationType);
-            data << _source->GetName(localeIdx);
-            _modifier.Append(data);
+            WorldPackets::Channel::ChannelNotify channelNotify;
+            channelNotify.Type = _modifier.NotificationType;
+            channelNotify._Channel = _source->GetName(localeIdx);
+            _modifier.Append(channelNotify);
+            channelNotify.Write();
+
+            data = channelNotify.Move();
         }
 
         private:
@@ -53,9 +56,9 @@ struct JoinedAppend
 
     static uint8 const NotificationType = CHAT_JOINED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -68,9 +71,9 @@ struct LeftAppend
 
     static uint8 const NotificationType = CHAT_LEFT_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -83,11 +86,11 @@ struct YouJoinedAppend
 
     static uint8 const NotificationType = CHAT_YOU_JOINED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint8(_channel->GetFlags());
-        data << uint32(_channel->GetChannelId());
-        data << uint32(0);
+        data.NewFlags = _channel->GetFlags();
+        data.ChatChannelID = _channel->GetChannelId();
+        data.InstanceID = 0;
     }
 
 private:
@@ -96,39 +99,40 @@ private:
 
 struct YouLeftAppend
 {
-    explicit YouLeftAppend(Channel const* channel) : _channel(channel) { }
+    explicit YouLeftAppend(Channel const* channel, bool suspend) : _channel(channel), _suspend(suspend) { }
 
     static uint8 const NotificationType = CHAT_YOU_LEFT_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint32(_channel->GetChannelId());
-        data << uint8(_channel->IsConstant());
+        data.ChatChannelID = _channel->GetChannelId();
+        data.Suspended = _suspend;
     }
 
 private:
     Channel const* _channel;
+    bool _suspend;
 };
 
 struct WrongPasswordAppend
 {
     static uint8 const NotificationType = CHAT_WRONG_PASSWORD_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct NotMemberAppend
 {
     static uint8 const NotificationType = CHAT_NOT_MEMBER_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct NotModeratorAppend
 {
     static uint8 const NotificationType = CHAT_NOT_MODERATOR_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct PasswordChangedAppend
@@ -137,9 +141,9 @@ struct PasswordChangedAppend
 
     static uint8 const NotificationType = CHAT_PASSWORD_CHANGED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -152,9 +156,9 @@ struct OwnerChangedAppend
 
     static uint8 const NotificationType = CHAT_OWNER_CHANGED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -167,9 +171,9 @@ struct PlayerNotFoundAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_NOT_FOUND_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << _playerName;
+        data.Sender = _playerName;
     }
 
 private:
@@ -180,7 +184,7 @@ struct NotOwnerAppend
 {
     static uint8 const NotificationType = CHAT_NOT_OWNER_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct ChannelOwnerAppend
@@ -193,9 +197,9 @@ struct ChannelOwnerAppend
 
     static uint8 const NotificationType = CHAT_CHANNEL_OWNER_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << ((_channel->IsConstant() || !_ownerGuid) ? "Nobody" : _ownerName);
+        data.Sender = ((_channel->IsConstant() || !_ownerGuid) ? "Nobody" : _ownerName);
     }
 
 private:
@@ -211,11 +215,11 @@ struct ModeChangeAppend
 
     static uint8 const NotificationType = CHAT_MODE_CHANGE_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
-        data << uint8(_oldFlags);
-        data << uint8(_newFlags);
+        data.SenderGuid = _guid;
+        data.OldFlags = _oldFlags;
+        data.NewFlags = _newFlags;
     }
 
 private:
@@ -230,9 +234,9 @@ struct AnnouncementsOnAppend
 
     static uint8 const NotificationType = CHAT_ANNOUNCEMENTS_ON_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -245,9 +249,9 @@ struct AnnouncementsOffAppend
 
     static uint8 const NotificationType = CHAT_ANNOUNCEMENTS_OFF_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -258,7 +262,7 @@ struct MutedAppend
 {
     static uint8 const NotificationType = CHAT_MUTED_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct PlayerKickedAppend
@@ -267,10 +271,10 @@ struct PlayerKickedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_KICKED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_kickee);
-        data << uint64(_kicker);
+        data.SenderGuid = _kicker;
+        data.TargetGuid = _kickee;
     }
 
 private:
@@ -282,7 +286,7 @@ struct BannedAppend
 {
     static uint8 const NotificationType = CHAT_BANNED_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct PlayerBannedAppend
@@ -291,10 +295,10 @@ struct PlayerBannedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_BANNED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_banned);
-        data << uint64(_moderator);
+        data.SenderGuid = _moderator;
+        data.TargetGuid = _banned;
     }
 
 private:
@@ -308,10 +312,10 @@ struct PlayerUnbannedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_UNBANNED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_unbanned);
-        data << uint64(_moderator);
+        data.SenderGuid = _moderator;
+        data.TargetGuid = _unbanned;
     }
 
 private:
@@ -325,9 +329,9 @@ struct PlayerNotBannedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_NOT_BANNED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << _playerName;
+        data.Sender = _playerName;
     }
 
 private:
@@ -340,9 +344,9 @@ struct PlayerAlreadyMemberAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_ALREADY_MEMBER_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -355,9 +359,9 @@ struct InviteAppend
 
     static uint8 const NotificationType = CHAT_INVITE_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -368,28 +372,28 @@ struct InviteWrongFactionAppend
 {
     static uint8 const NotificationType = CHAT_INVITE_WRONG_FACTION_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct WrongFactionAppend
 {
     static uint8 const NotificationType = CHAT_WRONG_FACTION_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct InvalidNameAppend
 {
     static uint8 const NotificationType = CHAT_INVALID_NAME_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct NotModeratedAppend
 {
     static uint8 const NotificationType = CHAT_NOT_MODERATED_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct PlayerInvitedAppend
@@ -398,9 +402,9 @@ struct PlayerInvitedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_INVITED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << _playerName;
+        data.Sender = _playerName;
     }
 
 private:
@@ -413,9 +417,9 @@ struct PlayerInviteBannedAppend
 
     static uint8 const NotificationType = CHAT_PLAYER_INVITE_BANNED_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << _playerName;
+        data.Sender = _playerName;
     }
 
 private:
@@ -426,21 +430,21 @@ struct ThrottledAppend
 {
     static uint8 const NotificationType = CHAT_THROTTLED_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct NotInAreaAppend
 {
     static uint8 const NotificationType = CHAT_NOT_IN_AREA_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct NotInLFGAppend
 {
     static uint8 const NotificationType = CHAT_NOT_IN_LFG_NOTICE;
 
-    void Append(WorldPacket& /*data*/) const { }
+    void Append(WorldPackets::Channel::ChannelNotify& /*data*/) const { }
 };
 
 struct VoiceOnAppend
@@ -449,9 +453,9 @@ struct VoiceOnAppend
 
     static uint8 const NotificationType = CHAT_VOICE_ON_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:
@@ -464,9 +468,9 @@ struct VoiceOffAppend
 
     static uint8 const NotificationType = CHAT_VOICE_OFF_NOTICE;
 
-    void Append(WorldPacket& data) const
+    void Append(WorldPackets::Channel::ChannelNotify& data) const
     {
-        data << uint64(_guid);
+        data.SenderGuid = _guid;
     }
 
 private:

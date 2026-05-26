@@ -303,7 +303,7 @@ class spell_dru_enrage : public AuraScript
         {
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();
             // Dire- / Bear Form (Passive)
-            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags.HasFlag(0x0, 0x0, 0x2))
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags & flag96(0x0, 0x0, 0x2))
                 aurEff->RecalculateAmount();
         }
     }

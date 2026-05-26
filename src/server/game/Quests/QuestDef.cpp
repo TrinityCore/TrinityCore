@@ -116,7 +116,7 @@ Quest::Quest(Field* questRecord)
             ++_reqItemsCount;
     }
 
-    // int8 Unknown0 = questRecord[99].GetUInt8();
+    _rewardReputationMask = questRecord[99].GetUInt32();
     // int32 VerifiedBuild = questRecord[104].GetInt32();
 }
 
@@ -246,7 +246,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
             uint32 displayID = 0;
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
-                displayID = itemTemplate->DisplayInfoID;
+                displayID = itemTemplate->GetDisplayId();
 
             rewards.UnfilteredChoiceItems.emplace_back(RewardChoiceItemId[i], RewardChoiceItemCount[i], displayID);
         }
@@ -258,7 +258,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 
             uint32 displayID = 0;
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
-                displayID = itemTemplate->DisplayInfoID;
+                displayID = itemTemplate->GetDisplayId();
 
             rewards.RewardItems.emplace_back(RewardItemId[i], RewardItemIdCount[i], displayID);
         }
@@ -423,7 +423,9 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.RewardNextQuest = GetNextQuestInChain();
     response.Info.RewardXPDifficulty = GetXPId();
 
-    response.Info.RewardMoney = GetRewOrReqMoney();
+    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        response.Info.RewardMoney = GetRewOrReqMoney();
+
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
     response.Info.RewardDisplaySpell = GetRewSpell();
     response.Info.RewardSpell = GetRewSpellCast();
@@ -437,17 +439,21 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.RequiredPlayerKills = GetPlayersSlain();
     response.Info.RewardTalents = GetBonusTalents();
     response.Info.RewardArenaPoints = GetRewArenaPoints();
+    response.Info.RewardFactionFlags = GetRewardReputationMask();
 
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
-        response.Info.RewardItems[i] = RewardItemId[i];
-        response.Info.RewardAmount[i] = RewardItemIdCount[i];
-    }
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            response.Info.RewardItems[i] = RewardItemId[i];
+            response.Info.RewardAmount[i] = RewardItemIdCount[i];
+        }
 
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-    {
-        response.Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
-        response.Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            response.Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
+            response.Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+        }
     }
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
@@ -475,6 +481,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
         response.Info.RequiredNpcOrGo[i] = RequiredNpcOrGo[i];
         response.Info.RequiredNpcOrGoCount[i] = RequiredNpcOrGoCount[i];
         response.Info.ItemDrop[i] = ItemDrop[i];
+        response.Info.ItemDropQuantity[i] = ItemDropQuantity[i];
     }
 
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)

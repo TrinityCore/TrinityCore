@@ -31,21 +31,54 @@ WorldPacket const* WorldPackets::Combat::AttackStart::Write()
     return &_worldPacket;
 }
 
-WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const* victim) : ServerPacket(SMSG_ATTACK_STOP, 8 + 8 + 4)
-{
-    Attacker = attacker->GetPackGUID();
-    if (victim)
-    {
-        Victim = victim->GetPackGUID();
-        NowDead = victim->isDead();
-    }
-}
-
 WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 {
-    _worldPacket << Attacker;
-    _worldPacket << Victim;
+    _worldPacket << Attacker.WriteAsPacked();
+    _worldPacket << Victim.WriteAsPacked();
     _worldPacket << uint32(NowDead);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << uint32(ThreatList.size());
+    for (ThreatInfo const& threatInfo : ThreatList)
+    {
+        _worldPacket << threatInfo.UnitGUID.WriteAsPacked();
+        _worldPacket << int32(threatInfo.Threat);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::HighestThreatUpdate::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << HighestThreatGUID.WriteAsPacked();
+    _worldPacket << uint32(ThreatList.size());
+    for (ThreatInfo const& threatInfo : ThreatList)
+    {
+        _worldPacket << threatInfo.UnitGUID.WriteAsPacked();
+        _worldPacket << int32(threatInfo.Threat);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::ThreatRemove::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << AboutGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::AIReaction::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << Reaction;
 
     return &_worldPacket;
 }

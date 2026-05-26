@@ -499,8 +499,8 @@ public:
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
+                LocaleConstant locale = handler->GetSessionDbcLocale();
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
-                uint32 locale = handler->GetSessionDbcLocale();
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
@@ -513,7 +513,7 @@ public:
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName, phase, slot.guid.GetCounter(), flags.c_str(),
+                zoneName, phase, slot.guid.ToString().c_str(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

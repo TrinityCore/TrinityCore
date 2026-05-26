@@ -723,6 +723,46 @@ class spell_gen_cancel_aura : public SpellScript
     }
 };
 
+class spell_gen_cast_caster_to_target : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cast_caster_to_target);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_cast_caster_to_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_gen_cast_target_to_target : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cast_target_to_target);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_cast_target_to_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum CannibalizeSpells
 {
     SPELL_CANNIBALIZE_TRIGGERED = 20578
@@ -1453,6 +1493,32 @@ class spell_gen_divine_storm_cd_reset : public SpellScript
     }
 };
 
+enum DreamingGlory
+{
+    SPELL_DREAMING_GLORY    = 28694
+};
+
+// 28698 - Dreaming Glory
+class spell_gen_dreaming_glory : public SpellScript
+{
+    PrepareSpellScript(spell_gen_dreaming_glory);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DREAMING_GLORY });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DREAMING_GLORY, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_dreaming_glory::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class spell_gen_ds_flush_knockback : public SpellScript
 {
     PrepareSpellScript(spell_gen_ds_flush_knockback);
@@ -2105,9 +2171,59 @@ class spell_gen_injured : public SpellScript
     }
 };
 
-class spell_gen_lifeblood : public AuraScript
+// To be added: 19633, 20686, 23382, 31389, 32959
+class spell_gen_knock_away_threat_reduction : public SpellScript
 {
-    PrepareAuraScript(spell_gen_lifeblood);
+    PrepareSpellScript(spell_gen_knock_away_threat_reduction);
+
+public:
+    explicit spell_gen_knock_away_threat_reduction(int32 threatPercent) : _threatPercent(threatPercent) { }
+
+private:
+    int32 _threatPercent;
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -_threatPercent);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_knock_away_threat_reduction::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum GenericLifeblood
+{
+    SPELL_GROW_FLOWER_PATCH   = 55475
+};
+
+// -55428 - Lifeblood
+class spell_gen_lifeblood : public SpellScript
+{
+    PrepareSpellScript(spell_gen_lifeblood);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GROW_FLOWER_PATCH });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_GROW_FLOWER_PATCH, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_gen_lifeblood::HandleAfterCast);
+    }
+};
+
+// -55428 - Lifeblood
+class spell_gen_lifeblood_aura : public AuraScript
+{
+    PrepareAuraScript(spell_gen_lifeblood_aura);
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
@@ -2120,7 +2236,7 @@ class spell_gen_lifeblood : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_lifeblood::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_lifeblood_aura::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -3256,6 +3372,23 @@ class spell_gen_replenishment_aura : public AuraScript
     }
 };
 
+// 32343 - Revive Self
+class spell_gen_revive_self : public SpellScript
+{
+    PrepareSpellScript(spell_gen_revive_self);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetFullHealth();
+        GetCaster()->SetFullPower(POWER_MANA);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_revive_self::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 enum SeaforiumSpells
 {
     SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT  = 60937
@@ -3322,7 +3455,7 @@ class spell_gen_spirit_healer_res : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-            data << uint64(target->GetGUID());
+            data << target->GetGUID();
             originalCaster->SendDirectMessage(&data);
         }
     }
@@ -3814,6 +3947,23 @@ private:
     }
 
     uint32 _text;
+};
+
+// 23777 - Zero Mana/Full Health DND
+class spell_gen_zero_mana_full_health : public SpellScript
+{
+    PrepareSpellScript(spell_gen_zero_mana_full_health);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetFullHealth();
+        GetCaster()->SetPower(POWER_MANA, 0);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_zero_mana_full_health::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 class spell_gen_eject_all_passengers : public SpellScript
@@ -4606,6 +4756,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_break_shield, "spell_gen_tournament_counterattack");
     RegisterSpellScript(spell_gen_burning_depths_necrolyte_image);
     RegisterSpellScript(spell_gen_cancel_aura);
+    RegisterSpellScript(spell_gen_cast_caster_to_target);
+    RegisterSpellScript(spell_gen_cast_target_to_target);
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_chains_of_ice);
     RegisterSpellScript(spell_gen_chaos_blast);
@@ -4628,6 +4780,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_despawn_self);
     RegisterSpellScript(spell_gen_despawn_target);
     RegisterSpellScript(spell_gen_divine_storm_cd_reset);
+    RegisterSpellScript(spell_gen_dreaming_glory);
     RegisterSpellScript(spell_gen_ds_flush_knockback);
     RegisterSpellScript(spell_gen_dungeon_credit);
     RegisterSpellScript(spell_ethereal_pet_aura);
@@ -4649,7 +4802,10 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_hate_to_50);
     RegisterSpellScript(spell_gen_hate_to_75);
     RegisterSpellScript(spell_gen_injured);
-    RegisterSpellScript(spell_gen_lifeblood);
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_100", 100);   // 10101
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_50", 50);     // 18670, 18945
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_25", 25);     // 18813, 25778
+    RegisterSpellAndAuraScriptPair(spell_gen_lifeblood, spell_gen_lifeblood_aura);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
@@ -4694,6 +4850,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_remove_on_health_pct);
     RegisterSpellScript(spell_gen_remove_on_full_health);
     RegisterSpellScript(spell_gen_remove_on_full_health_pct);
+    RegisterSpellScript(spell_gen_revive_self);
     RegisterSpellScript(spell_gen_seaforium_blast);
     RegisterSpellScript(spell_gen_spectator_cheer_trigger);
     RegisterSpellScript(spell_gen_spirit_healer_res);
@@ -4715,6 +4872,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_future_you_whisper_to_controller_random", WHISPER_FUTURE_YOU);
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_wyrmrest_defender_whisper_to_controller_random", WHISPER_DEFENDER);
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_past_you_whisper_to_controller_random", WHISPER_PAST_YOU);
+    RegisterSpellScript(spell_gen_zero_mana_full_health);
     RegisterSpellScript(spell_gen_eject_all_passengers);
     RegisterSpellScript(spell_gen_eject_passenger);
     RegisterSpellScriptWithArgs(spell_gen_eject_passenger_with_seatId, "spell_gen_eject_passenger_1", 0);

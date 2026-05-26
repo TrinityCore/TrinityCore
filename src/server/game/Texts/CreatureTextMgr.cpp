@@ -18,7 +18,7 @@
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
 #include "CellImpl.h"
-#include "Chat.h"
+#include "ChatPackets.h"
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
@@ -39,7 +39,13 @@ class CreatureTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
 
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            packet.Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            packet.Write();
+
+            *data = packet.Move();
+
+            return packet.TargetGUIDPos;
         }
 
     private:
@@ -62,7 +68,13 @@ class PlayerTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
 
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            WorldPackets::Chat::Chat packet;
+            packet.Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            packet.Write();
+
+            *data = packet.Move();
+
+            return packet.TargetGUIDPos;
         }
 
     private:
@@ -214,7 +226,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
     if (sList == mTextMap.end())
     {
-        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find Text for Creature {} (Entry {}, spawnId {}) in 'creature_text' table. Ignoring.", source->GetName(), source->GetEntry(), source->GetSpawnId());
+        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find Text for Creature {} ({}) in 'creature_text' table. Ignoring.", source->GetName(), source->GetGUID().ToString());
         return 0;
     }
 
@@ -222,7 +234,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find TextGroup {} for Creature {} (Entry {}, spawnId {}) in 'creature_text' table. Ignoring.", uint32(textGroup), source->GetName(), source->GetEntry(), source->GetSpawnId());
+        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find TextGroup {} for Creature {} ({}) in 'creature_text' table. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUID().ToString());
         return 0;
     }
 
@@ -277,7 +289,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     return iter->duration;
 }
 
-float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
+float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType)
 {
     float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
     switch (msgType)
@@ -296,7 +308,7 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget /*= nullptr*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/)
 {
     if (!sound || !source)
         return;
@@ -304,7 +316,7 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
     SendNonChatPacket(source, WorldPackets::Misc::PlaySound(sound).Write(), msgType, whisperTarget, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
 {
     switch (msgType)
     {
@@ -391,7 +403,7 @@ void CreatureTextMgr::SendEmote(Unit* source, Emote emote)
     source->HandleEmoteCommand(emote);
 }
 
-bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
+bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup) const
 {
     if (!sourceEntry)
         return false;
@@ -436,7 +448,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
         locale = DEFAULT_LOCALE;
 
     std::string baseText = "";
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(groupItr->BroadcastTextId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(groupItr->BroadcastTextId);
 
     if (bct)
         baseText = bct->GetText(locale, gender);

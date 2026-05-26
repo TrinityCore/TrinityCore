@@ -15,147 +15,168 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Huhuran
-SD%Complete: 100
-SDComment:
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "temple_of_ahnqiraj.h"
 
-enum Huhuran
+enum HuhuranTexts
 {
-    EMOTE_FRENZY_KILL           = 0,
-    EMOTE_BERSERK               = 1,
-
-    SPELL_FRENZY                = 26051,
-    SPELL_BERSERK               = 26068,
-    SPELL_POISONBOLT            = 26052,
-    SPELL_NOXIOUSPOISON         = 26053,
-    SPELL_WYVERNSTING           = 26180,
-    SPELL_ACIDSPIT              = 26050
+    EMOTE_ENRAGE                = 0,
+    EMOTE_BERSERK               = 1
 };
 
-class boss_huhuran : public CreatureScript
+enum HuhuranSpells
 {
-public:
-    boss_huhuran() : CreatureScript("boss_huhuran") { }
+    SPELL_ACID_SPIT             = 26050,
+    SPELL_NOXIOUS_POISON        = 26053,
+    SPELL_WYVERN_STING          = 26180,
+    SPELL_ENRAGE                = 26051,
+    SPELL_BERSERK               = 26068,
 
-    CreatureAI* GetAI(Creature* creature) const override
+    SPELL_WYVERN_STING_DAMAGE   = 26233
+};
+
+enum HuhuranEvents
+{
+    EVENT_ACID_SPIT             = 1,
+    EVENT_NOXIOUS_POISON,
+    EVENT_WYVERN_STING,
+    EVENT_ENRAGE,
+    EVENT_BERSERK
+};
+
+// 15509 - Princess Huhuran
+struct boss_huhuran : public BossAI
+{
+    boss_huhuran(Creature* creature) : BossAI(creature, DATA_HUHURAN), _berserkTriggered(false) { }
+
+    void Reset() override
     {
-        return GetAQ40AI<boss_huhuranAI>(creature);
+        _Reset();
+        _berserkTriggered = false;
     }
 
-    struct boss_huhuranAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_huhuranAI(Creature* creature) : BossAI(creature, DATA_HUHURAN)
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_ACID_SPIT, 0s, 15s);
+        events.ScheduleEvent(EVENT_NOXIOUS_POISON, 10s, 20s);
+        events.ScheduleEvent(EVENT_WYVERN_STING, 35s, 45s);
+        events.ScheduleEvent(EVENT_ENRAGE, 10s, 25s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_berserkTriggered && me->HealthBelowPctDamaged(30, damage))
         {
-            Initialize();
+            _berserkTriggered = true;
+            events.CancelEvent(EVENT_ENRAGE);
+            events.ScheduleEvent(EVENT_BERSERK, 0s);
         }
+    }
 
-        void Initialize()
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
         {
-            Frenzy_Timer = urand(25000, 35000);
-            Wyvern_Timer = urand(18000, 28000);
-            Spit_Timer = 8000;
-            PoisonBolt_Timer = 4000;
-            NoxiousPoison_Timer = urand(10000, 20000);
-            FrenzyBack_Timer = 15000;
-
-            Frenzy = false;
-            Berserk = false;
-        }
-
-        uint32 Frenzy_Timer;
-        uint32 Wyvern_Timer;
-        uint32 Spit_Timer;
-        uint32 PoisonBolt_Timer;
-        uint32 NoxiousPoison_Timer;
-        uint32 FrenzyBack_Timer;
-
-        bool Frenzy;
-        bool Berserk;
-
-        void Reset() override
-        {
-            Initialize();
-            _Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            //Frenzy_Timer
-            if (!Frenzy && Frenzy_Timer <= diff)
-            {
-                DoCast(me, SPELL_FRENZY);
-                Talk(EMOTE_FRENZY_KILL);
-                Frenzy = true;
-                PoisonBolt_Timer = 3000;
-                Frenzy_Timer = urand(25000, 35000);
-            } else Frenzy_Timer -= diff;
-
-            // Wyvern Timer
-            if (Wyvern_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_WYVERNSTING);
-                Wyvern_Timer = urand(15000, 32000);
-            } else Wyvern_Timer -= diff;
-
-            //Spit Timer
-            if (Spit_Timer <= diff)
-            {
-                DoCastVictim(SPELL_ACIDSPIT);
-                Spit_Timer = urand(5000, 10000);
-            } else Spit_Timer -= diff;
-
-            //NoxiousPoison_Timer
-            if (NoxiousPoison_Timer <= diff)
-            {
-                DoCastVictim(SPELL_NOXIOUSPOISON);
-                NoxiousPoison_Timer = urand(12000, 24000);
-            } else NoxiousPoison_Timer -= diff;
-
-            //PoisonBolt only if frenzy or berserk
-            if (Frenzy || Berserk)
-            {
-                if (PoisonBolt_Timer <= diff)
-                {
-                    DoCastVictim(SPELL_POISONBOLT);
-                    PoisonBolt_Timer = 3000;
-                } else PoisonBolt_Timer -= diff;
-            }
-
-            //FrenzyBack_Timer
-            if (Frenzy && FrenzyBack_Timer <= diff)
-            {
-                me->InterruptNonMeleeSpells(false);
-                Frenzy = false;
-                FrenzyBack_Timer = 15000;
-            } else FrenzyBack_Timer -= diff;
-
-            if (!Berserk && HealthBelowPct(31))
-            {
-                me->InterruptNonMeleeSpells(false);
+            case SPELL_ENRAGE:
+                Talk(EMOTE_ENRAGE);
+                break;
+            case SPELL_BERSERK:
                 Talk(EMOTE_BERSERK);
-                DoCast(me, SPELL_BERSERK);
-                Berserk = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ACID_SPIT:
+                    DoCastVictim(SPELL_ACID_SPIT);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_NOXIOUS_POISON:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                        DoCast(target, SPELL_NOXIOUS_POISON);
+                    events.Repeat(10s, 25s);
+                    break;
+                case EVENT_WYVERN_STING:
+                    DoCastSelf(SPELL_WYVERN_STING);
+                    events.Repeat(25s, 35s);
+                    break;
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK);
+                    break;
+                default:
+                    break;
             }
 
-            DoMeleeAttackIfReady();
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _berserkTriggered;
+};
+
+// 26180 - Wyvern Sting
+class spell_huhuran_wyvern_sting : public AuraScript
+{
+    PrepareAuraScript(spell_huhuran_wyvern_sting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WYVERN_STING_DAMAGE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+
+        if (Unit* caster = GetCaster())
+        {
+            int32 damage = removeMode == AURA_REMOVE_BY_ENEMY_SPELL ? 3000 : 500;
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.AddSpellBP0(damage);
+            caster->CastSpell(GetTarget(), SPELL_WYVERN_STING_DAMAGE, args);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_huhuran_wyvern_sting::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_huhuran()
 {
-    new boss_huhuran();
+    RegisterAQ40CreatureAI(boss_huhuran);
+    RegisterSpellScript(spell_huhuran_wyvern_sting);
 }

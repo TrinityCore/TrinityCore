@@ -15,9 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Opcodes.h"
 #include "WorldSession.h"
-#include "WorldPacket.h"
+#include "ClientConfigPackets.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 {
@@ -39,7 +38,8 @@ void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
-    data << uint32(version);
-    SendPacket(&data);
+    WorldPackets::ClientConfig::ClientCacheVersion cache;
+    cache.CacheVersion = version;
+
+    SendPacket(cache.Write());
 }

@@ -154,7 +154,7 @@ enum BattlegroundTimeIntervals
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
     INVITE_ACCEPT_WAIT_TIME         = 60000,                // ms
-    TIME_TO_AUTOREMOVE              = 120000,               // ms
+    TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
     RESPAWN_IMMEDIATELY             = 0,                    // secs
@@ -277,8 +277,8 @@ class TC_GAME_API Battleground
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
-        uint32 GetStartTime() const         { return m_StartTime; }
-        uint32 GetEndTime() const           { return m_EndTime; }
+        uint32 GetElapsedTime() const       { return m_StartTime; }
+        uint32 GetRemainingTime() const     { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -305,8 +305,8 @@ class TC_GAME_API Battleground
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
-        void SetStartTime(uint32 Time)      { m_StartTime = Time; }
-        void SetEndTime(uint32 Time)        { m_EndTime = Time; }
+        void SetElapsedTime(uint32 Time)    { m_StartTime = Time; }
+        void SetRemainingTime(uint32 Time)  { m_EndTime = Time; }
         void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
@@ -343,7 +343,7 @@ class TC_GAME_API Battleground
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
-        typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
+        typedef std::map<ObjectGuid, BattlegroundScore*> BattlegroundScoreMap;
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
 
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
@@ -377,8 +377,8 @@ class TC_GAME_API Battleground
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-        void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = nullptr, bool self = true);
-        void SendPacketToAll(WorldPacket const* packet);
+        void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = nullptr, bool self = true) const;
+        void SendPacketToAll(WorldPacket const* packet) const;
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = nullptr);
         void SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject const* target = nullptr);
@@ -396,7 +396,6 @@ class TC_GAME_API Battleground
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
-        void SendWarningToAll(uint32 entry, ...);
         void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
         void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
 

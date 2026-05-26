@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ASYNCACCEPT_H_
-#define __ASYNCACCEPT_H_
+#ifndef TRINITYCORE_ASYNC_ACCEPTOR_H
+#define TRINITYCORE_ASYNC_ACCEPTOR_H
 
 #include "IoContext.h"
 #include "IpAddress.h"
 #include "Log.h"
+#include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
 #include <functional>
@@ -29,27 +30,28 @@ using boost::asio::ip::tcp;
 
 #define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
 
+namespace Trinity::Net
+{
+template <typename Callable>
+concept AcceptCallback = std::invocable<Callable, IoContextTcpSocket&&, uint32>;
+
 class AsyncAcceptor
 {
 public:
-    typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
-
-    AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
-        _acceptor(ioContext), _endpoint(Trinity::Net::make_address(bindIp), port),
+    AsyncAcceptor(Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
+        _acceptor(ioContext), _endpoint(make_address(bindIp), port),
         _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
     {
     }
 
-    template<class T>
-    void AsyncAccept();
-
-    template<AcceptCallback acceptCallback>
-    void AsyncAcceptWithCallback()
+    template <AcceptCallback Callback>
+    void AsyncAccept(Callback&& acceptCallback)
     {
-        tcp::socket* socket;
-        uint32 threadIndex;
-        std::tie(socket, threadIndex) = _socketFactory();
-        _acceptor.async_accept(*socket, [this, socket, threadIndex](boost::system::error_code error)
+        auto [tmpSocket, tmpThreadIndex] = _socketFactory();
+        // TODO: get rid of temporary variables (clang 15 cannot handle variables from structured bindings as lambda captures)
+        IoContextTcpSocket* socket = tmpSocket;
+        uint32 threadIndex = tmpThreadIndex;
+        _acceptor.async_accept(*socket, [this, socket, threadIndex, acceptCallback = std::forward<Callback>(acceptCallback)](boost::system::error_code const& error) mutable
         {
             if (!error)
             {
@@ -66,7 +68,7 @@ public:
             }
 
             if (!_closed)
-                this->AsyncAcceptWithCallback<acceptCallback>();
+                this->AsyncAccept(std::move(acceptCallback));
         });
     }
 
@@ -115,40 +117,17 @@ public:
         _acceptor.close(err);
     }
 
-    void SetSocketFactory(std::function<std::pair<tcp::socket*, uint32>()> func) { _socketFactory = func; }
+    void SetSocketFactory(std::function<std::pair<IoContextTcpSocket*, uint32>()> func) { _socketFactory = std::move(func); }
 
 private:
-    std::pair<tcp::socket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
+    std::pair<IoContextTcpSocket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
 
-    tcp::acceptor _acceptor;
-    tcp::endpoint _endpoint;
-    tcp::socket _socket;
+    boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, IoContextTcpSocket::executor_type> _acceptor;
+    boost::asio::ip::tcp::endpoint _endpoint;
+    IoContextTcpSocket _socket;
     std::atomic<bool> _closed;
-    std::function<std::pair<tcp::socket*, uint32>()> _socketFactory;
+    std::function<std::pair<IoContextTcpSocket*, uint32>()> _socketFactory;
 };
-
-template<class T>
-void AsyncAcceptor::AsyncAccept()
-{
-    _acceptor.async_accept(_socket, [this](boost::system::error_code error)
-    {
-        if (!error)
-        {
-            try
-            {
-                // this-> is required here to fix an segmentation fault in gcc 4.7.2 - reason is lambdas in a templated class
-                std::make_shared<T>(std::move(this->_socket))->Start();
-            }
-            catch (boost::system::system_error const& err)
-            {
-                TC_LOG_INFO("network", "Failed to retrieve client's remote address {}", err.what());
-            }
-        }
-
-        // lets slap some more this-> on this so we can fix this bug with gcc 4.7.2 throwing internals in yo face
-        if (!_closed)
-            this->AsyncAccept<T>();
-    });
 }
 
-#endif /* __ASYNCACCEPT_H_ */
+#endif // TRINITYCORE_ASYNC_ACCEPTOR_H

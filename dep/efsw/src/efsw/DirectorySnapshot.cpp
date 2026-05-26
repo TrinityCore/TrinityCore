@@ -3,44 +3,32 @@
 
 namespace efsw {
 
-DirectorySnapshot::DirectorySnapshot()
-{
-}
+DirectorySnapshot::DirectorySnapshot() {}
 
-DirectorySnapshot::DirectorySnapshot( std::string directory )
-{
+DirectorySnapshot::DirectorySnapshot( std::string directory ) {
 	init( directory );
 }
 
-DirectorySnapshot::~DirectorySnapshot()
-{
-}
+DirectorySnapshot::~DirectorySnapshot() {}
 
-void DirectorySnapshot::init( std::string directory )
-{
+void DirectorySnapshot::init( std::string directory ) {
 	setDirectoryInfo( directory );
 	initFiles();
 }
 
-bool DirectorySnapshot::exists()
-{
+bool DirectorySnapshot::exists() {
 	return DirectoryInfo.exists();
 }
 
-void DirectorySnapshot::deleteAll( DirectorySnapshotDiff& Diff )
-{
+void DirectorySnapshot::deleteAll( DirectorySnapshotDiff& Diff ) {
 	FileInfo fi;
 
-	for ( FileInfoMap::iterator it = Files.begin(); it != Files.end(); it++ )
-	{
+	for ( FileInfoMap::iterator it = Files.begin(); it != Files.end(); it++ ) {
 		fi = it->second;
 
-		if ( fi.isDirectory() )
-		{
+		if ( fi.isDirectory() ) {
 			Diff.DirsDeleted.push_back( fi );
-		}
-		else
-		{
+		} else {
 			Diff.FilesDeleted.push_back( fi );
 		}
 	}
@@ -48,51 +36,44 @@ void DirectorySnapshot::deleteAll( DirectorySnapshotDiff& Diff )
 	Files.clear();
 }
 
-void DirectorySnapshot::setDirectoryInfo( std::string directory )
-{
+void DirectorySnapshot::setDirectoryInfo( std::string directory ) {
 	DirectoryInfo = FileInfo( directory );
 }
 
-void DirectorySnapshot::initFiles()
-{
+void DirectorySnapshot::initFiles() {
 	Files = FileSystem::filesInfoFromPath( DirectoryInfo.Filepath );
 
 	FileInfoMap::iterator it = Files.begin();
-	std::list<std::string> eraseFiles;
+	std::vector<std::string> eraseFiles;
 
 	/// Remove all non regular files and non directories
-	for ( ; it != Files.end(); it++ )
-	{
-		if ( !it->second.isRegularFile() && !it->second.isDirectory() )
-		{
+	for ( ; it != Files.end(); it++ ) {
+		if ( !it->second.isRegularFile() && !it->second.isDirectory() ) {
 			eraseFiles.push_back( it->first );
 		}
 	}
 
-	for ( std::list<std::string>::iterator eit = eraseFiles.begin(); eit != eraseFiles.end(); eit++ )
-	{
+	for ( std::vector<std::string>::iterator eit = eraseFiles.begin(); eit != eraseFiles.end();
+		  eit++ ) {
 		Files.erase( *eit );
 	}
 }
 
-DirectorySnapshotDiff DirectorySnapshot::scan()
-{
-	DirectorySnapshotDiff	Diff;
+DirectorySnapshotDiff DirectorySnapshot::scan() {
+	DirectorySnapshotDiff Diff;
 
 	Diff.clear();
 
 	FileInfo curFI( DirectoryInfo.Filepath );
 
-	Diff.DirChanged	= DirectoryInfo != curFI;
+	Diff.DirChanged = DirectoryInfo != curFI;
 
-	if ( Diff.DirChanged )
-	{
+	if ( Diff.DirChanged ) {
 		DirectoryInfo = curFI;
 	}
 
 	/// If the directory was erased, create the events for files and directories deletion
-	if ( !curFI.exists() )
-	{
+	if ( !curFI.exists() ) {
 		deleteAll( Diff );
 
 		return Diff;
@@ -100,8 +81,7 @@ DirectorySnapshotDiff DirectorySnapshot::scan()
 
 	FileInfoMap files = FileSystem::filesInfoFromPath( DirectoryInfo.Filepath );
 
-	if ( files.empty() && Files.empty() )
-	{
+	if ( files.empty() && Files.empty() ) {
 		return Diff;
 	}
 
@@ -110,52 +90,43 @@ DirectorySnapshotDiff DirectorySnapshot::scan()
 	FileInfoMap::iterator it;
 	FileInfoMap::iterator fiIt;
 
-	if ( Diff.DirChanged )
-	{
+	if ( Diff.DirChanged ) {
 		FilesCpy = Files;
 	}
 
-	for ( it = files.begin(); it != files.end(); it++ )
-	{
-		fi	= it->second;
+	for ( it = files.begin(); it != files.end(); it++ ) {
+		fi = it->second;
 
 		/// File existed before?
 		fiIt = Files.find( it->first );
 
-		if ( fiIt != Files.end() )
-		{
+		if ( fiIt != Files.end() ) {
 			/// Erase from the file list copy
 			FilesCpy.erase( it->first );
 
 			/// File changed?
-			if ( (*fiIt).second != fi )
-			{
+			if ( ( *fiIt ).second != fi ) {
 				/// Update the new file info
-				Files[ it->first ] = fi;
+				Files[it->first] = fi;
 
 				/// handle modified event
-				if ( fi.isDirectory() )
-				{
+				if ( fi.isDirectory() ) {
 					Diff.DirsModified.push_back( fi );
-				}
-				else
-				{
+				} else {
 					Diff.FilesModified.push_back( fi );
 				}
 			}
 		}
 		/// Only add regular files or directories
-		else if ( fi.isRegularFile() || fi.isDirectory() )
-		{
+		else if ( fi.isRegularFile() || fi.isDirectory() ) {
 			/// New file found
-			Files[ it->first ] = fi;
+			Files[it->first] = fi;
 
 			FileInfoMap::iterator fit;
 			std::string oldFile = "";
 
 			/// Check if the same inode already existed
-			if ( ( fit = nodeInFiles( fi ) ) != Files.end() )
-			{
+			if ( ( fit = nodeInFiles( fi ) ) != Files.end() ) {
 				oldFile = fit->first;
 
 				/// Avoid firing a Delete event
@@ -164,45 +135,32 @@ DirectorySnapshotDiff DirectorySnapshot::scan()
 				/// Delete the old file name
 				Files.erase( fit->first );
 
-				if ( fi.isDirectory() )
-				{
+				if ( fi.isDirectory() ) {
 					Diff.DirsMoved.push_back( std::make_pair( oldFile, fi ) );
-				}
-				else
-				{
+				} else {
 					Diff.FilesMoved.push_back( std::make_pair( oldFile, fi ) );
 				}
-			}
-			else
-			{
-				if ( fi.isDirectory() )
-				{
+			} else {
+				if ( fi.isDirectory() ) {
 					Diff.DirsCreated.push_back( fi );
-				}
-				else
-				{
+				} else {
 					Diff.FilesCreated.push_back( fi );
 				}
 			}
 		}
 	}
 
-	if ( !Diff.DirChanged )
-	{
+	if ( !Diff.DirChanged ) {
 		return Diff;
 	}
 
 	/// The files or directories that remains were deleted
-	for ( it = FilesCpy.begin(); it != FilesCpy.end(); it++ )
-	{
+	for ( it = FilesCpy.begin(); it != FilesCpy.end(); it++ ) {
 		fi = it->second;
 
-		if ( fi.isDirectory() )
-		{
+		if ( fi.isDirectory() ) {
 			Diff.DirsDeleted.push_back( fi );
-		}
-		else
-		{
+		} else {
 			Diff.FilesDeleted.push_back( fi );
 		}
 
@@ -213,16 +171,12 @@ DirectorySnapshotDiff DirectorySnapshot::scan()
 	return Diff;
 }
 
-FileInfoMap::iterator DirectorySnapshot::nodeInFiles( FileInfo& fi )
-{
+FileInfoMap::iterator DirectorySnapshot::nodeInFiles( FileInfo& fi ) {
 	FileInfoMap::iterator it;
 
-	if ( FileInfo::inodeSupported() )
-	{
-		for ( it = Files.begin(); it != Files.end(); it++ )
-		{
-			if ( it->second.sameInode( fi ) && it->second.Filepath != fi.Filepath )
-			{
+	if ( FileInfo::inodeSupported() ) {
+		for ( it = Files.begin(); it != Files.end(); it++ ) {
+			if ( it->second.sameInode( fi ) && it->second.Filepath != fi.Filepath ) {
 				return it;
 			}
 		}
@@ -231,33 +185,28 @@ FileInfoMap::iterator DirectorySnapshot::nodeInFiles( FileInfo& fi )
 	return Files.end();
 }
 
-void DirectorySnapshot::addFile( std::string path )
-{
+void DirectorySnapshot::addFile( std::string path ) {
 	std::string name( FileSystem::fileNameFromPath( path ) );
-	Files[ name ] = FileInfo( path );
+	Files[name] = FileInfo( path );
 }
 
-void DirectorySnapshot::removeFile( std::string path )
-{
+void DirectorySnapshot::removeFile( std::string path ) {
 	std::string name( FileSystem::fileNameFromPath( path ) );
 
 	FileInfoMap::iterator it = Files.find( name );
 
-	if ( Files.end() != it )
-	{
+	if ( Files.end() != it ) {
 		Files.erase( it );
 	}
 }
 
-void DirectorySnapshot::moveFile( std::string oldPath, std::string newPath )
-{
+void DirectorySnapshot::moveFile( std::string oldPath, std::string newPath ) {
 	removeFile( oldPath );
 	addFile( newPath );
 }
 
-void DirectorySnapshot::updateFile(std::string path)
-{
+void DirectorySnapshot::updateFile( std::string path ) {
 	addFile( path );
 }
 
-}
+} // namespace efsw

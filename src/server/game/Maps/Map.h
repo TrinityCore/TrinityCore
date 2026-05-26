@@ -70,6 +70,27 @@ namespace Trinity { struct ObjectUpdater; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 namespace G3D { class Plane; }
 
+enum TransferAbortReason : uint8
+{
+    TRANSFER_ABORT_NONE                          = 0,
+    TRANSFER_ABORT_ERROR                         = 1,
+    TRANSFER_ABORT_MAX_PLAYERS                   = 2,   // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                     = 3,   // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 4,   // You have entered too many instances recently.
+    TRANSFER_ABORT_LOGGING_OUT                   = 5,
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 6,   // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 7,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY                    = 8,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 9,   // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 10,  // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP                    = 11,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_NEED_SERVER                   = 12,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TIMEOUT                       = 13,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_BUSY                          = 14,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_REALM_ONLY                    = 15,  // All players on party must be from the same realm.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 16   // Map can't be entered at this time.
+};
+
 struct ScriptAction
 {
     ObjectGuid sourceGUID;
@@ -586,14 +607,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         template<HighGuid high>
         inline ObjectGuid::LowType GenerateLowGuid()
         {
-            static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be generated in Map context");
+            static_assert(ObjectGuidTraits<high>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Map), "Only map specific guid can be generated in Map context");
             return GetGuidSequenceGenerator(high).Generate();
         }
 
         template<HighGuid high>
         inline ObjectGuid::LowType GetMaxLowGuid()
         {
-            static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be retrieved in Map context");
+            static_assert(ObjectGuidTraits<high>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Map), "Only map specific guid can be generated in Map context");
             return GetGuidSequenceGenerator(high).GetNextAfterMaxUsed();
         }
 

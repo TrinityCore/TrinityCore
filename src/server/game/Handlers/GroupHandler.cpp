@@ -351,13 +351,14 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     if (!grp)
         return;
 
-    if (ObjectGuid guid = grp->GetMemberGUID(membername))
+    ObjectGuid guid = grp->GetMemberGUID(membername);
+    if (!guid.IsEmpty())
     {
         Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
         return;
     }
 
-    if (Player* player = grp->GetInvited(membername))
+    if (Player* player = grp->GetInvited(guid))
     {
         player->UninviteFromGroup();
         return;
@@ -497,7 +498,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 
     // everything's fine, do it
     WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-    data << uint64(GetPlayer()->GetGUID());
+    data << GetPlayer()->GetGUID();
     data << float(x);
     data << float(y);
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
@@ -696,7 +697,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
 
         // everything's fine, do it
         WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
-        data << uint64(GetPlayer()->GetGUID());
+        data << GetPlayer()->GetGUID();
         data << uint8(state);
         group->BroadcastReadyCheck(&data);
     }
@@ -812,7 +813,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         if (pet)
             *data << pet->GetGUID();
         else
-            *data << uint64(0);
+            *data << ObjectGuid::Empty;
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_NAME)
@@ -992,7 +993,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
     data.put<uint64>(maskPos, auraMask);                    // GROUP_UPDATE_FLAG_AURAS
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_GUID)
-        data << uint64(ASSERT_NOTNULL(pet)->GetGUID());
+        data << ASSERT_NOTNULL(pet)->GetGUID();
 
     data << std::string(pet ? pet->GetName() : "");         // GROUP_UPDATE_FLAG_PET_NAME
     data << uint16(pet ? pet->GetDisplayId() : 0);          // GROUP_UPDATE_FLAG_PET_MODEL_ID

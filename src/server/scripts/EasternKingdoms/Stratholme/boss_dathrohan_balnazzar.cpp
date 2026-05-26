@@ -15,219 +15,204 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Dathrohan_Balnazzar
-SD%Complete: 95
-SDComment: Possibly need to fix/improve summons after death
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-enum Spells
+enum DathrohanTexts
 {
-    //Dathrohan spells
-    SPELL_CRUSADERSHAMMER           = 17286,                //AOE stun
-    SPELL_CRUSADERSTRIKE            = 17281,
-    SPELL_HOLYSTRIKE                = 17284,                //weapon dmg +3
-
-    //Transform
-    SPELL_BALNAZZARTRANSFORM        = 17288,                //restore full HP/mana, trigger spell Balnazzar Transform Stun
-
-    //Balnazzar spells
-    SPELL_SHADOWSHOCK               = 17399,
-    SPELL_MINDBLAST                 = 17287,
-    SPELL_PSYCHICSCREAM             = 13704,
-    SPELL_SLEEP                     = 12098,
-    SPELL_MINDCONTROL               = 15690
+    SAY_AGGRO                       = 0,
+    SAY_TRANSFORM                   = 0,
+    SAY_DEATH                       = 1
 };
 
-enum Creatures
+enum DathrohanSpells
+{
+    // Dathrohan
+    SPELL_CRUSADERS_HAMMER          = 17286,
+    SPELL_CRUSADER_STRIKE           = 17281,
+    SPELL_HOLY_STRIKE               = 17284,
+    SPELL_MIND_BLAST                = 17287,
+
+    SPELL_BALNAZZAR_TRANSFORM       = 17288,
+
+    // Balnazzar
+    SPELL_SHADOW_SHOCK              = 17399,
+    SPELL_PSYCHIC_SCREAM            = 13704,
+    SPELL_SLEEP                     = 12098,
+    SPELL_DOMINATION                = 17405
+};
+
+enum DathrohanEvents
+{
+    EVENT_CRUSADERS_HAMMER          = 1,
+    EVENT_CRUSADER_STRIKE,
+    EVENT_HOLY_STRIKE,
+
+    EVENT_MIND_BLAST,
+
+    EVENT_SHADOW_SHOCK,
+    EVENT_PSYCHIC_SCREAM,
+    EVENT_SLEEP,
+    EVENT_DOMINATION,
+
+    EVENT_TRANSFORM_1,
+    EVENT_TRANSFORM_2,
+    EVENT_TRANSFORM_3,
+    EVENT_TRANSFORM_4
+};
+
+enum DathrohanMisc
 {
     NPC_DATHROHAN                   = 10812,
     NPC_BALNAZZAR                   = 10813,
-    NPC_ZOMBIE                      = 10698                 //probably incorrect
+    SUMMON_GROUP_DEATH              = 0
 };
 
-struct SummonDef
+// 10812 - Grand Crusader Dathrohan
+struct boss_dathrohan_balnazzar : public BossAI
 {
-    float m_fX, m_fY, m_fZ, m_fOrient;
-};
+    boss_dathrohan_balnazzar(Creature* creature) : BossAI(creature, BOSS_BALNAZZAR), _transformed(false) { }
 
-SummonDef m_aSummonPoint[]=
-{
-    {3444.156f, -3090.626f, 135.002f, 2.240f},                  //G1 front, left
-    {3449.123f, -3087.009f, 135.002f, 2.240f},                  //G1 front, right
-    {3446.246f, -3093.466f, 135.002f, 2.240f},                  //G1 back left
-    {3451.160f, -3089.904f, 135.002f, 2.240f},                  //G1 back, right
-
-    {3457.995f, -3080.916f, 135.002f, 3.784f},                  //G2 front, left
-    {3454.302f, -3076.330f, 135.002f, 3.784f},                  //G2 front, right
-    {3460.975f, -3078.901f, 135.002f, 3.784f},                  //G2 back left
-    {3457.338f, -3073.979f, 135.002f, 3.784f}                   //G2 back, right
-};
-
-class boss_dathrohan_balnazzar : public CreatureScript
-{
-public:
-    boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetStratholmeAI<boss_dathrohan_balnazzarAI>(creature);
+        BossAI::Reset();
+
+        _transformed = false;
+
+        if (me->GetEntry() == NPC_BALNAZZAR)
+            me->UpdateEntry(NPC_DATHROHAN);
+
+        SetEquipmentSlots(true);
     }
 
-    struct boss_dathrohan_balnazzarAI : public ScriptedAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_dathrohan_balnazzarAI(Creature* creature) : ScriptedAI(creature)
+        BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_CRUSADERS_HAMMER, 15s, 25s);
+        events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 5s, 10s);
+        events.ScheduleEvent(EVENT_HOLY_STRIKE, 10s, 20s);
+        events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_transformed && me->HealthBelowPctDamaged(40, damage))
         {
-            Initialize();
+            _transformed = true;
+            events.ScheduleEvent(EVENT_TRANSFORM_1, 0s);
         }
+    }
 
-        void Initialize()
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+
+        Talk(SAY_DEATH);
+        me->SummonCreatureGroup(SUMMON_GROUP_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            m_uiCrusadersHammer_Timer = 8000;
-            m_uiCrusaderStrike_Timer = 12000;
-            m_uiMindBlast_Timer = 6000;
-            m_uiHolyStrike_Timer = 18000;
-            m_uiShadowShock_Timer = 4000;
-            m_uiPsychicScream_Timer = 16000;
-            m_uiDeepSleep_Timer = 20000;
-            m_uiMindControl_Timer = 10000;
-            m_bTransformed = false;
-        }
-
-        uint32 m_uiCrusadersHammer_Timer;
-        uint32 m_uiCrusaderStrike_Timer;
-        uint32 m_uiMindBlast_Timer;
-        uint32 m_uiHolyStrike_Timer;
-        uint32 m_uiShadowShock_Timer;
-        uint32 m_uiPsychicScream_Timer;
-        uint32 m_uiDeepSleep_Timer;
-        uint32 m_uiMindControl_Timer;
-        bool m_bTransformed;
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (me->GetEntry() == NPC_BALNAZZAR)
-                me->UpdateEntry(NPC_DATHROHAN);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            static uint32 uiCount = sizeof(m_aSummonPoint)/sizeof(SummonDef);
-
-            for (uint8 i=0; i<uiCount; ++i)
-                me->SummonCreature(NPC_ZOMBIE,
-                m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
-                TEMPSUMMON_TIMED_DESPAWN, 1h);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //START NOT TRANSFORMED
-            if (!m_bTransformed)
+            switch (eventId)
             {
-                //MindBlast
-                if (m_uiMindBlast_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_MINDBLAST);
-                    m_uiMindBlast_Timer = urand(15000, 20000);
-                } else m_uiMindBlast_Timer -= uiDiff;
+                case EVENT_CRUSADERS_HAMMER:
+                    DoCastSelf(SPELL_CRUSADERS_HAMMER);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_CRUSADER_STRIKE:
+                    DoCastVictim(SPELL_CRUSADER_STRIKE);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_HOLY_STRIKE:
+                    DoCastVictim(SPELL_HOLY_STRIKE);
+                    events.Repeat(10s, 15s);
+                    break;
 
-                //CrusadersHammer
-                if (m_uiCrusadersHammer_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_CRUSADERSHAMMER);
-                    m_uiCrusadersHammer_Timer = 12000;
-                } else m_uiCrusadersHammer_Timer -= uiDiff;
+                case EVENT_MIND_BLAST:
+                    DoCastVictim(SPELL_MIND_BLAST);
+                    events.Repeat(10s, 15s);
+                    break;
 
-                //CrusaderStrike
-                if (m_uiCrusaderStrike_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_CRUSADERSTRIKE);
-                    m_uiCrusaderStrike_Timer = 15000;
-                } else m_uiCrusaderStrike_Timer -= uiDiff;
-
-                //HolyStrike
-                if (m_uiHolyStrike_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_HOLYSTRIKE);
-                    m_uiHolyStrike_Timer = 15000;
-                } else m_uiHolyStrike_Timer -= uiDiff;
-
-                //BalnazzarTransform
-                if (HealthBelowPct(40))
-                {
-                    if (me->IsNonMeleeSpellCast(false))
-                        me->InterruptNonMeleeSpells(false);
-
-                    //restore hp, mana and stun
-                    DoCast(me, SPELL_BALNAZZARTRANSFORM);
-                    me->UpdateEntry(NPC_BALNAZZAR);
-                    m_bTransformed = true;
-                }
-            }
-            else
-            {
-                //MindBlast
-                if (m_uiMindBlast_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_MINDBLAST);
-                    m_uiMindBlast_Timer = urand(15000, 20000);
-                } else m_uiMindBlast_Timer -= uiDiff;
-
-                //ShadowShock
-                if (m_uiShadowShock_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_SHADOWSHOCK);
-                    m_uiShadowShock_Timer = 11000;
-                } else m_uiShadowShock_Timer -= uiDiff;
-
-                //PsychicScream
-                if (m_uiPsychicScream_Timer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_PSYCHICSCREAM);
-
-                    m_uiPsychicScream_Timer = 20000;
-                } else m_uiPsychicScream_Timer -= uiDiff;
-
-                //DeepSleep
-                if (m_uiDeepSleep_Timer <= uiDiff)
-                {
+                case EVENT_SHADOW_SHOCK:
+                    DoCastSelf(SPELL_SHADOW_SHOCK);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_PSYCHIC_SCREAM:
+                    DoCastSelf(SPELL_PSYCHIC_SCREAM);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_SLEEP:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_SLEEP);
+                    events.Repeat(15s, 20s);
+                    break;
+                case EVENT_DOMINATION:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                        DoCast(target, SPELL_DOMINATION);
+                    events.Repeat(20s, 25s);
+                    break;
 
-                    m_uiDeepSleep_Timer = 15000;
-                } else m_uiDeepSleep_Timer -= uiDiff;
-
-                //MindControl
-                if (m_uiMindControl_Timer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_MINDCONTROL);
-                    m_uiMindControl_Timer = 15000;
-                } else m_uiMindControl_Timer -= uiDiff;
+                case EVENT_TRANSFORM_1:
+                    events.CancelEvent(EVENT_CRUSADERS_HAMMER);
+                    events.CancelEvent(EVENT_CRUSADER_STRIKE);
+                    events.CancelEvent(EVENT_HOLY_STRIKE);
+                    events.CancelEvent(EVENT_MIND_BLAST);
+                    DoCastSelf(SPELL_BALNAZZAR_TRANSFORM);
+                    me->SetReactState(REACT_PASSIVE);
+                    events.ScheduleEvent(EVENT_TRANSFORM_2, 2s);
+                    break;
+                case EVENT_TRANSFORM_2:
+                    me->UpdateEntry(NPC_BALNAZZAR);
+                    me->SetReactState(REACT_PASSIVE);
+                    SetEquipmentSlots(false, EQUIP_UNEQUIP);
+                    events.ScheduleEvent(EVENT_TRANSFORM_3, 2s);
+                    break;
+                case EVENT_TRANSFORM_3:
+                    Talk(SAY_TRANSFORM);
+                    events.ScheduleEvent(EVENT_TRANSFORM_4, 4s);
+                    break;
+                case EVENT_TRANSFORM_4:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_MIND_BLAST, 5s, 15s);
+                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
+                    events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 15s, 25s);
+                    events.ScheduleEvent(EVENT_SLEEP, 5s, 15s);
+                    events.ScheduleEvent(EVENT_DOMINATION, 15s, 25s);
+                    break;
+                default:
+                    break;
             }
 
-            DoMeleeAttackIfReady();
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _transformed;
 };
 
 void AddSC_boss_dathrohan_balnazzar()
 {
-    new boss_dathrohan_balnazzar();
+    RegisterStratholmeCreatureAI(boss_dathrohan_balnazzar);
 }

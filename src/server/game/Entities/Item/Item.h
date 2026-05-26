@@ -71,6 +71,8 @@ class TC_GAME_API Item : public Object
 
         virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
 
+        std::string const& GetNameForLocaleIdx(LocaleConstant locale) const override;
+
         ItemTemplate const* GetTemplate() const;
 
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
@@ -99,7 +101,7 @@ class TC_GAME_API Item : public Object
         bool IsBOPTradeable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE); }
         bool IsWrapped() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED); }
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED); }
-        bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
+        bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
@@ -174,20 +176,22 @@ class TC_GAME_API Item : public Object
             uState = state;
         }
 
-        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->StartQuest == quest_id; }
+        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->GetStartQuest() == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsWeaponVellum() const { return GetTemplate()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetTemplate()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
+        uint32 GetItemLevel() const { return GetTemplate()->GetBaseItemLevel(); }
+        uint32 GetDisplayId() const { return GetTemplate()->GetDisplayId(); }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr);
-        void SetRefundRecipient(ObjectGuid::LowType pGuidLow) { m_refundRecipient = pGuidLow; }
+        void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
 
-        uint32 GetRefundRecipient() const { return m_refundRecipient; }
+        ObjectGuid const& GetRefundRecipient() const { return m_refundRecipient; }
         uint32 GetPaidMoney() const { return m_paidMoney; }
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
@@ -216,7 +220,7 @@ class TC_GAME_API Item : public Object
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
-        ObjectGuid::LowType m_refundRecipient;
+        ObjectGuid m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;

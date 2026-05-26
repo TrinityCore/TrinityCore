@@ -141,10 +141,41 @@ class spell_dustwallow_marsh_salvage_wreckage : public SpellScript
     }
 };
 
+/*######
+## Quest 11142: Survey Alcaz Island
+######*/
+
+enum SurveyAlcazIsland
+{
+    SPELL_ALCAZ_SURVEY_CREDIT     = 42316
+};
+
+// 42385 - Alcaz Survey Aura
+class spell_dustwallow_marsh_alcaz_survey_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dustwallow_marsh_alcaz_survey_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ALCAZ_SURVEY_CREDIT });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ALCAZ_SURVEY_CREDIT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dustwallow_marsh_alcaz_survey_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_dustwallow_marsh()
 {
     RegisterSpellScript(spell_ooze_zap);
     RegisterSpellScript(spell_ooze_zap_channel_end);
     RegisterSpellScript(spell_energize_aoe);
     RegisterSpellScript(spell_dustwallow_marsh_salvage_wreckage);
+    RegisterSpellScript(spell_dustwallow_marsh_alcaz_survey_aura);
 }

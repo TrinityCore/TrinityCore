@@ -87,7 +87,7 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMapByHouseId(uint8 auctionHouseI
 
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
-    uint32 MSV = pItem->GetTemplate()->SellPrice;
+    uint32 MSV = pItem->GetTemplate()->GetSellPrice();
 
     if (MSV <= 0)
         return float(AH_MINIMUM_DEPOSIT) * sWorld->getRate(RATE_AUCTION_DEPOSIT);
@@ -126,7 +126,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         return;
 
     uint32 bidderAccId = 0;
-    ObjectGuid bidderGuid(HighGuid::Player, auction->bidder);
+    ObjectGuid bidderGuid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidderGuid);
     // data for gm.log
     std::string bidderName;
@@ -147,7 +147,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
 
     if (logGmTrade)
     {
-        ObjectGuid ownerGuid = ObjectGuid(HighGuid::Player, auction->owner);
+        ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
         std::string ownerName;
         if (!sCharacterCache->GetCharacterNameByGuid(ownerGuid, ownerName))
             ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -155,7 +155,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         uint32 ownerAccId = sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid);
 
         sLog->OutCommand(bidderAccId, "GM {} (Account: {}) won item in auction: {} (Entry: {} Count: {}) and pay money: {}. Original owner {} (Account: {})",
-            bidderName, bidderAccId, pItem->GetTemplate()->Name1, pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName, ownerAccId);
+            bidderName, bidderAccId, pItem->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()),
+            pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName, ownerAccId);
     }
 
     // receiver exist
@@ -188,7 +189,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
 
 void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist (online or offline)
@@ -209,7 +210,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
 //call this method to send mail to auction owner, when auction is successful, it does not clear ram
 void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist
@@ -240,7 +241,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
     if (!pItem)
         return;
 
-    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
+    ObjectGuid owner_guid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sCharacterCache->GetCharacterAccountIdByGuid(owner_guid);
     // owner exist
@@ -263,7 +264,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
 //this function sends mail to old bidder
 void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid oldBidder_guid(HighGuid::Player, auction->bidder);
+    ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
 
     uint32 oldBidder_accId = 0;
@@ -285,7 +286,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 //this function sends mail, when auction is cancelled to old bidder
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans, Item* item)
 {
-    ObjectGuid bidder_guid = ObjectGuid(HighGuid::Player, auction->bidder);
+    ObjectGuid bidder_guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
 
     uint32 bidder_accId = 0;
@@ -416,11 +417,10 @@ void AuctionHouseMgr::LoadAuctions()
     TC_LOG_INFO("server.loading", ">> Loaded {} auctions with {} bidders in {} ms", countAuctions, countBidders, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void AuctionHouseMgr::AddAItem(Item* it)
+void AuctionHouseMgr::AddAItem(Item* item)
 {
-    ASSERT(it);
-    ASSERT(mAitems.find(it->GetGUID().GetCounter()) == mAitems.end());
-    mAitems[it->GetGUID().GetCounter()] = it;
+    ASSERT(item);
+    ASSERT_WITH_SIDE_EFFECTS(mAitems.emplace(item->GetGUID().GetCounter(), item).second);
 }
 
 bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem /*= false*/, CharacterDatabaseTransaction* trans /*= nullptr*/)
@@ -645,7 +645,7 @@ void AuctionHouseObject::Update()
             continue;
 
         ///- Either cancel the auction if there was no bidder
-        if (auction->bidder == 0 && auction->bid == 0)
+        if (!auction->bidder && auction->bid == 0)
         {
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
             sScriptMgr->OnAuctionExpire(this, auction);
@@ -752,39 +752,39 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
         ItemTemplate const* proto = item->GetTemplate();
 
-        if (itemClass != 0xffffffff && proto->Class != itemClass)
+        if (itemClass != 0xffffffff && proto->GetClass() != itemClass)
             continue;
 
-        if (itemSubClass != 0xffffffff && proto->SubClass != itemSubClass)
+        if (itemSubClass != 0xffffffff && proto->GetSubClass() != itemSubClass)
             continue;
 
-        if (inventoryType != 0xffffffff && proto->InventoryType != inventoryType)
+        if (inventoryType != 0xffffffff && proto->GetInventoryType() != inventoryType)
         {
             // Cloth items can have INVTYPE_CHEST or INVTYPE_ROBE
-            if (!(inventoryType == INVTYPE_CHEST && proto->InventoryType == INVTYPE_ROBE))
+            if (!(inventoryType == INVTYPE_CHEST && proto->GetInventoryType() == INVTYPE_ROBE))
                 continue;
         }
 
-        if (quality != 0xffffffff && proto->Quality != quality)
+        if (quality != 0xffffffff && proto->GetQuality() != quality)
             continue;
 
-        if (levelmin != 0x00 && (proto->RequiredLevel < levelmin || (levelmax != 0x00 && proto->RequiredLevel > levelmax)))
+        if (levelmin != 0 && (proto->GetRequiredLevel() < levelmin || (levelmax != 0 && proto->GetRequiredLevel() > levelmax)))
             continue;
 
-        if (usable != 0x00 && player->CanUseItem(item) != EQUIP_ERR_OK)
+        if (usable != 0 && player->CanUseItem(item) != EQUIP_ERR_OK)
             continue;
 
         // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
         // No need to do any of this if no search term was entered
         if (!wsearchedname.empty())
         {
-            std::string name = proto->Name1;
+            std::string name = proto->GetDefaultLocaleName();
             if (name.empty())
                 continue;
 
             // local name
             if (localeConstant != LOCALE_enUS)
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
+                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->GetId()))
                     ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result

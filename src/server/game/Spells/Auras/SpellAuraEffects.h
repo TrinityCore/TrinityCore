@@ -48,9 +48,9 @@ class TC_GAME_API AuraEffect
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
-        SpellEffIndex GetEffIndex() const { return m_spellEffectInfo.EffectIndex; }
+        SpellEffIndex GetEffIndex() const { return m_effectInfo.EffectIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
-        int32 GetAmplitude() const { return _amplitude; }
+        int32 GetPeriod() const { return _period; }
 
         int32 GetMiscValueB() const { return GetSpellEffectInfo().MiscValueB; }
         int32 GetMiscValue() const { return GetSpellEffectInfo().MiscValue; }
@@ -97,22 +97,22 @@ class TC_GAME_API AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
-        SpellEffectInfo const& GetSpellEffectInfo() const { return m_spellEffectInfo; }
+        SpellEffectInfo const& GetSpellEffectInfo() const { return m_effectInfo; }
 
     private:
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
-        SpellEffectInfo const& m_spellEffectInfo;
-        int32 const m_baseAmount;
-
-        int32 _amount;
+        SpellEffectInfo const& m_effectInfo;
 
         SpellModifier* m_spellmod;
 
+        int32 const m_baseAmount;
+        int32 _amount;
+
         // periodic stuff
         int32 _periodicTimer;
-        int32 _amplitude;       // time between consecutive ticks
+        int32 _period;          // time between consecutive ticks
         uint32 _ticksDone;      // ticks counter
 
         bool m_canBeRecalculated;

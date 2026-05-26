@@ -78,7 +78,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModStealth,                                // 16 SPELL_AURA_MOD_STEALTH
     &AuraEffect::HandleModStealthDetect,                          // 17 SPELL_AURA_MOD_DETECT
     &AuraEffect::HandleModInvisibility,                           // 18 SPELL_AURA_MOD_INVISIBILITY
-    &AuraEffect::HandleModInvisibilityDetect,                     // 19 SPELL_AURA_MOD_INVISIBILITY_DETECTION
+    &AuraEffect::HandleModInvisibilityDetect,                     // 19 SPELL_AURA_MOD_INVISIBILITY_DETECT
     &AuraEffect::HandleNoImmediateEffect,                         // 20 SPELL_AURA_OBS_MOD_HEALTH implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleNoImmediateEffect,                         // 21 SPELL_AURA_OBS_MOD_POWER implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleAuraModResistance,                         // 22 SPELL_AURA_MOD_RESISTANCE
@@ -378,10 +378,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //316 SPELL_AURA_PERIODIC_HASTE implemented in AuraEffect::CalculatePeriodic
 };
 
-AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster):
-m_base(base), m_spellInfo(base->GetSpellInfo()), m_spellEffectInfo(spellEfffectInfo),
+AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
+m_base(base), m_spellInfo(base->GetSpellInfo()), m_effectInfo(spellEfffectInfo), m_spellmod(nullptr),
 m_baseAmount(baseAmount ? *baseAmount : spellEfffectInfo.BasePoints),
-_amount(), m_spellmod(nullptr), _periodicTimer(0), _amplitude(0), _ticksDone(0),
+_amount(), _periodicTimer(0), _period(0), _ticksDone(0),
 m_canBeRecalculated(true), m_isPeriodic(false)
 {
     CalculatePeriodic(caster, true, false);
@@ -427,7 +427,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // check item enchant aura cast
     if (!amount && caster)
     {
-        if (ObjectGuid itemGUID = GetBase()->GetCastItemGUID())
+        ObjectGuid itemGUID = GetBase()->GetCastItemGUID();
+        if (!itemGUID.IsEmpty())
         {
             if (Player* playerCaster = caster->ToPlayer())
             {
@@ -537,9 +538,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 uint32 AuraEffect::GetTotalTicks() const
 {
     uint32 totalTicks = 0;
-    if (_amplitude && !GetBase()->IsPermanent())
+    if (_period && !GetBase()->IsPermanent())
     {
-        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _amplitude);
+        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _period);
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
             ++totalTicks;
     }
@@ -555,13 +556,13 @@ void AuraEffect::ResetPeriodic(bool resetPeriodicTimer /*= false*/)
         _periodicTimer = 0;
         // Start periodic on next tick or at aura apply
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-            _periodicTimer = _amplitude;
+            _periodicTimer = _period;
     }
 }
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    _amplitude = GetSpellEffectInfo().Amplitude;
+    _period = GetSpellEffectInfo().ApplyAuraPeriod;
 
     // prepare periodics
     switch (GetAuraType())
@@ -587,27 +588,27 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _amplitude);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _period);
 
     if (!m_isPeriodic)
         return;
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
     // Apply casting time mods
-    if (_amplitude)
+    if (_period)
     {
         // Apply periodic time mod
         if (modOwner)
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, _amplitude);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, _period);
 
         if (caster)
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
-                caster->ModSpellDurationTime(m_spellInfo, _amplitude);
+                caster->ModSpellDurationTime(m_spellInfo, _period);
             // and periodic time of auras affected by SPELL_AURA_PERIODIC_HASTE
             else if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                _amplitude = int32(_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                _period = int32(_period * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
     else // prevent infinite loop on Update
@@ -615,11 +616,11 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
 
     if (load) // aura loaded from db
     {
-        if (_amplitude && !GetBase()->IsPermanent())
+        if (_period && !GetBase()->IsPermanent())
         {
             uint32 elapsedTime = GetBase()->GetMaxDuration() - GetBase()->GetDuration();
-            _ticksDone = elapsedTime / uint32(_amplitude);
-            _periodicTimer = elapsedTime % uint32(_amplitude);
+            _ticksDone = elapsedTime / uint32(_period);
+            _periodicTimer = elapsedTime % uint32(_period);
         }
 
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
@@ -817,9 +818,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
     uint32 totalTicks = GetTotalTicks();
 
     _periodicTimer += diff;
-    while (_periodicTimer >= _amplitude)
+    while (_periodicTimer >= _period)
     {
-        _periodicTimer -= _amplitude;
+        _periodicTimer -= _period;
 
         if (!GetBase()->IsPermanent() && (_ticksDone + 1) > totalTicks)
             break;
@@ -1074,7 +1075,7 @@ void AuraEffect::CleanupTriggeredSpells(Unit* target)
     // needed for spell 43680, maybe others
     /// @todo is there a spell flag, which can solve this in a more sophisticated way?
     if (GetSpellEffectInfo().ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
-            uint32(m_spellInfo->GetDuration()) == GetSpellEffectInfo().Amplitude)
+            uint32(m_spellInfo->GetDuration()) == GetSpellEffectInfo().ApplyAuraPeriod)
         return;
 
     target->RemoveAurasDueToSpell(tSpellId, GetCasterGUID());
@@ -1084,7 +1085,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
-    //uint32 spellId3 = 0;
     uint32 HotWSpellId = 0;
 
     switch (GetMiscValue())
@@ -1190,7 +1190,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             // Also do it for Glyphs
             for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             {
-                if (uint32 glyphId = plrTarget->GetGlyph(plrTarget->GetActiveSpec(), i))
+                if (uint32 glyphId = plrTarget->GetGlyph(plrTarget->GetActiveTalentGroup(), i))
                 {
                     if (GlyphPropertiesEntry const* glyph = sGlyphPropertiesStore.LookupEntry(glyphId))
                     {
@@ -1222,7 +1222,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 
             // Heart of the Wild
             if (HotWSpellId)
-            {   // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
+            {
+                // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
                 Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
                 for (AuraEffect const* aurEff : mModTotalStatPct)
                 {
@@ -1237,6 +1238,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     }
                 }
             }
+
             switch (GetMiscValue())
             {
                 case FORM_CAT:
@@ -1386,37 +1388,14 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     }
     else
     {
-        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
-        {
-            // if not have different invisibility auras.
-            // always remove glow vision
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_INVISIBILITY, type))
             target->m_invisibility.DelFlag(type);
-        }
-        else
-        {
-            bool found = false;
-            Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-            for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
-            {
-                if (GetMiscValue() == (*i)->GetMiscValue())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                target->m_invisibility.DelFlag(type);
 
-                // if not have invisibility auras of type INVISIBILITY_GENERAL or INVISIBILITY_UNK10
-                // remove glow vision
-                if (target->GetTypeId() == TYPEID_PLAYER && !target->m_invisibility.HasFlag(INVISIBILITY_GENERAL) && !target->m_invisibility.HasFlag(INVISIBILITY_UNK10))
-                    target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-            }
-        }
+        // if not have invisibility auras of type INVISIBILITY_GENERAL or INVISIBILITY_UNK10
+        // remove glow vision
+        if (!target->m_invisibility.HasFlag(INVISIBILITY_GENERAL) && !target->m_invisibility.HasFlag(INVISIBILITY_UNK10))
+            if (Player* playerTarget = target->ToPlayer())
+                playerTarget->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         target->m_invisibility.AddValue(type, -GetAmount());
     }
@@ -1910,7 +1889,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         ASSERT(shapeInfo);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_SHAPESHIFT_SPELLS; ++i)
         {
             if (!shapeInfo->PresetSpellID[i])
                 continue;
@@ -2305,12 +2284,12 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
 
     Unit* target = aurApp->GetTarget();
 
-    //Prevent handling aura twice
+    // Prevent handling aura twice
     AuraType type = GetAuraType();
     if (apply ? target->GetAuraEffectsByType(type).size() > 1 : target->HasAuraType(type))
         return;
 
-    void(*flagChangeFunc)(Unit * u) = nullptr;
+    void(*flagChangeFunc)(Unit* u) = nullptr;
 
     uint32 slot;
     WeaponAttackType attType;
@@ -2666,7 +2645,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
 
     if (target->SetCanFly(apply))
     {
-        if (!apply && !target->IsGravityDisabled())
+        if (!apply && !target->IsGravityDisabled() && !target->CanFly())
             target->GetMotionMaster()->MoveFall();
     }
 }
@@ -3057,7 +3036,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             if (target->SetCanFly(apply))
-                if (!apply && !target->IsGravityDisabled())
+                if (!apply && !target->IsGravityDisabled() && !target->CanFly())
                     target->GetMotionMaster()->MoveFall();
         }
 
@@ -4323,12 +4302,10 @@ void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mod
 
     flag96 mask;
     Unit::AuraEffectList const& noReagent = target->GetAuraEffectsByType(SPELL_AURA_NO_REAGENT_USE);
-        for (Unit::AuraEffectList::const_iterator i = noReagent.begin(); i != noReagent.end(); ++i)
-            mask |= (*i)->GetSpellEffectInfo().SpellClassMask;
+    for (Unit::AuraEffectList::const_iterator i = noReagent.begin(); i != noReagent.end(); ++i)
+        mask |= (*i)->GetSpellEffectInfo().SpellClassMask;
 
-    target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1  , mask[0]);
-    target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+1, mask[1]);
-    target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+2, mask[2]);
+    target->ToPlayer()->SetNoRegentCostMask(mask);
 }
 
 void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5249,7 +5226,17 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
     if (caster)
-        caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, true, 0, crit);
+    {
+        SpellNonMeleeDamage log(caster, target, GetId(), GetSpellInfo()->GetSchoolMask());
+        log.damage = damage;
+        log.absorb = absorb;
+        log.resist = resist;
+        log.periodicLog = true;
+        if (crit)
+            log.HitInfo |= SPELL_HIT_TYPE_CRIT;
+
+        caster->SendSpellNonMeleeDamageLog(&log);
+    }
     damage = damageInfo.GetDamage();
 
     // Set trigger flag
@@ -5381,7 +5368,13 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         Unit::DealDamageMods(caster, funnelDamage, &funnelAbsorb);
 
         if (caster)
-            caster->SendSpellNonMeleeDamageLog(caster, GetId(), funnelDamage, GetSpellInfo()->GetSchoolMask(), funnelAbsorb, 0, true, 0, false);
+        {
+            SpellNonMeleeDamage log(caster, caster, GetId(), GetSpellInfo()->GetSchoolMask());
+            log.damage = funnelDamage;
+            log.absorb = funnelAbsorb;
+            log.periodicLog = true;
+            caster->SendSpellNonMeleeDamageLog(&log);
+        }
 
         CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
         Unit::DealDamage(caster, caster, funnelDamage, &cleanDamage, SELF_DAMAGE, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);

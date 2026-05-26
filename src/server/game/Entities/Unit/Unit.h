@@ -827,6 +827,8 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual void Update(uint32 time) override;
 
+        void Heartbeat() override;
+
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
@@ -867,7 +869,7 @@ class TC_GAME_API Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         Unit* SelectNearbyTarget(Unit* exclude = nullptr, float dist = NOMINAL_MELEE_RANGE) const;
-        void SendMeleeAttackStop(Unit* victim = nullptr);
+        void SendMeleeAttackStop(Unit const* victim = nullptr) const;
         void SendMeleeAttackStart(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
@@ -1190,7 +1192,6 @@ class TC_GAME_API Unit : public WorldObject
         void SendAttackStateUpdate(CalcDamageInfo* damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log);
-        void SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID, uint32 damage, SpellSchoolMask damageSchoolMask, uint32 absorbedDamage, uint32 resist, bool isPeriodic, uint32 blocked, bool criticalHit = false, bool split = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
         void SendSpellDamageImmune(Unit* target, uint32 spellId);
@@ -1210,26 +1211,24 @@ class TC_GAME_API Unit : public WorldObject
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
-        void SendMovementFlagUpdate(bool self = false);
 
         void SetHoverHeight(float hoverHeight) { SetFloatValue(UNIT_FIELD_HOVERHEIGHT, hoverHeight); }
 
         bool IsGravityDisabled() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
-        virtual bool SetWalk(bool enable);
-        virtual bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimTier = true);
-        virtual bool SetSwim(bool enable);
-        virtual bool SetCanFly(bool enable, bool packetOnly = false);
-        virtual bool SetWaterWalking(bool enable, bool packetOnly = false);
-        virtual bool SetFeatherFall(bool enable, bool packetOnly = false);
-        virtual bool SetHover(bool enable, bool packetOnly = false, bool updateAnimTier = true);
+        bool SetWalk(bool enable);
+        bool SetDisableGravity(bool disable, bool updateAnimTier = true);
+        bool SetFall(bool enable);
+        bool SetSwim(bool enable);
+        bool SetCanFly(bool enable, bool packetOnly = false);
+        bool SetWaterWalking(bool enable);
+        bool SetFeatherFall(bool enable);
+        bool SetHover(bool enable, bool updateAnimTier = true);
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float const ori, bool force = true);
-        void SetFacingToObject(WorldObject const* object, bool force = true);
-
-        void BuildHeartBeatMsg(WorldPacket* data) const;
+        void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
+        void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
 
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
@@ -1362,7 +1361,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
         void RemoveAurasWithAttribute(uint32 flags);
-        void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID);
+        void RemoveAurasWithFamily(SpellFamilyNames family, flag96 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
         void RemoveAurasByShapeShift();
@@ -1669,7 +1668,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual MovementGeneratorType GetDefaultMovementType() const;
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
-        void StopMoving();
+        void StopMoving(bool force = false);
         void PauseMovement(uint32 timer = 0, uint8 slot = 0, bool forced = true); // timer in ms
         void ResumeMovement(uint32 timer = 0, uint8 slot = 0); // timer in ms
 
@@ -1795,7 +1794,7 @@ class TC_GAME_API Unit : public WorldObject
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
         ObjectGuid GetTarget() const { return GetGuidValue(UNIT_FIELD_TARGET); }
-        virtual void SetTarget(ObjectGuid /*guid*/) = 0;
+        virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
 
         void SetInstantCast(bool set) { _instantCast = set; }
         bool CanInstantCast() const { return _instantCast; }
@@ -1913,13 +1912,14 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
-        virtual void AtEngage(Unit* /*target*/) {}
+        virtual void AtEngage(Unit* target);
         virtual void AtDisengage() {}
 
     private:
-
+        friend class ImmediateMovementGenerator; // for UpdateSplineMovement
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
+        void SendFlightSplineSyncUpdate();
         void InterruptMovementBasedAuras();
         void CheckPendingMovementAcks();
 
@@ -1936,11 +1936,9 @@ class TC_GAME_API Unit : public WorldObject
         void SetRooted(bool apply);
 
     private:
-        uint32 m_rootTimes;
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs
-        TimeTracker m_splineSyncTimer;
 
         Diminishing m_Diminishing;
 

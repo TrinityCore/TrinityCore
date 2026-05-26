@@ -60,11 +60,11 @@ enum Adds
 
 enum Misc
 {
-    NEFARIUS_PATH_1                 = 1379670,
-    NEFARIUS_PATH_2                 = 1379671,
-    NEFARIUS_PATH_3                 = 1379672,
-    REND_PATH_1                     = 1379680,
-    REND_PATH_2                     = 1379681,
+    NEFARIUS_PATH_1                 = 11037360,
+    NEFARIUS_PATH_2                 = 11037368,
+    NEFARIUS_PATH_3                 = 11037376,
+    REND_PATH_1                     = 11037440,
+    REND_PATH_2                     = 11037448,
 };
 
 /*

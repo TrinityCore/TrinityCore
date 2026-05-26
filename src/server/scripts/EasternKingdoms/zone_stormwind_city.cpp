@@ -319,6 +319,8 @@ enum TyrionSpybot
     NPC_LORD_GREGOR_LESCOVAR = 1754,
 };
 
+static constexpr uint32 PATH_ESCORT_LESCOVAR = 70850;
+
 class npc_tyrion_spybot : public CreatureScript
 {
 public:
@@ -438,8 +440,12 @@ public:
                             {
                                 if (Player* player = GetPlayerForEscort())
                                 {
-                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->Start(false, false, player->GetGUID());
-                                    ENSURE_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
+                                    if (EscortAI* ai = CAST_AI(EscortAI, pLescovar->AI()))
+                                    {
+                                        ai->LoadPath(PATH_ESCORT_LESCOVAR);
+                                        ai->Start(false, player->GetGUID());
+                                        ai->SetMaxPlayerDistance(200.0f);
+                                    }
                                 }
                             }
                             me->DisappearAndDie();
@@ -468,6 +474,8 @@ enum Tyrion
     NPC_TYRION_SPYBOT = 8856
 };
 
+static constexpr uint32 PATH_ESCORT_TYRION_SPYBOT = 14034;
+
 class npc_tyrion : public CreatureScript
 {
 public:
@@ -483,8 +491,12 @@ public:
             {
                 if (Creature* spybot = me->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
                 {
-                    ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, spybot->AI())->Start(false, false, player->GetGUID());
-                    ENSURE_AI(npc_tyrion_spybot::npc_tyrion_spybotAI, spybot->AI())->SetMaxPlayerDistance(200.0f);
+                    if (EscortAI* ai = CAST_AI(EscortAI, spybot->AI()))
+                    {
+                        ai->LoadPath(PATH_ESCORT_TYRION_SPYBOT);
+                        ai->Start(false, player->GetGUID());
+                        ai->SetMaxPlayerDistance(200.0f);
+                    }
                 }
             }
         }

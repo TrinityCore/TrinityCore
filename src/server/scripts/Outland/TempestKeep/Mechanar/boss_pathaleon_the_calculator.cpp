@@ -34,14 +34,15 @@ enum PathaleonTexts
 
 enum PathaleonSpells
 {
+    SPELL_SUMMON_NETHER_WRAITHS        = 35284,
     SPELL_MANA_TAP                     = 36021,
     SPELL_ARCANE_TORRENT               = 36022,
     SPELL_DOMINATION                   = 35280,
     SPELL_ARCANE_EXPLOSION_H           = 15453,
-    SPELL_FRENZY                       = 36992,
-    SPELL_SUICIDE                      = 35301,    // NYI
 
-    SPELL_SUMMON_NETHER_WRAITHS        = 35284,
+    SPELL_SUICIDE                      = 35301,
+    SPELL_FRENZY                       = 36992,
+
     SPELL_SUMMON_NETHER_WRAITH_LEFT    = 35285,
     SPELL_SUMMON_NETHER_WRAITH_RIGHT   = 35286,    // Unused
     SPELL_SUMMON_NETHER_WRAITH_FRONT   = 35287,
@@ -59,6 +60,7 @@ enum PathaleonEvents
     EVENT_ARCANE_TORRENT,
     EVENT_DOMINATION,
     EVENT_ARCANE_EXPLOSION,
+    EVENT_SUICIDE,
     EVENT_FRENZY
 };
 
@@ -77,17 +79,6 @@ struct boss_pathaleon_the_calculator : public BossAI
         if (IsHeroic())
             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 13s);
         Talk(SAY_AGGRO);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
     }
 
     void OnSpellCast(SpellInfo const* spell) override
@@ -111,7 +102,21 @@ struct boss_pathaleon_the_calculator : public BossAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
+        {
+            events.ScheduleEvent(EVENT_SUICIDE, 0s);
             events.ScheduleEvent(EVENT_FRENZY, 0s);
+        }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -148,6 +153,9 @@ struct boss_pathaleon_the_calculator : public BossAI
                     DoCastSelf(SPELL_ARCANE_EXPLOSION_H);
                     events.Repeat(10s, 14s);
                     break;
+                case EVENT_SUICIDE:
+                    DoCastSelf(SPELL_SUICIDE);
+                    break;
                 case EVENT_FRENZY:
                     DoCastSelf(SPELL_FRENZY);
                     break;
@@ -163,6 +171,7 @@ struct boss_pathaleon_the_calculator : public BossAI
     }
 };
 
+// 21062 - Nether Wraith
 struct npc_nether_wraith : public ScriptedAI
 {
     npc_nether_wraith(Creature* creature) : ScriptedAI(creature) { }
@@ -181,12 +190,11 @@ struct npc_nether_wraith : public ScriptedAI
                 DoCast(target, SPELL_ARCANE_BOLT);
             task.Repeat(5s, 10s);
         });
+    }
 
-        _scheduler.Schedule(5s, 10s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_NETHER_EXPLOSION);
-            task.Repeat(10s, 15s);
-        });
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCastSelf(SPELL_NETHER_EXPLOSION);
     }
 
     void UpdateAI(uint32 diff) override

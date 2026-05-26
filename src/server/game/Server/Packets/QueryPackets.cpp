@@ -31,7 +31,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     {
         _worldPacket << Stats.Name;
         _worldPacket << uint8(0) << uint8(0) << uint8(0);                   // name2, name3, name4, always empty
-        _worldPacket << Stats.NameAlt;
+        _worldPacket << Stats.Title;
         _worldPacket << Stats.CursorName;                                   // "Directions" for guard, string for Icons 2.3.0
         _worldPacket << uint32(Stats.Flags);                                // flags
         _worldPacket << uint32(Stats.CreatureType);                         // CreatureType.dbc
@@ -44,6 +44,91 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << uint8(Stats.Leader);
         _worldPacket.append(Stats.QuestItems, MAX_CREATURE_QUEST_ITEMS);
         _worldPacket << uint32(Stats.CreatureMovementInfoID);               // CreatureMovementInfo.dbc
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryPlayerName::Read()
+{
+    _worldPacket >> Player;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData)
+{
+    data << lookupData.Name;
+    data << lookupData.RealmName;
+    data << uint8(lookupData.Race);
+    data << uint8(lookupData.Sex);
+    data << uint8(lookupData.ClassID);
+    data << uint8(lookupData.DeclinedNames != nullptr);
+
+    if (lookupData.DeclinedNames)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            data << lookupData.DeclinedNames->name[i];
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << Player.WriteAsPacked();
+    _worldPacket << uint8(Result);
+
+    if (Data)
+        _worldPacket << *Data;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryPageText::Read()
+{
+    _worldPacket >> PageTextID;
+    _worldPacket >> ItemGUID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
+{
+    data << page.Text;
+    data << uint32(page.NextPageID);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
+{
+    _worldPacket << uint32(PageTextID | (Allow ? 0x00000000 : 0x80000000));
+
+    if (Allow)
+        _worldPacket << Page;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryNPCText::Read()
+{
+    _worldPacket >> TextID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
+{
+    _worldPacket << uint32(TextID | (Allow ? 0x00000000 : 0x80000000));
+
+    if (Allow)
+    {
+        for (NPCText const& option : Options)
+        {
+            _worldPacket << float(option.Probability);
+            _worldPacket << option.Text;
+            _worldPacket << option.Text1;
+            _worldPacket << int32(option.LanguageID);
+            for (std::size_t i = 0; i < MAX_GOSSIP_TEXT_EMOTES; ++i)
+            {
+                _worldPacket << uint32(option.EmoteDelay[i]);
+                _worldPacket << uint32(option.EmoteID[i]);
+            }
+        }
     }
 
     return &_worldPacket;
@@ -124,8 +209,7 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         _worldPacket << uint8(0x00);                              //Name4; // blizz not send name there, just uint8(0x00);
         _worldPacket << Stats.DisplayInfoID;
         _worldPacket << Stats.Quality;
-        _worldPacket << Stats.Flags;
-        _worldPacket << Stats.Flags2;
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
         _worldPacket << Stats.BuyPrice;
         _worldPacket << Stats.SellPrice;
         _worldPacket << Stats.InventoryType;
@@ -173,7 +257,7 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
             {
                 _worldPacket << Stats.Spells[s].SpellId;
                 _worldPacket << Stats.Spells[s].SpellTrigger;
-                _worldPacket << uint32(-abs(Stats.Spells[s].SpellCharges));
+                _worldPacket << int32(Stats.Spells[s].SpellCharges);
                 _worldPacket << uint32(Stats.Spells[s].SpellCooldown);
                 _worldPacket << uint32(Stats.Spells[s].SpellCategory);
                 _worldPacket << uint32(Stats.Spells[s].SpellCategoryCooldown);

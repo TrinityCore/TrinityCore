@@ -95,7 +95,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     {
         do
         {
-            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt32());
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
 
             // Kick if player is online
             if (Player* p = ObjectAccessor::FindConnectedPlayer(guid))

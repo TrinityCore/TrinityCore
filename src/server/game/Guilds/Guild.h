@@ -652,7 +652,7 @@ class TC_GAME_API Guild
         void HandleSetMOTD(WorldSession* session, std::string_view motd);
         void HandleSetInfo(WorldSession* session, std::string_view info);
         void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
-        void HandleSetLeader(WorldSession* session, std::string_view name);
+        void HandleSetNewGuildMaster(WorldSession* session, std::string_view name);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string_view name, std::string_view icon);
         void HandleSetMemberNote(WorldSession* session, std::string_view note, std::string_view name, bool isPublic);
         void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string_view name, uint32 rights, uint32 moneyPerDay, std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> const& rightsAndSlots);
@@ -746,7 +746,7 @@ class TC_GAME_API Guild
         uint64 m_bankMoney;
 
         std::vector<RankInfo> m_ranks;
-        std::unordered_map<uint32, Member> m_members;
+        std::unordered_map<ObjectGuid, Member> m_members;
         std::vector<BankTab> m_bankTabs;
 
         // These are actually ordered lists. The first element is the oldest entry.
@@ -769,13 +769,13 @@ class TC_GAME_API Guild
 
         inline Member const* GetMember(ObjectGuid guid) const
         {
-            auto itr = m_members.find(guid.GetCounter());
+            auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 
         inline Member* GetMember(ObjectGuid guid)
         {
-            auto itr = m_members.find(guid.GetCounter());
+            auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 
@@ -801,7 +801,7 @@ class TC_GAME_API Guild
         bool _IsLeader(Player* player) const;
         void _DeleteBankItems(CharacterDatabaseTransaction trans, bool removeItemsFromDB = false);
         bool _ModifyBankMoney(CharacterDatabaseTransaction trans, uint64 amount, bool add);
-        void _SetLeaderGUID(Member& pLeader);
+        void _SetLeader(CharacterDatabaseTransaction trans, Member& leader);
 
         void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
         void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);

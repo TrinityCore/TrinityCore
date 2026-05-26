@@ -116,38 +116,6 @@ class spell_item_aegis_of_preservation : public AuraScript
     }
 };
 
-enum ZezzaksShard
-{
-    SPELL_EYE_OF_GRILLOK = 38495
-};
-
-// 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
-class spell_item_absorb_eye_of_grillok : public AuraScript
-{
-    PrepareAuraScript(spell_item_absorb_eye_of_grillok);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
-    }
-
-    void PeriodicTick(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-
-        if (!GetCaster() || GetTarget()->GetTypeId() != TYPEID_UNIT)
-            return;
-
-        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, aurEff);
-        GetTarget()->ToCreature()->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_absorb_eye_of_grillok::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 enum AlchemistStone
 {
     SPELL_ALCHEMISTS_STONE_EXTRA_HEAL       = 21399,
@@ -2809,42 +2777,6 @@ class spell_magic_eater_food : public AuraScript
     }
 };
 
-enum PurifyHelboarMeat
-{
-    SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
-    SPELL_SUMMON_TOXIC_HELBOAR_MEAT         = 29278,
-};
-
-class spell_item_purify_helboar_meat : public SpellScript
-{
-    PrepareSpellScript(spell_item_purify_helboar_meat);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_SUMMON_PURIFIED_HELBOAR_MEAT,
-            SPELL_SUMMON_TOXIC_HELBOAR_MEAT
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_purify_helboar_meat::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum NighInvulnerability
 {
     SPELL_NIGH_INVULNERABILITY                  = 30456,
@@ -2902,47 +2834,6 @@ class spell_item_poultryizer : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_item_poultryizer::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum SocretharsStone
-{
-    SPELL_SOCRETHAR_TO_SEAT     = 35743,
-    SPELL_SOCRETHAR_FROM_SEAT   = 35744,
-};
-
-class spell_item_socrethars_stone : public SpellScript
-{
-    PrepareSpellScript(spell_item_socrethars_stone);
-
-    bool Load() override
-    {
-        return (GetCaster()->GetAreaId() == 3900 || GetCaster()->GetAreaId() == 3742);
-    }
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SOCRETHAR_TO_SEAT, SPELL_SOCRETHAR_FROM_SEAT });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        switch (caster->GetAreaId())
-        {
-            case 3900:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_TO_SEAT, true);
-                break;
-            case 3742:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_FROM_SEAT, true);
-                break;
-            default:
-                return;
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_socrethars_stone::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4339,6 +4230,213 @@ class spell_item_titanium_seal_of_dalaran_catch : public SpellScript
     }
 };
 
+enum RunescrollOfFortitude
+{
+    SPELL_FORTITUDE     = 72590
+};
+
+// 69377 - Fortitude
+class spell_item_runescroll_of_fortitude : public SpellScript
+{
+    PrepareSpellScript(spell_item_runescroll_of_fortitude);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FORTITUDE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_FORTITUDE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_runescroll_of_fortitude::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum DrumsOfForgottenKings
+{
+    SPELL_BLESSING_OF_FORGOTTEN_KINGS     = 72586
+};
+
+// 69378 - Blessing of Forgotten Kings
+class spell_item_drums_of_forgotten_kings : public SpellScript
+{
+    PrepareSpellScript(spell_item_drums_of_forgotten_kings);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BLESSING_OF_FORGOTTEN_KINGS });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_BLESSING_OF_FORGOTTEN_KINGS, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_drums_of_forgotten_kings::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum DrumsOfTheWild
+{
+    SPELL_GIFT_OF_THE_WILD     = 72588
+};
+
+// 69381 - Gift of the Wild
+class spell_item_drums_of_the_wild : public SpellScript
+{
+    PrepareSpellScript(spell_item_drums_of_the_wild);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIFT_OF_THE_WILD });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_GIFT_OF_THE_WILD, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_drums_of_the_wild::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum ThrallmarAndHonorHoldFavor
+{
+    SPELL_BUFFBOT_BUFF_EFFECT     = 32172
+};
+
+// 32096 - Thrallmar's Favor
+// 32098 - Honor Hold's Favor
+class spell_item_thrallmar_and_honor_hold_favor : public AuraScript
+{
+    PrepareAuraScript(spell_item_thrallmar_and_honor_hold_favor);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BUFFBOT_BUFF_EFFECT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_BUFFBOT_BUFF_EFFECT);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_BUFFBOT_BUFF_EFFECT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_item_thrallmar_and_honor_hold_favor::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_thrallmar_and_honor_hold_favor::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum DarkmoonCardIllusion
+{
+    SPELL_DARKMOON_CARD_ILLUSION       = 60242
+};
+
+// 57350 - Illusionary Barrier
+class spell_item_darkmoon_card_illusion : public AuraScript
+{
+    PrepareAuraScript(spell_item_darkmoon_card_illusion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DARKMOON_CARD_ILLUSION });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DARKMOON_CARD_ILLUSION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_darkmoon_card_illusion::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum DiscoBall
+{
+    SPELL_LISTENING_TO_MUSIC_CHECK     = 50492,
+    SPELL_LISTENING_TO_MUSIC           = 50493
+};
+
+// 50493 - Listening to Music
+class spell_item_disco_ball_listening_to_music_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_item_disco_ball_listening_to_music_periodic);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC_CHECK });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_LISTENING_TO_MUSIC_CHECK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_disco_ball_listening_to_music_periodic::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 50492 - Listening to Music CHECK
+class spell_item_disco_ball_listening_to_music_check : public SpellScript
+{
+    PrepareSpellScript(spell_item_disco_ball_listening_to_music_check);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC });
+    }
+
+    void HandleAfterCast()
+    {
+        if (!GetUnitTargetCountForEffect(EFFECT_0))
+            GetCaster()->RemoveAurasDueToSpell(SPELL_LISTENING_TO_MUSIC);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_item_disco_ball_listening_to_music_check::HandleAfterCast);
+    }
+};
+
+// 50499 - Listening to Music (Parent)
+class spell_item_disco_ball_listening_to_music_parent : public SpellScript
+{
+    PrepareSpellScript(spell_item_disco_ball_listening_to_music_parent);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LISTENING_TO_MUSIC, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_disco_ball_listening_to_music_parent::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4351,7 +4449,6 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
     RegisterSpellScript(spell_item_aegis_of_preservation);
-    RegisterSpellScript(spell_item_absorb_eye_of_grillok);
     RegisterSpellScript(spell_item_alchemists_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
@@ -4429,10 +4526,8 @@ void AddSC_item_spell_scripts()
 
     RegisterSpellScript(spell_item_ashbringer);
     RegisterSpellScript(spell_magic_eater_food);
-    RegisterSpellScript(spell_item_purify_helboar_meat);
     RegisterSpellScript(spell_item_nigh_invulnerability);
     RegisterSpellScript(spell_item_poultryizer);
-    RegisterSpellScript(spell_item_socrethars_stone);
     RegisterSpellScript(spell_item_demon_broiled_surprise);
     RegisterSpellScript(spell_item_complete_raptor_capture);
     RegisterSpellScript(spell_item_impale_leviroth);
@@ -4476,4 +4571,12 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_eggnog);
     RegisterSpellScript(spell_item_titanium_seal_of_dalaran_toss);
     RegisterSpellScript(spell_item_titanium_seal_of_dalaran_catch);
+    RegisterSpellScript(spell_item_runescroll_of_fortitude);
+    RegisterSpellScript(spell_item_drums_of_forgotten_kings);
+    RegisterSpellScript(spell_item_drums_of_the_wild);
+    RegisterSpellScript(spell_item_thrallmar_and_honor_hold_favor);
+    RegisterSpellScript(spell_item_darkmoon_card_illusion);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_periodic);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_check);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_parent);
 }

@@ -86,7 +86,7 @@ public:
             return false;
         }
 
-        if (player->GetPetGUID())
+        if (!player->GetPetGUID().IsEmpty())
         {
             handler->PSendSysMessage("You already have a pet");
             handler->SetSentErrorMessage(true);
@@ -95,6 +95,12 @@ public:
 
         // Everything looks OK, create new pet
         Pet* pet = player->CreateTamedPetFrom(creatureTarget);
+        if (!pet)
+        {
+            handler->PSendSysMessage("CreateTamedPetFrom returned null.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         // "kill" original creature
         creatureTarget->DespawnOrUnsummon();

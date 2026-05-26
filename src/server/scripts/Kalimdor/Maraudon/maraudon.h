@@ -28,4 +28,6 @@ inline AI* GetMaraudonAI(T* obj)
     return GetInstanceAI<AI>(obj, MaraudonScriptName);
 }
 
+#define RegisterMaraudonCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMaraudonAI)
+
 #endif // maraudon_h__

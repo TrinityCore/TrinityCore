@@ -36,7 +36,7 @@ struct Condition;
 enum ConditionTypes
 {                                                              // value1                 value2         value3
     CONDITION_NONE                     = 0,                    // 0                      0              0                  always true
-    CONDITION_AURA                     = 1,                    // spell_id               effindex       use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
+    CONDITION_AURA                     = 1,                    // spell_id               effindex       0                  true if target has aura of spell_id with effect effindex
     CONDITION_ITEM                     = 2,                    // item_id                count          bank               true if has #count of item_ids (if 'bank' is set it searches in bank slots too)
     CONDITION_ITEM_EQUIPPED            = 3,                    // item_id                0              0                  true if has item_id equipped
     CONDITION_ZONEID                   = 4,                    // zone_id                0              0                  true if in zone_id
@@ -92,6 +92,9 @@ enum ConditionTypes
     CONDITION_SCENARIO_STEP            = 54,                   // ScenarioStepId         0              0                  true if player is at scenario with current step equal to ScenarioStepID
     CONDITION_SCENE_IN_PROGRESS        = 55,                   // SceneScriptPackageId   0              0                  true if player is playing a scene with ScriptPackageId equal to given value
     CONDITION_PLAYER_CONDITION         = 56,                   // PlayerConditionId      0              0                  true if player satisfies PlayerCondition
+    CONDITION_PRIVATE_OBJECT           = 57,                   // 0                      0              0                  true if entity is private object
+    CONDITION_STRING_ID                = 58,
+    CONDITION_LABEL                    = 59,                   //                                                          only for master branch
     CONDITION_MAX
 };
 
@@ -209,6 +212,7 @@ struct TC_GAME_API Condition
     uint32                  ConditionValue1;
     uint32                  ConditionValue2;
     uint32                  ConditionValue3;
+    std::string             ConditionStringValue1;
     uint32                  ErrorType;
     uint32                  ErrorTextId;
     uint32                  ReferenceId;
@@ -285,6 +289,7 @@ class TC_GAME_API ConditionMgr
             bool HasConditionValue1;
             bool HasConditionValue2;
             bool HasConditionValue3;
+            bool HasConditionStringValue1;
         };
         static char const* const StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX];
         static ConditionTypeInfo const StaticConditionTypeData[CONDITION_MAX];
@@ -297,7 +302,8 @@ class TC_GAME_API ConditionMgr
         bool addToSpellImplicitTargetConditions(Condition* cond) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
-        static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
+        static void LogUselessConditionValue(Condition const* cond, uint8 index, uint32 value);
+        static void LogUselessConditionValue(Condition const* cond, uint8 index, std::string_view value);
 
         void Clean(); // free up resources
         std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)

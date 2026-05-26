@@ -22,7 +22,7 @@
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum ZarithrianTexts
 {
     SAY_AGGRO                   = 0,    // Alexstrasza has chosen capable allies.... A pity that I must END YOU!
     SAY_KILL                    = 1,    // You thought you stood a chance? - It's for the best.
@@ -30,7 +30,7 @@ enum Texts
     SAY_DEATH                   = 3,    // HALION! I...
 };
 
-enum Spells
+enum ZarithrianSpells
 {
     // General Zarithrian
     SPELL_INTIMIDATING_ROAR     = 74384,
@@ -44,10 +44,10 @@ enum Spells
     SPELL_LAVA_GOUT             = 74394
 };
 
-enum Events
+enum ZarithrianEvents
 {
     // General Zarithrian
-    EVENT_CLEAVE = 1,
+    EVENT_CLEAVE                = 1,
     EVENT_INTIDMDATING_ROAR,
     EVENT_SUMMON_ADDS,
     EVENT_SUMMON_ADDS2,
@@ -57,13 +57,14 @@ enum Events
     EVENT_LAVA_GOUT
 };
 
-enum MinionsMovement
+enum ZarithrianMisc
 {
     SPLINE_GENERAL_EAST = 1,
     SPLINE_GENERAL_WEST = 2,
     POINT_GENERAL_ROOM  = 3
 };
 
+// 39746 - General Zarithrian
 struct boss_general_zarithrian : public BossAI
 {
     boss_general_zarithrian(Creature* creature) : BossAI(creature, DATA_GENERAL_ZARITHRIAN) { }
@@ -91,7 +92,7 @@ struct boss_general_zarithrian : public BossAI
         events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 14s);
         events.ScheduleEvent(EVENT_SUMMON_ADDS, 15s);
         if (Is25ManRaid())
-            events.ScheduleEvent(EVENT_SUMMON_ADDS2, Seconds(16));
+            events.ScheduleEvent(EVENT_SUMMON_ADDS2, 16s);
     }
 
     // Override to not set adds in combat yet.
@@ -143,12 +144,12 @@ struct boss_general_zarithrian : public BossAI
                     if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
                         stalker2->CastSpell(stalker2, SPELL_SUMMON_FLAMECALLER, true);
 
-                    events.Repeat(Seconds(45));
+                    events.Repeat(45s);
                     break;
                 }
                 case EVENT_INTIDMDATING_ROAR:
                     DoCastSelf(SPELL_INTIMIDATING_ROAR);
-                    events.Repeat(Seconds(35), Seconds(40));
+                    events.Repeat(35s, 40s);
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE_ARMOR);
@@ -166,6 +167,7 @@ struct boss_general_zarithrian : public BossAI
     }
 };
 
+// 39814 - Onyx Flamecaller
 struct npc_onyx_flamecaller : public ScriptedAI
 {
     npc_onyx_flamecaller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _lavaGoutCount(0) { }
@@ -225,18 +227,18 @@ struct npc_onyx_flamecaller : public ScriptedAI
             {
                 case EVENT_BLAST_NOVA:
                     DoCastAOE(SPELL_BLAST_NOVA);
-                    _events.Repeat(Seconds(15), Seconds(20));
+                    _events.Repeat(15s, 20s);
                     break;
                 case EVENT_LAVA_GOUT:
                     if (_lavaGoutCount >= 3)
                     {
                         _lavaGoutCount = 0;
-                        _events.Repeat(Seconds(8));
+                        _events.Repeat(8s);
                         break;
                     }
                     DoCastVictim(SPELL_LAVA_GOUT);
                     _lavaGoutCount++;
-                    _events.Repeat(Seconds(1));
+                    _events.Repeat(1s);
                     break;
                 default:
                     break;
@@ -245,6 +247,7 @@ struct npc_onyx_flamecaller : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 private:
     EventMap _events;
     InstanceScript* _instance;

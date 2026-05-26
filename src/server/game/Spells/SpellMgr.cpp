@@ -1170,7 +1170,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2        3         4           5            6
+    //                                               0   1            2      3          4          5          6
     QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
@@ -2964,7 +2964,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             65755
         }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         ApplySpellFix({
@@ -2975,27 +2975,27 @@ void SpellMgr::LoadSpellInfoCorrections()
         }, [](SpellInfo* spellInfo)
         {
             // first effect has correct amplitude
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = spellInfo->GetEffect(EFFECT_0).Amplitude;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = spellInfo->GetEffect(EFFECT_0).ApplyAuraPeriod;
         });
 
         // Vomit
         ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         // Strider Presence
         ApplySpellFix({ 4312 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
 
         // Food
         ApplySpellFix({ 64345 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
-            spellInfo->_GetEffect(EFFECT_2).Amplitude = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
+            spellInfo->_GetEffect(EFFECT_2).ApplyAuraPeriod = 1 * IN_MILLISECONDS;
         });
     }
 
@@ -3011,12 +3011,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         ApplySpellFix({ 29917 }, [](SpellInfo* spellInfo)
         {
             spellInfo->_GetEffect(EFFECT_0).TriggerSpell = 29916;
-        });
-
-        // Remote Toy
-        ApplySpellFix({ 37027 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->_GetEffect(EFFECT_0).TriggerSpell = 37029;
         });
 
         // Eye of Grillok
@@ -3078,7 +3072,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         }, [](SpellInfo* spellInfo)
     {
         // copy SP scaling data from direct damage to DoT
-        spellInfo->_GetEffect(EFFECT_0).BonusMultiplier = spellInfo->GetEffect(EFFECT_1).BonusMultiplier;
+        spellInfo->_GetEffect(EFFECT_0).BonusCoefficient = spellInfo->GetEffect(EFFECT_1).BonusCoefficient;
     });
 
     // Detect Undead
@@ -3133,7 +3127,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         63665, // Charge (Argent Tournament emote on riders)
-        31298, // Sleep (needs target selection script)
         51904, // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
         2895,  // Wrath of Air Totem rank 1 (Aura)
         68933, // Wrath of Air Totem rank 2 (Aura)
@@ -3164,16 +3157,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Priority = 100;
     });
 
-    // Howl of Azgalor
-    ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->_GetEffect(EFFECT_0).RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
-    });
-
     ApplySpellFix({
         42818, // Headless Horseman - Wisp Flight Port
         42821, // Headless Horseman - Wisp Flight Missile
-        17678  // Despawn Spectral Combatants
+        17678, // Despawn Spectral Combatants
+        720,   // Entangle
+        731    // Entangle
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100 yards
@@ -3296,7 +3285,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         45004, // Wild Magic
         45006, // Wild Magic
         45010, // Wild Magic
-        31347, // Doom
         41635, // Prayer of Mending
         44869, // Spectral Blast
         45027, // Revitalize
@@ -3491,7 +3479,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
     ApplySpellFix({ 51912 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->_GetEffect(EFFECT_0).Amplitude = 3000;
+        spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 3000;
     });
 
     // Desecration Arm - 36 instead of 37 - typo? :/
@@ -3517,6 +3505,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->_GetEffect(EFFECT_0).RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_150_YARDS); // 150yd
+    });
+
+    // Radius in DBC is not enough
+    ApplySpellFix({
+        36854, // Channel
+        36856  // Channel
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
     });
 
     // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
@@ -4356,7 +4353,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Swarming Shadows
     ApplySpellFix({ 71266, 72890 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
+        spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
     });
 
     // Corruption
@@ -4693,7 +4690,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // either is a periodic with chance on tick, or a proc
 
         spellInfo->_GetEffect(EFFECT_0).ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
-        spellInfo->_GetEffect(EFFECT_0).Amplitude = 0;
+        spellInfo->_GetEffect(EFFECT_0).ApplyAuraPeriod = 0;
         spellInfo->ProcChance = 10;
     });
 
@@ -4942,7 +4939,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).Effect          = SPELL_EFFECT_APPLY_AURA;
         spellInfo->_GetEffect(EFFECT_1).TargetA         = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-        spellInfo->_GetEffect(EFFECT_1).Amplitude       = 10 * IN_MILLISECONDS;
+        spellInfo->_GetEffect(EFFECT_1).ApplyAuraPeriod = 10 * IN_MILLISECONDS;
         spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
     });
 
@@ -4985,7 +4982,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 case SPELL_EFFECT_APPLY_AURA:
                     // special aura updates each 30 seconds
                     if (spellEffectInfo.ApplyAuraName == SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR)
-                        spellEffectInfo.Amplitude = 30 * IN_MILLISECONDS;
+                        spellEffectInfo.ApplyAuraPeriod = 30 * IN_MILLISECONDS;
                     break;
                 default:
                     break;

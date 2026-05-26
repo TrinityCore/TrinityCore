@@ -110,7 +110,6 @@ public:
             player->SetShapeshiftForm(FORM_NONE);
 
         player->SetFactionForRace(player->GetRace());
-
         player->SetPowerType(Powers(powerType), false);
 
         // reset only if player not in some form;
@@ -250,7 +249,7 @@ public:
                 target->SendTalentsInfoData(true);
             return true;
         }
-        else if (targetGuid)
+        else if (!targetGuid.IsEmpty())
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_NONE | AT_LOGIN_RESET_PET_TALENTS));

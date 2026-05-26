@@ -24,7 +24,6 @@
 
 enum IPLoggingTypes
 {
-
     // AccountActionIpLogger();
     ACCOUNT_LOGIN                = 0,
     ACCOUNT_FAIL_LOGIN           = 1,
@@ -98,7 +97,6 @@ class AccountActionIpLogger : public AccountScript
 
             // We declare all the required variables
             uint32 playerGuid = accountId;
-            ObjectGuid::LowType characterGuid = 0;
             uint32 realmId = realm.Id.Realm;
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
 
@@ -144,7 +142,7 @@ class AccountActionIpLogger : public AccountScript
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
 
                 stmt->setUInt32(0, playerGuid);
-                stmt->setUInt64(1, characterGuid);
+                stmt->setUInt64(1, 0);
                 stmt->setUInt32(2, realmId);
                 stmt->setUInt8(3, aType);
                 stmt->setUInt32(4, playerGuid);
@@ -156,7 +154,7 @@ class AccountActionIpLogger : public AccountScript
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FACL_IP_LOGGING);
 
                 stmt->setUInt32(0, playerGuid);
-                stmt->setUInt64(1, characterGuid);
+                stmt->setUInt64(1, 0);
                 stmt->setUInt32(2, realmId);
                 stmt->setUInt8(3, aType);
                 stmt->setUInt32(4, playerGuid);
@@ -206,7 +204,6 @@ class CharacterActionIpLogger : public PlayerScript
 
             // We declare all the required variables
             uint32 playerGuid = player->GetSession()->GetAccountId();
-            ObjectGuid::LowType characterGuid = player->GetGUID().GetCounter();
             uint32 realmId = realm.Id.Realm;
             const std::string currentIp = player->GetSession()->GetRemoteAddress();
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it...
@@ -240,7 +237,7 @@ class CharacterActionIpLogger : public PlayerScript
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
 
             stmt->setUInt32(0, playerGuid);
-            stmt->setUInt64(1, characterGuid);
+            stmt->setUInt64(1, player->GetGUID().GetCounter());
             stmt->setUInt32(2, realmId);
             stmt->setUInt8(3, aType);
             stmt->setString(4, currentIp); // We query the ip here.
@@ -275,8 +272,6 @@ public:
         // Action IP Logger is only intialized if config is set up
         // Else, this script isn't loaded in the first place: We require no config check.
 
-        // We declare all the required variables
-        ObjectGuid::LowType characterGuid = guid.GetCounter(); // We have no access to any member function of Player* or WorldSession*. So use old-fashioned way.
         uint32 realmId = realm.Id.Realm;
         // Query playerGuid/accountId, as we only have characterGuid
         std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it later.
@@ -302,7 +297,7 @@ public:
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
 
         stmt->setUInt32(0, playerGuid);
-        stmt->setUInt64(1, characterGuid);
+        stmt->setUInt64(1, guid.GetCounter());
         stmt->setUInt32(2, realmId);
         stmt->setUInt8(3, aType);
         stmt->setUInt32(4, playerGuid);

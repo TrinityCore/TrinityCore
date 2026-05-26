@@ -260,7 +260,7 @@ class instance_deadmines : public InstanceMapScript
                 switch (type)
                 {
                     case EVENT_STATE:
-                        if (DefiasCannonGUID && IronCladDoorGUID)
+                        if (!DefiasCannonGUID.IsEmpty() && !IronCladDoorGUID.IsEmpty())
                             State = data;
                         break;
                 }

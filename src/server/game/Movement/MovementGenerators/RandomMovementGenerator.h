@@ -35,8 +35,8 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
         void Pause(uint32 timer = 0) override;
         void Resume(uint32 overrideTimer = 0) override;
 
-        void DoInitialize(T*);
-        void DoReset(T*);
+        bool DoInitialize(T*);
+        bool DoReset(T*);
         bool DoUpdate(T*, uint32);
         void DoDeactivate(T*);
         void DoFinalize(T*, bool, bool);

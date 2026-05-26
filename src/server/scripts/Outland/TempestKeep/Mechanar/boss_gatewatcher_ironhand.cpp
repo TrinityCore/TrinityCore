@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "mechanar.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 enum IronHandTexts
 {
@@ -25,20 +27,22 @@ enum IronHandTexts
     SAY_HAMMER                     = 1,
     SAY_SLAY                       = 2,
     SAY_DEATH                      = 3,
-    EMOTE_HAMMER                   = 4
+    EMOTE_HAMMER                   = 4,
+    EMOTE_DEATH                    = 5
 };
 
 enum IronHandSpells
 {
-    SPELL_SHADOW_POWER             = 35322,
+    SPELL_STREAM_OF_MACHINE_FLUID  = 35311,
     SPELL_HAMMER_PUNCH             = 35326,
     SPELL_JACKHAMMER               = 35327,
-    SPELL_STREAM_OF_MACHINE_FLUID  = 35311
+    SPELL_SHADOW_POWER             = 35322
 };
 
 enum IronHandEvents
 {
-    EVENT_STREAM_OF_MACHINE_FLUID   = 1,
+    EVENT_STREAM_OF_MACHINE_FLUID  = 1,
+    EVENT_HAMMER_PUNCH,
     EVENT_JACKHAMMER,
     EVENT_SHADOW_POWER
 };
@@ -51,22 +55,36 @@ struct boss_gatewatcher_iron_hand : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 55s);
-        events.ScheduleEvent(EVENT_JACKHAMMER, 45s);
+        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 15s, 25s);
+        events.ScheduleEvent(EVENT_HAMMER_PUNCH, 15s, 25s);
+        events.ScheduleEvent(EVENT_JACKHAMMER, 10s, 30s);
         events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
         Talk(SAY_AGGRO);
     }
 
+    void OnSpellStart(SpellInfo const* spell) override
+    {
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_JACKHAMMER, me))
+            Talk(EMOTE_HAMMER);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        // Only in normal mode
+        if (spell->Id == SPELL_JACKHAMMER)
+            Talk(SAY_HAMMER);
+    }
+
     void KilledUnit(Unit* /*victim*/) override
     {
-        if (roll_chance_i(50))
-            Talk(SAY_SLAY);
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         Talk(SAY_DEATH);
+        Talk(EMOTE_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -84,20 +102,20 @@ struct boss_gatewatcher_iron_hand : public BossAI
             switch (eventId)
             {
                 case EVENT_STREAM_OF_MACHINE_FLUID:
-                    DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID);
+                    DoCastSelf(SPELL_STREAM_OF_MACHINE_FLUID);
                     events.Repeat(35s, 50s);
                     break;
+                case EVENT_HAMMER_PUNCH:
+                    DoCastVictim(SPELL_HAMMER_PUNCH);
+                    events.Repeat(25s, 35s);
+                    break;
                 case EVENT_JACKHAMMER:
-                    Talk(EMOTE_HAMMER);
-                    /// @todo expect cast this about 5 times in a row (?), announce it by emote only once
-                    DoCastVictim(SPELL_JACKHAMMER);
-                    if (roll_chance_i(50))
-                        Talk(SAY_HAMMER);
+                    DoCastSelf(SPELL_JACKHAMMER);
                     events.Repeat(30s);
                     break;
                 case EVENT_SHADOW_POWER:
                     DoCastSelf(SPELL_SHADOW_POWER);
-                    events.Repeat(20s, 28s);
+                    events.Repeat(25s, 35s);
                     break;
                 default:
                     break;

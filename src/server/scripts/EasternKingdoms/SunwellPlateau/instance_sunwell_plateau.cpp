@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
@@ -50,15 +51,23 @@ ObjectData const creatureData[] =
     { NPC_SATHROVARR,             DATA_SATHROVARR           },
     { NPC_BRUTALLUS,              DATA_BRUTALLUS            },
     { NPC_MADRIGOSA,              DATA_MADRIGOSA            },
+    { NPC_WORLD_TRIGGER,          DATA_WORLD_TRIGGER        },
     { NPC_FELMYST,                DATA_FELMYST              },
     { NPC_GRAND_WARLOCK_ALYTHESS, DATA_ALYTHESS             },
     { NPC_LADY_SACROLASH,         DATA_SACROLASH            },
     { NPC_MURU,                   DATA_MURU                 },
+    { NPC_ENTROPIUS,              DATA_ENTROPIUS            },
     { NPC_KILJAEDEN,              DATA_KILJAEDEN            },
     { NPC_KILJAEDEN_CONTROLLER,   DATA_KILJAEDEN_CONTROLLER },
     { NPC_ANVEENA,                DATA_ANVEENA              },
     { NPC_KALECGOS_KJ,            DATA_KALECGOS_KJ          },
     { 0,                          0                         } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_ICE_BARRIER,             DATA_ICE_BARRIER          },
+    { 0,                          0                         } //END
 };
 
 BossBoundaryData const boundaries =
@@ -78,7 +87,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
             }
 
@@ -101,6 +110,38 @@ class instance_sunwell_plateau : public InstanceMapScript
                 return nullptr;
             }
 
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_LADY_SACROLASH:
+                        EredarTwinsSpawnId[0] = creature->GetSpawnId();
+                        break;
+                    case NPC_GRAND_WARLOCK_ALYTHESS:
+                        EredarTwinsSpawnId[1] = creature->GetSpawnId();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_SACROLASH:
+                        return EredarTwinsSpawnId[0];
+                    case DATA_ALYTHESS:
+                        return EredarTwinsSpawnId[1];
+                    default:
+                        break;
+                }
+
+                return InstanceScript::GetData64(type);
+            }
+
             ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
@@ -113,8 +154,10 @@ class instance_sunwell_plateau : public InstanceMapScript
                     default:
                         break;
                 }
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(id);
             }
+
+            ObjectGuid::LowType EredarTwinsSpawnId[2] = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

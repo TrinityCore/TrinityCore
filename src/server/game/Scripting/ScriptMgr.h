@@ -63,7 +63,6 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
-struct AchievementCriteriaData;
 struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
@@ -885,8 +884,8 @@ class TC_GAME_API ScriptMgr
 
         void OnNetworkStart();
         void OnNetworkStop();
-        void OnSocketOpen(std::shared_ptr<WorldSocket> socket);
-        void OnSocketClose(std::shared_ptr<WorldSocket> socket);
+        void OnSocketOpen(std::shared_ptr<WorldSocket> const& socket);
+        void OnSocketClose(std::shared_ptr<WorldSocket> const& socket);
         void OnPacketReceive(WorldSession* session, WorldPacket const& packet);
         void OnPacketSend(WorldSession* session, WorldPacket const& packet);
 

@@ -103,12 +103,12 @@ namespace Movement
         STR(Falling            ), // 0x00001000,
         STR(Fallingfar         ), // 0x00002000,
         STR(Pendingstop        ), // 0x00004000,
-        STR(PendingSTRafestop  ), // 0x00008000,
-        STR(Pendingforward     ), // 0x00010000,
-        STR(Pendingbackward    ), // 0x00020000,
-        STR(PendingSTRafeleft  ), // 0x00040000,
-        STR(PendingSTRaferight ), // 0x00080000,
-        STR(Pendingroot        ), // 0x00100000,
+        STR(PendingStrafeStop  ), // 0x00008000,
+        STR(PendingForward     ), // 0x00010000,
+        STR(PendingBackward    ), // 0x00020000,
+        STR(PendingStrafeReft  ), // 0x00040000,
+        STR(PendingStrafeRight ), // 0x00080000,
+        STR(PendingRoot        ), // 0x00100000,
         STR(Swimming           ), // 0x00200000,               // Appears With Fly Flag Also
         STR(Ascending          ), // 0x00400000,               // Swim Up Also
         STR(Descending         ), // 0x00800000,               // Swim Down Also
@@ -120,11 +120,11 @@ namespace Movement
         STR(Safe_Fall          ), // 0x20000000,               // Active Rogue Safe Fall Spell (Passive)
         STR(Hover              ), // 0x40000000
         STR(Unknown13          ), // 0x80000000
-        STR(Unk1               ),
-        STR(Unk2               ),
+        STR(NoStrafe           ),
+        STR(NoJump             ),
         STR(Unk3               ),
-        STR(Fullspeedturning   ),
-        STR(Fullspeedpitching  ),
+        STR(FullSpeedTurning   ),
+        STR(FullSpeedPitching  ),
         STR(Allow_Pitching     ),
         STR(Unk4               ),
         STR(Unk5               ),

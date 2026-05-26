@@ -39,13 +39,16 @@ enum NajentusTexts
 enum NajentusSpells
 {
     SPELL_NEEDLE_SPINE_TARGETING = 39992,
-    SPELL_NEEDLE_SPINE           = 39835,
     SPELL_TIDAL_BURST            = 39878,
     SPELL_TIDAL_SHIELD           = 39872,
     SPELL_IMPALING_SPINE         = 39837,
     SPELL_CREATE_NAJENTUS_SPINE  = 39956,
     SPELL_HURL_SPINE             = 39948,
-    SPELL_BERSERK                = 26662
+    SPELL_BERSERK                = 26662,
+
+    // Scripts
+    SPELL_NEEDLE_SPINE           = 39835,
+    SPELL_NEEDLE_SPINE_EXPLOSION = 39968
 };
 
 enum NajentusEvents
@@ -228,9 +231,31 @@ class spell_najentus_needle_spine : public SpellScript
     }
 };
 
+// 39835 - Needle Spine
+class spell_najentus_needle_spine_explosion : public SpellScript
+{
+    PrepareSpellScript(spell_najentus_needle_spine_explosion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_NEEDLE_SPINE_EXPLOSION });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_NEEDLE_SPINE_EXPLOSION, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_najentus_needle_spine_explosion::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_najentus()
 {
     RegisterBlackTempleCreatureAI(boss_najentus);
     RegisterGameObjectAI(go_najentus_spine);
     RegisterSpellScript(spell_najentus_needle_spine);
+    RegisterSpellScript(spell_najentus_needle_spine_explosion);
 }

@@ -36,7 +36,12 @@ enum ZADataTypes
     DATA_GONGEVENT,
     DATA_CHESTLOOTED,
     TYPE_RAND_VENDOR_1,
-    TYPE_RAND_VENDOR_2
+    TYPE_RAND_VENDOR_2,
+
+    DATA_BEAR_SPIRIT,
+    DATA_EAGLE_SPIRIT,
+    DATA_LYNX_SPIRIT,
+    DATA_DRAGONHAWK_SPIRIT
 };
 
 enum ZACreatureIds
@@ -47,7 +52,13 @@ enum ZACreatureIds
     NPC_JANALAI                         = 23578,
     NPC_HALAZZI                         = 23577,
     NPC_HEXLORD                         = 24239,
-    NPC_ZULJIN                          = 23863
+    NPC_ZULJIN                          = 23863,
+
+    // Zul'jin
+    NPC_BEAR_SPIRIT                     = 23878,
+    NPC_EAGLE_SPIRIT                    = 23880,
+    NPC_LYNX_SPIRIT                     = 23877,
+    NPC_DRAGONHAWK_SPIRIT               = 23879
 };
 
 enum ZAGameObjectIds
@@ -66,10 +77,20 @@ enum ZAGameObjectIds
     GO_STRANGE_GONG                     = 187359
 };
 
+enum ZAActionIds
+{
+    ACTION_WAVE_DONE_1                  = 0,
+    ACTION_WAVE_DONE_2                  = 1,
+    ACTION_WAVE_DONE_3                  = 2,
+    ACTION_WAVE_DONE_4                  = 3
+};
+
 template <class AI, class T>
 inline AI* GetZulAmanAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ZulamanScriptName);
 }
+
+#define RegisterZulAmanCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetZulAmanAI)
 
 #endif

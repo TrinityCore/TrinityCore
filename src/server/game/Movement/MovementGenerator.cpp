@@ -21,6 +21,7 @@
 #include "MovementDefines.h"
 #include "PathGenerator.h"
 #include "RandomMovementGenerator.h"
+#include "StringFormat.h"
 #include "UnitAI.h"
 #include "WaypointMovementGenerator.h"
 
@@ -28,13 +29,8 @@ MovementGenerator::~MovementGenerator() { }
 
 std::string MovementGenerator::GetDebugInfo() const
 {
-    std::stringstream sstr;
-    sstr << std::boolalpha
-        << "Mode: " << std::to_string(Mode)
-        << " Priority: " << std::to_string(Priority)
-        << " Flags: " << Flags
-        << " BaseUniteState: " << BaseUnitState;
-    return sstr.str();
+    return Trinity::StringFormat("Priority: {} Flags: {} BaseUniteState: {}",
+        Priority, Flags, BaseUnitState);
 }
 
 IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }

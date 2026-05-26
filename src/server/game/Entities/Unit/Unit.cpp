@@ -24,9 +24,9 @@
 #include "BattlegroundScore.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
-#include "Chat.h"
 #include "ChatPackets.h"
 #include "ChatTextBuilder.h"
+#include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -47,7 +47,7 @@
 #include "LootMgr.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
-#include "MovementPacketBuilder.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
@@ -323,8 +323,6 @@ Unit::Unit(bool isWorldObject) :
 
     m_movementCounter = 0;
 
-    m_rootTimes = 0;
-
     m_state = 0;
     m_deathState = ALIVE;
 
@@ -436,7 +434,7 @@ void Unit::Update(uint32 p_time)
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
     // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
-    m_Events.Update(p_time);
+    WorldObject::Update(p_time);
 
     CheckPendingMovementAcks();
 
@@ -501,6 +499,14 @@ void Unit::Update(uint32 p_time)
     RefreshAI();
 }
 
+void Unit::Heartbeat()
+{
+    WorldObject::Heartbeat();
+
+    // SMSG_FLIGHT_SPLINE_SYNC for cyclic splines
+    SendFlightSplineSyncUpdate();
+}
+
 bool Unit::haveOffhandWeapon() const
 {
     if (Player const* player = ToPlayer())
@@ -526,20 +532,6 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
     movespline->updateState(t_diff);
     bool arrived = movespline->Finalized();
-
-    if (movespline->isCyclic())
-    {
-        m_splineSyncTimer.Update(t_diff);
-        if (m_splineSyncTimer.Passed())
-        {
-            m_splineSyncTimer.Reset(5000); // Retail value, do not change
-
-            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
-            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
-            data.appendPackGUID(GetGUID());
-            SendMessageToSet(&data, true);
-        }
-    }
 
     if (arrived)
     {
@@ -574,6 +566,17 @@ void Unit::UpdateSplinePosition()
         loc.orientation = GetOrientation();
 
     UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+}
+
+void Unit::SendFlightSplineSyncUpdate()
+{
+    if (!movespline->isCyclic() || movespline->Finalized())
+        return;
+
+    WorldPackets::Movement::FlightSplineSync flightSplineSync;
+    flightSplineSync.Guid = GetGUID();
+    flightSplineSync.SplineDist = float(movespline->timePassed()) / movespline->Duration();
+    SendMessageToSet(flightSplineSync.Write(), true);
 }
 
 void Unit::InterruptMovementBasedAuras()
@@ -1548,8 +1551,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
             /// @todo Move this to a packet handler
             WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
-            data << uint64(victim->GetGUID());
-            data << uint64(GetGUID());
+            data << victim->GetGUID();
+            data << GetGUID();
             data << uint32(spellInfo->Id);
             data << uint32(damage);                  // Damage
             int32 const overkill = int32(damage) - int32(GetHealth());
@@ -1565,8 +1568,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 void Unit::HandleEmoteCommand(Emote emoteId)
 {
     WorldPackets::Chat::Emote packet;
-    packet.EmoteID = emoteId;
     packet.Guid = GetGUID();
+    packet.EmoteID = emoteId;
     SendMessageToSet(packet.Write(), true);
 }
 
@@ -1945,8 +1948,12 @@ void Unit::HandleEmoteCommand(Emote emoteId)
             uint32 splitted_absorb = 0;
             Unit::DealDamageMods(caster, splitted, &splitted_absorb);
 
-            if (Unit* attacker = damageInfo.GetAttacker())
-                attacker->SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, damageInfo.GetSchoolMask(), splitted_absorb, 0, damageInfo.GetDamageType() == DOT, 0, false, true);
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetId(), damageInfo.GetSchoolMask());
+            log.damage = splitted;
+            log.absorb = splitted_absorb;
+            log.periodicLog = damageInfo.GetDamageType() == DOT;
+            log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
+            caster->SendSpellNonMeleeDamageLog(&log);
 
             CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitted, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
@@ -1990,8 +1997,12 @@ void Unit::HandleEmoteCommand(Emote emoteId)
             uint32 split_absorb = 0;
             Unit::DealDamageMods(caster, splitDamage, &split_absorb);
 
-            if (Unit* attacker = damageInfo.GetAttacker())
-                attacker->SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitDamage, damageInfo.GetSchoolMask(), split_absorb, 0, damageInfo.GetDamageType() == DOT, 0, false, true);
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetId(), damageInfo.GetSchoolMask());
+            log.damage = splitDamage;
+            log.absorb = split_absorb;
+            log.periodicLog = damageInfo.GetDamageType() == DOT;
+            log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
+            caster->SendSpellNonMeleeDamageLog(&log);
 
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
@@ -2111,12 +2122,8 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         DamageInfo dmgInfo(damageInfo);
         Unit::ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
-                GetGUID().ToString(), victim->GetGUID().ToString(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
-        else
-            TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC)    {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
-                GetGUID().ToString(), victim->GetGUID().ToString(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
+        TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
+            GetGUID().ToString(), victim->GetGUID().ToString(), dmgInfo.GetDamage(), dmgInfo.GetAbsorb(), dmgInfo.GetBlock(), dmgInfo.GetResist());
     }
 }
 
@@ -2134,7 +2141,8 @@ void Unit::AddExtraAttacks(uint32 count)
     ObjectGuid targetGUID = _lastDamagedTargetGuid;
     if (!targetGUID)
     {
-        if (ObjectGuid selection = GetTarget())
+        ObjectGuid selection = GetTarget();
+        if (!selection.IsEmpty())
             targetGUID = selection; // Spell was cast directly (not triggered by aura)
         else
             return;
@@ -2339,9 +2347,13 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     SendMessageToSet(packet.Write(), true);
 }
 
-void Unit::SendMeleeAttackStop(Unit* victim)
+void Unit::SendMeleeAttackStop(Unit const* victim) const
 {
-    SendMessageToSet(WorldPackets::Combat::SAttackStop(this, victim).Write(), true);
+    WorldPackets::Combat::SAttackStop attackStop;
+    attackStop.Attacker = GetGUID();
+    attackStop.Victim = Object::GetGUID(victim);
+    attackStop.NowDead = !IsAlive();
+    SendMessageToSet(attackStop.Write(), true);
 
     if (victim)
         TC_LOG_DEBUG("entities.unit", "{} stopped attacking {}", GetGUID().ToString(), victim->GetGUID().ToString());
@@ -2681,7 +2693,7 @@ float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) con
         if (playerVictim->CanBlock())
         {
             Item* tmpitem = playerVictim->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetTemplate()->Block)
+            if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetTemplate()->GetBlock())
             {
                 chance = playerVictim->GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
                 skillBonus = 0.04f * skillDiff;
@@ -3212,7 +3224,7 @@ void Unit::DeMorph()
 
 Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
 {
-    ASSERT(createInfo.CasterGUID || createInfo.Caster);
+    ASSERT(!createInfo.CasterGUID.IsEmpty() || createInfo.Caster);
 
     // Check if these can stack anyway
     if (!createInfo.CasterGUID && !createInfo.GetSpellInfo()->IsStackableOnOneSlotWithDifferentCasters())
@@ -3409,8 +3421,12 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
     }
 
     if (Player* player = ToPlayer())
-        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aurApp->GetBase()->GetId()))
+    {
+        if (sConditionMgr->IsSpellUsedInSpellClickConditions(aura->GetId()))
             player->UpdateVisibleGameobjectsOrSpellClicks();
+
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_AURA, aura->GetId(), 0, aura->GetCaster());
+    }
 }
 
 // removes aura application from lists and unapplies effects
@@ -4044,7 +4060,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     UpdateInterruptMask();
 }
 
-void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID)
+void Unit::RemoveAurasWithFamily(SpellFamilyNames family, flag96 const& familyFlag, ObjectGuid casterGUID)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
@@ -4052,7 +4068,7 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
         if (!casterGUID || aura->GetCasterGUID() == casterGUID)
         {
             SpellInfo const* spell = aura->GetSpellInfo();
-            if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+            if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags & familyFlag)
             {
                 RemoveAura(iter);
                 continue;
@@ -4067,7 +4083,7 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
     if (withRoot)
         RemoveAurasWithMechanic(1 << MECHANIC_ROOT, AURA_REMOVE_BY_DEFAULT, 0, true);
 
-    RemoveAurasWithMechanic(1 << MECHANIC_SNARE, AURA_REMOVE_BY_DEFAULT, 0, false);
+    RemoveAurasWithMechanic(1 << MECHANIC_SNARE, AURA_REMOVE_BY_DEFAULT, 0, true);
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveMode removeMode, uint32 exceptSpellId, bool withEffectMechanics)
@@ -4398,9 +4414,9 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
     for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
         SpellInfo const* spell = (*i)->GetSpellInfo();
-        if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+        if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags & flag96(familyFlag1, familyFlag2, familyFlag3))
         {
-            if (casterGUID && (*i)->GetCasterGUID() != casterGUID)
+            if (!casterGUID.IsEmpty() && (*i)->GetCasterGUID() != casterGUID)
                 continue;
             return (*i);
         }
@@ -5088,7 +5104,7 @@ std::vector<GameObject*> Unit::GetGameObjects(uint32 spellId) const
 
 void Unit::AddGameObject(GameObject* gameObj)
 {
-    if (!gameObj || gameObj->GetOwnerGUID())
+    if (!gameObj || !gameObj->GetOwnerGUID().IsEmpty())
         return;
 
     m_gameObj.push_back(gameObj);
@@ -5180,57 +5196,21 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data << log->target->GetPackGUID();
-    data << log->attacker->GetPackGUID();
-    data << uint32(log->SpellID);
-    data << uint32(log->damage);                            // damage amount
-    int32 overkill = log->damage - log->target->GetHealth();
-    data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint8 (log->schoolMask);                        // damage school
-    data << uint32(log->absorb);                            // AbsorbedDamage
-    data << uint32(log->resist);                            // resist
-    data << uint8 (log->periodicLog);                       // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data << uint8 (log->unused);                            // unused
-    data << uint32(log->blocked);                           // blocked
-    data << uint32(log->HitInfo);
-    data << uint8 (log->HitInfo & (SPELL_HIT_TYPE_CRIT_DEBUG | SPELL_HIT_TYPE_HIT_DEBUG | SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG));
-    //if (log->HitInfo & SPELL_HIT_TYPE_CRIT_DEBUG)
-    //{
-    //    data << float(log->CritRoll);
-    //    data << float(log->CritNeeded);
-    //}
-    //if (log->HitInfo & SPELL_HIT_TYPE_HIT_DEBUG)
-    //{
-    //    data << float(log->HitRoll);
-    //    data << float(log->HitNeeded);
-    //}
-    //if (log->HitInfo & SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG)
-    //{
-    //    data << float(log->MissChance);
-    //    data << float(log->DodgeChance);
-    //    data << float(log->ParryChance);
-    //    data << float(log->BlockChance);
-    //    data << float(log->GlanceChance);
-    //    data << float(log->CrushChance);
-    //}
-    SendMessageToSet(&data, true);
-}
+    WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
+    packet.Me = log->target->GetGUID();
+    packet.CasterGUID = log->attacker->GetGUID();
+    packet.SpellID = log->SpellID;
+    packet.Damage = log->damage;
+    if (log->damage > log->target->GetHealth())
+        packet.Overkill = log->damage - log->target->GetHealth();
 
-void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID, uint32 damage, SpellSchoolMask damageSchoolMask, uint32 absorbedDamage, uint32 resist, bool isPeriodic, uint32 blocked, bool criticalHit, bool split)
-{
-    SpellNonMeleeDamage log(this, target, spellID, damageSchoolMask);
-    log.damage = damage - absorbedDamage - resist - blocked;
-    log.absorb = absorbedDamage;
-    log.resist = resist;
-    log.periodicLog = isPeriodic;
-    log.blocked = blocked;
-    log.HitInfo = 0;
-    if (criticalHit)
-        log.HitInfo |= SPELL_HIT_TYPE_CRIT;
-    if (split)
-        log.HitInfo |= SPELL_HIT_TYPE_SPLIT;
-    SendSpellNonMeleeDamageLog(&log);
+    packet.SchoolMask = log->schoolMask;
+    packet.Absorbed = log->absorb;
+    packet.Resisted = log->resist;
+    packet.ShieldBlock = log->blocked;
+    packet.Periodic = log->periodicLog;
+    packet.Flags = log->HitInfo;
+    SendMessageToSet(packet.Write(), true);
 }
 
 /*static*/ void Unit::ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
@@ -5295,8 +5275,8 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
     WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
+    data << GetGUID();
+    data << target->GetGUID();
     data << uint32(spellId);
     data << uint8(0); // bool - log format: 0-default, 1-debug
     SendMessageToSet(&data, true);
@@ -5305,8 +5285,8 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
     WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
+    data << GetGUID();
+    data << target->GetGUID();
     data << uint32(spellId);
     data << uint8(0); // bool - log format: 0-default, 1-debug
     SendMessageToSet(&data, true);
@@ -5314,69 +5294,33 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    uint32 count = 1;
-    if (damageInfo->Damages[1].Damage || damageInfo->Damages[1].Absorb || damageInfo->Damages[1].Resist)
-        ++count;
-
-    // guess size
-    size_t const maxsize = 4+5+5+4+4+1+(4+4+4)*2+4*2+4*2+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);
-
-    data << uint32(damageInfo->HitInfo);
-    data << damageInfo->Attacker->GetPackGUID();
-    data << damageInfo->Target->GetPackGUID();
-    data << uint32(damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage); // Full damage
+    WorldPackets::CombatLog::AttackerStateUpdate packet;
+    packet.Flags = damageInfo->HitInfo;
+    packet.AttackerGUID = damageInfo->Attacker->GetGUID();
+    packet.VictimGUID = damageInfo->Target->GetGUID();
+    packet.Damage = damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage;
     int32 overkill = damageInfo->Damages[0].Damage + damageInfo->Damages[1].Damage - damageInfo->Target->GetHealth();
-    data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
-    data << uint8(count);                                   // Sub damage count
+    packet.OverDamage = (overkill < 0 ? 0 : overkill);
 
-    for (uint32 i = 0; i < count; ++i)
+    for (std::size_t i = 0; i < packet.SubDmg.size(); ++i)
     {
-        data << uint32(damageInfo->Damages[i].DamageSchoolMask);       // School of sub damage
-        data << float(damageInfo->Damages[i].Damage);                  // sub damage
-        data << uint32(damageInfo->Damages[i].Damage);                 // Sub Damage
+        WorldPackets::CombatLog::SubDamage& subDmg = packet.SubDmg[i];
+        subDmg.SchoolMask = damageInfo->Damages[i].DamageSchoolMask;    // School of sub damage
+        subDmg.FDamage = damageInfo->Damages[i].Damage;                 // sub damage
+        subDmg.Damage = damageInfo->Damages[i].Damage;                  // Sub Damage
+        subDmg.Absorbed = damageInfo->Damages[i].Absorb;                // Absorb
+        subDmg.Resisted = damageInfo->Damages[i].Resist;                // Resist
     }
 
-    if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->Damages[i].Absorb);             // Absorb
-    }
+    packet.VictimState = damageInfo->TargetState;
+    packet.BlockAmount = damageInfo->Blocked;
+    packet.RageGained = 0;
 
-    if (damageInfo->HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-    {
-        for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->Damages[i].Resist);             // Resist
-    }
+    packet.SubDmgCount = 1;
+    if (damageInfo->Damages[1].Damage || damageInfo->Damages[1].Absorb || damageInfo->Damages[1].Resist)
+        ++packet.SubDmgCount;
 
-    data << uint8(damageInfo->TargetState);
-    data << uint32(0);  // Unknown attackerstate
-    data << uint32(0);  // Melee spellid
-
-    if (damageInfo->HitInfo & HITINFO_BLOCK)
-        data << uint32(damageInfo->Blocked);
-
-    if (damageInfo->HitInfo & HITINFO_RAGE_GAIN)
-        data << uint32(0);
-
-    //! Probably used for debugging purposes, as it is not known to appear on retail servers
-    if (damageInfo->HitInfo & HITINFO_UNK1)
-    {
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);       // Found in a loop with 1 iteration
-        data << float(0);       // ditto ^
-        data << uint32(0);
-    }
-
-    SendMessageToSet(&data, true);
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
@@ -5721,7 +5665,7 @@ bool Unit::isAttackingPlayer() const
             return true;
 
     for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-        if (m_SummonSlot[i])
+        if (!m_SummonSlot[i].IsEmpty())
             if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 if (summon->isAttackingPlayer())
                     return true;
@@ -5860,7 +5804,8 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
 
 Player* Unit::GetControllingPlayer() const
 {
-    if (ObjectGuid guid = GetCharmerOrOwnerGUID())
+    ObjectGuid guid = GetCharmerOrOwnerGUID();
+    if (!guid.IsEmpty())
     {
         if (Unit* master = ObjectAccessor::GetUnit(*this, guid))
             return master->GetControllingPlayer();
@@ -5872,7 +5817,8 @@ Player* Unit::GetControllingPlayer() const
 
 Minion* Unit::GetFirstMinion() const
 {
-    if (ObjectGuid pet_guid = GetMinionGUID())
+    ObjectGuid pet_guid = GetMinionGUID();
+    if (!pet_guid.IsEmpty())
     {
         if (Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, pet_guid))
             if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
@@ -5887,7 +5833,8 @@ Minion* Unit::GetFirstMinion() const
 
 Guardian* Unit::GetGuardianPet() const
 {
-    if (ObjectGuid pet_guid = GetPetGUID())
+    ObjectGuid pet_guid = GetPetGUID();
+    if (!pet_guid.IsEmpty())
     {
         if (Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, pet_guid))
             if (pet->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
@@ -5906,7 +5853,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
     if (apply)
     {
-        if (minion->GetOwnerGUID())
+        if (!minion->GetOwnerGUID().IsEmpty())
         {
             TC_LOG_FATAL("entities.unit", "SetMinion: Minion {} is not the minion of owner {}", minion->GetEntry(), GetEntry());
             return;
@@ -6103,10 +6050,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         _isWalkingBeforeCharm = charm->IsWalking();
         if (_isWalkingBeforeCharm)
-        {
             charm->SetWalk(false);
-            charm->SendMovementFlagUpdate();
-        }
 
         m_Controlled.insert(charm);
     }
@@ -6145,10 +6089,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         }
 
         if (charm->IsWalking() != _isWalkingBeforeCharm)
-        {
             charm->SetWalk(_isWalkingBeforeCharm);
-            charm->SendMovementFlagUpdate(true); // send packet to self, to update movement state on player.
-        }
 
         if (charm->GetTypeId() == TYPEID_PLAYER
             || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
@@ -6240,8 +6181,11 @@ Unit* Unit::GetFirstControlled() const
     // Sequence: charmed, pet, other guardians
     Unit* unit = GetCharmed();
     if (!unit)
-        if (ObjectGuid guid = GetMinionGUID())
+    {
+        ObjectGuid guid = GetMinionGUID();
+        if (!guid.IsEmpty())
             unit = ObjectAccessor::GetUnit(*this, guid);
+    }
 
     return unit;
 }
@@ -6263,11 +6207,11 @@ void Unit::RemoveAllControlled()
         else
             TC_LOG_ERROR("entities.unit", "Unit {} is trying to release unit {} which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
     }
-    if (GetPetGUID())
+    if (!GetPetGUID().IsEmpty())
         TC_LOG_FATAL("entities.unit", "Unit {} is not able to release its pet {}", GetEntry(), GetPetGUID().ToString());
-    if (GetMinionGUID())
+    if (!GetMinionGUID().IsEmpty())
         TC_LOG_FATAL("entities.unit", "Unit {} is not able to release its minion {}", GetEntry(), GetMinionGUID().ToString());
-    if (GetCharmedGUID())
+    if (!GetCharmedGUID().IsEmpty())
         TC_LOG_FATAL("entities.unit", "Unit {} is not able to release its charm {}", GetEntry(), GetCharmedGUID().ToString());
     if (!IsPet()) // pets don't use the flag for this
         RemoveUnitFlag(UNIT_FLAG_PET_IN_COMBAT); // m_controlled is now empty, so we know none of our minions are in combat
@@ -6533,7 +6477,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
 
     // Check for table values
-    float coeff = spellEffectInfo.BonusMultiplier;
+    float coeff = spellEffectInfo.BonusCoefficient;
     if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
     {
         WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
@@ -7402,7 +7346,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
 
     // Check for table values
-    float coeff = spellEffectInfo.BonusMultiplier;
+    float coeff = spellEffectInfo.BonusCoefficient;
     if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
     {
         WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
@@ -8197,8 +8141,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 data << uint32(VehicleId);
                 SendMessageToSet(&data, true);
 
-                data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                player->SendDirectMessage(&data);
+                player->SendOnCancelExpectedVehicleRideAura();
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -8477,7 +8420,8 @@ bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
         return true;
 
     // Always seen by owner
-    if (ObjectGuid guid = GetCharmerOrOwnerGUID())
+    ObjectGuid guid = GetCharmerOrOwnerGUID();
+    if (!guid.IsEmpty())
         if (seer->GetGUID() == guid)
             return true;
 
@@ -8776,6 +8720,12 @@ void Unit::setDeathState(DeathState s)
 void Unit::AtExitCombat()
 {
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
+}
+
+void Unit::AtEngage(Unit* /*target*/)
+{
+    if (HasUnitState(UNIT_STATE_DISTRACTED))
+        GetMotionMaster()->Remove(DISTRACT_MOTION_TYPE);
 }
 
 void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
@@ -9661,7 +9611,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     if (finalCleanup)
         m_cleanupDone = true;
 
-    m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
     ClearComboPoints();
     ClearComboPointHolders();
@@ -10282,10 +10231,10 @@ void Unit::SendPetAIReaction(ObjectGuid guid) const
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << uint64(guid);
-    data << uint32(AI_REACTION_HOSTILE);
-    owner->ToPlayer()->SendDirectMessage(&data);
+    WorldPackets::Combat::AIReaction packet;
+    packet.UnitGUID = guid;
+    packet.Reaction = AI_REACTION_HOSTILE;
+    owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ///----------End of Pet responses methods----------
@@ -10300,19 +10249,19 @@ MovementGeneratorType Unit::GetDefaultMovementType() const
     return IDLE_MOTION_TYPE;
 }
 
-void Unit::StopMoving()
+void Unit::StopMoving(bool force /*= false*/)
 {
     ClearUnitState(UNIT_STATE_MOVING);
 
     // not need send any packets if not in world or not moving
-    if (!IsInWorld() || movespline->Finalized())
+    if (!IsInWorld() || (!force && movespline->Finalized()))
         return;
 
     // Update position now since Stop does not start a new movement that can be updated later
     if (movespline->HasStarted())
         UpdateSplinePosition();
     Movement::MoveSplineInit init(this);
-    init.Stop();
+    init.Stop(force);
 }
 
 void Unit::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/, bool forced/* = true*/)
@@ -10334,13 +10283,6 @@ void Unit::ResumeMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
 
     if (MovementGenerator* movementGenerator = GetMotionMaster()->GetCurrentMovementGenerator(MovementSlot(slot)))
         movementGenerator->Resume(timer);
-}
-
-void Unit::SendMovementFlagUpdate(bool self /* = false */)
-{
-    WorldPacket data;
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, self);
 }
 
 bool Unit::IsSitState() const
@@ -10816,9 +10758,9 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
         return BASE_ATTACK_TIME / 1000.0f;
 
     if (!normalized)
-        return weapon->GetTemplate()->Delay / 1000.0f;
+        return weapon->GetTemplate()->GetDelay() / 1000.0f;
 
-    switch (weapon->GetTemplate()->SubClass)
+    switch (weapon->GetTemplate()->GetSubClass())
     {
         case ITEM_SUBCLASS_WEAPON_AXE2:
         case ITEM_SUBCLASS_WEAPON_MACE2:
@@ -10842,7 +10784,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
         case ITEM_SUBCLASS_WEAPON_DAGGER:
             return 1.7f;
         default:
-            return weapon->GetTemplate()->Delay / 1000.0f;
+            return weapon->GetTemplate()->GetDelay() / 1000.0f;
     }
 }
 
@@ -10983,8 +10925,8 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     if (isRewardAllowed && player && player != victim)
     {
         WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
-        data << uint64(player->GetGUID()); // player with killing blow
-        data << uint64(victim->GetGUID()); // victim
+        data << player->GetGUID(); // player with killing blow
+        data << victim->GetGUID(); // victim
 
         Player* looter = player;
         Group* group = player->GetGroup();
@@ -10997,7 +10939,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             if (creature)
             {
                 group->UpdateLooterGuid(creature, true);
-                if (group->GetLooterGuid())
+                if (!group->GetLooterGuid().IsEmpty())
                 {
                     looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
                     if (looter)
@@ -11015,7 +10957,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             if (creature)
             {
                 WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << uint64(creature->GetGUID());
+                data2 << creature->GetGUID();
                 data2 << uint8(0); // unk1
                 data2 << uint8(0); // no group looter
                 player->SendMessageToSet(&data2, true);
@@ -11309,7 +11251,8 @@ void Unit::SetControlled(bool apply, UnitState state)
                     return;
 
                 ClearUnitState(state);
-                SetRooted(false);
+                if (!HasUnitState(UNIT_STATE_STUNNED))
+                    SetRooted(false);
                 break;
             case UNIT_STATE_CONFUSED:
                 if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
@@ -11353,35 +11296,15 @@ void Unit::SetStunned(bool apply)
 {
     if (apply)
     {
-        if (m_rootTimes > 0) // blizzard internal check?
-            m_rootTimes++;
-
         SetTarget(ObjectGuid::Empty);
         SetUnitFlag(UNIT_FLAG_STUNNED);
 
-        // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
-        // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
-        // setting MOVEMENTFLAG_ROOT
-        RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
 
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data << GetPackGUID();
-            data << m_rootTimes;
-            SendMessageToSet(&data, true);
-        }
-        else
-        {
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-            data << GetPackGUID();
-            SendMessageToSet(&data, true);
-        }
+        SetRooted(true);
 
         CastStop();
     }
@@ -11396,23 +11319,7 @@ void Unit::SetStunned(bool apply)
             RemoveUnitFlag(UNIT_FLAG_STUNNED);
 
         if (!HasUnitState(UNIT_STATE_ROOT))         // prevent moving if it also has root effect
-        {
-            if (GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data << GetPackGUID();
-                data << ++m_rootTimes;
-                SendMessageToSet(&data, true);
-            }
-            else
-            {
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-                data << GetPackGUID();
-                SendMessageToSet(&data, true);
-            }
-
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        }
+            SetRooted(false);
     }
 }
 
@@ -11420,50 +11327,41 @@ void Unit::SetRooted(bool apply)
 {
     if (apply)
     {
-        if (m_rootTimes > 0) // blizzard internal check?
-            m_rootTimes++;
-
         // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
         // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
         // setting MOVEMENTFLAG_ROOT
         RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
+    }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data << GetPackGUID();
-            data << m_rootTimes;
-            SendMessageToSet(&data, true);
-        }
-        else
-        {
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-            data << GetPackGUID();
-            SendMessageToSet(&data, true);
-        }
+    static OpcodeServer const rootOpcodeTable[2][3] =
+    {
+        { SMSG_SPLINE_MOVE_UNROOT, SMSG_FORCE_MOVE_UNROOT, MSG_MOVE_UNROOT },
+        { SMSG_SPLINE_MOVE_ROOT, SMSG_FORCE_MOVE_ROOT, MSG_MOVE_ROOT }
+    };
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPacket data(rootOpcodeTable[apply][1], 10);
+        data << GetPackGUID();
+        data << GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(&data);
+
+        data.Initialize(rootOpcodeTable[apply][2], 64);
+        data << GetPackGUID();
+        BuildMovementPacket(&data);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
-        if (!HasUnitState(UNIT_STATE_STUNNED))      // prevent moving if it also has stun effect
-        {
-            if (GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data << GetPackGUID();
-                data << ++m_rootTimes;
-                SendMessageToSet(&data, true);
-            }
-            else
-            {
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-                data << GetPackGUID();
-                SendMessageToSet(&data, true);
-            }
-
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        }
+        WorldPacket data(rootOpcodeTable[apply][0], 9);
+        data << GetPackGUID();
+        SendMessageToSet(&data, true);
     }
 }
 
@@ -11561,7 +11459,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     }
 
     // Already charmed
-    if (GetCharmerGUID())
+    if (!GetCharmerGUID().IsEmpty())
     {
         TC_LOG_FATAL("entities.unit", "Unit::SetCharmedBy: {} has already been charmed but {} is trying to charm it!", GetGUID().ToString(), charmer->GetGUID().ToString());
         return false;
@@ -11617,6 +11515,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     // Set charmed
     charmer->SetCharm(this, true);
+    m_combatManager.RevalidateCombat();
 
     if (Player* player = ToPlayer())
     {
@@ -11734,6 +11633,14 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     }
     else
         RestoreFaction();
+
+    if (type != CHARM_TYPE_CHARM && !IsPlayer())
+    {
+        StopMoving(true);
+
+        // Purge flags left over by client control
+        m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_MASK_MOVING | MOVEMENTFLAG_MASK_TURNING);
+    }
 
     ///@todo Handle SLOT_IDLE motion resume
     GetMotionMaster()->InitializeDefault();
@@ -12198,7 +12105,7 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
                 (*itr)->SetPhaseMask(newPhaseMask, true);
 
         for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-            if (m_SummonSlot[i])
+            if (!m_SummonSlot[i].IsEmpty())
                 if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                     summon->SetPhaseMask(newPhaseMask, true);
 
@@ -12864,14 +12771,15 @@ bool Unit::CanSwim() const
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
-    DisableSpline();
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = ToPlayer())
     {
         WorldLocation target(GetMapId(), pos);
-        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+        player->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | (casting ? TELE_TO_SPELL : 0));
     }
     else
     {
+        DisableSpline();
+        GetMotionMaster()->InterruptOnTeleport();
         SendTeleportPacket(pos);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
@@ -12885,7 +12793,6 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 
     MovementInfo teleportMovementInfo = m_movementInfo;
     teleportMovementInfo.pos.Relocate(pos);
-    Position transportPos = m_movementInfo.transport.pos;
     if (TransportBase* transportBase = GetDirectTransport())
     {
         // if its the transport that is teleported then we have old transport position here and cannot use it to calculate offsets
@@ -12895,30 +12802,34 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
             float x, y, z, o;
             pos.GetPosition(x, y, z, o);
             transportBase->CalculatePassengerOffset(x, y, z, &o);
-            transportPos.Relocate(x, y, z, o);
+            teleportMovementInfo.transport.pos.Relocate(x, y, z, o);
         }
     }
 
-    WorldPacket moveUpdateTeleport(MSG_MOVE_TELEPORT, 38);
-    moveUpdateTeleport << GetPackGUID();
-    Unit* broadcastSource = this;
+    WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
+    moveUpdateTeleport.Status = &teleportMovementInfo;
 
     if (IsMovedByClient())
     {
         Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
-        WorldPacket moveTeleport(MSG_MOVE_TELEPORT_ACK, 41);
-        moveTeleport << GetPackGUID();
-        moveTeleport << uint32(0);                                     // this value increments every time
-        Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveTeleport);
-        playerMover->SendDirectMessage(&moveTeleport);
 
-        broadcastSource = playerMover;
+        WorldPackets::Movement::MoveTeleport moveTeleport;
+        moveTeleport.Status = &teleportMovementInfo;
+        moveTeleport.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(moveTeleport.Write());
+
+        // Broadcast the packet to everyone except self.
+        SendMessageToSet(moveUpdateTeleport.Write(), playerMover);
     }
+    else
+    {
+        // This is the only packet sent for creatures which contains MovementInfo structure
+        // we do not update m_movementInfo for creatures so it needs to be done manually here
+        moveUpdateTeleport.Status->guid = GetGUID();
+        moveUpdateTeleport.Status->time = GameTime::GetGameTimeMS();
 
-    Unit::BuildMovementPacket(pos, transportPos, teleportMovementInfo, &moveUpdateTeleport);
-
-    // Broadcast the packet to everyone except self.
-    broadcastSource->SendMessageToSet(&moveUpdateTeleport, false);
+        SendMessageToSet(moveUpdateTeleport.Write(), true);
+    }
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
@@ -13281,35 +13192,22 @@ void Unit::SetInFront(WorldObject const* target)
         SetOrientation(GetAbsoluteAngle(target));
 }
 
-void Unit::SetFacingTo(float ori, bool force)
+void Unit::SetFacingTo(float ori, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && GetTransGUID())
-        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
-    init.SetFacing(ori);
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(ori, movementId);
 }
 
-void Unit::SetFacingToObject(WorldObject const* object, bool force)
+void Unit::SetFacingToObject(WorldObject const* object, bool force /*= true*/, uint32 movementId /*= EVENT_FACE*/)
 {
     // do not face when already moving
     if (!force && (!IsStopped() || !movespline->Finalized()))
         return;
 
-    /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(object, movementId);
 }
 
 bool Unit::SetWalk(bool enable)
@@ -13321,10 +13219,16 @@ bool Unit::SetWalk(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+
+    static OpcodeServer const walkModeTable[2] = { SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE };
+
+    WorldPackets::Movement::MoveSplineSetFlag packet(walkModeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*updateAnimTier = true*/)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -13336,6 +13240,58 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*u
     }
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+
+    static OpcodeServer const gravityOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_GRAVITY_ENABLE,  SMSG_MOVE_GRAVITY_ENABLE  },
+        { SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE }
+    };
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_GRAVITY_CHNG);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
+    }
+
+    return true;
+}
+
+bool Unit::SetFall(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+        return false;
+
+    if (enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        m_movementInfo.SetFallTime(0);
+    }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
 
     return true;
 }
@@ -13349,25 +13305,65 @@ bool Unit::SetSwim(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
+    static OpcodeServer const swimOpcodeTable[2] = { SMSG_SPLINE_MOVE_STOP_SWIM, SMSG_SPLINE_MOVE_START_SWIM };
+
+    WorldPackets::Movement::MoveSplineSetFlag packet(swimOpcodeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
+
     return true;
 }
 
-bool Unit::SetCanFly(bool enable, bool /*packetOnly = false */)
+bool Unit::SetCanFly(bool enable, bool packetOnly /*= false */)
 {
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-        return false;
-
-    if (enable)
+    if (!packetOnly)
     {
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+            return false;
+
+        if (enable)
+        {
+            AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        }
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+    }
+
+    static OpcodeServer const flyOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY },
+        { SMSG_SPLINE_MOVE_SET_FLYING,   SMSG_MOVE_SET_CAN_FLY   }
+    };
+
+    if (!enable && GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SetFallInformation(0, GetPositionZ());
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_UPDATE_CAN_FLY);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(flyOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
     return true;
 }
 
-bool Unit::SetWaterWalking(bool enable, bool /*packetOnly = false */)
+bool Unit::SetWaterWalking(bool enable)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
         return false;
@@ -13376,10 +13372,37 @@ bool Unit::SetWaterWalking(bool enable, bool /*packetOnly = false */)
         AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+
+    static OpcodeServer const waterWalkingOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_LAND_WALK,  SMSG_MOVE_LAND_WALK  },
+        { SMSG_SPLINE_MOVE_WATER_WALK, SMSG_MOVE_WATER_WALK }
+    };
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_WATER_WALK);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(waterWalkingOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
     return true;
 }
 
-bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
+bool Unit::SetFeatherFall(bool enable)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
         return false;
@@ -13388,10 +13411,37 @@ bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
         AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+
+    static OpcodeServer const featherFallOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_NORMAL_FALL,  SMSG_MOVE_NORMAL_FALL  },
+        { SMSG_SPLINE_MOVE_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL }
+    };
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_FEATHER_FALL);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(featherFallOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
     return true;
 }
 
-bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool /*updateAnimTier = true*/)
+bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -13403,7 +13453,7 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool /*updateAnimT
         //! No need to check height on ascent
         AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
         if (hoverHeight && GetPositionZ() - GetFloorZ() < hoverHeight)
-            UpdateHeight(GetPositionZ() + hoverHeight);
+            UpdateHeight(std::max(GetFloorZ() + hoverHeight, GetPositionZ()));
     }
     else
     {
@@ -13416,6 +13466,43 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool /*updateAnimT
             UpdateHeight(newZ);
         }
     }
+
+    static OpcodeServer const hoverOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER },
+        { SMSG_SPLINE_MOVE_SET_HOVER,   SMSG_MOVE_SET_HOVER   }
+    };
+
+    if (IsMovedByClient())
+    {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
+        WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = GetMovementCounterAndInc();
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate(MSG_MOVE_HOVER);
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
+    }
+
     return true;
 }
 
@@ -13705,9 +13792,9 @@ void Unit::Whisper(std::string_view text, Language language, Player* target, boo
         return;
 
     LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, language, this, target, text, 0, "", locale);
-    target->SendDirectMessage(&data);
+    WorldPackets::Chat::Chat packet;
+    packet.Initialize(isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, language, this, target, text, 0, "", locale);
+    target->SendDirectMessage(packet.Write());
 }
 
 uint32 Unit::GetVirtualItemId(uint32 slot) const
@@ -13760,7 +13847,7 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     if (!target)
         return;
 
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(textId);
+    BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(textId);
     if (!bct)
     {
         TC_LOG_ERROR("entities.unit", "WorldObject::MonsterWhisper: `broadcast_text` was not {} found", textId);
@@ -13768,9 +13855,9 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     }
 
     LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, GetGender()), 0, "", locale);
-    target->SendDirectMessage(&data);
+    WorldPackets::Chat::Chat packet;
+    packet.Initialize(isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, GetGender()), 0, "", locale);
+    target->SendDirectMessage(packet.Write());
 }
 
 // Returns collisionheight of the unit. If it is 0, it returns DEFAULT_COLLISION_HEIGHT.

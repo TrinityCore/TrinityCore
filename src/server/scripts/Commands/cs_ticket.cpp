@@ -159,7 +159,7 @@ public:
             return true;
         }
 
-        sTicketMgr->ResolveAndCloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(uint64(0)));
+        sTicketMgr->ResolveAndCloseTicket(ticket->GetId(), Object::GetGUID(player));
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", nullptr, nullptr, nullptr, nullptr);
@@ -262,7 +262,7 @@ public:
         Player* gm = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
 
         CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
-        ticket->SetResolvedBy(gm ? gm->GetGUID() : ObjectGuid(uint64(0)));
+        ticket->SetResolvedBy(Object::GetGUID(gm));
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
 

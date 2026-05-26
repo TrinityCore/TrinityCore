@@ -1,10 +1,14 @@
 #ifndef JEMALLOC_INTERNAL_INLINES_A_H
 #define JEMALLOC_INTERNAL_INLINES_A_H
 
+#include "jemalloc/internal/jemalloc_preamble.h"
+#include "jemalloc/internal/arena_externs.h"
+#include "jemalloc/internal/arena_types.h"
 #include "jemalloc/internal/atomic.h"
 #include "jemalloc/internal/bit_util.h"
 #include "jemalloc/internal/jemalloc_internal_types.h"
 #include "jemalloc/internal/sc.h"
+#include "jemalloc/internal/tcache_externs.h"
 #include "jemalloc/internal/ticker.h"
 
 JEMALLOC_ALWAYS_INLINE malloc_cpuid_t
@@ -14,6 +18,15 @@ malloc_getcpu(void) {
 	return GetCurrentProcessorNumber();
 #elif defined(JEMALLOC_HAVE_SCHED_GETCPU)
 	return (malloc_cpuid_t)sched_getcpu();
+#elif defined(JEMALLOC_HAVE_RDTSCP)
+	unsigned int ecx;
+	asm volatile("rdtscp" : "=c"(ecx)::"eax", "edx");
+	return (malloc_cpuid_t)(ecx & 0xfff);
+#elif defined(__aarch64__) && defined(__APPLE__)
+	/* Other oses most likely use tpidr_el0 instead */
+	uintptr_t c;
+	asm volatile("mrs %x0, tpidrro_el0" : "=r"(c)::"memory");
+	return (malloc_cpuid_t)(c & (1 << 3) - 1);
 #else
 	not_reached();
 	return -1;
@@ -29,8 +42,8 @@ percpu_arena_choose(void) {
 	assert(cpuid >= 0);
 
 	unsigned arena_ind;
-	if ((opt_percpu_arena == percpu_arena) || ((unsigned)cpuid < ncpus /
-	    2)) {
+	if ((opt_percpu_arena == percpu_arena)
+	    || ((unsigned)cpuid < ncpus / 2)) {
 		arena_ind = cpuid;
 	} else {
 		assert(opt_percpu_arena == per_phycpu_arena);
@@ -56,31 +69,6 @@ percpu_arena_ind_limit(percpu_arena_mode_t mode) {
 	}
 }
 
-static inline arena_tdata_t *
-arena_tdata_get(tsd_t *tsd, unsigned ind, bool refresh_if_missing) {
-	arena_tdata_t *tdata;
-	arena_tdata_t *arenas_tdata = tsd_arenas_tdata_get(tsd);
-
-	if (unlikely(arenas_tdata == NULL)) {
-		/* arenas_tdata hasn't been initialized yet. */
-		return arena_tdata_get_hard(tsd, ind);
-	}
-	if (unlikely(ind >= tsd_narenas_tdata_get(tsd))) {
-		/*
-		 * ind is invalid, cache is old (too small), or tdata to be
-		 * initialized.
-		 */
-		return (refresh_if_missing ? arena_tdata_get_hard(tsd, ind) :
-		    NULL);
-	}
-
-	tdata = &arenas_tdata[ind];
-	if (likely(tdata != NULL) || !refresh_if_missing) {
-		return tdata;
-	}
-	return arena_tdata_get_hard(tsd, ind);
-}
-
 static inline arena_t *
 arena_get(tsdn_t *tsdn, unsigned ind, bool init_if_missing) {
 	arena_t *ret;
@@ -90,34 +78,10 @@ arena_get(tsdn_t *tsdn, unsigned ind, bool init_if_missing) {
 	ret = (arena_t *)atomic_load_p(&arenas[ind], ATOMIC_ACQUIRE);
 	if (unlikely(ret == NULL)) {
 		if (init_if_missing) {
-			ret = arena_init(tsdn, ind,
-			    (extent_hooks_t *)&extent_hooks_default);
+			ret = arena_init(tsdn, ind, &arena_config_default);
 		}
 	}
 	return ret;
-}
-
-static inline ticker_t *
-decay_ticker_get(tsd_t *tsd, unsigned ind) {
-	arena_tdata_t *tdata;
-
-	tdata = arena_tdata_get(tsd, ind, true);
-	if (unlikely(tdata == NULL)) {
-		return NULL;
-	}
-	return &tdata->decay_ticker;
-}
-
-JEMALLOC_ALWAYS_INLINE cache_bin_t *
-tcache_small_bin_get(tcache_t *tcache, szind_t binind) {
-	assert(binind < SC_NBINS);
-	return &tcache->bins_small[binind];
-}
-
-JEMALLOC_ALWAYS_INLINE cache_bin_t *
-tcache_large_bin_get(tcache_t *tcache, szind_t binind) {
-	assert(binind >= SC_NBINS &&binind < nhbins);
-	return &tcache->bins_large[binind - SC_NBINS];
 }
 
 JEMALLOC_ALWAYS_INLINE bool
@@ -129,9 +93,9 @@ tcache_available(tsd_t *tsd) {
 	 */
 	if (likely(tsd_tcache_enabled_get(tsd))) {
 		/* Associated arena == NULL implies tcache init in progress. */
-		assert(tsd_tcachep_get(tsd)->arena == NULL ||
-		    tcache_small_bin_get(tsd_tcachep_get(tsd), 0)->avail !=
-		    NULL);
+		if (config_debug && tsd_tcache_slowp_get(tsd)->arena != NULL) {
+			tcache_assert_initialized(tsd_tcachep_get(tsd));
+		}
 		return true;
 	}
 
@@ -147,28 +111,25 @@ tcache_get(tsd_t *tsd) {
 	return tsd_tcachep_get(tsd);
 }
 
+JEMALLOC_ALWAYS_INLINE tcache_slow_t *
+tcache_slow_get(tsd_t *tsd) {
+	if (!tcache_available(tsd)) {
+		return NULL;
+	}
+
+	return tsd_tcache_slowp_get(tsd);
+}
+
 static inline void
 pre_reentrancy(tsd_t *tsd, arena_t *arena) {
 	/* arena is the current context.  Reentry from a0 is not allowed. */
 	assert(arena != arena_get(tsd_tsdn(tsd), 0, false));
-
-	bool fast = tsd_fast(tsd);
-	assert(tsd_reentrancy_level_get(tsd) < INT8_MAX);
-	++*tsd_reentrancy_levelp_get(tsd);
-	if (fast) {
-		/* Prepare slow path for reentrancy. */
-		tsd_slow_update(tsd);
-		assert(tsd_state_get(tsd) == tsd_state_nominal_slow);
-	}
+	tsd_pre_reentrancy_raw(tsd);
 }
 
 static inline void
 post_reentrancy(tsd_t *tsd) {
-	int8_t *reentrancy_level = tsd_reentrancy_levelp_get(tsd);
-	assert(*reentrancy_level > 0);
-	if (--*reentrancy_level == 0) {
-		tsd_slow_update(tsd);
-	}
+	tsd_post_reentrancy_raw(tsd);
 }
 
 #endif /* JEMALLOC_INTERNAL_INLINES_A_H */

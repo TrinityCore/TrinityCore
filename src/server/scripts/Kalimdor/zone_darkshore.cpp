@@ -196,6 +196,8 @@ enum Remtravel
     NPC_GRAVEL_GEO              = 2160
 };
 
+static constexpr uint32 PATH_ESCORT_PROSPECTOR_REMTRAVEL = 23338;
+
 class npc_prospector_remtravel : public CreatureScript
 {
 public:
@@ -284,7 +286,8 @@ public:
         {
             if (quest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
             {
-                Start(false, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_PROSPECTOR_REMTRAVEL);
+                Start(false, player->GetGUID());
                 me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             }
         }

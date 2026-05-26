@@ -54,7 +54,8 @@ enum Floppy
     TEXT_EMOTE_WP1              = 9, // Mr. Floppy revives
     TEXT_EMOTE_AGGRO            = 10, // The Ravenous Worg chomps down on Mr. Floppy
     SAY_QUEST_ACCEPT            = 11, // Are you ready, Mr. Floppy? Stay close to me and watch out for those wolves!
-    SAY_QUEST_COMPLETE          = 12  // Thank you for helping me get back to the camp. Go tell Walter that I'm safe now!
+    SAY_QUEST_COMPLETE          = 12, // Thank you for helping me get back to the camp. Go tell Walter that I'm safe now!
+    PATH_ESCORT_EMILY           = 212706
 };
 
 // emily
@@ -187,7 +188,8 @@ struct npc_emily : public EscortAI
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 180.0f))
                 Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-            Start(true, false, player->GetGUID());
+            LoadPath(PATH_ESCORT_EMILY);
+            Start(true, player->GetGUID());
         }
     }
 
@@ -992,6 +994,194 @@ public:
     explicit spell_grizzly_hills_script_cast_summon_image_of_drakuru(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
+/*######
+## Quest 12308: Escape from Silverbrook
+######*/
+
+enum EscapeFromSilverbrook
+{
+    SPELL_SUMMON_WORGEN = 48681
+};
+
+// 48682 - Escape from Silverbrook - Periodic Dummy
+class spell_grizzly_hills_escape_from_silverbrook : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_escape_from_silverbrook);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_WORGEN });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WORGEN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_grizzly_hills_escape_from_silverbrook::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 48681 - Summon Silverbrook Worgen
+class spell_grizzly_hills_escape_from_silverbrook_summon_worgen : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
+
+    void ModDest(SpellDestination& dest)
+    {
+        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
+        float angle = frand(0.75f, 1.25f) * float(M_PI);
+
+        Position pos = GetCaster()->GetNearPosition(dist, angle);
+        dest.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_grizzly_hills_escape_from_silverbrook_summon_worgen::ModDest, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
+    }
+};
+
+/*######
+## Quest 12414: Mounting Up
+######*/
+
+// 49285 - Hand Over Reins
+class spell_grizzly_hills_hand_over_reins : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_hand_over_reins);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        GetHitUnit()->ExitVehicle();
+
+        if (caster)
+            caster->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_hand_over_reins::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12121: See You on the Other Side
+######*/
+
+enum SeeYouOnTheOtherSide
+{
+    SPELL_SUMMON_YOUR_CORPSE    = 61612,
+    SPELL_ON_THE_OTHER_SIDE     = 61611
+};
+
+// 47744 - Rage of Jin'arrak
+class spell_grizzly_hills_rage_of_jinarrak : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_rage_of_jinarrak);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_YOUR_CORPSE, SPELL_ON_THE_OTHER_SIDE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SUMMON_YOUR_CORPSE, true);
+        target->CastSpell(target, SPELL_ON_THE_OTHER_SIDE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_grizzly_hills_rage_of_jinarrak::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 61613 - Gan'jo Ressurection
+class spell_grizzly_hills_ganjo_ressurection : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_ganjo_ressurection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ON_THE_OTHER_SIDE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ON_THE_OTHER_SIDE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_ganjo_ressurection::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+/*######
+## Creature 26853 (Makki Wintergale) (if quest 'Shifting Priorities' (12763) is completed)
+######*/
+
+enum MakkiWintergale
+{
+    SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH     = 53289
+};
+
+// 53288 - Flight - Onequah to Light's Breach
+class spell_grizzly_hills_flight_onequah_to_lights_breach : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_flight_onequah_to_lights_breach);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_grizzly_hills_flight_onequah_to_lights_breach::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Creature 26876 (Samuel Clearbook) (if quest 'Reallocating Resources' (12770) is completed)
+######*/
+
+enum SamuelClearbook
+{
+    SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH     = 53310
+};
+
+// 53311 - Flight - Westfall to Light's Breach
+class spell_grizzly_hills_flight_westfall_to_lights_breach : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_flight_westfall_to_lights_breach);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_grizzly_hills_flight_westfall_to_lights_breach::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1014,4 +1204,11 @@ void AddSC_grizzly_hills()
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_03", SPELL_ENVISION_DRAKURU_03);
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_04", SPELL_ENVISION_DRAKURU_04);
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_05", SPELL_ENVISION_DRAKURU_05);
+    RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook);
+    RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
+    RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
+    RegisterSpellScript(spell_grizzly_hills_rage_of_jinarrak);
+    RegisterSpellScript(spell_grizzly_hills_ganjo_ressurection);
+    RegisterSpellScript(spell_grizzly_hills_flight_onequah_to_lights_breach);
+    RegisterSpellScript(spell_grizzly_hills_flight_westfall_to_lights_breach);
 }

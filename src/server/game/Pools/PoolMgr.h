@@ -72,13 +72,13 @@ class TC_GAME_API PoolGroup
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid=0, bool alwaysDeleteRespawnTime = false);
+        void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false);
+        void DespawnAllObjects(ActivePoolData& spawns, bool alwaysDeleteRespawnTime = false);
         void Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
         void RemoveRespawnTimeFromDB(ObjectGuid::LowType guid);
 
         void Spawn1Object(PoolObject* obj);
-        void ReSpawn1Object(PoolObject* obj);
         void RemoveOneRelation(uint32 child_pool_id);
         uint32 GetFirstEqualChancedObjectId()
         {

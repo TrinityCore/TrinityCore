@@ -89,18 +89,39 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
     }
 
     // Don't allow loot for players without profession or those who already know the recipe
-    if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
-        return false;
+    if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE))
+    {
+        if (!player->HasSkill(pProto->GetRequiredSkill()))
+            return false;
+
+        for (ItemEffect const& itemEffect : pProto->Effects)
+        {
+            if (itemEffect.TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect.SpellID))
+                return false;
+        }
+    }
 
     // Don't allow to loot soulbound recipes that the player has already learned
-    if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP && pProto->Spells[1].SpellId != 0 && player->HasSpell(pProto->Spells[1].SpellId))
-        return false;
+    if (pProto->GetClass() == ITEM_CLASS_RECIPE && pProto->GetBonding() == BIND_WHEN_PICKED_UP)
+    {
+        for (ItemEffect const& itemEffect : pProto->Effects)
+        {
+            if (itemEffect.TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect.SpellID))
+                return false;
+        }
+    }
 
     if (needs_quest && !freeforall && player->GetGroup() && (player->GetGroup()->GetLootMethod() == GROUP_LOOT || player->GetGroup()->GetLootMethod() == ROUND_ROBIN) && !ownerGuid.IsEmpty() && ownerGuid != player->GetGUID())
         return false;
 
     // check quest requirements
-    if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+    if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
     return true;
@@ -232,7 +253,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         for (uint8 i = 0; i < items.size(); ++i)
         {
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].itemid))
-                if (proto->Quality < uint32(group->GetLootThreshold()))
+                if (proto->GetQuality() < uint32(group->GetLootThreshold()))
                     items[i].is_underthreshold = true;
         }
     }
@@ -597,7 +618,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
 {
     b << uint32(li.itemid);
     b << uint32(li.count);                                  // nr of items of this type
-    b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->DisplayInfoID);
+    b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->GetDisplayId());
     b << uint32(li.randomSuffix);
     b << uint32(li.randomPropertyId);
     //b << uint8(0);                                        // slot type - will send after this function call

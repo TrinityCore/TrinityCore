@@ -116,6 +116,7 @@ class TC_GAME_API ThreatManager
         // returns ThreatReference amount if a ref exists, 0.0f otherwise
         float GetThreat(Unit const* who, bool includeOffline = false) const;
         size_t GetThreatListSize() const;
+        uint32 GetThreatListPlayerCount(bool includeOffline = false) const;
         // fastest of the three threat list getters - gets the threat list in "arbitrary" order
         // iterators will invalidate on adding/removing entries from the threat list; slightly less finicky than GetSorted.
         Trinity::IteratorPair<ThreatListIterator, std::nullptr_t> GetUnsortedThreatList() const;

@@ -35,140 +35,6 @@
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 
- /*######
- ## Quest 11590: Abduction
- ######*/
-
-// NPC 25316: Beryl Sorcerer
-enum BerylSorcerer
-{
-    EVENT_FROSTBOLT                                = 1,
-    EVENT_ARCANE_CHAINS,
-
-    NPC_LIBRARIAN_DONATHAN                         = 25262,
-    NPC_CAPTURED_BERLY_SORCERER                    = 25474,
-
-    SPELL_FROSTBOLT                                = 9672,
-    SPELL_ARCANE_CHAINS                            = 45611,
-    SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST       = 45625,
-    SPELL_ARCANE_CHAINS_SUMMON_CHAINED_MAGE_HUNTER = 45626,
-    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF             = 45631,
-    SPELL_ARCANE_CHAINS_CHANNEL_II                 = 45735
-};
-
-struct npc_beryl_sorcerer : public ScriptedAI
-{
-    npc_beryl_sorcerer(Creature* creature) : ScriptedAI(creature), _chainsCast(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_AGGRESSIVE);
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        if (me->IsValidAttackTarget(who))
-            AttackStart(who);
-
-        _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
-    }
-
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-    {
-        if (_chainsCast)
-            return;
-
-        if (spellInfo->Id == SPELL_ARCANE_CHAINS && caster->IsPlayer())
-        {
-            _playerGUID = caster->GetGUID();
-            _chainsCast = true;
-            _events.ScheduleEvent(EVENT_ARCANE_CHAINS, 4s);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_FROSTBOLT:
-                    DoCastVictim(SPELL_FROSTBOLT);
-                    _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
-                    break;
-                case EVENT_ARCANE_CHAINS:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        me->CastSpell(player, SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST);
-                        player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
-                    }
-                    me->DespawnOrUnsummon();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        DoMeleeAttackIfReady();
-    }
-private:
-    EventMap _events;
-    bool _chainsCast;
-    ObjectGuid _playerGUID;
-};
-
-// NPC 25474: Captured Beryl Sorcerer
-struct npc_captured_beryl_sorcerer : public FollowerAI
-{
-    npc_captured_beryl_sorcerer(Creature* creature) : FollowerAI(creature) { }
-
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_DEFENSIVE);
-        me->SetImmuneToAll(true);
-        if (TempSummon const* tempSummon = me->ToTempSummon())
-        {
-            if (Player* summoner = Object::ToPlayer(tempSummon->GetSummoner()))
-            {
-                summoner->CastSpell(summoner, SPELL_ARCANE_CHAINS_CHANNEL_II);
-                StartFollow(summoner);
-            }
-        }
-    }
-
-    void MoveInLineOfSight(Unit* who) override
-    {
-        FollowerAI::MoveInLineOfSight(who);
-
-        if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-        {
-            SetFollowComplete();
-            me->DespawnOrUnsummon();
-        }
-    }
-};
-
-// Spell 45625: - Arcane Chains: Character Force Cast
-class spell_arcane_chains_character_force_cast : public SpellScript
-{
-    PrepareSpellScript(spell_arcane_chains_character_force_cast);
-
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
-    {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_ARCANE_CHAINS_SUMMON_CHAINED_MAGE_HUNTER); // Player cast back 45626 on npc
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_arcane_chains_character_force_cast::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 /*######
 ## Quest 11865: Unfit for Death
 ######*/
@@ -415,40 +281,6 @@ private:
     ObjectGuid _mammothGUID;
 };
 
-enum red_dragonblood
-{
-    SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
-    SPELL_SUBDUED = 46675
-};
-
-// 46620 - Red Dragonblood
-class spell_red_dragonblood : public AuraScript
-{
-    PrepareAuraScript(spell_red_dragonblood);
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
-            return;
-
-        Creature* owner = GetOwner()->ToCreature();
-        owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
-        owner->CombatStop(true);
-        owner->GetMotionMaster()->Clear();
-        owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
-        owner->CastSpell(owner, SPELL_SUBDUED, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-        owner->SetFaction(FACTION_FRIENDLY);
-        owner->SetImmuneToAll(true);
-        owner->DespawnOrUnsummon(3min);
-    }
-
-    void Register()
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 /*######
 ## Valiance Keep Cannoneer script to activate cannons
 ######*/
@@ -494,208 +326,6 @@ struct npc_valiance_keep_cannoneer : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-    }
-};
-
-/*######
-## npc_hidden_cultist
-######*/
-
-enum HiddenCultist
-{
-    SPELL_SHROUD_OF_THE_DEATH_CULTIST           = 46077, //not working
-    SPELL_RIGHTEOUS_VISION                      = 46078, //player aura
-
-    QUEST_THE_HUNT_IS_ON                        = 11794,
-
-    GOSSIP_TEXT_SALTY_JOHN_THORPE               = 12529,
-    GOSSIP_TEXT_GUARD_MITCHELSS                 = 12530,
-    GOSSIP_TEXT_TOM_HEGGER                      = 12528,
-
-    NPC_TOM_HEGGER                              = 25827,
-    NPC_SALTY_JOHN_THORPE                       = 25248,
-    NPC_GUARD_MITCHELLS                         = 25828,
-
-    SAY_HIDDEN_CULTIST_1                        = 0,
-    SAY_HIDDEN_CULTIST_2                        = 1,
-    SAY_HIDDEN_CULTIST_3                        = 2,
-    SAY_HIDDEN_CULTIST_4                        = 3,
-
-    GOSSIP_ITEM_TOM_HEGGER_MENUID               = 9217, //What do you know about the Cult of the Damned?
-    GOSSIP_ITEM_GUARD_MITCHELLS_MENUID          = 9219, //How long have you worked for the Cult of the Damned?
-    GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID        = 9218, //I have a reason to believe you're involved in the cultist activity
-    GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID         = 0
-};
-
-struct npc_hidden_cultist : public ScriptedAI
-{
-    npc_hidden_cultist(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-        uiEmoteState = creature->GetEmoteState();
-        uiNpcFlags = creature->GetNpcFlags();
-    }
-
-    void Initialize()
-    {
-        uiEventTimer = 0;
-        uiEventPhase = 0;
-
-        uiPlayerGUID.Clear();
-    }
-
-    Emote uiEmoteState;
-    NPCFlags uiNpcFlags;
-
-    uint32 uiEventTimer;
-    uint8 uiEventPhase;
-
-    ObjectGuid uiPlayerGUID;
-
-    void Reset() override
-    {
-        if (uiEmoteState)
-            me->SetEmoteState(uiEmoteState);
-
-        if (uiNpcFlags)
-            me->ReplaceAllNpcFlags(uiNpcFlags);
-
-        Initialize();
-
-        DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
-
-        me->RestoreFaction();
-    }
-
-    void DoAction(int32 /*iParam*/) override
-    {
-        me->StopMoving();
-        me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
-        me->SetEmoteState(EMOTE_ONESHOT_NONE);
-        if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-            me->SetFacingToObject(player);
-        uiEventTimer = 3000;
-        uiEventPhase = 1;
-    }
-
-    void AttackPlayer()
-    {
-        me->SetFaction(FACTION_MONSTER);
-        if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-            AttackStart(player);
-    }
-
-    void UpdateAI(uint32 uiDiff) override
-    {
-        if (uiEventTimer && uiEventTimer <= uiDiff)
-        {
-            switch (uiEventPhase)
-            {
-                case 1:
-                    switch (me->GetEntry())
-                    {
-                        case NPC_SALTY_JOHN_THORPE:
-                            Talk(SAY_HIDDEN_CULTIST_1);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                        case NPC_GUARD_MITCHELLS:
-                            Talk(SAY_HIDDEN_CULTIST_2);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                        case NPC_TOM_HEGGER:
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-                                Talk(SAY_HIDDEN_CULTIST_3, player);
-                            uiEventTimer = 5000;
-                            uiEventPhase = 2;
-                            break;
-                    }
-                    break;
-                case 2:
-                    switch (me->GetEntry())
-                    {
-                        case NPC_SALTY_JOHN_THORPE:
-                            Talk(SAY_HIDDEN_CULTIST_4);
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
-                                me->SetFacingToObject(player);
-                            uiEventTimer = 3000;
-                            uiEventPhase = 3;
-                            break;
-                        case NPC_GUARD_MITCHELLS:
-                        case NPC_TOM_HEGGER:
-                            AttackPlayer();
-                            uiEventPhase = 0;
-                            break;
-                    }
-                    break;
-                case 3:
-                    if (me->GetEntry() == NPC_SALTY_JOHN_THORPE)
-                    {
-                        AttackPlayer();
-                        uiEventPhase = 0;
-                    }
-                    break;
-            }
-        }else uiEventTimer -= uiDiff;
-
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-
-    bool OnGossipHello(Player* player) override
-    {
-        uint32 uiGossipText = 0;
-        uint32 charGossipItem = 0;
-
-        switch (me->GetEntry())
-        {
-            case NPC_TOM_HEGGER:
-                uiGossipText = GOSSIP_TEXT_TOM_HEGGER;
-                charGossipItem = GOSSIP_ITEM_TOM_HEGGER_MENUID;
-                break;
-            case NPC_SALTY_JOHN_THORPE:
-                uiGossipText = GOSSIP_TEXT_SALTY_JOHN_THORPE;
-                charGossipItem = GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID;
-                break;
-            case NPC_GUARD_MITCHELLS:
-                uiGossipText = GOSSIP_TEXT_GUARD_MITCHELSS;
-                charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS_MENUID;
-                break;
-            default:
-                return false;
-        }
-
-        InitGossipMenuFor(player, charGossipItem);
-        if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, charGossipItem, GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        if (me->IsVendor())
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, uiGossipText, me->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-    {
-        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-        ClearGossipMenuFor(player);
-
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            CloseGossipMenuFor(player);
-            uiPlayerGUID = player->GetGUID();
-            DoAction(1);
-        }
-
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(me->GetGUID());
-
-        return true;
     }
 };
 
@@ -768,11 +398,11 @@ enum Thassarian
     SAY_LERYSSA_3               = 2,
     SAY_LERYSSA_4               = 3,
 
-    PATH_THASSARIAN             = 1013030,
-    PATH_ARTHAS                 = 1013031,
-    PATH_TALBOT                 = 1013032,
-    PATH_ARLOS                  = 1013033,
-    PATH_LERYSSA                = 1013034
+    PATH_THASSARIAN             = 8104240,
+    PATH_ARTHAS                 = 8104248,
+    PATH_TALBOT                 = 8104256,
+    PATH_ARLOS                  = 8104264,
+    PATH_LERYSSA                = 8104272
 };
 
 struct npc_thassarian : public ScriptedAI
@@ -1244,29 +874,6 @@ private:
     EventMap _events;
 };
 
-enum WindsoulTotemAura
-{
-    SPELL_WINDSOUL_CREDT = 46378
-};
-
-// 46374 - Windsoul Totem Aura
-class spell_windsoul_totem_aura : public AuraScript
-{
-    PrepareAuraScript(spell_windsoul_totem_aura);
-
-    void OnRemove(AuraEffect const*, AuraEffectHandleModes)
-    {
-        if (GetTarget()->isDead())
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(nullptr, SPELL_WINDSOUL_CREDT);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 enum BloodsporeRuination
 {
     NPC_BLOODMAGE_LAURITH   = 25381,
@@ -1348,43 +955,108 @@ private:
     ObjectGuid _playerGUID;
 };
 
-enum ShorteningBlaster
-{
-    SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
-    SPELL_SHORTENING_BLASTER_SHRUNK1    = 45675,
-    SPELL_SHORTENING_BLASTER_YELLOW1    = 45678,
-    SPELL_SHORTENING_BLASTER_GHOST1     = 45682,
-    SPELL_SHORTENING_BLASTER_POLYMORPH1 = 45684,
+/*######
+## Quest 11653: Hah... You're Not So Big Now!
+######*/
 
-    SPELL_SHORTENING_BLASTER_BIGGER2    = 45673,
-    SPELL_SHORTENING_BLASTER_SHRUNK2    = 45672,
-    SPELL_SHORTENING_BLASTER_YELLOW2    = 45677,
-    SPELL_SHORTENING_BLASTER_GHOST2     = 45682,
-    SPELL_SHORTENING_BLASTER_POLYMORPH2 = 45683
+enum HahYoureNotSoBigNow
+{
+    SPELL_BIGGER_1                 = 45674,
+    SPELL_SHRUNK_1                 = 45675,
+    SPELL_YELLOW_1                 = 45678,
+    SPELL_GHOST_1                  = 45682,
+    SPELL_POLYMORPH_1              = 45684,
+
+    SPELL_BIGGER_2                 = 45673,
+    SPELL_SHRUNK_2                 = 45672,
+    SPELL_YELLOW_2                 = 45677,
+    SPELL_GHOST_2                  = 45681,
+    SPELL_POLYMORPH_2              = 45683,
+
+    SPELL_MAGNATAUR_KILL_CREDIT    = 45686,
+    SPELL_MAGNATAUR_ON_DEATH_2     = 45685
 };
 
-// 45668 - Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
-class spell_q11653_shortening_blaster : public SpellScript
-{
-    PrepareSpellScript(spell_q11653_shortening_blaster);
+static constexpr std::array<uint32, 5> BlasterCasterSpells = { SPELL_BIGGER_1, SPELL_SHRUNK_1, SPELL_YELLOW_1, SPELL_GHOST_1, SPELL_POLYMORPH_1 };
+static constexpr std::array<uint32, 5> BlasterTargetSpells = { SPELL_BIGGER_2, SPELL_SHRUNK_2, SPELL_YELLOW_2, SPELL_GHOST_2, SPELL_POLYMORPH_2 };
 
-    void HandleScript(SpellEffIndex /* effIndex */)
+// 45668 - Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
+class spell_borean_tundra_shortening_blaster : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_shortening_blaster);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(BlasterCasterSpells) && ValidateSpellInfo(BlasterTargetSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        uint32 spellId = RAND(SPELL_SHORTENING_BLASTER_BIGGER1, SPELL_SHORTENING_BLASTER_SHRUNK1, SPELL_SHORTENING_BLASTER_YELLOW1,
-            SPELL_SHORTENING_BLASTER_GHOST1, SPELL_SHORTENING_BLASTER_POLYMORPH1);
-        uint32 spellId2 = RAND(SPELL_SHORTENING_BLASTER_BIGGER2, SPELL_SHORTENING_BLASTER_SHRUNK2, SPELL_SHORTENING_BLASTER_YELLOW2,
-            SPELL_SHORTENING_BLASTER_GHOST2, SPELL_SHORTENING_BLASTER_POLYMORPH2);
-
-        caster->CastSpell(caster, spellId, true);
-        target->CastSpell(target, spellId2, true);
+        caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(BlasterCasterSpells));
+        target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(BlasterTargetSpells));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q11653_shortening_blaster::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_shortening_blaster::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45691 - Hah... : Magnataur On Death 1
+class spell_borean_tundra_magnataur_on_death_1 : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_magnataur_on_death_1);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(BlasterTargetSpells) && ValidateSpellInfo({ SPELL_MAGNATAUR_KILL_CREDIT, SPELL_MAGNATAUR_ON_DEATH_2 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        Player* player = caster->GetLootRecipient();
+        if (!player)
+            return;
+
+        if (std::ranges::none_of(BlasterTargetSpells, [caster](uint32 spell) { return caster->HasAura(spell); }))
+            return;
+
+        player->CastSpell(player, SPELL_MAGNATAUR_KILL_CREDIT);
+        caster->CastSpell(caster, SPELL_MAGNATAUR_ON_DEATH_2);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_magnataur_on_death_1::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45685 - Hah... : Magnataur On Death 2
+class spell_borean_tundra_magnataur_on_death_2 : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_magnataur_on_death_2);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(BlasterTargetSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        for (uint32 spell : BlasterTargetSpells)
+            GetCaster()->RemoveAurasDueToSpell(spell);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_magnataur_on_death_2::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1735,7 +1407,50 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 
 enum WeaknessToLightning
 {
-    SPELL_POWER_OF_THE_STORM    = 46424
+    SPELL_POWER_OF_THE_STORM_ITEM      = 46432,
+    SPELL_POWER_OF_THE_STORM           = 46424
+};
+
+// 46444 - Weakness to Lightning: Cast on Master Script Effect
+class spell_borean_tundra_weakness_to_lightning_cast_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 46446 - Weakness to Lightning: Cancel Power of the Storm Aura
+class spell_borean_tundra_weakness_to_lightning_cancel_aura : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM_ITEM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM_ITEM);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cancel_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 46550 - Weakness to Lightning: On Quest Complete
@@ -1790,24 +1505,384 @@ class spell_borean_tundra_signal_alliance : public SpellScript
     }
 };
 
+/*######
+## Quest 11730: Master and Servant
+######*/
+
+enum MasterAndServant
+{
+    SPELL_SUMMON_SCAVENGEBOT_004A8  = 46063,
+    SPELL_SUMMON_SENTRYBOT_57K      = 46068,
+    SPELL_SUMMON_DEFENDOTANK_66D    = 46058,
+    SPELL_SUMMON_SCAVENGEBOT_005B6  = 46066,
+    SPELL_SUMMON_55D_COLLECTATRON   = 46034,
+    SPELL_ROBOT_KILL_CREDIT         = 46027,
+    NPC_SCAVENGEBOT_004A8           = 25752,
+    NPC_SENTRYBOT_57K               = 25753,
+    NPC_DEFENDOTANK_66D             = 25758,
+    NPC_SCAVENGEBOT_005B6           = 25792,
+    NPC_55D_COLLECTATRON            = 25793
+};
+
+// 46023 - The Ultrasonic Screwdriver
+class spell_borean_tundra_ultrasonic_screwdriver : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+    }
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_SCAVENGEBOT_004A8,
+            SPELL_SUMMON_SENTRYBOT_57K,
+            SPELL_SUMMON_DEFENDOTANK_66D,
+            SPELL_SUMMON_SCAVENGEBOT_005B6,
+            SPELL_SUMMON_55D_COLLECTATRON,
+            SPELL_ROBOT_KILL_CREDIT
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Item* castItem = GetCastItem();
+        Unit* caster = GetCaster();
+        if (Creature* target = GetHitCreature())
+        {
+            uint32 spellId = 0;
+            switch (target->GetEntry())
+            {
+                case NPC_SCAVENGEBOT_004A8: spellId = SPELL_SUMMON_SCAVENGEBOT_004A8;    break;
+                case NPC_SENTRYBOT_57K:     spellId = SPELL_SUMMON_SENTRYBOT_57K;        break;
+                case NPC_DEFENDOTANK_66D:   spellId = SPELL_SUMMON_DEFENDOTANK_66D;      break;
+                case NPC_SCAVENGEBOT_005B6: spellId = SPELL_SUMMON_SCAVENGEBOT_005B6;    break;
+                case NPC_55D_COLLECTATRON:  spellId = SPELL_SUMMON_55D_COLLECTATRON;     break;
+                default:
+                    return;
+            }
+            caster->CastSpell(caster, spellId, castItem);
+            caster->CastSpell(caster, SPELL_ROBOT_KILL_CREDIT, true);
+            target->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_ultrasonic_screwdriver::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 11652: The Plains of Nasam
+######*/
+
+enum ThePlainsOfNasam
+{
+    SPELL_DROP_WARSONG_LAND_MINE_1     = 45751,
+    SPELL_DROP_WARSONG_LAND_MINE_2     = 45752,
+    SPELL_DROP_WARSONG_LAND_MINE_3     = 45753,
+    SPELL_DROP_WARSONG_LAND_MINE_4     = 45754,
+    SPELL_DROP_WARSONG_LAND_MINE_5     = 45755,
+    SPELL_DROP_WARSONG_LAND_MINE_6     = 45756,
+    SPELL_DROP_WARSONG_LAND_MINE_7     = 47839,
+    SPELL_DROP_WARSONG_LAND_MINE_8     = 45749
+};
+
+static constexpr std::array<uint32, 8> DropLandMineSpells =
+{
+    SPELL_DROP_WARSONG_LAND_MINE_1, SPELL_DROP_WARSONG_LAND_MINE_2, SPELL_DROP_WARSONG_LAND_MINE_3, SPELL_DROP_WARSONG_LAND_MINE_4,
+    SPELL_DROP_WARSONG_LAND_MINE_5, SPELL_DROP_WARSONG_LAND_MINE_6, SPELL_DROP_WARSONG_LAND_MINE_7, SPELL_DROP_WARSONG_LAND_MINE_8
+};
+
+// 45750 - Land Mine Barrier
+class spell_borean_tundra_land_mine_barrier : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_land_mine_barrier);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(DropLandMineSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        for (uint32 spells : DropLandMineSpells)
+            caster->CastSpell(caster, spells);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_land_mine_barrier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11681: Rescuing Evanor
+######*/
+
+enum RescuingEvanor
+{
+    SPELL_AMBER_LEDGE_TO_BERYL_POINT     = 45883
+};
+
+// 45992 - Taxi - Amber Ledge to Beryl Point Platform
+class spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_LEDGE_TO_BERYL_POINT });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_AMBER_LEDGE_TO_BERYL_POINT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 11969: Springing the Trap
+######*/
+
+enum SpringingTheTrap
+{
+    SPELL_COLDARRA_TO_TRANSITUS     = 46814
+};
+
+// 46813 - Taxi - Coldarra Ledge to Transitus Shield
+class spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_COLDARRA_TO_TRANSITUS });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_COLDARRA_TO_TRANSITUS);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 11712: Re-Cursive
+######*/
+
+enum ReCursive
+{
+    SPELL_SUMMON_FIZZCRANK_SURVIVOR     = 46022
+};
+
+// 45980 - Re-Cursive Transmatter Injection
+class spell_borean_tundra_re_cursive_transmatter_injection : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_FIZZCRANK_SURVIVOR });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_FIZZCRANK_SURVIVOR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_re_cursive_transmatter_injection::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 11919, 11940: Drake Hunt
+######*/
+
+enum DrakeHunt
+{
+    SPELL_RED_DRAGONBLOOD             = 46620,
+    SPELL_CAPTURE_TRIGGER             = 46673,
+    SPELL_DRAKE_TURN_IN               = 46696,
+    SPELL_DRAKE_HATCHLING_SUBDUED     = 46691,
+    SPELL_ROPE_BEAM                   = 46674
+};
+
+// 46607 - Drake Harpoon
+class spell_borean_tundra_drake_harpoon : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_harpoon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RED_DRAGONBLOOD });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_RED_DRAGONBLOOD, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_borean_tundra_drake_harpoon::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46620 - Red Dragonblood
+class spell_borean_tundra_red_dragonblood : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_red_dragonblood);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CAPTURE_TRIGGER });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_CAPTURE_TRIGGER, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_red_dragonblood::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46691 - Drake Hatchling Subdued
+class spell_borean_tundra_drake_hatchling_subdued : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_drake_hatchling_subdued);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_TURN_IN });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        switch (GetTargetApplication()->GetRemoveMode())
+        {
+            case AURA_REMOVE_BY_DEFAULT:
+                if (Unit* caster = GetCaster())
+                    GetTarget()->CastSpell(caster, SPELL_DRAKE_TURN_IN, true);
+                break;
+            case AURA_REMOVE_BY_EXPIRE:
+            case AURA_REMOVE_BY_DEATH:
+                if (Creature* creature = Object::ToCreature(GetCaster()))
+                    creature->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_drake_hatchling_subdued::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46693 - Strip Auras
+class spell_borean_tundra_strip_auras : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_strip_auras);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAKE_HATCHLING_SUBDUED, SPELL_ROPE_BEAM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_DRAKE_HATCHLING_SUBDUED);
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ROPE_BEAM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_strip_auras::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11590: Abduction
+######*/
+
+// 45625 - Arcane Chains: Character Force Cast
+class spell_borean_tundra_arcane_chains_character_force_cast : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_arcane_chains_character_force_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_arcane_chains_character_force_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45651 - Abduction: Quest Completion
+class spell_borean_tundra_abduction_quest_completion : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_abduction_quest_completion);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitUnit()->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_abduction_quest_completion::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
-    RegisterCreatureAI(npc_beryl_sorcerer);
-    RegisterCreatureAI(npc_captured_beryl_sorcerer);
-    RegisterSpellScript(spell_arcane_chains_character_force_cast);
     RegisterGameObjectAI(go_caribou_trap);
     RegisterGameObjectAI(go_mammoth_trap);
-    RegisterSpellScript(spell_red_dragonblood);
     RegisterCreatureAI(npc_valiance_keep_cannoneer);
-    RegisterCreatureAI(npc_hidden_cultist);
     RegisterCreatureAI(npc_thassarian);
     RegisterCreatureAI(npc_general_arlos);
     RegisterCreatureAI(npc_leryssa);
     RegisterCreatureAI(npc_counselor_talbot);
-    RegisterSpellScript(spell_windsoul_totem_aura);
     RegisterSpellScript(spell_q11719_bloodspore_ruination_45997);
     RegisterCreatureAI(npc_bloodmage_laurith);
-    RegisterSpellScript(spell_q11653_shortening_blaster);
+    RegisterSpellScript(spell_borean_tundra_shortening_blaster);
+    RegisterSpellScript(spell_borean_tundra_magnataur_on_death_1);
+    RegisterSpellScript(spell_borean_tundra_magnataur_on_death_2);
     RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest);
     RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy);
     RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy);
@@ -1817,6 +1892,19 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
     RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
     RegisterSpellScript(spell_borean_tundra_signal_alliance);
+    RegisterSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
+    RegisterSpellScript(spell_borean_tundra_land_mine_barrier);
+    RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+    RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
+    RegisterSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
+    RegisterSpellScript(spell_borean_tundra_drake_harpoon);
+    RegisterSpellScript(spell_borean_tundra_red_dragonblood);
+    RegisterSpellScript(spell_borean_tundra_drake_hatchling_subdued);
+    RegisterSpellScript(spell_borean_tundra_strip_auras);
+    RegisterSpellScript(spell_borean_tundra_arcane_chains_character_force_cast);
+    RegisterSpellScript(spell_borean_tundra_abduction_quest_completion);
 }
