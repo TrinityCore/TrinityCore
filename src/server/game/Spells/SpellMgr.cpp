@@ -3551,6 +3551,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Potion of Shrouding
+    ApplySpellFix({ 79528 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_ALLY;
+            spellInfo->RequiredExplicitTargetMask = TARGET_FLAG_UNIT_ALLY;
+
+            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+                {
+                    spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                    spellEffectInfo->TargetB = SpellImplicitTargetInfo();
+                });
+        });
+
     ApplySpellFix({
         56690, // Thrust Spear
         60586, // Mighty Spear Thrust
