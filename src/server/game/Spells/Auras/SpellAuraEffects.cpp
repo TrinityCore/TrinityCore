@@ -3630,7 +3630,6 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
         target->ToPlayer()->UpdateRuneRegen(RuneType(GetMiscValueB()));
     else
         target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(GetMiscValue()));
-
 }
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const

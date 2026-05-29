@@ -109,10 +109,10 @@ public:
     ObjectGuid RespecMaster;
 };
 
-class InvoluntarilyReset final : public ServerPacket
+class TalentsInvoluntarilyReset final : public ServerPacket
 {
 public:
-    explicit InvoluntarilyReset(bool isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents ? 1 : 0) { }
+    explicit TalentsInvoluntarilyReset(bool isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents ? 1 : 0) { }
 
     WorldPacket const* Write() override;
 

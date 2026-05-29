@@ -919,8 +919,8 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
     _ModifyUInt32(apply, m_baseHealthRegen, amount);
 }
 
-static std::pair<float, Optional<Rates>> const powerRegenInfo[MAX_POWERS] =
-{
+static constexpr std::array<std::pair<float, Optional<Rates>>, MAX_POWERS> PowerRegenInfo =
+{{
     { 0.f,      RATE_POWER_MANA             }, // POWER_MANA
     { -12.5f,   RATE_POWER_RAGE_LOSS        }, // POWER_RAGE,           -1.25 rage per second
     { 0.f,      std::nullopt                }, // POWER_FOCUS
@@ -928,7 +928,7 @@ static std::pair<float, Optional<Rates>> const powerRegenInfo[MAX_POWERS] =
     { 0.f,      std::nullopt                }, // POWER_HAPPINESS
     { 0.f,      std::nullopt                }, // POWER_RUNE
     { -12.5f,   RATE_POWER_RUNICPOWER_LOSS  }  // POWER_RUNIC_POWER,    -1.25 runic power per second
-};
+}};
 
 void Player::UpdatePowerRegen(Powers power)
 {
@@ -981,7 +981,7 @@ void Player::UpdatePowerRegen(Powers power)
         case POWER_ENERGY:
         case POWER_RUNIC_POWER:
         {
-            result_regen                = powerRegenInfo[AsUnderlyingType(power)].first;
+            result_regen                = PowerRegenInfo[AsUnderlyingType(power)].first;
             result_regen_interrupted    = 0.f;
 
             result_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, AsUnderlyingType(power));
@@ -995,15 +995,15 @@ void Player::UpdatePowerRegen(Powers power)
             break;
     }
 
-    if (powerRegenInfo[AsUnderlyingType(power)].second.has_value())
-        modifier *= sWorld->getRate(powerRegenInfo[AsUnderlyingType(power)].second.value()); // Config rate
+    if (PowerRegenInfo[AsUnderlyingType(power)].second)
+        modifier *= sWorld->getRate(*PowerRegenInfo[AsUnderlyingType(power)].second); // Config rate
 
     result_regen                *= modifier;
     result_regen_interrupted    *= modifier;
 
     // Unit fields contain an offset relative to the base power regeneration.
     if (power != POWER_MANA)
-        result_regen -= powerRegenInfo[AsUnderlyingType(power)].first;
+        result_regen -= PowerRegenInfo[AsUnderlyingType(power)].first;
 
     if (power == POWER_ENERGY)
         result_regen_interrupted = result_regen;
@@ -1023,7 +1023,7 @@ float Player::GetPowerRegen(Powers power) const
 
     float regen = GetFloatValue((interrupted ? UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER : UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) + AsUnderlyingType(power));
     if (power != POWER_MANA)
-        regen += (power == POWER_ENERGY || !interrupted) ? powerRegenInfo[AsUnderlyingType(power)].first : 0.f;
+        regen += (power == POWER_ENERGY || !interrupted) ? PowerRegenInfo[AsUnderlyingType(power)].first : 0.f;
 
     return regen;
 }
