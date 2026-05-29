@@ -852,8 +852,8 @@ void Player::UpdatePowerRegen(Powers power)
     float pct_modifier              = 1.f;                    // Config rate or any other modifiers
     float flat_modifier             = 0.f;                    // other modifiers
 
-    /// @todo possible use of miscvalueb instead of amount
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
+    if (std::ranges::any_of(GetAuraEffectsByType(SPELL_AURA_PREVENT_REGENERATE_POWER),
+        [powerMask = 1 << power](AuraEffect const* preventRegen) { return (preventRegen->GetMiscValue() & powerMask) != 0; }))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), -powerType->RegenPeace);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), -powerType->RegenCombat);

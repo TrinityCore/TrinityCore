@@ -5532,7 +5532,9 @@ void AuraEffect::HandleAuraPreventRegeneratePower(AuraApplication const* aurApp,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(GetAmount())); /// @todo possible use of miscvalueb instead of amount
+    for (int32 i = 0; i < MAX_POWERS; ++i)
+        if (GetMiscValue() & (1 << i))
+            target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(i));
 }
 
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
