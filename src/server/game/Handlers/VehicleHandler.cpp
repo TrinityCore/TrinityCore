@@ -34,7 +34,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
     recvData >> mi.guid.ReadAsPacked();
     recvData >> mi;
 
-    Unit* mover = ValidateAndGetUnitBeingMoved(mi.guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(mi.guid, static_cast<OpcodeClient>(recvData.GetOpcode()), false);
     if (!ValidateMovementInfo(mover, &mi))
         return;
 
