@@ -41,6 +41,8 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium<T, ConfusedMove
         void UnitSpeedChanged() override { ConfusedMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
 
     private:
+        void SetTargetLocation(T*);
+
         std::unique_ptr<PathGenerator> _path;
         TimeTracker _timer;
         Position _reference;
