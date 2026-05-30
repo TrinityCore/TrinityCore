@@ -145,14 +145,15 @@ bool WorldSession::ValidateMovementInfo(Unit const* mover, MovementInfo* mi) con
     return true;
 }
 
-Unit* WorldSession::ValidateAndGetUnitBeingMoved(ObjectGuid guid, bool forStatusAck) const
+Unit* WorldSession::ValidateAndGetUnitBeingMoved(ObjectGuid guid, OpcodeClient opcode, bool forStatusAck) const
 {
     // the client is attempting to tamper movement data
     // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
     Unit* activelyMovedUnit = _player->GetUnitBeingMoved();
     if (!forStatusAck && (!activelyMovedUnit || activelyMovedUnit->GetGUID() != guid))
     {
-        TC_LOG_DEBUG("entities.unit", "Attempt at tampering movement data by Player {}", _player->GetName());
+        TC_LOG_DEBUG("entities.unit", "{} Attempted tampering movement data in {}, requesting not allowed mover {} but expected {}",
+            GetPlayerInfo(), GetOpcodeNameForLogging(opcode), guid, Object::GetGUID(activelyMovedUnit));
         return nullptr;
     }
 
@@ -413,7 +414,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: {}, Sequence: {}, Time: {}", packet.MoverGUID.ToString(), packet.AckIndex, packet.MoveTime);
 
-    Unit* mover = ValidateAndGetUnitBeingMoved(packet.MoverGUID, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(packet.MoverGUID, packet.GetOpcode(), false);
     if (!mover)
         return;
 
@@ -474,7 +475,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
 void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(movementInfo.guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementInfo.guid, opcode, false);
     if (!ValidateMovementInfo(mover, &movementInfo))
         return;
 
@@ -642,7 +643,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(packet.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(packet.Ack.Status.guid, packet.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -715,7 +716,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
 
 void WorldSession::HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSpeedAck& speedAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(speedAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(speedAck.Ack.Status.guid, speedAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -724,7 +725,7 @@ void WorldSession::HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSp
 
 void WorldSession::HandleSetAdvFlyingSpeedRangeAck(WorldPackets::Movement::MovementSpeedRangeAck& speedRangeAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(speedRangeAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(speedRangeAck.Ack.Status.guid, speedRangeAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -740,7 +741,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveM
 
 void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, movementAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -757,7 +758,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackA
 
 void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(movementAck.Ack.Status.guid, movementAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -774,7 +775,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResp
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(setCollisionHeightAck.Data.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setCollisionHeightAck.Data.Status.guid, setCollisionHeightAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -783,7 +784,7 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
 
 void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyMovementForceAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyMovementForceAck.Ack.Status.guid, moveApplyMovementForceAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -800,7 +801,7 @@ void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveA
 
 void WorldSession::HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveRemoveMovementForceAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveRemoveMovementForceAck.Ack.Status.guid, moveRemoveMovementForceAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -817,7 +818,7 @@ void WorldSession::HandleMoveRemoveMovementForceAck(WorldPackets::Movement::Move
 
 void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(setModMovementForceMagnitudeAck.Ack.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setModMovementForceMagnitudeAck.Ack.Status.guid, setModMovementForceMagnitudeAck.GetOpcode(), true);
     if (!mover)
         return;
 
@@ -854,7 +855,7 @@ void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movem
 
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveSplineDone.Status.guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveSplineDone.Status.guid, moveSplineDone.GetOpcode(), false);
     if (!mover)
         return;
 
@@ -910,7 +911,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveTimeSkipped.MoverGUID, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveTimeSkipped.MoverGUID, moveTimeSkipped.GetOpcode(), false);
     if (!mover)
         return;
 

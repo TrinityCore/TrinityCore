@@ -1980,7 +1980,7 @@ class TC_GAME_API WorldSession
         }
 
         // Movement helpers
-        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, bool forStatusAck) const;
+        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, OpcodeClient opcode, bool forStatusAck) const;
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login

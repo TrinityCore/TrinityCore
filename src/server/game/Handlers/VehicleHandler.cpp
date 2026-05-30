@@ -26,7 +26,7 @@
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveDismissVehicle.Status.guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveDismissVehicle.Status.guid, moveDismissVehicle.GetOpcode(), false);
     if (!ValidateMovementInfo(mover, &moveDismissVehicle.Status))
         return;
 
@@ -76,7 +76,7 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVe
 
 void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChangeVehicleSeats& moveChangeVehicleSeats)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(moveChangeVehicleSeats.Status.guid, false);
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveChangeVehicleSeats.Status.guid, moveChangeVehicleSeats.GetOpcode(), false);
     if (!mover)
         return;
 
@@ -198,7 +198,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    Unit* mover = ValidateAndGetUnitBeingMoved(setVehicleRecIdAck.Data.Status.guid, true);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setVehicleRecIdAck.Data.Status.guid, setVehicleRecIdAck.GetOpcode(), true);
     if (!mover)
         return;
 
