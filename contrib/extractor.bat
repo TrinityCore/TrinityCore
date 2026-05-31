@@ -20,7 +20,7 @@ ECHO Can't open WDT for map <a number> - <a name> (FileNameID <number>): FILE NO
 ECHO ..........................................
 ECHO.
 ECHO 1: Extract base files (NEEDED) and cameras.
-ECHO 2: Extract vmaps (needs maps to be extracted before you run this) (OPTIONAL, but highly recommended)
+ECHO 2: Extract vmaps (needs maps to be extracted before you run this)
 ECHO 3: Extract mmaps (needs vmaps to be extracted before you run this, may take hours) (OPTIONAL, but highly recommended)
 ECHO 4: Extract all (may take hours)
 ECHO 5: Extract all with logs (may take hours)
