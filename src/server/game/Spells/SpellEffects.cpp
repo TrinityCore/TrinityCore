@@ -3016,7 +3016,7 @@ void Spell::EffectInterruptCast()
                 unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), Milliseconds(duration));
                 std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_INTERRUPT;
                 SendSpellInterruptLog(unitTarget, curSpellInfo->Id);
-                unitTarget->InterruptSpell(CurrentSpellTypes(i), false, false, SPELL_FAILED_INTERRUPTED_COMBAT, SPELL_FAILED_DONT_REPORT);
+                unitTarget->InterruptSpell(CurrentSpellTypes(i), false, false, SPELL_FAILED_INTERRUPTED_COMBAT, SPELL_FAILED_DONT_REPORT, m_caster->GetGUID());
             }
         }
     }

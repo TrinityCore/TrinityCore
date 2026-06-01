@@ -504,7 +504,7 @@ class TC_GAME_API Spell
         GameObject* SearchSpellFocus();
 
         SpellCastResult prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura = nullptr);
-        void cancel(SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
+        void cancel(SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {}, ObjectGuid const& failedBy = ObjectGuid::Empty);
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(SpellCastResult result = SPELL_CAST_OK);
@@ -560,7 +560,7 @@ class TC_GAME_API Spell
         void CheckDst();
 
         static void SendCastResult(Player const* caster, SpellInfo const* spellInfo, SpellCastVisual spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, int32* param1 = nullptr, int32* param2 = nullptr);
-        void SendCastResult(SpellCastResult result, int32* param1 = nullptr, int32* param2 = nullptr) const;
+        void SendCastResult(SpellCastResult result, int32* param1 = nullptr, int32* param2 = nullptr, ObjectGuid const& failedBy = ObjectGuid::Empty) const;
         void SendPetCastResult(SpellCastResult result, int32* param1 = nullptr, int32* param2 = nullptr) const;
         void SendMountResult(MountResult result);
         void SendSpellStart();
@@ -587,8 +587,8 @@ class TC_GAME_API Spell
         void ExecuteLogEffectUnsummonObject(SpellEffects effect, WorldObject* obj);
         void ExecuteLogEffectResurrect(SpellEffects effect, Unit* target);
         void SendSpellInterruptLog(Unit* victim, uint32 spellId);
-        void SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther = {});
-        void SendChannelUpdate(uint32 time, Optional<SpellCastResult> result = {});
+        void SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther = {}, ObjectGuid const& failedBy = ObjectGuid::Empty);
+        void SendChannelUpdate(uint32 time, Optional<SpellCastResult> result = {}, ObjectGuid const& failedBy = ObjectGuid::Empty);
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 

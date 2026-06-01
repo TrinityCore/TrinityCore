@@ -447,7 +447,7 @@ namespace WorldPackets
             SpellCastVisual Visual;
             uint16 Reason   = 0;
             ObjectGuid CastID;
-            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SpellFailedOther final : public ServerPacket
@@ -462,7 +462,7 @@ namespace WorldPackets
             SpellCastVisual Visual;
             uint8 Reason    = 0;
             ObjectGuid CastID;
-            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class TC_GAME_API CastFailed final : public ServerPacket
@@ -478,7 +478,7 @@ namespace WorldPackets
             int32 Reason              = 0;
             int32 FailedArg1          = -1;
             int32 FailedArg2          = -1;
-            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class TC_GAME_API PetCastFailed final : public ServerPacket
@@ -867,7 +867,7 @@ namespace WorldPackets
 
             ObjectGuid CasterGUID;
             int32 TimeRemaining = 0;
-            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SpellEmpowerStart final : public ServerPacket
@@ -902,7 +902,7 @@ namespace WorldPackets
             Duration<Milliseconds, int32> TimeRemaining;
             std::vector<Duration<Milliseconds, uint32>> StageDurations;
             uint8 Status = 0;
-            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT TODO: port commit from 3.3.5 that implements SPELL_FAILED_INTERRUPTED_COMBAT
+            ObjectGuid FailedBy;            ///< Unit that caused the spell to fail, set for SPELL_FAILED_INTERRUPTED_COMBAT
         };
 
         class SetEmpowerMinHoldStagePercent final : public ClientPacket
