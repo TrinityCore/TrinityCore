@@ -733,7 +733,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     Spell* spell = new Spell(caster, spellInfo, triggerCastFlags);
     spell->m_fromClient = true;
     std::ranges::copy(petCastSpell.Cast.Misc, std::ranges::begin(spell->m_misc.Raw.Data));
-    spell->m_targets = targets;
+    spell->InitExplicitTargets(targets);
 
     SpellCastResult result = spell->CheckPetCast(nullptr);
 
