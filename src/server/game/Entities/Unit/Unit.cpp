@@ -11418,8 +11418,6 @@ void Unit::SetConfused(bool apply)
             GetMotionMaster()->Remove(CONFUSED_MOTION_TYPE);
             if (GetVictim())
                 SetTarget(EnsureVictim()->GetGUID());
-            if (!IsPlayer())
-                GetMotionMaster()->MoveChase(GetVictim());
         }
 
         // allow control to real player in control (eg charmer)
