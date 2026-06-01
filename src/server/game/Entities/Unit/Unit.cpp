@@ -11417,12 +11417,9 @@ void Unit::SetConfused(bool apply)
         {
             GetMotionMaster()->Remove(CONFUSED_MOTION_TYPE);
             if (GetVictim())
-            {
                 SetTarget(EnsureVictim()->GetGUID());
-                // Re-issue chase for creatures — confuse leaves them standing still
-                if (!IsPlayer())
-                    GetMotionMaster()->MoveChase(GetVictim());
-            }
+            if (!IsPlayer())
+                GetMotionMaster()->MoveChase(GetVictim());
         }
 
         // allow control to real player in control (eg charmer)
