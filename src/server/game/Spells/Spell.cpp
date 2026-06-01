@@ -3614,7 +3614,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     return SPELL_CAST_OK;
 }
 
-void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Optional<SpellCastResult> resultOther /*= {}*/)
+void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Optional<SpellCastResult> resultOther /*= {}*/, ObjectGuid const& failedBy /*= ObjectGuid::Empty*/)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -3627,11 +3627,11 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
     {
         case SPELL_STATE_PREPARING:
             CancelGlobalCooldown();
-            SendCastResult(result);
-            SendInterrupted(result, resultOther);
+            SendCastResult(result, nullptr, nullptr, failedBy);
+            SendInterrupted(result, resultOther, failedBy);
             break;
         case SPELL_STATE_LAUNCHED:
-            SendInterrupted(result, resultOther);
+            SendInterrupted(result, resultOther, failedBy);
             break;
         case SPELL_STATE_CHANNELING:
             {
@@ -3648,8 +3648,8 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
                 SetExecutedCurrently(executed);
             }
 
-            SendChannelUpdate(0, SPELL_FAILED_INTERRUPTED);
-            SendInterrupted(result, resultOther);
+            SendChannelUpdate(0, SPELL_FAILED_INTERRUPTED, failedBy);
+            SendInterrupted(result, resultOther, failedBy);
             break;
         default:
             break;
@@ -4458,7 +4458,8 @@ void Spell::finish(SpellCastResult result)
 }
 
 template<class T>
-inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError, int32* param1, int32* param2)
+inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError,
+    int32* param1, int32* param2, [[maybe_unused]] ObjectGuid const& failedBy)
 {
     packet.CastID = castId;
     packet.SpellID = spellInfo->Id;
@@ -4592,13 +4593,17 @@ inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo cons
             packet.FailedArg1 = *param1;
             break;
         }
+        case SPELL_FAILED_INTERRUPTED_COMBAT:
+            if constexpr (requires { { packet.FailedBy } -> std::assignable_from<ObjectGuid>; })
+                packet.FailedBy = failedBy;
+            break;
         // TODO: SPELL_FAILED_NOT_STANDING
         default:
             break;
     }
 }
 
-void Spell::SendCastResult(SpellCastResult result, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/) const
+void Spell::SendCastResult(SpellCastResult result, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/, ObjectGuid const& failedBy /*= ObjectGuid::Empty*/) const
 {
     if (result == SPELL_CAST_OK)
         return;
@@ -4619,7 +4624,7 @@ void Spell::SendCastResult(SpellCastResult result, int32* param1 /*= nullptr*/, 
 
     WorldPackets::Spells::CastFailed castFailed;
     castFailed.Visual = m_SpellVisual;
-    FillSpellCastFailedArgs(castFailed, m_castId, m_spellInfo, result, m_customError, param1, param2);
+    FillSpellCastFailedArgs(castFailed, m_castId, m_spellInfo, result, m_customError, param1, param2, failedBy);
     receiver->SendDirectMessage(castFailed.Write());
 }
 
@@ -4636,7 +4641,7 @@ void Spell::SendPetCastResult(SpellCastResult result, int32* param1 /*= nullptr*
         result = SPELL_FAILED_DONT_REPORT;
 
     WorldPackets::Spells::PetCastFailed petCastFailed;
-    FillSpellCastFailedArgs(petCastFailed, m_castId, m_spellInfo, result, SPELL_CUSTOM_ERROR_NONE, param1, param2);
+    FillSpellCastFailedArgs(petCastFailed, m_castId, m_spellInfo, result, SPELL_CUSTOM_ERROR_NONE, param1, param2, ObjectGuid::Empty);
     owner->ToPlayer()->SendDirectMessage(petCastFailed.Write());
 }
 
@@ -4647,7 +4652,7 @@ void Spell::SendCastResult(Player const* caster, SpellInfo const* spellInfo, Spe
 
     WorldPackets::Spells::CastFailed packet;
     packet.Visual = spellVisual;
-    FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, param1, param2);
+    FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, param1, param2, ObjectGuid::Empty);
     caster->SendDirectMessage(packet.Write());
 }
 
@@ -5176,7 +5181,7 @@ void Spell::ExecuteLogEffectResurrect(SpellEffects effect, Unit* target)
     GetExecuteLogEffectTargets(effect, &SpellLogEffect::GenericVictimTargets).push_back(spellLogEffectGenericVictimParams);
 }
 
-void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther /*= {}*/)
+void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> resultOther /*= {}*/, ObjectGuid const& failedBy /*= ObjectGuid::Empty*/)
 {
     WorldPackets::Spells::SpellFailure failurePacket;
     failurePacket.CasterUnit = m_caster->GetGUID();
@@ -5184,6 +5189,7 @@ void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> re
     failurePacket.SpellID = m_spellInfo->Id;
     failurePacket.Visual = m_SpellVisual;
     failurePacket.Reason = result;
+    failurePacket.FailedBy = failedBy;
     m_caster->SendMessageToSet(failurePacket.Write(), true);
 
     WorldPackets::Spells::SpellFailedOther failedPacket;
@@ -5192,10 +5198,11 @@ void Spell::SendInterrupted(SpellCastResult result, Optional<SpellCastResult> re
     failedPacket.SpellID = m_spellInfo->Id;
     failedPacket.Visual = m_SpellVisual;
     failedPacket.Reason = resultOther.value_or(result);
+    failedPacket.FailedBy = failedBy;
     m_caster->SendMessageToSet(failedPacket.Write(), true);
 }
 
-void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result)
+void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result, ObjectGuid const& failedBy /*= ObjectGuid::Empty*/)
 {
     // GameObjects don't channel
     Unit* unitCaster = m_caster->ToUnit();
@@ -5217,6 +5224,7 @@ void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result)
         spellEmpowerUpdate.CastID = m_castId;
         spellEmpowerUpdate.CasterGUID = unitCaster->GetGUID();
         spellEmpowerUpdate.TimeRemaining = Milliseconds(time);
+        spellEmpowerUpdate.FailedBy = failedBy;
         if (time > 0)
             spellEmpowerUpdate.StageDurations.assign(m_empower->StageDurations.begin(), m_empower->StageDurations.end());
         else if (result && result != SPELL_CAST_OK)
@@ -5231,6 +5239,7 @@ void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result)
         WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
         spellChannelUpdate.CasterGUID = unitCaster->GetGUID();
         spellChannelUpdate.TimeRemaining = time;
+        spellChannelUpdate.FailedBy = failedBy;
         unitCaster->SendMessageToSet(spellChannelUpdate.Write(), true);
     }
 }
