@@ -143,6 +143,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         _path = nullptr;
+        _lastTargetPosition.reset();
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
