@@ -867,7 +867,7 @@ void Player::HandleSobering()
     SetDrunkValue(drunk);
 }
 
-DrunkenState Player::GetDrunkenstateByValue(uint8 value)
+/*static*/ DrunkenState Player::GetDrunkenstateByValue(uint8 value)
 {
     if (value >= 90)
         return DRUNKEN_SMASHED;
@@ -880,27 +880,17 @@ DrunkenState Player::GetDrunkenstateByValue(uint8 value)
 
 void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
 {
-    bool isSobering = newDrunkValue < GetDrunkValue();
+    newDrunkValue = std::min<uint8>(newDrunkValue, 100);
+    if (newDrunkValue == GetDrunkValue())
+        return;
+
     uint32 oldDrunkenState = Player::GetDrunkenstateByValue(GetDrunkValue());
-    if (newDrunkValue > 100)
-        newDrunkValue = 100;
-
-    // select drunk percent or total SPELL_AURA_MOD_FAKE_INEBRIATE amount, whichever is higher for visibility updates
-    int32 drunkPercent = std::max<int32>(newDrunkValue, GetTotalAuraModifier(SPELL_AURA_MOD_FAKE_INEBRIATE));
-    if (drunkPercent)
-    {
-        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
-        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, drunkPercent);
-    }
-    else if (!HasAuraType(SPELL_AURA_MOD_FAKE_INEBRIATE) && !newDrunkValue)
-        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
-
     uint32 newDrunkenState = Player::GetDrunkenstateByValue(newDrunkValue);
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), newDrunkValue);
-    UpdateObjectVisibility();
 
-    if (!isSobering)
-        m_drunkTimer = 0;   // reset sobering timer
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), newDrunkValue);
+    UpdateInvisibilityDrunkDetect();
+
+    m_drunkTimer = 0; // reset sobering timer
 
     if (newDrunkenState == oldDrunkenState)
         return;
@@ -911,6 +901,25 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     data.ItemID = itemId;
 
     SendMessageToSet(data.Write(), true);
+}
+
+void Player::UpdateInvisibilityDrunkDetect()
+{
+    // select drunk percent or total SPELL_AURA_MOD_FAKE_INEBRIATE amount, whichever is higher for visibility updates
+    uint8 drunkValue        = GetDrunkValue();
+    int32 fakeDrunkValue    = GetFakeDrunkValue();
+    int32 maxDrunkValue     = std::max<int32>(drunkValue, fakeDrunkValue);
+
+    if (maxDrunkValue != 0)
+    {
+        m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
+        m_invisibilityDetect.SetValue(INVISIBILITY_DRUNK, maxDrunkValue);
+    }
+    else
+        m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
+
+    if (IsInWorld())
+        UpdateObjectVisibility();
 }
 
 void Player::Update(uint32 p_time)
@@ -1087,17 +1096,6 @@ void Player::Update(uint32 p_time)
 
     UpdateEnchantTime(p_time);
     UpdateHomebindTime(p_time);
-
-    if (!_instanceResetTimes.empty())
-    {
-        for (InstanceTimeMap::iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end();)
-        {
-            if (itr->second < now)
-                _instanceResetTimes.erase(itr++);
-            else
-                ++itr;
-        }
-    }
 
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
@@ -18253,7 +18251,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TodayHonorableKills), fields.totalKills);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::YesterdayHonorableKills), fields.yesterdayKills);
 
-    _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
     _LoadBGData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
 
     GetSession()->SetPlayer(this);
@@ -20165,19 +20162,6 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
     return true;
 }
 
-bool Player::CheckInstanceCount(uint32 instanceId) const
-{
-    if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
-        return true;
-    return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
-}
-
-void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
-{
-    if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
-        _instanceResetTimes.insert(InstanceTimeMap::value_type(instanceId, enterTime + HOUR));
-}
-
 WorldSafeLocsEntry const* Player::GetInstanceEntrance(uint32 targetMapId)
 {
     WorldSafeLocsEntry const* entranceLocation = nullptr;
@@ -20753,7 +20737,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveTransmogOutfits(trans);
     _SaveCharacterSelectOutfit(trans);
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
-    _SaveInstanceTimeRestrictions(trans);
+    GetSession()->SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
     _SavePlayerData(trans);
@@ -30005,18 +29989,6 @@ float Player::GetAverageItemLevel() const
     return ((float)sum) / count;
 }
 
-void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
-{
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].GetUInt32(), fields[1].GetUInt64()));
-    } while (result->NextRow());
-}
-
 void Player::_LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result)
 {
     if (!result)
@@ -30071,25 +30043,6 @@ void Player::_LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result
 
     if (Pet::GetLoadPetInfo(*m_petStable, 0, summonedPetNumber, {}).first)
         m_temporaryUnsummonedPetNumber = summonedPetNumber;
-}
-
-void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans)
-{
-    if (_instanceResetTimes.empty())
-        return;
-
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    trans->Append(stmt);
-
-    for (InstanceTimeMap::const_iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end(); ++itr)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        stmt->setUInt32(1, itr->first);
-        stmt->setInt64(2, itr->second);
-        trans->Append(stmt);
-    }
 }
 
 bool Player::IsInWhisperWhiteList(ObjectGuid guid)
