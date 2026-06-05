@@ -7346,7 +7346,10 @@ SpellRange Spell::GetMinMaxRange(bool strict) const
     SpellRange range;
 
     if (strict && m_spellInfo->IsNextMeleeSwingSpell())
+    {
+        range = { .Min = 0.0f, .Max = 100.0f };
         return range;
+    }
 
     Unit* unitCaster = m_caster->ToUnit();
     if (m_spellInfo->RangeEntry)
