@@ -282,7 +282,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
     m_legacyRaidDifficulty = DIFFICULTY_10_N;
 
-    m_lastPotionId = 0;
     m_empowerMinHoldStagePercent = 1.0f;
 
     m_auraBaseFlatMod.fill(0.0f);
@@ -24057,34 +24056,6 @@ void Player::UpdatePvP(bool state, bool _override)
     }
 }
 
-void Player::UpdatePotionCooldown(Spell* spell)
-{
-    // no potion used i combat or still in combat
-    if (!m_lastPotionId || IsInCombat())
-        return;
-
-    // Call not from spell cast, send cooldown event for item spells if no in combat
-    if (!spell)
-    {
-        // spell/item pair let set proper cooldown (except non-existing charged spell cooldown spellmods for potions)
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-            for (uint8 idx = 0; idx < proto->Effects.size(); ++idx)
-                if (proto->Effects[idx]->TriggerType == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Effects[idx]->SpellID, DIFFICULTY_NONE))
-                        GetSpellHistory()->SendCooldownEvent(spellInfo, m_lastPotionId);
-    }
-    // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
-    else
-    {
-        if (spell->IsIgnoringCooldowns())
-            return;
-        else
-            GetSpellHistory()->SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
-    }
-
-    m_lastPotionId = 0;
-}
-
 void Player::SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
     ASSERT(!IsResurrectRequested());
@@ -26806,7 +26777,6 @@ void Player::AtEnterCombat()
 void Player::AtExitCombat()
 {
     Unit::AtExitCombat();
-    UpdatePotionCooldown();
     m_regenInterruptTimestamp = GameTime::Now();
 }
 

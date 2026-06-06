@@ -929,7 +929,6 @@ struct TC_GAME_API ItemTemplate
 
     uint32 GetSkill() const;
 
-    bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return HasFlag(ITEM_FLAG3_CAN_STORE_ENCHANTS); }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && HasFlag(ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return HasFlag(ITEM_FLAG2_USED_IN_A_TRADESKILL); }

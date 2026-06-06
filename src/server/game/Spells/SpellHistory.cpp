@@ -32,6 +32,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "World.h"
+#include <boost/container/small_vector.hpp>
 
 SpellHistory::Duration const SpellHistory::InfinityCooldownDelay = Seconds(MONTH);
 
@@ -242,11 +243,6 @@ void SpellHistory::Update()
             chargeRefreshTimes.pop_front();
 }
 
-void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell /*= nullptr*/)
-{
-    HandleCooldowns(spellInfo, item ? item->GetEntry() : 0, spell);
-}
-
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/)
 {
     if (spell && spell->IsIgnoringCooldowns())
@@ -257,23 +253,13 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Sp
     if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
         return;
 
-    if (Player* player = _owner->ToPlayer())
-    {
-        // potions start cooldown until exiting combat
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId))
-        {
-            if (itemTemplate->IsPotion() || spellInfo->IsCooldownStartedOnEvent())
-            {
-                player->SetLastPotionId(itemId);
-                return;
-            }
-        }
-    }
-
-    if (spellInfo->IsCooldownStartedOnEvent() || spellInfo->IsPassive())
+    if (spellInfo->IsPassive())
         return;
 
-    StartCooldown(spellInfo, itemId, spell);
+    StartCooldown(spellInfo, itemId, spell, spellInfo->IsCooldownStartedOnEvent());
+
+    if (spellInfo->IsCooldownStartedOnEventAfterCombat() && !_owner->IsInCombat())
+        SendCooldownEvent(spellInfo, itemId, spell, true);
 }
 
 bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
@@ -1163,6 +1149,18 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
         *categoryId = tmpCategoryId;
     if (categoryCooldown)
         *categoryCooldown = tmpCategoryCooldown;
+}
+
+void SpellHistory::AtExitCombat()
+{
+    boost::container::small_vector<std::pair<uint32, uint32>, 2> cooldownsToStart;
+
+    for (auto [categoryId, cooldown] : _categoryCooldowns)
+        if (sSpellCategoryStore.AssertEntry(categoryId)->GetFlags().HasFlag(SpellCategoryFlags::CooldownEventOnLeaveCombat))
+            cooldownsToStart.emplace_back(cooldown->SpellId, cooldown->ItemId);
+
+    for (auto [spellId, itemId] : cooldownsToStart)
+        SendCooldownEvent(sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE), itemId);
 }
 
 void SpellHistory::SaveCooldownStateBeforeDuel()

@@ -105,7 +105,6 @@ public:
 
     void Update();
 
-    void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
     bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     void WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpellHistory) const;
@@ -203,6 +202,8 @@ public:
     void ResumeCooldowns();
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, Duration* cooldown, uint32* categoryId, Duration* categoryCooldown);
+
+    void AtExitCombat();
 
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();

@@ -9252,6 +9252,8 @@ void Unit::AtExitCombat()
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LeavingCombat);
 
+    GetSpellHistory()->AtExitCombat();
+
     if (!IsInteractionAllowedInCombat())
         UpdateNearbyPlayersInteractions();
 }
