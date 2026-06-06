@@ -1918,9 +1918,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendSpellModifiers() const;
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
-        uint32 GetLastPotionId() const { return m_lastPotionId; }
-        void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
-        void UpdatePotionCooldown(Spell* spell = nullptr);
 
         void SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura);
         void ClearResurrectRequestData()
@@ -3041,7 +3038,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
         std::unordered_map<uint32 /*overridenSpellId*/, std::unordered_set<uint32> /*newSpellId*/> m_overrideSpells;
-        uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
         std::unordered_map<uint32, StoredAuraTeleportLocation> m_storedAuraTeleportLocations;
 
         // Talents

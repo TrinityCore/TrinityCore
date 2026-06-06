@@ -1726,6 +1726,11 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
     if (HasAttribute(SPELL_ATTR0_COOLDOWN_ON_EVENT))
         return true;
 
+    return IsCooldownStartedOnEventAfterCombat();
+}
+
+bool SpellInfo::IsCooldownStartedOnEventAfterCombat() const
+{
     SpellCategoryEntry const* category = sSpellCategoryStore.LookupEntry(CategoryId);
     return category && category->GetFlags().HasFlag(SpellCategoryFlags::CooldownEventOnLeaveCombat);
 }
