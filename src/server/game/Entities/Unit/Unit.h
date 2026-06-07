@@ -21,7 +21,6 @@
 #include "Object.h"
 #include "CombatManager.h"
 #include "SpellAuraDefines.h"
-#include "PetDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -94,6 +93,8 @@ class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
 
+enum PetAction : int32;
+enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ZLiquidStatus : uint32;
 

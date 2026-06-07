@@ -4911,7 +4911,7 @@ void AuraEffect::HandleAuraModFakeInebriation(AuraApplication const* aurApp, uin
     if (!target)
         return;
 
-    target->ApplyModInt32Value(PLAYER_FAKE_INEBRIATION, GetAmount(), apply);
+    target->ApplyModFakeDrunkValue(GetAmount(), apply);
     target->UpdateInvisibilityDrunkDetect();
 }
 
