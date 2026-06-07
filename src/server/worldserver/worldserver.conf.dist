@@ -968,6 +968,30 @@ StartPlayerMoney = 0
 StartDeathKnightPlayerMoney = 2000
 
 #
+#    StartDemonHunterPlayerMoney
+#        Description: Amount of money (in Copper) that a demon hunter character has after creation.
+#        Default:     0
+#                     100 - (1 Silver)
+
+StartDemonHunterPlayerMoney = 0
+
+#
+#    StartEvokerPlayerMoney
+#        Description: Amount of money (in Copper) that a evoker character has after creation.
+#        Default:     0
+#                     100 - (1 Silver)
+
+StartEvokerPlayerMoney = 0
+
+#
+#    StartAlliedRacePlayerMoney
+#        Description: Amount of money (in Copper) that a allied race character has after creation.
+#        Default:     10000
+#                     100 - (1 Silver)
+
+StartAlliedRacePlayerMoney = 10000
+
+#
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.

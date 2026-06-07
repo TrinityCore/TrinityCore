@@ -2691,6 +2691,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint16 m_homebindAreaId;
 
         uint8 GetStartLevel(uint8 race, uint8 playerClass, Optional<int32> characterTemplateId) const;
+        static uint64 GetStartMoney(uint8 race, uint8 playerClass);
 
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
