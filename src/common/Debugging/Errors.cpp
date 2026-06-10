@@ -34,16 +34,18 @@
  */
 
 #if TRINITY_COMPILER_IS_MICROSOFT
-#define Unreachable() (__assume(false))
+#define Unreachable() __assume(false)
+#define GetReturnAddress() _ReturnAddress()
 #else
-#define Unreachable() (__builtin_unreachable())
+#define Unreachable() __builtin_unreachable()
+#define GetReturnAddress() __builtin_return_address(0)
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Windows.h>
 #include <intrin.h>
 #define Crash(message) \
-    ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(_ReturnAddress()) }; \
+    ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(GetReturnAddress()) }; \
     RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs); \
     Unreachable()
 #else
