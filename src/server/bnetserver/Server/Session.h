@@ -168,8 +168,15 @@ namespace Battlenet
 
         static std::shared_ptr<Socket> CreateSocket(Trinity::Net::IoContextTcpSocket&& socket);
         std::shared_ptr<Socket> _socket;
-        MessageBuffer _headerLengthBuffer;
-        MessageBuffer _headerBuffer;
+
+        enum class PacketReadState
+        {
+            HeaderLength,
+            Header,
+            Data,
+        };
+
+        PacketReadState _packetReadState;
         MessageBuffer _packetBuffer;
 
         std::shared_ptr<AccountInfo> _accountInfo;

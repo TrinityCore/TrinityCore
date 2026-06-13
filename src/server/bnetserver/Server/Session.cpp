@@ -81,11 +81,13 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
         DisplayName = Name;
 }
 
+constexpr std::size_t PacketHeaderLengthSize = sizeof(uint16);
+
 Battlenet::Session::Session(Trinity::Net::IoContextTcpSocket&& socket) : _socket(CreateSocket(std::move(socket))),
+    _packetReadState(PacketReadState::HeaderLength), _packetBuffer(PacketHeaderLengthSize),
     _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _clientInfo(), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
-    _headerLengthBuffer.Resize(2);
 }
 
 Battlenet::Session::~Session() = default;
@@ -706,11 +708,9 @@ uint32 Battlenet::Session::HandleGetAllValuesForAttribute(game_utilities::v1::Ge
     return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-template<bool(Battlenet::Session::*processMethod)(), MessageBuffer Battlenet::Session::*outputBuffer>
-static inline Optional<Trinity::Net::SocketReadCallbackResult> PartialProcessPacket(Battlenet::Session* session, MessageBuffer& inputBuffer)
+template<bool(Battlenet::Session::*processMethod)()>
+static inline Optional<Trinity::Net::SocketReadCallbackResult> PartialProcessPacket(Battlenet::Session* session, MessageBuffer& inputBuffer, MessageBuffer& buffer)
 {
-    MessageBuffer& buffer = session->*outputBuffer;
-
     // We have full read header, now check the data payload
     if (buffer.GetRemainingSpace() > 0)
     {
@@ -719,8 +719,6 @@ static inline Optional<Trinity::Net::SocketReadCallbackResult> PartialProcessPac
         buffer.Write(inputBuffer.GetReadPointer(), readDataSize);
         inputBuffer.ReadCompleted(readDataSize);
     }
-    else
-        return { }; // go to next buffer
 
     if (buffer.GetRemainingSpace() > 0)
     {
@@ -736,7 +734,7 @@ static inline Optional<Trinity::Net::SocketReadCallbackResult> PartialProcessPac
         return Trinity::Net::SocketReadCallbackResult::Stop;
     }
 
-    return { }; // go to next buffer
+    return { }; // go to next state
 }
 
 Trinity::Net::SocketReadCallbackResult Battlenet::Session::ReadHandler()
@@ -744,17 +742,21 @@ Trinity::Net::SocketReadCallbackResult Battlenet::Session::ReadHandler()
     MessageBuffer& packet = _socket->GetReadBuffer();
     while (packet.GetActiveSize() > 0)
     {
-        if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadHeaderLengthHandler, &Session::_headerLengthBuffer>(this, packet))
-            return *partialResult;
-
-        if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadHeaderHandler, &Session::_headerBuffer>(this, packet))
-            return *partialResult;
-
-        if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadDataHandler, &Session::_packetBuffer>(this, packet))
-            return *partialResult;
-
-        _headerLengthBuffer.Reset();
-        _headerBuffer.Reset();
+        switch (_packetReadState)
+        {
+            case PacketReadState::HeaderLength:
+                if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadHeaderLengthHandler>(this, packet, _packetBuffer))
+                    return *partialResult;
+                [[fallthrough]];
+            case PacketReadState::Header:
+                if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadHeaderHandler>(this, packet, _packetBuffer))
+                    return *partialResult;
+                [[fallthrough]];
+            case PacketReadState::Data:
+                if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadDataHandler>(this, packet, _packetBuffer))
+                    return *partialResult;
+                break;
+        }
     }
 
     return Trinity::Net::SocketReadCallbackResult::KeepReading;
@@ -762,26 +764,33 @@ Trinity::Net::SocketReadCallbackResult Battlenet::Session::ReadHandler()
 
 bool Battlenet::Session::ReadHeaderLengthHandler()
 {
-    uint16 len = *reinterpret_cast<uint16*>(_headerLengthBuffer.GetReadPointer());
+    uint16 len = *reinterpret_cast<uint16*>(_packetBuffer.GetReadPointer());
+    _packetBuffer.ReadCompleted(PacketHeaderLengthSize);
+
     EndianConvertReverse(len);
-    _headerBuffer.Resize(len);
+
+    _packetReadState = PacketReadState::Header;
+    _packetBuffer.Resize(_packetBuffer.GetBufferSize() + len);
     return true;
 }
 
 bool Battlenet::Session::ReadHeaderHandler()
 {
     Header header;
-    if (!header.ParseFromArray(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize()))
+    if (!header.ParseFromArray(_packetBuffer.GetReadPointer(), _packetBuffer.GetActiveSize()))
         return false;
 
-    _packetBuffer.Resize(header.size());
+    _packetBuffer.ReadCompleted(_packetBuffer.GetActiveSize());
+
+    _packetReadState = PacketReadState::Data;
+    _packetBuffer.Resize(_packetBuffer.GetBufferSize() + header.size());
     return true;
 }
 
 bool Battlenet::Session::ReadDataHandler()
 {
     Header header;
-    bool parseSuccess = header.ParseFromArray(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize());
+    bool parseSuccess = header.ParseFromArray(_packetBuffer.GetBasePointer() + PacketHeaderLengthSize, _packetBuffer.GetReadPointer() - _packetBuffer.GetBasePointer() - PacketHeaderLengthSize);
     ASSERT(parseSuccess);
 
     if (header.service_id() != 0xFE)
@@ -790,16 +799,14 @@ bool Battlenet::Session::ReadDataHandler()
     }
     else
     {
-        auto itr = _responseCallbacks.find(header.token());
-        if (itr != _responseCallbacks.end())
-        {
-            itr->second(std::move(_packetBuffer));
-            _responseCallbacks.erase(header.token());
-        }
+        if (auto responseCallback = _responseCallbacks.extract(header.token()))
+            responseCallback.mapped()(std::move(_packetBuffer));
         else
             _packetBuffer.Reset();
     }
 
+    _packetReadState = PacketReadState::HeaderLength;
+    _packetBuffer.Resize(PacketHeaderLengthSize);
     return true;
 }
 
