@@ -22,92 +22,65 @@
 #include "ClientBuildInfo.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
+#include "Hash.h"
 #include "Realm.h"
 #include "Socket.h"
 #include "SslStream.h"
-#include <boost/asio/ip/tcp.hpp>
-#include <google/protobuf/message.h>
 #include <memory>
+
+namespace google::protobuf
+{
+class Message;
+}
 
 namespace pb = google::protobuf;
 
-class ServiceBase;
-
-namespace bgs::protocol
-{
-class Variant;
-
-namespace account::v1
-{
-    class GetAccountStateRequest;
-    class GetAccountStateResponse;
-    class GetGameAccountStateRequest;
-    class GetGameAccountStateResponse;
-}
-
-namespace authentication::v1
-{
-    class GenerateWebCredentialsRequest;
-    class LogonRequest;
-    class VerifyWebCredentialsRequest;
-}
-
-namespace game_utilities::v1
-{
-    class ClientRequest;
-    class ClientResponse;
-    class GetAllValuesForAttributeRequest;
-    class GetAllValuesForAttributeResponse;
-}
-}
-
-using namespace bgs::protocol;
-
 namespace Battlenet
 {
+    struct LastPlayedCharacterInfo
+    {
+        Battlenet::RealmHandle RealmId;
+        std::string CharacterName;
+        uint64 CharacterGUID;
+        uint32 LastPlayedTime;
+    };
+
+    struct GameAccountInfo
+    {
+        void LoadResult(Field const* fields);
+
+        uint32 Id;
+        std::string Name;
+        std::string DisplayName;
+        time_t BanDate;
+        time_t UnbanDate;
+        bool IsBanned;
+        bool IsPermanenetlyBanned;
+        AccountTypes SecurityLevel;
+
+        std::unordered_map<uint32 /*realmAddress*/, uint8> CharacterCounts;
+        std::unordered_map<std::string /*subRegion*/, LastPlayedCharacterInfo, Trinity::TransparentHash<std::string_view>, std::equal_to<>> LastPlayedCharacters;
+    };
+
+    struct AccountInfo
+    {
+        void LoadResult(PreparedQueryResult result);
+
+        uint32 Id;
+        std::string Login;
+        bool IsLockedToIP;
+        std::string LockCountry;
+        std::string LastIP;
+        uint32 LoginTicketExpiry;
+        bool IsBanned;
+        bool IsPermanenetlyBanned;
+
+        std::unordered_map<uint32, GameAccountInfo> GameAccounts;
+    };
+
     class Session final : public std::enable_shared_from_this<Session>
     {
     public:
-        struct LastPlayedCharacterInfo
-        {
-            Battlenet::RealmHandle RealmId;
-            std::string CharacterName;
-            uint64 CharacterGUID;
-            uint32 LastPlayedTime;
-        };
-
-        struct GameAccountInfo
-        {
-            void LoadResult(Field const* fields);
-
-            uint32 Id;
-            std::string Name;
-            std::string DisplayName;
-            uint32 UnbanDate;
-            bool IsBanned;
-            bool IsPermanenetlyBanned;
-            AccountTypes SecurityLevel;
-
-            std::unordered_map<uint32 /*realmAddress*/, uint8> CharacterCounts;
-            std::unordered_map<std::string /*subRegion*/, LastPlayedCharacterInfo> LastPlayedCharacters;
-        };
-
-        struct AccountInfo
-        {
-            void LoadResult(PreparedQueryResult result);
-
-            uint32 Id;
-            std::string Login;
-            bool IsLockedToIP;
-            std::string LockCountry;
-            std::string LastIP;
-            uint32 LoginTicketExpiry;
-            bool IsBanned;
-            bool IsPermanenetlyBanned;
-
-            std::unordered_map<uint32, GameAccountInfo> GameAccounts;
-        };
-
         explicit Session(Trinity::Net::IoContextTcpSocket&& socket);
         ~Session();
 
@@ -118,29 +91,34 @@ namespace Battlenet
         void CloseSocket() { return _socket->CloseSocket(); }
         void DelayedCloseSocket() { return _socket->DelayedCloseSocket(); }
 
+        bool IsAuthed() const { return _authed; }
+
         uint32 GetAccountId() const { return _accountInfo->Id; }
+        AccountInfo const* GetAccountInfo() const { return _accountInfo.get(); }
+
         uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }
+        GameAccountInfo const* GetGameAccountInfo() const { return _gameAccountInfo; }
+        GameAccountInfo const* GetGameAccountInfo(uint32 gameAccountId) const;
+        LastPlayedCharacterInfo const* GetLastPlayedCharacter(std::string_view subRegion) const;
+
+        std::string const& GetLocale() const { return _locale; }
+        std::string const& GetOS() const { return _os; }
+        uint32 GetBuild() const { return _build; }
+        ClientBuild::VariantId GetBuildVariant() const { return _buildVariant; }
+        Minutes GetTimezoneOffset() const { return _timezoneOffset; }
+        std::array<uint8, 32> GetClientSecret() const { return _clientSecret; }
 
         void SendResponse(uint32 token, pb::Message const* response);
         void SendResponse(uint32 token, uint32 status);
 
-        void SendRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request, std::function<void(MessageBuffer)> callback)
-        {
-            _responseCallbacks[_requestToken] = std::move(callback);
-            SendRequest(serviceHash, methodId, request);
-        }
-
+        void SendRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request, std::function<void(MessageBuffer)> callback);
         void SendRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request);
 
         void QueueQuery(QueryCallback&& queryCallback);
 
-        uint32 HandleLogon(authentication::v1::LogonRequest const* logonRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-        uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-        uint32 HandleGenerateWebCredentials(authentication::v1::GenerateWebCredentialsRequest const* request, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation);
-        uint32 HandleGetAccountState(account::v1::GetAccountStateRequest const* request, account::v1::GetAccountStateResponse* response);
-        uint32 HandleGetGameAccountState(account::v1::GetGameAccountStateRequest const* request, account::v1::GetGameAccountStateResponse* response);
-        uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response);
-        uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response);
+        void OnLogon(std::string_view platform, std::string_view locale, uint32 applicationVersion, Minutes timezoneOffset);
+        void OnLogonSuccess(std::shared_ptr<AccountInfo> accountInfo, std::string_view ipCountry);
+        void SetClientInfo(uint32 gameAccountId, ClientBuild::VariantId buildVariant, std::array<uint8, 32> const& clientSecret);
 
         std::string GetClientInfo() const;
 
@@ -153,16 +131,6 @@ namespace Battlenet
 
     private:
         void AsyncWrite(MessageBuffer* packet);
-
-        uint32 VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-
-        typedef uint32(Session::*ClientRequestHandler)(std::unordered_map<std::string, Variant const*> const&, game_utilities::v1::ClientResponse*);
-        static std::unordered_map<std::string, ClientRequestHandler> const ClientRequestHandlers;
-
-        uint32 GetRealmListTicket(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
-        uint32 GetLastCharPlayed(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
-        uint32 GetRealmList(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
-        uint32 JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
 
         using Socket = Trinity::Net::Socket<Trinity::Net::SslStream<>>;
 
@@ -180,12 +148,12 @@ namespace Battlenet
         MessageBuffer _packetBuffer;
 
         std::shared_ptr<AccountInfo> _accountInfo;
-        GameAccountInfo* _gameAccountInfo;          // Points at selected game account (inside _gameAccounts)
+        GameAccountInfo const* _gameAccountInfo;          // Points at selected game account (inside _gameAccounts)
 
         std::string _locale;
         std::string _os;
         uint32 _build;
-        ClientBuild::VariantId _clientInfo;
+        ClientBuild::VariantId _buildVariant;
         Minutes _timezoneOffset;
 
         std::string _ipCountry;

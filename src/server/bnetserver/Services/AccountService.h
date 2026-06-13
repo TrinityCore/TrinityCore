@@ -15,17 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AccountService_h__
-#define AccountService_h__
+#ifndef TRINITYCORE_ACCOUNT_SERVICE_H
+#define TRINITYCORE_ACCOUNT_SERVICE_H
 
 #include "Service.h"
-#include "account_service.pb.h"
+#include "Client/account_service.pb.h"
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    class Session;
-
-    namespace Services
+    namespace V1
     {
         class Account : public Service<account::v1::AccountService>
         {
@@ -40,4 +38,4 @@ namespace Battlenet
     }
 }
 
-#endif // AccountService_h__
+#endif // TRINITYCORE_ACCOUNT_SERVICE_H

@@ -18,13 +18,18 @@
 #include "ConnectionService.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "Session.h"
+#include "Timer.h"
 #include "Util.h"
 
-Battlenet::Services::Connection::Connection(Session* session) : ConnectionService(session)
+namespace Battlenet::Services
+{
+namespace V1
+{
+Connection::Connection(Session* session) : ConnectionService(session)
 {
 }
 
-uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     if (request->has_client_id())
         response->mutable_client_id()->CopyFrom(request->client_id());
@@ -32,19 +37,20 @@ uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectReq
     std::chrono::system_clock::duration now = std::chrono::system_clock::now().time_since_epoch();
 
     response->mutable_server_id()->set_label(GetPID());
-    response->mutable_server_id()->set_epoch(std::chrono::duration_cast<Seconds>(now).count());
+    response->mutable_server_id()->set_epoch(std::chrono::duration_cast<Seconds>(now - Milliseconds(getMSTime())).count());
     response->set_server_time(std::chrono::duration_cast<Milliseconds>(now).count());
 
     response->set_use_bindless_rpc(request->use_bindless_rpc());
+
     return ERROR_OK;
 }
 
-uint32 Battlenet::Services::Connection::HandleKeepAlive(NoData const* /*request*/)
+uint32 Connection::HandleKeepAlive(NoData const* /*request*/)
 {
     return ERROR_OK;
 }
 
-uint32 Battlenet::Services::Connection::HandleRequestDisconnect(connection::v1::DisconnectRequest const* request)
+uint32 Connection::HandleRequestDisconnect(connection::v1::DisconnectRequest const* request)
 {
     connection::v1::DisconnectNotification disconnectNotification;
     disconnectNotification.set_error_code(request->error_code());
@@ -52,4 +58,6 @@ uint32 Battlenet::Services::Connection::HandleRequestDisconnect(connection::v1::
 
     _session->DelayedCloseSocket();
     return ERROR_OK;
+}
+}
 }

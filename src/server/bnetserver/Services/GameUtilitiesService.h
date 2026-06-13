@@ -15,18 +15,49 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameUtilitiesService_h__
-#define GameUtilitiesService_h__
+#ifndef TRINITYCORE_GAME_UTILITIES_SERVICE_H
+#define TRINITYCORE_GAME_UTILITIES_SERVICE_H
 
 #include "Service.h"
-#include "game_utilities_service.pb.h"
+#include "Client/game_utilities_service.pb.h"
+#include <variant>
+#include <vector>
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    class Session;
+    using Variant = std::variant<bool, int64, double, std::string, std::vector<uint8>, uint64>;
 
-    namespace Services
+    namespace Shared
     {
+        class GameUtilities
+        {
+        public:
+            static std::string_view ParseParamName(std::string_view command);
+            static Variant* FindParamValue(std::vector<std::pair<std::string_view, Variant>>& params, std::string_view paramName);
+
+            static uint32 HandleClientRequest(Session* session,
+                std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+
+            static uint32 HandleGetAllValuesForAttribute(Session const* session, std::string_view command, std::vector<Variant>& responseValues);
+
+        private:
+            static uint32 GetLastCharPlayed(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetRealmListTicket(Session* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetRealmList(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 JoinRealm(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+        };
+    }
+
+    namespace V1
+    {
+        Battlenet::Services::Variant FromProto(bgs::protocol::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::Variant* to);
+
         class GameUtilities : public Service<game_utilities::v1::GameUtilitiesService>
         {
             typedef Service<game_utilities::v1::GameUtilitiesService> GameUtilitiesService;
@@ -40,4 +71,4 @@ namespace Battlenet
     }
 }
 
-#endif // GameUtilitiesService_h__
+#endif // TRINITYCORE_GAME_UTILITIES_SERVICE_H
