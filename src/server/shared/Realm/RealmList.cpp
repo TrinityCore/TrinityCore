@@ -25,7 +25,6 @@
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
-#include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
 #include "advstd.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -234,11 +233,10 @@ std::shared_ptr<Realm const> RealmList::GetCurrentRealm() const
     return nullptr;
 }
 
-void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
+std::vector<std::string> RealmList::GetSubRegions() const
 {
     std::shared_lock lock(_realmsMutex);
-    for (std::string const& subRegion : _subRegions)
-        response->add_attribute_value()->set_string_value(subRegion);
+    return { _subRegions.begin(), _subRegions.end() };
 }
 
 void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTypes accountSecurityLevel, JSON::RealmList::RealmEntry* realmEntry) const
@@ -329,14 +327,14 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSec
     return compressed;
 }
 
-uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
+RealmJoinResult RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
     std::array<uint8, 32> const& clientSecret, LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
-    AccountTypes accountSecurityLevel, bgs::protocol::game_utilities::v1::ClientResponse* response) const
+    AccountTypes accountSecurityLevel) const
 {
     if (std::shared_ptr<Realm const> realm = GetRealm(realmAddress))
     {
         if (realm->PopulationLevel == RealmPopulationState::Offline || realm->Build != build || accountSecurityLevel < realm->AllowedSecurityLevel)
-            return ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM;
+            return { .Result = ERROR_USER_SERVER_NOT_PERMITTED_ON_REALM };
 
         boost::asio::ip::address addressForClient = realm->GetAddressForClient(clientAddress);
 
@@ -349,12 +347,13 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::Vari
         address->set_port(realm->Port);
 
         std::string json = "JSONRealmListServerIPAddresses:" + JSON::Serialize(serverAddresses);
-        std::vector<uint8> compressed;
+        std::vector<uint8> serverAddressesCompressed;
 
-        if (!CompressJson(json, &compressed))
-            return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
+        if (!CompressJson(json, &serverAddressesCompressed))
+            return { .Result = ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE };
 
-        std::array<uint8, 32> serverSecret = Trinity::Crypto::GetRandomBytes<32>();
+        std::vector<uint8> serverSecret(32);
+        Trinity::Crypto::GetRandomBytes(serverSecret);
 
         std::array<uint8, 64> keyData;
         auto keyDestItr = keyData.begin();
@@ -377,19 +376,15 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::Vari
         joinTicket.set_clientarch(buildVariant.Arch);
         joinTicket.set_type(buildVariant.Type);
 
-        bgs::protocol::Attribute* attribute = response->add_attribute();
-        attribute->set_name("Param_RealmJoinTicket");
-        attribute->mutable_value()->set_blob_value(JSON::Serialize(joinTicket));
+        std::string joinTicketJson = JSON::Serialize(joinTicket);
 
-        attribute = response->add_attribute();
-        attribute->set_name("Param_ServerAddresses");
-        attribute->mutable_value()->set_blob_value(compressed.data(), compressed.size());
-
-        attribute = response->add_attribute();
-        attribute->set_name("Param_JoinSecret");
-        attribute->mutable_value()->set_blob_value(serverSecret.data(), serverSecret.size());
-        return ERROR_OK;
+        return {
+            .Result = ERROR_OK,
+            .JoinTicket = { joinTicketJson.begin(), joinTicketJson.end() },
+            .ServerAddresses = std::move(serverAddressesCompressed),
+            .JoinSecret = std::move(serverSecret)
+        };
     }
 
-    return ERROR_UTIL_SERVER_UNKNOWN_REALM;
+    return { .Result = ERROR_UTIL_SERVER_UNKNOWN_REALM };
 }

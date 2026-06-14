@@ -15,16 +15,43 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WorldserverGameUtilitiesService_h__
-#define WorldserverGameUtilitiesService_h__
+#ifndef WORLDSERVER_GAME_UTILITIES_SERVICE_H
+#define WORLDSERVER_GAME_UTILITIES_SERVICE_H
 
 #include "WorldserverService.h"
-#include "game_utilities_service.pb.h"
+#include "Client/game_utilities_service.pb.h"
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    namespace Services
+    using Variant = std::variant<bool, int64, double, std::string, std::vector<uint8>, uint64>;
+
+    namespace Shared
     {
+        class GameUtilities
+        {
+        public:
+            static std::string_view ParseParamName(std::string_view command);
+            static Variant* FindParamValue(std::vector<std::pair<std::string_view, Variant>>& params, std::string_view paramName);
+
+            static uint32 HandleClientRequest(WorldSession const* session,
+                std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+
+            static uint32 HandleGetAllValuesForAttribute(WorldSession const* session, std::string_view command, std::vector<Variant>& responseValues);
+
+        private:
+            static uint32 GetRealmList(WorldSession const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 JoinRealm(WorldSession const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+        };
+    }
+
+    namespace V1
+    {
+        Battlenet::Services::Variant FromProto(bgs::protocol::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::Variant* to);
+
         class GameUtilitiesService : public WorldserverService<game_utilities::v1::GameUtilitiesService>
         {
             typedef WorldserverService<game_utilities::v1::GameUtilitiesService> BaseService;
@@ -34,15 +61,8 @@ namespace Battlenet
 
             uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
             uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-
-        private:
-            using ClientRequestHandler = uint32(GameUtilitiesService::*)(std::unordered_map<std::string, Variant const*> const&, game_utilities::v1::ClientResponse*);
-            static std::unordered_map<std::string, ClientRequestHandler> const ClientRequestHandlers;
-
-            uint32 HandleRealmListRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
-            uint32 HandleRealmJoinRequest(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response);
         };
     }
 }
 
-#endif // WorldserverGameUtilitiesService_h__
+#endif // WORLDSERVER_GAME_UTILITIES_SERVICE_H
