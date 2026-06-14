@@ -5997,7 +5997,7 @@ again:
       }
       if (!(soap->ssl_flags & SOAP_SSL_SKIP_HOST_CHECK))
       {
-        X509_NAME *subj;
+        const X509_NAME* subj;
         STACK_OF(CONF_VALUE) *val = NULL;
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
         GENERAL_NAMES *names = NULL;
@@ -6113,8 +6113,8 @@ again:
           int i = -1;
           do
           {
-            ASN1_STRING *name;
-            i = X509_NAME_get_index_by_NID(subj, NID_commonName, i);
+            const ASN1_STRING* name;
+            i = X509_NAME_get_index_by_NID((X509_NAME*)subj, NID_commonName, i);
             if (i == -1)
               break;
             name = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(subj, i));
