@@ -4099,7 +4099,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!raceMask.IsEmpty() && (raceMask & RACEMASK_ALL_PLAYABLE).IsEmpty())
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask {} in `playercreateinfo_spell_custom` table, ignoring.", raceMask.RawValue);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask {} in `playercreateinfo_spell_custom` table, ignoring.", raceMask.RawValue[0]);
                     continue;
                 }
 
@@ -4160,7 +4160,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!raceMask.IsEmpty() && (raceMask & RACEMASK_ALL_PLAYABLE).IsEmpty())
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask {} in `playercreateinfo_cast_spell` table, ignoring.", raceMask.RawValue);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask {} in `playercreateinfo_cast_spell` table, ignoring.", raceMask.RawValue[0]);
                     continue;
                 }
 
@@ -4829,13 +4829,13 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be -1/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->_allowableRaces != RACEMASK_ALL_v<std::array<int32, 2>>)
+        if (qinfo->_allowableRaces != RACEMASK_ALL_v<int32, 2>)
         {
-            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE_v<std::array<int32, 2>>).IsEmpty())
+            if (!qinfo->_allowableRaces.IsEmpty() && (qinfo->_allowableRaces & RACEMASK_ALL_PLAYABLE_v<int32, 2>).IsEmpty())
             {
                 TC_LOG_ERROR("sql.sql", "Quest {} does not contain any playable races in `AllowableRaces` (0x{:X}{:08X}), value set to -1 (all races).",
                     qinfo->GetQuestId(), qinfo->_allowableRaces.RawValue[1], qinfo->_allowableRaces.RawValue[0]);
-                qinfo->_allowableRaces = RACEMASK_ALL_v<std::array<int32, 2>>;
+                qinfo->_allowableRaces = RACEMASK_ALL_v<int32, 2>;
             }
         }
         // RequiredSkillId, can be 0
@@ -9255,7 +9255,7 @@ void ObjectMgr::LoadMailLevelRewards()
 
         if ((raceMask & RACEMASK_ALL_PLAYABLE).IsEmpty())
         {
-            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has raceMask ({}) for level {} that not include any player races, ignoring.", raceMask.RawValue, level);
+            TC_LOG_ERROR("sql.sql", "Table `mail_level_reward` has raceMask ({}) for level {} that not include any player races, ignoring.", raceMask.RawValue[0], level);
             continue;
         }
 

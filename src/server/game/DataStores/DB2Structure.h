@@ -660,7 +660,7 @@ struct CharacterLoadoutEntry
     int8 ChrClassID;
     int32 Purpose;
     uint8 ItemContext;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
 
     bool IsForNewCharacter() const { return Purpose == 9; }
 };
@@ -819,7 +819,7 @@ struct ChrCustomizationReqEntry
     int32 QuestID;
     int32 OverrideArchive;                                          // -1: allow any, otherwise must match OverrideArchive cvar
     int32 ItemModifiedAppearanceID;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
 
     EnumFlag<ChrCustomizationReqFlag> GetFlags() const { return static_cast<ChrCustomizationReqFlag>(Flags); }
 };
@@ -1622,7 +1622,7 @@ struct EmotesEntry
     uint32 EventSoundID;
     uint32 SpellVisualKitID;
     int32 ClassMask;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
 };
 
 struct EmotesTextEntry
@@ -1693,10 +1693,10 @@ struct FactionEntry
     std::array<int32, 4> ReputationMax;
     std::array<float, 2> ParentFactionMod;            // Faction outputs rep * ParentFactionModOut as spillover reputation
     std::array<uint8, 2> ParentFactionCap;            // The highest rank the faction will profit from incoming spillover
-    Trinity::RaceMask<std::array<int32, 2>> ReputationRaceMask1_;
-    Trinity::RaceMask<std::array<int32, 2>> ReputationRaceMask2_;
-    Trinity::RaceMask<std::array<int32, 2>> ReputationRaceMask3_;
-    Trinity::RaceMask<std::array<int32, 2>> ReputationRaceMask4_;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask1_;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask2_;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask3_;
+    Trinity::RaceMask<int32, 2> ReputationRaceMask4_;
 
     // helpers
     bool CanHaveReputation() const
@@ -2568,7 +2568,7 @@ struct ItemSearchNameEntry
     uint32 RequiredAbility;
     uint16 ItemLevel;
     std::array<int32, 5> Flags;
-    Trinity::RaceMask<std::array<int32, 2>> AllowableRace_;
+    Trinity::RaceMask<int32, 2> AllowableRace_;
 };
 
 #define MAX_ITEM_SET_ITEMS 17
@@ -2618,7 +2618,7 @@ struct ItemSparseEntry
     int32 MaxCount;
     int32 MinReputation;
     uint32 RequiredAbility;
-    Trinity::RaceMask<std::array<int32, 2>> AllowableRace_;
+    Trinity::RaceMask<int32, 2> AllowableRace_;
     uint32 SellPrice;
     uint32 BuyPrice;
     uint32 VendorStackCount;
@@ -3351,7 +3351,7 @@ struct PlayerConditionEntry
     std::array<uint32, 4> CurrencyCount;
     std::array<uint32, 6> QuestKillMonster;
     std::array<int32, 2> MovementFlags;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
     std::array<int32, 4> TraitNodeEntryID;
     std::array<uint16, 4> TraitNodeEntryMinRank;
     std::array<uint16, 4> TraitNodeEntryMaxRank;
@@ -3719,7 +3719,7 @@ struct SkillLineAbilityEntry
     int16 UniqueBit;
     int16 TradeSkillCategoryID;
     int16 SkillupSkillLineID;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
 
     SkillLineAbilityAcquireMethod GetAcquireMethod() const { return static_cast<SkillLineAbilityAcquireMethod>(AcquireMethod); }
     EnumFlag<SkillLineAbilityFlags> GetFlags() const { return static_cast<SkillLineAbilityFlags>(Flags); }
@@ -3743,7 +3743,7 @@ struct SkillRaceClassInfoEntry
     int32 Availability;
     int8 MinLevel;
     int16 SkillTierID;
-    Trinity::RaceMask<std::array<int32, 2>> RaceMask_;
+    Trinity::RaceMask<int32, 2> RaceMask_;
 };
 
 struct SoulbindConduitRankEntry

@@ -2566,10 +2566,10 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                 ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
                 for (auto const& [questId, quest] : questTemplates)
                 {
-                    Trinity::RaceMask<std::array<int32, 2>> newRaceMask = newTeamId == TEAM_ALLIANCE
-                        ? RACEMASK_ALLIANCE_v<std::array<int32, 2>>
-                        : RACEMASK_HORDE_v<std::array<int32, 2>>;
-                    if (quest->GetAllowableRaces() != RACEMASK_ALL_v<std::array<int32, 2>> && (quest->GetAllowableRaces() & newRaceMask).IsEmpty())
+                    Trinity::RaceMask<int32, 2> newRaceMask = newTeamId == TEAM_ALLIANCE
+                        ? RACEMASK_ALLIANCE_v<int32, 2>
+                        : RACEMASK_HORDE_v<int32, 2>;
+                    if (quest->GetAllowableRaces() != RACEMASK_ALL_v<int32, 2> && (quest->GetAllowableRaces() & newRaceMask).IsEmpty())
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST);
                         stmt->setUInt64(0, lowGuid);

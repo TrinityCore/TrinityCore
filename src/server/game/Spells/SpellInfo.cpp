@@ -4387,7 +4387,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             }
             case SPELL_PPM_MOD_RACE:
             {
-                if (caster->GetRaceMask() & mod->Param)
+                if (Trinity::RaceMask<int32>{ mod->Param }.HasRace(caster->GetRace()))
                     ppm *= 1.0f + mod->Coeff;
                 break;
             }

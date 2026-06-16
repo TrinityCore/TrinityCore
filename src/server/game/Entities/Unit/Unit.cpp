@@ -9975,6 +9975,11 @@ void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
     }
 }
 
+uint64 Unit::GetRaceMask() const
+{
+    return Trinity::RaceMask<uint64>::GetMaskForRace(GetRace()).RawValue[0];
+}
+
 void Unit::SetHealth(uint64 val)
 {
     if (getDeathState() == JUST_DIED || getDeathState() == CORPSE)
