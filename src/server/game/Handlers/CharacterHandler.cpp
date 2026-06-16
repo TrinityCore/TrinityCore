@@ -2612,10 +2612,10 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
 
                     // old base reputation
-                    int32 oldBaseRep = sObjectMgr->GetBaseReputationOf(factionEntry, oldRace, playerClass);
+                    int32 oldBaseRep = ReputationMgr::GetBaseReputation(factionEntry, oldRace, playerClass);
 
                     // new base reputation
-                    int32 newBaseRep = sObjectMgr->GetBaseReputationOf(sFactionStore.LookupEntry(newReputation), factionChangeInfo->RaceID, playerClass);
+                    int32 newBaseRep = ReputationMgr::GetBaseReputation(sFactionStore.LookupEntry(newReputation), factionChangeInfo->RaceID, playerClass);
 
                     // final reputation shouldnt change
                     int32 FinalRep = oldDBRep + oldBaseRep;

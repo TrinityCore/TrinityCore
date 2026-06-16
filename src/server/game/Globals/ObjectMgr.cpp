@@ -9040,26 +9040,6 @@ uint32 ObjectMgr::GetEventScriptId(uint32 eventId) const
     return 0;
 }
 
-// this allows calculating base reputations to offline players, just by race and class
-int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass) const
-{
-    if (!factionEntry)
-        return 0;
-
-    uint32 classMask = 1 << (playerClass - 1);
-
-    for (uint8 i = 0; i < 4; ++i)
-    {
-        if ((!factionEntry->ReputationClassMask[i] ||
-            factionEntry->ReputationClassMask[i] & classMask) &&
-            (factionEntry->ReputationRaceMask[i].IsEmpty() ||
-            factionEntry->ReputationRaceMask[i].HasRace(race)))
-            return factionEntry->ReputationBase[i];
-    }
-
-    return 0;
-}
-
 SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 {
     SkillLineEntry const* skill = sSkillLineStore.LookupEntry(rcEntry->SkillID);
