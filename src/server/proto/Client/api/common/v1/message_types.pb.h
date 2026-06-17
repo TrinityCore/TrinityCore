@@ -82,11 +82,11 @@ inline bool ExternalMessagePlatform_Parse(
 enum MessageOrigin {
   MESSAGE_ORIGIN_PLAYER = 0,
   MESSAGE_ORIGIN_SYSTEM = 1,
-  MESSAGE_ORIGIN_DISCORD = 2
+  MESSAGE_ORIGIN_EXTERNAL = 2
 };
 TC_PROTO_API bool MessageOrigin_IsValid(int value);
 const MessageOrigin MessageOrigin_MIN = MESSAGE_ORIGIN_PLAYER;
-const MessageOrigin MessageOrigin_MAX = MESSAGE_ORIGIN_DISCORD;
+const MessageOrigin MessageOrigin_MAX = MESSAGE_ORIGIN_EXTERNAL;
 const int MessageOrigin_ARRAYSIZE = MessageOrigin_MAX + 1;
 
 TC_PROTO_API const ::google::protobuf::EnumDescriptor* MessageOrigin_descriptor();
