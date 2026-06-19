@@ -4113,7 +4113,7 @@ void CraftingOrderItem::WriteCreate(ByteBuffer& data, Player const* receiver, Pl
     data.FlushBits();
     if (DataSlotIndex.has_value())
     {
-        data << uint8(DataSlotIndex);
+        data << uint8(*DataSlotIndex);
     }
 }
 
@@ -4156,7 +4156,7 @@ void CraftingOrderItem::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Pl
     {
         if (DataSlotIndex.has_value())
         {
-            data << uint8(DataSlotIndex);
+            data << uint8(*DataSlotIndex);
         }
     }
 }
@@ -7873,7 +7873,7 @@ void VisualAnim::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigg
     data << uint32(AnimProgress);
     if (AnimationDataID.has_value())
     {
-        data << int16(AnimationDataID);
+        data << int16(*AnimationDataID);
     }
     data.FlushBits();
 }
@@ -7909,7 +7909,7 @@ void VisualAnim::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player co
         {
             if (AnimationDataID.has_value())
             {
-                data << int16(AnimationDataID);
+                data << int16(*AnimationDataID);
             }
         }
     }

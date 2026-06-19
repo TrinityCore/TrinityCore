@@ -3317,7 +3317,7 @@ void Creature::SetVendor(NPCFlags flags, bool apply)
         if (addFragment)
             m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
-    else if (m_vendorData)
+    else if (m_vendorData.has_value())
     {
         RemoveNpcFlag(flags);
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
@@ -3341,7 +3341,7 @@ void Creature::SetPetitioner(bool apply)
         if (addFragment)
             m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
-    else if (m_vendorData)
+    else if (m_vendorData.has_value())
     {
         RemoveNpcFlag(UNIT_NPC_FLAG_PETITIONER);
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
