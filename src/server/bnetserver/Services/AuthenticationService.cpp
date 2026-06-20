@@ -17,6 +17,7 @@
 
 #include "AuthenticationService.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "Client/api/client/v2/authentication_listener.pb.h"
 #include "Client/challenge_service.pb.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
@@ -297,6 +298,102 @@ uint32 Authentication::HandleGenerateWebCredentials(authentication::v1::Generate
         authentication::v1::GenerateWebCredentialsResponse response;
         response.set_web_credentials(webCredentials.data(), webCredentials.size());
         continuation(&asyncContinuationService, ERROR_OK, &response);
+    });
+}
+}
+
+namespace V2
+{
+Authentication::Authentication(Session* session) : AuthenticationService(session)
+{
+}
+
+uint32 Authentication::HandleLogon(authentication::v2::client::LogonRequest const* request, NoData* /*response*/,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
+{
+    std::array<char, 5> titleId = ClientBuild::ToCharArray(request->title_id());
+    std::string_view deviceId;
+    std::string_view cachedAuthToken;
+
+    if (request->has_logon_options())
+    {
+        authentication::v2::client::LogonOptions const& logonOptions = request->logon_options();
+        if (logonOptions.has_device_id())
+            deviceId = logonOptions.device_id();
+
+        if (logonOptions.has_auth_token())
+            cachedAuthToken = logonOptions.auth_token();
+    }
+
+    uint32 result = Shared::Authentication::HandleLogon(_session, titleId.data(), request->platform(), request->locale(), request->application_version(), deviceId);
+    if (result == ERROR_OK)
+    {
+        if (!cachedAuthToken.empty())
+            return HandleVerifyAuthToken(cachedAuthToken, continuation);
+
+        authentication::v2::client::ExternalChallengeNotification externalChallenge;
+        externalChallenge.set_payload_type("web_auth_url");
+        externalChallenge.set_payload(Trinity::StringFormat("http{}://{}:{}/bnetserver/login/", !SslContext::UsesDevWildcardCertificate() ? "s" : "",
+            sLoginService.GetHostnameForClient(_session->GetRemoteIpAddress()), sLoginService.GetPort()));
+        Service<authentication::v2::client::AuthenticationListener>(_session).OnExternalChallenge(&externalChallenge);
+    }
+
+    return result;
+}
+
+uint32 Authentication::HandleVerifyAuthToken(authentication::v2::client::VerifyAuthTokenRequest const* request, NoData* /*response*/,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
+{
+    if (!request->has_auth_token())
+        return ERROR_DENIED;
+
+    return HandleVerifyAuthToken(request->auth_token(), continuation);
+}
+
+uint32 Authentication::HandleGenerateAuthToken(authentication::v2::client::GenerateAuthTokenRequest const* /*request*/,
+    authentication::v2::client::GenerateAuthTokenResponse* /*response*/, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
+{
+    if (!_session->IsAuthed())
+        return ERROR_DENIED;
+
+    return Shared::Authentication::HandleGenerateAuthToken(_session, [session = _session, continuation = std::move(continuation)](std::string_view webCredentials)
+    {
+        Authentication asyncContinuationService(session);
+        authentication::v2::client::GenerateAuthTokenResponse response;
+        response.set_auth_token(webCredentials.data(), webCredentials.size());
+        continuation(&asyncContinuationService, ERROR_OK, &response);
+    });
+}
+
+uint32 Authentication::HandleVerifyAuthToken(std::string_view authToken, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
+{
+    return Shared::Authentication::HandleVerifyAuthToken(_session, authToken, [session = _session, continuation = std::move(continuation)](uint32 result) mutable
+    {
+        Authentication asyncContinuationService(session);
+        NoData response;
+        continuation(&asyncContinuationService, result, &response);
+    },
+    [session = _session](AccountInfo const* accountInfo, std::string_view country)
+    {
+        authentication::v2::client::LogonCompleteNotification logonResult;
+        logonResult.set_error_code(0);
+        authentication::v2::client::LogonRecord* logonRecord = logonResult.mutable_record();
+        logonRecord->set_account_id(accountInfo->Id);
+        for (auto const& [id, gameAccountInfo] : accountInfo->GameAccounts)
+        {
+            account::v2::GameAccountHandle* gameAccount = logonRecord->add_game_account();
+            gameAccount->set_id(gameAccountInfo.Id);
+            gameAccount->set_title_id(ClientBuild::ToFourCC("WoW"sv));
+            gameAccount->set_region(2);
+        }
+
+        if (!country.empty())
+            logonRecord->set_geoip_country(country.data(), country.size());
+
+        std::array<uint8, 64> k = Trinity::Crypto::GetRandomBytes<64>();
+        logonRecord->set_session_key(k.data(), 64);
+
+        Service<authentication::v2::client::AuthenticationListener>(session).OnLogonComplete(&logonResult);
     });
 }
 }

@@ -267,6 +267,43 @@ std::unique_ptr<Trinity::Crypto::RsaSignature> ConnectToRSA;
 std::unique_ptr<Trinity::Crypto::Ed25519> EnterEncryptedModeSigner;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, ConnectTo::BleepToken const& bleepToken)
+{
+    data << SizedString::BitsSize<5>(bleepToken.Token);
+    data << SizedCString::BitsSize<24>(bleepToken.ProxyId);
+    data << SizedString::BitsSize<6>(bleepToken.Address);
+    data << bleepToken.TokenLifespan;
+    data << SizedString::Data(bleepToken.Token);
+    data << SizedCString::Data(bleepToken.ProxyId);
+    data << SizedString::Data(bleepToken.Address);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ConnectTo::ConnectPayload const& payload)
+{
+    data << uint8(payload.Address.Type);
+    switch (payload.Address.Type)
+    {
+        case ConnectTo::IPv4:
+            data.append(payload.Address.Address.V4.data(), payload.Address.Address.V4.size());
+            break;
+        case ConnectTo::IPv6:
+            data.append(payload.Address.Address.V6.data(), payload.Address.Address.V6.size());
+            break;
+        case ConnectTo::NamedSocket:
+            data << payload.Address.Address.Name.data();
+            break;
+        default:
+            break;
+    }
+
+    data << uint16(payload.Port);
+    data << payload.Token;
+
+    return data;
+}
+
 bool ConnectTo::InitializeEncryption()
 {
     std::unique_ptr<Trinity::Crypto::RsaSignature> rsa = std::make_unique<Trinity::Crypto::RsaSignature>();
@@ -284,41 +321,15 @@ void ConnectTo::ShutdownEncryption()
 
 WorldPacket const* ConnectTo::Write()
 {
-    ByteBuffer whereBuffer;
-    whereBuffer << uint8(Payload.Where.Type);
-    switch (Payload.Where.Type)
-    {
-        case IPv4:
-            whereBuffer.append(Payload.Where.Address.V4.data(), Payload.Where.Address.V4.size());
-            break;
-        case IPv6:
-            whereBuffer.append(Payload.Where.Address.V6.data(), Payload.Where.Address.V6.size());
-            break;
-        case NamedSocket:
-            whereBuffer << Payload.Where.Address.Name.data();
-            break;
-        default:
-            break;
-    }
-
-    ByteBuffer signBuffer;
-    signBuffer.append(whereBuffer);
-    signBuffer << uint32(Payload.Where.Type);
-    signBuffer << uint16(Payload.Port);
-
-    Trinity::Crypto::RsaSignature rsa(*ConnectToRSA);
-    Trinity::Crypto::RsaSignature::SHA256 digestGenerator;
-    std::vector<uint8> signature;
-    rsa.Sign(signBuffer.data(), signBuffer.size(), digestGenerator, signature);
-
-    _worldPacket.append(signature.data(), signature.size());
-    _worldPacket.append(whereBuffer);
-    _worldPacket << uint16(Payload.Port);
+    _worldPacket << Size<uint32>(Payload);
     _worldPacket << uint32(Serial);
     _worldPacket << uint8(Con);
     _worldPacket << uint64(Key);
     _worldPacket << uint32(NativeRealmAddress);
     _worldPacket << uint32(Key3);
+
+    for (ConnectPayload const& payload : Payload)
+        _worldPacket << payload;
 
     return &_worldPacket;
 }

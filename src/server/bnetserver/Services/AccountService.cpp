@@ -76,4 +76,77 @@ uint32 Account::HandleGetGameAccountState(account::v1::GetGameAccountStateReques
     return ERROR_OK;
 }
 }
+
+namespace V2
+{
+Account::Account(Session* session) : AccountService(session)
+{
+}
+
+uint32 Account::HandleGetAccountInfo(account::v2::client::GetAccountInfoRequest const* /*request*/,
+    account::v2::client::GetAccountInfoResponse* response,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
+{
+    account::v2::AccountInfo* info = response->mutable_info();
+
+    info->set_account_id(_session->GetAccountId());
+    info->add_flags(account::v2::AccountInfo::FLAG_IS_HIDDEN_FROM_FRIEND_FINDER);
+
+    return ERROR_OK;
+}
+
+uint32 Account::HandleGetRestriction(account::v2::client::GetRestrictionRequest const* /*request*/,
+    account::v2::client::GetRestrictionResponse* /*response*/,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
+{
+    return ERROR_OK;
+}
+
+uint32 Account::HandleGetGameAccountInfo(account::v2::client::GetGameAccountInfoRequest const* request,
+    account::v2::client::GetGameAccountInfoResponse* response,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
+{
+    if (request->has_game_account())
+    {
+        if (GameAccountInfo const* gameAccountInfo = _session->GetGameAccountInfo(request->game_account().id()))
+        {
+            account::v2::GameAccountInfo* info = response->mutable_info();
+            info->set_account_id(request->game_account().id());
+            info->set_name(gameAccountInfo->DisplayName);
+        }
+    }
+
+    return ERROR_OK;
+}
+
+uint32 Account::HandleGetGameAccountRestriction(account::v2::client::GetGameAccountRestrictionRequest const* request,
+    account::v2::client::GetGameAccountRestrictionResponse* response,
+    std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
+{
+    if (request->has_game_account())
+    {
+        if (GameAccountInfo const* gameAccountInfo = _session->GetGameAccountInfo(request->game_account().id()))
+        {
+            if (gameAccountInfo->IsPermanenetlyBanned)
+            {
+                account::v2::Restriction* restriction = response->add_restrictions();
+                restriction->set_title_id(ClientBuild::ToFourCC("WoW"sv));
+                restriction->set_type(account::v2::RESTRICTION_TYPE_LOGIN_BANNED);
+                restriction->set_created_time_ms(gameAccountInfo->BanDate * IN_MILLISECONDS);
+            }
+
+            if (gameAccountInfo->IsBanned)
+            {
+                account::v2::Restriction* restriction = response->add_restrictions();
+                restriction->set_title_id(ClientBuild::ToFourCC("WoW"sv));
+                restriction->set_type(account::v2::RESTRICTION_TYPE_LOGIN_SUSPENDED);
+                restriction->set_created_time_ms(gameAccountInfo->BanDate * IN_MILLISECONDS);
+                restriction->set_expire_time_ms(gameAccountInfo->UnbanDate * IN_MILLISECONDS);
+            }
+        }
+    }
+
+    return ERROR_OK;
+}
+}
 }

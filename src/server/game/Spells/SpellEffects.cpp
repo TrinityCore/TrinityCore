@@ -1104,7 +1104,7 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
 
     if (effectInfo->MiscValueB)
         if (Player* playerTarget = unitTarget->ToPlayer())
-            playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, effectInfo->MiscValue).Write());
+            playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, Milliseconds(effectInfo->MiscValue)).Write());
 
     TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
     unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, options, m_spellInfo->Id),
