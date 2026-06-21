@@ -1093,7 +1093,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
     int32 outputByteIndex = NumUInt64s;
     std::span<uint8 const, ObjectGuid::BytesSize> guidBytes = std::span<uint8 const, ObjectGuid::BytesSize>(reinterpret_cast<uint8 const*>(guid._data.data()), ObjectGuid::BytesSize);
 
-    for (int32 inputByteIndex = 0; inputByteIndex < NumUInt64s; ++inputByteIndex)
+    for (int32 inputByteIndex = 0; inputByteIndex < int32(ObjectGuid::BytesSize); ++inputByteIndex)
     {
         uint8 byte = guidBytes[inputByteIndex];
         bytes[outputByteIndex] = byte;
