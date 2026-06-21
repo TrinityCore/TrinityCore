@@ -21,6 +21,7 @@
 #include "RealmList.h"
 #include "StringFormat.h"
 #include "Util.h"
+#include <bit>
 #include <charconv>
 
 static_assert(sizeof(ObjectGuid) == sizeof(uint64) * 2, "ObjectGuid must be exactly 16 bytes");
@@ -1085,38 +1086,52 @@ ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(UI64
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    static constexpr std::size_t NumUInt64s = 2;
+    static constexpr std::ptrdiff_t NumUInt64s = std::tuple_size_v<decltype(ObjectGuid::_data)>;
 
     std::array<uint8, NumUInt64s + ObjectGuid::BytesSize> bytes;
-    memset(bytes.data(), 0, NumUInt64s);
-    size_t packedSize = guid._data.size();
+    int32 mask = 0;
+    int32 outputByteIndex = NumUInt64s;
+    std::span<uint8 const, ObjectGuid::BytesSize> guidBytes = std::span<uint8 const, ObjectGuid::BytesSize>(reinterpret_cast<uint8 const*>(guid._data.data()), ObjectGuid::BytesSize);
 
-    for (std::size_t i = 0; i < guid._data.size(); ++i)
+    for (int32 inputByteIndex = 0; inputByteIndex < NumUInt64s; ++inputByteIndex)
     {
-        for (uint32 b = 0; b < 8; ++b)
-        {
-            if (uint8 byte = uint8((guid._data[i] >> (b * 8)) & 0xFF))
-            {
-                bytes[packedSize++] = byte;
-                bytes[i] |= uint8(1 << b);
-            }
-        }
+        uint8 byte = guidBytes[inputByteIndex];
+        bytes[outputByteIndex] = byte;
+
+        int32 hasByte = (byte != 0) ? 1 : 0;
+        mask |= hasByte << inputByteIndex;
+        outputByteIndex += hasByte;
     }
 
-    buf.append(bytes.data(), packedSize);
+    bytes[0] = mask & 0xFF;
+    bytes[1] = (mask >> 8) & 0xFF;
+    buf.append(bytes.data(), outputByteIndex);
 
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    std::array<uint8, 2> mask;
-    buf.read(mask);
+    uint16 mask = buf.read<uint16>();
+    std::span<uint8> bytes = buf.ReadBytes(std::popcount(mask));
 
-    for (std::size_t i = 0; i < guid._data.size(); ++i)
-        for (uint32 b = 0; b < 8; ++b)
-            if (mask[i] & (uint8(1) << b))
-                guid._data[i] |= uint64(buf.read<uint8>()) << (b * 8);
+    // check highest byte holding guid type
+    // if it's 0 then we consider it empty and discard all sent bytes
+    // return early to prevent reading out of bounds data
+    if (!(mask & 0x8000))
+    {
+        guid.Clear();
+        return buf;
+    }
+
+    std::span<uint8, ObjectGuid::BytesSize> guidBytes = std::span<uint8, ObjectGuid::BytesSize>(reinterpret_cast<uint8*>(guid._data.data()), ObjectGuid::BytesSize);
+
+    for (std::size_t outputByteIndex = 0, inputByteIndex = 0; outputByteIndex < ObjectGuid::BytesSize; ++outputByteIndex)
+    {
+        int32 hasByte = (mask >> outputByteIndex) & 1;
+        guidBytes[outputByteIndex] = bytes[inputByteIndex] & -hasByte;
+        inputByteIndex += hasByte;
+    }
 
     return buf;
 }
