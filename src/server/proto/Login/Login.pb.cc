@@ -130,11 +130,12 @@ void protobuf_AssignDesc_Login_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FormInputValue));
   LoginForm_descriptor_ = file->message_type(4);
-  static const int LoginForm_offsets_[4] = {
+  static const int LoginForm_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, platform_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, program_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, inputs_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoginForm, title_id_),
   };
   LoginForm_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -318,31 +319,31 @@ void protobuf_AddDesc_Login_2eproto() {
     "uts\030\002 \003(\0132\037.Battlenet.JSON.Login.FormInp"
     "ut\022\017\n\007srp_url\030\003 \001(\t\022\016\n\006srp_js\030\004 \001(\t\"1\n\016F"
     "ormInputValue\022\020\n\010input_id\030\001 \002(\t\022\r\n\005value"
-    "\030\002 \002(\t\"{\n\tLoginForm\022\023\n\013platform_id\030\001 \002(\t"
-    "\022\022\n\nprogram_id\030\002 \002(\t\022\017\n\007version\030\003 \002(\t\0224\n"
-    "\006inputs\030\004 \003(\0132$.Battlenet.JSON.Login.For"
-    "mInputValue\"\312\001\n\021SrpLoginChallenge\022\017\n\007ver"
-    "sion\030\001 \002(\r\022\022\n\niterations\030\002 \002(\r\022\017\n\007modulu"
-    "s\030\003 \002(\t\022\021\n\tgenerator\030\004 \002(\t\022\025\n\rhash_funct"
-    "ion\030\005 \002(\t\022\020\n\010username\030\006 \002(\t\022\014\n\004salt\030\007 \002("
-    "\t\022\020\n\010public_B\030\010 \002(\t\022#\n\033eligible_credenti"
-    "al_upgrade\030\t \001(\010\"\322\001\n\013LoginResult\022G\n\024auth"
-    "entication_state\030\001 \002(\0162).Battlenet.JSON."
-    "Login.AuthenticationState\022\022\n\nerror_code\030"
-    "\002 \001(\t\022\025\n\rerror_message\030\003 \001(\t\022\013\n\003url\030\004 \001("
-    "\t\022\024\n\014login_ticket\030\005 \001(\t\022\032\n\022server_eviden"
-    "ce_M2\030\006 \001(\t\022\020\n\010next_url\030\007 \001(\t\"E\n\022LoginRe"
-    "freshResult\022\033\n\023login_ticket_expiry\030\001 \002(\004"
-    "\022\022\n\nis_expired\030\002 \001(\010\"\232\001\n\017GameAccountInfo"
-    "\022\024\n\014display_name\030\001 \002(\t\022\021\n\texpansion\030\002 \002("
-    "\r\022\024\n\014is_suspended\030\003 \001(\010\022\021\n\tis_banned\030\004 \001"
-    "(\010\022\032\n\022suspension_expires\030\005 \001(\004\022\031\n\021suspen"
-    "sion_reason\030\006 \001(\t\"O\n\017GameAccountList\022<\n\r"
-    "game_accounts\030\001 \003(\0132%.Battlenet.JSON.Log"
-    "in.GameAccountInfo*\032\n\010FormType\022\016\n\nLOGIN_"
-    "FORM\020\001*H\n\023AuthenticationState\022\t\n\005LOGIN\020\001"
-    "\022\t\n\005LEGAL\020\002\022\021\n\rAUTHENTICATOR\020\003\022\010\n\004DONE\020\004"
-    "B\002H\002", 1284);
+    "\030\002 \002(\t\"\215\001\n\tLoginForm\022\023\n\013platform_id\030\001 \002("
+    "\t\022\022\n\nprogram_id\030\002 \002(\t\022\017\n\007version\030\003 \002(\t\0224"
+    "\n\006inputs\030\004 \003(\0132$.Battlenet.JSON.Login.Fo"
+    "rmInputValue\022\020\n\010title_id\030\005 \001(\r\"\312\001\n\021SrpLo"
+    "ginChallenge\022\017\n\007version\030\001 \002(\r\022\022\n\niterati"
+    "ons\030\002 \002(\r\022\017\n\007modulus\030\003 \002(\t\022\021\n\tgenerator\030"
+    "\004 \002(\t\022\025\n\rhash_function\030\005 \002(\t\022\020\n\010username"
+    "\030\006 \002(\t\022\014\n\004salt\030\007 \002(\t\022\020\n\010public_B\030\010 \002(\t\022#"
+    "\n\033eligible_credential_upgrade\030\t \001(\010\"\322\001\n\013"
+    "LoginResult\022G\n\024authentication_state\030\001 \002("
+    "\0162).Battlenet.JSON.Login.AuthenticationS"
+    "tate\022\022\n\nerror_code\030\002 \001(\t\022\025\n\rerror_messag"
+    "e\030\003 \001(\t\022\013\n\003url\030\004 \001(\t\022\024\n\014login_ticket\030\005 \001"
+    "(\t\022\032\n\022server_evidence_M2\030\006 \001(\t\022\020\n\010next_u"
+    "rl\030\007 \001(\t\"E\n\022LoginRefreshResult\022\033\n\023login_"
+    "ticket_expiry\030\001 \002(\004\022\022\n\nis_expired\030\002 \001(\010\""
+    "\232\001\n\017GameAccountInfo\022\024\n\014display_name\030\001 \002("
+    "\t\022\021\n\texpansion\030\002 \002(\r\022\024\n\014is_suspended\030\003 \001"
+    "(\010\022\021\n\tis_banned\030\004 \001(\010\022\032\n\022suspension_expi"
+    "res\030\005 \001(\004\022\031\n\021suspension_reason\030\006 \001(\t\"O\n\017"
+    "GameAccountList\022<\n\rgame_accounts\030\001 \003(\0132%"
+    ".Battlenet.JSON.Login.GameAccountInfo*\032\n"
+    "\010FormType\022\016\n\nLOGIN_FORM\020\001*H\n\023Authenticat"
+    "ionState\022\t\n\005LOGIN\020\001\022\t\n\005LEGAL\020\002\022\021\n\rAUTHEN"
+    "TICATOR\020\003\022\010\n\004DONE\020\004B\002H\002", 1303);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "Login.proto", &protobuf_RegisterTypes);
   ErrorResponse::default_instance_ = new ErrorResponse();
@@ -733,6 +734,7 @@ const int LoginForm::kPlatformIdFieldNumber;
 const int LoginForm::kProgramIdFieldNumber;
 const int LoginForm::kVersionFieldNumber;
 const int LoginForm::kInputsFieldNumber;
+const int LoginForm::kTitleIdFieldNumber;
 #endif  // !_MSC_VER
 
 LoginForm::LoginForm()
@@ -757,6 +759,7 @@ void LoginForm::SharedCtor() {
   platform_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   program_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   version_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  title_id_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

@@ -20,6 +20,7 @@
 
 #include "Service.h"
 #include "Client/authentication_service.pb.h"
+#include "Client/api/client/v2/authentication_service.pb.h"
 
 namespace Battlenet
 {
@@ -56,6 +57,24 @@ namespace Battlenet::Services
 
         private:
             uint32 HandleVerifyWebCredentials(std::string_view webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+        };
+    }
+
+    namespace V2
+    {
+        class Authentication : public Service<authentication::v2::client::AuthenticationService>
+        {
+            typedef Service<authentication::v2::client::AuthenticationService> AuthenticationService;
+
+        public:
+            Authentication(Session* session);
+
+            uint32 HandleLogon(authentication::v2::client::LogonRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleVerifyAuthToken(authentication::v2::client::VerifyAuthTokenRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleGenerateAuthToken(authentication::v2::client::GenerateAuthTokenRequest const* request, authentication::v2::client::GenerateAuthTokenResponse* response, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation) override;
+
+        private:
+            uint32 HandleVerifyAuthToken(std::string_view authToken, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
         };
     }
 }

@@ -21,8 +21,10 @@
 #include "Errors.h"
 #include "IpBanCheckConnectionInitializer.h"
 #include "MapUtils.h"
+#include "Memory.h"
 #include "QueryCallback.h"
 #include "ServiceDispatcher.h"
+#include "SessionManager.h"
 #include "SslContext.h"
 #include "rpc_types.pb.h"
 
@@ -70,6 +72,7 @@ constexpr std::size_t PacketHeaderLengthSize = sizeof(uint16);
 
 Battlenet::Session::Session(Trinity::Net::IoContextTcpSocket&& socket) : _socket(CreateSocket(std::move(socket))),
     _packetReadState(PacketReadState::HeaderLength), _packetBuffer(PacketHeaderLengthSize),
+    _sessionId(++sSessionMgr.SessionIdGenerator), _creationTime(SystemTimePoint::clock::now()),
     _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _buildVariant(), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
@@ -129,6 +132,9 @@ void Battlenet::Session::SendResponse(uint32 token, pb::Message const* response)
     header.set_token(token);
     header.set_service_id(0xFE);
     header.set_size(response->ByteSize());
+    header.set_allocated_ciid(&_clientInstanceId);
+
+    auto ciidGuard = Trinity::make_unique_ptr_with_deleter<&bgs::protocol::Header::release_ciid>(&header);
 
     uint16 headerSize = header.ByteSize();
     EndianConvertReverse(headerSize);
@@ -151,6 +157,9 @@ void Battlenet::Session::SendResponse(uint32 token, uint32 status)
     header.set_token(token);
     header.set_status(status);
     header.set_service_id(0xFE);
+    header.set_allocated_ciid(&_clientInstanceId);
+
+    auto ciidGuard = Trinity::make_unique_ptr_with_deleter<&bgs::protocol::Header::release_ciid>(&header);
 
     uint16 headerSize = header.ByteSize();
     EndianConvertReverse(headerSize);
@@ -178,6 +187,9 @@ void Battlenet::Session::SendRequest(uint32 serviceHash, uint32 methodId, pb::Me
     header.set_method_id(methodId);
     header.set_size(request->ByteSize());
     header.set_token(_requestToken++);
+    header.set_allocated_ciid(&_clientInstanceId);
+
+    auto ciidGuard = Trinity::make_unique_ptr_with_deleter<&bgs::protocol::Header::release_ciid>(&header);
 
     uint16 headerSize = header.ByteSize();
     EndianConvertReverse(headerSize);

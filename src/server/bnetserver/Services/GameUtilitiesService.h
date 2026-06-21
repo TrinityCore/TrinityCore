@@ -20,6 +20,7 @@
 
 #include "Service.h"
 #include "Client/game_utilities_service.pb.h"
+#include "Client/api/client/v2/game_utilities_service.pb.h"
 #include <variant>
 #include <vector>
 
@@ -34,6 +35,7 @@ namespace Battlenet::Services
         public:
             static std::string_view ParseParamName(std::string_view command);
             static Variant* FindParamValue(std::vector<std::pair<std::string_view, Variant>>& params, std::string_view paramName);
+            static std::vector<uint8> CompressJson(std::string const& json);
 
             static uint32 HandleClientRequest(Session* session,
                 std::vector<std::pair<std::string_view, Variant>>& params,
@@ -49,6 +51,8 @@ namespace Battlenet::Services
             static uint32 GetRealmList(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
                 std::vector<std::pair<std::string_view, Variant>>& responseValues);
             static uint32 JoinRealm(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetBleepProxies(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
                 std::vector<std::pair<std::string_view, Variant>>& responseValues);
         };
     }
@@ -67,6 +71,23 @@ namespace Battlenet::Services
 
             uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
             uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+        };
+    }
+
+    namespace V2
+    {
+        Battlenet::Services::Variant FromProto(bgs::protocol::v2::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::v2::Variant* to);
+
+        class GameUtilities : public Service<game_utilities::v2::client::GameUtilitiesService>
+        {
+            typedef Service<game_utilities::v2::client::GameUtilitiesService> GameUtilitiesService;
+
+        public:
+            GameUtilities(Session* session);
+
+            uint32 HandleProcessTask(game_utilities::v2::client::ProcessTaskRequest const* request, game_utilities::v2::client::ProcessTaskResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleGetAllValuesForAttribute(game_utilities::v2::client::GetAllValuesForAttributeRequest const* request, game_utilities::v2::client::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
         };
     }
 }
