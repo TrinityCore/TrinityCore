@@ -18,6 +18,7 @@
 #include "CascHandles.h"
 #include "IoContext.h"
 #include "Resolver.h"
+#include "Socket.h"
 #include <CascLib.h>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/read.hpp>
@@ -71,7 +72,7 @@ namespace
         if (!endpoint)
             return {};
 
-        boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(ioContext, sslContext);
+        boost::asio::ssl::stream<Trinity::Net::IoContextTcpSocket> socket(ioContext, sslContext);
         socket.set_verify_mode(boost::asio::ssl::verify_none, error);
         if (error)
             return {};

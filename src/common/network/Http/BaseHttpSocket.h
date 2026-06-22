@@ -29,7 +29,7 @@
 
 namespace Trinity::Net::Http
 {
-using IoContextHttpSocket = boost::beast::basic_stream<boost::asio::ip::tcp, boost::asio::io_context::executor_type, boost::beast::unlimited_rate_policy>;
+using IoContextHttpSocket = boost::beast::basic_stream<boost::asio::ip::tcp, Asio::IoContextExecutor, boost::beast::unlimited_rate_policy>;
 
 namespace Impl
 {
