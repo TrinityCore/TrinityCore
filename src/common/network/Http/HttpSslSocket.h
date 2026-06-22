@@ -30,7 +30,7 @@ class TC_NETWORK_API SslSocket : public BaseSocket<SslStream<Impl::BoostBeastSoc
 public:
     explicit SslSocket(IoContextTcpSocket&& socket, boost::asio::ssl::context& sslContext);
 
-    explicit SslSocket(boost::asio::io_context& context, boost::asio::ssl::context& sslContext);
+    explicit SslSocket(Asio::IoContext& context, boost::asio::ssl::context& sslContext);
 
     SslSocket(SslSocket const& other) = delete;
     SslSocket(SslSocket&& other) = delete;

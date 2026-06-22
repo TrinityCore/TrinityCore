@@ -24,7 +24,7 @@ Socket::Socket(IoContextTcpSocket&& socket): SocketBase(std::move(socket))
 {
 }
 
-Socket::Socket(boost::asio::io_context& context): SocketBase(context)
+Socket::Socket(Asio::IoContext& context): SocketBase(context)
 {
 }
 
