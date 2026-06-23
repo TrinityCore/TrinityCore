@@ -125,12 +125,6 @@ enum STRSpellIds
     SPELL_YSIDA_CREDIT_EFFECT           = 31913
 };
 
-enum STRMisc
-{
-    //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
-    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
-};
-
 template <class AI, class T>
 inline AI* GetStratholmeAI(T* obj)
 {
