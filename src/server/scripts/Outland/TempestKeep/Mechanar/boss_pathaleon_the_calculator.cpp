@@ -173,14 +173,14 @@ struct npc_nether_wraith : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(0s, 10s, [this](TaskContext task)
+        _scheduler.Schedule(0s, 10s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_ARCANE_BOLT);
             task.Repeat(5s, 10s);
         });
 
-        _scheduler.Schedule(5s, 10s, [this](TaskContext task)
+        _scheduler.Schedule(5s, 10s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_NETHER_EXPLOSION);
             task.Repeat(10s, 15s);

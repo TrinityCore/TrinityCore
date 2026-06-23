@@ -341,11 +341,11 @@ private:
         _chasing = false;
         me->GetMotionMaster()->Clear();
 
-        _scheduler.Schedule(2s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*context*/)
         {
             DoCastAOE(SPELL_ELWYNN_FOREST_WOLF);
         })
-        .Schedule(4s, [this](TaskContext /*context*/)
+        .Schedule(4s, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_SLEEPING_SLEEP);
             me->DespawnOrUnsummon(7s);

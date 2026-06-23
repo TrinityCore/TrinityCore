@@ -283,7 +283,7 @@ struct boss_harbinger_skyriss_illusion : public ScriptedAI
                 break;
         }
 
-        _scheduler.Schedule(2s, 10s, [this](TaskContext task)
+        _scheduler.Schedule(2s, 10s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, IsHeroic() ? SPELL_MIND_REND_IMAGE_H : SPELL_MIND_REND_IMAGE);

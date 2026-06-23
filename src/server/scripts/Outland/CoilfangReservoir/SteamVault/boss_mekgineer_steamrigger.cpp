@@ -207,13 +207,13 @@ struct npc_steamrigger_mechanic : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(5s, 10s, [this](TaskContext task)
+        _scheduler.Schedule(5s, 10s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_DISPEL_MAGIC);
             task.Repeat(5s, 10s);
         });
 
-        _scheduler.Schedule(5s, [this](TaskContext task)
+        _scheduler.Schedule(5s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_REPAIR);
             task.Repeat(5s);
