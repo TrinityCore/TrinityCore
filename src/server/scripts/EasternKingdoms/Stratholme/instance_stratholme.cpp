@@ -23,7 +23,6 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "EventMap.h"
@@ -66,9 +65,6 @@ static constexpr DungeonEncounterData Encounters[] =
     { BOSS_POSTMASTER_MALOWN, {{ 1885 }} } // Postmaster Malown
 };
 
-Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
-EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
-
 enum class StratholmeGateTrapType : uint8
 {
     ScaletSide = 0,
@@ -104,20 +100,16 @@ class instance_stratholme : public InstanceMapScript
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;
 
-                timmySpawned = false;
-                scarletsKilled = 0;
                 brokenCrystals = 0;
                 baronRunState = NOT_STARTED;
 
                 events.ScheduleEvent(EVENT_RAT_TRAP_CLOSE, 15s);
             }
 
-            uint8 scarletsKilled;
             int32 brokenCrystals;
             EncounterState baronRunState;
 
             bool IsSilverHandDead[5];
-            bool timmySpawned;
 
             ObjectGuid serviceEntranceGUID;
             ObjectGuid gauntletGate1GUID;
@@ -144,26 +136,6 @@ class instance_stratholme : public InstanceMapScript
             {
                 switch (who->GetEntry())
                 {
-                    case NPC_CRIMSON_GUARDSMAN:
-                    case NPC_CRIMSON_CONJUROR:
-                    case NPC_CRIMSON_INITATE:
-                    case NPC_CRIMSON_GALLANT:
-                    {
-                        if (!timmySpawned)
-                        {
-                            Position pos = who->ToCreature()->GetHomePosition();
-                            // check if they're in front of the entrance
-                            if (beforeScarletGate.IsWithinBoundary(pos))
-                            {
-                                if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
-                                {
-                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCruelSpawnPosition);
-                                    timmySpawned = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
                     case NPC_HEARTHSINGER_FORRESTEN:
                         SetBossState(BOSS_HEARTHSINGER_FORRESTEN, DONE);
                         break;
