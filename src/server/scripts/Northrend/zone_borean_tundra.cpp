@@ -1736,16 +1736,16 @@ class spell_borean_tundra_signal_alliance : public SpellScript
     {
         return ValidateSpellInfo(
         {
-            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
-            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValueAsInt())
         });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValue())))
-            caster->CastSpell(caster, uint32(GetEffectValue()));
+        if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValueAsInt())))
+            caster->CastSpell(caster, uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
