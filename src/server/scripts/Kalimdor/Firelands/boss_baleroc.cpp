@@ -133,7 +133,7 @@ struct boss_baleroc : public firelands_bossAI
         switch (phase)
         {
             case PHASE_ONE:
-                scheduler.Schedule(Milliseconds(8500), [this](TaskContext & context)
+                scheduler.Schedule(Milliseconds(8500), [this](TaskContext& context)
                 {
                     me->AddAura(SPELL_INCENDIARY_SOUL, me); // No cast
                     DoCastVictim(SPELL_BLAZE_OF_GLORY);
