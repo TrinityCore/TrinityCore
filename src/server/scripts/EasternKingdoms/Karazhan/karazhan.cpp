@@ -156,7 +156,7 @@ struct npc_barnes : public ScriptedAI
                                 me->SetFacingTo(4.590215682983398437f);
                                 me->SetEmoteState(EMOTE_STATE_TALK);
                                 Talk(SAY_HOOD_1);
-                                
+
                                 if (Creature* helper = me->FindNearestCreature(NPC_CROWD_HELPER, 100.0f))
                                     helper->PlayDirectSound(SOUND_AMBIENCE_HOOD);
 
