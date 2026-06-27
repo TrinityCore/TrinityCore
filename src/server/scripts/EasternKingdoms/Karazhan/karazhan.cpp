@@ -15,403 +15,485 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Karazhan
-SD%Complete: 100
-SDComment: Support for Barnes (Opera controller) and Berthold (Doorman), Support for Quest 9645.
-SDCategory: Karazhan
-EndScriptData */
-
-/* ContentData
-npc_barnes
-npc_image_of_medivh
-EndContentData */
-
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
-#include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Spells
+enum BarnesTexts
 {
-    // Barnes
-    SPELL_SPOTLIGHT             = 25824,
-    SPELL_TUXEDO                = 32616,
-
-    // Berthold
-    SPELL_TELEPORT              = 39567,
-
-    // Image of Medivh
-    SPELL_FIRE_BALL             = 30967,
-    SPELL_UBER_FIREBALL         = 30971,
-    SPELL_CONFLAGRATION_BLAST   = 30977,
-    SPELL_MANA_SHIELD           = 31635
+    SAY_BEGIN                        = 0,
+    SAY_HOOD_1                       = 1,
+    SAY_HOOD_2                       = 2,
+    SAY_HOOD_3                       = 3,
+    SAY_HOOD_4                       = 4,
+    SAY_OZ_1                         = 5,
+    SAY_OZ_2                         = 6,
+    SAY_OZ_3                         = 7,
+    SAY_OZ_4                         = 8,
+    SAY_RAJ_1                        = 9,
+    SAY_RAJ_2                        = 10,
+    SAY_RAJ_3                        = 11,
+    SAY_RAJ_4                        = 12
 };
 
-enum Creatures
+enum BarnesMisc
 {
-    NPC_ARCANAGOS               = 17652,
-    NPC_SPOTLIGHT               = 19525
+    SPELL_TUXEDO                     = 32616,
+
+    GOSSIP_MENU_MAIN                 = 7421,
+    GOSSIP_MENU_MAIN_2               = 7422,
+
+    GOSSIP_TEXT_MOROES_ALIVE         = 8969,
+    GOSSIP_TEXT_MAIN_1               = 8970,
+    GOSSIP_TEXT_MAIN_2               = 8971,
+    GOSSIP_TEXT_FAIL_HOOD            = 8975,
+    GOSSIP_TEXT_FAIL_OZ              = 8981,
+    GOSSIP_TEXT_FAIL_RAJ             = 8982,
+    GOSSIP_TEXT_DONE                 = 10471,
+
+    GOSSIP_OPTION_MAIN               = 0,
+    GOSSIP_OPTION_FAIL_HOOD          = 1,
+    GOSSIP_OPTION_FAIL_OZ            = 2,
+    GOSSIP_OPTION_FAIL_RAJ           = 3,
+
+    PATH_ANNOUNCE_1                  = 1358230,
+    PATH_ANNOUNCE_2                  = 1358231,
+
+    ACTION_START_ANNOUNCE            = 0,
+
+    NPC_CROWD_HELPER                 = 18654
 };
 
-/*######
-# npc_barnesAI
-######*/
-
-enum Misc
+enum BarnesSounds
 {
-    OZ_GOSSIP1_MID              = 7421, // I'm not an actor.
-    OZ_GOSSIP1_OID              = 0,
-    OZ_GOSSIP2_MID              = 7422, // Ok, I'll give it a try, then.
-    OZ_GOSSIP2_OID              = 0,
+    SOUND_APPLAUSE                   = 9332,      // NYI
+    SOUND_AMBIENCE_HOOD              = 9357,
+    SOUND_AMBIENCE_OZ                = 9358,
+    SOUND_AMBIENCE_RAJ               = 9359
 };
 
-#define OZ_GM_GOSSIP1       "[GM] Change event to EVENT_OZ"
-#define OZ_GM_GOSSIP2       "[GM] Change event to EVENT_HOOD"
-#define OZ_GM_GOSSIP3       "[GM] Change event to EVENT_RAJ"
-
-struct Dialogue
+enum BarnesCreatureSpawnGroups
 {
-    int32 textid;
-    uint32 timer;
+    SPAWN_GROUP_SPOTLIGHT            = 386,
+    SPAWN_GROUP_GRANDMOTHER          = 387,
+    SPAWN_GROUP_TINHEAD              = 388,
+    SPAWN_GROUP_STRAWMAN             = 389,
+    SPAWN_GROUP_ROAR                 = 390,
+    SPAWN_GROUP_DOROTHEE             = 391,
+    SPAWN_GROUP_JULIANNE             = 392
 };
 
-static Dialogue OzDialogue[]=
+enum BarnesObjectSpawnGroups
 {
-    {0, 6000},
-    {1, 18000},
-    {2, 9000},
-    {3, 15000}
+    SPAWN_GROUP_DECORATIONS_HOOD     = 396,
+    SPAWN_GROUP_DECORATIONS_OZ       = 397,
+    SPAWN_GROUP_DECORATIONS_RAJ      = 398
 };
 
-static Dialogue HoodDialogue[]=
+static constexpr const char* GOSSIP_OPTION_GM_1 = "[GM] Change event to EVENT_OZ";
+static constexpr const char* GOSSIP_OPTION_GM_2 = "[GM] Change event to EVENT_HOOD";
+static constexpr const char* GOSSIP_OPTION_GM_3 = "[GM] Change event to EVENT_RAJ";
+
+// 16812 - Barnes
+struct npc_barnes : public ScriptedAI
 {
-    {4, 6000},
-    {5, 10000},
-    {6, 14000},
-    {7, 15000}
-};
+    npc_barnes(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-static Dialogue RAJDialogue[]=
-{
-    {8, 5000},
-    {9, 7000},
-    {10, 14000},
-    {11, 14000}
-};
-
-// Entries and spawn locations for creatures in Oz event
-float Spawns[6][2]=
-{
-    {17535, -10896},                                        // Dorothee
-    {17546, -10891},                                        // Roar
-    {17547, -10884},                                        // Tinhead
-    {17543, -10902},                                        // Strawman
-    {17603, -10892},                                        // Grandmother
-    {17534, -10900},                                        // Julianne
-};
-
-#define SPAWN_Z             90.5f
-#define SPAWN_Y             -1758
-#define SPAWN_O             4.738f
-
-static constexpr uint32 PATH_ESCORT_BARNES = 134498;
-
-class npc_barnes : public CreatureScript
-{
-public:
-    npc_barnes() : CreatureScript("npc_barnes") { }
-
-    struct npc_barnesAI : public EscortAI
+    void DoAction(int32 action) override
     {
-        npc_barnesAI(Creature* creature) : EscortAI(creature)
+        switch (action)
         {
-            Initialize();
-            RaidWiped = false;
-            m_uiEventId = 0;
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            m_uiSpotlightGUID.Clear();
-
-            TalkCount = 0;
-            TalkTimer = 2000;
-            WipeTimer = 5000;
-
-            PerformanceReady = false;
-        }
-
-        InstanceScript* instance;
-
-        ObjectGuid m_uiSpotlightGUID;
-
-        uint32 TalkCount;
-        uint32 TalkTimer;
-        uint32 WipeTimer;
-        uint32 m_uiEventId;
-
-        bool PerformanceReady;
-        bool RaidWiped;
-
-        void Reset() override
-        {
-            Initialize();
-
-            m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
-        }
-
-        void StartEvent()
-        {
-            instance->SetBossState(DATA_OPERA_PERFORMANCE, IN_PROGRESS);
-
-            //resets count for this event, in case earlier failed
-            if (m_uiEventId == EVENT_OZ)
-                instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
-
-            LoadPath(PATH_ESCORT_BARNES);
-            Start(false);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 0:
-                    DoCast(me, SPELL_TUXEDO, false);
-                    instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_STAGEDOORLEFT));
-                    break;
-                case 4:
-                    TalkCount = 0;
-                    SetEscortPaused(true);
-
-                    if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
-                        me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
-                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
+            case ACTION_START_ANNOUNCE:
+                _scheduler.Schedule(0s, [this](TaskContext task)
+                {
+                    switch (task.GetRepeatCounter())
                     {
-                        spotlight->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                        spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
-                        m_uiSpotlightGUID = spotlight->GetGUID();
+                        case 0:
+                            Talk(SAY_BEGIN);
+                            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                            _instance->SetBossState(DATA_OPERA_PERFORMANCE, IN_PROGRESS);
+                            _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_GO_STAGE_DOOR_LEFT));
+                            task.Repeat(3400ms);
+                            break;
+                        case 1:
+                            DoCastSelf(SPELL_TUXEDO);
+                            me->GetMotionMaster()->MovePath(PATH_ANNOUNCE_1, false);
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                case 8:
-                    instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_STAGEDOORLEFT));
-                    PerformanceReady = true;
-                    break;
-                case 9:
-                    PrepareEncounter();
-                    instance->DoUseDoorOrButton(instance->GetGuidData(DATA_GO_CURTAINS));
-                    break;
-            }
+                });
+                break;
+            case ACTION_OPERA_FINISHED:
+                me->RemoveAurasDueToSpell(SPELL_TUXEDO);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                break;
+            default:
+                break;
         }
-
-        void Talk(uint32 count)
-        {
-            int32 text = 0;
-
-            switch (m_uiEventId)
-            {
-                case EVENT_OZ:
-                    if (OzDialogue[count].textid)
-                         text = OzDialogue[count].textid;
-                    if (OzDialogue[count].timer)
-                        TalkTimer = OzDialogue[count].timer;
-                    break;
-
-                case EVENT_HOOD:
-                    if (HoodDialogue[count].textid)
-                        text = HoodDialogue[count].textid;
-                    if (HoodDialogue[count].timer)
-                        TalkTimer = HoodDialogue[count].timer;
-                    break;
-
-                case EVENT_RAJ:
-                     if (RAJDialogue[count].textid)
-                         text = RAJDialogue[count].textid;
-                    if (RAJDialogue[count].timer)
-                        TalkTimer = RAJDialogue[count].timer;
-                    break;
-            }
-
-            if (text)
-                 CreatureAI::Talk(text);
-        }
-
-        void PrepareEncounter()
-        {
-            TC_LOG_DEBUG("scripts", "Barnes Opera Event - Introduction complete - preparing encounter {}", m_uiEventId);
-            uint8 index = 0;
-            uint8 count = 0;
-
-            switch (m_uiEventId)
-            {
-                case EVENT_OZ:
-                    index = 0;
-                    count = 4;
-                    break;
-                case EVENT_HOOD:
-                    index = 4;
-                    count = index+1;
-                    break;
-                case EVENT_RAJ:
-                    index = 5;
-                    count = index+1;
-                    break;
-            }
-
-            for (; index < count; ++index)
-            {
-                uint32 entry = ((uint32)Spawns[index][0]);
-                float PosX = Spawns[index][1];
-
-                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2h))
-                    creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            RaidWiped = false;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-
-            if (HasEscortState(STATE_ESCORT_PAUSED))
-            {
-                if (TalkTimer <= diff)
-                {
-                    if (TalkCount > 3)
-                    {
-                        if (Creature* pSpotlight = ObjectAccessor::GetCreature(*me, m_uiSpotlightGUID))
-                            pSpotlight->DespawnOrUnsummon();
-
-                        SetEscortPaused(false);
-                        return;
-                    }
-
-                    Talk(TalkCount);
-                    ++TalkCount;
-                } else TalkTimer -= diff;
-            }
-
-            if (PerformanceReady)
-            {
-                if (!RaidWiped)
-                {
-                    if (WipeTimer <= diff)
-                    {
-                        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                        if (PlayerList.isEmpty())
-                            return;
-
-                        RaidWiped = true;
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        {
-                            if (i->GetSource()->IsAlive() && !i->GetSource()->IsGameMaster())
-                            {
-                                RaidWiped = false;
-                                break;
-                            }
-                        }
-
-                        if (RaidWiped)
-                        {
-                            EnterEvadeMode();
-                            return;
-                        }
-
-                        WipeTimer = 15000;
-                    } else WipeTimer -= diff;
-                }
-            }
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    InitGossipMenuFor(player, OZ_GOSSIP2_MID);
-                    AddGossipItemFor(player, OZ_GOSSIP2_MID, OZ_GOSSIP2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, 8971, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    CloseGossipMenuFor(player);
-                    m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
-                    StartEvent();
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    CloseGossipMenuFor(player);
-                    m_uiEventId = EVENT_OZ;
-                    TC_LOG_DEBUG("scripts", "player ({}) manually set Opera event to EVENT_OZ", player->GetGUID().ToString());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    CloseGossipMenuFor(player);
-                    m_uiEventId = EVENT_HOOD;
-                    TC_LOG_DEBUG("scripts", "player ({}) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 5:
-                    CloseGossipMenuFor(player);
-                    m_uiEventId = EVENT_RAJ;
-                    TC_LOG_DEBUG("scripts", "player ({}) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString());
-                    break;
-            }
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player) override
-        {
-            InitGossipMenuFor(player, OZ_GOSSIP1_MID);
-            // Check for death of Moroes and if opera event is not done already
-            if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
-            {
-                AddGossipItemFor(player, OZ_GOSSIP1_MID, OZ_GOSSIP1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-                if (player->IsGameMaster())
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                }
-
-                if (!RaidWiped)
-                    SendGossipMenuFor(player, 8970, me->GetGUID());
-                else
-                    SendGossipMenuFor(player, 8975, me->GetGUID());
-
-                return true;
-            }
-
-            SendGossipMenuFor(player, 8978, me->GetGUID());
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetKarazhanAI<npc_barnesAI>(creature);
     }
+
+    void WaypointPathEnded(uint32 /*waypointId*/, uint32 pathId) override
+    {
+        if (pathId == PATH_ANNOUNCE_1)
+        {
+            switch (_instance->GetData(DATA_OPERA_VARIATION))
+            {
+                case EVENT_HOOD:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(4.590215682983398437f);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                Talk(SAY_HOOD_1);
+                                
+                                if (Creature* helper = me->FindNearestCreature(NPC_CROWD_HELPER, 100.0f))
+                                    helper->PlayDirectSound(SOUND_AMBIENCE_HOOD);
+
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_SPOTLIGHT, true);
+
+                                task.Repeat(7s);
+                                break;
+                            case 1:
+                                Talk(SAY_HOOD_2);
+                                task.Repeat(7s);
+                                break;
+                            case 2:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(3600ms);
+                                break;
+                            case 3:
+                                Talk(SAY_HOOD_3);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                task.Repeat(10s);
+                                break;
+                            case 4:
+                                Talk(SAY_HOOD_4);
+                                task.Repeat(10s);
+                                break;
+                            case 5:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(1200ms);
+                                break;
+                            case 6:
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                                task.Repeat(3600ms);
+                                break;
+                            case 7:
+                                me->GetMotionMaster()->MovePath(PATH_ANNOUNCE_2, false);
+                                me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_SPOTLIGHT);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                case EVENT_OZ:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(4.590215682983398437f);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                Talk(SAY_OZ_1);
+
+                                if (Creature* helper = me->FindNearestCreature(NPC_CROWD_HELPER, 100.0f))
+                                    helper->PlayDirectSound(SOUND_AMBIENCE_OZ);
+
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_SPOTLIGHT, true);
+
+                                task.Repeat(7s);
+                                break;
+                            case 1:
+                                Talk(SAY_OZ_2);
+                                task.Repeat(15s);
+                                break;
+                            case 2:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(3600ms);
+                                break;
+                            case 3:
+                                Talk(SAY_OZ_3);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                task.Repeat(6s);
+                                break;
+                            case 4:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(3600ms);
+                                break;
+                            case 5:
+                                Talk(SAY_OZ_4);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                task.Repeat(7s);
+                                break;
+                            case 6:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(1200ms);
+                                break;
+                            case 7:
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                                task.Repeat(3600ms);
+                                break;
+                            case 8:
+                                me->GetMotionMaster()->MovePath(PATH_ANNOUNCE_2, false);
+                                me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_SPOTLIGHT);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                case EVENT_RAJ:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(4.590215682983398437f);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                Talk(SAY_RAJ_1);
+
+                                if (Creature* helper = me->FindNearestCreature(NPC_CROWD_HELPER, 100.0f))
+                                    helper->PlayDirectSound(SOUND_AMBIENCE_RAJ);
+
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_SPOTLIGHT, true);
+
+                                task.Repeat(6s);
+                                break;
+                            case 1:
+                                Talk(SAY_RAJ_2);
+                                task.Repeat(4800ms);
+                                break;
+                            case 2:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(3600ms);
+                                break;
+                            case 3:
+                                Talk(SAY_RAJ_3);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                task.Repeat(11s);
+                                break;
+                            case 4:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(3600ms);
+                                break;
+                            case 5:
+                                Talk(SAY_RAJ_4);
+                                me->SetEmoteState(EMOTE_STATE_TALK);
+                                task.Repeat(8400ms);
+                                break;
+                            case 6:
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                task.Repeat(1200ms);
+                                break;
+                            case 7:
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                                task.Repeat(3600ms);
+                                break;
+                            case 8:
+                                me->GetMotionMaster()->MovePath(PATH_ANNOUNCE_2, false);
+                                me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_SPOTLIGHT);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (pathId == PATH_ANNOUNCE_2)
+        {
+            switch (_instance->GetData(DATA_OPERA_VARIATION))
+            {
+                case EVENT_HOOD:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(1.448623299598693847f);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_DECORATIONS_HOOD);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_GRANDMOTHER, true);
+                                task.Repeat(7s);
+                                break;
+                            case 1:
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_GO_STAGE_CURTAIN));
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                case EVENT_OZ:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(1.448623299598693847f);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_DECORATIONS_OZ);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_TINHEAD, true);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_STRAWMAN, true);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_ROAR, true);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_DOROTHEE, true);
+                                task.Repeat(1200ms);
+                                break;
+                            case 1:
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_GO_STAGE_CURTAIN));
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                case EVENT_RAJ:
+                    _scheduler.Schedule(0s, [this](TaskContext task)
+                    {
+                        switch (task.GetRepeatCounter())
+                        {
+                            case 0:
+                                me->SetFacingTo(1.448623299598693847f);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_DECORATIONS_RAJ);
+                                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_JULIANNE, true);
+                                task.Repeat(4s);
+                                break;
+                            case 1:
+                                _instance->HandleGameObject(ObjectGuid::Empty, true, _instance->GetGameObject(DATA_GO_STAGE_CURTAIN));
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (_instance->GetBossState(DATA_MOROES) != DONE)
+        {
+            InitGossipMenuFor(player, GOSSIP_MENU_MAIN);
+            SendGossipMenuFor(player, GOSSIP_TEXT_MOROES_ALIVE, me->GetGUID());
+            return true;
+        }
+        else
+        {
+            switch (_instance->GetBossState(DATA_OPERA_PERFORMANCE))
+            {
+                case NOT_STARTED:
+                    InitGossipMenuFor(player, GOSSIP_MENU_MAIN);
+
+                    AddGossipItemFor(player, GOSSIP_MENU_MAIN, GOSSIP_OPTION_MAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+                    if (player->IsGameMaster())
+                    {
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                    }
+
+                    SendGossipMenuFor(player, GOSSIP_TEXT_MAIN_1, me->GetGUID());
+                    break;
+                case FAIL:
+                    InitGossipMenuFor(player, GOSSIP_MENU_MAIN);
+
+                    if (player->IsGameMaster())
+                    {
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                        AddGossipItemFor(player, GOSSIP_ICON_DOT, GOSSIP_OPTION_GM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                    }
+
+                    switch (_instance->GetData(DATA_OPERA_VARIATION))
+                    {
+                        case EVENT_HOOD:
+                            AddGossipItemFor(player, GOSSIP_MENU_MAIN, GOSSIP_OPTION_FAIL_HOOD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXT_FAIL_HOOD, me->GetGUID());
+                            break;
+                        case EVENT_OZ:
+                            AddGossipItemFor(player, GOSSIP_MENU_MAIN, GOSSIP_OPTION_FAIL_OZ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXT_FAIL_OZ, me->GetGUID());
+                            break;
+                        case EVENT_RAJ:
+                            AddGossipItemFor(player, GOSSIP_MENU_MAIN, GOSSIP_OPTION_FAIL_RAJ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXT_FAIL_RAJ, me->GetGUID());
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case DONE:
+                    InitGossipMenuFor(player, GOSSIP_MENU_MAIN);
+                    SendGossipMenuFor(player, GOSSIP_TEXT_DONE, me->GetGUID());
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                InitGossipMenuFor(player, GOSSIP_MENU_MAIN_2);
+                AddGossipItemFor(player, GOSSIP_MENU_MAIN_2, GOSSIP_OPTION_MAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                SendGossipMenuFor(player, GOSSIP_TEXT_MAIN_2, me->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                CloseGossipMenuFor(player);
+                DoAction(ACTION_START_ANNOUNCE);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 10:
+                CloseGossipMenuFor(player);
+                _instance->SetData(DATA_OPERA_VARIATION, EVENT_OZ);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 11:
+                CloseGossipMenuFor(player);
+                _instance->SetData(DATA_OPERA_VARIATION, EVENT_HOOD);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 12:
+                CloseGossipMenuFor(player);
+                _instance->SetData(DATA_OPERA_VARIATION, EVENT_RAJ);
+                break;
+        }
+
+        return true;
+    }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
 };
 
-/*###
-# npc_image_of_medivh
-####*/
-
-enum
+enum ImageOfMedivhTexts
 {
     SAY_DIALOG_MEDIVH_1             = 0,
     SAY_DIALOG_ARCANAGOS_2          = 0,
@@ -422,6 +504,16 @@ enum
     EMOTE_DIALOG_MEDIVH_7           = 3,
     SAY_DIALOG_ARCANAGOS_8          = 3,
     SAY_DIALOG_MEDIVH_9             = 4
+};
+
+enum ImageOfMedivhMisc
+{
+    SPELL_FIRE_BALL             = 30967,
+    SPELL_UBER_FIREBALL         = 30971,
+    SPELL_CONFLAGRATION_BLAST   = 30977,
+    SPELL_MANA_SHIELD           = 31635,
+
+    NPC_ARCANAGOS               = 17652
 };
 
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
@@ -651,7 +743,7 @@ class spell_karazhan_charge : public SpellScript
 
 void AddSC_karazhan()
 {
-    new npc_barnes();
+    RegisterKarazhanCreatureAI(npc_barnes);
     new npc_image_of_medivh();
     RegisterSpellScript(spell_karazhan_charge);
 }
