@@ -90,7 +90,7 @@ enum WizardOfOzSpells
     // Cyclone
     SPELL_CYCLONE_VISUAL        = 32332,
     SPELL_CYCLONE_1             = 32334,
-	SPELL_CYCLONE_2             = 32335      // Shown in sniffs but makes cyclone overpowered, just like Karathress' cyclone
+    SPELL_CYCLONE_2             = 32335      // Shown in sniffs but makes cyclone overpowered, just like Karathress' cyclone
 };
 
 enum WizardOfOzMisc
