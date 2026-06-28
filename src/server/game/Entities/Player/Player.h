@@ -720,7 +720,9 @@ static_assert(UF::size<decltype(UF::ActivePlayerData::InvSlots)>() == PLAYER_SLO
 
 inline constexpr uint8 INVENTORY_SLOT_BAG_0 = 255;
 inline constexpr uint8 INVENTORY_DEFAULT_SIZE = 16;
-inline constexpr uint8 INVENTORY_ACCOUNT_SECURED_SIZE = INVENTORY_DEFAULT_SIZE + 4; // 4 slots are provided for having a secured account
+inline constexpr uint8 INVENTORY_ACCOUNT_SECURED_BONUS_SIZE = 4;
+
+inline constexpr uint32 SPELL_ALPACA_SADDLEBAGS = 317795;
 
 enum EquipmentSlots : uint8                                 // 19 slots
 {
@@ -1495,6 +1497,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
         uint8 GetInventorySlotCount() const { return m_activePlayerData->NumBackpackSlots; }
         void SetInventorySlotCount(uint8 slots);
+        void UpdateInventorySlotCount();
         uint8 GetBankBagSlotCount() const { return m_activePlayerData->NumBankSlots; }
         void SetBankBagSlotCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count); }
         uint8 GetCharacterBankTabCount() const { return m_activePlayerData->NumCharacterBankTabs; }
@@ -3040,6 +3043,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetWarModeLocal(bool enabled);
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
+
+        void SetAccountSecured(bool secured);
 
         void AddUnlockedTransmogOutfits(std::span<int32 const> transmogOutfitIds);
         void AddUnlockedTransmogOutfit(int32 transmogOutfitIds) { AddUnlockedTransmogOutfits(std::span(&transmogOutfitIds, 1)); }
