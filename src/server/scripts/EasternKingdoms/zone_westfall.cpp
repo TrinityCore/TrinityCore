@@ -736,7 +736,7 @@ Position constexpr ThugPos[4] =
 // 42562 - Lous Parting Thoughts Trigger
 struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
 {
-    npc_westfall_lous_parting_thoughts_trigger(Creature* creature) : ScriptedAI(creature), _summons(), _thugDeathCount(0) {}
+    npc_westfall_lous_parting_thoughts_trigger(Creature* creature) : ScriptedAI(creature), _summonGUIDs(), _thugDeathCount(0) {}
 
     void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
     {
@@ -789,14 +789,15 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 case Events::LousPartingThoughts::SummonThugs:
                     for (uint8 i = 0; i < 4; i++)
                     {
-                        _summons[i] = me->SummonCreature(Creatures::Thug, ThugPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                        if (Creature* thug = me->SummonCreature(Creatures::Thug, ThugPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s))
+                            _summonGUIDs[i] = thug->GetGUID();
                     }
                     _eventInvokerGUID = ObjectGuid::Empty;
                     _thugDeathCount = 0;
                     break;
                 case Events::LousPartingThoughts::ThugSay0:
                 {
-                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summonGUIDs[0]);
                     if (invoker && thug1)
                         thug1->AI()->Talk(Text::ThugText::ThugSay0, invoker);
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay1, 5s);
@@ -804,7 +805,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay1:
                 {
-                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summonGUIDs[1]);
                     if (invoker && thug2)
                         thug2->AI()->Talk(Text::ThugText::ThugSay1, invoker);
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay2, 5s);
@@ -812,7 +813,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay2:
                 {
-                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summonGUIDs[1]);
                     if (invoker && thug2)
                         thug2->AI()->Talk(Text::ThugText::ThugSay2, invoker);
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay3, 8s + 500ms);
@@ -820,7 +821,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay3:
                 {
-                    Creature* thug3 = ObjectAccessor::GetCreature(*me, _summons[2]);
+                    Creature* thug3 = ObjectAccessor::GetCreature(*me, _summonGUIDs[2]);
                     if (invoker && thug3)
                         thug3->AI()->Talk(Text::ThugText::ThugSay3, invoker);
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugSay4, 5s);
@@ -828,12 +829,12 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay4:
                 {
-                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summonGUIDs[0]);
                     if (invoker && thug1)
                     {
                         thug1->AI()->Talk(Text::ThugText::ThugSay4, invoker);
 
-                        for (ObjectGuid const& guid : _summons)
+                        for (ObjectGuid const& guid : _summonGUIDs)
                             if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
                                 thug->SetFacingToObject(invoker);
                     }
@@ -843,7 +844,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay5:
                 {
-                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summonGUIDs[0]);
                     if (invoker && thug1)
                         thug1->AI()->Talk(Text::ThugText::ThugSay5, invoker);
 
@@ -852,12 +853,12 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                 }
                 case Events::LousPartingThoughts::ThugSay6:
                 {
-                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summonGUIDs[0]);
                     if (invoker && thug1)
                     {
                         thug1->AI()->Talk(Text::ThugText::ThugSay6, invoker);
 
-                        for (ObjectGuid const& guid : _summons)
+                        for (ObjectGuid const& guid : _summonGUIDs)
                             if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
                             {
                                 thug->SetImmuneToAll(false);
@@ -927,7 +928,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _eventInvokerGUID;
-    std::array<ObjectGuid, 4> _summons;
+    std::array<ObjectGuid, 4> _summonGUIDs;
     uint32 _thugDeathCount;
 };
 
