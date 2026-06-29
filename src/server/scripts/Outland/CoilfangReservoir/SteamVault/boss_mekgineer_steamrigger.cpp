@@ -211,7 +211,7 @@ struct npc_steamrigger_mechanic : public ScriptedAI
     {
         if (TempSummon* summon = me->ToTempSummon())
             if (Unit* summoner = summon->GetSummonerUnit())
-                if (Creature* creature = summoner->ToCreature())
+                if (summoner->IsCreature())
                 {
                     float x, y, z;
                     summoner->GetContactPoint(me, x, y, z);
