@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Timers requires update */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
 #include "steam_vault.h"
+#include "TemporarySummon.h"
 
 enum SteamriggerTexts
 {
@@ -49,7 +53,7 @@ enum SteamriggerSpells
 
 enum SteamriggerEvents
 {
-    EVENT_SHRINK                = 1,
+    EVENT_SUPER_SHRINK_RAY      = 1,
     EVENT_SAW_BLADE,
     EVENT_ELECTRIFIED_NET,
     EVENT_SUMMON,
@@ -82,11 +86,13 @@ struct boss_mekgineer_steamrigger : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_SHRINK, 20s);
+
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_SUPER_SHRINK_RAY, 20s, 30s);
         events.ScheduleEvent(EVENT_SAW_BLADE, 5s, 20s);
-        events.ScheduleEvent(EVENT_ELECTRIFIED_NET, 20s, 30s);
+        events.ScheduleEvent(EVENT_ELECTRIFIED_NET, 10s, 20s);
         if (IsHeroic())
             events.ScheduleEvent(EVENT_SUMMON_H, 15s, 20s);
     }
@@ -113,6 +119,12 @@ struct boss_mekgineer_steamrigger : public BossAI
         }
     }
 
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SUMMON_GNOMES)
+            Talk(SAY_MECHANICS);
+    }
+
     void KilledUnit(Unit* /*victim*/) override
     {
         Talk(SAY_SLAY);
@@ -120,8 +132,8 @@ struct boss_mekgineer_steamrigger : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        Talk(SAY_DEATH);
         _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -138,22 +150,21 @@ struct boss_mekgineer_steamrigger : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_SHRINK:
+                case EVENT_SUPER_SHRINK_RAY:
                     DoCastSelf(SPELL_SUPER_SHRINK_RAY);
-                    events.Repeat(15s, 25s);
+                    events.Repeat(35s, 50s);
                     break;
                 case EVENT_SAW_BLADE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_SAW_BLADE);
-                    events.Repeat(10s, 20s);
+                    events.Repeat(8s, 15s);
                     break;
                 case EVENT_ELECTRIFIED_NET:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ELECTRIFIED_NET);
-                    events.Repeat(15s, 25s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_SUMMON:
-                    Talk(SAY_MECHANICS);
                     DoCastSelf(SPELL_SUMMON_GNOMES);
                     break;
                 case EVENT_SUMMON_H:
@@ -178,24 +189,34 @@ private:
 // 17951 - Steamrigger Mechanic
 struct npc_steamrigger_mechanic : public ScriptedAI
 {
-    npc_steamrigger_mechanic(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
+
+    void InitializeAI() override
+    {
+        if (me->IsSummon())
+        {
+            me->SetCorpseDelay(5, true);
+            me->SetReactState(REACT_DEFENSIVE);
+        }
+
+        ScriptedAI::InitializeAI();
+    }
 
     void Reset() override
     {
         _scheduler.CancelAll();
     }
 
-    void IsSummonedBy(WorldObject* ownerWO) override
+    void JustAppeared() override
     {
-        me->SetReactState(REACT_DEFENSIVE);
-
-        Creature* owner = ownerWO->ToCreature();
-        if (!owner)
-            return;
-
-        float x, y, z;
-        owner->GetContactPoint(me, x, y, z);
-        me->GetMotionMaster()->MovePoint(POINT_REPAIR, x, y, z);
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Unit* summoner = summon->GetSummonerUnit())
+                if (Creature* creature = summoner->ToCreature())
+                {
+                    float x, y, z;
+                    summoner->GetContactPoint(me, x, y, z);
+                    me->GetMotionMaster()->MovePoint(POINT_REPAIR, x, y, z);
+                }
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -209,17 +230,17 @@ struct npc_steamrigger_mechanic : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(5s, 10s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_DISPEL_MAGIC);
-            task.Repeat(5s, 10s);
-        });
-
-        _scheduler.Schedule(5s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_REPAIR);
-            task.Repeat(5s);
-        });
+        _scheduler
+            .Schedule(5s, 10s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_DISPEL_MAGIC);
+                task.Repeat(5s, 10s);
+            })
+            .Schedule(5s, 15s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_REPAIR);
+                task.Repeat(5s, 10s);
+            });
     }
 
     void UpdateAI(uint32 diff) override
@@ -241,22 +262,22 @@ class spell_mekgineer_steamrigger_summon_gnomes : public AuraScript
 {
     PrepareAuraScript(spell_mekgineer_steamrigger_summon_gnomes);
 
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_GNOME_1, SPELL_SUMMON_GNOME_2, SPELL_SUMMON_GNOME_3 });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_SUMMON_GNOME_1, true);
-        target->CastSpell(target, SPELL_SUMMON_GNOME_2, true);
-        target->CastSpell(target, SPELL_SUMMON_GNOME_3, true);
+        target->CastSpell(nullptr, SPELL_SUMMON_GNOME_1, true);
+        target->CastSpell(nullptr, SPELL_SUMMON_GNOME_2, true);
+        target->CastSpell(nullptr, SPELL_SUMMON_GNOME_3, true);
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_mekgineer_steamrigger_summon_gnomes::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mekgineer_steamrigger_summon_gnomes::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
