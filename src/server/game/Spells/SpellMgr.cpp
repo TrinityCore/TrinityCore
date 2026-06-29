@@ -3267,6 +3267,13 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         spellInfoMutable->_InitializeExplicitTargetMask();
 
+        // Frozen Orb (84714) is fully scripted - no explicit target needed
+        if (spellInfoMutable->Id == 84714)
+        {
+            spellInfoMutable->ExplicitTargetMask = 0;
+            spellInfoMutable->RequiredExplicitTargetMask = 0;
+        }
+
         if (spellInfoMutable->Speed > 0.0f)
         {
             auto visualNeedsAmmo = [](SpellXSpellVisualEntry const* spellXspellVisual)
@@ -3511,6 +3518,58 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellEffectInfo->ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
             });
         });
+
+        // Frozen Orb damage (84721) - DBC has DamageClass=NONE which prevents damage calculation; fix to MAGIC
+        ApplySpellFix({ 84721 }, [](SpellInfo* spellInfo)
+            {
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+            });
+
+        // Brain Freeze (190447) and its buff (190446) - handled entirely by AuraScript/SpellScript
+        // Override EFFECT_0 aura from SPELL_AURA_PROC_TRIGGER_SPELL (42) to SPELL_AURA_NO_REAGENT_USE (229)
+        // which hits the default: break case in AuraEffect::HandleProc, silencing the "no trigger spell" spam
+        ApplySpellFix({ 190447, 190446 }, [](SpellInfo* spellInfo)
+            {
+                ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+                    {
+                        spellEffectInfo->ApplyAuraName = SPELL_AURA_NO_REAGENT_USE;
+                        spellEffectInfo->TriggerSpell = 0;
+                    });
+            });
+
+        // Permafrost Lances (460590) - passive talent with PROC_TRIGGER_SPELL but no trigger spell set on EFFECT_0
+        // Logic handled in spell_mage_frozen_orb::HandleCast
+        ApplySpellFix({ 460590 }, [](SpellInfo* spellInfo)
+            {
+                ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+                    {
+                        spellEffectInfo->ApplyAuraName = SPELL_AURA_NO_REAGENT_USE;
+                        spellEffectInfo->TriggerSpell = 0;
+                    });
+            });
+
+        // Everlasting Frost (385167) - both EFFECT_0 and EFFECT_1 are PROC_TRIGGER_SPELL with no trigger spell
+        // Logic handled in spell_mage_frozen_orb::HandleCast and spell_mage_frozen_orb_damage::HandleHit
+        ApplySpellFix({ 385167 }, [](SpellInfo* spellInfo)
+            {
+                ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+                    {
+                        spellEffectInfo->ApplyAuraName = SPELL_AURA_NO_REAGENT_USE;
+                        spellEffectInfo->TriggerSpell = 0;
+                    });
+                ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+                    {
+                        spellEffectInfo->ApplyAuraName = SPELL_AURA_NO_REAGENT_USE;
+                        spellEffectInfo->TriggerSpell = 0;
+                    });
+            });
+
+        // Brain Freeze buff (190446) - clear interrupt flags so buff persists through damage dealt
+        ApplySpellFix({ 190446 }, [](SpellInfo* spellInfo)
+            {
+                spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::None;
+                spellInfo->AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
+            });
     }
 
     ApplySpellFix({
@@ -5340,6 +5399,21 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
+
+    // Frozen Orb (84714) - fully scripted: spawns AT at caster and flies forward
+    // Remove all DBC effects and target requirements - our SpellScript and AreaTriggerAI handle everything
+    ApplySpellFix({ 84714 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->ExplicitTargetMask = 0;
+            spellInfo->RequiredExplicitTargetMask = 0;
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+            {
+                SpellEffectInfo& effect = const_cast<SpellEffectInfo&>(spellEffectInfo);
+                effect.Effect = SPELL_EFFECT_NONE;
+                effect.TargetA = SpellImplicitTargetInfo(0);
+                effect.TargetB = SpellImplicitTargetInfo(0);
+            }
+        });
 
     // Dragonriding Thrill of the Skies visual
     ApplySpellFix({ 373404 }, [](SpellInfo* spellInfo)

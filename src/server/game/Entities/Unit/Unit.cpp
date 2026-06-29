@@ -6943,6 +6943,29 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     DoneTotalMod *= maxModDamagePercentSchool;
 
+    float unfilteredMasteryMod = GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, [spellProto](AuraEffect const* aurEff) -> bool
+        {
+            if (!aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
+                return false;
+            if (!(aurEff->GetMiscValue() & spellProto->GetSchoolMask()))
+                return false;
+            return true;
+        });
+
+    if (!G3D::fuzzyEq(unfilteredMasteryMod, 1.0f))
+    {
+        float filteredMasteryMod = GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, [spellProto](AuraEffect const* aurEff) -> bool
+            {
+                if (!aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
+                    return false;
+                if (!(aurEff->GetMiscValue() & spellProto->GetSchoolMask()))
+                    return false;
+                return aurEff->IsAffectingSpell(spellProto);
+            });
+
+        DoneTotalMod *= filteredMasteryMod / unfilteredMasteryMod;
+    }
+
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
