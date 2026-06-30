@@ -130,6 +130,13 @@ void ConfirmRespecWipe::Read()
     _worldPacket >> RespecType;
 }
 
+WorldPacket const* TalentsInvoluntarilyReset::Write()
+{
+    _worldPacket << Bits<1>(IsPetTalents);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* LearnTalentFailed::Write()
 {
     _worldPacket << Bits<4>(Reason);

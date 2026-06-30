@@ -429,7 +429,8 @@ public:
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
-                            Talk(SAY_LEGOSO_4);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_4, player);
                             _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
@@ -494,7 +495,8 @@ public:
                             _phase = PHASE_FEEL_SIRONAS_2;
                             break;
                         case PHASE_FEEL_SIRONAS_2: // legoso exclamation before sironas 1.2
-                            Talk(SAY_LEGOSO_11);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_11, player);
                             _moveTimer = 4 * IN_MILLISECONDS;
                             _phase = PHASE_CONTINUE;
                             break;
@@ -536,7 +538,8 @@ public:
                                 if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
-                            Talk(SAY_LEGOSO_15);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_15, player);
                             _moveTimer = 1 * IN_MILLISECONDS;
                             _phase = PHASE_PLANT_SECOND_WAIT;
                             break;
@@ -649,7 +652,7 @@ public:
                 case WP_START:
                     SetEscortPaused(true);
                     me->SetFacingToObject(player);
-                    Talk(SAY_LEGOSO_1);
+                    Talk(SAY_LEGOSO_1, player);
                     _moveTimer = 2.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_CONTINUE;
                     break;

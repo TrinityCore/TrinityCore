@@ -30,16 +30,18 @@
 #include <unordered_set>
 #include <vector>
 
-namespace bgs::protocol::game_utilities::v1
-{
-class ClientResponse;
-class GetAllValuesForAttributeResponse;
-}
-
 namespace JSON::RealmList
 {
 class RealmEntry;
 }
+
+struct RealmJoinResult
+{
+    uint32 Result = 0;
+    std::vector<uint8> JoinTicket;
+    std::vector<uint8> ServerAddresses;
+    std::vector<uint8> JoinSecret;
+};
 
 /// Storage object for the list of realms on the server
 class TC_SHARED_API RealmList
@@ -64,12 +66,12 @@ public:
     void SetCurrentRealmId(Battlenet::RealmHandle const& id);
     std::shared_ptr<Realm const> GetCurrentRealm() const;
 
-    void WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const;
-    std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const;
+    std::vector<std::string> GetSubRegions() const;
+    std::string GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const;
     std::vector<uint8> GetRealmList(uint32 build, AccountTypes accountSecurityLevel, std::string const& subRegion) const;
-    uint32 JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
+    RealmJoinResult JoinRealm(uint32 realmAddress, uint32 build, ClientBuild::VariantId const& buildVariant, boost::asio::ip::address const& clientAddress,
         std::array<uint8, 32> const& clientSecret, LocaleConstant locale, std::string const& os, Minutes timezoneOffset, std::string const& accountName,
-        AccountTypes accountSecurityLevel, bgs::protocol::game_utilities::v1::ClientResponse* response) const;
+        AccountTypes accountSecurityLevel) const;
 
 private:
     RealmList();

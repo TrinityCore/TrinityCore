@@ -90,11 +90,13 @@ namespace Trinity
             {
                 static_assert(std::is_integral_v<V> || std::is_enum_v<V>, "Only integral types can be hashed at compile time");
 
+                using I = typename std::conditional_t<std::is_enum_v<V>, std::underlying_type<V>, std::type_identity<V>>::type;
+
                 for (V c : data)
                 {
                     for (std::size_t i = 0; i < sizeof(V); ++i)
                     {
-                        hash ^= (static_cast<T>(c) >> (i * 8)) & 0xFF;
+                        hash ^= static_cast<T>((static_cast<I>(c) >> (i * 8)) & 0xFF);
                         hash *= Constants::Prime;
                     }
                 }
@@ -127,7 +129,7 @@ namespace Trinity
         }
 
         template <HashablePrimitive V, std::size_t Extent>
-        inline static constexpr std::size_t GetHash(std::span<V, Extent> data) noexcept
+        inline static constexpr T GetHash(std::span<V, Extent> data) noexcept
         {
             HashFnv1a hash;
             hash.UpdateData(data);
@@ -135,13 +137,13 @@ namespace Trinity
         }
 
         template <HashablePrimitive V>
-        inline static constexpr std::size_t GetHash(V data) noexcept
+        inline static constexpr T GetHash(V data) noexcept
         {
             return HashFnv1a::GetHash(std::span<V, 1>(&data, 1));
         }
 
         template <typename V>
-        inline static constexpr std::size_t GetHash(V const& data) noexcept requires requires { std::span(data); }
+        inline static constexpr T GetHash(V const& data) noexcept requires requires { std::span(data); }
         {
             return HashFnv1a::GetHash(std::span(data));
         }

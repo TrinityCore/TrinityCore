@@ -69,4 +69,7 @@ inline AI* GetRazorfenDownsAI(T* obj)
     return GetInstanceAI<AI>(obj, RFDScriptName);
 }
 
+#define RegisterRazorfenDownsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetRazorfenDownsAI)
+#define RegisterRazorfenDownsGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetRazorfenDownsAI)
+
 #endif

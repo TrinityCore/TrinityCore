@@ -72,13 +72,13 @@ public:
         _sslSocket.set_verify_mode(boost::asio::ssl::verify_none);
     }
 
-    explicit SslStream(boost::asio::io_context& context, boost::asio::ssl::context& sslContext) : _sslSocket(context, sslContext)
+    explicit SslStream(Asio::IoContext& context, boost::asio::ssl::context& sslContext) : _sslSocket(context, sslContext)
     {
         _sslSocket.set_verify_mode(boost::asio::ssl::verify_none);
     }
 
     // adapting tcp::socket api
-    boost::asio::io_context::executor_type get_executor()
+    executor_type get_executor()
     {
         return _sslSocket.get_executor();
     }

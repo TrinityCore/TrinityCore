@@ -97,7 +97,12 @@ class TC_GAME_API BattlefieldControlZoneHandler : public ControlZoneHandler
 {
 public:
     explicit BattlefieldControlZoneHandler(Battlefield* bf);
-    virtual ~BattlefieldControlZoneHandler() = default;
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler(BattlefieldControlZoneHandler&&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler const&) = delete;
+    BattlefieldControlZoneHandler& operator=(BattlefieldControlZoneHandler&&) = delete;
+
+    virtual ~BattlefieldControlZoneHandler();
 
 protected:
     Battlefield* GetBattlefield();
@@ -108,8 +113,13 @@ private:
 class TC_GAME_API BfGraveyard
 {
     public:
-        BfGraveyard(Battlefield* Bf);
-        virtual ~BfGraveyard() = default;
+        explicit BfGraveyard(Battlefield* bf);
+        BfGraveyard(BfGraveyard const&) = delete;
+        BfGraveyard(BfGraveyard&&) = delete;
+        BfGraveyard& operator=(BfGraveyard const&) = delete;
+        BfGraveyard& operator=(BfGraveyard&&) = delete;
+
+        virtual ~BfGraveyard();
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
@@ -144,10 +154,11 @@ class TC_GAME_API Battlefield : public ZoneScript
     public:
         /// Constructor
         explicit Battlefield(Map* map);
-        Battlefield(Battlefield const& right) = delete;
-        Battlefield(Battlefield&& right) = delete;
-        Battlefield& operator=(Battlefield const& right) = delete;
-        Battlefield& operator=(Battlefield&& right) = delete;
+        Battlefield(Battlefield const&) = delete;
+        Battlefield(Battlefield&&) = delete;
+        Battlefield& operator=(Battlefield const&) = delete;
+        Battlefield& operator=(Battlefield&&) = delete;
+
         /// Destructor
         virtual ~Battlefield();
 

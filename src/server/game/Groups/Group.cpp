@@ -828,25 +828,29 @@ void Group::SendTargetIconList(WorldSession* session) const
 void Group::SendUpdate() const
 {
     for (MemberSlot const& memberSlot : m_memberSlots)
-        SendUpdateToPlayer(memberSlot.guid, &memberSlot);
+    {
+        Player* player = ObjectAccessor::FindConnectedPlayer(memberSlot.guid);
+        if (!player)
+            continue;
+
+        SendUpdateToPlayer(player, &memberSlot);
+    }
 }
 
-void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot) const
+void Group::SendUpdateToPlayer(Player* player, MemberSlot const* slot /*= nullptr*/) const
 {
-    Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID);
-
-    if (!player || !player->GetSession() || player->GetGroup() != this)
+    if (player->GetGroup() != this)
         return;
 
     // if MemberSlot wasn't provided
     if (!slot)
     {
-        member_citerator witr = _getMemberCSlot(playerGUID);
+        member_citerator citr = _getMemberCSlot(player->GetGUID());
 
-        if (witr == m_memberSlots.end()) // if there is no MemberSlot for such a player
+        if (citr == m_memberSlots.end()) // if there is no MemberSlot for such a player
             return;
 
-        slot = &(*witr);
+        slot = &(*citr);
     }
 
     WorldPackets::Party::PartyUpdate partyUpdate;

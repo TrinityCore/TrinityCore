@@ -2313,7 +2313,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             Trinity::RaceMask<uint64> invalidRaceMask = Trinity::RaceMask<uint64>{ cond->ConditionValue1 } & ~RACEMASK_ALL_PLAYABLE;
             if (!invalidRaceMask.IsEmpty()) // uint32 works thanks to weird index remapping in racemask
             {
-                TC_LOG_ERROR("sql.sql", "{} has non existing racemask ({}), skipped.", *cond, invalidRaceMask.RawValue);
+                TC_LOG_ERROR("sql.sql", "{} has non existing racemask ({}), skipped.", *cond, invalidRaceMask.RawValue[0]);
                 return false;
             }
             break;

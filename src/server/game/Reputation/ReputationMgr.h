@@ -102,6 +102,7 @@ class TC_GAME_API ReputationMgr
         int32 GetReputation(uint32 faction_id) const;
         int32 GetReputation(FactionEntry const* factionEntry) const;
         int32 GetBaseReputation(FactionEntry const* factionEntry) const;
+        static int32 GetBaseReputation(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
         int32 GetMinReputation(FactionEntry const* factionEntry) const;
         int32 GetMaxReputation(FactionEntry const* factionEntry) const;
 
@@ -156,6 +157,7 @@ class TC_GAME_API ReputationMgr
         void SendVisible(FactionState const* faction, bool visible = true) const;
         void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank);
         int32 GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry) const;
+        static int32 GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
         bool CanGainParagonReputationForFaction(FactionEntry const* factionEntry) const;
 
     private:

@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ClubMembershipService_h__
-#define ClubMembershipService_h__
+#ifndef TRINITYCORE_CLUB_MEMBERSHIP_SERVICE_H
+#define TRINITYCORE_CLUB_MEMBERSHIP_SERVICE_H
 
 #include "WorldserverService.h"
-#include "api/client/v1/club_membership_service.pb.h"
+#include "Client/api/client/v1/club_membership_service.pb.h"
 
 namespace Battlenet::Services
 {
@@ -37,4 +37,4 @@ public:
 };
 }
 
-#endif // ClubMembershipService_h__
+#endif // TRINITYCORE_CLUB_MEMBERSHIP_SERVICE_H

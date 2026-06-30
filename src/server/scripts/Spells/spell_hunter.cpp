@@ -667,7 +667,7 @@ class spell_hun_manhunter : public AuraScript
 
     static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetProcTarget()->IsPlayer();
+        return eventInfo.GetActionTarget()->IsPlayer();
     }
 
     static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)

@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "GameTables.h"
+#include "GameTime.h"
 #include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
@@ -143,7 +144,7 @@ bool Player::UpdateStats(Stats stat)
 
     UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
-    UpdateManaRegen();
+    UpdatePowerRegen(POWER_MANA);
     return true;
 }
 
@@ -217,7 +218,10 @@ bool Player::UpdateAllStats()
     UpdateParryPercentage();
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
-    UpdateManaRegen();
+    UpdatePowerRegen(POWER_MANA);
+    UpdatePowerRegen(POWER_RAGE);
+    UpdatePowerRegen(POWER_ENERGY);
+    UpdatePowerRegen(POWER_RUNIC_POWER);
     UpdateExpertise(BASE_ATTACK);
     UpdateExpertise(OFF_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
@@ -794,7 +798,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)
 {
     _ModifyUInt32(apply, m_baseManaRegen, amount);
-    UpdateManaRegen();
+    UpdatePowerRegen(POWER_MANA);
 }
 
 void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
@@ -802,43 +806,127 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
     _ModifyUInt32(apply, m_baseHealthRegen, amount);
 }
 
-void Player::UpdateManaRegen()
+static constexpr std::array<Optional<Rates>, MAX_POWERS> PowerRegenInfo =
 {
-    uint32 manaIndex = GetPowerIndex(POWER_MANA);
-    if (manaIndex == MAX_POWERS)
+    RATE_POWER_MANA,                         // POWER_MANA
+    RATE_POWER_RAGE_LOSS,                    // POWER_RAGE
+    RATE_POWER_FOCUS,                        // POWER_FOCUS
+    RATE_POWER_ENERGY,                       // POWER_ENERGY
+    RATE_POWER_COMBO_POINTS_LOSS,            // POWER_COMBO_POINTS
+    std::nullopt,                            // POWER_RUNES
+    RATE_POWER_RUNIC_POWER_LOSS,             // POWER_RUNIC_POWER
+    RATE_POWER_SOUL_SHARDS,                  // POWER_SOUL_SHARDS
+    RATE_POWER_LUNAR_POWER,                  // POWER_LUNAR_POWER
+    RATE_POWER_HOLY_POWER,                   // POWER_HOLY_POWER
+    std::nullopt,                            // POWER_ALTERNATE_POWER
+    RATE_POWER_MAELSTROM,                    // POWER_MAELSTROM
+    RATE_POWER_CHI,                          // POWER_CHI
+    RATE_POWER_INSANITY,                     // POWER_INSANITY
+    std::nullopt,                            // POWER_BURNING_EMBERS, Obsolete
+    std::nullopt,                            // POWER_DEMONIC_FURY, Obsolete
+    RATE_POWER_ARCANE_CHARGES,               // POWER_ARCANE_CHARGES
+    RATE_POWER_FURY,                         // POWER_FURY
+    RATE_POWER_PAIN,                         // POWER_PAIN
+    RATE_POWER_ESSENCE,                      // POWER_ESSENCE
+    std::nullopt,                            // POWER_RUNE_BLOOD
+    std::nullopt,                            // POWER_RUNE_FROST
+    std::nullopt,                            // POWER_RUNE_UNHOLY
+    std::nullopt,                            // POWER_ALTERNATE_QUEST
+    std::nullopt,                            // POWER_ALTERNATE_ENCOUNTER
+    std::nullopt,                            // POWER_ALTERNATE_MOUNT
+};
+
+void Player::UpdatePowerRegen(Powers power)
+{
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
-    // Get base of Mana Pool in sBaseMPGameTable
-    uint32 basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
-    float base_regen = basemana / 100.f;
+    // TODO: updating haste should update UnitData::PowerRegenFlatModifier for certain power types
+    PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
+    if (!powerType)
+        return;
 
-    base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
+    float result_regen              = powerType->RegenPeace;  // Out-of-combat / without last mana use effect
+    float result_regen_interrupted  = powerType->RegenCombat; // In combat / with last mana use effect
+    float pct_modifier              = 1.f;                    // Config rate or any other modifiers
+    float flat_modifier             = 0.f;                    // other modifiers
 
-    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
-    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    if (std::ranges::any_of(GetAuraEffectsByType(SPELL_AURA_PREVENT_REGENERATE_POWER),
+        [powerMask = 1 << power](AuraEffect const* preventRegen) { return (preventRegen->GetMiscValue() & powerMask) != 0; }))
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), -powerType->RegenPeace);
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), -powerType->RegenCombat);
+        return;
+    }
 
-    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
-    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_MANA_REGEN_PCT, POWER_MANA);
+    switch (power)
+    {
+        case POWER_MANA:
+        {
+            // Get base of Mana Pool in sBaseMPGameTable
+            uint32 basemana = 0;
+            sObjectMgr->GetPlayerClassLevelInfo(GetClass(), GetLevel(), basemana);
+            float base_regen            = float(basemana) / 100.f;
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), base_regen);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), base_regen);
+            base_regen                  *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MANA_REGEN_PCT);
+
+            result_regen                += base_regen;
+            result_regen_interrupted    += base_regen;
+            break;
+        }
+        case POWER_RUNES:
+        {
+            float base_regen            = float(1 * IN_MILLISECONDS) / float(GetRuneBaseCooldown());
+
+            result_regen                = base_regen;
+            result_regen_interrupted    = base_regen;
+            break;
+        }
+        default:
+            break;
+    }
+
+    if (PowerRegenInfo[AsUnderlyingType(power)])
+        pct_modifier *= sWorld->getRate(*PowerRegenInfo[AsUnderlyingType(power)]); // Config rate
+
+    pct_modifier                *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, AsUnderlyingType(power));
+    flat_modifier               += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, AsUnderlyingType(power)) / 5.f;
+
+    result_regen                *= pct_modifier;
+    result_regen_interrupted    *= pct_modifier;
+
+    result_regen                += flat_modifier;
+    result_regen_interrupted    += flat_modifier;
+
+    // Unit fields contain an offset relative to the base power regeneration.
+    result_regen                -= powerType->RegenPeace;
+    result_regen_interrupted    -= powerType->RegenCombat;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, powerIndex), result_regen);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, powerIndex), result_regen_interrupted);
 }
 
-void Player::UpdateAllRunesRegen()
+float Player::GetPowerRegen(Powers power) const
 {
-    if (GetClass() != CLASS_DEATH_KNIGHT)
-        return;
+    uint32 powerIndex = GetPowerIndex(power);
+    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+        return 0.f;
 
-    uint32 runeIndex = GetPowerIndex(POWER_RUNES);
-    if (runeIndex == MAX_POWERS)
-        return;
+    PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
+    if (!powerType)
+        return 0.f;
 
-    PowerTypeEntry const* runeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
+    if (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && m_regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) >= GameTime::Now())
+        return 0.f;
 
-    uint32 cooldown = GetRuneBaseCooldown();
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenCombat);
+    bool interrupted =  HasAuraType(SPELL_AURA_INTERRUPT_REGEN) ||
+                        (powerType->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt) && m_regenInterruptTimestamp + Milliseconds(powerType->RegenInterruptTimeMS) >= GameTime::Now()) ||
+                        IsInCombat();
+
+    float regen = interrupted ? powerType->RegenCombat + m_unitData->PowerRegenInterruptedFlatModifier[powerIndex] : powerType->RegenPeace + m_unitData->PowerRegenFlatModifier[powerIndex];
+
+    return regen;
 }
 
 void Player::_ApplyAllStatBonuses()

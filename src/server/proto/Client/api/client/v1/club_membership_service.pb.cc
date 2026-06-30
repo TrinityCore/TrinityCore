@@ -66,8 +66,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       "api/client/v1/club_membership_service.proto");
   GOOGLE_CHECK(file != NULL);
   SubscribeRequest_descriptor_ = file->message_type(0);
-  static const int SubscribeRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeRequest, agent_id_deprecated_),
+  static const int SubscribeRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeRequest, options_),
   };
   SubscribeRequest_reflection_ =
@@ -98,7 +97,6 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       sizeof(SubscribeResponse));
   UnsubscribeRequest_descriptor_ = file->message_type(2);
   static const int UnsubscribeRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeRequest, agent_id_deprecated_),
   };
   UnsubscribeRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -112,8 +110,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnsubscribeRequest));
   GetStateRequest_descriptor_ = file->message_type(3);
-  static const int GetStateRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStateRequest, agent_id_deprecated_),
+  static const int GetStateRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStateRequest, options_),
   };
   GetStateRequest_reflection_ =
@@ -143,8 +140,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStateResponse));
   UpdateClubSharedSettingsRequest_descriptor_ = file->message_type(5);
-  static const int UpdateClubSharedSettingsRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateClubSharedSettingsRequest, agent_id_deprecated_),
+  static const int UpdateClubSharedSettingsRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateClubSharedSettingsRequest, options_),
   };
   UpdateClubSharedSettingsRequest_reflection_ =
@@ -159,8 +155,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateClubSharedSettingsRequest));
   GetStreamMentionsRequest_descriptor_ = file->message_type(6);
-  static const int GetStreamMentionsRequest_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, agent_id_deprecated_),
+  static const int GetStreamMentionsRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, options_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, fetch_messages_),
   };
@@ -192,8 +187,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamMentionsResponse));
   RemoveStreamMentionsRequest_descriptor_ = file->message_type(8);
-  static const int RemoveStreamMentionsRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveStreamMentionsRequest, agent_id_deprecated_),
+  static const int RemoveStreamMentionsRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveStreamMentionsRequest, mention_id_),
   };
   RemoveStreamMentionsRequest_reflection_ =
@@ -209,7 +203,6 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto
       sizeof(RemoveStreamMentionsRequest));
   AdvanceStreamMentionViewTimeRequest_descriptor_ = file->message_type(9);
   static const int AdvanceStreamMentionViewTimeRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceStreamMentionViewTimeRequest, agent_id_deprecated_),
   };
   AdvanceStreamMentionViewTimeRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -294,69 +287,56 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fmembership_5fservice_2eproto() 
     "\n+api/client/v1/club_membership_service."
     "proto\022&bgs.protocol.club_membership.v1.c"
     "lient\032\036api/client/v1/club_types.proto\032\037a"
-    "pi/client/v1/club_stream.proto\"\266\001\n\020Subsc"
-    "ribeRequest\022I\n\023agent_id_deprecated\030\001 \001(\013"
-    "2\".bgs.protocol.account.v1.AccountIdB\010\030\001"
-    "\222\371+\002 \001\022W\n\007options\030\002 \001(\0132F.bgs.protocol.c"
-    "lub_membership.v1.client.ClubMembershipS"
-    "ubscribeOptions\"_\n\021SubscribeResponse\022J\n\005"
-    "state\030\001 \001(\0132;.bgs.protocol.club_membersh"
-    "ip.v1.client.ClubMembershipState\"_\n\022Unsu"
-    "bscribeRequest\022I\n\023agent_id_deprecated\030\001 "
-    "\001(\0132\".bgs.protocol.account.v1.AccountIdB"
-    "\010\030\001\222\371+\002 \001\"\264\001\n\017GetStateRequest\022I\n\023agent_i"
-    "d_deprecated\030\001 \001(\0132\".bgs.protocol.accoun"
-    "t.v1.AccountIdB\010\030\001\222\371+\002 \001\022V\n\007options\030\002 \001("
-    "\0132E.bgs.protocol.club_membership.v1.clie"
-    "nt.ClubMembershipGetStateOptions\"^\n\020GetS"
-    "tateResponse\022J\n\005state\030\001 \001(\0132;.bgs.protoc"
+    "pi/client/v1/club_stream.proto\"k\n\020Subscr"
+    "ibeRequest\022W\n\007options\030\002 \001(\0132F.bgs.protoc"
     "ol.club_membership.v1.client.ClubMembers"
-    "hipState\"\300\001\n\037UpdateClubSharedSettingsReq"
-    "uest\022I\n\023agent_id_deprecated\030\001 \001(\0132\".bgs."
-    "protocol.account.v1.AccountIdB\010\030\001\222\371+\002 \001\022"
-    "R\n\007options\030\002 \001(\0132A.bgs.protocol.club_mem"
-    "bership.v1.client.ClubSharedSettingsOpti"
-    "ons\"\255\001\n\030GetStreamMentionsRequest\022I\n\023agen"
-    "t_id_deprecated\030\001 \001(\0132\".bgs.protocol.acc"
-    "ount.v1.AccountIdB\010\030\001\222\371+\002 \001\022.\n\007options\030\002"
-    " \001(\0132\035.bgs.protocol.GetEventOptions\022\026\n\016f"
-    "etch_messages\030\003 \001(\010\"n\n\031GetStreamMentions"
-    "Response\022;\n\007mention\030\001 \003(\0132*.bgs.protocol"
-    ".club.v1.client.StreamMention\022\024\n\014continu"
-    "ation\030\002 \001(\004\"\230\001\n\033RemoveStreamMentionsRequ"
-    "est\022I\n\023agent_id_deprecated\030\001 \001(\0132\".bgs.p"
-    "rotocol.account.v1.AccountIdB\010\030\001\222\371+\002 \001\022."
-    "\n\nmention_id\030\002 \003(\0132\032.bgs.protocol.TimeSe"
-    "riesId\"p\n#AdvanceStreamMentionViewTimeRe"
-    "quest\022I\n\023agent_id_deprecated\030\001 \001(\0132\".bgs"
-    ".protocol.account.v1.AccountIdB\010\030\001\222\371+\002 \001"
-    "2\241\010\n\025ClubMembershipService\022\212\001\n\tSubscribe"
-    "\0228.bgs.protocol.club_membership.v1.clien"
-    "t.SubscribeRequest\0329.bgs.protocol.club_m"
-    "embership.v1.client.SubscribeResponse\"\010\202"
-    "\371+\004\010\001\020\001\022i\n\013Unsubscribe\022:.bgs.protocol.cl"
-    "ub_membership.v1.client.UnsubscribeReque"
-    "st\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\002\020\001\022\211\001\n\010G"
-    "etState\0227.bgs.protocol.club_membership.v"
-    "1.client.GetStateRequest\0328.bgs.protocol."
-    "club_membership.v1.client.GetStateRespon"
-    "se\"\n\202\371+\006\010\003\020\0010\001\022\203\001\n\030UpdateClubSharedSetti"
-    "ngs\022G.bgs.protocol.club_membership.v1.cl"
-    "ient.UpdateClubSharedSettingsRequest\032\024.b"
-    "gs.protocol.NoData\"\010\202\371+\004\010\004\020\001\022\244\001\n\021GetStre"
-    "amMentions\022@.bgs.protocol.club_membershi"
-    "p.v1.client.GetStreamMentionsRequest\032A.b"
-    "gs.protocol.club_membership.v1.client.Ge"
-    "tStreamMentionsResponse\"\n\202\371+\006\010\005\020\0010\001\022{\n\024R"
-    "emoveStreamMentions\022C.bgs.protocol.club_"
-    "membership.v1.client.RemoveStreamMention"
-    "sRequest\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\006\020\001"
-    "\022\213\001\n\034AdvanceStreamMentionViewTime\022K.bgs."
-    "protocol.club_membership.v1.client.Advan"
-    "ceStreamMentionViewTimeRequest\032\024.bgs.pro"
-    "tocol.NoData\"\010\202\371+\004\010\007\020\001\032L\202\371+@\n+bnet.proto"
-    "col.club.v1.ClubMembershipService*\017club_"
-    "membershipH\001\212\371+\004\020\001\030\001B\005H\002\200\001\000", 2627);
+    "hipSubscribeOptions\"_\n\021SubscribeResponse"
+    "\022J\n\005state\030\001 \001(\0132;.bgs.protocol.club_memb"
+    "ership.v1.client.ClubMembershipState\"\024\n\022"
+    "UnsubscribeRequest\"i\n\017GetStateRequest\022V\n"
+    "\007options\030\002 \001(\0132E.bgs.protocol.club_membe"
+    "rship.v1.client.ClubMembershipGetStateOp"
+    "tions\"^\n\020GetStateResponse\022J\n\005state\030\001 \001(\013"
+    "2;.bgs.protocol.club_membership.v1.clien"
+    "t.ClubMembershipState\"u\n\037UpdateClubShare"
+    "dSettingsRequest\022R\n\007options\030\002 \001(\0132A.bgs."
+    "protocol.club_membership.v1.client.ClubS"
+    "haredSettingsOptions\"b\n\030GetStreamMention"
+    "sRequest\022.\n\007options\030\002 \001(\0132\035.bgs.protocol"
+    ".GetEventOptions\022\026\n\016fetch_messages\030\003 \001(\010"
+    "\"n\n\031GetStreamMentionsResponse\022;\n\007mention"
+    "\030\001 \003(\0132*.bgs.protocol.club.v1.client.Str"
+    "eamMention\022\024\n\014continuation\030\002 \001(\004\"M\n\033Remo"
+    "veStreamMentionsRequest\022.\n\nmention_id\030\002 "
+    "\003(\0132\032.bgs.protocol.TimeSeriesId\"%\n#Advan"
+    "ceStreamMentionViewTimeRequest2\241\010\n\025ClubM"
+    "embershipService\022\212\001\n\tSubscribe\0228.bgs.pro"
+    "tocol.club_membership.v1.client.Subscrib"
+    "eRequest\0329.bgs.protocol.club_membership."
+    "v1.client.SubscribeResponse\"\010\202\371+\004\010\001\020\001\022i\n"
+    "\013Unsubscribe\022:.bgs.protocol.club_members"
+    "hip.v1.client.UnsubscribeRequest\032\024.bgs.p"
+    "rotocol.NoData\"\010\202\371+\004\010\002\020\001\022\211\001\n\010GetState\0227."
+    "bgs.protocol.club_membership.v1.client.G"
+    "etStateRequest\0328.bgs.protocol.club_membe"
+    "rship.v1.client.GetStateResponse\"\n\202\371+\006\010\003"
+    "\020\0010\001\022\203\001\n\030UpdateClubSharedSettings\022G.bgs."
+    "protocol.club_membership.v1.client.Updat"
+    "eClubSharedSettingsRequest\032\024.bgs.protoco"
+    "l.NoData\"\010\202\371+\004\010\004\020\001\022\244\001\n\021GetStreamMentions"
+    "\022@.bgs.protocol.club_membership.v1.clien"
+    "t.GetStreamMentionsRequest\032A.bgs.protoco"
+    "l.club_membership.v1.client.GetStreamMen"
+    "tionsResponse\"\n\202\371+\006\010\005\020\0010\001\022{\n\024RemoveStrea"
+    "mMentions\022C.bgs.protocol.club_membership"
+    ".v1.client.RemoveStreamMentionsRequest\032\024"
+    ".bgs.protocol.NoData\"\010\202\371+\004\010\006\020\001\022\213\001\n\034Advan"
+    "ceStreamMentionViewTime\022K.bgs.protocol.c"
+    "lub_membership.v1.client.AdvanceStreamMe"
+    "ntionViewTimeRequest\032\024.bgs.protocol.NoDa"
+    "ta\"\010\202\371+\004\010\007\020\001\032L\202\371+@\n+bnet.protocol.club.v"
+    "1.ClubMembershipService*\017club_membership"
+    "H\001\212\371+\004\020\001\030\001B\005H\002\200\001\000", 2097);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/club_membership_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -391,7 +371,6 @@ struct StaticDescriptorInitializer_api_2fclient_2fv1_2fclub_5fmembership_5fservi
 // ===================================================================
 
 #ifndef _MSC_VER
-const int SubscribeRequest::kAgentIdDeprecatedFieldNumber;
 const int SubscribeRequest::kOptionsFieldNumber;
 #endif  // !_MSC_VER
 
@@ -402,7 +381,6 @@ SubscribeRequest::SubscribeRequest()
 }
 
 void SubscribeRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   options_ = const_cast< ::bgs::protocol::club_membership::v1::client::ClubMembershipSubscribeOptions*>(&::bgs::protocol::club_membership::v1::client::ClubMembershipSubscribeOptions::default_instance());
 }
 
@@ -415,7 +393,6 @@ SubscribeRequest::SubscribeRequest(const SubscribeRequest& from)
 
 void SubscribeRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -427,7 +404,6 @@ SubscribeRequest::~SubscribeRequest() {
 
 void SubscribeRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete options_;
   }
 }
@@ -543,7 +519,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int UnsubscribeRequest::kAgentIdDeprecatedFieldNumber;
 #endif  // !_MSC_VER
 
 UnsubscribeRequest::UnsubscribeRequest()
@@ -553,7 +528,6 @@ UnsubscribeRequest::UnsubscribeRequest()
 }
 
 void UnsubscribeRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 UnsubscribeRequest::UnsubscribeRequest(const UnsubscribeRequest& from)
@@ -565,7 +539,6 @@ UnsubscribeRequest::UnsubscribeRequest(const UnsubscribeRequest& from)
 
 void UnsubscribeRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -576,7 +549,6 @@ UnsubscribeRequest::~UnsubscribeRequest() {
 
 void UnsubscribeRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
   }
 }
 
@@ -617,7 +589,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int GetStateRequest::kAgentIdDeprecatedFieldNumber;
 const int GetStateRequest::kOptionsFieldNumber;
 #endif  // !_MSC_VER
 
@@ -628,7 +599,6 @@ GetStateRequest::GetStateRequest()
 }
 
 void GetStateRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   options_ = const_cast< ::bgs::protocol::club_membership::v1::client::ClubMembershipGetStateOptions*>(&::bgs::protocol::club_membership::v1::client::ClubMembershipGetStateOptions::default_instance());
 }
 
@@ -641,7 +611,6 @@ GetStateRequest::GetStateRequest(const GetStateRequest& from)
 
 void GetStateRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -653,7 +622,6 @@ GetStateRequest::~GetStateRequest() {
 
 void GetStateRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete options_;
   }
 }
@@ -769,7 +737,6 @@ void GetStateResponse::Swap(GetStateResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int UpdateClubSharedSettingsRequest::kAgentIdDeprecatedFieldNumber;
 const int UpdateClubSharedSettingsRequest::kOptionsFieldNumber;
 #endif  // !_MSC_VER
 
@@ -780,7 +747,6 @@ UpdateClubSharedSettingsRequest::UpdateClubSharedSettingsRequest()
 }
 
 void UpdateClubSharedSettingsRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   options_ = const_cast< ::bgs::protocol::club_membership::v1::client::ClubSharedSettingsOptions*>(&::bgs::protocol::club_membership::v1::client::ClubSharedSettingsOptions::default_instance());
 }
 
@@ -793,7 +759,6 @@ UpdateClubSharedSettingsRequest::UpdateClubSharedSettingsRequest(const UpdateClu
 
 void UpdateClubSharedSettingsRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -805,7 +770,6 @@ UpdateClubSharedSettingsRequest::~UpdateClubSharedSettingsRequest() {
 
 void UpdateClubSharedSettingsRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete options_;
   }
 }
@@ -847,7 +811,6 @@ void UpdateClubSharedSettingsRequest::Swap(UpdateClubSharedSettingsRequest* othe
 // ===================================================================
 
 #ifndef _MSC_VER
-const int GetStreamMentionsRequest::kAgentIdDeprecatedFieldNumber;
 const int GetStreamMentionsRequest::kOptionsFieldNumber;
 const int GetStreamMentionsRequest::kFetchMessagesFieldNumber;
 #endif  // !_MSC_VER
@@ -859,7 +822,6 @@ GetStreamMentionsRequest::GetStreamMentionsRequest()
 }
 
 void GetStreamMentionsRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   options_ = const_cast< ::bgs::protocol::GetEventOptions*>(&::bgs::protocol::GetEventOptions::default_instance());
 }
 
@@ -872,7 +834,6 @@ GetStreamMentionsRequest::GetStreamMentionsRequest(const GetStreamMentionsReques
 
 void GetStreamMentionsRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   options_ = NULL;
   fetch_messages_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -885,7 +846,6 @@ GetStreamMentionsRequest::~GetStreamMentionsRequest() {
 
 void GetStreamMentionsRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
     delete options_;
   }
 }
@@ -1000,7 +960,6 @@ void GetStreamMentionsResponse::Swap(GetStreamMentionsResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int RemoveStreamMentionsRequest::kAgentIdDeprecatedFieldNumber;
 const int RemoveStreamMentionsRequest::kMentionIdFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1011,7 +970,6 @@ RemoveStreamMentionsRequest::RemoveStreamMentionsRequest()
 }
 
 void RemoveStreamMentionsRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 RemoveStreamMentionsRequest::RemoveStreamMentionsRequest(const RemoveStreamMentionsRequest& from)
@@ -1023,7 +981,6 @@ RemoveStreamMentionsRequest::RemoveStreamMentionsRequest(const RemoveStreamMenti
 
 void RemoveStreamMentionsRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1034,7 +991,6 @@ RemoveStreamMentionsRequest::~RemoveStreamMentionsRequest() {
 
 void RemoveStreamMentionsRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
   }
 }
 
@@ -1075,7 +1031,6 @@ void RemoveStreamMentionsRequest::Swap(RemoveStreamMentionsRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AdvanceStreamMentionViewTimeRequest::kAgentIdDeprecatedFieldNumber;
 #endif  // !_MSC_VER
 
 AdvanceStreamMentionViewTimeRequest::AdvanceStreamMentionViewTimeRequest()
@@ -1085,7 +1040,6 @@ AdvanceStreamMentionViewTimeRequest::AdvanceStreamMentionViewTimeRequest()
 }
 
 void AdvanceStreamMentionViewTimeRequest::InitAsDefaultInstance() {
-  agent_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 AdvanceStreamMentionViewTimeRequest::AdvanceStreamMentionViewTimeRequest(const AdvanceStreamMentionViewTimeRequest& from)
@@ -1097,7 +1051,6 @@ AdvanceStreamMentionViewTimeRequest::AdvanceStreamMentionViewTimeRequest(const A
 
 void AdvanceStreamMentionViewTimeRequest::SharedCtor() {
   _cached_size_ = 0;
-  agent_id_deprecated_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1108,7 +1061,6 @@ AdvanceStreamMentionViewTimeRequest::~AdvanceStreamMentionViewTimeRequest() {
 
 void AdvanceStreamMentionViewTimeRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete agent_id_deprecated_;
   }
 }
 

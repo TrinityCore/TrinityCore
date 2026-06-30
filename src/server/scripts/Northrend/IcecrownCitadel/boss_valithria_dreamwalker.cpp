@@ -28,7 +28,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Texts
+enum ValithriaTexts
 {
     // The Lich King
     SAY_LICH_KING_INTRO         = 0,
@@ -44,7 +44,7 @@ enum Texts
     SAY_VALITHRIA_SUCCESS       = 7,
 };
 
-enum Spells
+enum ValithriaSpells
 {
     // Valithria Dreamwalker
     SPELL_COPY_DAMAGE                   = 71948,
@@ -109,7 +109,7 @@ enum Spells
 #define EMERALD_VIGOR RAID_MODE<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
                                         SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
 
-enum Events
+enum ValithriaEvents
 {
     // Valithria Dreamwalker
     EVENT_INTRO_TALK = 1,
@@ -145,7 +145,7 @@ enum Events
     EVENT_EXPLODE,
 };
 
-enum Misc
+enum ValithriaMisc
 {
     ACTION_ENTER_COMBAT    = 1,
     MISSED_PORTALS         = 2,
@@ -258,6 +258,7 @@ class ValithriaDespawner : public BasicEvent
         Creature* _creature;
 };
 
+// 36789 - Valithria Dreamwalker
 struct boss_valithria_dreamwalker : public ScriptedAI
 {
     boss_valithria_dreamwalker(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
@@ -463,6 +464,7 @@ private:
     bool _done;
 };
 
+// 38752 - Green Dragon Combat Trigger
 struct npc_green_dragon_combat_trigger : public BossAI
 {
     npc_green_dragon_combat_trigger(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER) { }
@@ -530,6 +532,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
     }
 };
 
+// 16980 - The Lich King
 struct npc_the_lich_king_controller : public ScriptedAI
 {
     npc_the_lich_king_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -617,6 +620,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 37868 - Risen Archmage
 struct npc_risen_archmage : public ScriptedAI
 {
     npc_risen_archmage(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -730,6 +734,7 @@ private:
     bool _isInitialArchmage;
 };
 
+// 36791 - Blazing Skeleton
 struct npc_blazing_skeleton : public ScriptedAI
 {
     npc_blazing_skeleton(Creature* creature) : ScriptedAI(creature) { }
@@ -777,6 +782,7 @@ private:
     EventMap _events;
 };
 
+// 37863 - Suppresser
 struct npc_suppresser : public ScriptedAI
 {
     npc_suppresser(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -832,6 +838,7 @@ private:
     InstanceScript* const _instance;
 };
 
+// 37934 - Blistering Zombie
 struct npc_blistering_zombie : public ScriptedAI
 {
     npc_blistering_zombie(Creature* creature) : ScriptedAI(creature) { }
@@ -842,6 +849,7 @@ struct npc_blistering_zombie : public ScriptedAI
     }
 };
 
+// 37886 - Gluttonous Abomination
 struct npc_gluttonous_abomination : public ScriptedAI
 {
     npc_gluttonous_abomination(Creature* creature) : ScriptedAI(creature) { }
@@ -888,6 +896,8 @@ private:
     EventMap _events;
 };
 
+// 37945 - Dream Portal
+// 38430 - Nightmare Portal
 struct npc_dream_portal : public CreatureAI
 {
     npc_dream_portal(Creature* creature) : CreatureAI(creature), _used(false) { }
@@ -915,6 +925,8 @@ private:
     bool _used;
 };
 
+// 37985 - Dream Cloud
+// 38421 - Nightmare Cloud
 struct npc_dream_cloud : public ScriptedAI
 {
     npc_dream_cloud(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }

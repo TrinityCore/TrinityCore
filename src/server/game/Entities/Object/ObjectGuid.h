@@ -323,7 +323,7 @@ class TC_GAME_API ObjectGuid
         constexpr ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
-        std::span<uint8 const, 16> GetRawValue() const { return std::span<uint8 const, 16>(reinterpret_cast<uint8 const*>(_data.data()), BytesSize); }
+        std::span<uint8 const, BytesSize> GetRawValue() const { return std::span<uint8 const, BytesSize>(reinterpret_cast<uint8 const*>(_data.data()), BytesSize); }
         void SetRawValue(std::span<uint8 const> rawBytes);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
         void Clear() { _data = { }; }

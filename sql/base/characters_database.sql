@@ -354,7 +354,7 @@ DROP TABLE IF EXISTS `channels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `channels` (
-  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `team` int unsigned NOT NULL,
   `announce` tinyint unsigned NOT NULL DEFAULT '1',
   `ownership` tinyint unsigned NOT NULL DEFAULT '1',
@@ -3829,7 +3829,7 @@ DROP TABLE IF EXISTS `reserved_name`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reserved_name` (
-  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player Reserved Names';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4094,7 +4094,9 @@ INSERT INTO `updates` VALUES
 ('2026_02_06_00_characters.sql','90735F4481A137E79B8371F291008CF6051657AC','ARCHIVED','2026-02-06 12:45:48',0),
 ('2026_03_21_00_characters.sql','87963F4E341B195D4B4C4514A3119092DF127431','RELEASED','2026-03-21 00:42:13',0),
 ('2026_04_08_00_characters.sql','5A7FC8264EBD524E4EBAACF53D1CE89C6FF0D255','RELEASED','2026-04-07 10:24:16',0),
-('2026_04_22_00_characters.sql','34E7E4659F8C2FF778042CF21267F8045BDC197E','RELEASED','2026-04-22 19:26:05',0);
+('2026_04_22_00_characters.sql','34E7E4659F8C2FF778042CF21267F8045BDC197E','RELEASED','2026-04-22 19:26:05',0),
+('2026_05_26_00_characters_2023_09_10_00_characters.sql','5DE09CA31B5168CF3622CB462816B6C598893D96','RELEASED','2023-09-10 12:23:34',0),
+('2026_05_26_01_characters_2024_02_05_00_characters.sql','1777CBCA822AD85777DA4A390DF7AAF41AF68EBD','RELEASED','2024-02-05 12:17:19',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -217,14 +217,12 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << Bits<1>(GuildTradeSkillsEnabled);
     _worldPacket << SizedString::BitsSize<10>(Unknown1027);
-    _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
-    _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
     _worldPacket << Bits<1>(NetEaseChatTelemetryEnabled);
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
-
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
     _worldPacket << Bits<1>(AddonProfilingEnabled);
+
     _worldPacket << Bits<1>(GlobalUserGeneratedContentMuteEnabled);
     _worldPacket << Bits<1>(AccountUserGeneratedContentIsRisky);
 
@@ -267,23 +265,22 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket << Bits<1>(BrowserCrashReporterEnabled);
     _worldPacket << Bits<1>(IsEmployeeAccount);
+    _worldPacket << Bits<1>(UseBleep);
     _worldPacket << OptionalInit(EuropaTicketSystemStatus);
     _worldPacket << Bits<1>(NameReservationOnly);
     _worldPacket << OptionalInit(LaunchDurationETA);
     _worldPacket << Bits<1>(TimerunningEnabled);
     _worldPacket << Bits<1>(ScriptsDisallowedForBeta);
-    _worldPacket << Bits<1>(PlayerIdentityOptionsEnabled);
 
+    _worldPacket << Bits<1>(PlayerIdentityOptionsEnabled);
     _worldPacket << Bits<1>(AccountExportEnabled);
     _worldPacket << Bits<1>(AccountLockedPostExport);
 
     _worldPacket << SizedCString::BitsSize<11>(RealmHiddenAlert);
 
-    _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
-    _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(CharacterSelectListModeRealmless);
-
     _worldPacket << Bits<1>(WowTokenLimitedMode);
+
     _worldPacket << Bits<1>(NavBarEnabled);
     _worldPacket << Bits<1>(GlobalUserGeneratedContentMuteEnabled);
     _worldPacket << Bits<1>(AccountUserGeneratedContentIsRisky);

@@ -16,96 +16,78 @@
  */
 
 /*
-Name: Boss_Lorekeeper_Polkelt
-%Complete: 100
-Comment:
-Category: Scholomance
-*/
+ * Timers requires to be revisited
+ */
 
-#include "scholomance.h"
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum PolkeltSpells
 {
-    SPELL_VOLATILEINFECTION     = 24928,
-    SPELL_DARKPLAGUE            = 18270,
-    SPELL_CORROSIVEACID         = 23313,
-    SPELL_NOXIOUSCATALYST       = 18151
+    SPELL_VOLATILE_INFECTION    = 18149,
+    SPELL_NOXIOUS_CATALYST      = 18151,
+    SPELL_CORROSIVE_ACID        = 8245
 };
 
-enum Events
+enum PolkeltEvents
 {
-    EVENT_VOLATILEINFECTION     = 1,
-    EVENT_DARKPLAGUE            = 2,
-    EVENT_CORROSIVEACID         = 3,
-    EVENT_NOXIOUSCATALYST       = 4
+    EVENT_VOLATILE_INFECTION    = 1,
+    EVENT_NOXIOUS_CATALYST,
+    EVENT_CORROSIVE_ACID
 };
 
-class boss_lorekeeper_polkelt : public CreatureScript
+// 10901 - Lorekeeper Polkelt
+struct boss_lorekeeper_polkelt : public BossAI
 {
-    public: boss_lorekeeper_polkelt() : CreatureScript("boss_lorekeeper_polkelt") { }
+    boss_lorekeeper_polkelt(Creature* creature) : BossAI(creature, DATA_LOREKEEPER_POLKELT) { }
 
-        struct boss_lorekeeperpolkeltAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_VOLATILE_INFECTION, 15s, 20s);
+        events.ScheduleEvent(EVENT_NOXIOUS_CATALYST, 10s, 20s);
+        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 20s, 30s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) { }
-
-            void JustEngagedWith(Unit* who) override
+            switch (eventId)
             {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38s);
-                events.ScheduleEvent(EVENT_DARKPLAGUE, 8s);
-                events.ScheduleEvent(EVENT_CORROSIVEACID, 45s);
-                events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 35s);
+                case EVENT_VOLATILE_INFECTION:
+                    DoCastVictim(SPELL_VOLATILE_INFECTION);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_NOXIOUS_CATALYST:
+                    DoCastVictim(SPELL_NOXIOUS_CATALYST);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_CORROSIVE_ACID:
+                    DoCastSelf(SPELL_CORROSIVE_ACID);
+                    events.Repeat(30s, 40s);
+                    break;
+                default:
+                    break;
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_VOLATILEINFECTION:
-                            DoCastVictim(SPELL_VOLATILEINFECTION, true);
-                            events.ScheduleEvent(EVENT_VOLATILEINFECTION, 32s);
-                            break;
-                        case EVENT_DARKPLAGUE:
-                            DoCastVictim(SPELL_DARKPLAGUE, true);
-                            events.ScheduleEvent(EVENT_DARKPLAGUE, 8s);
-                            break;
-                        case EVENT_CORROSIVEACID:
-                            DoCastVictim(SPELL_CORROSIVEACID, true);
-                            events.ScheduleEvent(EVENT_CORROSIVEACID, 25s);
-                            break;
-                        case EVENT_NOXIOUSCATALYST:
-                            DoCastVictim(SPELL_NOXIOUSCATALYST, true);
-                            events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 38s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScholomanceAI<boss_lorekeeperpolkeltAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+    }
 };
 
 void AddSC_boss_lorekeeperpolkelt()
 {
-    new boss_lorekeeper_polkelt();
+    RegisterScholomanceCreatureAI(boss_lorekeeper_polkelt);
 }

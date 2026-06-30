@@ -25,11 +25,18 @@
 
 uint32 const EncounterCount = 2;
 
-enum GLDataTypes
+enum GLEncounters
 {
-    // Encounter States/Boss GUIDs
     DATA_MAULGAR                = 0,
     DATA_GRUUL                  = 1
+};
+
+enum GLDataTypes
+{
+    DATA_KROSH_FIREHAND,
+    DATA_OLM_THE_SUMMONER,
+    DATA_KIGGLER_THE_CRAZED,
+    DATA_BLINDEYE_THE_SEER
 };
 
 enum GLCreatureIds
@@ -52,5 +59,7 @@ inline AI* GetGruulsLairAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, GLScriptName);
 }
+
+#define RegisterGruulsLairCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetGruulsLairAI)
 
 #endif // GRUULS_LAIR_H_

@@ -1,0 +1,11 @@
+UPDATE `creature` SET `guid`=8233,`position_x`=-5392.88,`position_y`=-3024.56,`position_z`=349.352,`orientation`=4.15255,`spawntimesecs`=300 WHERE `guid`=288307 AND `id`=2518;
+UPDATE `creature` SET `guid`=8239,`position_x`=-5415.97,`position_y`=-2996.45,`position_z`=350.510,`orientation`=3.48619,`spawntimesecs`=300 WHERE `guid`=288309 AND `id`=2506;
+UPDATE `creature` SET `guid`=8306,`position_x`=-5430.20,`position_y`=-2954.97,`position_z`=349.267,`orientation`=1.50046,`spawntimesecs`=300 WHERE `guid`=288272 AND `id`=2512;
+UPDATE `creature` SET `guid`=8238,`position_x`=-5345.79,`position_y`=-3071.23,`position_z`=344.190,`orientation`=4.78405,`spawntimesecs`=300 WHERE `guid`=288300 AND `id`=2515;
+UPDATE `creature` SET `guid`=8235,`position_x`=-5254.35,`position_y`=-2994.23,`position_z`=332.375,`orientation`=2.52565,`spawntimesecs`=300 WHERE `guid`=288233 AND `id`=1338;
+UPDATE `creature` SET `guid`=8302,`position_x`=-5255.89,`position_y`=-3037.94,`position_z`=336.023,`orientation`=2.25090,`spawntimesecs`=300 WHERE `guid`=288232 AND `id`=2507;
+UPDATE `creature` SET `guid`=8240,`position_x`=-5252.89,`position_y`=-2970.47,`position_z`=344.827,`orientation`=0.034754,`spawntimesecs`=300 WHERE `guid`=288235 AND `id`=2508;
+UPDATE `creature` SET `guid`=8234,`position_x`=-5274.46,`position_y`=-2924.05,`position_z`=348.944,`orientation`=2.54521,`spawntimesecs`=300 WHERE `guid`=288234 AND `id`=2509;
+UPDATE `creature` SET `guid`=8745,`position_x`=-5346.88,`position_y`=-2962.26,`position_z`=323.759,`orientation`=4.82375,`spawntimesecs`=300 WHERE `guid`=288256 AND `id`=2510;
+UPDATE `creature` SET `guid`=8303,`position_x`=-5285.33,`position_y`=-3068.26,`position_z`=341.881,`orientation`=0.064079,`spawntimesecs`=300 WHERE `guid`=288281 AND `id`=2511;
+UPDATE `creature` SET `guid`=8237,`position_x`=-5305.82,`position_y`=-2970.57,`position_z`=346.630,`orientation`=3.66186,`spawntimesecs`=300 WHERE `guid`=288237 AND `id`=2513;

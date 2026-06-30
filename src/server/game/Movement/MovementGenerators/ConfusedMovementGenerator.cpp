@@ -40,29 +40,29 @@ MovementGeneratorType ConfusedMovementGenerator<T>::GetMovementGeneratorType() c
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
+bool ConfusedMovementGenerator<T>::DoInitialize(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     this->AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner->IsAlive())
-        return;
+        return false;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
     owner->SetUnitFlag(UNIT_FLAG_CONFUSED);
-    owner->StopMoving();
 
     _timer.Reset(0);
     owner->GetPosition(_reference.m_positionX, _reference.m_positionY, _reference.m_positionZ);
     _path = nullptr;
+    return true;
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoReset(T* owner)
+bool ConfusedMovementGenerator<T>::DoReset(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>

@@ -137,7 +137,7 @@ bool WaypointMovementGenerator<T>::GetResetPosition(Unit* /*owner*/, float& x, f
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoInitialize(T* owner)
+bool WaypointMovementGenerator<T>::DoInitialize(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -145,7 +145,7 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     if (!path)
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for {}", owner->GetGUID());
-        return;
+        return false;
     }
 
     if (path->Nodes.size() == 1)
@@ -154,10 +154,11 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
+    return true;
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoReset(T* owner)
+bool WaypointMovementGenerator<T>::DoReset(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -165,6 +166,7 @@ void WaypointMovementGenerator<T>::DoReset(T* owner)
 
     if (!this->HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) && _nextMoveTime.Passed())
         _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+    return true;
 }
 
 template <typename T>
