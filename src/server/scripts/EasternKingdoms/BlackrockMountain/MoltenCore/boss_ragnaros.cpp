@@ -162,7 +162,7 @@ struct boss_ragnaros : public BossAI
         _deadSonsOfFlameCount = 0;
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         me->SetReactState(REACT_AGGRESSIVE);
     }
 
@@ -298,7 +298,7 @@ struct boss_ragnaros : public BossAI
                     DoCastSelf(SPELL_SUBMERGE_VISUAL);
                     DoCastSelf(SPELL_SUBMERGE_EFFECT);
                     me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->SetReactState(REACT_PASSIVE);
 
                     Talk(!_hasSubmergedOnce ? SAY_REINFORCEMENTS_1 : SAY_REINFORCEMENTS_2);
@@ -316,7 +316,7 @@ struct boss_ragnaros : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
 
                     _isSubmerged = false;

@@ -166,7 +166,7 @@ struct npc_core_rager : public ScriptedAI
     {
         if (me->HealthBelowPctDamaged(50, damage))
         {
-            _scheduler.Schedule(0s, [this](TaskContext /*task*/)
+            _scheduler.Schedule(0s, [this](TaskContext const& /*task*/)
             {
                 DoCastSelf(SPELL_FULL_HEAL);
             });

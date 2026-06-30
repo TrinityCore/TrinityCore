@@ -63,8 +63,7 @@ enum Misc
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ },
-    { 0,                       0               } // END
+    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ }
 };
 
 static constexpr ObjectData gameObjectData[] =
@@ -75,8 +74,7 @@ static constexpr ObjectData gameObjectData[] =
     { GO_SHIELD_GENERATOR_1,      DATA_SHIELD_GENERATOR_1 },
     { GO_SHIELD_GENERATOR_2,      DATA_SHIELD_GENERATOR_2 },
     { GO_SHIELD_GENERATOR_3,      DATA_SHIELD_GENERATOR_3 },
-    { GO_SHIELD_GENERATOR_4,      DATA_SHIELD_GENERATOR_4 },
-    { 0,                          0                       } //END
+    { GO_SHIELD_GENERATOR_4,      DATA_SHIELD_GENERATOR_4 }
 };
 
 static constexpr DungeonEncounterData encounters[] =

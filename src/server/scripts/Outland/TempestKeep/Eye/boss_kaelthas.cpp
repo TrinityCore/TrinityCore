@@ -714,7 +714,7 @@ struct boss_kaelthas : public BossAI
                 case EVENT_TRANSITION_2:
                     me->SetFacingTo(3.176499128341674804f);
                     Talk(SAY_PHASE_5_NUTS);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     specialEvents.ScheduleEvent(EVENT_TRANSITION_3, 2s);
                     break;
                 case EVENT_TRANSITION_3:
@@ -797,7 +797,7 @@ struct boss_kaelthas : public BossAI
                     me->SetHover(false);
                     me->RemoveAurasDueToSpell(SPELL_KAEL_FULL_POWER);
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     ScheduleCombatEventsForStage(COMBAT_STAGE_PHASE_5_INITIAL);
                     break;
 
@@ -872,7 +872,7 @@ struct boss_kaelthas : public BossAI
                 // Phase 1
                 case EVENT_START_ENCOUNTER_1:
                     Talk(SAY_INTRO);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     events.ScheduleEvent(EVENT_START_ENCOUNTER_2, 25s);
                     break;
                 case EVENT_START_ENCOUNTER_2:
@@ -930,7 +930,7 @@ struct boss_kaelthas : public BossAI
                     _phase = PHASE_4_ENGAGED;
                     me->RemoveAurasDueToSpell(SPELL_ROOT_SELF);
                     me->RemoveAurasDueToSpell(SPELL_PACIFY_SELF);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     Talk(SAY_PHASE_4_INTRO_2);
                     ResetThreatList();
@@ -1067,7 +1067,7 @@ struct AdvisorBaseAI : public ScriptedAI
 
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                     DoInformController();
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     me->SetReactState(REACT_PASSIVE);
                 });
             }
@@ -1088,7 +1088,7 @@ struct AdvisorBaseAI : public ScriptedAI
                         task.Repeat(2500ms);
                         break;
                     case 1:
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ResetThreatList();
                         ScheduleEvents();
@@ -1439,7 +1439,7 @@ struct npc_phoenix_the_eye : public ScriptedAI
                 DoCastSelf(SPELL_EMBER_BLAST);
                 DoCastSelf(SPELL_SUMMON_PHOENIX_EGG);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                 _scheduler.Schedule(15s, [this](TaskContext& task)
@@ -1461,7 +1461,7 @@ struct npc_phoenix_the_eye : public ScriptedAI
                             _isDepleted = false;
                             DoCastSelf(SPELL_FULL_HEAL);
                             DoCastSelf(SPELL_BURN_PERIODIC);
-                            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(false);
                             task.Repeat(2s);
                             break;
                         case 3:
