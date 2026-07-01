@@ -654,8 +654,8 @@ bool SpellScript::IsHitCrit() const
     if (Unit* hitUnit = GetHitUnit())
     {
         auto itr = std::ranges::find(m_spell->m_UniqueTargetInfo, hitUnit->GetGUID(), &Spell::TargetInfo::TargetGUID);
-        ASSERT(itr != m_spell->m_UniqueTargetInfo.end());
-        return itr->IsCrit;
+        if (itr != m_spell->m_UniqueTargetInfo.end());
+            return itr->IsCrit;
     }
     return false;
 }
