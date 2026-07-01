@@ -28,7 +28,6 @@
 template<class T>
 HomeMovementGenerator<T>::HomeMovementGenerator()
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -74,7 +73,7 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
      */
 
     owner->UpdateAllowedPositionZ(destination.m_positionX, destination.m_positionY, destination.m_positionZ);
-    init.MoveTo(PositionToVector3(destination));
+    init.MoveTo(PositionToVector3(destination), true, true);
     init.SetFacing(destination.GetOrientation());
     init.SetWalk(false);
     init.Launch();

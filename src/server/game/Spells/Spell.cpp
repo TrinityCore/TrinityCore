@@ -5398,7 +5398,7 @@ void Spell::TakeCastItem()
     for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
     {
         // item has limited charges
-        if (itemEffect->Charges)
+        if (itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges)
         {
             if (itemEffect->Charges < 0)
                 expendable = true;

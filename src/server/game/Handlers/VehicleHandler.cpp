@@ -26,18 +26,18 @@
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)
 {
-    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
-    if (vehicleGUID.IsEmpty())
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveDismissVehicle.Status.guid, moveDismissVehicle.GetOpcode(), false);
+    if (!ValidateMovementInfo(mover, &moveDismissVehicle.Status))
         return;
 
-    if (moveDismissVehicle.Status.guid != vehicleGUID)
+    moveDismissVehicle.Status.time = AdjustClientMovementTime(moveDismissVehicle.Status.time);
+    mover->m_movementInfo = moveDismissVehicle.Status;
+
+    if (Unit* vehicleBase = _player->GetVehicleBase())
     {
-        TC_LOG_ERROR("network", "Player {} tried to dismiss a controlled vehicle ({}) that he has no control over. Possible cheater or malformed packet.",
-            GetPlayer()->GetGUID().ToString().c_str(), vehicleGUID.ToString().c_str());
-        return;
+        vehicleBase->SendPetDismissSound();
+        _player->ExitVehicle();
     }
-
-    _player->ExitVehicle();
 }
 
 void WorldSession::HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& /*requestVehiclePrevSeat*/)
@@ -76,11 +76,15 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVe
 
 void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChangeVehicleSeats& moveChangeVehicleSeats)
 {
-    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
-    if (!vehicle_base)
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveChangeVehicleSeats.Status.guid, moveChangeVehicleSeats.GetOpcode(), false);
+    if (!mover)
         return;
 
-    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    Vehicle* vehicle = GetPlayer()->GetVehicle();
+    if (!vehicle)
+        return;
+
+    VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer());
     if (!seat->CanSwitchFromSeat())
     {
         TC_LOG_ERROR("network", "HandleMoveChangeVehicleSeats: Player {} tried to switch seats but current seatflags {} don't permit that.",
@@ -88,10 +92,10 @@ void WorldSession::HandleMoveChangeVehicleSeats(WorldPackets::Vehicle::MoveChang
         return;
     }
 
-    if (!ValidateMovementInfo(&moveChangeVehicleSeats.Status))
+    if (!ValidateMovementInfo(mover, &moveChangeVehicleSeats.Status))
         return;
 
-    vehicle_base->m_movementInfo = moveChangeVehicleSeats.Status;
+    mover->m_movementInfo = moveChangeVehicleSeats.Status;
 
     if (moveChangeVehicleSeats.DstVehicle.IsEmpty())
         GetPlayer()->ChangeSeat(-1, moveChangeVehicleSeats.DstSeatIndex != 255);
@@ -194,5 +198,9 @@ void WorldSession::HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicl
 
 void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck)
 {
-    ValidateMovementInfo(&setVehicleRecIdAck.Data.Status);
+    Unit* mover = ValidateAndGetUnitBeingMoved(setVehicleRecIdAck.Data.Status.guid, setVehicleRecIdAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &setVehicleRecIdAck.Data.Status);
 }

@@ -4242,8 +4242,6 @@ enum ThrallmarAndHonorHoldFavor
 // 32098 - Honor Hold's Favor
 class spell_item_thrallmar_and_honor_hold_favor : public AuraScript
 {
-    PrepareAuraScript(spell_item_thrallmar_and_honor_hold_favor);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BUFFBOT_BUFF_EFFECT });
@@ -4274,8 +4272,6 @@ enum DarkmoonCardIllusion
 // 57350 - Illusionary Barrier
 class spell_item_darkmoon_card_illusion : public AuraScript
 {
-    PrepareAuraScript(spell_item_darkmoon_card_illusion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DARKMOON_CARD_ILLUSION });

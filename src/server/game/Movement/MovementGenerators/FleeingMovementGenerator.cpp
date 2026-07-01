@@ -29,7 +29,6 @@
 FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FLEEING;
@@ -215,19 +214,10 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 diff)
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
-    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-    if (!active)
-        return;
+    FleeingMovementGenerator::Finalize(owner, active, movementInform);
 
-    owner->StopMoving();
-    if (owner->IsCreature() && owner->IsAlive())
-    {
-        if (Unit* victim = owner->GetVictim())
-        {
-            owner->AttackStop();
-            owner->GetAI()->AttackStart(victim);
-        }
-    }
+    if (active)
+        owner->StopMoving();
 
     if (movementInform)
     {

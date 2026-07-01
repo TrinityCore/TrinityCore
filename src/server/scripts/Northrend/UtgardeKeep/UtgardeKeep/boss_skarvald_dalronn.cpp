@@ -130,7 +130,7 @@ struct ControllerBaseAI : public BossAI
             _Reset();
             OtherFeignsDeath = false;
             IsAboutToFeignDeath = false;
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(false);
             me->SetReactState(REACT_AGGRESSIVE);
         }
     }
@@ -174,7 +174,7 @@ struct ControllerBaseAI : public BossAI
             case ACTION_CLEANUP_AND_DIE:
                 summons.DespawnAll();
                 DoCastSelf(SPELL_QUIET_SUICIDE, true);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(false);
                 break;
             default:
                 break;
@@ -210,7 +210,7 @@ struct ControllerBaseAI : public BossAI
                 Talk(SAY_DIED_FIRST);
                 DoCastSelf(OtherBossData == DATA_DALRONN ? SPELL_SUMMON_SKARVALD_GHOST : SPELL_SUMMON_DALRONN_GHOST, true);
                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->SetReactState(REACT_PASSIVE);
                 break;
             default:

@@ -1829,15 +1829,3 @@ void WorldSession::RegisterTimeSync(uint32 counter)
 {
     _pendingTimeSyncRequests[counter] = getMSTime();
 }
-
-uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
-{
-    int64 movementTime = int64(time) + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        return GameTime::GetGameTimeMS();
-    }
-    else
-        return uint32(movementTime);
-}

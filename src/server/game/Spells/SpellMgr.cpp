@@ -3464,15 +3464,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             });
         });
 
-        // Remote Toy
-        ApplySpellFix({ 37027 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-            {
-                spellEffectInfo->TriggerSpell = 37029;
-            });
-        });
-
         // Eye of Grillok
         ApplySpellFix({ 38495 }, [](SpellInfo* spellInfo)
         {

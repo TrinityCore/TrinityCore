@@ -42,8 +42,7 @@ enum HYDataTypes
     DATA_HORDE_RETREAT          = 11,
     DATA_RAIDDAMAGE             = 12,
     DATA_RESET_RAIDDAMAGE       = 13,
-    TYPE_RETREAT                = 14,
-    DATA_CHANNEL_TARGET         = 15
+    TYPE_RETREAT                = 14
 };
 
 enum HYWorldStateIds
@@ -87,6 +86,11 @@ enum HYGameobjectIds
     GO_ANCIENT_GEM              = 185557,
     GO_ANCIENT_VEIN             = 185557,
     GO_ROARING_FLAME            = 182592
+};
+
+enum HYActionIds
+{
+    ACTION_ARCHIMONDE_INTRO     = 1796800
 };
 
 enum HYPathIds

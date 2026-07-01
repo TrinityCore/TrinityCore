@@ -61,7 +61,7 @@ struct boss_landslide : public BossAI
         {
             _landslide = true;
 
-            scheduler.Schedule(0s, [this](TaskContext task)
+            scheduler.Schedule(0s, [this](TaskContext& task)
             {
                 DoCastSelf(SPELL_LANDSLIDE);
                 task.Repeat(30s, 40s);
