@@ -1082,8 +1082,8 @@ struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
             if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
             {
                 if (Unit* summoner = stew->ToTempSummon()->GetSummonerCreatureBase())
-                    if (Player* player = summoner->ToPlayer())
-                        player->KilledMonsterCredit(Creatures::WestfallStew);
+                   if (Player* player = summoner->ToPlayer())
+                       player->KilledMonsterCredit(Creatures::WestfallStew);
 
                 if (urand(0, 1) == 0)
                 {
@@ -1115,9 +1115,6 @@ struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
-            return;
-
         _events.Update(diff);
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -1155,6 +1152,8 @@ struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
                 break;
             }
         }
+        if (!UpdateVictim())
+            return;
     }
 
 private:
@@ -1222,10 +1221,6 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-
-        if (!UpdateVictim())
-            return;
-
         _events.Update(diff);
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -1256,6 +1251,8 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                 break;
             }
         }
+        if (!UpdateVictim())
+            return;
     }
 
 private:
