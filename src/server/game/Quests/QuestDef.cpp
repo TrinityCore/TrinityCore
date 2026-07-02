@@ -55,10 +55,6 @@ Quest::Quest(QueryResult const& questRecord) : Quest(*questRecord)
 }
 
 Quest::Quest(QuestTemplateQueryResult const& questRecord) :
-    RewardItemId({ questRecord.RewardItem1().GetUInt32(), questRecord.RewardItem2().GetUInt32(),
-        questRecord.RewardItem3().GetUInt32(), questRecord.RewardItem4().GetUInt32() }),
-    RewardItemCount({ questRecord.RewardAmount1().GetUInt32(), questRecord.RewardAmount2().GetUInt32(),
-        questRecord.RewardAmount3().GetUInt32(), questRecord.RewardAmount4().GetUInt32() }),
     ItemDrop({ questRecord.ItemDrop1().GetUInt32(), questRecord.ItemDrop2().GetUInt32(),
         questRecord.ItemDrop3().GetUInt32(), questRecord.ItemDrop4().GetUInt32() }),
     ItemDropQuantity({ questRecord.ItemDropQuantity1().GetUInt32(), questRecord.ItemDropQuantity2().GetUInt32(),
@@ -72,6 +68,10 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     RewardChoiceItemDisplayId({ questRecord.RewardChoiceItemDisplayID1().GetUInt32(), questRecord.RewardChoiceItemDisplayID2().GetUInt32(),
         questRecord.RewardChoiceItemDisplayID3().GetUInt32(), questRecord.RewardChoiceItemDisplayID4().GetUInt32(),
         questRecord.RewardChoiceItemDisplayID5().GetUInt32(), questRecord.RewardChoiceItemDisplayID6().GetUInt32() }),
+    RewardItemId({ questRecord.RewardItem1().GetUInt32(), questRecord.RewardItem2().GetUInt32(),
+        questRecord.RewardItem3().GetUInt32(), questRecord.RewardItem4().GetUInt32() }),
+    RewardItemCount({ questRecord.RewardAmount1().GetUInt32(), questRecord.RewardAmount2().GetUInt32(),
+        questRecord.RewardAmount3().GetUInt32(), questRecord.RewardAmount4().GetUInt32() }),
     RewardFactionId({ questRecord.RewardFactionID1().GetUInt32(), questRecord.RewardFactionID2().GetUInt32(),
         questRecord.RewardFactionID3().GetUInt32(), questRecord.RewardFactionID4().GetUInt32(), questRecord.RewardFactionID5().GetUInt32() }),
     RewardFactionValue({ questRecord.RewardFactionValue1().GetInt32(), questRecord.RewardFactionValue2().GetInt32(),
@@ -112,8 +112,8 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     _flagsEx2(questRecord.FlagsEx2().GetUInt32()),
     _flagsEx3(questRecord.FlagsEx3().GetUInt32()),
     _poiContinent(questRecord.POIContinent().GetUInt32()),
-    _poix(questRecord.POIx().GetFloat()),
-    _poiy(questRecord.POIy().GetFloat()),
+    _poiX(questRecord.POIx().GetFloat()),
+    _poiY(questRecord.POIy().GetFloat()),
     _poiPriority(questRecord.POIPriority().GetUInt32()),
     _rewardTitleId(questRecord.RewardTitle().GetUInt32()),
     _rewardArenaPoints(questRecord.RewardArenaPoints().GetUInt32()),
