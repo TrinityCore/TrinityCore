@@ -5606,7 +5606,7 @@ enum QuestInfo
     QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292,
     QUEST_INFO_PREY_WORLD_QUEST                     = 295,
     QUEST_INFO_WORLD_QUEST_SHORT_DURATION           = 296,
-    QUEST_INFO_IMPORATNT_QUEST_RAID                 = 297
+    QUEST_INFO_IMPORTANT_QUEST_RAID                 = 297
 };
 
 // QuestSort.db2 (12.0.5.67186)
