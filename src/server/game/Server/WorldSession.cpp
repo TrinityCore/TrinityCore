@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WarbandGroupMgr.h"
 #include "WorldSession.h"
 #include "Account.h"
 #include "AccountMgr.h"
@@ -148,7 +149,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _timeSyncTimer(0),
     _calendarEventCreationCooldown(0),
     _battlePetMgr(std::make_unique<BattlePets::BattlePetMgr>(this)),
-    _collectionMgr(std::make_unique<CollectionMgr>(this))
+    _collectionMgr(std::make_unique<CollectionMgr>(this)),
+    _warbandGroupMgr(std::make_unique<WarbandGroupMgr>(this))
 {
     if (m_Socket[CONNECTION_TYPE_REALM])
     {
@@ -1320,6 +1322,8 @@ public:
         TRANSMOG_ILLUSIONS,
         TRANSMOG_OUTFITS,
         WARBAND_SCENES,
+        WARBAND_GROUPS,
+        WARBAND_GROUP_MEMBERS,
         PLAYER_DATA_ELEMENTS_ACCOUNT,
         PLAYER_DATA_FLAGS_ACCOUNT,
 
@@ -1376,6 +1380,14 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_SCENES);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(WARBAND_SCENES, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_GROUPS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(WARBAND_GROUPS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_GROUP_MEMBERS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(WARBAND_GROUP_MEMBERS, stmt) && ok;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT);
         stmt->setUInt32(0, battlenetAccountId);
@@ -1440,6 +1452,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
     _collectionMgr->LoadAccountTransmogOutfits(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_OUTFITS));
     _collectionMgr->LoadAccountWarbandScenes(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_SCENES));
+    _warbandGroupMgr->LoadAccountGroups(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_GROUPS), holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_GROUP_MEMBERS));
     LoadPlayerDataAccount(holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_ELEMENTS_ACCOUNT), holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_FLAGS_ACCOUNT));
 
     if (!m_inQueue)

@@ -5091,6 +5091,21 @@ struct WarbandSceneEntry
     EnumFlag<WarbandSceneFlags> GetFlags() const { return static_cast<WarbandSceneFlags>(Flags); }
 };
 
+struct WarbandScenePlacementEntry
+{
+    DBCPosition3D Position;
+    uint32 ID;
+    int32 WarbandSceneID;
+    int32 SlotType;
+    float Rotation;
+    float Scale;
+    uint32 Field54210_004;
+    uint32 Field54210_005;
+    int32 Field12063534_008;
+    int32 SlotID;
+    int32 Field12063534_010;
+};
+
 struct WMOAreaTableEntry
 {
     LocalizedString AreaName;

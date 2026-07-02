@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "PacketOperators.h"
 #include "Player.h"
+#include "WarbandGroupMgr.h"
 #include "World.h"
 
 namespace UF
@@ -391,6 +392,57 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
     data << SizedString::Data(warbandGroup.Name);
 
     return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WarbandGroupMember& warbandGroupMember)
+{
+    data >> warbandGroupMember.WarbandScenePlacementID;
+    data >> warbandGroupMember.Type;
+    data >> warbandGroupMember.ContentSetID;
+    if (warbandGroupMember.Type == 0)
+        data >> warbandGroupMember.Guid;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, SetupWarbandGroup& warbandGroup)
+{
+    data >> warbandGroup.GroupID;
+    data >> warbandGroup.OrderIndex;
+    data >> warbandGroup.WarbandSceneID;
+    data >> warbandGroup.Flags;
+    data >> warbandGroup.ContentSetID;
+    data >> Size<uint32>(warbandGroup.Members);
+
+    for (WarbandGroupMember& member : warbandGroup.Members)
+        data >> member;
+
+    data >> SizedString::BitsSize<9>(warbandGroup.Name);
+    data.FlushBits();
+
+    data >> SizedString::Data(warbandGroup.Name);
+
+    return data;
+}
+
+void SetupWarbandGroups::Read()
+{
+    // Retail CMSG (12.0.7.68275): byte0 = groupCount << 3 (sniff: 0x08=1, 0x10=2, 0x18=3, 0x20=4); then concatenated groups.
+    // Do not use Size<uint32> at offset 0 (mis-reads as 264). Do not read until EOF — SizedString FlushBits()
+    // appends during read and inflates size(), causing a spurious extra group parse on multi-camp payloads.
+    uint8 header;
+    _worldPacket >> header;
+
+    uint32 groupCount = header >> 3;
+    if (groupCount > WarbandGroupMgr::MaxWarbandGroups)
+        return;
+
+    Groups.resize(groupCount);
+    for (uint32 i = 0; i < groupCount; ++i)
+    {
+        _worldPacket.ResetBitPos();
+        _worldPacket >> Groups[i];
+    }
 }
 
 EnumCharactersResult::CharacterInfo::CharacterInfo(Field const* fields) : Basic(fields)
