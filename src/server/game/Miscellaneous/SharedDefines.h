@@ -5521,7 +5521,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (12.0.1.66838)
+// QuestInfo.db2 (12.0.7.68367)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5536,7 +5536,6 @@ enum QuestInfo
     QUEST_INFO_RAID_10                              = 88,
     QUEST_INFO_RAID_25                              = 89,
     QUEST_INFO_SCENARIO                             = 98,
-    QUEST_INFO_ACCOUNT                              = 102,
     QUEST_INFO_SIDE_QUEST                           = 104,
     QUEST_INFO_ARTIFACT                             = 107,
     QUEST_INFO_WORLD_QUEST                          = 109,
@@ -5605,7 +5604,9 @@ enum QuestInfo
     QUEST_INFO_WORLD_BOSS                           = 289,
     QUEST_INFO_HIDDEN                               = 291,
     QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292,
-    QUEST_INFO_PREY_WORLD_QUEST                     = 295
+    QUEST_INFO_PREY_WORLD_QUEST                     = 295,
+    QUEST_INFO_WORLD_QUEST_SHORT_DURATION           = 296,
+    QUEST_INFO_IMPORTANT_QUEST_RAID                 = 297
 };
 
 // QuestSort.db2 (12.0.5.67186)
