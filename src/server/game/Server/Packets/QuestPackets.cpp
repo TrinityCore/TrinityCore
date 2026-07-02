@@ -50,12 +50,12 @@ void WorldPackets::Quest::QueryQuestInfo::Read()
 WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
 {
     _worldPacket << uint32(Info.QuestID);
-    _worldPacket << uint32(Info.QuestMethod);
+    _worldPacket << uint32(Info.QuestType);
     _worldPacket << uint32(Info.QuestLevel);
     _worldPacket << uint32(Info.QuestMinLevel);
     _worldPacket << uint32(Info.QuestSortID);
 
-    _worldPacket << uint32(Info.QuestType);
+    _worldPacket << uint32(Info.QuestInfoID);
     _worldPacket << uint32(Info.SuggestedGroupNum);
 
     for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
@@ -76,13 +76,13 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << float(Info.RewardKillHonor);
     _worldPacket << uint32(Info.StartItem);
     _worldPacket << uint32(Info.Flags);
-    _worldPacket << uint32(Info.RewardTitleId);
+    _worldPacket << uint32(Info.RewardTitle);
     _worldPacket << uint32(Info.RequiredPlayerKills);
     _worldPacket << uint32(Info.RewardTalents);
     _worldPacket << uint32(Info.RewardArenaPoints);
     _worldPacket << uint32(Info.RewardFactionFlags);
 
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
     {
         _worldPacket << uint32(Info.RewardItems[i]);
         _worldPacket << uint32(Info.RewardAmount[i]);
@@ -93,25 +93,25 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << uint32(Info.UnfilteredChoiceItems[i].Quantity);
     }
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
         _worldPacket << uint32(Info.RewardFactionID[i]);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
         _worldPacket << int32(Info.RewardFactionValue[i]);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
-        _worldPacket << int32(Info.RewardFactionValueOverride[i]);
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
+        _worldPacket << int32(Info.RewardFactionOverride[i]);
 
     _worldPacket << uint32(Info.POIContinent);
     _worldPacket << float(Info.POIx);
     _worldPacket << float(Info.POIy);
     _worldPacket << uint32(Info.POIPriority);
 
-    _worldPacket << Info.Title;
-    _worldPacket << Info.Objectives;
-    _worldPacket << Info.Details;
+    _worldPacket << Info.LogTitle;
+    _worldPacket << Info.LogDescription;
+    _worldPacket << Info.QuestDescription;
     _worldPacket << Info.AreaDescription;
-    _worldPacket << Info.CompletedText;
+    _worldPacket << Info.QuestCompletionLog;
 
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
@@ -143,9 +143,9 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << QuestGiverGUID;
     _worldPacket << InformUnit;
     _worldPacket << uint32(QuestID);
-    _worldPacket << Title;
-    _worldPacket << Details;
-    _worldPacket << Objectives;
+    _worldPacket << QuestTitle;
+    _worldPacket << DescriptionText;
+    _worldPacket << LogDescription;
     _worldPacket << uint8(AutoLaunched);
     _worldPacket << uint32(Flags);
     _worldPacket << uint32(SuggestedGroupNum);
@@ -184,7 +184,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     for (int32 value : Rewards.RewardFactionValue)
         _worldPacket << int32(value);
 
-    for (int32 valueOverride : Rewards.RewardFactionValueOverride)
+    for (int32 valueOverride : Rewards.RewardFactionOverride)
         _worldPacket << int32(valueOverride);
 
     _worldPacket << int32(DescEmotes.size());
@@ -202,7 +202,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
     _worldPacket << QuestGiverGUID;
     _worldPacket << uint32(QuestID);
 
-    _worldPacket << Title;
+    _worldPacket << QuestTitle;
     _worldPacket << RewardText;
 
     _worldPacket << uint8(AutoLaunched);
@@ -251,7 +251,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
     for (uint32 value : Rewards.RewardFactionValue)
         _worldPacket << int32(value);
 
-    for (uint32 valueOverride : Rewards.RewardFactionValueOverride)
+    for (uint32 valueOverride : Rewards.RewardFactionOverride)
         _worldPacket << int32(valueOverride);
 
     return &_worldPacket;

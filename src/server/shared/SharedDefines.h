@@ -2866,8 +2866,19 @@ enum HolidayIds
     HOLIDAY_KALU_AK_FISHING_DERBY    = 424
 };
 
+enum QuestType
+{
+    QUEST_TYPE_TURNIN               = 0,
+    QUEST_TYPE_WITH_MAX_LEVEL       = 1,
+    QUEST_TYPE_NORMAL               = 2,
+    MAX_DB_ALLOWED_QUEST_TYPES      = 3,
+
+    // values used in quest menu packets
+    QUEST_TYPE_IN_PROGRESS          = 4,
+};
+
 // values based at QuestInfo.dbc
-enum QuestTypes
+enum QuestInfo
 {
     QUEST_TYPE_ELITE               = 1,
     QUEST_TYPE_LIFE                = 21,

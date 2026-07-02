@@ -235,11 +235,11 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestFlags = quest->GetFlags();
             text.Repeatable = quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
 
-            text.QuestTitle = quest->GetTitle();
+            text.QuestTitle = quest->GetLogTitle();
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(localeData->Title, localeConstant, text.QuestTitle);
+                if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, text.QuestTitle);
 
             ++count;
         }
@@ -364,12 +364,12 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
             ++count;
-            std::string title = quest->GetTitle();
+            std::string title = quest->GetLogTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(questTemplateLocaleData->Title, localeConstant, title);
+                if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, title);
 
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);
@@ -396,29 +396,29 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC={}, status={}", npcGUID.ToString(), AsUnderlyingType(questStatus));
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
 {
     WorldPackets::Quest::QuestGiverQuestDetails packet;
 
-    packet.Title = quest->GetTitle();
-    packet.Details = quest->GetDetails();
-    packet.Objectives = quest->GetObjectives();
+    packet.QuestTitle = quest->GetLogTitle();
+    packet.LogDescription = quest->GetLogDescription();
+    packet.DescriptionText = quest->GetQuestDescription();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
-            ObjectMgr::GetLocaleString(localeData->Title,      localeConstant, packet.Title);
-            ObjectMgr::GetLocaleString(localeData->Details,    localeConstant, packet.Details);
-            ObjectMgr::GetLocaleString(localeData->Objectives, localeConstant, packet.Objectives);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           localeConstant, packet.QuestTitle);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogDescription,     localeConstant, packet.LogDescription);
+            ObjectMgr::GetLocaleString(questTemplateLocale->QuestDescription,   localeConstant, packet.DescriptionText);
         }
     }
 
     packet.QuestGiverGUID = npcGUID;
     packet.InformUnit = _session->GetPlayer()->GetPlayerSharingQuest();
     packet.QuestID = quest->GetQuestId();
-    packet.AutoLaunched = activateAccept;
+    packet.AutoLaunched = autoLaunched;
     packet.Flags = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.SuggestedGroupNum = quest->GetSuggestedPlayers();
 
@@ -450,14 +450,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 {
     WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
 
-    packet.Title = quest->GetTitle();
+    packet.QuestTitle = quest->GetLogTitle();
     packet.RewardText = quest->GetOfferRewardText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(localeData->Title, localeConstant, packet.Title);
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, packet.QuestTitle);
 
         if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
             ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, packet.RewardText);
@@ -484,14 +484,14 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
 
-    std::string questTitle = quest->GetTitle();
+    std::string questTitle = quest->GetLogTitle();
     std::string requestItemsText = quest->GetRequestItemsText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(localeData->Title,            localeConstant, questTitle);
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, questTitle);
 
         if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
             ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);

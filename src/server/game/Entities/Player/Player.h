@@ -1244,6 +1244,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AbandonQuest(uint32 quest_id);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
+        uint32 GetQuestXPReward(Quest const* quest);
         void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
         void SetRewardedQuest(uint32 quest_id);
         void FailQuest(uint32 quest_id);
