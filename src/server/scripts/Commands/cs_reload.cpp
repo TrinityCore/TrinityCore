@@ -547,6 +547,9 @@ public:
         TC_LOG_INFO("misc", "Re-Loading GameObjects for quests...");
         sObjectMgr->LoadGameObjectForQuests();
         handler->SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
+        TC_LOG_INFO("misc", "Re-Loading Criteria Lists...");
+        sCriteriaMgr->LoadCriteriaList();
+        handler->SendGlobalGMSysMessage("Criteria lists for quests reloaded.");
         sScriptMgr->NotifyScriptIDUpdate();
 
         return true;

@@ -5895,32 +5895,25 @@ void ObjectMgr::LoadEventSet()
     }
 
     // Load all possible event ids from criterias
-    auto addCriteriaEventsToStore = [&](CriteriaList const& criteriaList)
+    for (CriteriaEntry const* criteria : sCriteriaStore)
     {
-        for (Criteria const* criteria : criteriaList)
-            if (criteria->Entry->Asset.EventID)
-                _eventStore.insert(criteria->Entry->Asset.EventID);
-    };
+        switch (CriteriaType(criteria->Type))
+        {
+            case CriteriaType::PlayerTriggerGameEvent:
+            case CriteriaType::AnyoneTriggerGameEventScenario:
+                if (criteria->Asset.EventID)
+                    _eventStore.insert(criteria->Asset.EventID);
+                break;
+            default:
+                break;
+        }
 
-    std::array<CriteriaType, 2> eventCriteriaTypes = { CriteriaType::PlayerTriggerGameEvent, CriteriaType::AnyoneTriggerGameEventScenario };
-    for (CriteriaType criteriaType : eventCriteriaTypes)
-    {
-        addCriteriaEventsToStore(sCriteriaMgr->GetPlayerCriteriaByType(criteriaType, 0));
-        addCriteriaEventsToStore(sCriteriaMgr->GetGuildCriteriaByType(criteriaType));
-        addCriteriaEventsToStore(sCriteriaMgr->GetQuestObjectiveCriteriaByType(criteriaType));
+        if (CriteriaStartEvent(criteria->StartEvent) == CriteriaStartEvent::SendEvent && criteria->StartAsset)
+            _eventStore.insert(criteria->StartAsset);
+
+        if (CriteriaFailEvent(criteria->FailEvent) == CriteriaFailEvent::SendEvent && criteria->FailAsset)
+            _eventStore.insert(criteria->FailAsset);
     }
-
-    for (ScenarioEntry const* scenario : sScenarioStore)
-        for (CriteriaType criteriaType : eventCriteriaTypes)
-            addCriteriaEventsToStore(sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(criteriaType, scenario->ID));
-
-    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByStartEvent(CriteriaStartEvent::SendEvent))
-        if (gameEventId)
-            _eventStore.insert(gameEventId);
-
-    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByFailEvent(CriteriaFailEvent::SendEvent))
-        if (gameEventId)
-            _eventStore.insert(gameEventId);
 }
 
 void ObjectMgr::LoadEventScripts()
