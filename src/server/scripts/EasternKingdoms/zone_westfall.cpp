@@ -1081,7 +1081,7 @@ struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
 
             if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
             {
-                if (Unit* summoner = stew->ToTempSummon()->GetSummonerCreatureBase())
+                if (Unit* summoner = stew->ToTempSummon()->GetSummonerUnit())
                    if (Player* player = summoner->ToPlayer())
                        player->KilledMonsterCredit(Creatures::WestfallStew);
 
@@ -1188,7 +1188,7 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
             if (!stew->IsSummon())
                 return;
 
-            if (Unit* summoner = stew->ToTempSummon()->GetSummonerCreatureBase())
+            if (Unit* summoner = stew->ToTempSummon()->GetSummonerUnit())
                 if (Player* player = summoner->ToPlayer())
                     player->KilledMonsterCredit(Creatures::WestfallStew);
 
