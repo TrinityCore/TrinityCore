@@ -80,8 +80,8 @@ Quest::Quest(Field* questRecord)
     }
 
     _poiContinent = questRecord[60].GetUInt32();
-    _poix = questRecord[61].GetFloat();
-    _poiy = questRecord[62].GetFloat();
+    _poiX = questRecord[61].GetFloat();
+    _poiY = questRecord[62].GetFloat();
     _poiPriority = questRecord[63].GetUInt32();
 
     _rewardTitleId = questRecord[64].GetUInt32();
