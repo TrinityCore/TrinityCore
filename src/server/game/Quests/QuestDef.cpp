@@ -312,18 +312,18 @@ bool Quest::IsAutoAccept() const
 
 bool Quest::IsAutoComplete() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (_type == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (_type == QUEST_TYPE_TURNIN || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
     switch (_questInfoID)
     {
-        case QUEST_TYPE_RAID:
+        case QUEST_INFO_RAID:
             return true;
-        case QUEST_TYPE_RAID_10:
+        case QUEST_INFO_RAID_10:
             return !(difficulty & RAID_DIFFICULTY_MASK_25MAN);
-        case QUEST_TYPE_RAID_25:
+        case QUEST_INFO_RAID_25:
             return difficulty & RAID_DIFFICULTY_MASK_25MAN;
         default:
             break;

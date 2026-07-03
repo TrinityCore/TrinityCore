@@ -4754,7 +4754,7 @@ void ObjectMgr::LoadQuests()
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
 
         if (qinfo->GetQuestType() >= MAX_DB_ALLOWED_QUEST_TYPES)
-            TC_LOG_ERROR("sql.sql", "Quest {} has `Method` = {}, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
+            TC_LOG_ERROR("sql.sql", "Quest {} has `QuestType` = {}, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
 
         if (qinfo->_specialFlags & ~QUEST_SPECIAL_FLAGS_DB_ALLOWED)
         {
@@ -4815,7 +4815,7 @@ void ObjectMgr::LoadQuests()
         {
             if (!sAreaTableStore.LookupEntry(qinfo->_zoneOrSort))
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = {} (zone case) but zone with this id does not exist.",
+                TC_LOG_ERROR("sql.sql", "Quest {} has `QuestSortID` = {} (zone case) but zone with this id does not exist.",
                     qinfo->GetQuestId(), qinfo->_zoneOrSort);
                 // no changes, quest not dependent from this value but can have problems at client
             }
@@ -4826,7 +4826,7 @@ void ObjectMgr::LoadQuests()
             QuestSortEntry const* qSort = sQuestSortStore.LookupEntry(-int32(qinfo->_zoneOrSort));
             if (!qSort)
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = {} (sort case) but quest sort with this id does not exist.",
+                TC_LOG_ERROR("sql.sql", "Quest {} has `QuestSortID` = {} (sort case) but quest sort with this id does not exist.",
                     qinfo->GetQuestId(), qinfo->_zoneOrSort);
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
@@ -4835,7 +4835,7 @@ void ObjectMgr::LoadQuests()
             {
                 if (qinfo->_requiredSkillId != skill_id)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = {} but `RequiredSkillId` does not have a corresponding value ({}).",
+                    TC_LOG_ERROR("sql.sql", "Quest {} has `QuestSortID` = {} but `RequiredSkillId` does not have a corresponding value ({}).",
                         qinfo->GetQuestId(), qinfo->_zoneOrSort, skill_id);
                     //override, and force proper value here?
                 }
