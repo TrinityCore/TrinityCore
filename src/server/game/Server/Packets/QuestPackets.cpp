@@ -197,6 +197,35 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << int32(QuestID);
+    _worldPacket << QuestTitle;
+    _worldPacket << CompletionText;
+    _worldPacket << int32(CompEmoteDelay);
+    _worldPacket << int32(CompEmoteType);
+    _worldPacket << int32(AutoLaunched ? 1 : 0);
+    _worldPacket << uint32(QuestFlags);
+    _worldPacket << int32(SuggestPartyMembers);
+    _worldPacket << int32(MoneyToGet);
+    _worldPacket << uint32(Collect.size());
+
+    for (QuestObjectiveCollect const& obj : Collect)
+    {
+        _worldPacket << int32(obj.ObjectID);
+        _worldPacket << int32(obj.Amount);
+        _worldPacket << uint32(obj.DisplayID);
+    }
+
+    _worldPacket << uint32(Explored);
+    _worldPacket << uint32(HasItems);
+    _worldPacket << uint32(HasFaction);
+    _worldPacket << uint32(HasMoney);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestGiverGUID;

@@ -216,6 +216,37 @@ namespace WorldPackets
             std::vector<QuestDescEmote> DescEmotes;
         };
 
+        struct QuestObjectiveCollect
+        {
+            int32 ObjectID = 0;
+            int32 Amount = 0;
+            uint32 DisplayID = 0;
+        };
+
+        class QuestGiverRequestItems final : public ServerPacket
+        {
+        public:
+            explicit QuestGiverRequestItems() : ServerPacket(SMSG_QUESTGIVER_REQUEST_ITEMS, 300) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID               = 0;
+            int32 CompEmoteDelay        = 0;
+            int32 CompEmoteType         = 0;
+            bool AutoLaunched           = false;
+            int32 SuggestPartyMembers   = 0;
+            int32 MoneyToGet            = 0;
+            std::vector<QuestObjectiveCollect> Collect;
+            uint32 Explored             = 0;
+            uint32 HasItems             = 0;
+            uint32 HasFaction           = 0;
+            uint32 HasMoney             = 0;
+            uint32 QuestFlags           = 0;
+            std::string_view QuestTitle;
+            std::string_view CompletionText;
+        };
+
         class QuestGiverOfferRewardMessage final : public ServerPacket
         {
         public:
