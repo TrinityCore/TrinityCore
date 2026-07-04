@@ -510,9 +510,15 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.QuestID = quest->GetQuestId();
 
     if (canComplete)
+    {
+        packet.CompEmoteDelay = quest->GetCompleteEmoteDelay();
         packet.CompEmoteType = quest->GetCompleteEmote();
+    }
     else
+    {
+        packet.CompEmoteDelay = quest->GetIncompleteEmoteDelay();
         packet.CompEmoteType = quest->GetIncompleteEmote();
+    }
 
     packet.QuestFlags = quest->GetFlags();
     packet.SuggestPartyMembers = quest->GetSuggestedPlayers();

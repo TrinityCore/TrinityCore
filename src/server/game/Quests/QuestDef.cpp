@@ -148,7 +148,9 @@ void Quest::LoadQuestRequestItems(Field* fields)
     if (!sEmotesStore.LookupEntry(_emoteOnIncomplete))
         TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete ({}) set for quest {}.", _emoteOnIncomplete, fields[0].GetUInt32());
 
-    _requestItemsText = fields[3].GetString();
+    _emoteOnCompleteDelay = fields[3].GetUInt32();
+    _emoteOnIncompleteDelay = fields[4].GetUInt32();
+    _requestItemsText = fields[5].GetStringView();
 }
 
 void Quest::LoadQuestOfferReward(Field* fields)
