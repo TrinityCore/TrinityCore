@@ -6405,7 +6405,7 @@ SpellCastResult Spell::CheckArenaCastRules() const
         return SPELL_CAST_OK;
 
     // check NOT_USABLE attributes
-    if (m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_NOT_USABLE_IN_ARENA))
         return SPELL_FAILED_NOT_IN_ARENA;
 
     // check cooldowns

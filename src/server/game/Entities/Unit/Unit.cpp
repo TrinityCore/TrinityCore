@@ -3972,12 +3972,12 @@ void Unit::RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID, Aura* exc
     }
 }
 
-void Unit::RemoveAurasWithAttribute(uint32 flags)
+void Unit::RemoveAurasWithAttribute(SpellAttr0 flags)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-        if (spell->Attributes & flags)
+        if (spell->HasAttribute(flags))
             RemoveAura(iter);
         else
             ++iter;
