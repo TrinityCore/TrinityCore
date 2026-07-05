@@ -32,18 +32,21 @@
 namespace DisableMgr
 {
 
-char const* MapTypeNames[] =
-{
-    "World",
-    "Dungeon",
-    "Raid",
-    "Battleground",
-    "Arena",
-    "Scenario"
-};
-
 namespace
 {
+    constexpr std::string_view MapTypeNames[] =
+    {
+        "World",
+        "Dungeon",
+        "Raid",
+        "Battleground",
+        "Arena",
+        "Scenario",
+        "WowLabs",
+        "House interior",
+        "Housing neighborhood"
+    };
+
     struct DisableData
     {
         uint16 flags;
@@ -226,6 +229,8 @@ void LoadDisables()
                         if (flags & VMAP::VMAP_DISABLE_LOS)
                             TC_LOG_INFO("misc", "LoS disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
+                    default:
+                        break;
                 }
                 break;
             }
@@ -237,7 +242,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                if (mapEntry->InstanceType <= MAP_SCENARIO)
+                if (mapEntry->InstanceType <= std::ssize(MapTypeNames))
                     TC_LOG_INFO("misc", "Pathfinding disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                 break;
             }
