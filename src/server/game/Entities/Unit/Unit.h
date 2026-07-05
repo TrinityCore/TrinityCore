@@ -1318,7 +1318,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
         template <typename InterruptFlags>
         void RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source = nullptr);
-        void RemoveAurasWithAttribute(uint32 flags);
+        void RemoveAurasWithAttribute(SpellAttr0 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
