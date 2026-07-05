@@ -1812,7 +1812,7 @@ bool SpellInfo::IsNextMeleeSwingSpell() const
 
 bool SpellInfo::IsRangedWeaponSpell() const
 {
-    return (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED) || (Attributes & SPELL_ATTR0_USES_RANGED_SLOT);
+    return (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED) || (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT));
 }
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
