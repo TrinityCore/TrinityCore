@@ -19,6 +19,7 @@
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -373,7 +374,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficultyID(mapEntry);
+                    Group const* group = player->GetGroup();
+                    Difficulty targetDifficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
                     sDB2Manager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
