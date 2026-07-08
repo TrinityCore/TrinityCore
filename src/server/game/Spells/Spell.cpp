@@ -3324,7 +3324,7 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
             SendChannelUpdate(0);
 
             // Channeled spells with cooldown started on event should send cast result packet to client on cancel
-            if (m_spellInfo->IsCooldownStartedOnEvent() && m_spellInfo->IsChanneled())
+            if (m_spellInfo->IsCooldownStartedOnEvent())
                 SendCastResult(result);
 
             SendInterrupted(result, resultOther);
