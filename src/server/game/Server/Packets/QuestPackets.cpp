@@ -298,3 +298,14 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QueryQuestsCompletedResponse::Write()
+{
+    _worldPacket.reserve(sizeof(uint32) + QuestsCompleted->size() * sizeof(uint32));
+
+    _worldPacket << uint32(QuestsCompleted->size());
+    for (uint32 questId : *QuestsCompleted)
+        _worldPacket << uint32(questId);
+
+    return &_worldPacket;
+}

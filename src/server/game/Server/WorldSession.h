@@ -342,6 +342,7 @@ namespace WorldPackets
         class QueryQuestInfo;
         class QuestGiverRequestReward;
         class QuestGiverQueryQuest;
+        class QueryQuestsCompleted;
     }
 
     namespace Spells
@@ -1228,7 +1229,7 @@ class TC_GAME_API WorldSession
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPackets::Misc::UITimeRequest& recvData);
         void HandleReadyForAccountDataTimes(WorldPacket& recvData);
-        void HandleQueryQuestsCompleted(WorldPacket& recvData);
+        void HandleQueryQuestsCompleted(WorldPackets::Quest::QueryQuestsCompleted& queryQuestsCompleted);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& query);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);

@@ -321,9 +321,7 @@ Player::Player(WorldSession* session): Unit(true)
     isDebugAreaTriggers = false;
 
     m_WeeklyQuestChanged = false;
-
     m_MonthlyQuestChanged = false;
-
     m_SeasonalQuestChanged = false;
 
     SetPendingBind(0, 0);
@@ -18298,10 +18296,8 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
                 // set rewarded title if any
                 if (quest->GetRewTitle())
-                {
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
                         SetTitle(titleEntry);
-                }
 
                 if (uint32 talents = quest->GetBonusTalents())
                     AddQuestRewardedTalentCount(talents);
@@ -22426,9 +22422,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_SEND_UNLEARN_SPELLS
     SendUnlearnSpells();
-
-    /// @todo: SMSG_SEND_SPELL_HISTORY
-    /// @todo: SMSG_SEND_SPELL_CHARGES
 
     /// SMSG_ACTION_BUTTONS
     SendInitialActionButtons();

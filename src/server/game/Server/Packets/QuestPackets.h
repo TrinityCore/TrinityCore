@@ -287,6 +287,24 @@ namespace WorldPackets
             std::vector<QuestDescEmote> Emotes;
             QuestRewards Rewards;
         };
+
+        class QueryQuestsCompleted final : public ClientPacket
+        {
+        public:
+            explicit QueryQuestsCompleted(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUESTS_COMPLETED, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QueryQuestsCompletedResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryQuestsCompletedResponse() : ServerPacket(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            std::set<uint32> const* QuestsCompleted = nullptr;
+        };
     }
 }
 
