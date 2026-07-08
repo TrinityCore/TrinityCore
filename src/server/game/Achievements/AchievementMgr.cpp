@@ -391,7 +391,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (source->GetMap()->IsRaid())
             {
-                bool requires25ManRaid = difficulty.difficulty == RAID_DIFFICULTY_25MAN_NORMAL || difficulty.difficulty == RAID_DIFFICULTY_10MAN_HEROIC;
+                bool requires25ManRaid = difficulty.difficulty == RAID_DIFFICULTY_25MAN_NORMAL || difficulty.difficulty == RAID_DIFFICULTY_25MAN_HEROIC;
                 if (source->GetMap()->Is25ManRaid() != requires25ManRaid)
                     return false;
             }
