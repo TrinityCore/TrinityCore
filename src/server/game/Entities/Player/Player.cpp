@@ -505,16 +505,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     LearnDefaultSkills();
     LearnCustomSpells();
 
-    // Original action bar. Do not use Player::AddActionButton because we do not have skill spells loaded at this time
-    // but checks will still be performed later when loading character from db in Player::_LoadActions
+    // original action bar
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
-    {
-        // create new button
-        ActionButton& ab = m_actionButtons[action_itr->button];
-
-        // set data
-        ab.SetActionAndType(action_itr->action, ActionButtonType(action_itr->type));
-    }
+        AddActionButton(action_itr->button, action_itr->action, action_itr->type);
 
     if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
     {
