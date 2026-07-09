@@ -169,7 +169,7 @@ struct boss_sylvanas_windrunner : public BossAI
     {
         _Reset();
 
-        // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
+        // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_EVADING_HOME when engaging, meaning they're most likely summoned by Sylvanas.
         me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS_FIRST_PHASE);
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
