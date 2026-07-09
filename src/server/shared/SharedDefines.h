@@ -3346,7 +3346,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };

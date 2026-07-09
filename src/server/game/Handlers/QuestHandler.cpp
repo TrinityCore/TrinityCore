@@ -637,7 +637,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     uint8 msg;
     recvPacket >> guid >> questId >> msg;
 
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_QUEST_PUSH_RESULT");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_PUSH_RESULT");
 
     if (!_player->GetPlayerSharingQuest())
         return;

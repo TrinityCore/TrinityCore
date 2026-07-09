@@ -820,7 +820,7 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 
 void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_FORCE_MOVE_ROOT_ACK");
+    TC_LOG_DEBUG("network", "CMSG_MOVE_FORCE_ROOT_ACK");
 
     ObjectGuid guid;                                        // guid - unused
     recvData >> guid.ReadAsPacked();
@@ -864,7 +864,7 @@ void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
 
 void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FORCE_UNROOT_ACK");
 
     ObjectGuid guid;                                        // guid - unused
     recvData >> guid.ReadAsPacked();
