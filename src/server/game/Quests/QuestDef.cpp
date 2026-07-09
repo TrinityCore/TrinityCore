@@ -41,7 +41,7 @@ Quest::Quest(Field* questRecord)
     _questSortID = questRecord[7].GetInt16();
     _questInfoID = questRecord[8].GetUInt16();
     _suggestedPlayers = questRecord[9].GetUInt8();
-    _nextQuestInChain = questRecord[10].GetUInt32();
+    _rewardNextQuest = questRecord[10].GetUInt32();
     _rewardXPDifficulty = questRecord[11].GetUInt32();
     _rewardXPMultiplier = questRecord[12].GetFloat();
     _rewardMoneyDifficulty = questRecord[13].GetUInt32();

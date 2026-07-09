@@ -1425,7 +1425,7 @@ void Item::SendUpdateSockets()
 {
     WorldPackets::Item::SocketGemsSuccess socketGems;
     socketGems.Item = GetGUID();
-    GetOwner()->GetSession()->SendPacket(socketGems.Write());
+    GetOwner()->SendDirectMessage(socketGems.Write());
 }
 
 // Though the client has the information in the item's data field,
@@ -1440,7 +1440,7 @@ void Item::SendTimeUpdate(Player* owner)
     WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
     itemTimeUpdate.ItemGuid = GetGUID();
     itemTimeUpdate.DurationLeft = duration;
-    owner->GetSession()->SendPacket(itemTimeUpdate.Write());
+    owner->SendDirectMessage(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player /*= nullptr*/, bool addDefaultBonuses /*= true*/)
