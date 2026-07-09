@@ -1199,4 +1199,53 @@ void MoveInitActiveMoverComplete::Read()
 {
     _worldPacket >> Ticks;
 }
+
+WorldPacket const* MoveApplyInertia::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
+    _worldPacket << LifetimeMs;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveRemoveInertia::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
+
+    return &_worldPacket;
+}
+
+void MoveApplyInertiaAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> ID;
+    _worldPacket >> LifetimeMs;
+}
+
+void MoveRemoveInertiaAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> ID;
+}
+
+WorldPacket const* MoveUpdateApplyInertia::Write()
+{
+    _worldPacket << *Status;
+    _worldPacket << ID;
+    _worldPacket << LifetimeMs;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveUpdateRemoveInertia::Write()
+{
+    _worldPacket << *Status;
+    _worldPacket << ID;
+
+    return &_worldPacket;
+}
 }
