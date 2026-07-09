@@ -17661,7 +17661,7 @@ void Player::_LoadActions(PreparedQueryResult result)
     }
 }
 
-void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
+void Player::_LoadAuras(PreparedQueryResult auraResult, uint32 timediff)
 {
     TC_LOG_DEBUG("entities.player.loading", "Player::_LoadAuras: Loading auras for {}", GetGUID().ToString());
 
@@ -17672,66 +17672,66 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     */
 
     ObjectGuid casterGuid, itemGuid;
-    if (result)
+    if (auraResult)
     {
         do
         {
-            Field* fields = result->Fetch();
-            int32 damage[3];
-            int32 baseDamage[3];
+            Field* fields = auraResult->Fetch();
+
             casterGuid.SetRawValue(fields[0].GetUInt64());
             itemGuid.SetRawValue(fields[1].GetUInt64());
-            uint32 spellid = fields[2].GetUInt32();
-            uint8 effmask = fields[3].GetUInt8();
-            uint8 recalculatemask = fields[4].GetUInt8();
-            uint8 stackcount = fields[5].GetUInt8();
-            damage[0] = fields[6].GetInt32();
-            damage[1] = fields[7].GetInt32();
-            damage[2] = fields[8].GetInt32();
-            baseDamage[0] = fields[9].GetInt32();
-            baseDamage[1] = fields[10].GetInt32();
-            baseDamage[2] = fields[11].GetInt32();
-            int32 maxduration = fields[12].GetInt32();
-            int32 remaintime = fields[13].GetInt32();
-            uint8 remaincharges = fields[14].GetUInt8();
+
+            AuraKey key{ casterGuid, itemGuid, fields[2].GetUInt32(), fields[3].GetUInt8() };
+            AuraLoadEffectInfo info;
+            uint8 recalculateMask = fields[4].GetUInt8();
+            uint8 stackCount = fields[5].GetUInt8();
+            info.Amounts[0] = fields[6].GetInt32();
+            info.Amounts[1] = fields[7].GetInt32();
+            info.Amounts[2] = fields[8].GetInt32();
+            info.BaseAmounts[0] = fields[9].GetInt32();
+            info.BaseAmounts[1] = fields[10].GetInt32();
+            info.BaseAmounts[2] = fields[11].GetInt32();
+            int32 maxDuration = fields[12].GetInt32();
+            int32 remainTime = fields[13].GetInt32();
+            uint8 remainCharges = fields[14].GetUInt8();
             float critChance = fields[15].GetFloat();
             bool applyResilience = fields[16].GetBool();
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadAuras: Player '{}' ({}) has an invalid aura (SpellID: {}), ignoring.",
-                    GetName(), GetGUID().ToString(), spellid);
+                    GetName(), GetGUID().ToString(), key.SpellId);
                 continue;
             }
 
             ChrRacesEntry const* raceEntry = sChrRacesStore.AssertEntry(GetRace());
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && ((!spellInfo->IsPositive() && spellInfo->Id != raceEntry->ResSicknessSpellID) || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT))) // Resurrection sickness should not fade while logged out
+            if (remainTime != -1 && ((!spellInfo->IsPositive() && spellInfo->Id != raceEntry->ResSicknessSpellID) || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT))) // Resurrection sickness should not fade while logged out
             {
-                if (remaintime/IN_MILLISECONDS <= int32(timediff))
+                if (remainTime/IN_MILLISECONDS <= int32(timediff))
                     continue;
 
-                remaintime -= timediff*IN_MILLISECONDS;
+                remainTime -= timediff*IN_MILLISECONDS;
             }
 
-            // prevent wrong values of remaincharges
+            // prevent wrong values of remainCharges
             if (spellInfo->ProcCharges)
             {
                 // we have no control over the order of applying auras and modifiers allow auras
                 // to have more charges than value in SpellInfo
-                if (remaincharges <= 0/* || remaincharges > spellproto->procCharges*/)
-                    remaincharges = spellInfo->ProcCharges;
+                if (remainCharges <= 0/* || remainCharges > spellproto->procCharges*/)
+                    remainCharges = spellInfo->ProcCharges;
             }
             else
-                remaincharges = 0;
+                remainCharges = 0;
 
-            AuraCreateInfo createInfo(spellInfo, effmask, this);
+            AuraCreateInfo createInfo(spellInfo, key.EffectMask, this);
             createInfo
                 .SetCasterGUID(casterGuid)
                 .SetCastItemGUID(itemGuid)
-                .SetBaseAmount(baseDamage);
+                .SetBaseAmount(info.BaseAmounts.data());
 
             if (Aura* aura = Aura::TryCreate(createInfo))
             {
@@ -17741,13 +17741,13 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
                     continue;
                 }
 
-                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, critChance, applyResilience, &damage[0]);
+                aura->SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, critChance, applyResilience, info.Amounts.data());
                 aura->ApplyForTargets();
                 TC_LOG_DEBUG("entities.player", "Player::_LoadAuras: Added aura (SpellID: {}, EffectMask: {}) to player '{} ({})",
-                    spellInfo->Id, effmask, GetName(), GetGUID().ToString());
+                    spellInfo->Id, key.EffectMask, GetName(), GetGUID().ToString());
             }
         }
-        while (result->NextRow());
+        while (auraResult->NextRow());
     }
 }
 
@@ -19364,8 +19364,8 @@ void Player::_SaveAuras(CharacterDatabaseTransaction trans)
 
         Aura* aura = itr->second;
 
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        std::array<int32, MAX_SPELL_EFFECTS> damage = { };
+        std::array<int32, MAX_SPELL_EFFECTS> baseDamage = { };
         uint8 effMask = 0;
         uint8 recalculateMask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -19377,11 +19377,6 @@ void Player::_SaveAuras(CharacterDatabaseTransaction trans)
                 effMask |= 1 << i;
                 if (effect->CanBeRecalculated())
                     recalculateMask |= 1 << i;
-            }
-            else
-            {
-                baseDamage[i] = 0;
-                damage[i] = 0;
             }
         }
 
