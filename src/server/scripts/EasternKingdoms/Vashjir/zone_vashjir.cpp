@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "Unit.h"
 
 namespace Scripts::EasternKingdoms::Vashjir
 {
@@ -63,7 +64,6 @@ class spell_vashjir_sea_legs_aura : public AuraScript
     }
 };
 }
-
 
 void AddSC_vashjir()
 {
