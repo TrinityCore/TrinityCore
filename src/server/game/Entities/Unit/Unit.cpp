@@ -12764,7 +12764,7 @@ bool Unit::CanSwim() const
         return false;
     if (HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT))
         return true;
-    return HasUnitFlag(UNIT_FLAG_RENAME | UNIT_FLAG_CAN_SWIM);
+    return HasUnitFlag(UNIT_FLAG_EVADING_HOME | UNIT_FLAG_CAN_SWIM);
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
