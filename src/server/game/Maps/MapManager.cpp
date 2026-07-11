@@ -141,8 +141,9 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (!instance)
         return Map::CANNOT_ENTER_UNINSTANCED_DUNGEON;
 
+    Group* group = player->GetGroup();
     Difficulty targetDifficulty, requestedDifficulty;
-    targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
+    targetDifficulty = requestedDifficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
@@ -154,7 +155,6 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
 
     char const* mapName = entry->MapName[player->GetSession()->GetSessionDbcLocale()];
 
-    Group* group = player->GetGroup();
     if (entry->IsRaid()) // can only enter in a raid group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
             return Map::CANNOT_ENTER_NOT_IN_RAID;
@@ -200,7 +200,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instanceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
+        if (InstanceSave* save = player->GetInstanceSave(mapid))
             instanceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
