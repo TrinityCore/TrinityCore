@@ -17,7 +17,6 @@
 
 /*
  * Timers requires to be revisited
- * What exactly happens on wipe when one or more channelers are alive? Current behavior in this scenario is guessed for both boss and channelers
  */
 
 #include "ScriptMgr.h"
@@ -176,8 +175,7 @@ struct boss_kelidan_the_breaker : public BossAI
 
         events.ScheduleEvent(EVENT_EVOCATION, 5s);
 
-        for (uint32 group : ChannelersSpawnGroupsData)
-            me->GetMap()->SpawnGroupSpawn(group, true);
+        DoAction(ACTION_RESET_ENCOUNTER);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -324,17 +322,12 @@ struct npc_shadowmoon_channeler : public ScriptedAI
         return "";
     }
 
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        ScriptedAI::EnterEvadeMode(why);
-
-        if (Creature* kelidan = _instance->GetCreature(DATA_KELIDAN))
-            kelidan->AI()->DoAction(ACTION_RESET_ENCOUNTER);
-    }
-
     void JustReachedHome() override
     {
         DoCastChanneledSpell();
+
+        if (Creature* kelidan = _instance->GetCreature(DATA_KELIDAN))
+            kelidan->AI()->DoAction(ACTION_RESET_ENCOUNTER);
     }
 
     void JustDied(Unit* /*killer*/) override

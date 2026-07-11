@@ -58,17 +58,6 @@ struct boss_the_maker : public BossAI
         events.ScheduleEvent(EVENT_DOMINATION, 20s, 30s);
     }
 
-    uint8 GetEngagedPlayersCount()
-    {
-        uint8 count = 0;
-
-        for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-            if (ref->GetVictim()->IsPlayer())
-                ++count;
-
-        return count;
-    }
-
     void KilledUnit(Unit* who) override
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
@@ -86,7 +75,7 @@ struct boss_the_maker : public BossAI
         switch (eventId)
         {
             case EVENT_DOMINATION:
-                if (GetEngagedPlayersCount() > 1)
+                if (me->GetThreatManager().GetThreatListPlayerCount() > 1)
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_DOMINATION);
                 events.Repeat(20s, 30s);
