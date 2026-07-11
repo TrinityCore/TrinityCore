@@ -12813,11 +12813,11 @@ void Player::ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply
             ApplyRatingMod(CR_EXPERTISE, amount, apply);
             break;
         case ITEM_MOD_ATTACK_POWER:
-            HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(amount), apply);
-            HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(amount), apply);
+            HandleAttackPowerModifier(AttackPowerModIndex::Melee,  (amount >= 0) ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(amount), apply);
+            HandleAttackPowerModifier(AttackPowerModIndex::Ranged, (amount >= 0) ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(amount), apply);
             break;
         case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(amount), apply);
+            HandleAttackPowerModifier(AttackPowerModIndex::Ranged, (amount >= 0) ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(amount), apply);
             break;
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(amount, apply);
@@ -12900,7 +12900,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         {
             uint32 enchant_display_type = pEnchant->Effect[s];
             uint32 enchant_spell_id = pEnchant->EffectArg[s];
-            uint32 enchant_amount = pEnchant->EffectPointsMin[s];;
+            int32 enchant_amount = pEnchant->EffectPointsMin[s];;
 
             if (enchant_amount == 0 && slot >= PROP_ENCHANTMENT_SLOT_0 && slot <= PROP_ENCHANTMENT_SLOT_4)
             {
@@ -12941,12 +12941,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:
-                    enchant_amount = std::max(enchant_amount, 1u);
+                    enchant_amount = std::max(enchant_amount, 1);
                     HandleStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + enchant_spell_id), TOTAL_VALUE, float(enchant_amount), apply);
                     break;
                 case ITEM_ENCHANTMENT_TYPE_STAT:
                 {
-                    enchant_amount = std::max(enchant_amount, 1u);
+                    enchant_amount = std::max(enchant_amount, 1);
                     TC_LOG_DEBUG("entities.player.items", "Adding {} to stat nb {}", enchant_amount, enchant_spell_id);
                     ApplyItemModModifier(static_cast<ItemModType>(enchant_spell_id), enchant_amount, apply);
                     break;
