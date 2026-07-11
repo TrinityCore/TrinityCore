@@ -3562,7 +3562,7 @@ enum TextEmotes
     TEXT_EMOTE_LEAN                 = 633,
 };
 
-// Emotes.db2 (12.0.5.67186)
+// Emotes.db2 (12.0.7.68453)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -4052,6 +4052,7 @@ enum Emote : uint32
     EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING       = 1129,
     EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND     = 1131,
     EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND    = 1132,
+    EMOTE_ONESHOT_OFFER_LOOP                     = 1141,
 };
 
 // AnimationData.db2 (6.0.2.18988)
