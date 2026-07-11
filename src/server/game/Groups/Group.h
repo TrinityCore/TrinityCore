@@ -138,7 +138,7 @@ class Roll : public LootValidatorRef
         ObjectGuid itemGUID;
         uint32 itemid;
         int32 itemRandomPropId;
-        uint32 itemRandomSuffix;
+        uint32 itemRandomPropertySeed;
         uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)
@@ -264,13 +264,11 @@ class TC_GAME_API Group
         void SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
-        Difficulty GetDifficulty(bool isRaid) const;
-        Difficulty GetDungeonDifficulty() const;
-        Difficulty GetRaidDifficulty() const;
-        void SetDungeonDifficulty(Difficulty difficulty);
-        void SetRaidDifficulty(Difficulty difficulty);
-        uint16 InInstance();
-        bool InCombatToInstance(uint32 instanceId);
+        void SetDungeonDifficultyID(Difficulty difficulty);
+        void SetRaidDifficultyID(Difficulty difficulty);
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
+        Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
         void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
 
         // -no description-
@@ -303,7 +301,7 @@ class TC_GAME_API Group
         /***                   LOOT SYSTEM                     ***/
         /*********************************************************/
 
-        bool isRollLootActive() const;
+        bool isRollLootActive() const { return !RollId.empty(); }
         void SendLootStartRoll(uint32 CountDown, uint32 mapid, Roll const& r);
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
         void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, Roll const& r, bool autoPass = false);

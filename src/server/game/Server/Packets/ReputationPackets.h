@@ -15,29 +15,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_PACKET_BUILDER_H
-#define TRINITYSERVER_PACKET_BUILDER_H
+#ifndef TRINITYCORE_REPUTATION_PACKETS_H
+#define TRINITYCORE_REPUTATION_PACKETS_H
 
-#include "Define.h"
+#include "Packet.h"
 
-class ByteBuffer;
-namespace G3D
+namespace WorldPackets
 {
-    class Vector3;
-}
-
-namespace Movement
-{
-    class MoveSpline;
-    class PacketBuilder
+    namespace Reputation
     {
-        static void WriteCommonMonsterMovePart(MoveSpline const& mov, ByteBuffer& data);
-    public:
+        struct FactionData
+        {
+            uint8 Flags = 0;
+            int32 Standing = 0;
+        };
 
-        static void WriteMonsterMove(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
-        static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);
-    };
+        class InitializeFactions final : public ServerPacket
+        {
+            static constexpr uint32 FactionCount = 128;
+
+        public:
+            explicit InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 4 + (1 + 4) * FactionCount) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<FactionData, FactionCount> Factions = { };
+        };
+    }
 }
-#endif // TRINITYSERVER_PACKET_BUILDER_H
+
+#endif // TRINITYCORE_REPUTATION_PACKETS_H

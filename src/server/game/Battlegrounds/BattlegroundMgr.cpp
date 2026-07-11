@@ -199,9 +199,9 @@ void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Batt
 void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground const* bg, Player const* player, uint32 queueSlot, BattlegroundQueueTypeId queueId)
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, bg, queueSlot, queueId);
-    battlefieldStatus->ShutdownTimer = bg->GetEndTime();
+    battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
     battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
-    battlefieldStatus->StartTimer = bg->GetStartTime();
+    battlefieldStatus->StartTimer = bg->GetElapsedTime();
     battlefieldStatus->Mapid = bg->GetMapId();
     if (bg->IsRandom())
     {

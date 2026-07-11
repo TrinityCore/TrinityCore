@@ -16,12 +16,13 @@
  */
 
 #include "ReputationMgr.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ReputationPackets.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -254,38 +255,17 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    uint8 count = 128;
-    WorldPacket data(SMSG_INITIALIZE_FACTIONS, 4 + count * 5);
-    data << uint32(count);
-
-    RepListID a = 0;
+    WorldPackets::Reputation::InitializeFactions initFactions;
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        // fill in absent fields
-        for (; a != itr->first; ++a)
-        {
-            data << uint8(0);
-            data << uint32(0);
-        }
-
-        // fill in encountered data
-        data << uint8(itr->second.Flags.AsUnderlyingType());
-        data << uint32(itr->second.Standing);
-
+        WorldPackets::Reputation::FactionData& factionData = initFactions.Factions[itr->first];
+        factionData.Flags = itr->second.Flags.AsUnderlyingType();
+        factionData.Standing = itr->second.Standing;
         itr->second.needSend = false;
-
-        ++a;
     }
 
-    // fill in absent fields
-    for (; a != count; ++a)
-    {
-        data << uint8(0);
-        data << uint32(0);
-    }
-
-    _player->SendDirectMessage(&data);
+    _player->SendDirectMessage(initFactions.Write());
 }
 
 void ReputationMgr::SendVisible(FactionState const* faction) const
@@ -312,7 +292,7 @@ void ReputationMgr::Initialize()
     {
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(i);
 
-        if (factionEntry && (factionEntry->ReputationIndex >= 0))
+        if (factionEntry && factionEntry->CanHaveReputation())
         {
             FactionState newFaction;
             newFaction.ID = factionEntry->ID;
@@ -469,7 +449,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const*factionTemplateEntry)
 
 void ReputationMgr::SetVisible(FactionEntry const* factionEntry)
 {
-    if (factionEntry->ReputationIndex < 0)
+    if (!factionEntry->CanHaveReputation())
         return;
 
     FactionStateList::iterator itr = _factions.find(factionEntry->ReputationIndex);
@@ -575,7 +555,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
             Field* fields = result->Fetch();
 
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(fields[0].GetUInt16());
-            if (factionEntry && (factionEntry->ReputationIndex >= 0))
+            if (factionEntry && factionEntry->CanHaveReputation())
             {
                 FactionState* faction = &_factions[factionEntry->ReputationIndex];
 
