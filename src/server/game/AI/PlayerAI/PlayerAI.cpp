@@ -539,7 +539,7 @@ void PlayerAI::DoRangedAttackIfReady()
     Item const* rangedItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
     if (ItemTemplate const* rangedTemplate = rangedItem ? rangedItem->GetTemplate() : nullptr)
     {
-        switch (rangedTemplate->SubClass)
+        switch (rangedTemplate->GetSubClass())
         {
             case ITEM_SUBCLASS_WEAPON_BOW:
             case ITEM_SUBCLASS_WEAPON_GUN:

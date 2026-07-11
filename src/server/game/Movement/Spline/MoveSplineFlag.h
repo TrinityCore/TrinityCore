@@ -27,7 +27,7 @@ namespace Movement
     class MoveSplineFlag
     {
     public:
-        enum eFlags
+        enum eFlags : uint32
         {
             None                = 0x00000000,
                                                         // x00-xFF(first byte) used as animation Ids storage in pair with Animation flag
