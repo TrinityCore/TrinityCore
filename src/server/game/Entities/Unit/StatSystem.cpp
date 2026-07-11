@@ -355,7 +355,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float level = float(GetLevel());
 
     ChrClassesEntry const* entry = sChrClassesStore.AssertEntry(GetClass());
-    UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
+    AttackPowerModIndex unitMod = ranged ? AttackPowerModIndex::Ranged : AttackPowerModIndex::Melee;
 
     if (!HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
     {
@@ -383,23 +383,24 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         val2 = CalculatePct(float(minSpellPower), *m_activePlayerData->OverrideAPBySpellPowerPercent);
     }
 
-    SetStatFlatModifier(unitMod, BASE_VALUE, val2);
-
-    float base_attPower = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
-    float attPowerMod = GetFlatModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+    float baseAttackPower       = val2;
+    float attackPowerModPos     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatPositive);
+    float attackPowerModNeg     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatNegative);
+    float attackPowerMultiplier = GetAttackPowerModifierValue(unitMod, AttackPowerModType::Pct) - 1.0f;
 
     if (ranged)
     {
-        SetRangedAttackPower(int32(base_attPower));
-        SetRangedAttackPowerModPos(int32(attPowerMod));
-        SetRangedAttackPowerMultiplier(attPowerMultiplier);
+        SetRangedAttackPower(int32(baseAttackPower));
+        SetRangedAttackPowerModPos(int32(attackPowerModPos));
+        SetRangedAttackPowerModNeg(int32(attackPowerModNeg));
+        SetRangedAttackPowerMultiplier(attackPowerMultiplier);
     }
     else
     {
-        SetAttackPower(int32(base_attPower));
-        SetAttackPowerModPos(int32(attPowerMod));
-        SetAttackPowerMultiplier(attPowerMultiplier);
+        SetAttackPower(int32(baseAttackPower));
+        SetAttackPowerModPos(int32(attackPowerModPos));
+        SetAttackPowerModNeg(int32(attackPowerModNeg));
+        SetAttackPowerMultiplier(attackPowerMultiplier);
     }
 
     Pet* pet = GetPet();                                //update pet's AP
@@ -1063,19 +1064,25 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
-    UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
+    AttackPowerModIndex unitMod = ranged ? AttackPowerModIndex::Ranged : AttackPowerModIndex::Melee;
 
-    float baseAttackPower       = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
-    float attackPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+    float baseAttackPower       = ranged ? m_baseRangedAttackPower : m_baseAttackPower;
+    float attackPowerModPos     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatPositive);
+    float attackPowerModNeg     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatNegative);
+    float attackPowerMultiplier = GetAttackPowerModifierValue(unitMod, AttackPowerModType::Pct) - 1.0f;
 
     if (ranged)
     {
         SetRangedAttackPower(int32(baseAttackPower));
+        SetRangedAttackPowerModPos(int32(attackPowerModPos));
+        SetRangedAttackPowerModNeg(int32(attackPowerModNeg));
         SetRangedAttackPowerMultiplier(attackPowerMultiplier);
     }
     else
     {
         SetAttackPower(int32(baseAttackPower));
+        SetAttackPowerModPos(int32(attackPowerModPos));
+        SetAttackPowerModNeg(int32(attackPowerModNeg));
         SetAttackPowerMultiplier(attackPowerMultiplier);
     }
 
@@ -1319,7 +1326,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
     float val = 0.0f;
     float bonusAP = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
+    AttackPowerModIndex unitMod = AttackPowerModIndex::Melee;
 
     if (GetEntry() == ENTRY_IMP)                                   // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
@@ -1367,13 +1374,14 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         }
     }
 
-    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
-
-    //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
-    float base_attPower  = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
-    float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+    float base_attPower      = val + bonusAP;
+    float attPowerModPos     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatPositive);
+    float attPowerModNeg     = GetAttackPowerModifierValue(unitMod, AttackPowerModType::FlatNegative);
+    float attPowerMultiplier = GetAttackPowerModifierValue(unitMod, AttackPowerModType::Pct) - 1.0f;
 
     SetAttackPower(int32(base_attPower));
+    SetAttackPowerModPos(int32(attPowerModPos));
+    SetAttackPowerModNeg(int32(attPowerModNeg));
     SetAttackPowerMultiplier(attPowerMultiplier);
 
     //automatically update weapon damage after attack power modification
