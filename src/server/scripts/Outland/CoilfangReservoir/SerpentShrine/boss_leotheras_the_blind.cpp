@@ -156,7 +156,7 @@ static constexpr std::array<uint32, 5> ForceReactionSpells =
     SPELL_TARGET_5
 };
 
-static constexpr uint32 DemonFaction[5][2] =
+static constexpr std::pair<uint32, uint32> DemonFaction[5] =
 {
     { SPELL_TARGET_1, FACTION_LEOTHERAS_DEMON_1 },
     { SPELL_TARGET_2, FACTION_LEOTHERAS_DEMON_2 },
@@ -298,8 +298,7 @@ struct boss_leotheras_the_blind : public BossAI
 
         events.ScheduleEvent(EVENT_FORCE_CHANNEL, 15s, 25s);
 
-        for (uint32 group : SpellbindersSpawnGroupsData)
-            me->GetMap()->SpawnGroupSpawn(group, true);
+        DoAction(ACTION_RESET_ENCOUNTER);
     }
 
     void KilledUnit(Unit* victim) override
@@ -587,13 +586,9 @@ struct npc_inner_demon : public ScriptedAI
 
         if (TempSummon* summon = me->ToTempSummon())
             if (Unit* summoner = summon->GetSummonerUnit())
-            {
-                for (uint8 i = 0; i < 5; ++i)
-                {
-                    if (summoner->HasAura(DemonFaction[i][0]))
-                        me->SetFaction(DemonFaction[i][1]);
-                }
-            }
+                for (auto [spellId, factionTemplateId] : DemonFaction)
+                    if (summoner->HasAura(spellId))
+                        me->SetFaction(factionTemplateId);
     }
 
     void JustAppeared() override
@@ -603,11 +598,13 @@ struct npc_inner_demon : public ScriptedAI
         DoCastSelf(SPELL_DEMON_LINK);
 
         if (TempSummon* summon = me->ToTempSummon())
+        {
             if (Unit* summoner = summon->GetSummonerUnit())
             {
                 AddThreat(summoner, 50000.0f);
                 AttackStart(summoner);
             }
+        }
     }
 
     void Reset() override
