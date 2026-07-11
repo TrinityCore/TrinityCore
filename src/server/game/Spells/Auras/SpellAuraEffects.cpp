@@ -1458,27 +1458,8 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->m_stealth.AddValue(type, -GetAmount());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-        {
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_STEALTH, type))
             target->m_stealth.DelFlag(type);
-        }
-        else
-        {
-            // Other MOD_STEALTH auras remain — only clear the flag for this specific
-            // StealthType if none of those remaining auras share the same MiscValue.
-            bool found = false;
-            Unit::AuraEffectList const& stealthAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_STEALTH);
-            for (Unit::AuraEffectList::const_iterator i = stealthAuras.begin(); i != stealthAuras.end(); ++i)
-            {
-                if (GetMiscValue() == (*i)->GetMiscValue())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                target->m_stealth.DelFlag(type);
-        }
 
         if (!target->m_stealth.GetFlags())
         {
