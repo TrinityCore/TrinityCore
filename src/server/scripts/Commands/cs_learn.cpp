@@ -140,7 +140,7 @@ public:
         Player* player = handler->GetPlayer();
         for (auto const& [id, quest] : sObjectMgr->GetQuestTemplates())
         {
-            if (quest->GetRequiredClasses() && player->SatisfyQuestClass(quest.get(), false))
+            if (quest->GetAllowableClasses() && player->SatisfyQuestClass(quest.get(), false))
                 player->LearnQuestRewardedSpells(quest.get());
         }
         return true;
@@ -219,7 +219,7 @@ public:
                 continue;
 
             player->LearnSpell(spellId, false);
-            player->AddTalent(spellId, player->GetActiveSpec(), true);
+            player->AddTalent(spellId, player->GetActiveTalentGroup(), true);
         }
 
         player->SetFreeTalentPoints(0);

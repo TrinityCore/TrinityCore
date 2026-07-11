@@ -44,9 +44,9 @@ endif()
 if(WITH_COREDEBUG)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      -g3)
+      -ggdb3)
 
-  message(STATUS "GCC: Debug-flags set (-g3)")
+  message(STATUS "GCC: Debug-flags set (-ggdb3)")
 endif()
 
 if(ASAN)

@@ -363,7 +363,7 @@ void PetAI::HandleReturnMovement()
 
     // Prevent activating movement when under control of spells
     // such as "Eyes of the Beast"
-    if (me->IsCharmed())
+    if (me->isPossessed())
         return;
 
     if (!me->GetCharmInfo())

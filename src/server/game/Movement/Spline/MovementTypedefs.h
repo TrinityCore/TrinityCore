@@ -31,6 +31,15 @@ namespace Movement
     using G3D::Vector3;
     using G3D::Vector4;
 
+    enum MonsterMoveType
+    {
+        MONSTER_MOVE_NORMAL         = 0,
+        MONSTER_MOVE_STOP           = 1,
+        MONSTER_MOVE_FACING_SPOT    = 2,
+        MONSTER_MOVE_FACING_TARGET  = 3,
+        MONSTER_MOVE_FACING_ANGLE   = 4
+    };
+
     inline uint32 SecToMS(float sec)
     {
         return static_cast<uint32>(sec * 1000.f);

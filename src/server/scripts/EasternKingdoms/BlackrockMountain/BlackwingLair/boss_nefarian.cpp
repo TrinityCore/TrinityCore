@@ -436,6 +436,7 @@ struct boss_nefarian : public BossAI
         _phase3 = false;
         _despawn = false;
         _despawnTimer = 30000;
+        _sayLowHealth = false;
     }
 
     void Reset() override
@@ -502,8 +503,11 @@ struct boss_nefarian : public BossAI
             Talk(SAY_RAISE_SKELETONS);
         }
 
-        if (me->HealthBelowPctDamaged(5, damage))
+        if (!_sayLowHealth && me->HealthBelowPctDamaged(5, damage))
+        {
+            _sayLowHealth = true;
             Talk(SAY_XHEALTH);
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -617,6 +621,7 @@ private:
     bool _despawn;
     uint32 _despawnTimer;
     bool _phase3;
+    bool _sayLowHealth;
 };
 
 void AddSC_boss_nefarian()

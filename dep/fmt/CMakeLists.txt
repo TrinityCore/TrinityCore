@@ -10,6 +10,7 @@
 
 set(FMT_HEADERS 
   include/fmt/args.h
+  include/fmt/base.h
   include/fmt/chrono.h
   include/fmt/color.h
   include/fmt/compile.h

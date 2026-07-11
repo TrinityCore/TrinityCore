@@ -1616,6 +1616,7 @@ void GameObject::Use(Unit* user)
     Unit* spellCaster = user;
     uint32 spellId = 0;
     bool triggered = false;
+    bool addUse = false;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -2034,18 +2035,29 @@ void GameObject::Use(Unit* user)
 
             if (info->spellcaster.partyOnly)
             {
-                Unit* caster = GetOwner();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                ObjectGuid ownerGuid = GetOwnerGUID();
+                if (ownerGuid.IsEmpty())
                     return;
 
-                if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
-                    return;
+                if (ownerGuid != user->GetGUID())
+                {
+                    if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGuid))
+                        ownerGuid = owner->GetCharmerOrOwnerOrOwnGUID();
+
+                    Player const* playerUser = user->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (!playerUser)
+                        return;
+
+                    Group const* group = playerUser->GetGroup();
+                    if (!group || !group->IsMember(ownerGuid))
+                        return;
+                }
             }
 
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellcaster.spellId;
 
-            AddUse();
+            addUse = true;
             break;
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
@@ -2212,10 +2224,14 @@ void GameObject::Use(Unit* user)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    SpellCastResult castResult;
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        castResult = spellCaster->CastSpell(user, spellId, triggered);
     else
-        CastSpell(user, spellId);
+        castResult = CastSpell(user, spellId);
+
+    if (addUse && castResult == SPELL_CAST_OK)
+        AddUse();
 }
 
 void GameObject::SendCustomAnim(uint32 anim)

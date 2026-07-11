@@ -37,6 +37,12 @@ enum WarlockSpells
 {
     SPELL_WARLOCK_DRAIN_SOUL_R1                     = 1120,
     SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1                = 29886,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R1      = 34147,
+    SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R2      = 34148,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2                = 58889,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R1      = 58892,
+    SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R2      = 58899,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -47,9 +53,11 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_DEMONIC_PACT_PROC                 = 48090,
+    SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA          = 58070,
     SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC          = 58068,
+    SPELL_WARLOCK_GLYPH_OF_FELHUNTER                = 56249,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 56216,
     SPELL_WARLOCK_HAUNT                             = 48181,
@@ -388,8 +396,7 @@ class spell_warl_demonic_empowerment : public SpellScript
         {
             if (targetCreature->IsPet())
             {
-                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
-                ASSERT(ci);
+                CreatureTemplate const* ci = targetCreature->GetCreatureTemplate();
                 switch (ci->family)
                 {
                     case CREATURE_FAMILY_SUCCUBUS:
@@ -492,6 +499,35 @@ class spell_warl_drain_soul : public AuraScript
         DoCheckProc += AuraCheckProcFn(spell_warl_drain_soul::CheckProc);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
         OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 19505, 67518 - Devour Magic
+class spell_warl_devour_magic : public SpellScript
+{
+    PrepareSpellScript(spell_warl_devour_magic);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, SPELL_WARLOCK_GLYPH_OF_FELHUNTER });
+    }
+
+    void OnSuccessfulDispel(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectInfo(EFFECT_1).CalcValue());
+        caster->CastSpell(caster, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, args);
+
+        // Glyph of Felhunter
+        if (Unit* owner = caster->GetOwner())
+            if (owner->HasAura(SPELL_WARLOCK_GLYPH_OF_FELHUNTER))
+                owner->CastSpell(owner, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, args);
+    }
+
+    void Register() override
+    {
+        OnEffectSuccessfulDispel += SpellEffectFn(spell_warl_devour_magic::OnSuccessfulDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
     }
 };
 
@@ -900,6 +936,39 @@ class spell_warl_ritual_of_doom_effect : public SpellScript
     }
 };
 
+// 34145, 58888 - Ritual of Souls Rank X - Trigger Create Soulwell
+class spell_warl_ritual_of_souls : public SpellScript
+{
+    PrepareSpellScript(spell_warl_ritual_of_souls);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(_createSoulwellSpellIds);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        uint32 spellId = _createSoulwellSpellIds[0];
+        if (caster->HasAura(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2))
+            spellId = _createSoulwellSpellIds[2];
+        else if (caster->HasAura(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1))
+            spellId = _createSoulwellSpellIds[1];
+
+        caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(Object::GetGUID(GetOriginalCaster())));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_ritual_of_souls::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    std::array<uint32, 3> _createSoulwellSpellIds;
+
+public:
+    spell_warl_ritual_of_souls(std::array<uint32, 3> createSoulwellSpellIds) : _createSoulwellSpellIds(createSoulwellSpellIds) { }
+};
+
 // 6358 - Seduction
 class spell_warl_seduction : public SpellScript
 {
@@ -1273,6 +1342,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_demonic_empowerment);
     RegisterSpellScript(spell_warl_demonic_pact);
     RegisterSpellScript(spell_warl_drain_soul);
+    RegisterSpellScript(spell_warl_devour_magic);
     RegisterSpellScript(spell_warl_everlasting_affliction);
     RegisterSpellScript(spell_warl_fel_synergy);
     RegisterSpellScript(spell_warl_glyph_of_life_tap);
@@ -1283,6 +1353,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_life_tap);
     RegisterSpellScript(spell_warl_nether_protection);
     RegisterSpellScript(spell_warl_ritual_of_doom_effect);
+    RegisterSpellScriptWithArgs(spell_warl_ritual_of_souls, "spell_warl_ritual_of_souls_r1", std::array<uint32, 3>{ SPELL_WARLOCK_CREATE_SOULWELL_R1, SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R1, SPELL_WARLOCK_CREATE_SOULWELL_R1_IMP_HS_R2 });
+    RegisterSpellScriptWithArgs(spell_warl_ritual_of_souls, "spell_warl_ritual_of_souls_r2", std::array<uint32, 3>{ SPELL_WARLOCK_CREATE_SOULWELL_R2, SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R1, SPELL_WARLOCK_CREATE_SOULWELL_R2_IMP_HS_R2 });
     RegisterSpellScript(spell_warl_seduction);
     RegisterSpellScript(spell_warl_seed_of_corruption);
     RegisterSpellScript(spell_warl_seed_of_corruption_dummy);
