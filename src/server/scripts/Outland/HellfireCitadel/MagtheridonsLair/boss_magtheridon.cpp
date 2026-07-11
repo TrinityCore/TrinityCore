@@ -440,6 +440,12 @@ struct npc_hellfire_channeler : public ScriptedAI
         DoZoneInCombat(summon);
     }
 
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+            magtheridon->AI()->SummonedCreatureDespawn(summon);
+    }
+
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (_instance->GetBossState(DATA_MAGTHERIDON) == IN_PROGRESS)
