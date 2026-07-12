@@ -324,6 +324,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_ChampioningFaction = 0;
 
+    m_healthFraction = 0.0f;
     m_powerFraction.fill(0.0f);
 
     isDebugAreaTriggers = false;
@@ -1779,9 +1780,25 @@ void Player::RegenerateHealth()
     addValue += m_baseHealthRegen / 2.5f;
 
     if (addValue < 0.0f)
-        addValue = 0.0f;
+        return;
 
-    ModifyHealth(int32(addValue));
+    addValue += m_healthFraction;
+    int32 integerValue = int32(addValue);
+    if (!integerValue)
+        return;
+
+    if (curValue + integerValue < maxValue)
+    {
+        curValue += integerValue;
+        m_healthFraction = addValue - integerValue;
+    }
+    else
+    {
+        curValue = maxValue;
+        m_healthFraction = 0.0f;
+    }
+
+    SetHealth(curValue);
 }
 
 void Player::ResetAllPowers()
