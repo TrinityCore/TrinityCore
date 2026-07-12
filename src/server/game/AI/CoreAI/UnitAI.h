@@ -247,7 +247,7 @@ class TC_GAME_API UnitAI
         virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
 
         void DoMeleeAttackIfReady();
-        bool DoSpellAttackIfReady(uint32 spell);
+        bool DoSpellAttackIfReady(uint32 spellId);
 
         static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();

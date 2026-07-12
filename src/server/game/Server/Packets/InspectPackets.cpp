@@ -40,7 +40,7 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& item)
     return data;
 }
 
-InspectItemData::InspectItemData(Item const* item)
+InspectItemData::InspectItemData(::Item const* item)
 {
     CreatorGUID = item->GetGuidValue(ITEM_FIELD_CREATOR);
 

@@ -1542,7 +1542,7 @@ struct SpellItemEnchantmentEntry
     uint32 ID;                                              // 0
     //uint32 Charges;                                       // 1
     uint32 Effect[MAX_ITEM_ENCHANTMENT_EFFECTS];            // 2-4
-    uint32 EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];   // 5-7
+    int32 EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];    // 5-7
     //uint32 EffectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]  // 8-10
     uint32 EffectArg[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 11-13
     char const* Name[16];                                   // 14-29
