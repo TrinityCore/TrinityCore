@@ -950,7 +950,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         return;
     }
 
-    Unit* mover = ValidateAndGetUnitBeingMoved(mi->guid, true /*all remaining uses are ack handlers*/);
+    Unit* mover = ValidateAndGetUnitBeingMoved(mi->guid, static_cast<OpcodeClient>(data.GetOpcode()), true /*all remaining uses are ack handlers*/);
     ValidateMovementInfo(mover, mi);
 }
 

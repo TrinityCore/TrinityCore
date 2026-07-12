@@ -1195,7 +1195,7 @@ struct npc_living_inferno : public ScriptedAI
         me->CastSpell(me, SPELL_BLAZING_AURA, true);
 
         // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
-        if (me->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+        if (me->GetMap()->GetDifficultyID() == RAID_DIFFICULTY_25MAN_HEROIC)
             scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
             {
                 me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);

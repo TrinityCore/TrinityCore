@@ -23,6 +23,7 @@
 #include "DBCStores.h"
 #include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "Map.h"
@@ -1040,10 +1041,10 @@ void Item::SendTimeUpdate(Player* owner)
     if (!duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data << GetGUID();
-    data << uint32(duration);
-    owner->SendDirectMessage(&data);
+    WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
+    itemTimeUpdate.ItemGuid = GetGUID();
+    itemTimeUpdate.DurationLeft = duration;
+    owner->SendDirectMessage(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
