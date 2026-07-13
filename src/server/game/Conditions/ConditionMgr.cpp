@@ -526,7 +526,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DIFFICULTY_ID:
         {
-            condMeets = object->GetMap()->GetDifficulty() == ConditionValue1;
+            condMeets = object->GetMap()->GetDifficultyID() == ConditionValue1;
             break;
         }
         case CONDITION_GAMEMASTER:

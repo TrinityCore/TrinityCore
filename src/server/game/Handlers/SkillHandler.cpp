@@ -25,41 +25,25 @@
 #include "TalentPackets.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
+void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
-    uint32 talentId, requestedRank;
-    recvData >> talentId >> requestedRank;
-
-    if (_player->LearnTalent(talentId, requestedRank))
+    if (_player->LearnTalent(packet.Talent.TalentID, packet.Talent.Rank))
         _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
+void WorldSession::HandleLearnPreviewTalents(WorldPackets::Talent::LearnPreviewTalents& learnPreviewTalents)
 {
-    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
-
-    uint32 talentsCount;
-    recvPacket >> talentsCount;
-
-    uint32 talentId, talentRank;
-
-    // Client has max 44 talents for tree for 3 trees, rounded up : 150
-    uint32 const MaxTalentsCount = 150;
-
-    for (uint32 i = 0; i < talentsCount && i < MaxTalentsCount; ++i)
+    bool anythingLearned = false;
+    for (WorldPackets::Talent::LearnTalentEntry const& learnTalentEntry : learnPreviewTalents.Talents)
     {
-        recvPacket >> talentId >> talentRank;
-
-        if (!_player->LearnTalent(talentId, talentRank))
-        {
-            recvPacket.rfinish();
+        if (_player->LearnTalent(learnTalentEntry.TalentID, learnTalentEntry.Rank))
+            anythingLearned = true;
+        else
             break;
-        }
     }
 
-    _player->SendTalentsInfoData(false);
-
-    recvPacket.rfinish();
+    if (anythingLearned)
+        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
@@ -76,7 +60,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRe
     if (!trainer->CanResetTalents(_player, false))
         return;
 
-    uint32 cost = _player->ResetTalentsCost();
+    uint32 cost = _player->GetNextResetTalentsCost();
     if (!_player->HasEnoughMoney(cost))
         return; // // silently return, client should display the error by itself
 
@@ -86,7 +70,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRe
 
     if (!_player->ResetTalents())
     {
-        _player->SendTalentWipeConfirm(ObjectGuid::Empty);
+        _player->SendRespecWipeConfirm(ObjectGuid::Empty, 0);
         return;
     }
 

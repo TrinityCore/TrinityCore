@@ -38,7 +38,7 @@ class TC_GAME_API ChannelMgr
 
     public:
         static void LoadFromDB();
-        static ChannelMgr* forTeam(uint32 team);
+        static ChannelMgr* ForTeam(uint32 team);
         static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);
 
         void SaveToDB();
@@ -53,7 +53,7 @@ class TC_GAME_API ChannelMgr
         BuiltinChannelContainer _channels;
         uint32 const _team;
 
-        static void MakeNotOnPacket(WorldPacket* data, std::string const& name);
+        static void SendNotOnChannelNotify(Player const* player, std::string const& name);
 };
 
 #endif
