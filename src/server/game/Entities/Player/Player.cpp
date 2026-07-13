@@ -13009,7 +13009,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
         SetGuidValue(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), pItem->GetGUID());
-        SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, pItem->GetSellPrice() * pItem->GetCount());
+        SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, pItem->GetSellPrice(true) * pItem->GetCount());
 
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, (uint32)etime);
 
