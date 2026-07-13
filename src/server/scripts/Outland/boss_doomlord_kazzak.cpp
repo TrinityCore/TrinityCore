@@ -159,7 +159,7 @@ struct boss_doom_lord_kazzak : public WorldBossAI
                     events.Repeat(2s);
                     break;
                 case EVENT_MARK_OF_KAZZAK:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [&](Unit* unit) { return unit && unit->IsPlayer() && unit->GetPowerType() == POWER_MANA && !unit->HasAura(SPELL_MARK_OF_KAZZAK); }))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [](Unit const* unit) { return unit && unit->IsPlayer() && unit->GetPowerType() == POWER_MANA && !unit->HasAura(SPELL_MARK_OF_KAZZAK); }))
                         DoCast(target, SPELL_MARK_OF_KAZZAK);
                     events.Repeat(10s, 25s);
                     break;
