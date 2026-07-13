@@ -63,7 +63,7 @@ static UnitTestDataLoader::DBC<ItemRandomSuffixEntry, &ItemRandomSuffixEntry::ID
     ItemTemplate& hearthstone = GetItemTemplate(6948, "Hearthstone");
     hearthstone.DisplayInfoID = 6418;
     hearthstone.Quality = ItemQualities::ITEM_QUALITY_NORMAL;
-    hearthstone.Flags = ItemFlags::ITEM_FLAG_PLAYERCAST;
+    hearthstone.Flags[0] = ItemFlags::ITEM_FLAG_PLAYERCAST;
     hearthstone.MaxCount = 1;
     hearthstone.Effects[0].SpellID = 8690;
     hearthstone.Bonding = ItemBondingType::BIND_WHEN_PICKED_UP;

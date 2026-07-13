@@ -127,20 +127,20 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
         return 0;
 
     // item must have one from this field values not null if it can have random enchantments
-    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+    if ((!itemProto->GetRandomProperty()) && (!itemProto->GetRandomSuffix()))
         return 0;
 
     // item can have not null only one from field values
-    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    if ((itemProto->GetRandomProperty()) && (itemProto->GetRandomSuffix()))
     {
-        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
         return 0;
     }
 
     // RandomProperty case
-    if (itemProto->RandomProperty)
+    if (itemProto->GetRandomProperty())
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomProperty());
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -153,7 +153,7 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
     // RandomSuffix case
     else
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -171,39 +171,32 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
 
     if (!itemProto)
         return 0;
-    if (!itemProto->RandomSuffix)
+    if (!itemProto->GetRandomSuffix())
         return 0;
 
-    RandPropPointsEntry const* randomProperty = sRandPropPointsStore.LookupEntry(itemProto->ItemLevel);
-    if (!randomProperty)
-        return 0;
+    return GetRandomPropertyPoints(itemProto->GetBaseItemLevel(), itemProto->GetQuality(), itemProto->GetInventoryType());
+}
 
-    uint32 suffixFactor;
-    switch (itemProto->InventoryType)
+uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType)
+{
+    uint32 propIndex;
+
+    switch (inventoryType)
     {
-        // Items of that type don`t have points
-        case INVTYPE_NON_EQUIP:
-        case INVTYPE_BAG:
-        case INVTYPE_TABARD:
-        case INVTYPE_AMMO:
-        case INVTYPE_QUIVER:
-        case INVTYPE_RELIC:
-            return 0;
-            // Select point coefficient
         case INVTYPE_HEAD:
         case INVTYPE_BODY:
         case INVTYPE_CHEST:
         case INVTYPE_LEGS:
         case INVTYPE_2HWEAPON:
         case INVTYPE_ROBE:
-            suffixFactor = 0;
+            propIndex = 0;
             break;
         case INVTYPE_SHOULDERS:
         case INVTYPE_WAIST:
         case INVTYPE_FEET:
         case INVTYPE_HANDS:
         case INVTYPE_TRINKET:
-            suffixFactor = 1;
+            propIndex = 1;
             break;
         case INVTYPE_NECK:
         case INVTYPE_WRISTS:
@@ -211,35 +204,37 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
         case INVTYPE_SHIELD:
         case INVTYPE_CLOAK:
         case INVTYPE_HOLDABLE:
-            suffixFactor = 2;
+            propIndex = 2;
             break;
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            suffixFactor = 3;
+            propIndex = 3;
             break;
         case INVTYPE_RANGED:
         case INVTYPE_THROWN:
         case INVTYPE_RANGEDRIGHT:
-            suffixFactor = 4;
+            propIndex = 4;
             break;
         default:
             return 0;
     }
-    // Select rare/epic modifier
-    switch (itemProto->Quality)
+
+    RandPropPointsEntry const* randPropPointsEntry = sRandPropPointsStore.LookupEntry(itemLevel);
+    if (!randPropPointsEntry)
+        return 0;
+
+    switch (quality)
     {
         case ITEM_QUALITY_UNCOMMON:
-            return randomProperty->Good[suffixFactor];
+            return randPropPointsEntry->Good[propIndex];
         case ITEM_QUALITY_RARE:
-            return randomProperty->Superior[suffixFactor];
+            return randPropPointsEntry->Superior[propIndex];
         case ITEM_QUALITY_EPIC:
-            return randomProperty->Epic[suffixFactor];
-        case ITEM_QUALITY_LEGENDARY:
-        case ITEM_QUALITY_ARTIFACT:
-            return 0;                                       // not have random properties
+            return randPropPointsEntry->Epic[propIndex];
         default:
             break;
     }
+
     return 0;
 }

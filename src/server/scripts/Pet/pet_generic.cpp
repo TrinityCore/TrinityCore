@@ -22,12 +22,13 @@
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
 
 enum PandarenMonkMisc
 {
@@ -211,7 +212,7 @@ class spell_pet_gen_lich_pet_aura : public AuraScript
 
         Unit* owner = GetUnitOwner();
 
-        std::list<Creature*> minionList;
+        std::list<TempSummon*> minionList;
         owner->GetAllMinionsByEntry(minionList, NPC_LICH_PET);
         for (Creature* minion : minionList)
             owner->CastSpell(minion, SPELL_LICH_PET_AURA_ONKILL, true);

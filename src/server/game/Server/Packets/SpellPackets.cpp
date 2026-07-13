@@ -16,8 +16,10 @@
  */
 
 #include "SpellPackets.h"
+#include "MovementPackets.h"
 #include "SharedDefines.h"
 #include "Spell.h"
+#include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include <span>
 
@@ -37,6 +39,151 @@ void PetCancelAura::Read()
 {
     _worldPacket >> PetGUID;
     _worldPacket >> SpellID;
+}
+
+WorldPacket const* UpdateActionButtons::Write()
+{
+    _worldPacket << Reason;
+    if (Reason == 0 || Reason == 1)
+        _worldPacket.append(ActionButtons.data(), ActionButtons.size());
+
+    return &_worldPacket;
+}
+
+void SetActionButton::Read()
+{
+    _worldPacket >> Index;
+    _worldPacket >> Action;
+}
+
+WorldPacket const* SendUnlearnSpells::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
+{
+    data << int32(auraData.SpellID);
+    data << uint8(auraData.Flags);
+    data << uint8(auraData.CastLevel);
+    data << uint8(auraData.Applications);
+    if (!(auraData.Flags & AFLAG_SELF_CAST))
+        data << auraData.CastUnit.WriteAsPacked();
+
+    if (auraData.Flags & AFLAG_DURATION)
+    {
+        data << int32(auraData.Duration);
+        data << int32(auraData.Remaining);
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
+{
+    data << uint8(aura.Slot);
+
+    if (aura.AuraData)
+        data << *aura.AuraData;
+    else
+        data << int32(0); // SpellID
+
+    return data;
+}
+
+WorldPacket const* AuraUpdate::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    _worldPacket << Aura; // this packet can carry multiple auras, just like SMSG_AURA_UPDATE_ALL but we don't use this, skip putting it in a vector
+
+    return &_worldPacket;
+}
+
+WorldPacket const* AuraUpdateAll::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+    for (AuraInfo const& aura : Auras)
+        _worldPacket << aura;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
+{
+    buffer >> location.Transport.ReadAsPacked();
+    buffer >> location.Location;
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
+{
+    buffer >> targetData.Flags;
+
+    if (targetData.Flags & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
+        buffer >> targetData.Unit.emplace().ReadAsPacked();
+
+    if (targetData.Flags & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
+        buffer >> targetData.Item.emplace().ReadAsPacked();
+
+    if (targetData.Flags & TARGET_FLAG_SOURCE_LOCATION)
+        buffer >> targetData.SrcLocation.emplace();
+
+    if (targetData.Flags & TARGET_FLAG_DEST_LOCATION)
+        buffer >> targetData.DstLocation.emplace();
+
+    if (targetData.Flags & TARGET_FLAG_STRING)
+    {
+        std::array<char, 128>& name = targetData.Name.emplace();
+        buffer.read(reinterpret_cast<uint8*>(name.data()), name.size());
+    }
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, MissileTrajectoryRequest& trajectory)
+{
+    buffer >> trajectory.Pitch;
+    buffer >> trajectory.Speed;
+
+    if (buffer.read<uint8>()) // has movement update
+    {
+        MovementInfo& moveUpdate = trajectory.MoveUpdate.emplace();
+        buffer.read_skip<uint32>(); // opcode, always MSG_MOVE_STOP
+        buffer >> moveUpdate.guid.ReadAsPacked();
+        buffer >> moveUpdate;
+    }
+
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
+{
+    buffer >> request.CastID;
+    buffer >> request.SpellID;
+    buffer >> request.SendCastFlags;
+
+    buffer >> request.Target;
+
+    if (request.SendCastFlags & 0x2)
+        buffer >> request.MissileTrajectory.emplace();
+
+    return buffer;
+}
+
+void CastSpell::Read()
+{
+    _worldPacket >> Cast;
+}
+
+void PetCastSpell::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> Cast;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, InitialSpell const& initialSpell)
@@ -85,7 +232,7 @@ WorldPacket const* InitialSpells::Write()
 ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport.WriteAsPacked(); // relative position guid here - transport for example
-    data << targetLocation.Location.PositionXYZStream();
+    data << targetLocation.Location;
     return data;
 }
 
@@ -106,7 +253,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
         data << *spellTargetData.DstLocation;
 
     if (spellTargetData.Name)
-        data << *spellTargetData.Name;
+        data.append(spellTargetData.Name->data(), spellTargetData.Name->size());
 
     return data;
 }
@@ -212,7 +359,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
         data << int32(spellCastData.TargetPoints->size());
         for (TargetLocation const& targetPoint : *spellCastData.TargetPoints)
         {
-            data << targetPoint.Location.PositionXYZStream();
+            data << targetPoint.Location;
             data << targetPoint.Transport;
         }
     }
@@ -230,6 +377,87 @@ WorldPacket const* SpellStart::Write()
 WorldPacket const* SpellGo::Write()
 {
     _worldPacket << Cast;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* LearnedSpell::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint16(ActionBarSlot);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* SpellFailure::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* SpellFailedOther::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* CastFailed::Write()
+{
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    if (FailedArg1 || FailedArg2)
+        _worldPacket << int32(FailedArg1.value_or(0));
+
+    if (FailedArg2)
+        _worldPacket << int32(*FailedArg2);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* PetCastFailed::Write()
+{
+    _worldPacket << uint8(CastID);
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    if (FailedArg1 || FailedArg2)
+        _worldPacket << int32(FailedArg1.value_or(0));
+
+    if (FailedArg2)
+        _worldPacket << int32(*FailedArg2);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpellModifier const& spellModifier)
+{
+    data << uint8(spellModifier.ClassIndex);
+    data << uint8(spellModifier.ModIndex);
+    data << int32(spellModifier.ModifierValue);
+
+    return data;
+}
+
+WorldPacket const* SetSpellModifier::Write()
+{
+    _worldPacket << Modifier;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* UnlearnedSpell::Write()
+{
+    _worldPacket << uint32(SpellID);
 
     return &_worldPacket;
 }

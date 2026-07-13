@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SpellPackets_h__
-#define SpellPackets_h__
+#ifndef TRINITYCORE_SPELL_PACKETS_H
+#define TRINITYCORE_SPELL_PACKETS_H
 
-#include "Packet.h"
+#include "MovementInfo.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Packet.h"
 #include "Position.h"
 #include "SharedDefines.h"
 
@@ -111,10 +112,89 @@ namespace WorldPackets
             std::vector<SpellHistoryEntry> SpellHistory;
         };
 
+        class UpdateActionButtons final : public ServerPacket
+        {
+        public:
+            static std::size_t constexpr NumActionButtons = 144;
+
+            explicit UpdateActionButtons() : ServerPacket(SMSG_ACTION_BUTTONS, NumActionButtons * 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<uint32, NumActionButtons> ActionButtons = { };
+            uint8 Reason = 0;
+            /*
+                Reason can be 0, 1, 2
+                0 - Sends initial action buttons, client does not validate if we have the spell or not
+                1 - Used used after spec swaps, client validates if a spell is known.
+                2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
+            */
+        };
+
+        class SetActionButton final : public ClientPacket
+        {
+        public:
+            explicit SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Action = 0;
+            uint8 Index = 0;
+        };
+
+        class SendUnlearnSpells final : public ServerPacket
+        {
+        public:
+            explicit SendUnlearnSpells() : ServerPacket(SMSG_SEND_UNLEARN_SPELLS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint32> Spells;
+        };
+
+        struct AuraDataInfo
+        {
+            int32 SpellID = 0;
+            uint8 Flags = 0;
+            uint8 CastLevel = 1;
+            uint8 Applications = 1;
+            ObjectGuid CastUnit;
+            int32 Duration = 0;
+            int32 Remaining = 0;
+        };
+
+        struct AuraInfo
+        {
+            uint8 Slot = 0;
+            Optional<AuraDataInfo> AuraData;
+        };
+
+        class AuraUpdate final : public ServerPacket
+        {
+        public:
+            explicit AuraUpdate() : ServerPacket(SMSG_AURA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            AuraInfo Aura;
+        };
+
+        class AuraUpdateAll final : public ServerPacket
+        {
+        public:
+            explicit AuraUpdateAll() : ServerPacket(SMSG_AURA_UPDATE_ALL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            std::vector<AuraInfo> Auras;
+        };
+
         struct TargetLocation
         {
             ObjectGuid Transport;
-            Position Location;
+            TaggedPosition<Position::XYZ> Location;
         };
 
         struct SpellTargetData
@@ -124,7 +204,44 @@ namespace WorldPackets
             Optional<ObjectGuid> Item;
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
-            Optional<std::string> Name;
+            Optional<std::array<char, 128>> Name;
+        };
+
+        struct MissileTrajectoryRequest
+        {
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
+            Optional<MovementInfo> MoveUpdate;
+        };
+
+        struct SpellCastRequest
+        {
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 SendCastFlags = 0;
+            SpellTargetData Target;
+            Optional<MissileTrajectoryRequest> MissileTrajectory;
+        };
+
+        class CastSpell final : public ClientPacket
+        {
+        public:
+            explicit CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            SpellCastRequest Cast;
+        };
+
+        class PetCastSpell final : public ClientPacket
+        {
+        public:
+            explicit PetCastSpell(WorldPacket&& packet) : ClientPacket(CMSG_PET_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            SpellCastRequest Cast;
         };
 
         struct SpellMissStatus
@@ -203,6 +320,98 @@ namespace WorldPackets
             SpellCastData Cast;
         };
 
+        class LearnedSpell final : public ServerPacket
+        {
+        public:
+            explicit LearnedSpell() : ServerPacket(SMSG_LEARNED_SPELL, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            uint16 ActionBarSlot = 0; // unused on client
+        };
+
+        class SpellFailure final : public ServerPacket
+        {
+        public:
+            explicit SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        class SpellFailedOther final : public ServerPacket
+        {
+        public:
+            explicit SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            uint32 SpellID  = 0;
+            uint8 Reason    = 0;
+            uint8 CastID    = 0;
+        };
+
+        class TC_GAME_API CastFailed final : public ServerPacket
+        {
+        public:
+            explicit CastFailed() : ServerPacket(SMSG_CAST_FAILED, 1 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            Optional<int32> FailedArg1;
+            Optional<int32> FailedArg2;
+        };
+
+        class TC_GAME_API PetCastFailed final : public ServerPacket
+        {
+        public:
+            explicit PetCastFailed() : ServerPacket(SMSG_PET_CAST_FAILED, 1 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            Optional<int32> FailedArg1;
+            Optional<int32> FailedArg2;
+        };
+
+        struct SpellModifier
+        {
+            uint8 ClassIndex = 0;
+            uint8 ModIndex = 0;
+            int32 ModifierValue = 0;
+        };
+
+        class TC_GAME_API SetSpellModifier final : public ServerPacket
+        {
+        public:
+            explicit SetSpellModifier(OpcodeServer opcode) : ServerPacket(opcode, 1 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            SpellModifier Modifier;
+        };
+
+        class UnlearnedSpell final : public ServerPacket
+        {
+        public:
+            UnlearnedSpell() : ServerPacket(SMSG_REMOVED_SPELL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellID = 0;
+        };
+
         class PlaySpellVisualKit final : public ServerPacket
         {
         public:
@@ -254,4 +463,4 @@ namespace WorldPackets
     }
 }
 
-#endif // SpellPackets_h__
+#endif // TRINITYCORE_SPELL_PACKETS_H

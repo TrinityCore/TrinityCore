@@ -17,11 +17,20 @@
 
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
+#include "QueryPackets.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
-#include "Packets/QueryPackets.h"
+std::string const& ItemTemplate::GetName(LocaleConstant locale) const
+{
+    if (locale != DEFAULT_LOCALE)
+        if (ItemLocale const* itemLocale = sObjectMgr->GetItemLocale(GetId()))
+            if (locale < itemLocale->Name.size() && !itemLocale->Name[locale].empty())
+                return itemLocale->Name[locale];
+
+    return Name1;
+}
 
 bool ItemTemplate::HasSignature() const
 {
@@ -34,12 +43,14 @@ bool ItemTemplate::HasSignature() const
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
-    switch (InventoryType)
+    switch (GetInventoryType())
     {
         case INVTYPE_RELIC:
         case INVTYPE_SHIELD:
         case INVTYPE_HOLDABLE:
             return true;
+        default:
+            break;
     }
 
     switch (Class)
@@ -47,12 +58,14 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
         case ITEM_CLASS_WEAPON:
         case ITEM_CLASS_PROJECTILE:
             return true;
+        default:
+            break;
     }
 
     return false;
 }
 
-float ItemTemplate::getDPS() const
+float ItemTemplate::GetDPS() const
 {
     if (!Delay)
         return 0.f;
@@ -71,7 +84,7 @@ int32 ItemTemplate::getFeralBonus(int32 extraDPS /*= 0*/) const
     // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
     if (Class == ITEM_CLASS_WEAPON && (1 << InventoryType) & feralApEnabledInventoryTypeMaks)
     {
-        int32 bonus = int32((extraDPS + getDPS()) * 14.0f) - 767;
+        int32 bonus = int32((extraDPS + GetDPS()) * 14.0f) - 767;
         if (bonus < 0)
             return 0;
         return bonus;
@@ -139,6 +152,11 @@ uint32 ItemTemplate::GetSkill() const
     }
 }
 
+std::string const& ItemTemplate::GetDefaultLocaleName() const
+{
+    return GetName(sWorld->GetDefaultDbcLocale());
+}
+
 void ItemTemplate::_LoadTotalAP()
 {
     int32 totalAP = 0;
@@ -167,26 +185,16 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
 {
     WorldPackets::Query::QueryItemSingleResponse response;
 
-    std::string locName = Name1;
-    std::string locDescription = Description;
-
-    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
-    {
-        ObjectMgr::GetLocaleString(il->Name, loc, locName);
-        ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
-    }
-
     response.ItemID = ItemId;
     response.Allow = true;
 
     response.Stats.Class = Class;
     response.Stats.SubClass = SubClass;
     response.Stats.SoundOverrideSubclass = SoundOverrideSubclass;
-    response.Stats.Name = locName;
+    response.Stats.Name = Name1;
     response.Stats.DisplayInfoID = DisplayInfoID;
     response.Stats.Quality = Quality;
     response.Stats.Flags = Flags;
-    response.Stats.Flags2 = Flags2;
     response.Stats.BuyPrice = BuyPrice;
     response.Stats.SellPrice = SellPrice;
     response.Stats.InventoryType = InventoryType;
@@ -244,7 +252,7 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     }
 
     response.Stats.Bonding = Bonding;
-    response.Stats.Description = locDescription;
+    response.Stats.Description = Description;
     response.Stats.PageText = PageText;
     response.Stats.LanguageID = LanguageID;
     response.Stats.PageMaterial = PageMaterial;
@@ -275,6 +283,12 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.Stats.Duration = Duration;
     response.Stats.ItemLimitCategory = ItemLimitCategory;
     response.Stats.HolidayId = HolidayId;
+
+    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+    {
+        ObjectMgr::GetLocaleString(il->Name, loc, response.Stats.Name);
+        ObjectMgr::GetLocaleString(il->Description, loc, response.Stats.Description);
+    }
 
     response.Write();
     response.ShrinkToFit();
