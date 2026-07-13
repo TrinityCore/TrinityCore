@@ -23922,6 +23922,15 @@ Optional<SellResult> Player::CanSellItemToVendor(Item const* item, uint32 amount
         return SELL_ERR_CANT_SELL_ITEM;
 
     uint64 money = uint64(sellPrice) * amount;
+    uint64 durabilityPenalty = item->CalculateDurabilitySellPenalty();
+
+    if (durabilityPenalty)
+    {
+        if (durabilityPenalty > money)
+            money = 1;
+        else
+            money -= durabilityPenalty;
+    }
 
     using BuybackStorageType = std::remove_cvref_t<decltype(m_activePlayerData->BuybackPrice[0])>;
     if (money > std::numeric_limits<BuybackStorageType>::max()) // ensure sell price * amount doesn't overflow buyback price
@@ -23933,6 +23942,15 @@ Optional<SellResult> Player::CanSellItemToVendor(Item const* item, uint32 amount
 Optional<SellResult> Player::SellItemToVendor(Item* item, uint32 amount)
 {
     uint64 money = uint64(item->GetSellPrice(this)) * amount;
+    uint64 durabilityPenalty = item->CalculateDurabilitySellPenalty();
+
+    if (durabilityPenalty)
+    {
+        if (durabilityPenalty > money)
+            money = 1;
+        else
+            money -= durabilityPenalty;
+    }
 
     if (!ModifyMoney(money)) // ensure player doesn't exceed gold limit
         return SELL_ERR_CANT_SELL_ITEM;

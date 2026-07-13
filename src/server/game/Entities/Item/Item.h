@@ -271,7 +271,8 @@ class TC_GAME_API Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-        uint64 CalculateDurabilityRepairCost(float discount) const;
+        uint64 CalculateDurabilityRepairCost(float discount, bool useRateConfig = true) const;
+        uint64 CalculateDurabilitySellPenalty() const;
 
         bool HasEnchantRequiredSkill(Player const* player) const;
         uint32 GetEnchantRequiredLevel() const;

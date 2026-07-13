@@ -1380,7 +1380,7 @@ void Item::SetCount(uint32 value)
     }
 }
 
-uint64 Item::CalculateDurabilityRepairCost(float discount) const
+uint64 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*= true*/) const
 {
     uint32 maxDurability = m_itemData->MaxDurability;
     if (!maxDurability)
@@ -1411,12 +1411,17 @@ uint64 Item::CalculateDurabilityRepairCost(float discount) const
         dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->GetSubClass()];
 
     uint64 cost = std::round(lostDurability * dmultiplier * durabilityQualityEntry->Data * GetRepairCostMultiplier());
-    cost = uint64(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint64(cost * discount * (useRateConfig ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
 
     return cost;
+}
+
+uint64 Item::CalculateDurabilitySellPenalty() const
+{
+    return CalculateDurabilityRepairCost(1.0f, false);
 }
 
 bool Item::HasEnchantRequiredSkill(Player const* player) const
