@@ -1140,6 +1140,26 @@ void Item::RemoveFromObjectUpdate()
         owner->GetMap()->RemoveUpdateObject(this);
 }
 
+uint32 Item::GetBuyPrice() const
+{
+    return Item::GetBuyPrice(GetTemplate());
+}
+
+uint32 Item::GetBuyPrice(ItemTemplate const* proto)
+{
+    return proto->GetBuyPrice();
+}
+
+uint32 Item::GetSellPrice() const
+{
+    return Item::GetSellPrice(GetTemplate());
+}
+
+uint32 Item::GetSellPrice(ItemTemplate const* proto)
+{
+    return proto->GetSellPrice();
+}
+
 void Item::SaveRefundDataToDB()
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();

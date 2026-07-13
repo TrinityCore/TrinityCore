@@ -419,9 +419,9 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            if (pProto->GetSellPrice() > 0)
+            if (uint32 sellPrice = pItem->GetSellPrice(); sellPrice > 0)
             {
-                uint32 money = pProto->GetSellPrice() * packet.Amount;
+                uint32 money = sellPrice * packet.Amount;
                 uint32 durabilityPenalty = pItem->CalculateDurabilitySellPenalty();
 
                 if (durabilityPenalty)

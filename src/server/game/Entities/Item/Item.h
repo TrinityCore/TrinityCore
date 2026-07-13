@@ -212,6 +212,11 @@ class TC_GAME_API Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
+        uint32 GetBuyPrice() const;
+        static uint32 GetBuyPrice(ItemTemplate const* proto);
+        uint32 GetSellPrice() const;
+        static uint32 GetSellPrice(ItemTemplate const* proto);
+
         std::string GetDebugInfo() const override;
     private:
         std::string m_text;
