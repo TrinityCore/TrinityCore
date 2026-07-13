@@ -749,7 +749,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
-uint32 Item::CalculateDurabilityRepairCost(float discount) const
+uint32 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*= true*/) const
 {
     uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     if (!maxDurability)
@@ -788,12 +788,17 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
     }
 
     uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->Data)));
-    cost = uint32(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint32(cost * discount * (useRateConfig ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
 
     return cost;
+}
+
+uint32 Item::CalculateDurabilitySellPenalty() const
+{
+    return CalculateDurabilityRepairCost(1.0f, false);
 }
 
 bool Item::HasEnchantRequiredSkill(Player const* player) const
