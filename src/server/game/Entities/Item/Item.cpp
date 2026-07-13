@@ -1419,11 +1419,6 @@ uint64 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*
     return cost;
 }
 
-uint64 Item::CalculateDurabilitySellPenalty() const
-{
-    return CalculateDurabilityRepairCost(1.0f, false);
-}
-
 bool Item::HasEnchantRequiredSkill(Player const* player) const
 {
     // Check all enchants for required skill
@@ -2236,9 +2231,27 @@ uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemL
     return uint32(proto->GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto->GetPriceRandomValue());
 }
 
-uint32 Item::GetSellPrice(Player const* owner) const
+uint32 Item::GetSellPrice(Player const* owner, bool forVendor /*= false*/) const
 {
-    return Item::GetSellPrice(GetTemplate(), GetQuality(), GetItemLevel(owner));
+    ItemTemplate const* itemTemplate = GetTemplate();
+    int64 price = Item::GetSellPrice(itemTemplate, GetQuality(), GetItemLevel(owner));
+     if (forVendor)
+     {
+         std::span<ItemEffectEntry const* const> effects = GetEffects();
+         auto effectWithCharges = std::ranges::find_if(effects,
+             [](ItemEffectEntry const* itemEffect) { return itemEffect->SpellID && itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges < 0; });
+
+         if (effectWithCharges != effects.end())
+             price = price * GetSpellCharges(*effectWithCharges) / (*effectWithCharges)->Charges;
+
+         int64 repairCost = CalculateDurabilityRepairCost(1.0f, false);
+         if (repairCost < price)
+             price -= repairCost;
+         else
+             price = 1;
+     }
+
+    return price;
 }
 
 uint32 Item::GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel)
