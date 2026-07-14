@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "nodeId": "auto",
+  "shardCount": 1,
+  "queue": {
+    "capacity": 8192,
+    "flushIntervalMs": 1000,
+    "spoolPath": "rewire-spool/state.ndjson"
+  },
+  "firebase": {
+    "projectId": "",
+    "databaseId": "(default)",
+    "collection": "rewire_state",
+    "auth": {
+      "mode": "application_default",
+      "serviceAccountPath": ""
+    }
+  },
+  "conversion": {
+    "sourceSchema": "trinitycore.rewire.state.v1",
+    "targetSchema": "firestore.document.v1"
+  }
+}
