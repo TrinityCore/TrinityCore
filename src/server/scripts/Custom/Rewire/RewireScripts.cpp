@@ -96,7 +96,7 @@ public:
         _enabled = false;
     }
 
-    void RecordPlayerEvent(std::string_view eventName, Player const& player)
+    void RecordPlayerEvent(std::string_view eventName, Player const& player, bool flushAfter = false)
     {
         if (!_enabled || !_queue)
             return;
@@ -133,7 +133,13 @@ public:
 
         std::string error;
         if (!_queue->Enqueue(std::string(buffer.GetString(), buffer.GetSize()), error))
+        {
             TC_LOG_ERROR("server.rewire", "Failed to queue '{}' event for player {}: {}", eventName, player.GetGUID().ToString(), error);
+            return;
+        }
+
+        if (flushAfter)
+            Flush();
     }
 
 private:
@@ -191,7 +197,7 @@ public:
 
     void OnLogout(Player* player) override
     {
-        Runtime::Instance().RecordPlayerEvent("logout", *player);
+        Runtime::Instance().RecordPlayerEvent("logout", *player, true);
     }
 };
 }

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <utility>
 
 namespace Trinity::Rewire
 {
