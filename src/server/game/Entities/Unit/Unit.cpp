@@ -2182,6 +2182,9 @@ void Unit::DoMeleeAttackIfReady()
 
     auto getAutoAttackError = [&]() -> Optional<AttackSwingErr>
     {
+        if (!IsValidAttackTarget(victim))
+            return AttackSwingErr::CantAttack;
+
         if (!IsWithinMeleeRange(victim))
             return AttackSwingErr::NotInRange;
 
