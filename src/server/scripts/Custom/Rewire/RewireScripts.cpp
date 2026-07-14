@@ -8,6 +8,7 @@
  */
 
 #include "RewireConfig.h"
+#include "RewireFirestoreConverter.h"
 #include "RewireQueue.h"
 
 #include "Log.h"
@@ -101,8 +102,8 @@ public:
         if (!_enabled || !_queue)
             return;
 
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        rapidjson::StringBuffer sourceBuffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(sourceBuffer);
 
         writer.StartObject();
         writer.Key("schema");
@@ -116,8 +117,8 @@ public:
         writer.Key("event");
         writer.String(eventName.data(), static_cast<rapidjson::SizeType>(eventName.size()));
         writer.Key("timestampMs");
-        writer.Int64(std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count());
+        writer.Uint64(static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count()));
         writer.Key("player");
         writer.StartObject();
         writer.Key("guid");
@@ -131,8 +132,17 @@ public:
         writer.EndObject();
         writer.EndObject();
 
+        std::string sourceEvent(sourceBuffer.GetString(), sourceBuffer.GetSize());
+        std::string firestoreWrite;
         std::string error;
-        if (!_queue->Enqueue(std::string(buffer.GetString(), buffer.GetSize()), error))
+        if (!FirestoreConverter::Convert(sourceEvent, _config, firestoreWrite, error))
+        {
+            TC_LOG_ERROR("server.rewire", "Failed to convert '{}' event for player {}: {}",
+                eventName, player.GetGUID().ToString(), error);
+            return;
+        }
+
+        if (!_queue->Enqueue(std::move(firestoreWrite), error))
         {
             TC_LOG_ERROR("server.rewire", "Failed to queue '{}' event for player {}: {}", eventName, player.GetGUID().ToString(), error);
             return;
