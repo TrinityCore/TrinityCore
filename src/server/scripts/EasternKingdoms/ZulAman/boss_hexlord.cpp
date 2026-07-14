@@ -207,17 +207,13 @@ enum MalacrassMisc
     DATA_PLAYER_CLASS             = 0
 };
 
-enum MalacrassSpawnGroups
-{
-    SPAWN_GROUP_1_1               = 368,
-    SPAWN_GROUP_1_2               = 369,
-    SPAWN_GROUP_2_1               = 370,
-    SPAWN_GROUP_2_2               = 371,
-    SPAWN_GROUP_3_1               = 372,
-    SPAWN_GROUP_3_2               = 373,
-    SPAWN_GROUP_4_1               = 374,
-    SPAWN_GROUP_4_2               = 375
-};
+static constexpr std::array<std::array<uint32, 2>, 4> MalacrassSpawnGroups =
+{{
+    {{ 368, 369 }},
+    {{ 370, 371 }},
+    {{ 372, 373 }},
+    {{ 374, 375 }},
+}};
 
 // 24239 - Hex Lord Malacrass
 struct boss_hexlord_malacrass : public BossAI
@@ -323,22 +319,15 @@ struct boss_hexlord_malacrass : public BossAI
 
     void DoSpawnCompanions()
     {
-        me->GetMap()->SpawnGroupSpawn(RAND(SPAWN_GROUP_1_1, SPAWN_GROUP_1_2), true);
-        me->GetMap()->SpawnGroupSpawn(RAND(SPAWN_GROUP_2_1, SPAWN_GROUP_2_2), true);
-        me->GetMap()->SpawnGroupSpawn(RAND(SPAWN_GROUP_3_1, SPAWN_GROUP_3_2), true);
-        me->GetMap()->SpawnGroupSpawn(RAND(SPAWN_GROUP_4_1, SPAWN_GROUP_4_2), true);
+        for (std::array<uint32, 2> const& spawnGroupsForSlot : MalacrassSpawnGroups)
+            me->GetMap()->SpawnGroupSpawn(Trinity::Containers::SelectRandomContainerElement(spawnGroupsForSlot), true);
     }
 
     void DoDespawnCompanions()
     {
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_1_1);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_1_2);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_2_1);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_2_2);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_3_1);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_3_2);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_4_1);
-        me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_4_2);
+        for (std::array<uint32, 2> const& spawnGroupsForSlot : MalacrassSpawnGroups)
+            for (uint32 spawnGroupId : spawnGroupsForSlot)
+                me->GetMap()->SpawnGroupDespawn(spawnGroupId);
     }
 
     void OnSpellCast(SpellInfo const* spellInfo) override
