@@ -121,6 +121,12 @@ bool Validate(RewireConfig const& config, std::string& error)
         return false;
     }
 
+    if (config.Firebase.DatabaseId.empty())
+    {
+        error = "firebase.databaseId must not be empty";
+        return false;
+    }
+
     if (config.Firebase.Collection.empty())
     {
         error = "firebase.collection must not be empty";
@@ -130,6 +136,46 @@ bool Validate(RewireConfig const& config, std::string& error)
     if (config.Firebase.AuthMode == FirebaseAuthMode::ServiceAccountFile && config.Firebase.ServiceAccountPath.empty())
     {
         error = "firebase.auth.serviceAccountPath is required for service_account_file authentication";
+        return false;
+    }
+
+    if (!config.Transport.Enabled)
+        return true;
+
+    if (config.Firebase.AuthMode != FirebaseAuthMode::ApplicationDefault)
+    {
+        error = "transport currently supports application_default authentication only";
+        return false;
+    }
+
+    if (config.Transport.BatchSize == 0 || config.Transport.RequestTimeoutMs == 0 ||
+        config.Transport.InitialRetryMs == 0 || config.Transport.MaxRetryMs == 0)
+    {
+        error = "transport batchSize, requestTimeoutMs, initialRetryMs, and maxRetryMs must be greater than zero";
+        return false;
+    }
+
+    if (config.Transport.InitialRetryMs > config.Transport.MaxRetryMs)
+    {
+        error = "transport.initialRetryMs must not exceed transport.maxRetryMs";
+        return false;
+    }
+
+    if (config.Transport.FirestoreHost.empty() || config.Transport.FirestorePort.empty())
+    {
+        error = "transport.firestoreHost and transport.firestorePort must not be empty";
+        return false;
+    }
+
+    if (config.Transport.AccessTokenEnvironment.empty())
+    {
+        error = "transport.accessTokenEnvironment must not be empty";
+        return false;
+    }
+
+    if (config.Transport.MetadataHost.empty() || config.Transport.MetadataPort.empty())
+    {
+        error = "transport.metadataHost and transport.metadataPort must not be empty";
         return false;
     }
 
@@ -221,6 +267,23 @@ bool RewireConfigLoader::Load(std::filesystem::path const& path, RewireConfig& c
     {
         if (!ReadString(*conversion, "sourceSchema", parsed.Conversion.SourceSchema, error) ||
             !ReadString(*conversion, "targetSchema", parsed.Conversion.TargetSchema, error))
+            return false;
+    }
+    else if (!error.empty())
+        return false;
+
+    if (rapidjson::Value const* transport = ReadObject(document, "transport", error))
+    {
+        if (!ReadBool(*transport, "enabled", parsed.Transport.Enabled, error) ||
+            !ReadUnsigned(*transport, "batchSize", parsed.Transport.BatchSize, error) ||
+            !ReadUnsigned(*transport, "requestTimeoutMs", parsed.Transport.RequestTimeoutMs, error) ||
+            !ReadUnsigned(*transport, "initialRetryMs", parsed.Transport.InitialRetryMs, error) ||
+            !ReadUnsigned(*transport, "maxRetryMs", parsed.Transport.MaxRetryMs, error) ||
+            !ReadString(*transport, "firestoreHost", parsed.Transport.FirestoreHost, error) ||
+            !ReadString(*transport, "firestorePort", parsed.Transport.FirestorePort, error) ||
+            !ReadString(*transport, "accessTokenEnvironment", parsed.Transport.AccessTokenEnvironment, error) ||
+            !ReadString(*transport, "metadataHost", parsed.Transport.MetadataHost, error) ||
+            !ReadString(*transport, "metadataPort", parsed.Transport.MetadataPort, error))
             return false;
     }
     else if (!error.empty())
