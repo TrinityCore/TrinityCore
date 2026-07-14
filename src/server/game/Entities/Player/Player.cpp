@@ -1029,6 +1029,15 @@ void Player::Update(uint32 p_time)
                         m_swingErrorMsg = 2;
                     }
                 }
+                else if (!IsValidAttackTarget(victim))
+                {
+                    setAttackTimer(BASE_ATTACK, 100);
+                    if (m_swingErrorMsg != 3)               // send single time (client auto repeat)
+                    {
+                        SendAttackSwingCantAttack();
+                        m_swingErrorMsg = 3;
+                    }
+                }
                 else
                 {
                     m_swingErrorMsg = 0;                    // reset swing error state
@@ -1049,6 +1058,8 @@ void Player::Update(uint32 p_time)
                 if (!IsWithinMeleeRange(victim))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2 * float(M_PI) / 3, victim))
+                    setAttackTimer(OFF_ATTACK, 100);
+                else if (!IsValidAttackTarget(victim))
                     setAttackTimer(OFF_ATTACK, 100);
                 else
                 {
