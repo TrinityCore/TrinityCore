@@ -1034,7 +1034,7 @@ void Player::Update(uint32 p_time)
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 3)               // send single time (client auto repeat)
                     {
-                        SendAttackSwingCancelAttack();
+                        SendAttackSwingCantAttack();
                         m_swingErrorMsg = 3;
                     }
                 }
