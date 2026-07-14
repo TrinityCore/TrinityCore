@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <mutex>
 #include <string>
+#include <vector>
 
 namespace Trinity::Rewire
 {
@@ -27,16 +28,22 @@ public:
     bool Enqueue(std::string payload, std::string& error);
     bool Flush(std::string& error);
 
+    std::vector<std::string> PeekBatch(std::size_t maxItems) const;
+    bool Acknowledge(std::size_t count, std::string& error);
+
     std::size_t Pending() const;
+    std::size_t Buffered() const;
     std::filesystem::path const& GetSpoolPath() const { return _spoolPath; }
 
 private:
     bool FlushLocked(std::string& error);
+    bool RewriteSpoolLocked(std::string& error);
 
     std::filesystem::path _spoolPath;
     std::size_t _capacity;
     mutable std::mutex _mutex;
-    std::deque<std::string> _pending;
+    std::deque<std::string> _durable;
+    std::deque<std::string> _buffered;
 };
 }
 
