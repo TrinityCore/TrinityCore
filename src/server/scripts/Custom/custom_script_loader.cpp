@@ -7,18 +7,13 @@
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  */
 
-// This is where scripts' loading functions should be declared:
+void AddRewireScripts();
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+    AddRewireScripts();
 }
