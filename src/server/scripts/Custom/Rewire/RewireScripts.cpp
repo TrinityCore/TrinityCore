@@ -49,12 +49,10 @@ public:
         if (!RewireConfigLoader::Load(configPath, _config, error))
         {
             TC_LOG_ERROR("server.rewire", "REWIRE disabled: {}", error);
-            _started = true;
             _enabled = false;
             return;
         }
 
-        _started = true;
         _enabled = _config.Enabled;
         if (!_enabled)
         {
@@ -152,7 +150,6 @@ private:
     RewireConfig _config;
     std::unique_ptr<PersistentQueue> _queue;
     std::uint32_t _flushCountdownMs = 0;
-    bool _started = false;
     bool _enabled = false;
 };
 
