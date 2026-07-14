@@ -67,7 +67,7 @@ jobs:
     - name: Check binaries
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}/bin
-        ./bnetserver --version
+        ./authserver --version
         ./worldserver --version
 
     - name: Upload Artifacts
