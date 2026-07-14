@@ -118,7 +118,7 @@ void ConfirmRespecWipe::Read()
     _worldPacket >> RespecMaster;
 }
 
-WorldPacket const* InvoluntarilyReset::Write()
+WorldPacket const* TalentsInvoluntarilyReset::Write()
 {
     _worldPacket << uint8(IsPetTalents);
 

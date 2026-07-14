@@ -330,7 +330,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModAttackPowerOfStatPercent,           //268 SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT
     &AuraEffect::HandleNoImmediateEffect,                         //269 SPELL_AURA_MOD_IGNORE_TARGET_RESIST implemented in Unit::CalcAbsorbResist and CalcArmorReducedDamage
     &AuraEffect::HandleNoImmediateEffect,                         //270 SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST implemented in Unit::CalcAbsorbResist and CalcArmorReducedDamage
-    &AuraEffect::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonus
+    &AuraEffect::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonusTaken and Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNoImmediateEffect,                         //272 SPELL_AURA_IGNORE_MELEE_RESET
     &AuraEffect::HandleUnused,                                    //273 clientside
     &AuraEffect::HandleNoImmediateEffect,                         //274 SPELL_AURA_CONSUME_NO_AMMO implemented in spell::CalculateDamageDoneForAllTargets
@@ -967,7 +967,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             if (!spellInfo || !spellInfo->CalcCastTime())
                 return false;
             break;
-        case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:
+        case SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER:
             // Compare casters
             if (GetCasterGUID() != eventInfo.GetActor()->GetGUID())
                 return false;
@@ -1388,37 +1388,14 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     }
     else
     {
-        if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
-        {
-            // if not have different invisibility auras.
-            // always remove glow vision
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_INVISIBILITY, type))
             target->m_invisibility.DelFlag(type);
-        }
-        else
-        {
-            bool found = false;
-            Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-            for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
-            {
-                if (GetMiscValue() == (*i)->GetMiscValue())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                target->m_invisibility.DelFlag(type);
 
-                // if not have invisibility auras of type INVISIBILITY_GENERAL or INVISIBILITY_UNK10
-                // remove glow vision
-                if (target->GetTypeId() == TYPEID_PLAYER && !target->m_invisibility.HasFlag(INVISIBILITY_GENERAL) && !target->m_invisibility.HasFlag(INVISIBILITY_UNK10))
-                    target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-            }
-        }
+        // if not have invisibility auras of type INVISIBILITY_GENERAL or INVISIBILITY_UNK10
+        // remove glow vision
+        if (!target->m_invisibility.HasFlag(INVISIBILITY_GENERAL) && !target->m_invisibility.HasFlag(INVISIBILITY_UNK10))
+            if (Player* playerTarget = target->ToPlayer())
+                playerTarget->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
         target->m_invisibility.AddValue(type, -GetAmount());
     }
@@ -1481,10 +1458,11 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->m_stealth.AddValue(type, -GetAmount());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
-        {
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_STEALTH, type))
             target->m_stealth.DelFlag(type);
 
+        if (!target->m_stealth.GetFlags())
+        {
             target->RemoveVisFlag(UNIT_VIS_FLAGS_CREEP);
             if (target->GetTypeId() == TYPEID_PLAYER)
                 target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_STEALTH);
@@ -3653,7 +3631,6 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
         target->ToPlayer()->UpdateRuneRegen(RuneType(GetMiscValueB()));
     else
         target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(GetMiscValue()));
-
 }
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4096,7 +4073,7 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4109,7 +4086,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4119,14 +4096,7 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
 
     Unit* target = aurApp->GetTarget();
 
-    //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4139,14 +4109,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -4935,7 +4898,7 @@ void AuraEffect::HandleAuraModFakeInebriation(AuraApplication const* aurApp, uin
     if (!target)
         return;
 
-    target->ApplyModInt32Value(PLAYER_FAKE_INEBRIATION, GetAmount(), apply);
+    target->ApplyModFakeDrunkValue(GetAmount(), apply);
     target->UpdateInvisibilityDrunkDetect();
 }
 
