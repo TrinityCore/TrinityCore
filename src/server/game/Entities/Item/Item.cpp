@@ -23,6 +23,7 @@
 #include "DBCStores.h"
 #include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "Map.h"
@@ -42,13 +43,13 @@
 void AddItemsSetItem(Player* player, Item* item)
 {
     ItemTemplate const* proto = item->GetTemplate();
-    uint32 setid = proto->ItemSet;
+    uint32 setid = proto->GetItemSet();
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set {} for item (id {}) not found, mods not applied.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set {} for item (id {}) not found, mods not applied.", setid, proto->GetId());
         return;
     }
 
@@ -123,13 +124,13 @@ void AddItemsSetItem(Player* player, Item* item)
 
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 {
-    uint32 setid = proto->ItemSet;
+    uint32 setid = proto->GetItemSet();
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #{} for item #{} not found, mods not removed.", setid, proto->ItemId);
+        TC_LOG_ERROR("sql.sql", "Item set #{} for item #{} not found, mods not removed.", setid, proto->GetId());
         return;
     }
 
@@ -184,57 +185,57 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
     if (!pProto || !pBagProto)
         return false;
 
-    switch (pBagProto->Class)
+    switch (pBagProto->GetClass())
     {
         case ITEM_CLASS_CONTAINER:
-            switch (pBagProto->SubClass)
+            switch (pBagProto->GetSubClass())
             {
                 case ITEM_SUBCLASS_CONTAINER:
                     return true;
                 case ITEM_SUBCLASS_SOUL_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_SOUL_SHARDS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_SOUL_SHARDS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_HERB_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_HERBS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_HERBS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENCHANTING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ENCHANTING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_MINING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_MINING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENGINEERING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ENGINEERING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_GEM_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_GEMS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_GEMS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_LEATHERWORKING_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_LEATHERWORKING_SUPP))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
                         return false;
                     return true;
                 default:
                     return false;
             }
         case ITEM_CLASS_QUIVER:
-            switch (pBagProto->SubClass)
+            switch (pBagProto->GetSubClass())
             {
                 case ITEM_SUBCLASS_QUIVER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ARROWS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_ARROWS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_AMMO_POUCH:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_BULLETS))
+                    if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_BULLETS))
                         return false;
                     return true;
                 default:
@@ -288,9 +289,14 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         SetSpellCharges(i, itemProto->Effects[i].Charges);
 
-    SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
+    SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
     return true;
+}
+
+std::string const& Item::GetNameForLocaleIdx(LocaleConstant locale) const
+{
+    return GetTemplate()->GetName(locale);
 }
 
 // Returns true if Item is a bag AND it is not empty.
@@ -440,9 +446,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     uint32 duration = fields[3].GetUInt32();
     SetUInt32Value(ITEM_FIELD_DURATION, duration);
     // update duration if need, and remove if not need
-    if ((proto->Duration == 0) != (duration == 0))
+    if ((proto->GetDuration() == 0) != (duration == 0))
     {
-        SetUInt32Value(ITEM_FIELD_DURATION, proto->Duration);
+        SetUInt32Value(ITEM_FIELD_DURATION, proto->GetDuration());
         need_save = true;
     }
 
@@ -460,7 +466,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     SetUInt32Value(ITEM_FIELD_FLAGS, fields[5].GetUInt32());
     // Remove bind flag for items vs NO_BIND set
-    if (IsSoulBound() && proto->Bonding == NO_BIND)
+    if (IsSoulBound() && proto->GetBonding() == NO_BIND)
     {
         ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
         need_save = true;
@@ -553,10 +559,10 @@ uint32 Item::GetSpell()
 {
     ItemTemplate const* proto = GetTemplate();
 
-    switch (proto->Class)
+    switch (proto->GetClass())
     {
         case ITEM_CLASS_WEAPON:
-            switch (proto->SubClass)
+            switch (proto->GetSubClass())
             {
                 case ITEM_SUBCLASS_WEAPON_AXE:     return  196;
                 case ITEM_SUBCLASS_WEAPON_AXE2:    return  197;
@@ -576,7 +582,7 @@ uint32 Item::GetSpell()
                 default: return 0;
             }
         case ITEM_CLASS_ARMOR:
-            switch (proto->SubClass)
+            switch (proto->GetSubClass())
             {
                 case ITEM_SUBCLASS_ARMOR_CLOTH:    return 9078;
                 case ITEM_SUBCLASS_ARMOR_LEATHER:  return 9077;
@@ -743,7 +749,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
-uint32 Item::CalculateDurabilityRepairCost(float discount) const
+uint32 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*= true*/) const
 {
     uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     if (!maxDurability)
@@ -758,23 +764,23 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
 
     ItemTemplate const* itemTemplate = GetTemplate();
 
-    DurabilityCostsEntry const* durabilityCost = sDurabilityCostsStore.LookupEntry(itemTemplate->ItemLevel);
+    DurabilityCostsEntry const* durabilityCost = sDurabilityCostsStore.LookupEntry(itemTemplate->GetBaseItemLevel());
     if (!durabilityCost)
         return 0;
 
-    uint32 durabilityQualityEntryId = (itemTemplate->Quality + 1) * 2;
+    uint32 durabilityQualityEntryId = (itemTemplate->GetQuality() + 1) * 2;
     DurabilityQualityEntry const* durabilityQualityEntry = sDurabilityQualityStore.LookupEntry(durabilityQualityEntryId);
     if (!durabilityQualityEntry)
         return 0;
 
     uint32 dmultiplier;
-    switch (itemTemplate->Class)
+    switch (itemTemplate->GetClass())
     {
         case ITEM_CLASS_WEAPON:
-            dmultiplier = durabilityCost->WeaponSubClassCost[itemTemplate->SubClass];
+            dmultiplier = durabilityCost->WeaponSubClassCost[itemTemplate->GetSubClass()];
             break;
         case ITEM_CLASS_ARMOR:
-            dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->SubClass];
+            dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->GetSubClass()];
             break;
         default:
             dmultiplier = 0;
@@ -782,7 +788,7 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
     }
 
     uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->Data)));
-    cost = uint32(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint32(cost * discount * (useRateConfig ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
@@ -834,7 +840,7 @@ InventoryResult Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
         return EQUIP_ERR_LOOT_GONE;
 
     // check item type
-    if (GetEntry() != proto->ItemId)
+    if (GetEntry() != proto->GetId())
         return EQUIP_ERR_CANT_STACK;
 
     // check free space (full stacks can't be target of merge
@@ -856,12 +862,12 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
             || (spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum())))
             return true;
 
-        if (spellInfo->EquippedItemClass != int32(proto->Class))
+        if (spellInfo->EquippedItemClass != int32(proto->GetClass()))
             return false;                                   //  wrong item class
 
         if (spellInfo->EquippedItemSubClassMask != 0)        // 0 == any subclass
         {
-            if ((spellInfo->EquippedItemSubClassMask & (1 << proto->SubClass)) == 0)
+            if ((spellInfo->EquippedItemSubClassMask & (1 << proto->GetSubClass())) == 0)
                 return false;                               // subclass not present in mask
         }
     }
@@ -869,11 +875,11 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (isEnchantSpell && spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
-        if (proto->InventoryType == INVTYPE_WEAPON &&
+        if (proto->GetInventoryType() == INVTYPE_WEAPON &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
             return true;
-        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->InventoryType)) == 0)
+        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->GetInventoryType())) == 0)
             return false;                                   // inventory type not present in mask
     }
 
@@ -935,7 +941,7 @@ bool Item::GemsFitSockets() const
 {
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
-        uint8 SocketColor = GetTemplate()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
+        uint8 SocketColor = GetTemplate()->GetSocketColor(enchant_slot - SOCK_ENCHANTMENT_SLOT);
 
         if (!SocketColor) // no socket slot
             continue;
@@ -956,7 +962,7 @@ bool Item::GemsFitSockets() const
             ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
             if (gemProto)
             {
-                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GemProperties);
+                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
                 if (gemProperty)
                     GemColor = gemProperty->Type;
             }
@@ -1004,7 +1010,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             continue;
 
-        if (gemProto->ItemLimitCategory == limitCategory)
+        if (gemProto->GetItemLimitCategory() == limitCategory)
             ++count;
     }
     return count;
@@ -1013,7 +1019,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const
 {
     ItemTemplate const* proto = GetTemplate();
-    return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
+    return proto && ((proto->GetMap() && proto->GetMap() != cur_mapId) || (proto->GetArea() && proto->GetArea() != cur_zoneId));
 }
 
 void Item::SendUpdateSockets()
@@ -1035,10 +1041,10 @@ void Item::SendTimeUpdate(Player* owner)
     if (!duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data << GetGUID();
-    data << uint32(duration);
-    owner->SendDirectMessage(&data);
+    WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
+    itemTimeUpdate.ItemGuid = GetGUID();
+    itemTimeUpdate.DurationLeft = duration;
+    owner->SendDirectMessage(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
@@ -1127,6 +1133,43 @@ void Item::RemoveFromObjectUpdate()
 {
     if (Player* owner = GetOwner())
         owner->GetMap()->RemoveUpdateObject(this);
+}
+
+uint32 Item::GetBuyPrice() const
+{
+    return Item::GetBuyPrice(GetTemplate());
+}
+
+uint32 Item::GetBuyPrice(ItemTemplate const* proto)
+{
+    return proto->GetBuyPrice();
+}
+
+uint32 Item::GetSellPrice(bool forVendor /*= false*/) const
+{
+    ItemTemplate const* itemTemplate = GetTemplate();
+    int32 price = Item::GetSellPrice(itemTemplate);
+    if (forVendor)
+    {
+        auto effectWithCharges = std::ranges::find_if(itemTemplate->Effects,
+            [](ItemEffect const& itemEffect) { return itemEffect.SpellID && itemEffect.TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect.Charges < 0; });
+
+        if (effectWithCharges != itemTemplate->Effects.end())
+            price = price * GetSpellCharges(std::ranges::distance(itemTemplate->Effects.begin(), effectWithCharges)) / effectWithCharges->Charges;
+
+        int32 repairCost = CalculateDurabilityRepairCost(1.0f, false);
+        if (repairCost < price)
+            price -= repairCost;
+        else
+            price = 1;
+    }
+
+    return price;
+}
+
+uint32 Item::GetSellPrice(ItemTemplate const* proto)
+{
+    return proto->GetSellPrice();
 }
 
 void Item::SaveRefundDataToDB()

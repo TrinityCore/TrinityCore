@@ -27,6 +27,14 @@ struct SpellModifier;
 struct ProcTriggerSpell;
 struct SpellProcEntry;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct AuraInfo;
+    }
+}
+
 // forward decl
 class Aura;
 class AuraEffect;
@@ -71,7 +79,7 @@ class TC_GAME_API AuraApplication
         uint8 GetEffectMask() const { return _flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_flags & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_SELF_CAST) != 0; }
 
         uint8 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewEffects);
@@ -81,10 +89,27 @@ class TC_GAME_API AuraApplication
 
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const;
         void ClientUpdate(bool remove = false);
 
         std::string GetDebugInfo() const;
+};
+
+// Structure representing database aura primary key fields
+struct AuraKey
+{
+    ObjectGuid Caster;
+    ObjectGuid Item;
+    uint32 SpellId;
+    uint8 EffectMask;
+
+    friend std::strong_ordering operator<=>(AuraKey const& left, AuraKey const& right) = default;
+};
+
+struct AuraLoadEffectInfo
+{
+    std::array<int32, MAX_SPELL_EFFECTS> Amounts;
+    std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
 };
 
 // Caches some information about caster (because it may no longer exist)
@@ -190,7 +215,7 @@ class TC_GAME_API Aura
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
-        void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
 
         // helpers for aura effects
         bool CanPeriodicTickCrit(Unit const* caster) const;
@@ -362,4 +387,5 @@ class TC_GAME_API ChargeDropEvent : public BasicEvent
         Aura* _base;
         AuraRemoveMode _mode;
 };
+
 #endif

@@ -105,6 +105,35 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Query::QueryNPCText::Read()
+{
+    _worldPacket >> TextID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
+{
+    _worldPacket << uint32(TextID | (Allow ? 0x00000000 : 0x80000000));
+
+    if (Allow)
+    {
+        for (NPCText const& option : Options)
+        {
+            _worldPacket << float(option.Probability);
+            _worldPacket << option.Text;
+            _worldPacket << option.Text1;
+            _worldPacket << int32(option.LanguageID);
+            for (std::size_t i = 0; i < MAX_GOSSIP_TEXT_EMOTES; ++i)
+            {
+                _worldPacket << uint32(option.EmoteDelay[i]);
+                _worldPacket << uint32(option.EmoteID[i]);
+            }
+        }
+    }
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;
@@ -160,6 +189,14 @@ WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
+{
+    _worldPacket << uint32(CurrentTime);
+    _worldPacket << int32(TimeOutRequest);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryItemSingle::Read()
 {
     _worldPacket >> ItemID;
@@ -180,8 +217,7 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         _worldPacket << uint8(0x00);                              //Name4; // blizz not send name there, just uint8(0x00);
         _worldPacket << Stats.DisplayInfoID;
         _worldPacket << Stats.Quality;
-        _worldPacket << Stats.Flags;
-        _worldPacket << Stats.Flags2;
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
         _worldPacket << Stats.BuyPrice;
         _worldPacket << Stats.SellPrice;
         _worldPacket << Stats.InventoryType;

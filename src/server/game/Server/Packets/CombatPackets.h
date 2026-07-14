@@ -95,8 +95,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            PackedGuid Attacker;
-            PackedGuid Victim;
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
             bool NowDead = false;
         };
 

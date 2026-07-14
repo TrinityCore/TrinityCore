@@ -45,6 +45,7 @@ EndScriptData */
 #include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Transport.h"
 #include "Warden.h"
 #include "World.h"
@@ -223,16 +224,13 @@ public:
 
     static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, SpellCastResult result, Optional<uint32> failArg1, Optional<uint32> failArg2)
     {
-        WorldPacket data(SMSG_CAST_FAILED, 5);
-        data << uint8(0);
-        data << uint32(133); // Spell "Fireball"
-        data << uint8(result);
-        if (failArg1 || failArg2)
-            data << uint32(failArg1.value_or(0));
-        if (failArg2)
-            data << uint32(*failArg2);
-
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Spells::CastFailed castFailed;
+        castFailed.CastID = 0;
+        castFailed.SpellID = 133;
+        castFailed.Reason = result;
+        castFailed.FailedArg1 = failArg1;
+        castFailed.FailedArg2 = failArg2;
+        handler->GetSession()->SendPacket(castFailed.Write());
         return true;
     }
 

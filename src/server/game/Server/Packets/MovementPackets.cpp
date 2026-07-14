@@ -344,6 +344,21 @@ WorldPacket const* MoveUpdateSpeed::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* MoveSplineSetFlag::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveSetFlag::Write()
+{
+    _worldPacket << MoverGUID.WriteAsPacked();
+    _worldPacket << uint32(SequenceIndex);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* TransferPending::Write()
 {
     _worldPacket << int32(MapID);
@@ -380,5 +395,29 @@ WorldPacket const* NewWorld::Write()
     _worldPacket << Pos.PositionXYZOStream();
 
     return &_worldPacket;
+}
+
+WorldPacket const* MoveTeleport::Write()
+{
+    _worldPacket << Status->guid.WriteAsPacked();
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << *Status;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MoveUpdateTeleport::Write()
+{
+    _worldPacket << Status->guid.WriteAsPacked();
+    _worldPacket << *Status;
+
+    return &_worldPacket;
+}
+
+void MoveTeleportAck::Read()
+{
+    _worldPacket >> MoverGUID.ReadAsPacked();
+    _worldPacket >> AckIndex;
+    _worldPacket >> MoveTime;
 }
 }

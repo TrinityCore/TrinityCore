@@ -158,6 +158,27 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
+        class MoveSplineSetFlag final : public ServerPacket
+        {
+        public:
+            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 9) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+        };
+
+        class MoveSetFlag final : public ServerPacket
+        {
+        public:
+            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 9 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+        };
+
         struct ShipTransferPending
         {
             uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
@@ -204,6 +225,39 @@ namespace WorldPackets
             explicit WorldPortResponse(WorldPacket&& packet) : ClientPacket(MSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class MoveTeleport final : public ServerPacket
+        {
+        public:
+            explicit MoveTeleport() : ServerPacket(MSG_MOVE_TELEPORT_ACK, 100) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            uint32 SequenceIndex = 0;
+        };
+
+        class MoveUpdateTeleport final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateTeleport() : ServerPacket(MSG_MOVE_TELEPORT, 100) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
+
+        class MoveTeleportAck final : public ClientPacket
+        {
+        public:
+            explicit MoveTeleportAck(WorldPacket&& packet) : ClientPacket(MSG_MOVE_TELEPORT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid MoverGUID;
+            int32 AckIndex = 0;
+            int32 MoveTime = 0;
         };
     }
 }

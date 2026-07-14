@@ -222,9 +222,8 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
     _worldPacket << SourceGUID;
     _worldPacket << int32(EmoteID);
     _worldPacket << int32(SoundIndex);
-    _worldPacket << uint32(TargetName.size());
-    if (!TargetName.empty())
-        _worldPacket.append(TargetName.data(), TargetName.size());
+    _worldPacket << uint32(TargetName.size() + 1 /*size in bytes, not string length*/);
+    _worldPacket << TargetName;
 
     return &_worldPacket;
 }

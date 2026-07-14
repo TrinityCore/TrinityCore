@@ -57,6 +57,11 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::SetSelection::Read()
+{
+    _worldPacket >> Selection;
+}
+
 WorldPacket const* WorldPackets::Misc::TimeSyncRequest::Write()
 {
     _worldPacket << SequenceIndex;
@@ -94,6 +99,39 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
 WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 {
     _worldPacket.append(TutorialData.data(), MAX_ACCOUNT_TUTORIAL_VALUES);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::TutorialSetFlag::Read()
+{
+    _worldPacket >> TutorialBit;
+}
+
+void WorldPackets::Misc::SetDungeonDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+void WorldPackets::Misc::SetRaidDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << int32(ChangeCurrentDifficulyID);
+    _worldPacket << int32(ChangeGroupDifficulyID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << int32(ChangeCurrentDifficulyID);
+    _worldPacket << int32(ChangeGroupDifficulyID);
 
     return &_worldPacket;
 }
