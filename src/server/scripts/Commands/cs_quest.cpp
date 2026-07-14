@@ -79,7 +79,7 @@ public:
         ItemTemplateContainer const& itc = sObjectMgr->GetItemTemplateStore();
         auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
         {
-            return value.second.StartQuest == quest->GetQuestId();
+            return value.second.GetStartQuest() == quest->GetQuestId();
         });
 
         if (itr != std::end(itc))

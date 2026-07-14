@@ -37,6 +37,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -312,17 +313,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // prevent character creating Expansion race without Expansion account
-    if (raceEntry->RequiredExpansion > Expansion())
+    if (raceEntry->RequiredExpansion > GetExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} race ({})", Expansion(), GetAccountId(), raceEntry->RequiredExpansion, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} race ({})", GetExpansion(), GetAccountId(), raceEntry->RequiredExpansion, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
 
     // prevent character creating Expansion class without Expansion account
-    if (classEntry->RequiredExpansion > Expansion())
+    if (classEntry->RequiredExpansion > GetExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} class ({})", Expansion(), GetAccountId(), classEntry->RequiredExpansion, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion {} account:[{}] tried to Create character with expansion {} class ({})", GetExpansion(), GetAccountId(), classEntry->RequiredExpansion, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -735,7 +736,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     pCurrChar->GetMotionMaster()->Initialize();
-    pCurrChar->SendDungeonDifficulty(false);
+    pCurrChar->SendDungeonDifficulty(true, false);
+    pCurrChar->SendRaidDifficulty(true, false);
 
     WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
     loginVerifyWorld.MapID = pCurrChar->GetMapId();
@@ -1025,29 +1027,26 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
     GetPlayer()->GetReputationMgr().SendState(nullptr);
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
+void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet)
 {
-    uint32 data;
-    recvData >> data;
-
-    uint8 index = uint8(data / 32);
+    uint8 index = uint8(packet.TutorialBit / 32);
     if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
         return;
 
-    uint32 value = (data % 32);
+    uint32 value = (packet.TutorialBit % 32);
 
     uint32 flag = GetTutorialInt(index);
     flag |= (1 << value);
     SetTutorialInt(index, flag);
 }
 
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialClear(WorldPackets::Misc::TutorialClear& /*tutorialClear*/)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0xFFFFFFFF);
 }
 
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorialReset(WorldPackets::Misc::TutorialReset& /*tutorialReset*/)
 {
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0x00000000);

@@ -21,7 +21,6 @@
 #include "Object.h"
 #include "CombatManager.h"
 #include "SpellAuraDefines.h"
-#include "PetDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -94,6 +93,8 @@ class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
 
+enum PetAction : int32;
+enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ZLiquidStatus : uint32;
 
@@ -175,8 +176,6 @@ enum UnitMods
     UNIT_MOD_RESISTANCE_FROST,
     UNIT_MOD_RESISTANCE_SHADOW,
     UNIT_MOD_RESISTANCE_ARCANE,
-    UNIT_MOD_ATTACK_POWER,
-    UNIT_MOD_ATTACK_POWER_RANGED,
     UNIT_MOD_DAMAGE_MAINHAND,
     UNIT_MOD_DAMAGE_OFFHAND,
     UNIT_MOD_DAMAGE_RANGED,
@@ -204,6 +203,21 @@ enum BaseModType
     FLAT_MOD,
     PCT_MOD,
     MOD_END
+};
+
+enum class AttackPowerModIndex : uint8
+{
+    Melee,
+    Ranged,
+    End
+};
+
+enum class AttackPowerModType : uint8
+{
+    FlatPositive,
+    FlatNegative,
+    Pct,
+    End
 };
 
 enum DeathState
@@ -869,7 +883,7 @@ class TC_GAME_API Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         Unit* SelectNearbyTarget(Unit* exclude = nullptr, float dist = NOMINAL_MELEE_RANGE) const;
-        void SendMeleeAttackStop(Unit* victim = nullptr);
+        void SendMeleeAttackStop(Unit const* victim = nullptr) const;
         void SendMeleeAttackStart(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
@@ -1192,7 +1206,6 @@ class TC_GAME_API Unit : public WorldObject
         void SendAttackStateUpdate(CalcDamageInfo* damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log);
-        void SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID, uint32 damage, SpellSchoolMask damageSchoolMask, uint32 absorbedDamage, uint32 resist, bool isPeriodic, uint32 blocked, bool criticalHit = false, bool split = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
         void SendSpellDamageImmune(Unit* target, uint32 spellId);
@@ -1265,7 +1278,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetCharmerOrOwner() const { return IsCharmed() ? GetCharmer() : GetOwner(); }
 
         void SetMinion(Minion *minion, bool apply);
-        void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
+        void GetAllMinionsByEntry(std::list<TempSummon*>& Minions, uint32 entry);
         void RemoveAllMinionsByEntry(uint32 entry);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
@@ -1361,7 +1374,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = nullptr, bool negative = true, bool positive = true);
         void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
-        void RemoveAurasWithAttribute(uint32 flags);
+        void RemoveAurasWithAttribute(SpellAttr0 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, flag96 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
@@ -1513,6 +1526,9 @@ class TC_GAME_API Unit : public WorldObject
         float GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierType) const;
 
         void UpdateUnitMod(UnitMods unitMod);
+
+        void HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply);
+        float GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const;
 
         // only players have item requirements
         virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType /*attackType*/, AuraEffect const* /*aurEff*/) const { return true; }
@@ -1795,7 +1811,7 @@ class TC_GAME_API Unit : public WorldObject
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
         ObjectGuid GetTarget() const { return GetGuidValue(UNIT_FIELD_TARGET); }
-        virtual void SetTarget(ObjectGuid /*guid*/) = 0;
+        virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
 
         void SetInstantCast(bool set) { _instantCast = set; }
         bool CanInstantCast() const { return _instantCast; }
@@ -1877,6 +1893,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_auraFlatModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_FLAT_END];
         float m_auraPctModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_PCT_END];
+        float m_attackPowerMods[uint32(AttackPowerModIndex::End)][uint32(AttackPowerModType::End)];
         float m_weaponDamage[MAX_ATTACK][2][2];
         bool m_canModifyStats;
 

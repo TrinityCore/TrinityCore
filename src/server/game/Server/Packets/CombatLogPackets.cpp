@@ -17,6 +17,48 @@
 
 #include "CombatLogPackets.h"
 
+WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
+{
+    _worldPacket << Me.WriteAsPacked();
+    _worldPacket << CasterGUID.WriteAsPacked();
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Damage);
+    _worldPacket << int32(Overkill);
+    _worldPacket << uint8(SchoolMask);
+    _worldPacket << uint32(Absorbed);
+    _worldPacket << uint32(Resisted);
+    _worldPacket << uint8(Periodic);
+    _worldPacket << uint8(0); // unused
+    _worldPacket << uint32(ShieldBlock);
+    _worldPacket << uint32(Flags);
+    _worldPacket << uint8(0); // Debug info
+
+    //if (DebugInfo)
+    //{
+    //    if (Flags & SPELL_HIT_TYPE_CRIT_DEBUG)
+    //    {
+    //        _worldPacket << float(DebugInfo->CritRoll);
+    //        _worldPacket << float(DebugInfo->CritNeeded);
+    //    }
+    //    if (Flags & SPELL_HIT_TYPE_HIT_DEBUG)
+    //    {
+    //        _worldPacket << float(DebugInfo->HitRoll);
+    //        _worldPacket << float(DebugInfo->HitNeeded);
+    //    }
+    //    if (Flags & SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG)
+    //    {
+    //        _worldPacket << float(DebugInfo->MissChance);
+    //        _worldPacket << float(DebugInfo->DodgeChance);
+    //        _worldPacket << float(DebugInfo->ParryChance);
+    //        _worldPacket << float(DebugInfo->BlockChance);
+    //        _worldPacket << float(DebugInfo->GlanceChance);
+    //        _worldPacket << float(DebugInfo->CrushChance);
+    //    }
+    //}
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 {
     _worldPacket << Victim;

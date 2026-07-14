@@ -91,6 +91,16 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
+        class SetSelection final : public ClientPacket
+        {
+        public:
+            explicit SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Selection; ///< Target
+        };
+
         class TimeSyncRequest final : public ServerPacket
         {
         public:
@@ -160,6 +170,76 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> TutorialData = { };
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            explicit TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TutorialBit = 0;
+        };
+
+        class TutorialClear final : public ClientPacket
+        {
+        public:
+            explicit TutorialClear(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_CLEAR, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TutorialReset final : public ClientPacket
+        {
+        public:
+            explicit TutorialReset(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_RESET, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SetDungeonDifficulty final : public ClientPacket
+        {
+        public:
+            explicit SetDungeonDifficulty(WorldPacket&& packet) : ClientPacket(MSG_SET_DUNGEON_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID = 0;
+        };
+
+        class SetRaidDifficulty final : public ClientPacket
+        {
+        public:
+            explicit SetRaidDifficulty(WorldPacket&& packet) : ClientPacket(MSG_SET_RAID_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID = 0;
+        };
+
+        class DungeonDifficultySet final : public ServerPacket
+        {
+        public:
+            explicit DungeonDifficultySet() : ServerPacket(MSG_SET_DUNGEON_DIFFICULTY, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID = 0;
+            int32 ChangeCurrentDifficulyID = 0;
+            int32 ChangeGroupDifficulyID = 0;
+        };
+
+        class RaidDifficultySet final : public ServerPacket
+        {
+        public:
+            explicit RaidDifficultySet() : ServerPacket(MSG_SET_RAID_DIFFICULTY, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID = 0;
+            int32 ChangeCurrentDifficulyID = 0;
+            int32 ChangeGroupDifficulyID = 0;
         };
 
         class CorpseReclaimDelay : public ServerPacket

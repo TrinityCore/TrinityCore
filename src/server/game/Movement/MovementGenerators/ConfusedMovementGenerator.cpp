@@ -52,7 +52,9 @@ bool ConfusedMovementGenerator<T>::DoInitialize(T* owner)
 
     _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
+
     _path = nullptr;
+    SetTargetLocation(owner);
     return true;
 }
 
@@ -85,42 +87,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     if ((MovementGenerator::HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
     {
         MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
-
-        Position destination(_x, _y, _z);
-        float distance = 4.0f * frand(0.0f, 1.0f) - 2.0f;
-        float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
-        owner->MovePositionToFirstCollision(destination, distance, angle);
-
-        // Check if the destination is in LOS
-        if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
-        {
-            // Retry later on
-            _timer.Reset(200);
-            return true;
-        }
-
-        if (!_path)
-        {
-            _path = std::make_unique<PathGenerator>(owner);
-            _path->SetPathLengthLimit(30.0f);
-        }
-
-        bool result = _path->CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
-        if (!result || (_path->GetPathType() & PATHFIND_NOPATH)
-                    || (_path->GetPathType() & PATHFIND_SHORTCUT)
-                    || (_path->GetPathType() & PATHFIND_FARFROMPOLY))
-        {
-            _timer.Reset(100);
-            return true;
-        }
-
-        owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
-
-        Movement::MoveSplineInit init(owner);
-        init.MovebyPath(_path->GetPath());
-        init.SetWalk(true);
-        int32 traveltime = init.Launch();
-        _timer.Reset(traveltime + urand(800, 1500));
+        SetTargetLocation(owner);
     }
 
     return true;
@@ -160,6 +127,49 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
         if (owner->GetVictim())
             owner->SetTarget(owner->EnsureVictim()->GetGUID());
     }
+}
+
+template<class T>
+void ConfusedMovementGenerator<T>::SetTargetLocation(T* owner)
+{
+    if (!owner)
+        return;
+
+    Position destination(_x, _y, _z);
+    float distance = 4.0f * frand(0.0f, 1.0f) - 2.0f;
+    float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
+    owner->MovePositionToFirstCollision(destination, distance, angle);
+
+    // Check if the destination is in LOS
+    if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
+    {
+        // Retry later on
+        _timer.Reset(200);
+        return;
+    }
+
+    if (!_path)
+    {
+        _path = std::make_unique<PathGenerator>(owner);
+        _path->SetPathLengthLimit(30.0f);
+    }
+
+    bool result = _path->CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
+    if (!result || (_path->GetPathType() & PATHFIND_NOPATH)
+        || (_path->GetPathType() & PATHFIND_SHORTCUT)
+        || (_path->GetPathType() & PATHFIND_FARFROMPOLY))
+    {
+        _timer.Reset(100);
+        return;
+    }
+
+    owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+
+    Movement::MoveSplineInit init(owner);
+    init.MovebyPath(_path->GetPath());
+    init.SetWalk(true);
+    int32 traveltime = init.Launch();
+    _timer.Reset(traveltime + urand(800, 1500));
 }
 
 template ConfusedMovementGenerator<Player>::ConfusedMovementGenerator();
