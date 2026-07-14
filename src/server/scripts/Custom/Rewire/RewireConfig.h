@@ -45,6 +45,20 @@ struct ConversionConfig
     std::string TargetSchema = "firestore.document.v1";
 };
 
+struct TransportConfig
+{
+    bool Enabled = false;
+    std::size_t BatchSize = 20;
+    std::uint32_t RequestTimeoutMs = 10000;
+    std::uint32_t InitialRetryMs = 1000;
+    std::uint32_t MaxRetryMs = 60000;
+    std::string FirestoreHost = "firestore.googleapis.com";
+    std::string FirestorePort = "443";
+    std::string AccessTokenEnvironment = "REWIRE_FIREBASE_ACCESS_TOKEN";
+    std::string MetadataHost = "metadata.google.internal";
+    std::string MetadataPort = "80";
+};
+
 struct RewireConfig
 {
     std::uint32_t SchemaVersion = 1;
@@ -54,6 +68,7 @@ struct RewireConfig
     QueueConfig Queue;
     FirebaseConfig Firebase;
     ConversionConfig Conversion;
+    TransportConfig Transport;
 };
 
 class RewireConfigLoader final
