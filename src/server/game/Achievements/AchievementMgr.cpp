@@ -379,7 +379,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             Unit const* unitTarget = target->ToUnit();
             if (!unitTarget)
                 return false;
-            return unitTarget->GetGender() == Gender(gender.gender);
+            return unitTarget->GetGender() == static_cast<::Gender>(gender.gender);
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
         {
@@ -390,8 +390,11 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (source->GetMap()->IsRaid())
-                if (source->GetMap()->Is25ManRaid() != ((difficulty.difficulty & RAID_DIFFICULTY_MASK_25MAN) != 0))
+            {
+                bool requires25ManRaid = difficulty.difficulty == RAID_DIFFICULTY_25MAN_NORMAL || difficulty.difficulty == RAID_DIFFICULTY_25MAN_HEROIC;
+                if (source->GetMap()->Is25ManRaid() != requires25ManRaid)
                     return false;
+            }
             return source->GetMap()->GetSpawnMode() >= difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             return source->GetMap()->GetPlayersCountExceptGMs() <= map_players.maxcount;
