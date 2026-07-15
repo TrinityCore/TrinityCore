@@ -39,6 +39,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <algorithm>
 
 void AddItemsSetItem(Player* player, Item* item)
 {
