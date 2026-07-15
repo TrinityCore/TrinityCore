@@ -205,12 +205,7 @@ struct boss_janalai : public BossAI
 
     bool AllEggsWereHatched()
     {
-        std::vector<Creature*> eggsVector;
-        GetCreatureListWithOptionsInGrid(eggsVector, me, 200.0f, { .CreatureId = NPC_DRAGONHAWK_EGG, .IsAlive = true });
-        if (eggsVector.empty())
-            return true;
-
-        return false;
+        return GetClosestCreatureWithOptions(me, 200.0f, { .CreatureId = NPC_DRAGONHAWK_EGG, .IsAlive = true }) == nullptr;
     }
 
     void DoSummonHatchers()
@@ -362,7 +357,7 @@ struct npc_fire_bomb_zulaman : public ScriptedAI
 // 24504 - Amani'shi Hatcher
 struct npc_amanishi_hatcher : public ScriptedAI
 {
-    npc_amanishi_hatcher(Creature* creature) : ScriptedAI(creature), _eggsToHatchCount(1) { }
+    npc_amanishi_hatcher(Creature* creature) : ScriptedAI(creature), _otherHatcherId(0), _eggsToHatchCount(1) { }
 
     void InitializeAI() override
     {
@@ -404,31 +399,17 @@ struct npc_amanishi_hatcher : public ScriptedAI
 
     bool AreEggsHatchedA()
     {
-        std::vector<Creature*> eggsVector;
-        GetCreatureListWithOptionsInGrid(eggsVector, me, 200.0f, { .StringId = _eggsStringIdA, .IsAlive = true });
-        if (eggsVector.empty())
-            return true;
-
-        return false;
+        return GetClosestCreatureWithOptions(me, 200.0f, { .StringId = _eggsStringIdA, .IsAlive = true }) == nullptr;
     }
 
     bool AreEggsHatchedB()
     {
-        std::vector<Creature*> eggsVector;
-        GetCreatureListWithOptionsInGrid(eggsVector, me, 200.0f, { .StringId = _eggsStringIdB, .IsAlive = true });
-        if (eggsVector.empty())
-            return true;
-
-        return false;
+        return GetClosestCreatureWithOptions(me, 200.0f, { .StringId = _eggsStringIdB, .IsAlive = true }) == nullptr;
     }
 
     bool IsOtherHatcherAlive()
     {
-        Creature* hatcher = me->FindNearestCreature(_otherHatcherId, 200.0f, true);
-        if (hatcher)
-            return true;
-
-        return false;
+        return me->FindNearestCreature(_otherHatcherId, 200.0f, true) != nullptr;
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -585,7 +566,7 @@ class spell_janalai_summon_all_players : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         // Guessed value. Patch 2.4.0 (2008-03-25): Will now only teleport players to him if they are too far away.
-        if (GetCaster()->GetDistance2d(GetHitUnit()) > 30.0f)
+        if (!GetCaster()->IsWithinDist(GetHitUnit(), 30.0f, false))
             GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ALL_PLAYERS_2, true);
     }
 
@@ -641,7 +622,7 @@ class spell_janalai_hatch_eggs : public SpellScript
         {
             targets.remove_if([caster](WorldObject const* target)
             {
-                return caster->GetDistance(target) > 50.0f;
+                return !caster->IsWithinDist(target, 50.0f);
             });
 
             Trinity::Containers::RandomResize(targets, caster->GetAI()->GetData(DATA_EGGS_TO_HATCH));
