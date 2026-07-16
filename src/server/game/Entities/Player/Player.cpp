@@ -17952,7 +17952,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 draft.AddItem(problematicItems.front());
                 problematicItems.pop_front();
             }
-            draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+            draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_RETURNED);
         }
         CharacterDatabase.CommitTransaction(trans);
     }
