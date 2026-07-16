@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
+#include "Group.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -127,7 +128,27 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Private Object",           false, false, false, false },
     { "String ID",                false, false, false,  true },
     { "Label",                    false, false, false, false },
+    { "Group status",              true, false, false, false }
 };
+
+static bool MeetsGroupStatusCondition(Player const* player, GroupStatusCondition status)
+{
+    Group const* group = player->GetGroup();
+    switch (status)
+    {
+        case GroupStatusCondition::NotInGroup:
+            return group == nullptr;
+        case GroupStatusCondition::InGroup:
+            return group != nullptr;
+        case GroupStatusCondition::InGroupButNotInRaid:
+            return group && !group->isRaidGroup();
+        case GroupStatusCondition::InRaid:
+            return group && group->isRaidGroup();
+        case GroupStatusCondition::NotInGroupOrNotInRaid:
+            return !group || !group->isRaidGroup();
+    }
+    return false;
+}
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
@@ -548,6 +569,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = go->HasStringId(ConditionStringValue1);
             break;
         }
+        case CONDITION_GROUP_STATUS:
+        {
+            if (Player const* player = object->ToPlayer())
+                condMeets = MeetsGroupStatusCondition(player, GroupStatusCondition(ConditionValue1));
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -749,6 +776,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_STRING_ID:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        case CONDITION_GROUP_STATUS:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2398,6 +2428,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             if (cond->ConditionValue1 >= MAX_DIFFICULTY)
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing difficulty in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        case CONDITION_GROUP_STATUS:
+            if (cond->ConditionValue1 > uint32(GroupStatusCondition::NotInGroupOrNotInRaid))
+            {
+                TC_LOG_ERROR("sql.sql", "{} has non invalid group status condition value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
