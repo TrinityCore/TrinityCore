@@ -25,7 +25,7 @@
 
 enum YouAreRakhlikhDemon
 {
-    SPELL_TELEPORT_TO_RAZELIKH_GROUP = 27694
+    SPELL_TELEPORT_TO_RAZELIKH_GROUP    = 27694
 };
 
 // 27686 - Teleport to Razelikh (GROUP)
