@@ -43,7 +43,7 @@ class spell_vashjir_sea_legs_aura : public AuraScript
 
     void OnUpdate(AuraEffect* /*aurEff*/)
     {
-        if (Unit* caster = GetCaster())
+        if (Unit* caster = GetTarget())
         {
             if (caster->IsInWater())
                 caster->CastSpell(caster, Spells::SeaLegsAura, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -56,7 +56,7 @@ class spell_vashjir_sea_legs_aura : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* caster = GetCaster())
+        if (Unit* caster = GetTarget())
             caster->RemoveAura(Spells::SeaLegsAura);
     }
 
