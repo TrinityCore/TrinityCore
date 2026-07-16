@@ -91,7 +91,7 @@ public:
         /// @todo Fix poor design
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender, MAIL_CHECK_MASK_RETURNED);
 
         CharacterDatabase.CommitTransaction(trans);
 
