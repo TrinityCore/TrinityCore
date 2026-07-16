@@ -18,7 +18,6 @@
 /*
  * Combat timers requires to be revisited
  * SAY_EVENT is NYI
- * For some reason Electrical Arc spells targets player instead of dest. Works fine outside of Zul'Aman
  */
 
 #include "ScriptMgr.h"
@@ -326,15 +325,9 @@ class spell_akilzon_electrical_overload : public SpellScript
 
         if (SpellInfo const* triggeringSpellSpellInfo = GetTriggeringSpell())
             if (AuraEffect const* eff = GetCaster()->GetAuraEffect(triggeringSpellSpellInfo->Id, EFFECT_1))
-            {
-                /// !HACK: SPELL_ELECTRICAL_STORM_AURA sometimes fades before last tick, this causes last tick damage. Investigate this
-                if (eff->GetTickNumber() == triggeringSpellSpellInfo->GetMaxTicks())
-                    return;
-
                 GetCaster()->CastSpell(nullptr, uint32(GetEffectInfo().TriggerSpell), CastSpellExtraArgs()
                     .SetTriggerFlags(TRIGGERED_FULL_MASK)
                     .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(eff->GetTickNumber() * damageSpellSpellInfo->GetEffect(EFFECT_0).CalcValue())));
-            }
     }
 
     void Register() override
@@ -361,8 +354,12 @@ class spell_akilzon_electrical_storm : public SpellScript
         if (Creature* caster = GetCaster()->ToCreature())
             caster->AI()->Talk(EMOTE_STORM, target);
 
-        target->CastSpell(nullptr, SPELL_ELECTRICAL_STORM_AURA, true);
-        target->CastSpell(nullptr, SPELL_TELEPORT_SELF, true);
+        // this is a hack to ensure that DynamicObject granting SPELL_ELECTRICAL_STORM_AURA is only removed after damaging periodic fades
+        target->m_Events.AddEventAtOffset([target]
+        {
+            target->CastSpell(nullptr, SPELL_ELECTRICAL_STORM_AURA, true);
+            target->CastSpell(nullptr, SPELL_TELEPORT_SELF, true);
+        }, 100ms);
     }
 
     void Register() override
