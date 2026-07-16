@@ -19,6 +19,39 @@
 
 namespace WorldPackets::Item
 {
+void BuyBackItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> Slot;
+}
+
+void GetItemPurchaseData::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
+void RepairItem::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> UseGuildBank;
+}
+
+void SellItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> Amount;
+}
+
+WorldPacket const* ItemTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(DurationLeft);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* SetProficiency::Write()
 {
     _worldPacket << uint8(ProficiencyClass);

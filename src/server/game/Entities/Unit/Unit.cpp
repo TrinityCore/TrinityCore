@@ -350,6 +350,13 @@ Unit::Unit(bool isWorldObject) :
                                                             // implement 50% base damage from offhand
     m_auraPctModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
+    for (uint32 i = 0; i < uint32(AttackPowerModIndex::End); ++i)
+    {
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatPositive)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatNegative)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::Pct)] = 1.0f;
+    }
+
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
         m_weaponDamage[i][MINDAMAGE][0] = BASE_MINDAMAGE;
@@ -3972,12 +3979,12 @@ void Unit::RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID, Aura* exc
     }
 }
 
-void Unit::RemoveAurasWithAttribute(uint32 flags)
+void Unit::RemoveAurasWithAttribute(SpellAttr0 flags)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-        if (spell->Attributes & flags)
+        if (spell->HasAttribute(flags))
             RemoveAura(iter);
         else
             ++iter;
@@ -5198,7 +5205,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
     packet.Me = log->target->GetGUID();
-    packet.CasterGUID = log->attacker->GetGUID();
+    packet.CasterGUID = Object::GetGUID(log->attacker);
     packet.SpellID = log->SpellID;
     packet.Damage = log->damage;
     if (log->damage > log->target->GetHealth())
@@ -5999,15 +6006,13 @@ void Unit::SetMinion(Minion *minion, bool apply)
     UpdatePetCombatState();
 }
 
-void Unit::GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry)
+void Unit::GetAllMinionsByEntry(std::list<TempSummon*>& Minions, uint32 entry)
 {
-    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
     {
         Unit* unit = *itr;
-        ++itr;
-        if (unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
-            && unit->IsSummon()) // minion, actually
-            Minions.push_back(unit->ToCreature());
+        if (unit->GetEntry() == entry && unit->IsSummon()) // minion, actually
+            Minions.push_back(unit->ToTempSummon());
     }
 }
 
@@ -6895,7 +6900,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         // From caster spells
         if (caster)
         {
-            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [caster, spellProto](AuraEffect const* aurEff) -> bool
+            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER, [caster, spellProto](AuraEffect const* aurEff) -> bool
             {
                 if (aurEff->GetCasterGUID() == caster->GetGUID() && aurEff->IsAffectingSpell(spellProto))
                     return true;
@@ -7998,7 +8003,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     if (spellProto)
     {
         // From caster spells
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [attacker, spellProto](AuraEffect const* aurEff) -> bool
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER, [attacker, spellProto](AuraEffect const* aurEff) -> bool
         {
             if (aurEff->GetCasterGUID() == attacker->GetGUID() && aurEff->IsAffectingSpell(spellProto))
                 return true;
@@ -8955,6 +8960,11 @@ bool Unit::IsInDisallowedMountForm() const
 ########                         ########
 #######################################*/
 
+void ApplyPercentModFloatVar(float& var, float val, bool apply)
+{
+    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
+}
+
 void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply)
 {
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
@@ -9037,7 +9047,7 @@ float Unit::GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierTy
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_PCT_END)
     {
         TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
-        return 0.0f;
+        return 1.0f;
     }
 
     return m_auraPctModifiersGroup[unitMod][modifierType];
@@ -9074,9 +9084,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RESISTANCE_SHADOW:
         case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
 
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
-
         case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
         case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
@@ -9084,6 +9091,41 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         default:
             break;
     }
+}
+
+void Unit::HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply)
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in HandleAttackPowerModifier(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return;
+    }
+
+    switch (modifierType)
+    {
+        case AttackPowerModType::Pct:
+            ApplyPercentModFloatVar(m_attackPowerMods[uint32(index)][uint32(modifierType)], amount, apply);
+            break;
+        default:
+            m_attackPowerMods[uint32(index)][uint32(modifierType)] += apply ? amount : -amount;
+            break;
+    }
+
+    if (!CanModifyStats())
+        return;
+
+    UpdateAttackPowerAndDamage(index == AttackPowerModIndex::Ranged);
+}
+
+float Unit::GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in GetAttackPowerModifierValue(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return 0.0f;
+    }
+
+    return m_attackPowerMods[uint32(index)][uint32(modifierType)];
 }
 
 void Unit::UpdateDamageDoneMods(WeaponAttackType attackType, int32 /*skipEnchantSlot = -1*/)
@@ -10557,11 +10599,6 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
 
     // select random
     return Trinity::Containers::SelectRandomContainerElement(targets);
-}
-
-void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
@@ -12766,7 +12803,7 @@ bool Unit::CanSwim() const
         return false;
     if (HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT))
         return true;
-    return HasUnitFlag(UNIT_FLAG_RENAME | UNIT_FLAG_CAN_SWIM);
+    return HasUnitFlag(UNIT_FLAG_EVADING_HOME | UNIT_FLAG_CAN_SWIM);
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)

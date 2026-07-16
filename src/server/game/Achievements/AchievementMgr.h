@@ -46,9 +46,9 @@ typedef std::unordered_map<uint32, AchievementEntryList>         AchievementList
 
 struct CriteriaProgress
 {
-    uint32 counter;
-    time_t date;                                            // latest update time.
-    bool changed;
+    uint32 counter = 0;
+    time_t date = time_t(0);                                // latest update time.
+    bool changed = false;
 };
 
 enum AchievementCriteriaDataType

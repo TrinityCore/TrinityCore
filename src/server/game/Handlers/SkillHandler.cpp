@@ -60,7 +60,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRe
     if (!trainer->CanResetTalents(_player, false))
         return;
 
-    uint32 cost = _player->ResetTalentsCost();
+    uint32 cost = _player->GetNextResetTalentsCost();
     if (!_player->HasEnoughMoney(cost))
         return; // // silently return, client should display the error by itself
 
@@ -70,7 +70,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talent::ConfirmRe
 
     if (!_player->ResetTalents())
     {
-        _player->SendTalentWipeConfirm(ObjectGuid::Empty);
+        _player->SendRespecWipeConfirm(ObjectGuid::Empty, 0);
         return;
     }
 
