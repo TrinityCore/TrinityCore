@@ -782,8 +782,8 @@ void Zone2MapCoordinates(float& x, float& y, uint32 zone)
         return;
 
     std::swap(x, y);                                         // at client map coords swapped
-    x = x*((maEntry->LocBottom-maEntry->LocTop)/100)+maEntry->LocTop;
-    y = y*((maEntry->LocRight-maEntry->LocLeft)/100)+maEntry->LocLeft;      // client y coord from top to down
+    x = x * ((maEntry->LocBottom - maEntry->LocTop) / 100) + maEntry->LocTop;
+    y = y * ((maEntry->LocRight - maEntry->LocLeft) / 100) + maEntry->LocLeft;      // client y coord from top to down
 }
 
 void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
@@ -794,8 +794,8 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     if (!maEntry)
         return;
 
-    x = (x-maEntry->LocTop)/((maEntry->LocBottom-maEntry->LocTop)/100);
-    y = (y-maEntry->LocLeft)/((maEntry->LocRight-maEntry->LocLeft)/100);    // client y coord from top to down
+    x = (x - maEntry->LocTop) / ((maEntry->LocBottom - maEntry->LocTop) / 100);
+    y = (y - maEntry->LocLeft) / ((maEntry->LocRight - maEntry->LocLeft) / 100);    // client y coord from top to down
     std::swap(x, y);                                         // client have map coords swapped
 }
 

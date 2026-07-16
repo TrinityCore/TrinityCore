@@ -117,7 +117,7 @@ class TC_GAME_API InstanceSave
 
         /* currently it is possible to omit this information from this structure
            but that would depend on a lot of things that can easily change in future */
-        Difficulty GetDifficulty() const { return m_difficulty; }
+        Difficulty GetDifficultyID() const { return m_difficulty; }
 
         typedef std::list<Player*> PlayerListType;
         typedef std::list<Group*> GroupListType;

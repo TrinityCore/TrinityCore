@@ -2436,10 +2436,11 @@ void Spell::EffectUntrainTalents()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!unitTarget->IsPlayer())
         return;
 
-    unitTarget->ToPlayer()->SendTalentWipeConfirm(m_caster->GetGUID());
+    Player* playerTarget = unitTarget->ToPlayer();
+    playerTarget->SendRespecWipeConfirm(m_caster->GetGUID(), playerTarget->GetNextResetTalentsCost());
 }
 
 void Spell::EffectTeleUnitsFaceCaster()

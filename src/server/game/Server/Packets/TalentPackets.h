@@ -90,8 +90,7 @@ public:
 class RespecWipeConfirm final : public ServerPacket
 {
 public:
-    explicit RespecWipeConfirm(ObjectGuid respecMaster, uint32 cost)
-        : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4), RespecMaster(respecMaster), Cost(cost) { }
+    explicit RespecWipeConfirm() : ServerPacket(MSG_TALENT_WIPE_CONFIRM, 8 + 4) { }
 
     WorldPacket const* Write() override;
 

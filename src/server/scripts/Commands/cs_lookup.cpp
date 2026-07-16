@@ -648,9 +648,9 @@ public:
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
             {
-                if (questLocale->Title.size() > localeIndex && !questLocale->Title[localeIndex].empty())
+                if (questLocale->LogTitle.size() > localeIndex && !questLocale->LogTitle[localeIndex].empty())
                 {
-                    std::string const& title = questLocale->Title[localeIndex];
+                    std::string const& title = questLocale->LogTitle[localeIndex];
 
                     if (Utf8FitTo(title, wNamePart))
                     {
@@ -693,7 +693,7 @@ public:
                 }
             }
 
-            std::string const& title = questTemplatePair.second->GetTitle();
+            std::string const& title = questTemplatePair.second->GetLogTitle();
             if (title.empty())
                 continue;
 
@@ -753,7 +753,7 @@ public:
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(id))
         {
-            std::string title = quest->GetTitle();
+            std::string title = quest->GetLogTitle();
             if (title.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOQUESTFOUND);

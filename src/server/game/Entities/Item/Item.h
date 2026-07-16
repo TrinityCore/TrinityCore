@@ -109,7 +109,7 @@ class TC_GAME_API Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-        uint32 CalculateDurabilityRepairCost(float discount) const;
+        uint32 CalculateDurabilityRepairCost(float discount, bool useRateConfig = true) const;
 
         bool HasEnchantRequiredSkill(Player const* player) const;
         uint32 GetEnchantRequiredLevel() const;
@@ -210,6 +210,11 @@ class TC_GAME_API Item : public Object
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+
+        uint32 GetBuyPrice() const;
+        static uint32 GetBuyPrice(ItemTemplate const* proto);
+        uint32 GetSellPrice(bool forVendor = false) const;
+        static uint32 GetSellPrice(ItemTemplate const* proto);
 
         std::string GetDebugInfo() const override;
     private:
