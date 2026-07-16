@@ -101,11 +101,6 @@ enum TBMEventIds
     EVENT_SUMMON_TIME_RIFT_4            = 11140
 };
 
-static const Position PortalPosition1 = { -2030.832f, 7024.944f, 23.07182f, 3.141593f };
-static const Position PortalPosition2 = { -1961.734f, 7029.528f, 21.8114f,  2.129302f };
-static const Position PortalPosition3 = { -1887.695f, 7106.557f, 22.0495f,  4.956735f };
-static const Position PortalPosition4 = { -1930.911f, 7183.597f, 23.00764f, 3.595378f };
-
 template <class AI, class T>
 inline AI* GetBlackMorassAI(T* obj)
 {

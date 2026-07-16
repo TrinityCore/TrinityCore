@@ -31,6 +31,11 @@ static constexpr ObjectData creatureData[] =
     { 0,                   0           } // END
 };
 
+static Position const PortalPosition1 = { -2030.832f, 7024.944f, 23.07182f, 3.141593f };
+static Position const PortalPosition2 = { -1961.734f, 7029.528f, 21.8114f,  2.129302f };
+static Position const PortalPosition3 = { -1887.695f, 7106.557f, 22.0495f,  4.956735f };
+static Position const PortalPosition4 = { -1930.911f, 7183.597f, 23.00764f, 3.595378f };
+
 class instance_the_black_morass : public InstanceMapScript
 {
 public:
