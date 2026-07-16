@@ -200,36 +200,6 @@ class spell_eastern_kingdoms_thaumaturgy_channel : public AuraScript
     }
 };
 
-/*######
-## Quest 3628: You Are Rakh'likh, Demon
-######*/
-
-enum YouAreRakhlikhDemon
-{
-    SPELL_TELEPORT_TO_RAZELIKH_GROUP     = 27694
-};
-
-// 27686 - Teleport to Razelikh (GROUP)
-class spell_eastern_kingdoms_teleport_to_razelikh_group : public SpellScript
-{
-    PrepareSpellScript(spell_eastern_kingdoms_teleport_to_razelikh_group);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TELEPORT_TO_RAZELIKH_GROUP });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(nullptr, SPELL_TELEPORT_TO_RAZELIKH_GROUP, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_eastern_kingdoms_teleport_to_razelikh_group::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_eastern_kingdoms()
 {
     RegisterSpellScript(spell_eastern_kingdoms_duskwither_spire_up);
@@ -239,5 +209,4 @@ void AddSC_eastern_kingdoms()
     RegisterSpellScript(spell_eastern_kingdoms_dead_scar_bombing_run);
     RegisterSpellScript(spell_eastern_kingdoms_dawnblade_attack);
     RegisterSpellScript(spell_eastern_kingdoms_thaumaturgy_channel);
-    RegisterSpellScript(spell_eastern_kingdoms_teleport_to_razelikh_group);
 }

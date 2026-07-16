@@ -18,10 +18,10 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ConditionStringValue1`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,1541,0,0,0,47,0,3628,10,0,'',0,0,0,'',"Group 0: Show Gossip Option 0 if player has taken quest 'You Are Rakh'likh, Demon'"),
 (15,1541,0,0,0,2,0,10757,1,0,'',0,0,0,'',"Group 0: Show Gossip Option 0 if player has item 'Ward of the Defiler'"),
-(15,1541,0,0,0,60,0,0,0,0,'',1,0,0,'',"Group 0: Show Gossip Option 0 if player is not in group"),
+(15,1541,0,0,0,60,0,0,0,0,'',0,0,0,'',"Group 0: Show Gossip Option 0 if player is not in group"),
 
 (15,1541,1,0,0,47,0,3628,10,0,'',0,0,0,'',"Group 0: Show Gossip Option 1 if player has taken quest 'You Are Rakh'likh, Demon'"),
 (15,1541,1,0,0,2,0,10757,1,0,'',0,0,0,'',"Group 0: Show Gossip Option 1 if player has item 'Ward of the Defiler'"),
-(15,1541,1,0,0,60,0,0,0,0,'',0,0,0,'',"Group 0: Show Gossip Option 1 if player is in group");
+(15,1541,1,0,0,60,0,1,0,0,'',0,0,0,'',"Group 0: Show Gossip Option 1 if player is in group");
 
-UPDATE `spell_script_names` SET `ScriptName` = 'spell_eastern_kingdoms_teleport_to_razelikh_group' WHERE `ScriptName` = 'spell_razelikh_teleport_group';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_blasted_lands_teleport_to_razelikh_group' WHERE `ScriptName` = 'spell_razelikh_teleport_group';
