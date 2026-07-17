@@ -225,7 +225,7 @@ struct boss_ahune : public BossAI
             DoCastSelf(SPELL_AHUNE_SELF_STUN, true);
             me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            
+
             events.CancelEvent(EVENT_SYNCH_HEALTH);
 
             if (Creature* core = instance->GetCreature(DATA_FROZEN_CORE))
