@@ -2850,7 +2850,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Use a detour raycast to get our first collision point
     PathGenerator path(this);
     path.SetUseRaycast(true);
-    path.CalculatePath(destx, desty, destz, false);
+    path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), destx, desty, destz, false);
 
     // Check for valid path types before we proceed
     if (!(path.GetPathType() & PATHFIND_NOT_USING_PATH))
