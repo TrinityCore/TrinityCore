@@ -3389,8 +3389,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     float groundZ = VMAP_INVALID_HEIGHT_VALUE;
-    Trinity::NormalizeMapCoord(pos.m_positionX);
-    Trinity::NormalizeMapCoord(pos.m_positionY);
+    Trinity::NormalizeMapCoord(destx);
+    Trinity::NormalizeMapCoord(desty);
     UpdateAllowedPositionZ(destx, desty, destz, &groundZ);
 
     pos.Relocate(destx, desty, destz, GetOrientation());
