@@ -345,8 +345,7 @@ enum Powers : int8
     POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
     POWER_BALANCE                       = 26, // TITLE Balance
     POWER_HAPPINESS                     = 27, // TITLE Happiness
-    MAX_POWERS                          = 28, // SKIP
-    POWER_ALL                           = 127 // SKIP
+    MAX_POWERS                          = 28  // SKIP
 };
 
 #define MAX_POWERS_PER_CLASS            10
