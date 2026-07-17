@@ -318,8 +318,7 @@ enum Powers : int8
     POWER_ALTERNATE_QUEST               = 23, // TITLE Alternate (Quest)
     POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
     POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
-    MAX_POWERS                          = 26, // SKIP
-    POWER_ALL                           = 127 // SKIP
+    MAX_POWERS                          = 26  // SKIP
 };
 
 #define MAX_POWERS_PER_CLASS            10
