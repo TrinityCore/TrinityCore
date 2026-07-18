@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_slave_pens.h"
@@ -52,12 +56,14 @@ struct boss_mennu_the_betrayer : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30s, 40s);
-        events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20s, 30s);
-        events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 20s, 30s);
+
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 15s, 20s);
+        events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 25s, 40s);
+        events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 25s, 35s);
         events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, 15s, 25s);
         events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 10s, 20s);
-        Talk(SAY_AGGRO);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -87,11 +93,11 @@ struct boss_mennu_the_betrayer : public BossAI
             {
                 case EVENT_TAINTED_STONESKIN_TOTEM:
                     DoCastSelf(SPELL_TAINTED_STONESKIN_TOTEM);
-                    events.Repeat(35s, 40s);
+                    events.Repeat(30s, 35s);
                     break;
                 case EVENT_TAINTED_EARTHGRAB_TOTEM:
                     DoCastSelf(SPELL_TAINTED_EARTHGRAB_TOTEM);
-                    events.Repeat(35s, 40s);
+                    events.Repeat(30s, 40s);
                     break;
                 case EVENT_CORRUPTED_NOVA_TOTEM:
                     DoCastSelf(SPELL_CORRUPTED_NOVA_TOTEM);
@@ -99,7 +105,7 @@ struct boss_mennu_the_betrayer : public BossAI
                     break;
                 case EVENT_MENNUS_HEALING_WARD:
                     DoCastSelf(SPELL_MENNUS_HEALING_WARD);
-                    events.Repeat(35s, 40s);
+                    events.Repeat(15s, 25s);
                     break;
                 case EVENT_LIGHTNING_BOLT:
                     DoCastVictim(SPELL_LIGHTNING_BOLT);
