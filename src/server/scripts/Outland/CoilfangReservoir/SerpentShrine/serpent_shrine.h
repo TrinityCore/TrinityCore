@@ -46,8 +46,6 @@ enum SSDataTypes
     DATA_KARATHRESS                 = 3,
     DATA_SHARKKIS                   = 6,
     DATA_TIDALVESS                  = 12,
-    DATA_LEOTHERAS                  = 14,
-    DATA_LEOTHERAS_EVENT_STARTER    = 15,
     DATA_WATER                      = 18,
     DATA_TRASH                      = 19,
 
@@ -64,6 +62,7 @@ enum SSDataTypes
 enum SSCreatureIds
 {
     NPC_THE_LURKER_BELOW            = 21217,
+    NPC_LEOTHERAS_THE_BLIND         = 21215,
     NPC_LADY_VASHJ                  = 21212
 };
 

@@ -108,21 +108,15 @@ struct boss_keristrasza : public BossAI
             Talk(SAY_SLAY);
     }
 
-    bool CheckContainmentSpheres(bool remove_prison = false)
+    bool CheckContainmentSpheres(bool removePrison = false)
     {
-        ContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMENT_SPHERE);
-        ContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMENT_SPHERE);
-        ContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMENT_SPHERE);
-
-        for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
+        for (uint32 i = ANOMALUS_CONTAINMENT_SPHERE; i < TELESTRAS_CONTAINMENT_SPHERE; ++i)
         {
-            GameObject* ContainmentSphere = ObjectAccessor::GetGameObject(*me, ContainmentSphereGUIDs[i]);
-            if (!ContainmentSphere)
-                return false;
-            if (ContainmentSphere->GetGoState() != GO_STATE_ACTIVE)
+            GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
+            if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
                 return false;
         }
-        if (remove_prison)
+        if (removePrison)
             RemovePrison(true);
         return true;
     }
@@ -203,7 +197,7 @@ struct boss_keristrasza : public BossAI
 private:
     bool _intenseCold;
     bool _enrage;
-    ObjectGuid ContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
+
 public:
     GuidList _intenseColdList;
 };
@@ -263,9 +257,9 @@ class achievement_intense_cold : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            GuidList _intenseColdList = ENSURE_AI(boss_keristrasza, target->ToCreature()->AI())->_intenseColdList;
+            GuidList const& _intenseColdList = ENSURE_AI(boss_keristrasza, target->ToCreature()->AI())->_intenseColdList;
             if (!_intenseColdList.empty())
-                for (GuidList::iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
+                for (GuidList::const_iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)
                         return false;
 
