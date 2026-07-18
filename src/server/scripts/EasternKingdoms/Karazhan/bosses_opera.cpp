@@ -101,11 +101,11 @@ enum WizardOfOzMisc
     SPAWN_GROUP_CRONE           = 394
 };
 
-void SummonCroneIfReady(InstanceScript* _instance, Creature* creature)
+void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
 {
-    _instance->SetData(DATA_OPERA_OZ_DEATH_COUNT, SPECIAL);
+    instance->SetData(DATA_OPERA_OZ_DEATH_COUNT, SPECIAL);
 
-    if (_instance->GetData(DATA_OPERA_OZ_DEATH_COUNT) == 4)
+    if (instance->GetData(DATA_OPERA_OZ_DEATH_COUNT) == 4)
         creature->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_CRONE, true);
 }
 
@@ -535,9 +535,8 @@ struct npc_tito : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (TempSummon* summon = me->ToTempSummon())
-            if (Unit* summoner = summon->GetSummonerUnit())
-                if (Creature* creature = summoner->ToCreature())
-                    creature->AI()->DoAction(ACTION_TITO_DIES);
+            if (Creature* summoner = Object::ToCreature(summon->GetSummonerUnit()))
+                summoner->AI()->DoAction(ACTION_TITO_DIES);
     }
 
     void UpdateAI(uint32 diff) override
@@ -754,10 +753,9 @@ class spell_opera_picnic_basket_smell : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-            if (Creature* target = GetTarget()->ToCreature())
-                if (Unit* caster = GetCaster())
-                    target->GetThreatManager().AddThreat(caster, -1000000.0f, nullptr, true, true);
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTarget()->IsCreature())
+            if (Unit* caster = GetCaster())
+                GetTarget()->GetThreatManager().AddThreat(caster, -1000000.0f, nullptr, true, true);
     }
 
     void Register() override
