@@ -23,6 +23,12 @@
 #include "InstanceScript.h"
 #include "steam_vault.h"
 
+enum MainChambersAccessPanelMisc
+{
+    EMOTE_PANEL_USED             = 0,
+    EMOTE_MAIN_DOOR_OPENS        = 1
+};
+
 // 184125, 184126 - Main Chambers Access Panel
 struct go_main_chambers_access_panel : public GameObjectAI
 {
@@ -30,13 +36,24 @@ struct go_main_chambers_access_panel : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
-            controller->AI()->Talk(CONTROLLER_TEXT_ACESS_USED);
+        me->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
 
-        _instance->SetData(ACTION_OPEN_DOOR, 0);
-        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
-        me->SetGoState(GO_STATE_ACTIVE);
-        return true;
+        if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
+            controller->AI()->Talk(EMOTE_PANEL_USED);
+
+        if (_instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE && _instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE)
+        {
+            if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
+                controller->AI()->Talk(EMOTE_MAIN_DOOR_OPENS);
+
+            if (GameObject* go = _instance->GetGameObject(DATA_MAIN_CHAMBERS_DOOR))
+            {
+                _instance->HandleGameObject(ObjectGuid::Empty, true, go);
+                go->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+            }
+        }
+
+        return false;
     }
 
 private:
