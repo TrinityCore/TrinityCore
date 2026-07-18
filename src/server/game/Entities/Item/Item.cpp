@@ -23,6 +23,7 @@
 #include "DBCStores.h"
 #include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "Map.h"
@@ -748,7 +749,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
-uint32 Item::CalculateDurabilityRepairCost(float discount) const
+uint32 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*= true*/) const
 {
     uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     if (!maxDurability)
@@ -787,7 +788,7 @@ uint32 Item::CalculateDurabilityRepairCost(float discount) const
     }
 
     uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->Data)));
-    cost = uint32(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint32(cost * discount * (useRateConfig ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
@@ -1040,10 +1041,10 @@ void Item::SendTimeUpdate(Player* owner)
     if (!duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data << GetGUID();
-    data << uint32(duration);
-    owner->SendDirectMessage(&data);
+    WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
+    itemTimeUpdate.ItemGuid = GetGUID();
+    itemTimeUpdate.DurationLeft = duration;
+    owner->SendDirectMessage(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
@@ -1132,6 +1133,43 @@ void Item::RemoveFromObjectUpdate()
 {
     if (Player* owner = GetOwner())
         owner->GetMap()->RemoveUpdateObject(this);
+}
+
+uint32 Item::GetBuyPrice() const
+{
+    return Item::GetBuyPrice(GetTemplate());
+}
+
+uint32 Item::GetBuyPrice(ItemTemplate const* proto)
+{
+    return proto->GetBuyPrice();
+}
+
+uint32 Item::GetSellPrice(bool forVendor /*= false*/) const
+{
+    ItemTemplate const* itemTemplate = GetTemplate();
+    int32 price = Item::GetSellPrice(itemTemplate);
+    if (forVendor)
+    {
+        auto effectWithCharges = std::ranges::find_if(itemTemplate->Effects,
+            [](ItemEffect const& itemEffect) { return itemEffect.SpellID && itemEffect.TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect.Charges < 0; });
+
+        if (effectWithCharges != itemTemplate->Effects.end())
+            price = price * GetSpellCharges(std::ranges::distance(itemTemplate->Effects.begin(), effectWithCharges)) / effectWithCharges->Charges;
+
+        int32 repairCost = CalculateDurabilityRepairCost(1.0f, false);
+        if (repairCost < price)
+            price -= repairCost;
+        else
+            price = 1;
+    }
+
+    return price;
+}
+
+uint32 Item::GetSellPrice(ItemTemplate const* proto)
+{
+    return proto->GetSellPrice();
 }
 
 void Item::SaveRefundDataToDB()

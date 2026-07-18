@@ -26,6 +26,62 @@ namespace WorldPackets
 {
     namespace Item
     {
+        class BuyBackItem final : public ClientPacket
+        {
+        public:
+            explicit BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUYBACK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Slot = 0;
+        };
+
+        class GetItemPurchaseData final : public ClientPacket
+        {
+        public:
+            explicit GetItemPurchaseData(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGUID;
+        };
+
+        class RepairItem final : public ClientPacket
+        {
+        public:
+            explicit RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            ObjectGuid ItemGUID;
+            bool UseGuildBank = false;
+        };
+
+        class SellItem final : public ClientPacket
+        {
+        public:
+            explicit SellItem(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            ObjectGuid ItemGUID;
+            uint32 Amount = 0;
+        };
+
+        class ItemTimeUpdate final : public ServerPacket
+        {
+        public:
+            explicit ItemTimeUpdate() : ServerPacket(SMSG_ITEM_TIME_UPDATE, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGuid;
+            uint32 DurationLeft = 0;
+        };
+
         class SetProficiency final : public ServerPacket
         {
         public:
