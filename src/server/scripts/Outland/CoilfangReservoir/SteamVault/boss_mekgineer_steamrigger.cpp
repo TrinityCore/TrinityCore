@@ -210,13 +210,15 @@ struct npc_steamrigger_mechanic : public ScriptedAI
     void JustAppeared() override
     {
         if (TempSummon* summon = me->ToTempSummon())
-            if (Unit* summoner = summon->GetSummonerUnit())
-                if (summoner->IsCreature())
-                {
-                    float x, y, z;
-                    summoner->GetContactPoint(me, x, y, z);
-                    me->GetMotionMaster()->MovePoint(POINT_REPAIR, x, y, z);
-                }
+        {
+            Unit* summoner = summon->GetSummonerUnit();
+            if (summoner && summoner->IsCreature())
+            {
+                float x, y, z;
+                summoner->GetContactPoint(me, x, y, z);
+                me->GetMotionMaster()->MovePoint(POINT_REPAIR, x, y, z);
+            }
+        }
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
