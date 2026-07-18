@@ -439,14 +439,14 @@ class spell_omrogg_beatdown : public SpellScript
 
     void HandleAfterCast()
     {
-        if (Creature* creature = GetCaster()->ToCreature())
-        {
-            creature->GetThreatManager().ResetAllThreat();
+        Unit* caster = GetCaster();
+        if (!caster->IsCreature())
+            return;
 
-            if (creature->GetAI())
-                if (Unit* target = creature->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true))
-                    creature->AI()->AttackStart(target);
-        }
+        caster->GetThreatManager().ResetAllThreat();
+
+        if (Unit* target = caster->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true))
+            caster->GetAI()->AttackStart(target);
     }
 
     void Register() override
