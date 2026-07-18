@@ -2695,7 +2695,10 @@ namespace Trinity
                     va_end(ap);
                 }
                 else
-                    std::strcpy(strBuffer, text);
+                {
+                    std::strncpy(strBuffer, text, BufferSize);
+                    strBuffer[BufferSize - 1] = '\0';
+                }
 
                 do_helper(dataList, strBuffer);
             }

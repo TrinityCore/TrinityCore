@@ -308,8 +308,7 @@ enum Powers : int8
     POWER_HAPPINESS                     = 4,  // TITLE Happiness
     POWER_RUNE                          = 5,  // TITLE Runes
     POWER_RUNIC_POWER                   = 6,  // TITLE Runic Power
-    MAX_POWERS                          = 7,  // SKIP
-    POWER_ALL                           = 127 // SKIP
+    MAX_POWERS                          = 7   // SKIP
 };
 
 #define MAX_RUNES 6
@@ -2866,20 +2865,31 @@ enum HolidayIds
     HOLIDAY_KALU_AK_FISHING_DERBY    = 424
 };
 
-// values based at QuestInfo.dbc
-enum QuestTypes
+enum QuestType
 {
-    QUEST_TYPE_ELITE               = 1,
-    QUEST_TYPE_LIFE                = 21,
-    QUEST_TYPE_PVP                 = 41,
-    QUEST_TYPE_RAID                = 62,
-    QUEST_TYPE_DUNGEON             = 81,
-    QUEST_TYPE_WORLD_EVENT         = 82,
-    QUEST_TYPE_LEGENDARY           = 83,
-    QUEST_TYPE_ESCORT              = 84,
-    QUEST_TYPE_HEROIC              = 85,
-    QUEST_TYPE_RAID_10             = 88,
-    QUEST_TYPE_RAID_25             = 89
+    QUEST_TYPE_TURNIN               = 0,
+    QUEST_TYPE_WITH_MAX_LEVEL       = 1,
+    QUEST_TYPE_NORMAL               = 2,
+    MAX_DB_ALLOWED_QUEST_TYPES      = 3,
+
+    // values used in quest menu packets
+    QUEST_TYPE_IN_PROGRESS          = 4,
+};
+
+// values based at QuestInfo.dbc
+enum QuestInfo
+{
+    QUEST_INFO_ELITE               = 1,
+    QUEST_INFO_LIFE                = 21,
+    QUEST_INFO_PVP                 = 41,
+    QUEST_INFO_RAID                = 62,
+    QUEST_INFO_DUNGEON             = 81,
+    QUEST_INFO_WORLD_EVENT         = 82,
+    QUEST_INFO_LEGENDARY           = 83,
+    QUEST_INFO_ESCORT              = 84,
+    QUEST_INFO_HEROIC              = 85,
+    QUEST_INFO_RAID_10             = 88,
+    QUEST_INFO_RAID_25             = 89
 };
 
 // values based at QuestSort.dbc
@@ -3190,12 +3200,12 @@ enum UnitDynFlags
     UNIT_DYNFLAG_NONE                       = 0x0000,
     UNIT_DYNFLAG_LOOTABLE                   = 0x0001,
     UNIT_DYNFLAG_TRACK_UNIT                 = 0x0002,
-    UNIT_DYNFLAG_TAPPED                     = 0x0004,       // Lua_UnitIsTapped
-    UNIT_DYNFLAG_TAPPED_BY_PLAYER           = 0x0008,       // Lua_UnitIsTappedByPlayer
+    UNIT_DYNFLAG_TAPPED                     = 0x0004, // Lua_UnitIsTapped
+    UNIT_DYNFLAG_TAPPED_BY_PLAYER           = 0x0008, // Lua_UnitIsTappedByPlayer
     UNIT_DYNFLAG_SPECIALINFO                = 0x0010,
     UNIT_DYNFLAG_DEAD                       = 0x0020,
     UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0040,
-    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0080        // Lua_UnitIsTappedByAllThreatList
+    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0080  // Lua_UnitIsTappedByAllThreatList
 };
 
 enum CorpseDynFlags
@@ -3335,7 +3345,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
