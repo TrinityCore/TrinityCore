@@ -394,7 +394,6 @@ Unit::Unit(bool isWorldObject) :
     _powerRegenUpdateTimer = 0;
     _healthRegenerationTimer = 0;
     _powerFraction.fill(0.0f);
-    _usedPowerTypes.fill(MAX_POWERS);
 }
 
 ////////////////////////////////////////////////////////////
@@ -5698,10 +5697,7 @@ void Unit::SetPowerType(Powers power, bool sendUpdate/* = true*/, bool onInit /*
 
     // Creatures can swap out their power type at index 0 so we do keep track of the new power type here
     if (IsCreature())
-    {
-        _usedPowerTypes[GetPowerIndex(power)] = power;
         UpdatePowerRegen(power);
-    }
 
     // Update max power
     UpdateMaxPower(power);
@@ -7131,7 +7127,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, bool withModSpe
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA) < MAX_POWERS_PER_CLASS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
         // Damage bonus from stats
@@ -7634,7 +7630,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, bool withModSp
         advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA) < MAX_POWERS_PER_CLASS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
         // Healing bonus from stats
@@ -9927,7 +9923,7 @@ void Unit::SetMaxHealth(uint64 val)
 int32 Unit::GetPower(Powers power) const
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return 0;
 
     return m_unitData->Power[powerIndex];
@@ -9936,7 +9932,7 @@ int32 Unit::GetPower(Powers power) const
 int32 Unit::GetMaxPower(Powers power) const
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return 0;
 
     return m_unitData->MaxPower[powerIndex];
@@ -9945,7 +9941,7 @@ int32 Unit::GetMaxPower(Powers power) const
 void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     int32 maxPower = GetMaxPower(power);
@@ -9982,7 +9978,7 @@ void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
 void Unit::SetMaxPower(Powers power, int32 val)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     int32 cur_power = GetPower(power);
@@ -10917,11 +10913,8 @@ void Unit::ApplyHasteRegenPercentMod(float val, bool apply)
     else
         return;
 
-    for (Powers powerType : GetUsedPowerTypes())
+    for (Powers powerType : GetPowerTypes())
     {
-        if (powerType == MAX_POWERS || GetPowerIndex(powerType) == MAX_POWERS)
-            continue;
-
         PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType);
         if (!powerTypeEntry)
             continue;
@@ -12331,16 +12324,13 @@ void Unit::RegenerateAll(uint32 diff)
     _powerRegenUpdateTimer += diff;
     _healthRegenerationTimer += diff;
 
-    for (Powers powerType : GetUsedPowerTypes())
+    for (Powers power : GetPowerTypes())
     {
-        if (powerType == MAX_POWERS)
-            continue;
-
         // Classic only - Runes are regenerated separately
-        if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY || powerType == POWER_RUNES)
+        if (power == POWER_RUNE_BLOOD || power == POWER_RUNE_FROST || power == POWER_RUNE_UNHOLY || power == POWER_RUNES)
             continue;
 
-        Regenerate(powerType, diff);
+        Regenerate(power, diff);
     }
 
     if (GetClass() == CLASS_DEATH_KNIGHT)
@@ -12364,7 +12354,7 @@ void Unit::Regenerate(Powers power, uint32 diff)
 
     // Skip regeneration for power type we cannot have
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     /// @todo possible use of miscvalueb instead of amount
@@ -12505,7 +12495,7 @@ void Unit::Regenerate(Powers power, uint32 diff)
 void Unit::InterruptPowerRegen(Powers power)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     _regenInterruptTimestamp = GameTime::Now();
@@ -12513,18 +12503,6 @@ void Unit::InterruptPowerRegen(Powers power)
 
     if (IsPlayer())
         ToPlayer()->SendDirectMessage(WorldPackets::Combat::InterruptPowerRegen(power).Write());
-}
-
-void Unit::RegisterPowerTypes()
-{
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-    {
-        uint32 powerIndex = GetPowerIndex(Powers(i));
-        if (powerIndex == MAX_POWERS || powerIndex == MAX_POWERS_PER_CLASS)
-            continue;
-
-        _usedPowerTypes[powerIndex] = static_cast<Powers>(i);
-    }
 }
 
 int32 Unit::CalculateAOEAvoidance(int32 damage, uint32 schoolMask, bool npcCaster) const

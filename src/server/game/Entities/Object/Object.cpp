@@ -794,7 +794,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         Player const* player = ToPlayer();
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
-        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNE_BLOOD) != MAX_POWERS;
+        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNE_BLOOD) != MAX_POWERS_PER_CLASS;
         bool HasActionButtons = true;
 
         data->WriteBit(HasSceneInstanceIDs);

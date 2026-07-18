@@ -65,6 +65,7 @@ enum InventorySlot
 struct AbstractFollower;
 struct AuraCreateInfo;
 struct CharmInfo;
+struct ClassPowerTypes;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -974,7 +975,6 @@ class TC_GAME_API Unit : public WorldObject
         void Regenerate(Powers powerType, uint32 diff);
         void InterruptPowerRegen(Powers power);
         void UpdatePowerRegen(Powers powerType);
-        void RegisterPowerTypes();
         virtual void RegenerateHealth() = 0;
         virtual void RegenerateRunes(uint32 /*diff*/) { }
 
@@ -1551,6 +1551,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual uint32 GetPowerIndex(Powers power) const = 0;
+        virtual ClassPowerTypes GetPowerTypes() const = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
         void SetAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower); }
         void SetAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod); }
@@ -2043,10 +2044,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 _powerRegenUpdateTimer;
         uint32 _healthRegenerationTimer;
         std::array<float, MAX_POWERS_PER_CLASS> _powerFraction;
-        std::array<Powers, MAX_POWERS_PER_CLASS> _usedPowerTypes;
-    public:
-        // Returns an array that contains information about which power type is used at which power index. MAX_POWERS implies that a power at given index is not used.
-        std::array<Powers, MAX_POWERS_PER_CLASS> const& GetUsedPowerTypes() const { return _usedPowerTypes; }
 };
 
 #endif

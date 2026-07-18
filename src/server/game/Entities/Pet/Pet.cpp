@@ -892,7 +892,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     }
 
     // Power
-    RegisterPowerTypes();
     SetPowerType(powerType, true, true);
 
     // Damage

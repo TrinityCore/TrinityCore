@@ -100,7 +100,7 @@ int32 Unit::GetCreatePowerValue(Powers power) const
 void Unit::UpdatePowerRegen(Powers powerType)
 {
     uint32 powerIndex = GetPowerIndex(powerType);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     float powerRegenMod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, powerType) / 5.f;
@@ -310,11 +310,8 @@ bool Player::UpdateAllStats()
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
 
-    for (Powers powerType : GetUsedPowerTypes())
+    for (Powers powerType : GetPowerTypes())
     {
-        if (powerType == MAX_POWERS)
-            continue;
-
         UpdateMaxPower(powerType);
         UpdatePowerRegen(powerType);
     }
@@ -427,13 +424,18 @@ void Player::UpdateMaxHealth()
 
 uint32 Player::GetPowerIndex(Powers power) const
 {
-    return sDB2Manager.GetPowerIndexByClass(power, GetClass());
+    return DB2Manager::GetPowerIndexByClass(power, GetClass());
+}
+
+ClassPowerTypes Player::GetPowerTypes() const
+{
+    return DB2Manager::GetPowerTypesByClass(GetClass());
 }
 
 void Player::UpdateMaxPower(Powers power)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
@@ -992,13 +994,10 @@ bool Creature::UpdateAllStats()
     UpdateAttackPowerAndDamage();
     UpdateAttackPowerAndDamage(true);
 
-    for (Powers powerType : GetUsedPowerTypes())
+    for (Powers power : GetPowerTypes())
     {
-        if (powerType == MAX_POWERS)
-            continue;
-
-        UpdateMaxPower(powerType);
-        UpdatePowerRegen(powerType);
+        UpdateMaxPower(power);
+        UpdatePowerRegen(power);
     }
 
     UpdateAllResistances();
@@ -1039,12 +1038,29 @@ uint32 Creature::GetPowerIndex(Powers power) const
         default:
             break;
     }
-    return MAX_POWERS;
+    return MAX_POWERS_PER_CLASS;
+}
+
+ClassPowerTypes Creature::GetPowerTypes() const
+{
+    return
+    {
+        .PowerType =
+        {
+            GetPowerType(),
+            POWER_ALTERNATE_POWER,
+            POWER_COMBO_POINTS,
+            //POWER_ALTERNATE_QUEST,
+            //POWER_ALTERNATE_ENCOUNTER,
+            //POWER_ALTERNATE_MOUNT
+        },
+        .PowerTypeCount = 3
+    };
 }
 
 void Creature::UpdateMaxPower(Powers power)
 {
-    if (GetPowerIndex(power) == MAX_POWERS)
+    if (GetPowerIndex(power) >= MAX_POWERS_PER_CLASS)
         return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
@@ -1224,7 +1240,7 @@ bool Guardian::UpdateAllStats()
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
-    for (Powers powerType : GetUsedPowerTypes())
+    for (Powers powerType : GetPowerTypes())
     {
         if (powerType == MAX_POWERS)
             continue;
@@ -1303,7 +1319,7 @@ void Guardian::UpdateMaxHealth()
 
 void Guardian::UpdateMaxPower(Powers power)
 {
-    if (GetPowerIndex(power) == MAX_POWERS)
+    if (GetPowerIndex(power) >= MAX_POWERS_PER_CLASS)
         return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
