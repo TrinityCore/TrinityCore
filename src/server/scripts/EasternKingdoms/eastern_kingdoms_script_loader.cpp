@@ -208,6 +208,7 @@ void AddSC_westfall();
 
 // Vashjir
 void AddSC_vashjir();
+void AddSC_abyssal_depths();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -379,7 +380,6 @@ void AddEasternKingdomsScripts()
     AddSC_instance_zulgurub();
     AddSC_zulgurub();
     AddSC_eastern_kingdoms();
-    AddSC_abyssal_depths();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -401,4 +401,8 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+
+    // Vashjir
+    AddSC_vashjir();
+    AddSC_abyssal_depths();
 }
