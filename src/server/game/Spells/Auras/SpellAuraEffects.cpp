@@ -4281,7 +4281,7 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) == MAX_POWERS)
+    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) >= MAX_POWERS_PER_CLASS)
         return;
 
     if (apply)
@@ -5507,9 +5507,9 @@ void AuraEffect::HandleAuraPreventRegeneratePower(AuraApplication const* aurApp,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int32 i = 0; i < MAX_POWERS; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(i));
+    for (Powers power : target->GetPowerTypes())
+        if (GetMiscValue() & (1 << power))
+            target->ToPlayer()->UpdatePowerRegen(power);
 }
 
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const

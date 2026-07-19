@@ -785,7 +785,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, aura);
                 continue;
             }
 
@@ -1225,7 +1225,7 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, aura);
                 continue;
             }
 
@@ -4722,7 +4722,7 @@ void ObjectMgr::LoadQuests()
         // additional quest integrity checks (GO, creature_template and items must be loaded already)
 
         if (qinfo->GetQuestType() >= MAX_DB_ALLOWED_QUEST_TYPES)
-            TC_LOG_ERROR("sql.sql", "Quest {} has `Method` = {}, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
+            TC_LOG_ERROR("sql.sql", "Quest {} has `QuestType` = {}, expected values are 0, 1, 2 or 3.", qinfo->GetQuestId(), qinfo->GetQuestType());
 
         if (qinfo->_specialFlags & ~QUEST_SPECIAL_FLAGS_DB_ALLOWED)
         {
@@ -5192,13 +5192,13 @@ void ObjectMgr::LoadQuests()
                 usedMailTemplates.emplace(qinfo->_rewardMailTemplateId, qinfo->GetQuestId());
         }
 
-        if (uint32 nextQuestInChain = qinfo->_nextQuestInChain)
+        if (uint32 rewardNextQuest = qinfo->_rewardNextQuest)
         {
-            if (!_questTemplates.count(nextQuestInChain))
+            if (!_questTemplates.count(rewardNextQuest))
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} has `NextQuestInChain` = {} but quest {} does not exist, quest chain will not work.",
-                    qinfo->GetQuestId(), qinfo->_nextQuestInChain, qinfo->_nextQuestInChain);
-                qinfo->_nextQuestInChain = 0;
+                TC_LOG_ERROR("sql.sql", "Quest {} has `RewardNextQuest` = {} but quest {} does not exist, quest chain will not work.",
+                    qinfo->GetQuestId(), qinfo->_rewardNextQuest, qinfo->_rewardNextQuest);
+                qinfo->_rewardNextQuest = 0;
             }
         }
 

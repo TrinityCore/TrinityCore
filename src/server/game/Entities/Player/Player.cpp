@@ -505,16 +505,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     LearnDefaultSkills();
     LearnCustomSpells();
 
-    // Original action bar. Do not use Player::AddActionButton because we do not have skill spells loaded at this time
-    // but checks will still be performed later when loading character from db in Player::_LoadActions
+    // original action bar
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
-    {
-        // create new button
-        ActionButton& ab = m_actionButtons[action_itr->button];
-
-        // set data
-        ab.SetActionAndType(action_itr->action, ActionButtonType(action_itr->type));
-    }
+        AddActionButton(action_itr->button, action_itr->action, action_itr->type);
 
     if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))
     {
@@ -1601,7 +1594,7 @@ void Player::RegenerateAll()
 {
     m_regenTimerCount += m_regenTimer;
 
-    for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
+    for (Powers power : GetPowerTypes())
         if (power != POWER_RUNES)
             Regenerate(power);
 
@@ -1642,7 +1635,7 @@ void Player::Regenerate(Powers power)
 {
     // Skip regeneration for power type we cannot have
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
@@ -1736,7 +1729,7 @@ void Player::Regenerate(Powers power)
 void Player::InterruptPowerRegen(Powers power)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     m_regenInterruptTimestamp = GameTime::Now();
@@ -2457,8 +2450,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     InitDataForForm(reapplyMods);
 
     // save new stats
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-        SetMaxPower(Powers(i), uint32(GetCreatePowerValue(Powers(i))));
+    for (Powers power : GetPowerTypes())
+        SetMaxPower(power, GetCreatePowerValue(power));
 
     SetMaxHealth(0);                          // stamina bonus will applied later
 
@@ -18713,25 +18706,17 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     // restore remembered power/health values (but not more max values)
     SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
-    uint32 loadedPowers = 0;
-    for (uint32 i = 0; i < MAX_POWERS; ++i)
+    ClassPowerTypes powerTypes = GetPowerTypes();
+    for (uint32 i = 0; i < powerTypes.PowerTypeCount; ++i)
     {
-        if (GetPowerIndex(Powers(i)) != MAX_POWERS)
-        {
-            uint32 savedPower = fields.powers[loadedPowers];
-            uint32 maxPower = m_unitData->MaxPower[loadedPowers];
-            SetPower(Powers(i), (savedPower > maxPower) ? maxPower : savedPower);
-            if (++loadedPowers >= MAX_POWERS_PER_CLASS)
-                break;
-        }
+        int32 savedPower = fields.powers[i];
+        int32 maxPower = m_unitData->MaxPower[i];
+        SetPower(powerTypes.PowerType[i], std::min(savedPower, maxPower));
     }
-
-    for (; loadedPowers < MAX_POWERS_PER_CLASS; ++loadedPowers)
-        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, loadedPowers), 0);
 
     SetPower(POWER_LUNAR_POWER, 0);
     // Init rune recharge
-    if (GetPowerIndex(POWER_RUNES) != MAX_POWERS)
+    if (GetPowerIndex(POWER_RUNES) < MAX_POWERS_PER_CLASS)
     {
         int32 runes = GetPower(POWER_RUNES);
         int32 maxRunes = GetMaxPower(POWER_RUNES);
@@ -27116,7 +27101,7 @@ void Player::InitRunes()
         return;
 
     uint32 runeIndex = GetPowerIndex(POWER_RUNES);
-    if (runeIndex == MAX_POWERS)
+    if (runeIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     m_runes = std::make_unique<Runes>();
