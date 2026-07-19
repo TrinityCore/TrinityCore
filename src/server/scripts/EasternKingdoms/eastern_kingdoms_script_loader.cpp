@@ -206,6 +206,9 @@ void AddSC_undercity();
 //void AddSC_western_plaguelands();
 void AddSC_westfall();
 
+// Vashjir
+void AddSC_vashjir();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddEasternKingdomsScripts()
