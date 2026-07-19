@@ -65,15 +65,13 @@ add_library(boost INTERFACE)
 
 target_link_libraries(boost
   INTERFACE
-    ${Boost_LIBRARIES})
-
-target_include_directories(boost
-  INTERFACE
-    ${Boost_INCLUDE_DIRS})
+    Boost::filesystem
+    Boost::program_options
+    Boost::regex
+    Boost::locale)
 
 target_compile_definitions(boost
   INTERFACE
-    BOOST_ALL_NO_LIB
     BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     BOOST_ASIO_NO_DEPRECATED
     BOOST_BIND_NO_PLACEHOLDERS

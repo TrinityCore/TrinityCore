@@ -45,7 +45,6 @@ namespace WorldPackets::Quest
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARD_ITEM_COUNT 4
-#define QUEST_DEPLINK_COUNT 10
 #define QUEST_REWARD_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_REWARD_CURRENCY_COUNT 4
@@ -652,7 +651,7 @@ class TC_GAME_API Quest
         uint32 GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
         int32  GetBreadcrumbForQuestId() const { return _breadcrumbForQuestId; }
-        uint32 GetNextQuestInChain() const { return _nextQuestInChain; }
+        uint32 GetNextQuestInChain() const { return _rewardNextQuest; }
         int32  GetRewArenaPoints() const {return _rewardArenaPoints; }
         uint32 GetXPDifficulty() const { return _rewardXPDifficulty; }
         float  GetXPMultiplier() const { return _rewardXPMultiplier; }
@@ -790,7 +789,7 @@ class TC_GAME_API Quest
         int32 _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;
-        uint32 _nextQuestInChain = 0;
+        uint32 _rewardNextQuest = 0;
         uint32 _rewardXPDifficulty = 0;
         float _rewardXPMultiplier = 0.f;
         uint32 _rewardMoneyDifficulty = 0;
