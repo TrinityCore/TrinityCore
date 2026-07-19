@@ -30,7 +30,6 @@ namespace Scripts::EasternKingdoms::Vashjir::Chapter1
 {
 namespace Creatures
 {
-    static constexpr uint32 VashjirWaypoint = 39848;
     static constexpr uint32 DrowningSoldierAlliance = 39663;
 }
 namespace Spells
