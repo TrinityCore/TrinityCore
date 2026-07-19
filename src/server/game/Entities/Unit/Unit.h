@@ -67,6 +67,7 @@ enum InventorySlot
 struct AbstractFollower;
 struct AuraCreateInfo;
 struct CharmInfo;
+struct ClassPowerTypes;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -1318,7 +1319,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
         template <typename InterruptFlags>
         void RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source = nullptr);
-        void RemoveAurasWithAttribute(uint32 flags);
+        void RemoveAurasWithAttribute(SpellAttr0 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
@@ -1555,6 +1556,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual uint32 GetPowerIndex(Powers power) const = 0;
+        virtual ClassPowerTypes GetPowerTypes() const = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
         void SetAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower); }
         void SetAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod); }

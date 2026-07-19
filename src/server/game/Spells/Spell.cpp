@@ -3822,8 +3822,8 @@ void Spell::_cast(bool skipCheck)
 
         // cleanup after mod system
         // triggered spell pointer can be not removed in some cases
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+        if (modOwner)
+            modOwner->SetSpellModTakingSpell(this, false);
 
         finish(SPELL_FAILED_INTERRUPTED);
         SetExecutedCurrently(false);
