@@ -144,7 +144,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         {
             mGameEvent[event_id].start = GameTime::GetGameTime();
             if (data.end <= data.start)
-                data.end = data.start + data.length;
+                data.end = data.start + data.length * MINUTE;
         }
         return false;
     }
@@ -185,7 +185,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
     {
         data.start = GameTime::GetGameTime() - data.length * MINUTE;
         if (data.end <= data.start)
-            data.end = data.start + data.length;
+            data.end = data.start + data.length * MINUTE;
     }
     else if (serverwide_evt)
     {

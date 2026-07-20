@@ -89,6 +89,7 @@ struct GameObjectTemplate
             uint32 NotLOSBlocking;                          // 11 Not LOS Blocking, enum { false, true, }; Default: false
             uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Collisionupdatedelayafteropen;           // 13 Collision update delay(ms) after open, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 BlockGhosts;                             // 14 Block Ghosts, enum { false, true, }; Default: false
         } door;
         // 1 GAMEOBJECT_TYPE_BUTTON
         struct

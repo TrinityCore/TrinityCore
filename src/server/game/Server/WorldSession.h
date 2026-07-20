@@ -1004,7 +1004,7 @@ class TC_GAME_API WorldSession
         void InitializeSession();
         void InitializeSessionCallback(LoginDatabaseQueryHolder const& holder, CharacterDatabaseQueryHolder const& realmHolder);
 
-        rbac::RBACData* GetRBACData();
+        rbac::RBACData* GetRBACData() const;
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         QueryCallback LoadPermissionsAsync();
@@ -1081,11 +1081,9 @@ class TC_GAME_API WorldSession
         void SendBindPoint(Creature* npc);
         void SendOpenTransmogrifier(ObjectGuid const& guid);
 
-        void SendAttackStop(Unit const* enemy);
-
         void SendTradeStatus(WorldPackets::Trade::TradeStatus& status);
         void SendUpdateTrade(bool trader_data = true);
-        void SendCancelTrade();
+        void SendCancelTrade(TradeStatus status);
 
         void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
@@ -1112,6 +1110,11 @@ class TC_GAME_API WorldSession
                 _tutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
+        void LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
+        bool UpdateAndCheckInstanceCount(uint32 instanceId);
+        void AddInstanceEnterTime(uint32 instanceId, SystemTimePoint enterTime);
+        void UpdateInstanceEnterTimes();
 
         struct PlayerDataAccount
         {
@@ -1370,7 +1373,7 @@ class TC_GAME_API WorldSession
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         // Validates that correct unit is moved, coords are in valid range and movement flags
-        bool ValidateMovementInfo(MovementInfo* mi) const;
+        bool ValidateMovementInfo(Unit const* mover, MovementInfo* mi) const;
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
@@ -1976,6 +1979,9 @@ class TC_GAME_API WorldSession
             return _legitCharacters.find(lowGUID) != _legitCharacters.end();
         }
 
+        // Movement helpers
+        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, OpcodeClient opcode, bool forStatusAck) const;
+
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
         GuidSet _legitCharacters;
@@ -2014,6 +2020,9 @@ class TC_GAME_API WorldSession
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> _tutorials;
         uint8 _tutorialsChanged;
+
+        std::unordered_map<uint32 /*instanceId*/, SystemTimePoint/*releaseTime*/> _instanceResetTimes;
+
         PlayerDataAccount _playerDataAccount;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;

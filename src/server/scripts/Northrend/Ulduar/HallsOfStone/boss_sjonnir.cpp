@@ -24,7 +24,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum SjonnirTexts
 {
     SAY_AGGRO                            = 0,
     SAY_SLAY                             = 1,
@@ -32,7 +32,7 @@ enum Texts
     EMOTE_FRENZY                         = 3
 };
 
-enum Spells
+enum SjonnirSpells
 {
     SPELL_FRENZY                         = 28747,
 
@@ -65,23 +65,7 @@ enum Spells
 #define SPELL_SUMMON_MALFORMED_OOZE_PERIODIC DUNGEON_MODE<uint32>(50801,59858)
 #define SPELL_TOXIC_VOLLEY DUNGEON_MODE<uint32>(50838,59853)
 
-enum Creatures
-{
-    NPC_FORGED_IRON_TROGG                = 27979,
-    NPC_FORGED_IRON_DWARF                = 27982,
-    NPC_EARTHEN_DWARF                    = 27980
-};
-
-enum Misc
-{
-    POINT_CENTER                         = 0,
-    POINT_COMBINE                        = 1,
-
-    ACTION_SLUDGE_DEAD                   = 1,
-    DATA_ABUSE_THE_OOZE                  = 2
-};
-
-enum Events
+enum SjonnirEvents
 {
     EVENT_CHAIN_LIGHTNING                = 1,
     EVENT_LIGHTNING_SHIELD,
@@ -91,8 +75,25 @@ enum Events
     EVENT_FRENZY
 };
 
+enum SjonnirCreatures
+{
+    NPC_FORGED_IRON_TROGG                = 27979,
+    NPC_FORGED_IRON_DWARF                = 27982,
+    NPC_EARTHEN_DWARF                    = 27980
+};
+
+enum SjonnirMisc
+{
+    POINT_CENTER                         = 0,
+    POINT_COMBINE                        = 1,
+
+    ACTION_SLUDGE_DEAD                   = 1,
+    DATA_ABUSE_THE_OOZE                  = 2
+};
+
 Position const CenterPoint = { 1293.8799f, 666.942f, 189.60754f, 0.0f };
 
+// 27978 - Sjonnir The Ironshaper
 struct boss_sjonnir : public BossAI
 {
     boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR_THE_IRONSHAPER),
@@ -257,6 +258,7 @@ private:
     bool _frenzied;
 };
 
+// 27981 - Malformed Ooze
 struct npc_malformed_ooze : public ScriptedAI
 {
     npc_malformed_ooze(Creature* creature) : ScriptedAI(creature) { }
@@ -348,6 +350,7 @@ private:
     ObjectGuid _combineTarget;
 };
 
+// 28165 - Iron Sludge
 struct npc_iron_sludge : public ScriptedAI
 {
     npc_iron_sludge(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }

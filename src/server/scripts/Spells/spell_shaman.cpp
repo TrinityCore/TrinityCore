@@ -874,7 +874,7 @@ class spell_sha_earthen_rage_passive : public AuraScript
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
-        _procTargetGuid = eventInfo.GetProcTarget()->GetGUID();
+        _procTargetGuid = eventInfo.GetActionTarget()->GetGUID();
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK
         });
@@ -1529,7 +1529,7 @@ class spell_sha_item_lightning_shield : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, CastSpellExtraArgsInit{
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,
             .TriggeringAura = aurEff
         });
@@ -1549,10 +1549,10 @@ class spell_sha_item_lightning_shield_trigger : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, CastSpellExtraArgsInit{
+        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,
             .TriggeringAura = aurEff
         });
@@ -2169,7 +2169,7 @@ class spell_sha_mastery_elemental_overload : public AuraScript
         Unit* caster = procInfo.GetActor();
 
         caster->m_Events.AddEventAtOffset([caster,
-            targets = CastSpellTargetArg(procInfo.GetProcTarget()),
+            targets = CastSpellTargetArg(procInfo.GetActionTarget()),
             overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo()->Id),
             originalCastId = procInfo.GetProcSpell()->m_castId]() mutable
         {
@@ -2928,7 +2928,7 @@ class spell_sha_t3_6p_bonus : public AuraScript
 
         uint32 spellId;
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         switch (target->GetClass())
         {
@@ -3006,7 +3006,7 @@ class spell_sha_t8_elemental_4p_bonus : public AuraScript
         amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         caster->CastSpell(target, SPELL_SHAMAN_ELECTRIFIED, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,
@@ -3044,7 +3044,7 @@ class spell_sha_t9_elemental_4p_bonus : public AuraScript
         amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         caster->CastSpell(target, SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,
@@ -3067,7 +3067,7 @@ class spell_sha_t10_elemental_4p_bonus : public AuraScript
         PreventDefaultAction();
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         // try to find spell Flame Shock on the target
         AuraEffect* flameShock = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, flag128(0x10000000), caster->GetGUID());
@@ -3114,7 +3114,7 @@ class spell_sha_t10_restoration_4p_bonus : public AuraScript
         amount /= dotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         caster->CastSpell(target, SPELL_SHAMAN_CHAINED_HEAL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK,

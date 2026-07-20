@@ -736,7 +736,7 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
         ObjectGuid summonGUID = player->m_SummonSlot[itr2];
         if (!summonGUID.IsEmpty())
             if (Creature* summon = instance->GetCreature(summonGUID))
-                summon->CastSpell(player, spell, true);
+                summon->CastSpell(summon, spell, true);
     }
 
     if (!includeControlled)
@@ -746,7 +746,7 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
     {
         if (Unit* controlled = *itr2)
             if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
-                controlled->CastSpell(player, spell, true);
+                controlled->CastSpell(controlled, spell, true);
     }
 }
 
@@ -778,8 +778,9 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
 {
     for (BossInfo const& boss : bosses)
-        if (advstd::ranges::contains(boss.DungeonEncounters, dungeonEncounterId, &DungeonEncounterEntry::ID))
-            return boss.state == DONE;
+        for (DungeonEncounterEntry const* dungeonEncounter : boss.DungeonEncounters)
+            if (dungeonEncounter && dungeonEncounter->ID == dungeonEncounterId)
+                return boss.state == DONE;
 
     return false;
 }

@@ -372,16 +372,6 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                // if both players are in different bgs
-                else if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
-                    _player->LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
-
-                // all's well, set bg id
-                // when porting out from the bg, it will be reset to 0
-                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure
-                // remember current position as entry point for return at bg end teleportation
-                if (!_player->GetMap()->IsBattlegroundOrArena())
-                    _player->SetBattlegroundEntryPoint();
             }
             else if (map->IsDungeon())
             {
@@ -420,6 +410,19 @@ public:
 
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
 
+            if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
+                _player->LeaveBattleground(false, true);
+
+            if (map->IsBattlegroundOrArena())
+            {
+                // all's well, set bg id
+                // when porting out from the bg, it will be reset to 0
+                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE);
+                // remember current position as entry point for return at bg end teleportation
+                if (!_player->GetMap()->IsBattlegroundOrArena())
+                    _player->SetBattlegroundEntryPoint();
+            }
+
             // stop flight if need
             if (_player->IsInFlight())
                 _player->FinishTaxiFlight();
@@ -450,6 +453,9 @@ public:
             bool in_flight;
             if (!Player::LoadPositionFromDB(map, x, y, z, o, in_flight, targetGuid))
                 return false;
+
+            if (_player->GetBattlegroundId())
+                _player->LeaveBattleground(false, true);
 
             // stop flight if need
             if (_player->IsInFlight())
@@ -505,16 +511,6 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                // if both players are in different bgs
-                else if (target->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
-                    target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
-
-                // all's well, set bg id
-                // when porting out from the bg, it will be reset to 0
-                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure about this
-                // remember current position as entry point for return at bg end teleportation
-                if (!target->GetMap()->IsBattlegroundOrArena())
-                    target->SetBattlegroundEntryPoint();
             }
             else if (map->IsDungeon())
             {
@@ -544,6 +540,19 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), "");
             if (handler->needReportToTarget(target))
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
+
+            if (target->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
+                target->LeaveBattleground(false, true);
+
+            if (map->IsBattlegroundOrArena())
+            {
+                // all's well, set bg id
+                // when porting out from the bg, it will be reset to 0
+                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE);
+                // remember current position as entry point for return at bg end teleportation
+                if (!target->GetMap()->IsBattlegroundOrArena())
+                    target->SetBattlegroundEntryPoint();
+            }
 
             // stop flight if need
             if (_player->IsInFlight())
@@ -1723,7 +1732,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(std::max<int64>(banTime - GameTime::GetGameTime(), 0), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)

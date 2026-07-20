@@ -242,18 +242,22 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     for (SpellExtraCurrencyCost& optionalCurrency : request.ExtraCurrencyCosts)
         buffer >> optionalCurrency;
 
-    buffer >> request.Target;
-
     buffer.ResetBitPos();
+    buffer >> OptionalInit(request.ReceiveTime);
     buffer >> OptionalInit(request.MoveUpdate);
     buffer >> BitsSize<2>(request.Weight);
     buffer >> OptionalInit(request.CraftingOrderID);
 
-    for (SpellCraftingReagent& optionalReagent : request.CraftingReagents)
-        buffer >> optionalReagent;
+    buffer >> request.Target;
+
+    if (request.ReceiveTime)
+        buffer >> *request.ReceiveTime;
 
     if (request.CraftingOrderID)
         buffer >> *request.CraftingOrderID;
+
+    for (SpellCraftingReagent& optionalReagent : request.CraftingReagents)
+        buffer >> optionalReagent;
 
     for (SpellCraftingReagent& optionalReagent : request.RemovedReagents)
         buffer >> optionalReagent;
@@ -493,6 +497,7 @@ WorldPacket const* LearnedSpells::Write()
 {
     _worldPacket << Size<uint32>(ClientLearnedSpellData);
     _worldPacket << uint32(SpecializationID);
+    _worldPacket << int32(MinActionBarSlot);
     _worldPacket << Bits<1>(SuppressMessaging);
     _worldPacket << Bits<1>(TraitGrantedByAura);
     _worldPacket.FlushBits();
@@ -845,6 +850,7 @@ WorldPacket const* PlaySpellVisualKit::Write()
 WorldPacket const* SpellVisualLoadScreen::Write()
 {
     _worldPacket << int32(SpellVisualKitID);
+    _worldPacket << Duration;
     _worldPacket << int32(Delay);
 
     return &_worldPacket;
@@ -1005,6 +1011,7 @@ void SelfRes::Read()
 void GetMirrorImageData::Read()
 {
     _worldPacket >> UnitGUID;
+    _worldPacket >> DisplayID;
 }
 
 MirrorImageComponentedData::MirrorImageComponentedData()

@@ -22,7 +22,6 @@
 #include "BattlegroundScript.h"
 #include "Containers.h"
 #include "CreatureAI.h"
-#include "G3DPosition.hpp"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Map.h"
@@ -34,7 +33,6 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellHistory.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "WaypointDefines.h"
@@ -650,7 +648,7 @@ class spell_bg_seething_shore_speed_up : public SpellScript
         // Unsure about which spells should reset and which not
         // It's not the same list as the ones that reset on encounter reset
         if (Player* player = GetCaster()->ToPlayer())
-            player->GetSpellHistory()->ResetAllCooldowns();
+            player->RemoveArenaSpellCooldowns();
     }
 
     void Register() override

@@ -67,6 +67,7 @@ enum InventorySlot
 struct AbstractFollower;
 struct AuraCreateInfo;
 struct CharmInfo;
+struct ClassPowerTypes;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -101,6 +102,7 @@ class VehicleJoinEvent;
 
 enum CharmType : uint8;
 enum class EncounterType : uint8;
+enum PetAction : int32;
 enum class PetActionFeedback : uint8;
 enum MovementGeneratorType : uint8;
 enum ProcFlagsHit : uint32;
@@ -213,8 +215,6 @@ enum UnitMods
     UNIT_MOD_RESISTANCE_FROST,
     UNIT_MOD_RESISTANCE_SHADOW,
     UNIT_MOD_RESISTANCE_ARCANE,
-    UNIT_MOD_ATTACK_POWER,
-    UNIT_MOD_ATTACK_POWER_RANGED,
     UNIT_MOD_DAMAGE_MAINHAND,
     UNIT_MOD_DAMAGE_OFFHAND,
     UNIT_MOD_DAMAGE_RANGED,
@@ -245,6 +245,21 @@ enum BaseModType
     FLAT_MOD,
     PCT_MOD,
     MOD_END
+};
+
+enum class AttackPowerModIndex : uint8
+{
+    Melee,
+    Ranged,
+    End
+};
+
+enum class AttackPowerModType : uint8
+{
+    FlatPositive,
+    FlatNegative,
+    Pct,
+    End
 };
 
 enum DeathState
@@ -492,13 +507,12 @@ class TC_GAME_API HealInfo
 class TC_GAME_API ProcEventInfo
 {
     public:
-        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, ProcFlagsInit const& typeMask,
+        ProcEventInfo(Unit* actor, Unit* actionTarget, ProcFlagsInit const& typeMask,
                       ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
         Unit* GetActor() const { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
-        Unit* GetProcTarget() const { return _procTarget; }
 
         ProcFlagsInit GetTypeMask() const { return _typeMask; }
         ProcFlagsSpellType GetSpellTypeMask() const { return _spellTypeMask; }
@@ -516,7 +530,6 @@ class TC_GAME_API ProcEventInfo
     private:
         Unit* const _actor;
         Unit* const _actionTarget;
-        Unit* const _procTarget;
         ProcFlagsInit _typeMask;
         ProcFlagsSpellType _spellTypeMask;
         ProcFlagsSpellPhase _spellPhaseMask;
@@ -736,7 +749,7 @@ class TC_GAME_API Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         Unit* SelectNearbyTarget(Unit* exclude = nullptr, float dist = NOMINAL_MELEE_RANGE) const;
-        void SendMeleeAttackStop(Unit* victim = nullptr);
+        void SendMeleeAttackStop(Unit const* victim = nullptr) const;
         void SendMeleeAttackStart(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
@@ -760,7 +773,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetLevel(uint8 lvl, bool sendUpdate = true);
         uint8 GetRace() const { return m_unitData->Race; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
-        uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
+        uint64 GetRaceMask() const;
         uint8 GetClass() const { return m_unitData->ClassId; }
         void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
@@ -1178,8 +1191,8 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateMovementForcesModMagnitude();
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float const ori, bool force = true);
-        void SetFacingToObject(WorldObject const* object, bool force = true);
+        void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
+        void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
         void SetFacingToPoint(Position const& point, bool force = true);
 
         bool IsAlive() const { return (m_deathState == ALIVE); }
@@ -1319,7 +1332,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
         template <typename InterruptFlags>
         void RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source = nullptr);
-        void RemoveAurasWithAttribute(uint32 flags);
+        void RemoveAurasWithAttribute(SpellAttr0 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
@@ -1451,7 +1464,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetSpellEmpowerStage(int8 stage) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SpellEmpowerStage), stage); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
+        void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true,
+            SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {}, ObjectGuid const& interrupter = ObjectGuid::Empty);
         void FinishSpell(CurrentSpellTypes spellType, SpellCastResult result = SPELL_CAST_OK);
 
         // set withDelayed to true to account delayed spells as cast
@@ -1532,6 +1546,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateUnitMod(UnitMods unitMod);
 
+        void HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply);
+        float GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const;
+
         // only players have item requirements
         virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType /*attackType*/, AuraEffect const* /*aurEff*/) const { return true; }
 
@@ -1555,6 +1572,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual uint32 GetPowerIndex(Powers power) const = 0;
+        virtual ClassPowerTypes GetPowerTypes() const = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
         void SetAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower); }
         void SetAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod); }
@@ -1725,7 +1743,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual MovementGeneratorType GetDefaultMovementType() const;
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
-        void StopMoving();
+        void StopMoving(bool force = false);
         void PauseMovement(uint32 timer = 0, uint8 slot = 0, bool forced = true); // timer in ms
         void ResumeMovement(uint32 timer = 0, uint8 slot = 0); // timer in ms
 
@@ -1753,9 +1771,10 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyControlStatesIfNeeded();
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId);
-        void SendPetTalk(uint32 pettalk);
-        void SendPetAIReaction(ObjectGuid guid);
+        void SendPetActionFeedback(PetActionFeedback msg, uint32 spellId) const;
+        void SendPetActionSound(PetAction action) const;
+        void SendPetDismissSound() const;
+        void SendPetAIReaction(ObjectGuid guid) const;
         ///----------End of Pet responses methods----------
 
         void PropagateSpeedChange();
@@ -1936,6 +1955,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_auraFlatModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_FLAT_END];
         float m_auraPctModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_PCT_END];
+        float m_attackPowerMods[uint32(AttackPowerModIndex::End)][uint32(AttackPowerModType::End)];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
 
@@ -1977,7 +1997,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat();
         virtual void AtExitCombat();
 
-        virtual void AtEngage(Unit* /*target*/) {}
+        virtual void AtEngage(Unit* target);
         virtual void AtDisengage() {}
 
     public:
@@ -1985,7 +2005,7 @@ class TC_GAME_API Unit : public WorldObject
         void AtEndOfEncounter(EncounterType type);
 
     private:
-
+        friend class ImmediateMovementGenerator; // for UpdateSplineMovement
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
         void SendFlightSplineSyncUpdate();

@@ -42,6 +42,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* FanoutTarget_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FanoutTarget_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Span_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Span_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Header_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Header_reflection_ = NULL;
@@ -165,8 +168,23 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FanoutTarget));
-  Header_descriptor_ = file->message_type(7);
-  static const int Header_offsets_[19] = {
+  Span_descriptor_ = file->message_type(7);
+  static const int Span_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Span, trace_id_),
+  };
+  Span_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Span_descriptor_,
+      Span::default_instance_,
+      Span_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Span, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Span, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Span));
+  Header_descriptor_ = file->message_type(8);
+  static const int Header_offsets_[20] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, service_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, method_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, token_),
@@ -178,14 +196,15 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, is_response_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, forward_targets_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, service_hash_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, ciid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, fanout_target_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, client_id_fanout_target_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, ciid_fanout_target_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, client_record_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, original_sender_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, sender_token_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, router_label_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, error_reason_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, span_),
   };
   Header_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -225,6 +244,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FanoutTarget_descriptor_, &FanoutTarget::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Span_descriptor_, &Span::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Header_descriptor_, &Header::default_instance());
 }
 
@@ -245,6 +266,8 @@ void protobuf_ShutdownFile_rpc_5ftypes_2eproto() {
   delete ErrorInfo_reflection_;
   delete FanoutTarget::default_instance_;
   delete FanoutTarget_reflection_;
+  delete Span::default_instance_;
+  delete Span_reflection_;
   delete Header::default_instance_;
   delete Header_reflection_;
 }
@@ -256,38 +279,41 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffile_5foptions_2eproto();
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\017rpc_types.proto\022\014bgs.protocol\032%global_"
-    "extensions/field_options.proto\032&global_e"
-    "xtensions/method_options.proto\032\'global_e"
-    "xtensions/message_options.proto\032\'global_"
-    "extensions/service_options.proto\"\r\n\013NO_R"
-    "ESPONSE\"(\n\007Address\022\017\n\007address\030\001 \002(\t\022\014\n\004p"
-    "ort\030\002 \001(\r\"3\n\tProcessId\022\027\n\005label\030\001 \002(\rB\010\212"
-    "\371+\004\022\002\020\000\022\r\n\005epoch\030\002 \002(\r\"L\n\rObjectAddress\022"
-    "%\n\004host\030\001 \002(\0132\027.bgs.protocol.ProcessId\022\024"
-    "\n\tobject_id\030\002 \001(\004:\0010\"\010\n\006NoData\"y\n\tErrorI"
-    "nfo\0223\n\016object_address\030\001 \002(\0132\033.bgs.protoc"
-    "ol.ObjectAddress\022\016\n\006status\030\002 \002(\r\022\024\n\014serv"
-    "ice_hash\030\003 \002(\r\022\021\n\tmethod_id\030\004 \002(\r\"A\n\014Fan"
-    "outTarget\022\021\n\tclient_id\030\001 \001(\t\022\013\n\003key\030\002 \001("
-    "\014\022\021\n\tobject_id\030\003 \001(\004\"\347\003\n\006Header\022\022\n\nservi"
-    "ce_id\030\001 \002(\r\022\021\n\tmethod_id\030\002 \001(\r\022\r\n\005token\030"
-    "\003 \002(\r\022\024\n\tobject_id\030\004 \001(\004:\0010\022\017\n\004size\030\005 \001("
-    "\r:\0010\022\021\n\006status\030\006 \001(\r:\0010\022&\n\005error\030\007 \003(\0132\027"
-    ".bgs.protocol.ErrorInfo\022\017\n\007timeout\030\010 \001(\004"
-    "\022\023\n\013is_response\030\t \001(\010\0220\n\017forward_targets"
-    "\030\n \003(\0132\027.bgs.protocol.ProcessId\022\024\n\014servi"
-    "ce_hash\030\013 \001(\007\022\021\n\tclient_id\030\r \001(\t\0221\n\rfano"
-    "ut_target\030\016 \003(\0132\032.bgs.protocol.FanoutTar"
-    "get\022\037\n\027client_id_fanout_target\030\017 \003(\t\022\025\n\r"
-    "client_record\030\020 \001(\014\022\027\n\017original_sender\030\021"
-    " \001(\014\022\024\n\014sender_token\030\022 \001(\r\022\024\n\014router_lab"
-    "el\030\023 \001(\r\022\024\n\014error_reason\030\024 \001(\tB\032\n\014bgs.pr"
-    "otocolB\010RpcProtoH\002P\000P\001P\002P\003", 1106);
+    "extensions/field_options.proto\032$global_e"
+    "xtensions/file_options.proto\032&global_ext"
+    "ensions/method_options.proto\032\'global_ext"
+    "ensions/message_options.proto\032\'global_ex"
+    "tensions/service_options.proto\"\r\n\013NO_RES"
+    "PONSE\"(\n\007Address\022\017\n\007address\030\001 \002(\t\022\014\n\004por"
+    "t\030\002 \001(\r\"3\n\tProcessId\022\027\n\005label\030\001 \002(\rB\010\212\371+"
+    "\004\022\002\020\000\022\r\n\005epoch\030\002 \002(\r\"L\n\rObjectAddress\022%\n"
+    "\004host\030\001 \002(\0132\027.bgs.protocol.ProcessId\022\024\n\t"
+    "object_id\030\002 \001(\004:\0010\"\010\n\006NoData\"y\n\tErrorInf"
+    "o\0223\n\016object_address\030\001 \002(\0132\033.bgs.protocol"
+    ".ObjectAddress\022\016\n\006status\030\002 \002(\r\022\024\n\014servic"
+    "e_hash\030\003 \002(\r\022\021\n\tmethod_id\030\004 \002(\r\"A\n\014Fanou"
+    "tTarget\022\021\n\tclient_id\030\001 \001(\t\022\013\n\003key\030\002 \001(\014\022"
+    "\021\n\tobject_id\030\003 \001(\004\"\030\n\004Span\022\020\n\010trace_id\030\001"
+    " \001(\t\"\377\003\n\006Header\022\022\n\nservice_id\030\001 \002(\r\022\021\n\tm"
+    "ethod_id\030\002 \001(\r\022\r\n\005token\030\003 \002(\r\022\024\n\tobject_"
+    "id\030\004 \001(\004:\0010\022\017\n\004size\030\005 \001(\r:\0010\022\021\n\006status\030\006"
+    " \001(\r:\0010\022&\n\005error\030\007 \003(\0132\027.bgs.protocol.Er"
+    "rorInfo\022\017\n\007timeout\030\010 \001(\004\022\023\n\013is_response\030"
+    "\t \001(\010\0220\n\017forward_targets\030\n \003(\0132\027.bgs.pro"
+    "tocol.ProcessId\022\024\n\014service_hash\030\013 \001(\007\022\014\n"
+    "\004ciid\030\r \001(\t\0221\n\rfanout_target\030\016 \003(\0132\032.bgs"
+    ".protocol.FanoutTarget\022\032\n\022ciid_fanout_ta"
+    "rget\030\017 \003(\t\022\025\n\rclient_record\030\020 \001(\014\022\027\n\017ori"
+    "ginal_sender\030\021 \001(\014\022\024\n\014sender_token\030\022 \001(\r"
+    "\022\024\n\014router_label\030\023 \001(\r\022\024\n\014error_reason\030\024"
+    " \001(\t\022 \n\004span\030\025 \001(\0132\022.bgs.protocol.SpanB\032"
+    "\n\014bgs.protocolB\010RpcProtoH\002P\000P\001P\002P\003P\004", 1196);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rpc_types.proto", &protobuf_RegisterTypes);
   NO_RESPONSE::default_instance_ = new NO_RESPONSE();
@@ -297,6 +323,7 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   NoData::default_instance_ = new NoData();
   ErrorInfo::default_instance_ = new ErrorInfo();
   FanoutTarget::default_instance_ = new FanoutTarget();
+  Span::default_instance_ = new Span();
   Header::default_instance_ = new Header();
   NO_RESPONSE::default_instance_->InitAsDefaultInstance();
   Address::default_instance_->InitAsDefaultInstance();
@@ -305,6 +332,7 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   NoData::default_instance_->InitAsDefaultInstance();
   ErrorInfo::default_instance_->InitAsDefaultInstance();
   FanoutTarget::default_instance_->InitAsDefaultInstance();
+  Span::default_instance_->InitAsDefaultInstance();
   Header::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_rpc_5ftypes_2eproto);
 }
@@ -849,6 +877,82 @@ void FanoutTarget::Swap(FanoutTarget* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int Span::kTraceIdFieldNumber;
+#endif  // !_MSC_VER
+
+Span::Span()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.Span)
+}
+
+void Span::InitAsDefaultInstance() {
+}
+
+Span::Span(const Span& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.Span)
+}
+
+void Span::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  trace_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Span::~Span() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.Span)
+  SharedDtor();
+}
+
+void Span::SharedDtor() {
+  if (trace_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete trace_id_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Span::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Span::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Span_descriptor_;
+}
+
+const Span& Span::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_rpc_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+Span* Span::default_instance_ = NULL;
+
+Span* Span::New() const {
+  return new Span;
+}
+
+void Span::Swap(Span* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata Span::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Span_descriptor_;
+  metadata.reflection = Span_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int Header::kServiceIdFieldNumber;
 const int Header::kMethodIdFieldNumber;
 const int Header::kTokenFieldNumber;
@@ -860,14 +964,15 @@ const int Header::kTimeoutFieldNumber;
 const int Header::kIsResponseFieldNumber;
 const int Header::kForwardTargetsFieldNumber;
 const int Header::kServiceHashFieldNumber;
-const int Header::kClientIdFieldNumber;
+const int Header::kCiidFieldNumber;
 const int Header::kFanoutTargetFieldNumber;
-const int Header::kClientIdFanoutTargetFieldNumber;
+const int Header::kCiidFanoutTargetFieldNumber;
 const int Header::kClientRecordFieldNumber;
 const int Header::kOriginalSenderFieldNumber;
 const int Header::kSenderTokenFieldNumber;
 const int Header::kRouterLabelFieldNumber;
 const int Header::kErrorReasonFieldNumber;
+const int Header::kSpanFieldNumber;
 #endif  // !_MSC_VER
 
 Header::Header()
@@ -877,6 +982,7 @@ Header::Header()
 }
 
 void Header::InitAsDefaultInstance() {
+  span_ = const_cast< ::bgs::protocol::Span*>(&::bgs::protocol::Span::default_instance());
 }
 
 Header::Header(const Header& from)
@@ -898,12 +1004,13 @@ void Header::SharedCtor() {
   timeout_ = GOOGLE_ULONGLONG(0);
   is_response_ = false;
   service_hash_ = 0u;
-  client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   client_record_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   original_sender_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   sender_token_ = 0u;
   router_label_ = 0u;
   error_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  span_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -913,8 +1020,8 @@ Header::~Header() {
 }
 
 void Header::SharedDtor() {
-  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_id_;
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ciid_;
   }
   if (client_record_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete client_record_;
@@ -926,6 +1033,7 @@ void Header::SharedDtor() {
     delete error_reason_;
   }
   if (this != default_instance_) {
+    delete span_;
   }
 }
 

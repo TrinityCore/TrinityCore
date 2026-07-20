@@ -30,6 +30,7 @@
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "KillRewarder.h"
@@ -121,6 +122,12 @@ Battleground::~Battleground()
         m_Map->SetBG(nullptr);
         m_Map = nullptr;
     }
+
+    // Clear Group::m_bgGroup, Group might later reference it in its own destructor
+    for (Group* bgRaid : m_BgRaids)
+        if (bgRaid)
+            bgRaid->SetBattlegroundGroup(nullptr);
+
     // remove from bg free slot queue
     RemoveFromBGFreeSlotQueue();
 
@@ -1082,6 +1089,7 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, Team team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        sGroupMgr->AddGroup(group);
         Seconds countdownMaxForBGType = Seconds(StartDelayTimes[BG_STARTING_EVENT_FIRST]  / 1000);
         if (_preparationStartTime)
             group->StartCountdown(CountdownTimerType::Pvp, countdownMaxForBGType, _preparationStartTime);

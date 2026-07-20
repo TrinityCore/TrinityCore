@@ -364,7 +364,7 @@ class TC_GAME_API Group
         // -no description-
         void SendTargetIconList(WorldSession* session) const;
         void SendUpdate() const;
-        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot = nullptr) const;
+        void SendUpdateToPlayer(Player* player, MemberSlot const* slot = nullptr) const;
         void SendUpdateDestroyGroupToPlayer(Player* player) const;
         void UpdatePlayerOutOfRange(Player const* player) const;
 

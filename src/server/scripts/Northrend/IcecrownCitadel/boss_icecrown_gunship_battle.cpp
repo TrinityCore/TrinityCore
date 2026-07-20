@@ -39,7 +39,7 @@
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
 
-enum Texts
+enum GunshipTexts
 {
     // High Overlord Saurfang
     SAY_SAURFANG_INTRO_1                = 0,
@@ -80,7 +80,7 @@ enum Texts
     SAY_OVERHEAT                        = 0
 };
 
-enum Events
+enum GunshipEvents
 {
     // High Overlord Saurfang
     EVENT_INTRO_H_1                 = 1,
@@ -113,7 +113,7 @@ enum Events
     EVENT_WOUNDING_STRIKE           = 17
 };
 
-enum Spells
+enum GunshipSpells
 {
     // Applied on friendly transport NPCs
     SPELL_FRIENDLY_BOSS_DAMAGE_MOD          = 70339,
@@ -194,7 +194,7 @@ enum Spells
     SPELL_EJECT_ALL_PASSENGERS_WIPE         = 50630
 };
 
-enum MiscData
+enum GunshipMisc
 {
     ITEM_GOBLIN_ROCKET_PACK    = 49278,
     SPELL_CREATE_ROCKET_PACK   = 70055,
@@ -205,7 +205,7 @@ enum MiscData
     MUSIC_ENCOUNTER            = 17289
 };
 
-enum EncounterActions
+enum GunshipActions
 {
     ACTION_SPAWN_MAGE       = 1,
     ACTION_SPAWN_ALL_ADDS   = 2,
@@ -256,7 +256,7 @@ G3D::Vector3 const SaurfangExitPath[] =
     { 15.33203f, -30.42621f, 35.93796f }
 };
 
-enum PassengerSlots
+enum GunshipPassengerSlots
 {
     // Freezing the cannons
     SLOT_FREEZE_MAGE    = 0,
@@ -398,7 +398,7 @@ public:
         _slotInfo = team == HORDE ? OrgrimsHammerSlotInfo : SkybreakerSlotInfo;
     }
 
-    bool SummonCreatures(PassengerSlots first, PassengerSlots last)
+    bool SummonCreatures(GunshipPassengerSlots first, GunshipPassengerSlots last)
     {
         if (!_transport)
             return false;
@@ -429,13 +429,13 @@ public:
         return summoned;
     }
 
-    void ClearSlot(PassengerSlots slot)
+    void ClearSlot(GunshipPassengerSlots slot)
     {
         _controlledSlots[slot].Clear();
         _respawnCooldowns[slot] = GameTime::GetGameTime() + _slotInfo[slot].Cooldown;
     }
 
-    bool SlotsNeedRefill(PassengerSlots first, PassengerSlots last) const
+    bool SlotsNeedRefill(GunshipPassengerSlots first, GunshipPassengerSlots last) const
     {
         for (int32 i = first; i <= last; ++i)
             if (!_controlledSlots[i])
@@ -664,6 +664,8 @@ protected:
     uint32 BurningPitchId;
 };
 
+// 37215 - Orgrim's Hammer
+// 37540 - The Skybreaker
 class npc_gunship : public CreatureScript
 {
     public:
@@ -838,6 +840,7 @@ class npc_gunship : public CreatureScript
         }
 };
 
+// 36939 - High Overlord Saurfang
 struct npc_high_overlord_saurfang_igb : public ScriptedAI
 {
     npc_high_overlord_saurfang_igb(Creature* creature) : ScriptedAI(creature),
@@ -946,7 +949,7 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
     {
         if (type == ACTION_CLEAR_SLOT)
         {
-            _controller.ClearSlot(PassengerSlots(data));
+            _controller.ClearSlot(GunshipPassengerSlots(data));
             if (data == SLOT_FREEZE_MAGE)
                 _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
         }
@@ -1094,6 +1097,7 @@ private:
     time_t _rocketeersYellCooldown;
 };
 
+// 36948 - Muradin Bronzebeard
 struct npc_muradin_bronzebeard_igb : public ScriptedAI
 {
     npc_muradin_bronzebeard_igb(Creature* creature) : ScriptedAI(creature),
@@ -1202,7 +1206,7 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
     {
         if (type == ACTION_CLEAR_SLOT)
         {
-            _controller.ClearSlot(PassengerSlots(data));
+            _controller.ClearSlot(GunshipPassengerSlots(data));
             if (data == SLOT_FREEZE_MAGE)
                 _events.ScheduleEvent(EVENT_SUMMON_MAGE, 30s, 33500ms);
         }
@@ -1354,6 +1358,7 @@ private:
     time_t _mortarYellCooldown;
 };
 
+// 37184 - Zafod Boombox
 struct npc_zafod_boombox : public gunship_npc_AI
 {
     npc_zafod_boombox(Creature* creature) : gunship_npc_AI(creature) { }
@@ -1509,6 +1514,8 @@ private:
     bool _usedDesperateResolve;
 };
 
+// 36960 - Kor'kron Sergeant
+// 36961 - Skybreaker Sergeant
 struct npc_gunship_boarding_leader : public npc_gunship_boarding_addAI
 {
     npc_gunship_boarding_leader(Creature* creature) : npc_gunship_boarding_addAI(creature) { }
@@ -1558,6 +1565,8 @@ private:
     EventMap _events;
 };
 
+// 36950 - Skybreaker Marine
+// 36957 - Kor'kron Reaver
 class npc_gunship_boarding_add : public CreatureScript
 {
     public:
@@ -1569,6 +1578,8 @@ class npc_gunship_boarding_add : public CreatureScript
         }
 };
 
+// 36968 - Kor'kron Axethrower
+// 36969 - Skybreaker Rifleman
 struct npc_gunship_gunner : public gunship_npc_AI
 {
     npc_gunship_gunner(Creature* creature) : gunship_npc_AI(creature)
@@ -1600,6 +1611,8 @@ struct npc_gunship_gunner : public gunship_npc_AI
     }
 };
 
+// 36978 - Skybreaker Mortar Soldier
+// 36982 - Kor'kron Rocketeer
 struct npc_gunship_rocketeer : public gunship_npc_AI
 {
     npc_gunship_rocketeer(Creature* creature) : gunship_npc_AI(creature)
@@ -1631,6 +1644,8 @@ struct npc_gunship_rocketeer : public gunship_npc_AI
     }
 };
 
+// 37116 - Skybreaker Sorcerer
+// 37117 - Kor'kron Battle-Mage
 struct npc_gunship_mage : public gunship_npc_AI
 {
     npc_gunship_mage(Creature* creature) : gunship_npc_AI(creature)
@@ -1697,6 +1712,8 @@ Transport Seat: 255
 Fall Time: 824
 */
 
+// 36838 - Alliance Gunship Cannon
+// 36839 - Horde Gunship Cannon
 struct npc_gunship_cannon : public PassiveAI
 {
     npc_gunship_cannon(Creature* creature) : PassiveAI(creature) { }

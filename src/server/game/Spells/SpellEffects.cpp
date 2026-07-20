@@ -585,10 +585,6 @@ void Spell::EffectDummy()
             return;
         }
     }
-
-    // normal DB scripted effect
-    TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectDummy({})", m_spellInfo->Id, effectInfo->EffectIndex);
-    m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effectInfo->EffectIndex << 24)), m_caster, unitTarget);
 }
 
 void Spell::EffectTriggerSpell()
@@ -991,7 +987,7 @@ TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unit
 
     if (targetDest._position.GetMapId() == unitTarget->GetMapId())
     {
-        options |= TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET;
+        options |= TELE_TO_NOT_LEAVE_COMBAT;
 
         if (unitTarget->GetTransGUID() == targetDest._transportGUID)
             options |= TELE_TO_NOT_LEAVE_TRANSPORT;
@@ -1104,7 +1100,7 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
 
     if (effectInfo->MiscValueB)
         if (Player* playerTarget = unitTarget->ToPlayer())
-            playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, effectInfo->MiscValue).Write());
+            playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, Milliseconds(effectInfo->MiscValue)).Write());
 
     TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
     unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, options, m_spellInfo->Id),
@@ -1962,6 +1958,7 @@ void Spell::EffectSummonType()
                     // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
                 case SummonTitle::Vehicle:
                 case SummonTitle::Mount:
+                case SummonTitle::Lightwell:
                 {
                     if (!unitCaster)
                         return;
@@ -1969,7 +1966,6 @@ void Spell::EffectSummonType()
                     summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
                     break;
                 }
-                case SummonTitle::Lightwell:
                 case SummonTitle::Totem:
                 {
                     if (!unitCaster)
@@ -2333,7 +2329,7 @@ void Spell::EffectUntrainTalents()
     if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->SendRespecWipeConfirm(m_caster->GetGUID(), sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : unitTarget->ToPlayer()->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
+    unitTarget->ToPlayer()->SendRespecWipeConfirm(m_caster->GetGUID(), unitTarget->ToPlayer()->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
 }
 
 void Spell::EffectTeleUnitsFaceCaster()
@@ -3016,7 +3012,7 @@ void Spell::EffectInterruptCast()
                 unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), Milliseconds(duration));
                 std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_INTERRUPT;
                 SendSpellInterruptLog(unitTarget, curSpellInfo->Id);
-                unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
+                unitTarget->InterruptSpell(CurrentSpellTypes(i), false, false, SPELL_FAILED_INTERRUPTED_COMBAT, SPELL_FAILED_DONT_REPORT, m_caster->GetGUID());
             }
         }
     }
@@ -3214,10 +3210,6 @@ void Spell::EffectScriptEffect()
             break;
         }
     }
-
-    // normal DB scripted effect
-    TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectScriptEffect({})", m_spellInfo->Id, effectInfo->EffectIndex);
-    m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effectInfo->EffectIndex << 24)), m_caster, unitTarget);
 }
 
 void Spell::EffectSanctuary()
@@ -3525,15 +3517,27 @@ void Spell::EffectInebriate()
         return;
 
     Player* player = unitTarget->ToPlayer();
+    uint8 currentDrunk = player->GetDrunkValue();
+    int32 drunkMod = GetEffectValueAsInt();
 
-    uint8 currentDrunkValue = player->GetDrunkValue();
-    uint8 drunkValue = std::clamp<int32>(GetEffectValueAsInt() + currentDrunkValue, 0, 100);
-    if (currentDrunkValue == 100 && currentDrunkValue == drunkValue)
-        if (roll_chance(25.0f))
-            player->CastSpell(player, 67468, CastSpellExtraArgs()
-                .SetTriggeringSpell(this));    // Drunken Vomit
+    if (drunkMod == 0)
+        return;
 
-    player->SetDrunkValue(drunkValue, m_CastItem ? m_CastItem->GetEntry() : 0);
+    // drunkMod may contain values that are guaranteed to cause uint8 overflow/underflow (examples: 29690, 46874)
+    // In addition, we would not want currentDrunk to become more than 100.
+    // So before adding the values, let's check that everything is fine.
+    if (drunkMod > static_cast<int32>(100 - currentDrunk))
+        currentDrunk = 100;
+    else if (drunkMod < static_cast<int32>(0 - currentDrunk))
+        currentDrunk = 0;
+    else
+        currentDrunk += drunkMod; // Due to previous checks we can be sure that currentDrunk will not go beyond [0-100] range.
+
+    player->SetDrunkValue(currentDrunk, m_CastItem ? m_CastItem->GetEntry() : 0);
+
+    if (currentDrunk == 100 && drunkMod > 0 && roll_chance(25))
+        player->CastSpell(player, 67468, CastSpellExtraArgs()
+            .SetTriggeringSpell(this));    // Drunken Vomit
 }
 
 void Spell::EffectFeedPet()
@@ -4043,8 +4047,8 @@ void Spell::EffectKnockBack()
             if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
                 return;
 
-    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT/STUN
-    if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT
+    if (unitTarget->HasUnitState(UNIT_STATE_ROOT))
         return;
 
     float ratio = 0.1f;
@@ -4953,7 +4957,7 @@ void Spell::EffectTitanGrip()
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true, uint32(effectInfo->MiscValue));
+        m_caster->ToPlayer()->SetCanTitanGrip(true, effectInfo->MiscValue, m_spellInfo->EquippedItemClass, m_spellInfo->EquippedItemSubClassMask);
 }
 
 void Spell::EffectRedirectThreat()

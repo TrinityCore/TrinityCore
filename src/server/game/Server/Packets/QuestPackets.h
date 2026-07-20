@@ -173,7 +173,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
-            Trinity::RaceMask<std::array<int32, 2>> AllowableRaces = RACEMASK_ALL_v<std::array<int32, 2>>;
+            Trinity::RaceMask<int32, 2> AllowableRaces = RACEMASK_ALL_v<int32, 2>;
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;

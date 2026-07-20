@@ -432,7 +432,7 @@ class spell_dk_crimson_scourge : public AuraScript
 
     static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
     {
-        return procInfo.GetProcTarget()->HasAura(SPELL_DK_BLOOD_PLAGUE, procInfo.GetActor()->GetGUID());
+        return procInfo.GetActionTarget()->HasAura(SPELL_DK_BLOOD_PLAGUE, procInfo.GetActor()->GetGUID());
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -1035,7 +1035,7 @@ class spell_dk_mark_of_blood : public AuraScript
     {
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
-            caster->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_MARK_OF_BLOOD_HEAL, true);
+            caster->CastSpell(eventInfo.GetActionTarget(), SPELL_DK_MARK_OF_BLOOD_HEAL, true);
     }
 
     void Register() override
@@ -1055,7 +1055,7 @@ class spell_dk_necrosis : public AuraScript
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_EFFECT, true);
+        GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_DK_NECROSIS_EFFECT, true);
     }
 
     void Register() override

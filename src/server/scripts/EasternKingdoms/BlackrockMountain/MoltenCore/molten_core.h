@@ -20,10 +20,10 @@
 
 #include "CreatureAIImpl.h"
 
-struct Position;
-
 #define MCScriptName "instance_molten_core"
 #define DataHeader "MC"
+
+uint32 constexpr EncounterCount = 10;
 
 enum MCEncounters
 {
@@ -36,18 +36,19 @@ enum MCEncounters
     BOSS_SULFURON_HARBINGER         = 6,
     BOSS_GOLEMAGG_THE_INCINERATOR   = 7,
     BOSS_MAJORDOMO_EXECUTUS         = 8,
-    BOSS_RAGNAROS                   = 9,
-    MAX_ENCOUNTER,
+    BOSS_RAGNAROS                   = 9
 };
 
-enum MCActions
+enum MCDataTypes
 {
-    ACTION_START_RAGNAROS       = 0,
-    ACTION_START_RAGNAROS_ALT   = 1,
+    DATA_RUNE_OF_KORO,
+    DATA_RUNE_OF_ZETH,
+    DATA_RUNE_OF_MAZJ,
+    DATA_RUNE_OF_THERI,
+    DATA_RUNE_OF_BLAZ,
+    DATA_RUNE_OF_KRESS,
+    DATA_RUNE_OF_MOHN
 };
-
-extern Position const RagnarosTelePos;
-extern Position const RagnarosSummonPos;
 
 enum MCCreatures
 {
@@ -61,18 +62,36 @@ enum MCCreatures
     NPC_GOLEMAGG_THE_INCINERATOR    = 11988,
     NPC_MAJORDOMO_EXECUTUS          = 12018,
     NPC_RAGNAROS                    = 11502,
+
     NPC_FLAMEWAKER_HEALER           = 11663,
-    NPC_FLAMEWAKER_ELITE            = 11664,
+    NPC_FLAMEWAKER_ELITE            = 11664
 };
 
 enum MCGameObjects
 {
-    GO_CACHE_OF_THE_FIRELORD        = 179703,
+    GO_RUNE_OF_KORO                 = 176951,
+    GO_RUNE_OF_ZETH                 = 176952,
+    GO_RUNE_OF_MAZJ                 = 176953,
+    GO_RUNE_OF_THERI                = 176954,
+    GO_RUNE_OF_BLAZ                 = 176955,
+    GO_RUNE_OF_KRESS                = 176956,
+    GO_RUNE_OF_MOHN                 = 176957
 };
 
-enum MCData
+enum MCSpawnGroups
 {
-    DATA_RAGNAROS_ADDS  = 0,
+    SPAWN_GROUP_CACHE               = 335,
+    SPAWN_GROUP_MAJORDOMO           = 336,
+    SPAWN_GROUP_FLAMEWAKERS         = 337,
+    SPAWN_GROUP_RAGNAROS            = 338,
+    SPAWN_GROUP_MAJORDOMO_ALT       = 339,
+    SPAWN_GROUP_LAVA_STEAM          = 340,
+    SPAWN_GROUP_LAVA_SPLASH         = 341
+};
+
+enum MCActions
+{
+    ACTION_FLAMEWAKER_DIES          = 0
 };
 
 template <class AI, class T>
@@ -82,5 +101,6 @@ inline AI* GetMoltenCoreAI(T* obj)
 }
 
 #define RegisterMoltenCoreCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMoltenCoreAI)
+#define RegisterMoltenCoreGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetMoltenCoreAI)
 
 #endif

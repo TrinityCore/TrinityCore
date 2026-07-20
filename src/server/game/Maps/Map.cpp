@@ -21,6 +21,7 @@
 #include "BattlegroundScript.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
+#include "ChatPackets.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -325,11 +326,11 @@ bool Map::EnsureGridLoaded(Cell const& cell)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
 
     ASSERT(grid != nullptr);
-    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
+    if (!grid->isGridObjectDataLoaded())
     {
         TC_LOG_DEBUG("maps", "Loading grid[{}, {}] for map {} instance {}", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
 
-        setGridObjectDataLoaded(true, cell.GridX(), cell.GridY());
+        grid->setGridObjectDataLoaded(true);
 
         LoadGridObjects(grid, cell);
 
@@ -603,7 +604,8 @@ bool Map::AddToMap(Transport* obj)
 
 bool Map::IsGridLoaded(GridCoord const& p) const
 {
-    return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
+    NGridType* grid = getNGrid(p.x_coord, p.y_coord);
+    return grid && grid->isGridObjectDataLoaded();
 }
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
@@ -1803,7 +1805,8 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
     if (!entry->IsDungeon())
         return TRANSFER_ABORT_NONE;
 
-    Difficulty targetDifficulty = player->GetDifficultyID(entry);
+    Group* group = player->GetGroup();
+    Difficulty targetDifficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, targetDifficulty);
     if (!mapDiff)
@@ -1820,7 +1823,6 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
             return params;
     }
 
-    Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)) // can only enter in a raid group but raids from old expansion don't need a group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
             return TRANSFER_ABORT_NEED_GROUP;
@@ -1834,7 +1836,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
-        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->GetSession()->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return TRANSFER_ABORT_TOO_MANY_INSTANCES;
     }
 
@@ -2108,7 +2110,7 @@ bool Map::AddRespawnInfo(RespawnInfo const& info)
         if (it != bySpawnIdMap->end()) // spawnid already has a respawn scheduled
         {
             RespawnInfo* const existing = it->second;
-            if (info.respawnTime <= existing->respawnTime) // delete existing in this case
+            if (info.respawnTime < existing->respawnTime) // delete existing in this case
                 DeleteRespawnInfo(existing);
             else
                 return false;
@@ -2691,6 +2693,27 @@ void Map::SendToPlayers(WorldPacket const* data) const
         itr->GetSource()->SendDirectMessage(data);
 }
 
+/// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+bool Map::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self, Optional<Team> team) const
+{
+    bool foundPlayerToSend = false;
+
+    for (MapReference const& ref : GetPlayers())
+    {
+        Player* player = ref.GetSource();
+        if (player->IsInWorld() &&
+            player->GetZoneId() == zone &&
+            player->GetSession() != self &&
+            (!team || player->GetTeam() == *team))
+        {
+            player->SendDirectMessage(packet);
+            foundPlayerToSend = true;
+        }
+    }
+
+    return foundPlayerToSend;
+}
+
 bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
 {
     CellCoord cell_min(ngrid.getX() * MAX_NUMBER_OF_CELLS, ngrid.getY() * MAX_NUMBER_OF_CELLS);
@@ -2920,7 +2943,7 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
 bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     // increase current instances (hourly limit)
-    player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
+    player->GetSession()->AddInstanceEnterTime(GetInstanceId(), GameTime::GetSystemTime());
 
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
     if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew() && i_data)
@@ -3262,6 +3285,11 @@ uint32 Map::GetId() const
 bool Map::Instanceable() const
 {
     return i_mapEntry && i_mapEntry->Instanceable();
+}
+
+bool Map::IsWorldMap() const
+{
+    return i_mapEntry && i_mapEntry->IsWorldMap();
 }
 
 bool Map::IsDungeon() const
@@ -3973,21 +4001,20 @@ void Map::SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player
         Weather::SendFineWeatherUpdateToPlayer(player);
 }
 
+/// Send a System Message to all players in the zone (except self if mentioned)
+void Map::SendZoneText(uint32 zoneId, char const* text, WorldSession const* self, Optional<Team> team) const
+{
+    WorldPackets::Chat::Chat packet;
+    packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
+    SendZoneMessage(zoneId, packet.Write(), self, team);
+}
+
 void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
 {
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.empty())
-    {
-        WorldPackets::Misc::PlayMusic playMusic(musicId);
-        playMusic.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId && !player->HasAuraType(SPELL_AURA_FORCE_WEATHER))
-                    player->SendDirectMessage(playMusic.GetRawPacket());
-    }
+    WorldPackets::Misc::PlayMusic playMusic(musicId);
+    SendZoneMessage(zoneId, WorldPackets::Misc::PlayMusic(musicId).Write());
 }
 
 Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
@@ -3999,7 +4026,7 @@ Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     if (!info.DefaultWeather)
     {
-        info.DefaultWeather = std::make_unique<Weather>(zoneId, weatherData);
+        info.DefaultWeather = std::make_unique<Weather>(this, zoneId, weatherData);
         info.DefaultWeather->ReGenerate();
         info.DefaultWeather->UpdateWeather();
     }
@@ -4036,7 +4063,7 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
+                if (player->GetZoneId() == zoneId && !player->HasAuraType(SPELL_AURA_FORCE_WEATHER))
                     player->SendDirectMessage(weather.GetRawPacket());
     }
 }
@@ -4059,20 +4086,11 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrid
         lightOverride.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
     }
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.empty())
-    {
-        WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = areaLightId;
-        overrideLight.OverrideLightID = overrideLightId;
-        overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
-        overrideLight.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(overrideLight.GetRawPacket());
-    }
+    WorldPackets::Misc::OverrideLight overrideLight;
+    overrideLight.AreaLightID = areaLightId;
+    overrideLight.OverrideLightID = overrideLightId;
+    overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
+    SendZoneMessage(zoneId, overrideLight.Write());
 }
 
 void Map::UpdateAreaDependentAuras()

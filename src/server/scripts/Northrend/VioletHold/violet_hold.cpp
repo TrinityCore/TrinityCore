@@ -380,6 +380,7 @@ Position const SinclariPositions[] = // sniff
 
 Position const GuardsMovePosition = { 1802.099f, 803.7724f, 44.36466f, 0.0f }; // sniff
 
+// 30658 - Lieutenant Sinclari
 struct npc_sinclari_vh : public ScriptedAI
 {
     npc_sinclari_vh(Creature* creature) : ScriptedAI(creature), _summons(creature)
@@ -461,25 +462,25 @@ struct npc_sinclari_vh : public ScriptedAI
 
     void ScheduleIntro()
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext& task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             switch (task.GetRepeatCounter())
             {
                 case 0:
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(0, SinclariPositions[0]);
-                    task.Repeat(Seconds(1));
+                    task.Repeat(1s);
                     break;
                 case 1:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_USE_STANDING);
                     me->GetMap()->SummonCreature(NPC_DEFENSE_SYSTEM, DefenseSystemLocation);
-                    task.Repeat(Seconds(3));
+                    task.Repeat(3s);
                     break;
                 case 2:
                     me->SetFacingTo(SinclariPositions[0].GetOrientation());
                     Talk(SAY_SINCLARI_INTRO_1);
 
-                    task.Schedule(Seconds(1), [this](TaskContext const& /*task*/)
+                    task.Schedule(1s, [this](TaskContext const& /*task*/)
                     {
                         std::list<Creature*> guardList;
                         me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
@@ -493,17 +494,17 @@ struct npc_sinclari_vh : public ScriptedAI
                         }
                     });
 
-                    task.Repeat(Seconds(2));
+                    task.Repeat(2s);
                     break;
                 case 3:
                     me->GetMotionMaster()->MovePoint(0, SinclariPositions[1]);
                     _summons.DespawnAll();
-                    task.Repeat(Seconds(5));
+                    task.Repeat(5s);
                     break;
                 case 4:
                     me->SetFacingTo(SinclariPositions[1].GetOrientation());
 
-                    task.Schedule(Seconds(1), [this](TaskContext const& /*task*/)
+                    task.Schedule(1s, [this](TaskContext const& /*task*/)
                     {
                         std::list<Creature*> guardList;
                         me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
@@ -511,15 +512,15 @@ struct npc_sinclari_vh : public ScriptedAI
                             guard->SetVisible(false);
                     });
 
-                    task.Repeat(Seconds(6));
+                    task.Repeat(6s);
                     break;
                 case 5:
                     Talk(SAY_SINCLARI_INTRO_2);
-                    task.Repeat(Seconds(4));
+                    task.Repeat(4s);
                     break;
                 case 6:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
-                    task.Repeat(Seconds(1));
+                    task.Repeat(1s);
                     break;
                 case 7:
                     if (GameObject* mainDoor = _instance->GetGameObject(DATA_MAIN_DOOR))
@@ -527,11 +528,11 @@ struct npc_sinclari_vh : public ScriptedAI
                         mainDoor->SetGoState(GO_STATE_READY);
                         mainDoor->SetFlag(GO_FLAG_LOCKED);
                     }
-                    task.Repeat(Seconds(5));
+                    task.Repeat(5s);
                     break;
                 case 8:
                     _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
-                    task.Repeat(Seconds(1));
+                    task.Repeat(1s);
                     break;
                 case 9:
                     // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
@@ -545,12 +546,12 @@ struct npc_sinclari_vh : public ScriptedAI
 
     void ScheduleOutro()
     {
-        _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+        _scheduler.Schedule(4s, [this](TaskContext& task)
         {
             Talk(SAY_SINCLARI_OUTRO);
             me->GetMotionMaster()->MovePoint(0, SinclariPositions[3]);
 
-            task.Schedule(Seconds(10), [this](TaskContext const& /*task*/)
+            task.Schedule(10s, [this](TaskContext const& /*task*/)
             {
                 me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             });
@@ -576,6 +577,7 @@ private:
     SummonList _summons;
 };
 
+// 31079 - Azure Saboteur
 struct npc_azure_saboteur : public ScriptedAI
 {
     npc_azure_saboteur(Creature* creature) : ScriptedAI(creature)
@@ -616,7 +618,7 @@ struct npc_azure_saboteur : public ScriptedAI
     void Reset() override
     {
         _scheduler.CancelAll();
-        _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             StartMovement();
         });
@@ -631,10 +633,10 @@ struct npc_azure_saboteur : public ScriptedAI
                 me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
 
                 if (task.GetRepeatCounter() < 2)
-                    task.Repeat(Seconds(1));
+                    task.Repeat(1s);
                 else
                 {
-                    task.Schedule(Seconds(2), [this](TaskContext const& /*task*/)
+                    task.Schedule(2s, [this](TaskContext const& /*task*/)
                     {
                         _instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
                         me->CastSpell(me, SPELL_TELEPORT_VISUAL, false);
@@ -706,6 +708,7 @@ protected:
     uint8 _portalLocation;
 };
 
+// 30679 - Teleportation Portal
 struct npc_violet_hold_teleportation_portal : public npc_violet_hold_teleportation_portal_commonAI
 {
     npc_violet_hold_teleportation_portal(Creature* creature) : npc_violet_hold_teleportation_portal_commonAI(creature)
@@ -762,6 +765,7 @@ struct npc_violet_hold_teleportation_portal : public npc_violet_hold_teleportati
     }
 };
 
+// 32174 - Teleportation Portal (Elite)
 struct npc_violet_hold_teleportation_portal_elite : public npc_violet_hold_teleportation_portal_commonAI
 {
     npc_violet_hold_teleportation_portal_elite(Creature* creature) : npc_violet_hold_teleportation_portal_commonAI(creature)
@@ -782,7 +786,7 @@ struct npc_violet_hold_teleportation_portal_elite : public npc_violet_hold_telep
             if (Creature* sinclariTrigger = _instance->GetCreature(DATA_SINCLARI_TRIGGER))
                 sinclariTrigger->AI()->Talk(SAY_SINCLARI_ELITE_SQUAD);
 
-            task.Schedule(Seconds(1), [this](TaskContext const& /*task*/)
+            task.Schedule(1s, [this](TaskContext const& /*task*/)
             {
                 me->SetVisible(false);
             });
@@ -801,6 +805,7 @@ struct npc_violet_hold_teleportation_portal_elite : public npc_violet_hold_telep
     }
 };
 
+// 31011 - Teleportation Portal (Intro)
 struct npc_violet_hold_teleportation_portal_intro : public npc_violet_hold_teleportation_portal_commonAI
 {
     npc_violet_hold_teleportation_portal_intro(Creature* creature) : npc_violet_hold_teleportation_portal_commonAI(creature)
@@ -812,7 +817,7 @@ struct npc_violet_hold_teleportation_portal_intro : public npc_violet_hold_telep
         if (_instance->GetData(DATA_MAIN_EVENT_STATE) != NOT_STARTED)
             return;
 
-        _scheduler.Schedule(Seconds(15), [this](TaskContext& task)
+        _scheduler.Schedule(15s, [this](TaskContext& task)
         {
             // Limit the number of current summons
             if (_summons.size() < 3)
@@ -911,7 +916,7 @@ struct violet_hold_trashAI : public EscortAI
         {
             me->SetReactState(REACT_DEFENSIVE);
             DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
-            _scheduler.Schedule(Seconds(2), [this](TaskContext& destroyDoorCheck)
+            _scheduler.Schedule(2s, [this](TaskContext& destroyDoorCheck)
             {
                 if (!me->HasAura(SPELL_DESTROY_DOOR_SEAL))
                     DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
@@ -949,6 +954,8 @@ protected:
     uint32 _lastWaypointId;
 };
 
+// 30661 - Azure Invader
+// 30961 - Azure Invader
 struct npc_azure_invader : public violet_hold_trashAI
 {
     npc_azure_invader(Creature* creature) : violet_hold_trashAI(creature) { }
@@ -957,13 +964,13 @@ struct npc_azure_invader : public violet_hold_trashAI
     {
         if (me->GetEntry() == NPC_AZURE_INVADER_1)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_CLEAVE);
                 task.Repeat();
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_IMPALE);
                 task.Repeat();
@@ -971,21 +978,23 @@ struct npc_azure_invader : public violet_hold_trashAI
         }
         else if (me->GetEntry() == NPC_AZURE_INVADER_2)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_BRUTAL_STRIKE);
                 task.Repeat();
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_SUNDER_ARMOR);
-                task.Repeat(Seconds(8), Seconds(10));
+                task.Repeat(8s, 10s);
             });
         }
     }
 };
 
+// 30663 - Azure Binder
+// 30918 - Azure Binder
 struct npc_azure_binder : public violet_hold_trashAI
 {
     npc_azure_binder(Creature* creature) : violet_hold_trashAI(creature) { }
@@ -994,37 +1003,39 @@ struct npc_azure_binder : public violet_hold_trashAI
     {
         if (me->GetEntry() == NPC_AZURE_BINDER_1)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 DoCastAOE(SPELL_ARCANE_EXPLOSION);
                 task.Repeat();
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                     DoCast(target, SPELL_ARCANE_BARRAGE);
-                task.Repeat(Seconds(6));
+                task.Repeat(6s);
             });
         }
         else if (me->GetEntry() == NPC_AZURE_BINDER_2)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 DoCastAOE(SPELL_FROST_NOVA);
                 task.Repeat();
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                     DoCast(target, SPELL_FROSTBOLT);
-                task.Repeat(Seconds(6));
+                task.Repeat(6s);
             });
         }
     }
 };
 
+// 30664 - Azure Mage Slayer
+// 30963 - Azure Mage Slayer
 struct npc_azure_mage_slayer : public violet_hold_trashAI
 {
     npc_azure_mage_slayer(Creature* creature) : violet_hold_trashAI(creature) { }
@@ -1033,57 +1044,59 @@ struct npc_azure_mage_slayer : public violet_hold_trashAI
     {
         if (me->GetEntry() == NPC_AZURE_MAGE_SLAYER_1)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 DoCast(me, SPELL_ARCANE_EMPOWERMENT);
-                task.Repeat(Seconds(14));
+                task.Repeat(14s);
             });
         }
         else if (me->GetEntry() == NPC_AZURE_MAGE_SLAYER_2)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 // wrong spellid?
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                     DoCast(target, SPELL_SPELL_LOCK);
-                task.Repeat(Seconds(9));
+                task.Repeat(9s);
             });
         }
     }
 };
 
+// 30668 - Azure Raider
 struct npc_azure_raider : public violet_hold_trashAI
 {
     npc_azure_raider(Creature* creature) : violet_hold_trashAI(creature) { }
 
     void ScheduledTasks() override
     {
-        _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+        _scheduler.Schedule(5s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_CONCUSSION_BLOW);
             task.Repeat();
         });
 
-        _scheduler.Schedule(Seconds(8), [this](TaskContext& task)
+        _scheduler.Schedule(8s, [this](TaskContext& task)
         {
             DoCast(me, SPELL_MAGIC_REFLECTION);
-            task.Repeat(Seconds(10), Seconds(15));
+            task.Repeat(10s, 15s);
         });
     }
 };
 
+// 32191 - Azure Stalker
 struct npc_azure_stalker : public violet_hold_trashAI
 {
     npc_azure_stalker(Creature* creature) : violet_hold_trashAI(creature) { }
 
     void ScheduledTasks() override
     {
-        _scheduler.Schedule(Seconds(8), [this](TaskContext& task)
+        _scheduler.Schedule(8s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                 DoCast(target, SPELL_TACTICAL_BLINK);
 
-            task.Schedule(Milliseconds(1300), [this](TaskContext const& /*task*/)
+            task.Schedule(1300ms, [this](TaskContext const& /*task*/)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 5.0f))
                     DoCast(target, SPELL_BACKSTAB);
@@ -1094,6 +1107,8 @@ struct npc_azure_stalker : public violet_hold_trashAI
     }
 };
 
+// 30662 - Azure Spellbreaker
+// 30962 - Azure Spellbreaker
 struct npc_azure_spellbreaker : public violet_hold_trashAI
 {
     npc_azure_spellbreaker(Creature* creature) : violet_hold_trashAI(creature) { }
@@ -1102,51 +1117,52 @@ struct npc_azure_spellbreaker : public violet_hold_trashAI
     {
         if (me->GetEntry() == NPC_AZURE_SPELLBREAKER_1)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                     DoCast(target, SPELL_ARCANE_BLAST);
-                task.Repeat(Seconds(6));
+                task.Repeat(6s);
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                     DoCast(target, SPELL_SLOW);
-                task.Repeat(Seconds(5));
+                task.Repeat(5s);
             });
         }
         else if (me->GetEntry() == NPC_AZURE_SPELLBREAKER_2)
         {
-            _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+            _scheduler.Schedule(5s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                     DoCast(target, SPELL_CHAINS_OF_ICE);
-                task.Repeat(Seconds(7));
+                task.Repeat(7s);
             });
 
-            _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+            _scheduler.Schedule(4s, [this](TaskContext& task)
             {
                 DoCast(me, SPELL_CONE_OF_COLD);
-                task.Repeat(Seconds(5));
+                task.Repeat(5s);
             });
         }
     }
 };
 
+// 30666 - Azure Captain
 struct npc_azure_captain : public violet_hold_trashAI
 {
     npc_azure_captain(Creature* creature) : violet_hold_trashAI(creature) { }
 
     void ScheduledTasks() override
     {
-        _scheduler.Schedule(Seconds(5), [this](TaskContext& task)
+        _scheduler.Schedule(5s, [this](TaskContext& task)
         {
             DoCastVictim(SPELL_MORTAL_STRIKE);
             task.Repeat();
         });
 
-        _scheduler.Schedule(Seconds(8), [this](TaskContext& task)
+        _scheduler.Schedule(8s, [this](TaskContext& task)
         {
             DoCast(me, SPELL_WHIRLWIND_OF_STEEL);
             task.Repeat();
@@ -1154,27 +1170,29 @@ struct npc_azure_captain : public violet_hold_trashAI
     }
 };
 
+// 30667 - Azure Sorceror
 struct npc_azure_sorceror : public violet_hold_trashAI
 {
     npc_azure_sorceror(Creature* creature) : violet_hold_trashAI(creature) { }
 
     void ScheduledTasks() override
     {
-        _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+        _scheduler.Schedule(4s, [this](TaskContext& task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f))
                 DoCast(target, SPELL_ARCANE_STREAM);
-            task.Repeat(Seconds(5), Seconds(10));
+            task.Repeat(5s, 10s);
         });
 
-        _scheduler.Schedule(Seconds(), Seconds(), [this](TaskContext& task)
+        _scheduler.Schedule(0s, [this](TaskContext& task)
         {
             DoCastAOE(SPELL_MANA_DETONATION);
-            task.Repeat(Seconds(2), Seconds(6));
+            task.Repeat(2s, 6s);
         });
     }
 };
 
+// 30837 - Defense System
 struct npc_violet_hold_defense_system : public ScriptedAI
 {
     npc_violet_hold_defense_system(Creature* creature) : ScriptedAI(creature) { }
@@ -1187,14 +1205,14 @@ struct npc_violet_hold_defense_system : public ScriptedAI
 
     void ScheduledTasks()
     {
-        _scheduler.Schedule(Seconds(4), [this](TaskContext& task)
+        _scheduler.Schedule(4s, [this](TaskContext& task)
         {
             DoCastAOE(SPELL_ARCANE_LIGHTNING_DAMAGE);
             DoCastAOE(SPELL_ARCANE_LIGHTNING_DUMMY);
             if (task.GetRepeatCounter() == 2)
                 DoCastAOE(SPELL_ARCANE_LIGHTNING_INSTAKILL);
             else
-                task.Repeat(Seconds(1));
+                task.Repeat(1s);
         });
     }
 
@@ -1207,6 +1225,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 193611 - Activation Crystal
 struct go_activation_crystal : public GameObjectAI
 {
     go_activation_crystal(GameObject* go) : GameObjectAI(go) { }

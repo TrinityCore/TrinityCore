@@ -28,10 +28,10 @@ class spell_torghast_subjugators_manacles : public AuraScript
 {
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
     {
-        if (_triggeredTargets.contains(procInfo.GetProcTarget()->GetGUID()))
+        if (_triggeredTargets.contains(procInfo.GetActionTarget()->GetGUID()))
             return false;
 
-        _triggeredTargets.insert(procInfo.GetProcTarget()->GetGUID());
+        _triggeredTargets.insert(procInfo.GetActionTarget()->GetGUID());
         return true;
     }
 
@@ -57,7 +57,7 @@ class spell_torghast_blade_of_the_lifetaker : public AuraScript
     {
         PreventDefaultAction();
 
-        procInfo.GetActor()->CastSpell(procInfo.GetProcTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(aurEff)
+        procInfo.GetActor()->CastSpell(procInfo.GetActionTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(aurEff)
             .AddSpellMod(SPELLVALUE_BASE_POINT0, GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()))
             .SetTriggeringSpell(procInfo.GetProcSpell()));
     }
@@ -87,7 +87,7 @@ class spell_torghast_touch_of_the_unseen : public AuraScript
     {
         PreventDefaultAction();
 
-        procInfo.GetActor()->CastSpell(procInfo.GetProcTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(aurEff)
+        procInfo.GetActor()->CastSpell(procInfo.GetActor(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(aurEff)
             .AddSpellMod(SPELLVALUE_BASE_POINT0, GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount()))
             .SetTriggeringSpell(procInfo.GetProcSpell()));
     }

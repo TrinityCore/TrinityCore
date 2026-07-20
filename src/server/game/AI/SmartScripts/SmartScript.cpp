@@ -1609,6 +1609,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!ev.event.minMaxRepeat.repeatMin && !ev.event.minMaxRepeat.repeatMax)
                 ev.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
 
+            if (e.event.event_flags != 0 && (e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) != 0)
+                ev.event.event_flags |= SMART_EVENT_FLAG_WHILE_CHARMED;
+
             ev.action.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
             ev.action.timeEvent.id = e.action.timeEvent.id;
 
@@ -2680,6 +2683,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     unitTarget->ExitVehicle();
                 }
             }
+            break;
+        }
+        case SMART_ACTION_RESUME_MOVEMENT:
+        {
+            for (WorldObject* target : targets)
+                if (Unit* unitTarget = target->ToUnit())
+                    unitTarget->ResumeMovement(e.action.resumeMovement.resumeTimer, e.action.resumeMovement.movementSlot);
             break;
         }
         case SMART_ACTION_FALL:

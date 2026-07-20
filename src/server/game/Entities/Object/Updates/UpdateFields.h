@@ -966,15 +966,29 @@ struct TraitConfig : public IsUpdateFieldStructureTag, public HasChangesMask<15>
     void ClearChangesMask();
 };
 
-struct CraftingOrderItem : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+struct CraftingReagentBase : public IsUpdateFieldStructureTag
 {
-    UpdateField<uint64, -1, 0> OrderItemID;
-    UpdateField<ObjectGuid, -1, 1> ItemGUID;
-    UpdateField<ObjectGuid, -1, 2> OwnerGUID;
-    UpdateField<int32, -1, 3> ItemID;
-    UpdateField<uint32, -1, 4> Quantity;
-    UpdateField<int32, -1, 5> ReagentQuality;
-    OptionalUpdateField<uint8, -1, 6> DataSlotIndex;
+    Optional<int32> ItemID;
+    Optional<int32> CurrencyID;
+
+    using OwnerObject = Player;
+    void WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const;
+    void WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, Player const* owner) const;
+    bool operator==(CraftingReagentBase const& right) const;
+    bool operator!=(CraftingReagentBase const& right) const { return !(*this == right); }
+};
+
+struct CraftingOrderItem : public IsUpdateFieldStructureTag, public HasChangesMask<12>
+{
+    UpdateField<uint64, 0, 1> OrderItemID;
+    UpdateField<int32, 0, 2> OrderItemType;
+    UpdateField<ObjectGuid, 0, 3> ItemGUID;
+    UpdateField<ObjectGuid, 4, 5> OwnerGUID;
+    UpdateField<UF::CraftingReagentBase, 4, 6> Reagent;
+    UpdateField<uint32, 4, 7> Quantity;
+    UpdateField<int32, 8, 9> ReagentQuality;
+    OptionalUpdateField<uint8, 8, 10> DataSlotIndex;
+    UpdateField<uint32, 8, 11> Flags;
 
     using OwnerObject = Player;
     void WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const;
@@ -1478,7 +1492,7 @@ struct GameObjectAssistActionData : public IsUpdateFieldStructureTag
     bool operator!=(GameObjectAssistActionData const& right) const { return !(*this == right); }
 };
 
-struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<26>
+struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<27>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
     struct StateWorldEffectIDsTag : ViewerDependentValueTag<std::vector<uint32>> {};
@@ -1498,20 +1512,21 @@ struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<
     UpdateField<ObjectGuid, 0, 11> GuildGUID;
     UpdateField<uint32, 0, 12> Flags;
     struct FlagsTag : ViewerDependentValueTag<uint32> {};
-    UpdateField<QuaternionData, 0, 13> ParentRotation;
-    UpdateField<int32, 0, 14> FactionTemplate;
-    UpdateField<int8, 0, 15> State;
+    UpdateField<uint32, 0, 13> FlagsB;
+    UpdateField<QuaternionData, 0, 14> ParentRotation;
+    UpdateField<int32, 0, 15> FactionTemplate;
+    UpdateField<int8, 0, 16> State;
     struct StateTag : ViewerDependentValueTag<int8> {};
-    UpdateField<int8, 0, 16> TypeID;
-    UpdateField<uint8, 0, 17> PercentHealth;
-    UpdateField<uint32, 0, 18> ArtKit;
-    UpdateField<uint32, 0, 19> CustomParam;
-    UpdateField<int32, 0, 20> Level;
-    UpdateField<uint32, 0, 21> AnimGroupInstance;
-    UpdateField<uint32, 0, 22> UiWidgetItemID;
-    UpdateField<uint32, 0, 23> UiWidgetItemQuality;
-    UpdateField<uint32, 0, 24> UiWidgetItemCount;
-    OptionalUpdateField<UF::GameObjectAssistActionData, 0, 25> AssistActionData;
+    UpdateField<int8, 0, 17> TypeID;
+    UpdateField<uint8, 0, 18> PercentHealth;
+    UpdateField<uint32, 0, 19> ArtKit;
+    UpdateField<uint32, 0, 20> CustomParam;
+    UpdateField<int32, 0, 21> Level;
+    UpdateField<uint32, 0, 22> AnimGroupInstance;
+    UpdateField<uint32, 0, 23> UiWidgetItemID;
+    UpdateField<uint32, 0, 24> UiWidgetItemQuality;
+    UpdateField<uint32, 0, 25> UiWidgetItemCount;
+    OptionalUpdateField<UF::GameObjectAssistActionData, 0, 26> AssistActionData;
 
     using OwnerObject = GameObject;
     void WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, ByteBuffer& data, Player const* receiver, GameObject const* owner) const;

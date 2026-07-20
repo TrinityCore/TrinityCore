@@ -419,7 +419,7 @@ enum AuraType : uint32
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED          = 333,  // Spells cast with this override have no cast time or power cost
     SPELL_AURA_MOD_AUTOATTACK_CRIT_CHANCE                   = 334,
-    SPELL_AURA_335                                          = 335,
+    SPELL_AURA_DETECT_VISIBLE_WHILE_INVISIBLE               = 335,
     SPELL_AURA_MOUNT_RESTRICTIONS                           = 336,
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,
     SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,

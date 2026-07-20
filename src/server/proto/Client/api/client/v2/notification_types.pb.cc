@@ -32,7 +32,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
   Filter_reflection_ = NULL;
 struct FilterOneofInstance {
   ::google::protobuf::uint32 title_id_;
-  const ::bgs::protocol::account::v1::GameAccountHandle* deprecated_handle_;
   const ::bgs::protocol::account::v2::GameAccountHandle* game_account_;
 }* Filter_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* SendNotificationOptions_descriptor_ = NULL;
@@ -66,9 +65,8 @@ void protobuf_AssignDesc_api_2fclient_2fv2_2fnotification_5ftypes_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UserDescription));
   Filter_descriptor_ = file->message_type(1);
-  static const int Filter_offsets_[4] = {
+  static const int Filter_offsets_[3] = {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Filter_default_oneof_instance_, title_id_),
-    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Filter_default_oneof_instance_, deprecated_handle_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Filter_default_oneof_instance_, game_account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Filter, type_),
   };
@@ -175,23 +173,21 @@ void protobuf_AddDesc_api_2fclient_2fv2_2fnotification_5ftypes_2eproto() {
     "/common/v2/attribute_types.proto\032\'api/co"
     "mmon/v2/game_account_handle.proto\"/\n\017Use"
     "rDescription\022\034\n\naccount_id\030\001 \001(\004B\010\212\371+\004\022\002"
-    "\020\000\"\273\001\n\006Filter\022\022\n\010title_id\030\001 \001(\rH\000\022Q\n\021dep"
-    "recated_handle\030\002 \001(\0132*.bgs.protocol.acco"
-    "unt.v1.GameAccountHandleB\010\030\001\222\371+\002 \001H\000\022B\n\014"
-    "game_account\030\003 \001(\0132*.bgs.protocol.accoun"
-    "t.v2.GameAccountHandleH\000B\006\n\004type\"\307\001\n\027Sen"
-    "dNotificationOptions\022\033\n\004type\030\001 \001(\tB\r\212\371+\t"
-    "\"\007\n\005\010\001\020\200\004\022#\n\021target_account_id\030\002 \001(\004B\010\212\371"
-    "+\004\022\002\020\000\022;\n\006filter\030\003 \001(\0132+.bgs.protocol.no"
-    "tification.v2.client.Filter\022-\n\tattribute"
-    "\030\004 \003(\0132\032.bgs.protocol.v2.Attribute\"\200\002\n\014N"
-    "otification\022\033\n\004type\030\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020\200\004"
-    "\022D\n\006sender\030\002 \001(\01324.bgs.protocol.notifica"
-    "tion.v2.client.UserDescription\022D\n\006target"
-    "\030\003 \001(\01324.bgs.protocol.notification.v2.cl"
-    "ient.UserDescription\022-\n\tattribute\030\004 \003(\0132"
-    "\032.bgs.protocol.v2.Attribute\022\030\n\020creation_"
-    "time_ms\030\005 \001(\004B\002H\002", 897);
+    "\020\000\"h\n\006Filter\022\022\n\010title_id\030\001 \001(\rH\000\022B\n\014game"
+    "_account\030\003 \001(\0132*.bgs.protocol.account.v2"
+    ".GameAccountHandleH\000B\006\n\004type\"\307\001\n\027SendNot"
+    "ificationOptions\022\033\n\004type\030\001 \001(\tB\r\212\371+\t\"\007\n\005"
+    "\010\001\020\200\004\022#\n\021target_account_id\030\002 \001(\004B\010\212\371+\004\022\002"
+    "\020\000\022;\n\006filter\030\003 \001(\0132+.bgs.protocol.notifi"
+    "cation.v2.client.Filter\022-\n\tattribute\030\004 \003"
+    "(\0132\032.bgs.protocol.v2.Attribute\"\200\002\n\014Notif"
+    "ication\022\033\n\004type\030\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020\200\004\022D\n\006"
+    "sender\030\002 \001(\01324.bgs.protocol.notification"
+    ".v2.client.UserDescription\022D\n\006target\030\003 \001"
+    "(\01324.bgs.protocol.notification.v2.client"
+    ".UserDescription\022-\n\tattribute\030\004 \003(\0132\032.bg"
+    "s.protocol.v2.Attribute\022\030\n\020creation_time"
+    "_ms\030\005 \001(\004B\002H\002", 813);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/notification_types.proto", &protobuf_RegisterTypes);
   UserDescription::default_instance_ = new UserDescription();
@@ -288,7 +284,6 @@ void UserDescription::Swap(UserDescription* other) {
 
 #ifndef _MSC_VER
 const int Filter::kTitleIdFieldNumber;
-const int Filter::kDeprecatedHandleFieldNumber;
 const int Filter::kGameAccountFieldNumber;
 #endif  // !_MSC_VER
 
@@ -300,7 +295,6 @@ Filter::Filter()
 
 void Filter::InitAsDefaultInstance() {
   Filter_default_oneof_instance_->title_id_ = 0u;
-  Filter_default_oneof_instance_->deprecated_handle_ = const_cast< ::bgs::protocol::account::v1::GameAccountHandle*>(&::bgs::protocol::account::v1::GameAccountHandle::default_instance());
   Filter_default_oneof_instance_->game_account_ = const_cast< ::bgs::protocol::account::v2::GameAccountHandle*>(&::bgs::protocol::account::v2::GameAccountHandle::default_instance());
 }
 
@@ -355,10 +349,6 @@ void Filter::clear_type() {
   switch(type_case()) {
     case kTitleId: {
       // No need to clear
-      break;
-    }
-    case kDeprecatedHandle: {
-      delete type_.deprecated_handle_;
       break;
     }
     case kGameAccount: {

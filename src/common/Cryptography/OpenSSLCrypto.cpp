@@ -16,7 +16,7 @@
  */
 
 #include "OpenSSLCrypto.h"
-#include <openssl/crypto.h>
+#include "Errors.h"
 #include <openssl/provider.h>
 #include <cstdlib>
 
@@ -31,8 +31,12 @@ void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const&
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     if (!std::getenv("OPENSSL_MODULES"))
         OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
+#define OPENSSL_LEGACY_PROVIDER_FILENAME "legacy.dll"
+#else
+#define OPENSSL_LEGACY_PROVIDER_FILENAME "legacy.so"
 #endif
     LegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
+    WPWarning(LegacyProvider != nullptr, "OpenSSL failed to load " OPENSSL_LEGACY_PROVIDER_FILENAME);
 }
 
 void OpenSSLCrypto::threadsCleanup()

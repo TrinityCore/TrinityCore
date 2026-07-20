@@ -999,6 +999,13 @@ bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
     if (mask != obj->m_invisibility.GetFlags())
         return false;
 
+    // It isn't possible in invisibility to detect something that can't detect the invisible object
+    // (it's at least true for spell: 66)
+    // It seems like that only Units are affected by this check (couldn't see arena doors with preparation invisibility)
+    if (obj->IsUnit() && (!IsUnit() || !ToUnit()->HasAuraType(SPELL_AURA_DETECT_VISIBLE_WHILE_INVISIBLE)))
+        if ((m_invisibility.GetFlags() & obj->m_invisibilityDetect.GetFlags()) != m_invisibility.GetFlags())
+            return false;
+
     for (uint32 i = 0; i < TOTAL_INVISIBILITY_TYPES; ++i)
     {
         if (!(mask & (uint64(1) << i)))
