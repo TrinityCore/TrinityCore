@@ -785,7 +785,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong spell '{}' defined in `auras` field in `creature_template_addon`.", entry, aura);
                 continue;
             }
 
@@ -1225,7 +1225,7 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, std::string(aura));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: {}) has wrong spell '{}' defined in `auras` field in `creature_addon`.", guid, aura);
                 continue;
             }
 
@@ -2171,7 +2171,7 @@ void ObjectMgr::LoadCreatures()
         data.spawntimesecs  = fields[9].GetUInt32();
         data.wander_distance = fields[10].GetFloat();
         data.currentwaypoint = fields[11].GetUInt32();
-        data.curHealthPct   = fields[12].GetUInt32();
+        data.curHealthPct   = fields[12].GetUInt32OrNull();
         data.movementType   = fields[13].GetUInt8();
         data.spawnDifficulties = ParseSpawnDifficulties(fields[14].GetStringView(), "creature", guid, data.mapId, spawnMasks[data.mapId]);
         int16 gameEvent     = fields[15].GetInt8();
@@ -2368,11 +2368,20 @@ void ObjectMgr::LoadCreatures()
             }
         }
 
-        uint32 healthPct = std::clamp<uint32>(data.curHealthPct, 1, 100);
-        if (data.curHealthPct != healthPct)
+        if (data.curHealthPct)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with invalid `curHealthPct` {}, set to {}.", guid, data.id, data.curHealthPct, healthPct);
-            data.curHealthPct = healthPct;
+            uint32 healthPct = std::clamp<uint32>(*data.curHealthPct, 1, 100);
+            if (*data.curHealthPct != healthPct)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with invalid `curHealthPct` {}, set to {}.", guid, data.id, *data.curHealthPct, healthPct);
+                data.curHealthPct = healthPct;
+            }
+
+            if (cInfo->RegenHealth)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `curHealthPct` {}, but health regeneration is not disabled in `creature_template`, set to 100.", guid, data.id, *data.curHealthPct);
+                data.curHealthPct.reset();
+            }
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
@@ -4722,7 +4731,7 @@ void ObjectMgr::LoadQuests()
         // additional quest integrity checks (GO, creature_template and items must be loaded already)
 
         if (qinfo->GetQuestType() >= MAX_DB_ALLOWED_QUEST_TYPES)
-            TC_LOG_ERROR("sql.sql", "Quest {} has `Method` = {}, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
+            TC_LOG_ERROR("sql.sql", "Quest {} has `QuestType` = {}, expected values are 0, 1, 2 or 3.", qinfo->GetQuestId(), qinfo->GetQuestType());
 
         if (qinfo->_specialFlags & ~QUEST_SPECIAL_FLAGS_DB_ALLOWED)
         {
@@ -5192,13 +5201,13 @@ void ObjectMgr::LoadQuests()
                 usedMailTemplates.emplace(qinfo->_rewardMailTemplateId, qinfo->GetQuestId());
         }
 
-        if (uint32 nextQuestInChain = qinfo->_nextQuestInChain)
+        if (uint32 rewardNextQuest = qinfo->_rewardNextQuest)
         {
-            if (!_questTemplates.count(nextQuestInChain))
+            if (!_questTemplates.count(rewardNextQuest))
             {
-                TC_LOG_ERROR("sql.sql", "Quest {} has `NextQuestInChain` = {} but quest {} does not exist, quest chain will not work.",
-                    qinfo->GetQuestId(), qinfo->_nextQuestInChain, qinfo->_nextQuestInChain);
-                qinfo->_nextQuestInChain = 0;
+                TC_LOG_ERROR("sql.sql", "Quest {} has `RewardNextQuest` = {} but quest {} does not exist, quest chain will not work.",
+                    qinfo->GetQuestId(), qinfo->_rewardNextQuest, qinfo->_rewardNextQuest);
+                qinfo->_rewardNextQuest = 0;
             }
         }
 
@@ -5895,32 +5904,25 @@ void ObjectMgr::LoadEventSet()
     }
 
     // Load all possible event ids from criterias
-    auto addCriteriaEventsToStore = [&](CriteriaList const& criteriaList)
+    for (CriteriaEntry const* criteria : sCriteriaStore)
     {
-        for (Criteria const* criteria : criteriaList)
-            if (criteria->Entry->Asset.EventID)
-                _eventStore.insert(criteria->Entry->Asset.EventID);
-    };
+        switch (CriteriaType(criteria->Type))
+        {
+            case CriteriaType::PlayerTriggerGameEvent:
+            case CriteriaType::AnyoneTriggerGameEventScenario:
+                if (criteria->Asset.EventID)
+                    _eventStore.insert(criteria->Asset.EventID);
+                break;
+            default:
+                break;
+        }
 
-    std::array<CriteriaType, 2> eventCriteriaTypes = { CriteriaType::PlayerTriggerGameEvent, CriteriaType::AnyoneTriggerGameEventScenario };
-    for (CriteriaType criteriaType : eventCriteriaTypes)
-    {
-        addCriteriaEventsToStore(sCriteriaMgr->GetPlayerCriteriaByType(criteriaType, 0));
-        addCriteriaEventsToStore(sCriteriaMgr->GetGuildCriteriaByType(criteriaType));
-        addCriteriaEventsToStore(sCriteriaMgr->GetQuestObjectiveCriteriaByType(criteriaType));
+        if (CriteriaStartEvent(criteria->StartEvent) == CriteriaStartEvent::SendEvent && criteria->StartAsset)
+            _eventStore.insert(criteria->StartAsset);
+
+        if (CriteriaFailEvent(criteria->FailEvent) == CriteriaFailEvent::SendEvent && criteria->FailAsset)
+            _eventStore.insert(criteria->FailAsset);
     }
-
-    for (ScenarioEntry const* scenario : sScenarioStore)
-        for (CriteriaType criteriaType : eventCriteriaTypes)
-            addCriteriaEventsToStore(sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(criteriaType, scenario->ID));
-
-    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByStartEvent(CriteriaStartEvent::SendEvent))
-        if (gameEventId)
-            _eventStore.insert(gameEventId);
-
-    for (auto const& [gameEventId, _] : sCriteriaMgr->GetCriteriaByFailEvent(CriteriaFailEvent::SendEvent))
-        if (gameEventId)
-            _eventStore.insert(gameEventId);
 }
 
 void ObjectMgr::LoadEventScripts()

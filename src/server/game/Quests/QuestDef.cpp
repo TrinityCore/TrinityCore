@@ -93,7 +93,7 @@ Quest::Quest(QuestTemplateQueryResult const& questRecord) :
     _questSortID(questRecord.QuestSortID().GetInt16()),
     _questInfoID(questRecord.QuestInfoID().GetUInt16()),
     _suggestedPlayers(questRecord.SuggestedGroupNum().GetUInt8()),
-    _nextQuestInChain(questRecord.RewardNextQuest().GetUInt32()),
+    _rewardNextQuest(questRecord.RewardNextQuest().GetUInt32()),
     _rewardXPDifficulty(questRecord.RewardXPDifficulty().GetUInt32()),
     _rewardXPMultiplier(questRecord.RewardXPMultiplier().GetFloat()),
     _rewardMoneyDifficulty(questRecord.RewardMoneyDifficulty().GetUInt32()),
@@ -775,6 +775,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
         {
             response.Info.UnfilteredChoiceItems[i].ItemID = RewardChoiceItemId[i];
             response.Info.UnfilteredChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+            response.Info.UnfilteredChoiceItems[i].DisplayID = RewardChoiceItemDisplayId[i];
         }
     }
 
