@@ -2235,21 +2235,21 @@ uint32 Item::GetSellPrice(Player const* owner, bool forVendor /*= false*/) const
 {
     ItemTemplate const* itemTemplate = GetTemplate();
     int64 price = Item::GetSellPrice(itemTemplate, GetQuality(), GetItemLevel(owner));
-     if (forVendor)
-     {
-         std::span<ItemEffectEntry const* const> effects = GetEffects();
-         auto effectWithCharges = std::ranges::find_if(effects,
-             [](ItemEffectEntry const* itemEffect) { return itemEffect->SpellID && itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges < 0; });
+    if (forVendor)
+    {
+        std::span<ItemEffectEntry const* const> effects = GetEffects();
+        auto effectWithCharges = std::ranges::find_if(effects,
+            [](ItemEffectEntry const* itemEffect) { return itemEffect->SpellID && itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges < 0; });
 
-         if (effectWithCharges != effects.end())
-             price = price * GetSpellCharges(*effectWithCharges) / (*effectWithCharges)->Charges;
+        if (effectWithCharges != effects.end())
+            price = price * GetSpellCharges(*effectWithCharges) / (*effectWithCharges)->Charges;
 
-         int64 repairCost = CalculateDurabilityRepairCost(1.0f, false);
-         if (repairCost < price)
-             price -= repairCost;
-         else
-             price = 1;
-     }
+        int64 repairCost = CalculateDurabilityRepairCost(1.0f, false);
+        if (repairCost < price)
+            price -= repairCost;
+        else
+            price = 1;
+    }
 
     return price;
 }
