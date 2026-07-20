@@ -69,11 +69,8 @@ struct npc_vashjir_drowning_soldier : public ScriptedAI
             if (Player* player = caster->ToPlayer())
                 player->KilledMonsterCredit(Creatures::DrowningSoldierAlliance);
         }
-
-        if (spellInfo->Id == Spells::BubbleSelf)
-        {
+        else if (spellInfo->Id == Spells::BubbleSelf)
             _events.ScheduleEvent(Events::PayItForward::BubbleSelf, 1s);
-        }
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -110,7 +107,7 @@ struct npc_vashjir_drowning_soldier : public ScriptedAI
             {
                 case Events::PayItForward::BubbleSelf:
                     if (Creature* stalker = me->FindNearestCreatureWithOptions(100.0f, { .StringId = "ShipFar" }))
-                    me->GetMotionMaster()->MovePoint(Points::PointShipFar, stalker->GetPosition(), true);
+                        me->GetMotionMaster()->MovePoint(Points::PointShipFar, stalker->GetPosition(), true);
                     break;
                 case Events::PayItForward::MoveToNear:
                     if (Creature* stalker = me->FindNearestCreatureWithOptions(100.0f, { .StringId = "ShipNear" }))

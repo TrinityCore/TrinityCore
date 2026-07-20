@@ -34,6 +34,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 74151, 0, 0, 1, 1, 74416, 0, 0, '', 1, 'Explicit target of the spell (only for spells which take object selected by caster into account) has not aura of spell 74416, effect EFFECT_0');
 
 -- SpellScriptNames
-DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_low_health';
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_vashjir_low_health';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(76143, 'spell_gen_low_health');
+(76143, 'spell_vashjir_low_health');

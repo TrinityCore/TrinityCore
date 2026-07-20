@@ -5517,20 +5517,6 @@ private:
     uint64 _health;
 };
 
-// 76143 - Low Health
-class spell_gen_low_health : public AuraScript
-{
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(10));
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_gen_low_health::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 128648 - Defending Cart Aura
 class spell_bg_defending_cart_aura final : public SpellScript
 {
@@ -5959,7 +5945,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_1", 1);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
-    RegisterSpellScript(spell_gen_low_health);
     RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
     RegisterSpellScript(spell_gen_comfortable_riders_barding);
     RegisterSpellScript(spell_gen_saddlechute);
