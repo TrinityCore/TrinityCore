@@ -350,6 +350,13 @@ Unit::Unit(bool isWorldObject) :
                                                             // implement 50% base damage from offhand
     m_auraPctModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
+    for (uint32 i = 0; i < uint32(AttackPowerModIndex::End); ++i)
+    {
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatPositive)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatNegative)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::Pct)] = 1.0f;
+    }
+
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
         m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
@@ -9590,6 +9597,11 @@ bool Unit::IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 dis
 ########                         ########
 #######################################*/
 
+void ApplyPercentModFloatVar(float& var, float val, bool apply)
+{
+    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
+}
+
 void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply)
 {
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
@@ -9673,7 +9685,7 @@ float Unit::GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierTy
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_PCT_END)
     {
         TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
-        return 0.0f;
+        return 1.0f;
     }
 
     return m_auraPctModifiersGroup[unitMod][modifierType];
@@ -9729,9 +9741,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RESISTANCE_SHADOW:
         case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
 
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
-
         case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
         case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
@@ -9740,6 +9749,41 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
             ABORT_MSG("Not implemented UnitMod %u", unitMod);
             break;
     }
+}
+
+void Unit::HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply)
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in HandleAttackPowerModifier(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return;
+    }
+
+    switch (modifierType)
+    {
+        case AttackPowerModType::Pct:
+            ApplyPercentModFloatVar(m_attackPowerMods[uint32(index)][uint32(modifierType)], amount, apply);
+            break;
+        default:
+            m_attackPowerMods[uint32(index)][uint32(modifierType)] += apply ? amount : -amount;
+            break;
+    }
+
+    if (!CanModifyStats())
+        return;
+
+    UpdateAttackPowerAndDamage(index == AttackPowerModIndex::Ranged);
+}
+
+float Unit::GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in GetAttackPowerModifierValue(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return 0.0f;
+    }
+
+    return m_attackPowerMods[uint32(index)][uint32(modifierType)];
 }
 
 void Unit::UpdateDamageDoneMods(WeaponAttackType attackType, int32 /*skipEnchantSlot = -1*/)
@@ -10973,11 +11017,6 @@ void Unit::UpdateAttackTimeField(WeaponAttackType att)
         default:
             break;;
     }
-}
-
-void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
