@@ -267,29 +267,26 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
         return GetDifficulty(Difficulty(difficultyEntry->FallbackDifficultyID));
 
     // No data for DIFFICULTY_NONE (0)
-    struct DefaultCreatureDifficulty : public CreatureDifficulty
+    static CreatureDifficulty constexpr DefDifficulty =
     {
-        DefaultCreatureDifficulty()
-        {
-            MinLevel = 1;
-            MaxLevel = 1;
-            HealthScalingExpansion = 0;
-            HealthModifier = 1.f;
-            ManaModifier = 1.f;
-            ArmorModifier = 1.f;
-            DamageModifier = 1.f;
-            CreatureDifficultyID = 0;
-            TypeFlags = 0;
-            TypeFlags2 = 0;
-            LootID = 0;
-            PickPocketLootID = 0;
-            SkinLootID = 0;
-            GoldMin = 0;
-            GoldMax = 0;
-        }
+        .MinLevel = 1,
+        .MaxLevel = 1,
+        .HealthScalingExpansion = 0,
+        .HealthModifier = 1.f,
+        .ManaModifier = 1.f,
+        .ArmorModifier = 1.f,
+        .DamageModifier = 1.f,
+        .CreatureDifficultyID = 0,
+        .TypeFlags = 0,
+        .TypeFlags2 = 0,
+        .LootID = 0,
+        .PickPocketLootID = 0,
+        .SkinLootID = 0,
+        .GoldMin = 0,
+        .GoldMax = 0,
+        .StaticFlags = CreatureStaticFlagsHolder()
     };
-    static const DefaultCreatureDifficulty defDifficulty;
-    return &defDifficulty;
+    return &DefDifficulty;
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
