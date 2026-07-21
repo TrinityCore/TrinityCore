@@ -266,7 +266,6 @@ template TC_GAME_API SpellScriptBase::HookList<SpellScript::ObjectTargetSelectHa
 template TC_GAME_API SpellScriptBase::HookList<SpellScript::DestinationTargetSelectHandler>& SpellScriptBase::HookList<SpellScript::DestinationTargetSelectHandler>::operator+=(SpellScript::DestinationTargetSelectHandler&& hook);
 template TC_GAME_API SpellScriptBase::HookList<SpellScript::DamageAndHealingCalcHandler>& SpellScriptBase::HookList<SpellScript::DamageAndHealingCalcHandler>::operator+=(SpellScript::DamageAndHealingCalcHandler&& hook);
 template TC_GAME_API SpellScriptBase::HookList<SpellScript::OnCalculateResistAbsorbHandler>& SpellScriptBase::HookList<SpellScript::OnCalculateResistAbsorbHandler>::operator+=(SpellScript::OnCalculateResistAbsorbHandler&& hook);
-template TC_GAME_API SpellScriptBase::HookList<SpellScript::EmpowerStageCompletedHandler>& SpellScriptBase::HookList<SpellScript::EmpowerStageCompletedHandler>::operator+=(SpellScript::EmpowerStageCompletedHandler&& hook);
 
 SpellScript::SpellScript() noexcept : m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0)
 {
