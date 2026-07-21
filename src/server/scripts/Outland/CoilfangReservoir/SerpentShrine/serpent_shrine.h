@@ -47,9 +47,7 @@ enum SSDataTypes
     DATA_SHARKKIS                   = 6,
     DATA_TIDALVESS                  = 12,
     DATA_WATER                      = 18,
-    DATA_TRASH                      = 19,
 
-    DATA_STRANGE_POOL,
     DATA_BRIDGE_PART_1,
     DATA_BRIDGE_PART_2,
     DATA_BRIDGE_PART_3,
@@ -68,7 +66,6 @@ enum SSCreatureIds
 
 enum SSGameObjectIds
 {
-    GO_STRANGE_POOL                 = 184956,
     GO_BRIDGE_PART_1                = 184203,
     GO_BRIDGE_PART_2                = 184204,
     GO_BRIDGE_PART_3                = 184205,

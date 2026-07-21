@@ -188,6 +188,21 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit) override
+            {
+                switch (unit->GetEntry())
+                {
+                    case NPC_COILFANG_PRIESTESS:
+                    case NPC_COILFANG_SHATTERER:
+                        if (TrashCount < MIN_KILLS)
+                            ++TrashCount;//+1 died
+                        SaveToDB();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             bool SetBossState(uint32 id, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(id, state))
@@ -228,11 +243,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_TRASH:
-                        if (data == 1 && TrashCount < MIN_KILLS)
-                            ++TrashCount;//+1 died
-                        SaveToDB();
-                        break;
                     case DATA_WATER:
                         Water = data;
                         break;
