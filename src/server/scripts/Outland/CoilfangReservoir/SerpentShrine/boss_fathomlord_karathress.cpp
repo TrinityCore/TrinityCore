@@ -545,7 +545,7 @@ class spell_fathomlord_karathress_the_beast_within : public SpellScript
 
     void HandleCast()
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_BESTIAL_WRATH, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_BESTIAL_WRATH);
     }
 
     void Register() override
