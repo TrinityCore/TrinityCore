@@ -54,7 +54,7 @@ uint32 Account::HandleGetGameAccountState(account::v1::GetGameAccountStateReques
         if (GameAccountInfo const* gameAccountInfo = _session->GetGameAccountInfo(request->game_account_id().low()))
         {
             response->mutable_state()->mutable_game_level_info()->set_name(gameAccountInfo->DisplayName);
-            response->mutable_state()->mutable_game_level_info()->set_program(5730135); // WoW
+            response->mutable_state()->mutable_game_level_info()->set_program(ClientBuild::Program::WoW);
         }
 
         response->mutable_tags()->set_game_level_info_tag(0x5C46D483);
@@ -69,7 +69,7 @@ uint32 Account::HandleGetGameAccountState(account::v1::GetGameAccountStateReques
             response->mutable_state()->mutable_game_status()->set_suspension_expires(uint64(gameAccountInfo->UnbanDate) * 1000000);
         }
 
-        response->mutable_state()->mutable_game_status()->set_program(5730135); // WoW
+        response->mutable_state()->mutable_game_status()->set_program(ClientBuild::Program::WoW);
         response->mutable_tags()->set_game_status_tag(0x98B75F99);
     }
 
@@ -130,7 +130,7 @@ uint32 Account::HandleGetGameAccountRestriction(account::v2::client::GetGameAcco
             if (gameAccountInfo->IsPermanenetlyBanned)
             {
                 account::v2::Restriction* restriction = response->add_restrictions();
-                restriction->set_title_id(ClientBuild::ToFourCC("WoW"sv));
+                restriction->set_title_id(ClientBuild::Program::WoW);
                 restriction->set_type(account::v2::RESTRICTION_TYPE_LOGIN_BANNED);
                 restriction->set_created_time_ms(gameAccountInfo->BanDate * IN_MILLISECONDS);
             }
@@ -138,7 +138,7 @@ uint32 Account::HandleGetGameAccountRestriction(account::v2::client::GetGameAcco
             if (gameAccountInfo->IsBanned)
             {
                 account::v2::Restriction* restriction = response->add_restrictions();
-                restriction->set_title_id(ClientBuild::ToFourCC("WoW"sv));
+                restriction->set_title_id(ClientBuild::Program::WoW);
                 restriction->set_type(account::v2::RESTRICTION_TYPE_LOGIN_SUSPENDED);
                 restriction->set_created_time_ms(gameAccountInfo->BanDate * IN_MILLISECONDS);
                 restriction->set_expire_time_ms(gameAccountInfo->UnbanDate * IN_MILLISECONDS);

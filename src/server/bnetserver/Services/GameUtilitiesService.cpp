@@ -187,7 +187,12 @@ uint32 GameUtilities::GetRealmListTicket(Session* session,
             if (data.info().secret().size() == 32)
                 memcpy(clientSecret.emplace().data(), data.info().secret().data(), data.info().secret().size());
 
-            clientBuildVariant = { .Platform = data.info().platformtype(), .Arch = data.info().clientarch(), .Type = data.info().type() };
+            clientBuildVariant =
+            {
+                .Platform = ClientBuild::Platform::Id(data.info().platformtype()),
+                .Arch = ClientBuild::Arch::Id(data.info().clientarch()),
+                .Type = ClientBuild::Type::Id(data.info().type())
+            };
         }
     }
 
