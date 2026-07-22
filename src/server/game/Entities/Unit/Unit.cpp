@@ -3275,7 +3275,7 @@ bool Unit::IsMovementPreventedByCasting() const
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (!CanCastSpellWhileMoving(spell->GetSpellInfo())
             && ((spell->getState() == SPELL_STATE_PREPARING && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
-                || spell->getState() == SPELL_STATE_CHANNELING && !spell->GetSpellInfo()->IsMoveAllowedChannel()))
+                || (spell->getState() == SPELL_STATE_CHANNELING && !spell->GetSpellInfo()->IsMoveAllowedChannel())))
             return true;
 
     return false;
