@@ -20,7 +20,6 @@
  * Combat timers requires to be revisited, mainly player class abilities, half of timers are guessed
  * Move spell script of spell 43421 to this file
  * Currently we generate random companions after every wipe, doubt it is correct
- * We interrupt Siphon Soul instantly to allow casting player class abilities, that's a hack
  */
 
 #include "ScriptMgr.h"
@@ -359,7 +358,6 @@ struct boss_hexlord_malacrass : public BossAI
                 break;
             case SPELL_SIPHON_SOUL:
                 Talk(SAY_CHARM);
-                me->InterruptNonMeleeSpells(false);
                 break;
             case SPELL_DRAIN_POWER:
                 Talk(SAY_DRAIN_POWER);
