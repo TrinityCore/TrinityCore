@@ -3932,7 +3932,7 @@ void Spell::_cast(bool skipCheck)
         SetDelayStart(0);
 
         if (Unit* unitCaster = m_caster->ToUnit())
-            if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
+            if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true, false, true, true))
                 unitCaster->ClearUnitState(UNIT_STATE_CASTING);
     }
     else
@@ -4376,7 +4376,7 @@ void Spell::finish(SpellCastResult result)
     if (m_spellInfo->IsChanneled())
         unitCaster->UpdateInterruptMask();
 
-    if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
+    if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true, false, true, true))
         unitCaster->ClearUnitState(UNIT_STATE_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
