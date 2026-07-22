@@ -49,7 +49,7 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBu
 -- Quest
 DELETE FROM `quest_template_addon` WHERE `ID`=54976;
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES 
-(54976, 0, 0, 0, 0, 54977, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+(54976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
 
 DELETE FROM `quest_details` WHERE `ID`=54976;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
