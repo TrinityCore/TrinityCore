@@ -282,6 +282,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
     data << uint32(restrictionsAndMails.RestrictionFlags);
     data << Size<uint32>(restrictionsAndMails.MailSenders);
     data << Size<uint32>(restrictionsAndMails.MailSenderTypes);
+    data << uint32(restrictionsAndMails.NoRpeReason);
 
     if (!restrictionsAndMails.MailSenderTypes.empty())
         data.append(restrictionsAndMails.MailSenderTypes.data(), restrictionsAndMails.MailSenderTypes.size());

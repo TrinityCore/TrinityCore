@@ -20,18 +20,24 @@
 Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
 {
     AddService<WorldserverService<account::v1::AccountService>>();
+    AddService<WorldserverService<account::v2::client::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
+    AddService<WorldserverService<authentication::v2::client::AuthenticationService>>();
     AddService<WorldserverService<block_list::v1::client::BlockListService>>();
     AddService<Services::ClubMembershipService>();
     AddService<Services::ClubService>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
-    AddService<Services::V1::GameUtilitiesService>();
+    AddService<WorldserverService<friends::v2::client::FriendsService>>();
+    AddService<WorldserverService<game_utilities::v1::GameUtilitiesService>>();
+    AddService<Services::GameUtilitiesService>();
     AddService<WorldserverService<notification::v1::NotificationService>>();
     AddService<WorldserverService<notification::v2::client::NotificationService>>();
     AddService<WorldserverService<presence::v1::PresenceService>>();
+    AddService<WorldserverService<presence::v2::client::PresenceService>>();
     AddService<WorldserverService<report::v1::ReportService>>();
     AddService<WorldserverService<report::v2::ReportService>>();
+    AddService<WorldserverService<report::v3::client::ReportService>>();
     AddService<WorldserverService<resources::v1::ResourcesService>>();
     AddService<WorldserverService<whisper::v2::client::WhisperService>>();
 }

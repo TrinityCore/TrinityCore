@@ -151,29 +151,34 @@ uint32 GameUtilities::JoinRealm(WorldSession const* session,
 }
 }
 
-namespace V1
+namespace V2
 {
-Battlenet::Services::Variant FromProto(bgs::protocol::Variant const& from)
+Battlenet::Services::Variant FromProto(bgs::protocol::v2::Variant const& from)
 {
-    if (from.has_bool_value())
-        return from.bool_value();
-    if (from.has_int_value())
-        return from.int_value();
-    if (from.has_float_value())
-        return from.float_value();
-    if (from.has_string_value())
-        return from.string_value();
-    if (from.has_blob_value())
-        return Variant{ std::in_place_type<std::vector<uint8>>,
-            reinterpret_cast<uint8 const*>(from.blob_value().data()),
-            reinterpret_cast<uint8 const*>(from.blob_value().data()) + from.blob_value().size() };
-    if (from.has_uint_value())
-        return from.uint_value();
+    switch (from.type_case())
+    {
+        case v2::Variant::kBoolValue:
+            return from.bool_value();
+        case v2::Variant::kIntValue:
+            return from.int_value();
+        case v2::Variant::kFloatValue:
+            return from.float_value();
+        case v2::Variant::kStringValue:
+            return from.string_value();
+        case v2::Variant::kBlobValue:
+            return Variant{ std::in_place_type<std::vector<uint8>>,
+                reinterpret_cast<uint8 const*>(from.blob_value().data()),
+                reinterpret_cast<uint8 const*>(from.blob_value().data()) + from.blob_value().size() };
+        case v2::Variant::kUintValue:
+            return from.uint_value();
+        default:
+            break;
+    }
 
     return { };
 }
 
-void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::Variant* to)
+void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::v2::Variant* to)
 {
     std::visit([to]<typename T>(T const& value)
     {
@@ -198,12 +203,12 @@ GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(
 {
 }
 
-uint32 GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 GameUtilitiesService::HandleProcessTask(game_utilities::v2::client::ProcessTaskRequest const* request, game_utilities::v2::client::ProcessTaskResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     std::vector<std::pair<std::string_view, Variant>> params;
     std::vector<std::pair<std::string_view, Variant>> responseValues;
 
-    for (Attribute const& attribute : request->attribute())
+    for (v2::Attribute const& attribute : request->attribute())
     {
         if (!attribute.has_name() || !attribute.has_value())
             continue;
@@ -215,7 +220,7 @@ uint32 GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::Clie
 
     for (auto&& [name, value] : responseValues)
     {
-        Attribute* attr = response->add_attribute();
+        v2::Attribute* attr = response->add_result();
         attr->set_name(name.data(), name.length());
         ToProto(value, attr->mutable_value());
     }
@@ -223,7 +228,7 @@ uint32 GameUtilitiesService::HandleProcessClientRequest(game_utilities::v1::Clie
     return result;
 }
 
-uint32 GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v2::client::GetAllValuesForAttributeRequest const* request, game_utilities::v2::client::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     std::vector<Variant> responseValues;
 

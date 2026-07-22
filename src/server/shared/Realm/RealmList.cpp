@@ -275,24 +275,23 @@ void RealmList::FillRealmEntry(Realm const& realm, uint32 clientBuild, AccountTy
     realmEntry->set_name(realm.Name);
     realmEntry->set_cfgconfigsid(realm.GetConfigId());
     realmEntry->set_cfglanguagesid(1);
+    realmEntry->set_cfgcontentsetid(0);
+    realmEntry->set_usebleepchance(0.0f);
 }
 
-std::vector<uint8> RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
+std::string RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build, AccountTypes accountSecurityLevel) const
 {
-    std::vector<uint8> compressed;
     if (std::shared_ptr<Realm const> realm = GetRealm(id))
     {
         if (realm->PopulationLevel != RealmPopulationState::Offline && realm->Build == build && accountSecurityLevel >= realm->AllowedSecurityLevel)
         {
             JSON::RealmList::RealmEntry realmEntry;
             FillRealmEntry(*realm, build, accountSecurityLevel, &realmEntry);
-
-            std::string json = "JamJSONRealmEntry:" + JSON::Serialize(realmEntry);
-            CompressJson(json, &compressed);
+            return JSON::Serialize(realmEntry);
         }
     }
 
-    return compressed;
+    return { };
 }
 
 std::vector<uint8> RealmList::GetRealmList(uint32 build, AccountTypes accountSecurityLevel, std::string const& subRegion) const

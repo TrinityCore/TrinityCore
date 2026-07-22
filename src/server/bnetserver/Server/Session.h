@@ -93,6 +93,10 @@ namespace Battlenet
 
         bool IsAuthed() const { return _authed; }
 
+        uint32 GetSessionId() const { return _sessionId; }
+        SystemTimePoint GetCreationTime() const { return _creationTime; }
+        void SetClientInstanceId(std::string const& ciid) { _clientInstanceId = ciid; }
+
         uint32 GetAccountId() const { return _accountInfo->Id; }
         AccountInfo const* GetAccountInfo() const { return _accountInfo.get(); }
 
@@ -146,6 +150,10 @@ namespace Battlenet
 
         PacketReadState _packetReadState;
         MessageBuffer _packetBuffer;
+
+        uint32 const _sessionId;
+        SystemTimePoint const _creationTime;
+        std::string _clientInstanceId;
 
         std::shared_ptr<AccountInfo> _accountInfo;
         GameAccountInfo const* _gameAccountInfo;          // Points at selected game account (inside _gameAccounts)

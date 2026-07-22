@@ -50,6 +50,23 @@ Variant* GameUtilities::FindParamValue(std::vector<std::pair<std::string_view, V
     return itr != params.end() ? &itr->second : nullptr;
 }
 
+std::vector<uint8> GameUtilities::CompressJson(std::string const& json)
+{
+    uLong uncompressedLength = uLong(json.length() + 1);
+    uLong compressedLength = compressBound(uLong(json.length()));
+    std::vector<uint8> compressed(compressedLength + 4);
+    memcpy(compressed.data(), &uncompressedLength, sizeof(uncompressedLength));
+
+    if (compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.data()), uncompressedLength) != Z_OK)
+    {
+        compressed.clear();
+        return compressed;
+    }
+
+    compressed.resize(compressedLength + 4);   // trim excess bytes
+    return compressed;
+}
+
 uint32 GameUtilities::HandleClientRequest(Session* session,
     std::vector<std::pair<std::string_view, Variant>>& params,
     std::vector<std::pair<std::string_view, Variant>>& responseValues)
@@ -74,6 +91,8 @@ uint32 GameUtilities::HandleClientRequest(Session* session,
             return GetRealmList(session, params, responseValues);
         case Trinity::HashFnv1a<>::GetHash("Command_RealmJoinRequest_v1"sv):
             return JoinRealm(session, params, responseValues);
+        case Trinity::HashFnv1a<>::GetHash("Command_FetchBleepProxiesRequest_v1"sv):
+            return GetBleepProxies(session, params, responseValues);
         default:
             break;
     }
@@ -111,17 +130,23 @@ uint32 GameUtilities::GetLastCharPlayed(Session const* session,
 
     if (LastPlayedCharacterInfo const* lastPlayerChar = session->GetLastPlayedCharacter(std::get<std::string>(*subRegion)))
     {
-        std::vector<uint8> realmEntryJson = sRealmList->GetRealmEntryJSON(lastPlayerChar->RealmId, session->GetBuild(), session->GetGameAccountInfo()->SecurityLevel);
+        std::string realmEntryJson = sRealmList->GetRealmEntryJSON(lastPlayerChar->RealmId, session->GetBuild(), session->GetGameAccountInfo()->SecurityLevel);
         if (realmEntryJson.empty())
             return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
 
         std::vector<uint8> guidData(sizeof(lastPlayerChar->CharacterGUID));
         std::memcpy(guidData.data(), &lastPlayerChar->CharacterGUID, sizeof(lastPlayerChar->CharacterGUID));
 
-        responseValues.emplace_back("Param_RealmEntry"sv, std::move(realmEntryJson));
+        ::JSON::RealmList::UtilityInfo utilityInfo;
+        utilityInfo.set_realmpermissions(0x200);
+
+        std::vector<uint8> utilityInfoJson = CompressJson("JSONUtilityInfo:" + ::JSON::Serialize(utilityInfo));
+
+        responseValues.emplace_back("Param_RealmEntry"sv, CompressJson("JamJSONRealmEntry:" + realmEntryJson));
         responseValues.emplace_back("Param_CharacterName"sv, lastPlayerChar->CharacterName);
         responseValues.emplace_back("Param_CharacterGUID"sv, std::move(guidData));
         responseValues.emplace_back("Param_LastPlayedTime"sv, int64(lastPlayerChar->LastPlayedTime));
+        responseValues.emplace_back("Param_UtilityInfo"sv, std::move(utilityInfoJson));
     }
 
     return ERROR_OK;
@@ -162,7 +187,12 @@ uint32 GameUtilities::GetRealmListTicket(Session* session,
             if (data.info().secret().size() == 32)
                 memcpy(clientSecret.emplace().data(), data.info().secret().data(), data.info().secret().size());
 
-            clientBuildVariant = { .Platform = data.info().platformtype(), .Arch = data.info().clientarch(), .Type = data.info().type() };
+            clientBuildVariant =
+            {
+                .Platform = ClientBuild::Platform::Id(data.info().platformtype()),
+                .Arch = ClientBuild::Arch::Id(data.info().clientarch()),
+                .Type = ClientBuild::Type::Id(data.info().type())
+            };
         }
     }
 
@@ -207,13 +237,9 @@ uint32 GameUtilities::GetRealmList(Session const* session,
         countEntry->set_count(count);
     }
 
-    std::string json = "JSONRealmCharacterCountList:" + ::JSON::Serialize(realmCharacterCounts);
+    std::vector<uint8> characterCountsJson = CompressJson("JSONRealmCharacterCountList:" + ::JSON::Serialize(realmCharacterCounts));
 
-    uLongf compressedLength = compressBound(json.length());
-    std::vector<uint8> characterCountsJson(4 + compressedLength);
-    *reinterpret_cast<uint32*>(characterCountsJson.data()) = json.length() + 1;
-
-    if (compress(characterCountsJson.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), json.length() + 1) != Z_OK)
+    if (characterCountsJson.empty())
         return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
 
     responseValues.emplace_back("Param_RealmList"sv, std::move(realmListJson));
@@ -242,6 +268,20 @@ uint32 GameUtilities::JoinRealm(Session const* session,
     }
 
     return result.Result;
+}
+
+uint32 GameUtilities::GetBleepProxies(Session const* /*session*/,
+    std::vector<std::pair<std::string_view, Variant>>& /*params*/,
+    std::vector<std::pair<std::string_view, Variant>>& responseValues)
+{
+    std::vector<uint8> proxyListJson = CompressJson("JSONBleepProxyList:" + ::JSON::Serialize(::JSON::RealmList::BleepProxyList()));
+
+    if (proxyListJson.empty())
+        return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
+
+    responseValues.emplace_back("Param_BleepProxyList"sv, std::move(proxyListJson));
+
+    return ERROR_OK;
 }
 }
 
@@ -321,6 +361,102 @@ uint32 GameUtilities::HandleProcessClientRequest(game_utilities::v1::ClientReque
 }
 
 uint32 GameUtilities::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+{
+    if (!_session->IsAuthed())
+        return ERROR_DENIED;
+
+    std::vector<Variant> responseValues;
+
+    uint32 result = Shared::GameUtilities::HandleGetAllValuesForAttribute(_session, Shared::GameUtilities::ParseParamName(request->attribute_key()), responseValues);
+
+    for (Variant& value : responseValues)
+        ToProto(value, response->add_attribute_value());
+
+    return result;
+}
+}
+
+namespace V2
+{
+Battlenet::Services::Variant FromProto(bgs::protocol::v2::Variant const& from)
+{
+    switch (from.type_case())
+    {
+        case v2::Variant::kBoolValue:
+            return from.bool_value();
+        case v2::Variant::kIntValue:
+            return from.int_value();
+        case v2::Variant::kFloatValue:
+            return from.float_value();
+        case v2::Variant::kStringValue:
+            return from.string_value();
+        case v2::Variant::kBlobValue:
+            return Variant{ std::in_place_type<std::vector<uint8>>,
+                reinterpret_cast<uint8 const*>(from.blob_value().data()),
+                reinterpret_cast<uint8 const*>(from.blob_value().data()) + from.blob_value().size() };
+        case v2::Variant::kUintValue:
+            return from.uint_value();
+        default:
+            break;
+    }
+
+    return { };
+}
+
+void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::v2::Variant* to)
+{
+    std::visit([to]<typename T>(T const& value)
+    {
+        if constexpr (std::is_same_v<T, bool>)
+            to->set_bool_value(value);
+        else if constexpr (std::is_same_v<T, int64>)
+            to->set_int_value(value);
+        else if constexpr (std::is_same_v<T, double>)
+            to->set_float_value(value);
+        else if constexpr (std::is_same_v<T, std::string>)
+            to->set_string_value(value);
+        else if constexpr (std::is_same_v<T, std::vector<uint8>>)
+            to->set_blob_value(value.data(), value.size());
+        else if constexpr (std::is_same_v<T, uint64>)
+            to->set_uint_value(value);
+        else
+            static_assert(Trinity::dependant_false_v<T>);
+    }, from);
+}
+
+GameUtilities::GameUtilities(Session* session) : GameUtilitiesService(session)
+{
+}
+
+uint32 GameUtilities::HandleProcessTask(game_utilities::v2::client::ProcessTaskRequest const* request, game_utilities::v2::client::ProcessTaskResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+{
+    if (!_session->IsAuthed())
+        return ERROR_DENIED;
+
+    std::vector<std::pair<std::string_view, Variant>> params;
+    std::vector<std::pair<std::string_view, Variant>> responseValues;
+
+    for (v2::Attribute const& attribute : request->attribute())
+    {
+        if (!attribute.has_name() || !attribute.has_value())
+            continue;
+
+        params.emplace_back(Shared::GameUtilities::ParseParamName(attribute.name()), FromProto(attribute.value()));
+    }
+
+    uint32 result = Shared::GameUtilities::HandleClientRequest(_session, params, responseValues);
+
+    for (auto&& [name, value] : responseValues)
+    {
+        v2::Attribute* attr = response->add_result();
+        attr->set_name(name.data(), name.length());
+        ToProto(value, attr->mutable_value());
+    }
+
+    return result;
+}
+
+uint32 GameUtilities::HandleGetAllValuesForAttribute(game_utilities::v2::client::GetAllValuesForAttributeRequest const* request, game_utilities::v2::client::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     if (!_session->IsAuthed())
         return ERROR_DENIED;

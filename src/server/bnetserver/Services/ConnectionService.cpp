@@ -31,16 +31,27 @@ Connection::Connection(Session* session) : ConnectionService(session)
 
 uint32 Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
-    if (request->has_client_id())
-        response->mutable_client_id()->CopyFrom(request->client_id());
-
     std::chrono::system_clock::duration now = std::chrono::system_clock::now().time_since_epoch();
 
     response->mutable_server_id()->set_label(GetPID());
     response->mutable_server_id()->set_epoch(std::chrono::duration_cast<Seconds>(now - Milliseconds(getMSTime())).count());
+    if (!request->has_client_id())
+    {
+        response->mutable_client_id()->set_label(_session->GetSessionId());
+        response->mutable_client_id()->set_epoch(std::chrono::duration_cast<Seconds>(_session->GetCreationTime().time_since_epoch()).count());
+    }
+    else
+        response->mutable_client_id()->CopyFrom(request->client_id());
+
     response->set_server_time(std::chrono::duration_cast<Milliseconds>(now).count());
 
     response->set_use_bindless_rpc(request->use_bindless_rpc());
+
+    response->set_ciid(Trinity::StringFormat("{:08X}{:08X}-{:08X}{:08X}",
+        response->server_id().label(), response->server_id().epoch(),
+        response->client_id().label(), response->client_id().epoch()));
+
+    _session->SetClientInstanceId(response->ciid());
 
     return ERROR_OK;
 }

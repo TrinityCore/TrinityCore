@@ -29,7 +29,6 @@
 FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/) : _fleeTargetGUID(fleeTargetGUID), _timer(0)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FLEEING;
@@ -43,23 +42,24 @@ MovementGeneratorType FleeingMovementGenerator::GetMovementGeneratorType() const
     return FLEEING_MOTION_TYPE;
 }
 
-void FleeingMovementGenerator::Initialize(Unit* owner)
+bool FleeingMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())
-        return;
+        return false;
 
     _path = nullptr;
     SetTargetLocation(owner);
+    return true;
 }
 
-void FleeingMovementGenerator::Reset(Unit* owner)
+bool FleeingMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool FleeingMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -214,19 +214,10 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 diff)
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
-    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-    if (!active)
-        return;
+    FleeingMovementGenerator::Finalize(owner, active, movementInform);
 
-    owner->StopMoving();
-    if (owner->IsCreature() && owner->IsAlive())
-    {
-        if (Unit* victim = owner->GetVictim())
-        {
-            owner->AttackStop();
-            owner->GetAI()->AttackStart(victim);
-        }
-    }
+    if (active)
+        owner->StopMoving();
 
     if (movementInform)
     {

@@ -20,6 +20,7 @@
 
 #include "WorldserverService.h"
 #include "Client/game_utilities_service.pb.h"
+#include "Client/api/client/v2/game_utilities_service.pb.h"
 
 namespace Battlenet::Services
 {
@@ -47,22 +48,24 @@ namespace Battlenet::Services
         };
     }
 
-    namespace V1
+    namespace V2
     {
-        Battlenet::Services::Variant FromProto(bgs::protocol::Variant const& from);
-        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::Variant* to);
+        Battlenet::Services::Variant FromProto(bgs::protocol::v2::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::v2::Variant* to);
 
-        class GameUtilitiesService : public WorldserverService<game_utilities::v1::GameUtilitiesService>
+        class GameUtilitiesService : public WorldserverService<game_utilities::v2::client::GameUtilitiesService>
         {
-            typedef WorldserverService<game_utilities::v1::GameUtilitiesService> BaseService;
+            typedef WorldserverService<game_utilities::v2::client::GameUtilitiesService> BaseService;
 
         public:
             GameUtilitiesService(WorldSession* session);
 
-            uint32 HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-            uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleProcessTask(game_utilities::v2::client::ProcessTaskRequest const* request, game_utilities::v2::client::ProcessTaskResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleGetAllValuesForAttribute(game_utilities::v2::client::GetAllValuesForAttributeRequest const* request, game_utilities::v2::client::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
         };
     }
+
+    using GameUtilitiesService = V2::GameUtilitiesService;
 }
 
 #endif // WORLDSERVER_GAME_UTILITIES_SERVICE_H

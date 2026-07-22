@@ -20,6 +20,7 @@
 
 #include "SocketMgr.h"
 #include "Session.h"
+#include <atomic>
 
 namespace Battlenet
 {
@@ -40,6 +41,8 @@ namespace Battlenet
     {
     public:
         static SessionManager& Instance();
+
+        std::atomic<uint32> SessionIdGenerator = 0;
     };
 }
 

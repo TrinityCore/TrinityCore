@@ -593,10 +593,6 @@ void WorldSession::LogoutPlayer(bool save)
         if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
-        ///- Teleport to home if the player is in an invalid instance
-        if (!_player->m_InstanceValid && !_player->IsGameMaster())
-            _player->TeleportTo(_player->m_homebind);
-
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -833,11 +829,13 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.NativeRealmAddress = GetVirtualRealmAddress();
     connectTo.Serial = serial;
-    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
+
+    WorldPackets::Auth::ConnectTo::ConnectPayload& payload = connectTo.Payload.emplace_back();
+    payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
     {
-        memcpy(connectTo.Payload.Where.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
-        connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
+        memcpy(payload.Address.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
+        payload.Address.Type = WorldPackets::Auth::ConnectTo::IPv4;
     }
     else
     {
@@ -845,18 +843,18 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
         boost::asio::ip::address_v6 v6 = instanceAddress.to_v6();
         if (v6.is_loopback())
         {
-            memcpy(connectTo.Payload.Where.Address.V4.data(), boost::asio::ip::address_v4::loopback().to_bytes().data(), 4);
-            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
+            memcpy(payload.Address.Address.V4.data(), boost::asio::ip::address_v4::loopback().to_bytes().data(), 4);
+            payload.Address.Type = WorldPackets::Auth::ConnectTo::IPv4;
         }
         else if (v6.is_v4_mapped())
         {
-            memcpy(connectTo.Payload.Where.Address.V4.data(), Trinity::Net::make_address_v4(Trinity::Net::v4_mapped, v6).to_bytes().data(), 4);
-            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
+            memcpy(payload.Address.Address.V4.data(), Trinity::Net::make_address_v4(Trinity::Net::v4_mapped, v6).to_bytes().data(), 4);
+            payload.Address.Type = WorldPackets::Auth::ConnectTo::IPv4;
         }
         else
         {
-            memcpy(connectTo.Payload.Where.Address.V6.data(), v6.to_bytes().data(), 16);
-            connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv6;
+            memcpy(payload.Address.Address.V6.data(), v6.to_bytes().data(), 16);
+            payload.Address.Type = WorldPackets::Auth::ConnectTo::IPv6;
         }
     }
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
@@ -1830,16 +1828,4 @@ void WorldSession::SendTimeSync()
 void WorldSession::RegisterTimeSync(uint32 counter)
 {
     _pendingTimeSyncRequests[counter] = getMSTime();
-}
-
-uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
-{
-    int64 movementTime = int64(time) + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        return GameTime::GetGameTimeMS();
-    }
-    else
-        return uint32(movementTime);
 }

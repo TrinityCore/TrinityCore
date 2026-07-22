@@ -26,7 +26,6 @@ static constexpr ObjectData creatureData[] =
     { BOSS_TAAHBAT,     DATA_TAAHBAT     },
     { BOSS_AWAZJ,       DATA_AWAZJ       },
     { BOSS_SOUL_SCRIBE, DATA_SOUL_SCRIBE },
-    { 0,                0                }  // END
 };
 
 static constexpr DungeonEncounterData encounters[] =

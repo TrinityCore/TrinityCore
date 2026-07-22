@@ -15,100 +15,82 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
 #include "ScriptedCreature.h"
 
-enum Yells
+enum MakerTexts
 {
     SAY_AGGRO                   = 0,
-    SAY_KILL                    = 1,
-    SAY_DIE                     = 2
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2
 };
 
-enum Spells
+enum MakerSpells
 {
-    SPELL_ACID_SPRAY            = 38153,
-    SPELL_EXPLODING_BREAKER     = 30925,
-    SPELL_KNOCKDOWN             = 20276,
-    SPELL_DOMINATION            = 25772
+    SPELL_DOMINATION            = 30923,
+    SPELL_EXPLODING_BEAKER      = 30925,
+    SPELL_EXPLODING_BEAKER_H    = 40059
 };
 
-enum Events
+enum MakerEvents
 {
-    EVENT_ACID_SPRAY            = 1,
-    EVENT_EXPLODING_BREAKER,
-    EVENT_DOMINATION,
-    EVENT_KNOCKDOWN
+    EVENT_DOMINATION            = 1,
+    EVENT_EXPLODING_BEAKER
 };
 
-class boss_the_maker : public CreatureScript
+// 17381 - The Maker
+struct boss_the_maker : public BossAI
 {
-    public:
-        boss_the_maker() : CreatureScript("boss_the_maker") { }
+    boss_the_maker(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
 
-        struct boss_the_makerAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_EXPLODING_BEAKER, 5s, 15s);
+        events.ScheduleEvent(EVENT_DOMINATION, 20s, 30s);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            boss_the_makerAI(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 15s);
-                events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6s);
-                events.ScheduleEvent(EVENT_DOMINATION, 120s);
-                events.ScheduleEvent(EVENT_KNOCKDOWN, 10s);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DIE);
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_ACID_SPRAY:
-                        DoCastVictim(SPELL_ACID_SPRAY);
-                        events.ScheduleEvent(EVENT_ACID_SPRAY, 15s, 23s);
-                        break;
-                    case EVENT_EXPLODING_BREAKER:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
-                            DoCast(target, SPELL_EXPLODING_BREAKER);
-                        events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 4s, 12s);
-                        break;
-                    case EVENT_DOMINATION:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                            DoCast(target, SPELL_DOMINATION);
-                        events.ScheduleEvent(EVENT_DOMINATION, 120s);
-                        break;
-                    case EVENT_KNOCKDOWN:
-                        DoCastVictim(SPELL_KNOCKDOWN);
-                        events.ScheduleEvent(EVENT_KNOCKDOWN, 4s, 12s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBloodFurnaceAI<boss_the_makerAI>(creature);
+            case EVENT_DOMINATION:
+                if (me->GetThreatManager().GetThreatListPlayerCount() > 1)
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                        DoCast(target, SPELL_DOMINATION);
+                events.Repeat(20s, 30s);
+                break;
+            case EVENT_EXPLODING_BEAKER:
+                DoCastVictim(DUNGEON_MODE(SPELL_EXPLODING_BEAKER, SPELL_EXPLODING_BEAKER_H));
+                events.Repeat(10s, 20s);
+                break;
+            default:
+                break;
         }
+    }
 };
 
 void AddSC_boss_the_maker()
 {
-    new boss_the_maker();
+    RegisterBloodFurnaceCreatureAI(boss_the_maker);
 }
