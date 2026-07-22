@@ -15,356 +15,368 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
-#include "ObjectAccessor.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
-enum Kelidan
+enum KelidanTexts
 {
+    // Keli'dan the Breaker
     SAY_WAKE                    = 0,
-    SAY_ADD_AGGRO               = 1,
-    SAY_KILL                    = 2,
-    SAY_NOVA                    = 3,
-    SAY_DIE                     = 4,
+    SAY_NOVA                    = 1,
+    SAY_SLAY                    = 2,
+    SAY_DEATH                   = 3,
 
-    SPELL_CORRUPTION            = 30938,
+    // Shadowmoon Channeler
+    SAY_AGGRO_1                 = 0,
+    SAY_AGGRO_2                 = 1
+};
+
+enum KelidanSpells
+{
+    // Keli'dan the Breaker - Out of Combat
     SPELL_EVOCATION             = 30935,
 
-    SPELL_FIRE_NOVA             = 33132,
-    H_SPELL_FIRE_NOVA           = 37371,
-
-    SPELL_SHADOW_BOLT_VOLLEY    = 28599,
-    H_SPELL_SHADOW_BOLT_VOLLEY  = 40070,
-
+    // Keli'dan the Breaker - Combat
+    SPELL_SHADOW_BOLT_VOLLEY    = 17228,
+    SPELL_SHADOW_BOLT_VOLLEY_H  = 40070,
+    SPELL_CORRUPTION            = 30938,
     SPELL_BURNING_NOVA          = 30940,
+
+    // Shadowmoon Channeler - Out of Combat
+    SPELL_STAR_BEAM             = 30888,
+
+    // Shadowmoon Channeler - Combat
+    SPELL_SHADOW_BOLT           = 12739,
+    SPELL_SHADOW_BOLT_H         = 15472,
+    SPELL_MARK_OF_SHADOW        = 30937,
+
+    // Scripts
     SPELL_VORTEX                = 37370,
-
-    ENTRY_KELIDAN               = 17377,
-    ENTRY_CHANNELER             = 17653,
-
-    ACTION_ACTIVATE_ADDS        = 92
+    SPELL_FIRE_NOVA             = 33775,
+    SPELL_FIRE_NOVA_H           = 37371
 };
 
-const float ShadowmoonChannelers[5][4]=
+enum KelidanEvents
 {
-    {302.0f, -87.0f, -24.4f, 0.157f},
-    {321.0f, -63.5f, -24.6f, 4.887f},
-    {346.0f, -74.5f, -24.6f, 3.595f},
-    {344.0f, -103.5f, -24.5f, 2.356f},
-    {316.0f, -109.0f, -24.6f, 1.257f}
+    // Out of Combat
+    EVENT_EVOCATION             = 1,
+
+    // Combat
+    EVENT_SHADOW_BOLT_VOLLEY,
+    EVENT_CORRUPTION,
+    EVENT_BURNING_NOVA
 };
 
-class boss_kelidan_the_breaker : public CreatureScript
+enum KelidanMisc
 {
-    public:
-        boss_kelidan_the_breaker() : CreatureScript("boss_kelidan_the_breaker") { }
+    ACTION_CHANNELER_DIES       = 0,
+    ACTION_RESET_ENCOUNTER      = 1,
+    MAX_CHANNELERS              = 5
+};
 
-        struct boss_kelidan_the_breakerAI : public BossAI
+enum KelidanSpawnGroups
+{
+    SPAWN_GROUP_CHANNELER_1     = 360,
+    SPAWN_GROUP_CHANNELER_2     = 361,
+    SPAWN_GROUP_CHANNELER_3     = 362,
+    SPAWN_GROUP_CHANNELER_4     = 363,
+    SPAWN_GROUP_CHANNELER_5     = 364
+};
+
+static constexpr std::array<uint32, 5> ChannelersSpawnGroupsData =
+{
+    SPAWN_GROUP_CHANNELER_1,
+    SPAWN_GROUP_CHANNELER_2,
+    SPAWN_GROUP_CHANNELER_3,
+    SPAWN_GROUP_CHANNELER_4,
+    SPAWN_GROUP_CHANNELER_5
+};
+
+// 17377 - Keli'dan the Breaker
+struct boss_kelidan_the_breaker : public BossAI
+{
+    boss_kelidan_the_breaker(Creature* creature) : BossAI(creature, DATA_KELIDAN), _deadChannelersCount(0) { }
+
+    void JustAppeared() override
+    {
+        me->SetImmuneToNPC(true);
+        me->SetUninteractible(true);
+        me->SetReactState(REACT_PASSIVE);
+
+        DoCastSelf(SPELL_EVOCATION);
+
+        for (uint32 group : ChannelersSpawnGroupsData)
+            me->GetMap()->SpawnGroupSpawn(group, true);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        Talk(SAY_WAKE);
+
+        me->InterruptNonMeleeSpells(true);
+
+        events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 0s, 2s);
+        events.ScheduleEvent(EVENT_CORRUPTION, 5s, 10s);
+        events.ScheduleEvent(EVENT_BURNING_NOVA, 10s, 20s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            boss_kelidan_the_breakerAI(Creature* creature) : BossAI(creature, DATA_KELIDAN_THE_BREAKER)
+            case ACTION_CHANNELER_DIES:
             {
-                Initialize();
-                Firenova_Timer = 0;
-            }
+                _deadChannelersCount++;
 
-            void Initialize()
-            {
-                ShadowVolley_Timer = 1000;
-                BurningNova_Timer = 15000;
-                Corruption_Timer = 5000;
-                check_Timer = 0;
-                Firenova = false;
-                addYell = false;
-            }
-
-            uint32 ShadowVolley_Timer;
-            uint32 BurningNova_Timer;
-            uint32 Firenova_Timer;
-            uint32 Corruption_Timer;
-            uint32 check_Timer;
-            bool Firenova;
-            bool addYell;
-            ObjectGuid Channelers[5];
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-                SummonChannelers();
-                me->SetReactState(REACT_PASSIVE);
-                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                me->SetImmuneToAll(true);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_WAKE);
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(true);
-                DoStartMovement(who);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                if (rand32() % 2)
-                    return;
-
-                Talk(SAY_KILL);
-            }
-
-            void ChannelerEngaged(Unit* who)
-            {
-                if (who && !addYell)
+                if (_deadChannelersCount == MAX_CHANNELERS)
                 {
-                    addYell = true;
-                    Talk(SAY_ADD_AGGRO);
+                    me->SetImmuneToNPC(false);
+                    me->SetUninteractible(false);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    _deadChannelersCount = 0;
                 }
-                for (uint8 i = 0; i<5; ++i)
-                {
-                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
-                    if (who && channeler && !channeler->IsInCombat())
-                        channeler->AI()->AttackStart(who);
-                }
+                break;
             }
-
-            void ChannelerDied(Unit* killer)
-            {
-                for (uint8 i = 0; i < 5; ++i)
-                {
-                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
-                    if (channeler && channeler->IsAlive())
-                        return;
-                }
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                me->SetImmuneToAll(false);
-                if (killer)
-                    AttackStart(killer);
-            }
-
-            ObjectGuid GetChanneled(Creature* channeler1)
-            {
-                SummonChannelers();
-                if (!channeler1)
-                    return ObjectGuid::Empty;
-
-                uint8 i;
-                for (i = 0; i < 5; ++i)
-                {
-                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
-                    if (channeler && channeler->GetGUID() == channeler1->GetGUID())
-                        break;
-                }
-                return Channelers[(i + 2) % 5];
-            }
-
-            void SummonChannelers()
-            {
-                for (uint8 i = 0; i < 5; ++i)
-                {
-                    Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
-                    if (!channeler || channeler->isDead())
-                        channeler = me->SummonCreature(ENTRY_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
-                    if (channeler)
-                        Channelers[i] = channeler->GetGUID();
-                    else
-                        Channelers[i].Clear();
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DIE);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                {
-                    if (check_Timer <= diff)
-                    {
-                        if (!me->IsNonMeleeSpellCast(false))
-                            DoCast(me, SPELL_EVOCATION);
-                        check_Timer = 5000;
-                    }
-                    else
-                        check_Timer -= diff;
-                    return;
-                }
-
-                if (Firenova)
-                {
-                    if (Firenova_Timer <= diff)
-                    {
-                        DoCast(me, SPELL_FIRE_NOVA, true);
-                        Firenova = false;
-                        ShadowVolley_Timer = 2000;
-                    }
-                    else
-                        Firenova_Timer -=diff;
-
-                    return;
-                }
-
-                if (ShadowVolley_Timer <= diff)
-                {
-                    DoCast(me, SPELL_SHADOW_BOLT_VOLLEY);
-                    ShadowVolley_Timer = 5000 + rand32() % 8000;
-                }
-                else
-                    ShadowVolley_Timer -=diff;
-
-                if (Corruption_Timer <= diff)
-                {
-                    DoCast(me, SPELL_CORRUPTION);
-                    Corruption_Timer = 30000 + rand32() % 20000;
-                }
-                else
-                    Corruption_Timer -=diff;
-
-                if (BurningNova_Timer <= diff)
-                {
-                    if (me->IsNonMeleeSpellCast(false))
-                        me->InterruptNonMeleeSpells(true);
-
-                    Talk(SAY_NOVA);
-
-                    me->AddAura(SPELL_BURNING_NOVA, me);
-
-                    if (IsHeroic())
-                        DoTeleportAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-
-                    BurningNova_Timer = 20000 + rand32() % 8000;
-                    Firenova_Timer= 5000;
-                    Firenova = true;
-                }
-                else
-                    BurningNova_Timer -=diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBloodFurnaceAI<boss_kelidan_the_breakerAI>(creature);
+            case ACTION_RESET_ENCOUNTER:
+                _deadChannelersCount = 0;
+                for (uint32 group : ChannelersSpawnGroupsData)
+                    me->GetMap()->SpawnGroupSpawn(group, true);
+                break;
+            default:
+                break;
         }
-};
+    }
 
-/*######
-## npc_shadowmoon_channeler
-######*/
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BURNING_NOVA)
+            Talk(SAY_NOVA);
+    }
 
-enum Shadowmoon
-{
-    SPELL_SHADOW_BOLT       = 12739,
-    H_SPELL_SHADOW_BOLT     = 15472,
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
 
-    SPELL_MARK_OF_SHADOW    = 30937,
-    SPELL_CHANNELING        = 39123
-};
+        me->SetImmuneToNPC(true);
+        me->SetUninteractible(true);
+        me->SetReactState(REACT_PASSIVE);
 
-class npc_shadowmoon_channeler : public CreatureScript
-{
-    public:
+        events.ScheduleEvent(EVENT_EVOCATION, 5s);
 
-        npc_shadowmoon_channeler() : CreatureScript("npc_shadowmoon_channeler") { }
+        DoAction(ACTION_RESET_ENCOUNTER);
+    }
 
-        struct npc_shadowmoon_channelerAI : public ScriptedAI
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
         {
-            npc_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature)
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                Initialize();
+                if (eventId == EVENT_EVOCATION)
+                    DoCastSelf(SPELL_EVOCATION);
             }
 
-            void Initialize()
-            {
-                ShadowBolt_Timer = 1000 + rand32() % 1000;
-                MarkOfShadow_Timer = 5000 + rand32() % 2000;
-                check_Timer = 0;
-            }
-
-            uint32 ShadowBolt_Timer;
-            uint32 MarkOfShadow_Timer;
-            uint32 check_Timer;
-
-            void Reset() override
-            {
-                Initialize();
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(true);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-                    ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(true);
-                DoStartMovement(who);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                if (!killer)
-                    return;
-
-                if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-                    ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(killer);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                {
-                    if (check_Timer <= diff)
-                    {
-                        if (!me->IsNonMeleeSpellCast(false))
-                        {
-                            if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-                            {
-                                ObjectGuid channeler = ENSURE_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
-                                if (Unit* channeled = ObjectAccessor::GetUnit(*me, channeler))
-                                    DoCast(channeled, SPELL_CHANNELING);
-                            }
-                        }
-                        check_Timer = 5000;
-                    }
-                    else
-                        check_Timer -= diff;
-
-                    return;
-                }
-
-                if (MarkOfShadow_Timer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_MARK_OF_SHADOW);
-                    MarkOfShadow_Timer = 15000 + rand32() % 5000;
-                }
-                else
-                    MarkOfShadow_Timer -=diff;
-
-                if (ShadowBolt_Timer <= diff)
-                {
-                    DoCastVictim(SPELL_SHADOW_BOLT);
-                    ShadowBolt_Timer = 5000 + rand32() % 1000;
-                }
-                else
-                    ShadowBolt_Timer -=diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBloodFurnaceAI<npc_shadowmoon_channelerAI>(creature);
+            return;
         }
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SHADOW_BOLT_VOLLEY:
+                    DoCastSelf(DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, SPELL_SHADOW_BOLT_VOLLEY_H));
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_CORRUPTION:
+                    DoCastSelf(SPELL_CORRUPTION);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_BURNING_NOVA:
+                    me->ApplySpellImmune(-1, IMMUNITY_MECHANIC, MECHANIC_BANISH, false);
+                    DoCastSelf(SPELL_BURNING_NOVA);
+                    me->ApplySpellImmune(-1, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
+                    events.Repeat(25s, 35s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+    }
+
+private:
+    uint8 _deadChannelersCount;
+};
+
+// 17653 - Shadowmoon Channeler
+struct npc_shadowmoon_channeler : public ScriptedAI
+{
+    npc_shadowmoon_channeler(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void InitializeAI() override
+    {
+        ScriptedAI::InitializeAI();
+        me->SetCorpseDelay(3, true);
+    }
+
+    void JustAppeared() override
+    {
+        DoCastChanneledSpell();
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler.CancelAll();
+
+        me->InterruptNonMeleeSpells(false);
+
+        Talk(SAY_AGGRO_1);
+
+        if (roll_chance(15))
+            Talk(SAY_AGGRO_2);
+
+        _scheduler
+            .SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(0s, 5s, [this](TaskContext& task)
+            {
+                DoCastVictim(DUNGEON_MODE(SPELL_SHADOW_BOLT, SPELL_SHADOW_BOLT_H));
+                task.Repeat(10s, 15s);
+            })
+            .Schedule(5s, 15s, [this](TaskContext& task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, -SPELL_MARK_OF_SHADOW))
+                    DoCast(target, SPELL_MARK_OF_SHADOW);
+                task.Repeat(5s, 15s);
+            });
+    }
+
+    void DoCastChanneledSpell()
+    {
+        _scheduler.Schedule(10s, [this](TaskContext& task)
+        {
+            Creature* channeler = me->FindNearestCreatureWithOptions(100.0f, { .StringId = GetStringIdOfChanneler() });
+            if (!channeler || channeler->IsInEvadeMode())
+            {
+                task.Repeat(1s);
+                return;
+            }
+
+            DoCast(channeler, SPELL_STAR_BEAM);
+        });
+    }
+
+    std::string_view GetStringIdOfChanneler() const
+    {
+        if (me->HasStringId("KelidansShadowmoonChanneler1"))
+            return "KelidansShadowmoonChanneler4";
+        else if (me->HasStringId("KelidansShadowmoonChanneler2"))
+            return "KelidansShadowmoonChanneler3";
+        else if (me->HasStringId("KelidansShadowmoonChanneler3"))
+            return "KelidansShadowmoonChanneler5";
+        else if (me->HasStringId("KelidansShadowmoonChanneler4"))
+            return "KelidansShadowmoonChanneler2";
+        else if (me->HasStringId("KelidansShadowmoonChanneler5"))
+            return "KelidansShadowmoonChanneler1";
+        return "";
+    }
+
+    void JustReachedHome() override
+    {
+        DoCastChanneledSpell();
+
+        if (Creature* kelidan = _instance->GetCreature(DATA_KELIDAN))
+            kelidan->AI()->DoAction(ACTION_RESET_ENCOUNTER);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* kelidan = _instance->GetCreature(DATA_KELIDAN))
+            kelidan->AI()->DoAction(ACTION_CHANNELER_DIES);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        UpdateVictim();
+    }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
+};
+
+// 30940 - Burning Nova
+class spell_kelidan_the_breaker_burning_nova : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VORTEX, SPELL_FIRE_NOVA, SPELL_FIRE_NOVA_H });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->GetMap()->IsHeroic())
+            target->CastSpell(target, SPELL_VORTEX, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, target->GetMap()->IsHeroic() ? SPELL_FIRE_NOVA_H : SPELL_FIRE_NOVA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_kelidan_the_breaker_burning_nova::AfterApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_kelidan_the_breaker_burning_nova::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_kelidan_the_breaker()
 {
-    new boss_kelidan_the_breaker();
-    new npc_shadowmoon_channeler();
+    RegisterBloodFurnaceCreatureAI(boss_kelidan_the_breaker);
+    RegisterBloodFurnaceCreatureAI(npc_shadowmoon_channeler);
+    RegisterSpellScript(spell_kelidan_the_breaker_burning_nova);
 }

@@ -3822,8 +3822,8 @@ void Spell::_cast(bool skipCheck)
 
         // cleanup after mod system
         // triggered spell pointer can be not removed in some cases
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+        if (modOwner)
+            modOwner->SetSpellModTakingSpell(this, false);
 
         finish(SPELL_FAILED_INTERRUPTED);
         SetExecutedCurrently(false);
@@ -3832,7 +3832,7 @@ void Spell::_cast(bool skipCheck)
 
     if (Unit* unitCaster = m_caster->ToUnit())
         if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST))
-            if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, unitCaster->GetPetGUID()))
+            if (Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_caster, unitCaster->GetPetGUID()))
                 pet->DespawnOrUnsummon();
 
     PrepareTriggersExecutedOnHit();
@@ -5398,7 +5398,7 @@ void Spell::TakeCastItem()
     for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
     {
         // item has limited charges
-        if (itemEffect->Charges)
+        if (itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges)
         {
             if (itemEffect->Charges < 0)
                 expendable = true;

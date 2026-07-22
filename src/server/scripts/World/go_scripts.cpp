@@ -392,36 +392,6 @@ public:
 };
 
 /*######
-## go_soulwell
-######*/
-
-class go_soulwell : public GameObjectScript
-{
-    public:
-        go_soulwell() : GameObjectScript("go_soulwell") { }
-
-        struct go_soulwellAI : public GameObjectAI
-        {
-            go_soulwellAI(GameObject* go) : GameObjectAI(go)
-            {
-            }
-
-            bool OnGossipHello(Player* player) override
-            {
-                Unit* owner = me->GetOwner();
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
-                    return true;
-                return false;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_soulwellAI(go);
-        }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1155,7 +1125,6 @@ void AddSC_go_scripts()
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
     new go_blood_filled_orb();
-    new go_soulwell();
     new go_amberpine_outhouse();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();

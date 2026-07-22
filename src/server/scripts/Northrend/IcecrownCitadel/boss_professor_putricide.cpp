@@ -33,7 +33,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
-enum Say
+enum PutricideTexts
 {
     // Festergut
     SAY_FESTERGUT_GASEOUS_BLIGHT    = 0,
@@ -56,7 +56,7 @@ enum Say
     SAY_DEATH                       = 13
 };
 
-enum Spells
+enum PutricideSpells
 {
     // Festergut
     SPELL_RELEASE_GAS_VISUAL                = 69125,
@@ -119,7 +119,7 @@ enum Spells
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
 
-enum Events
+enum PutricideEvents
 {
     // Festergut
     EVENT_FESTERGUT_DIES        = 1,
@@ -142,7 +142,7 @@ enum Events
     EVENT_PHASE_TRANSITION      = 15
 };
 
-enum Phases
+enum PutricidePhases
 {
     PHASE_NONE          = 0,
     PHASE_FESTERGUT     = 1,
@@ -152,7 +152,7 @@ enum Phases
     PHASE_COMBAT_3      = 6
 };
 
-enum Points
+enum PutricidePoints
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
@@ -219,6 +219,7 @@ private:
     Creature* _rotface;
 };
 
+// 36678 - Professor Putricide
 struct boss_professor_putricide : public BossAI
 {
     boss_professor_putricide(Creature* creature) : BossAI(creature, DATA_PROFESSOR_PUTRICIDE),
@@ -699,14 +700,14 @@ struct boss_professor_putricide : public BossAI
     }
 
 private:
-    void SetPhase(Phases newPhase)
+    void SetPhase(PutricidePhases newPhase)
     {
         _phase = newPhase;
         events.SetPhase(newPhase);
     }
 
     ObjectGuid _oozeFloodDummyGUIDs[4];
-    Phases _phase;          // external of EventMap because event phase gets reset on evade
+    PutricidePhases _phase;          // external of EventMap because event phase gets reset on evade
     float const _baseSpeed;
     uint8 _oozeFloodStage;
     bool _experimentState;
@@ -775,6 +776,7 @@ class npc_putricide_oozeAI : public ScriptedAI
         InstanceScript* _instance;
 };
 
+// 37697 - Volatile Ooze
 struct npc_volatile_ooze : public npc_putricide_oozeAI
 {
     npc_volatile_ooze(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, SPELL_OOZE_ERUPTION) { }
@@ -785,6 +787,7 @@ struct npc_volatile_ooze : public npc_putricide_oozeAI
     }
 };
 
+// 37562 - Gas Cloud
 struct npc_gas_cloud : public npc_putricide_oozeAI
 {
     npc_gas_cloud(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_GASEOUS_BLOAT_PROC, SPELL_EXPUNGED_GAS)

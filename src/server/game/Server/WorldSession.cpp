@@ -593,10 +593,6 @@ void WorldSession::LogoutPlayer(bool save)
         if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
-        ///- Teleport to home if the player is in an invalid instance
-        if (!_player->m_InstanceValid && !_player->IsGameMaster())
-            _player->TeleportTo(_player->m_homebind);
-
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -1832,16 +1828,4 @@ void WorldSession::SendTimeSync()
 void WorldSession::RegisterTimeSync(uint32 counter)
 {
     _pendingTimeSyncRequests[counter] = getMSTime();
-}
-
-uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
-{
-    int64 movementTime = int64(time) + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        return GameTime::GetGameTimeMS();
-    }
-    else
-        return uint32(movementTime);
 }

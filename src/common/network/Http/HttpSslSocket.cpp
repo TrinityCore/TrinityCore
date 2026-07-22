@@ -24,7 +24,7 @@ SslSocket::SslSocket(IoContextTcpSocket&& socket, boost::asio::ssl::context& ssl
 {
 }
 
-SslSocket::SslSocket(boost::asio::io_context& context, boost::asio::ssl::context& sslContext) : SocketBase(context, sslContext)
+SslSocket::SslSocket(Asio::IoContext& context, boost::asio::ssl::context& sslContext) : SocketBase(context, sslContext)
 {
 }
 

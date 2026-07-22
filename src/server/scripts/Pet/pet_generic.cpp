@@ -280,6 +280,40 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
     }
 };
 
+// 71848 - Toxic Wasteling Find Target
+class spell_pet_gen_toxic_wasteling_find_target : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_find_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71874 - Toxic Wasteling Devour
+class spell_pet_gen_toxic_wasteling_devour : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_devour::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum ElwynnLambMisc
 {
     // Spells
@@ -341,11 +375,11 @@ private:
         _chasing = false;
         me->GetMotionMaster()->Clear();
 
-        _scheduler.Schedule(2s, [this](TaskContext /*context*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*context*/)
         {
             DoCastAOE(SPELL_ELWYNN_FOREST_WOLF);
         })
-        .Schedule(4s, [this](TaskContext /*context*/)
+        .Schedule(4s, [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_SLEEPING_SLEEP);
             me->DespawnOrUnsummon(7s);
@@ -407,6 +441,8 @@ void AddSC_generic_pet_scripts()
     RegisterSpellScript(spell_pet_gen_lich_pet_periodic_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_focus);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_find_target);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_devour);
     RegisterCreatureAI(npc_elwynn_forest_wolf);
     RegisterSpellScript(spell_gen_elwynn_forest_wolf);
     RegisterSpellScript(spell_gen_elwynn_lamb);

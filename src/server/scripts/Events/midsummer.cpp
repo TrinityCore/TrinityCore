@@ -25,11 +25,13 @@ enum TorchSpells
 {
     SPELL_TORCH_TOSSING_TRAINING                    = 45716,
     SPELL_TORCH_TOSSING_PRACTICE                    = 46630,
-    SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE   = 45719,
-    SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE      = 46651,
+    SPELL_TORCH_TOSSING_TRAINING_SUCCESS_1          = 45719,
+    SPELL_TORCH_TOSSING_TRAINING_SUCCESS_2          = 46651,
+    SPELL_REMOVE_TORCHES                            = 46074,
     SPELL_TARGET_INDICATOR_COSMETIC                 = 46901,
     SPELL_TARGET_INDICATOR                          = 45723,
-    SPELL_BRAZIERS_HIT                              = 45724
+    SPELL_BRAZIERS_HIT                              = 45724,
+    SPELL_TARGET_DETECT_INVISIBILITY                = 45725
 };
 
 // 45724 - Braziers Hit!
@@ -41,30 +43,80 @@ class spell_midsummer_braziers_hit : public AuraScript
         {
             SPELL_TORCH_TOSSING_TRAINING,
             SPELL_TORCH_TOSSING_PRACTICE,
-            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE,
-            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE
+            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_1,
+            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_2,
+            SPELL_REMOVE_TORCHES
         });
     }
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Player* player = GetTarget()->ToPlayer();
-        if (!player)
-            return;
+        Unit* target = GetTarget();
 
-        if ((player->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (player->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
+        if ((target->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (target->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
         {
-            if (player->GetTeam() == ALLIANCE)
-                player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
-            else if (player->GetTeam() == HORDE)
-                player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE, true);
-            Remove();
+            target->CastSpell(target, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_1, true);
+            target->CastSpell(target, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_2, true);
+            target->CastSpell(target, SPELL_REMOVE_TORCHES, true);
         }
     }
 
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_midsummer_braziers_hit::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
+    }
+};
+
+// 46074 - Remove Torches
+class spell_midsummer_remove_torches : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TORCH_TOSSING_TRAINING, SPELL_TORCH_TOSSING_PRACTICE, SPELL_BRAZIERS_HIT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(SPELL_TORCH_TOSSING_TRAINING);
+        target->RemoveAurasDueToSpell(SPELL_TORCH_TOSSING_PRACTICE);
+        target->RemoveAurasDueToSpell(SPELL_BRAZIERS_HIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_remove_torches::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45716 - Torch Tossing Training
+// 46630 - Torch Tossing Practice
+class spell_midsummer_torch_tossing_training_practice : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BRAZIERS_HIT, SPELL_TARGET_DETECT_INVISIBILITY });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        // Is this spell really used? Not shown in sniffs
+        target->CastSpell(target, SPELL_TARGET_DETECT_INVISIBILITY, true);
+        target->RemoveAurasDueToSpell(SPELL_BRAZIERS_HIT);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_TARGET_DETECT_INVISIBILITY);
+        target->RemoveAurasDueToSpell(SPELL_BRAZIERS_HIT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_midsummer_torch_tossing_training_practice::AfterApply, EFFECT_0, SPELL_AURA_DETECT_AMORE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_midsummer_torch_tossing_training_practice::AfterRemove, EFFECT_0, SPELL_AURA_DETECT_AMORE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -423,9 +475,101 @@ class spell_midsummer_fling_torch_missed : public SpellScript
     }
 };
 
+enum CleansingFlames
+{
+    SPELL_CREATE_FLAME_OF_DARNASSUS        = 29099,
+    SPELL_CREATE_FLAME_OF_STORMWIND        = 29101,
+    SPELL_CREATE_FLAME_OF_IRONFORGE        = 29102,
+    SPELL_CREATE_FLAME_OF_ORGRIMMAR        = 29130,
+    SPELL_CREATE_FLAME_OF_THUNDER_BLUFF    = 29132,
+    SPELL_CREATE_FLAME_OF_THE_UNDERCITY    = 29133,
+    SPELL_CREATE_FLAME_OF_SILVERMOON       = 46689,
+    SPELL_CREATE_FLAME_OF_THE_EXODAR       = 46690
+};
+
+// 29126 - Cleansing Flames
+// 29137 - Cleansing Flames
+// 29135 - Cleansing Flames
+// 29136 - Cleansing Flames
+// 29138 - Cleansing Flames
+// 29139 - Cleansing Flames
+// 46672 - Cleansing Flames
+// 46671 - Cleansing Flames
+class spell_midsummer_cleansing_flames : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpell });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpell);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_cleansing_flames::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    uint32 _triggeredSpell;
+
+public:
+    explicit spell_midsummer_cleansing_flames(CleansingFlames triggeredSpell) : _triggeredSpell(triggeredSpell) { }
+};
+
+enum StampOutBonfire
+{
+    SPELL_STAMP_OUT_BONFIRE_EVENT     = 45443,
+    SPELL_STAMP_OUT_BONFIRE_ART_KIT   = 46903,
+    SPELL_STAMP_OUT_BONFIRE_DUMMY     = 45437
+};
+
+// 45458 - Holiday - Midsummer, Stamp Out Bonfire, Quest Complete
+class spell_midsummer_stamp_out_bonfire_quest_complete : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STAMP_OUT_BONFIRE_EVENT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_STAMP_OUT_BONFIRE_EVENT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_midsummer_stamp_out_bonfire_quest_complete::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 45443 - Stamp Out Bonfire, Event
+class spell_midsummer_stamp_out_bonfire_event : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STAMP_OUT_BONFIRE_ART_KIT, SPELL_STAMP_OUT_BONFIRE_DUMMY });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_STAMP_OUT_BONFIRE_ART_KIT, true);
+        caster->CastSpell(caster, SPELL_STAMP_OUT_BONFIRE_DUMMY, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_stamp_out_bonfire_event::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_midsummer()
 {
     RegisterSpellScript(spell_midsummer_braziers_hit);
+    RegisterSpellScript(spell_midsummer_remove_torches);
+    RegisterSpellScript(spell_midsummer_torch_tossing_training_practice);
     RegisterSpellScript(spell_midsummer_torch_target_picker);
     RegisterSpellScript(spell_midsummer_torch_toss_land);
     RegisterSpellScript(spell_midsummer_test_ribbon_pole_channel);
@@ -436,4 +580,14 @@ void AddSC_event_midsummer()
     RegisterSpellScript(spell_midsummer_fling_torch_triggered);
     RegisterSpellScript(spell_midsummer_fling_torch_catch);
     RegisterSpellScript(spell_midsummer_fling_torch_missed);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_darnassus", SPELL_CREATE_FLAME_OF_DARNASSUS);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_stormwind", SPELL_CREATE_FLAME_OF_STORMWIND);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_ironforge", SPELL_CREATE_FLAME_OF_IRONFORGE);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_orgrimmar", SPELL_CREATE_FLAME_OF_ORGRIMMAR);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_thunder_bluff", SPELL_CREATE_FLAME_OF_THUNDER_BLUFF);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_undercity", SPELL_CREATE_FLAME_OF_THE_UNDERCITY);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_silvermoon", SPELL_CREATE_FLAME_OF_SILVERMOON);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_exodar", SPELL_CREATE_FLAME_OF_THE_EXODAR);
+    RegisterSpellScript(spell_midsummer_stamp_out_bonfire_quest_complete);
+    RegisterSpellScript(spell_midsummer_stamp_out_bonfire_event);
 }

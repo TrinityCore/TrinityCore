@@ -19,6 +19,7 @@
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -32,18 +33,21 @@
 namespace DisableMgr
 {
 
-char const* MapTypeNames[] =
-{
-    "World",
-    "Dungeon",
-    "Raid",
-    "Battleground",
-    "Arena",
-    "Scenario"
-};
-
 namespace
 {
+    constexpr std::string_view MapTypeNames[] =
+    {
+        "World",
+        "Dungeon",
+        "Raid",
+        "Battleground",
+        "Arena",
+        "Scenario",
+        "WowLabs",
+        "House interior",
+        "Housing neighborhood"
+    };
+
     struct DisableData
     {
         uint16 flags;
@@ -226,6 +230,8 @@ void LoadDisables()
                         if (flags & VMAP::VMAP_DISABLE_LOS)
                             TC_LOG_INFO("misc", "LoS disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                         break;
+                    default:
+                        break;
                 }
                 break;
             }
@@ -237,7 +243,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry {} from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                if (mapEntry->InstanceType <= MAP_SCENARIO)
+                if (mapEntry->InstanceType <= std::ssize(MapTypeNames))
                     TC_LOG_INFO("misc", "Pathfinding disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                 break;
             }
@@ -368,7 +374,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficultyID(mapEntry);
+                    Group const* group = player->GetGroup();
+                    Difficulty targetDifficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
                     sDB2Manager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {

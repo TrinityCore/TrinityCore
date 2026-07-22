@@ -18,6 +18,7 @@
 #ifndef TRINITY_SCRIPTEDCREATURE_H
 #define TRINITY_SCRIPTEDCREATURE_H
 
+#include "CommonHelpers.h"
 #include "CreatureAI.h"
 #include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
 #include "DBCEnums.h"
@@ -246,6 +247,10 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
         // return true for 25 man or 25 man heroic mode
         bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
+
+        void SetAggressiveStateAfter(Milliseconds timer, Creature* who = nullptr, bool startCombat = true, Creature* summoner = nullptr, StartCombatArgs const& combatArgs = { });
+
+        void DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who = nullptr);
 
         template <class T>
         inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const

@@ -106,6 +106,30 @@ class spell_hallow_end_candy_pirate : public AuraScript
     }
 };
 
+enum TrickInitial
+{
+    SPELL_TRICK_INITIAL     = 24750
+};
+
+// 24714 - Trick
+class spell_hallow_end_trick_initial : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRICK_INITIAL });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRICK_INITIAL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_initial::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum TrickSpells
 {
     SPELL_PIRATE_COSTUME_MALE           = 24708,
@@ -305,6 +329,33 @@ class spell_hallow_end_wand : public SpellScript
     }
 };
 
+enum CreateWaterBucket
+{
+    SPELL_CREATE_WATER_BUCKET_BARREL_SPLASH    = 43244,
+    SPELL_JUST_LOOTED_WATER_BARREL             = 44410
+};
+
+// 42144 - Headless Horseman - Create Water Bucket
+class spell_hallow_end_create_water_bucket : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_WATER_BUCKET_BARREL_SPLASH, SPELL_JUST_LOOTED_WATER_BARREL });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_CREATE_WATER_BUCKET_BARREL_SPLASH);
+        target->CastSpell(target, SPELL_JUST_LOOTED_WATER_BARREL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hallow_end_create_water_bucket::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 97135 - Children's Costume Aura
 class spell_hallows_end_childrens_custome_aura : public AuraScript
 {
@@ -366,10 +417,12 @@ void AddSC_event_hallows_end()
 {
     RegisterSpellScript(spell_hallow_end_candy);
     RegisterSpellScript(spell_hallow_end_candy_pirate);
+    RegisterSpellScript(spell_hallow_end_trick_initial);
     RegisterSpellScript(spell_hallow_end_trick);
     RegisterSpellScript(spell_hallow_end_trick_or_treat);
     RegisterSpellScript(spell_hallow_end_tricky_treat);
     RegisterSpellScript(spell_hallow_end_wand);
+    RegisterSpellScript(spell_hallow_end_create_water_bucket);
     RegisterSpellScript(spell_hallows_end_childrens_custome_aura);
     RegisterSpellScript(spell_hallows_end_powder_blast);
 }

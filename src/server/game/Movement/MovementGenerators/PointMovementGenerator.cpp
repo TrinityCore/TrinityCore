@@ -36,7 +36,6 @@ PointMovementGenerator::PointMovementGenerator(uint32 id, float x, float y, floa
     : _movementId(id), _destination(x, y, z), _speed(speed), _generatePath(generatePath), _finalOrient(finalOrient),
     i_faceTarget(faceTarget), _speedSelectionMode(speedSelectionMode), _closeEnoughDistance(closeEnoughDistance), _fadeObject(fadeObject)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -53,7 +52,7 @@ MovementGeneratorType PointMovementGenerator::GetMovementGeneratorType() const
     return POINT_MOTION_TYPE;
 }
 
-void PointMovementGenerator::Initialize(Unit* owner)
+bool PointMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -61,14 +60,14 @@ void PointMovementGenerator::Initialize(Unit* owner)
     if (_movementId == EVENT_CHARGE_PREPATH)
     {
         owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
-        return;
+        return true;
     }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
-        return;
+        return true;
     }
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -126,13 +125,14 @@ void PointMovementGenerator::Initialize(Unit* owner)
     // Call for creature group update
     if (Creature* creature = owner->ToCreature())
         creature->SignalFormationMovement();
+    return true;
 }
 
-void PointMovementGenerator::Reset(Unit* owner)
+bool PointMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool PointMovementGenerator::Update(Unit* owner, uint32 /*diff*/)

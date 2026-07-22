@@ -15,167 +15,196 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Combat timers requires to be revisited
+ * Spell 30657 has tricky implementation, requires to be investigated and scripted
+ * Spell 30410 deals no periodic damage
+ */
+
 #include "ScriptMgr.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
-#include "PassiveAI.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "SpellScript.h"
 
-enum Yells
+enum MagtheridonTexts
 {
-    SAY_TAUNT           = 0,
-    SAY_FREE            = 1,
-    SAY_SLAY            = 2,
-    SAY_BANISHED        = 3,
-    SAY_COLLAPSE        = 4,
-    SAY_DEATH           = 5,
-    EMOTE_WEAKEN        = 6,
-    EMOTE_NEARLY_FREE   = 7,
-    EMOTE_BREAKS_FREE   = 8,
-    EMOTE_BLAST_NOVA    = 9
+    SAY_TAUNT                         = 0,
+    SAY_FREE                          = 1,
+    SAY_SLAY                          = 2,
+    SAY_BANISHED                      = 3,
+    SAY_COLLAPSE                      = 4,
+    SAY_DEATH                         = 5,
+    EMOTE_WEAKEN                      = 6,
+    EMOTE_NEARLY_FREE                 = 7,
+    EMOTE_BREAKS_FREE                 = 8,
+    EMOTE_BLAST_NOVA                  = 9
 };
 
-enum Spells
+enum MagtheridonSpells
 {
-    // Magtheridon
-    SPELL_BLAST_NOVA            = 30616,
-    SPELL_CLEAVE                = 30619,
-    SPELL_BLAZE_TARGET          = 30541,
-    SPELL_CAMERA_SHAKE          = 36455,
-    SPELL_BERSERK               = 27680,
-    SPELL_QUAKE                 = 30657,
-    SPELL_DEBRIS_SERVERSIDE     = 30630,
+    // Magtheridon - Initial
+    SPELL_SHADOW_CAGE_DUMMY           = 30205,
 
-    // Player or Manticron Cube
-    SPELL_SHADOW_CAGE           = 30168,
-    SPELL_SHADOW_GRASP          = 30410,
-    SPELL_MIND_EXHAUSTION       = 44032,
+    // Magtheridon - Combat - Phase 2, 3
+    SPELL_CLEAVE                      = 30619,
+    SPELL_BLAZE                       = 30541,
+    SPELL_QUAKE                       = 30576,
+    SPELL_BLAST_NOVA                  = 30616,
+    SPELL_BERSERK                     = 26662,
 
-    // Hellfire Raid Trigger
-    SPELL_SHADOW_GRASP_VISUAL   = 30166,
+    // Magtheridon - Collapse
+    SPELL_CAMERA_SHAKE                = 36455,
 
-    // HellFire Channeler
-    SPELL_SHADOW_CAGE_C         = 30205,
-    SPELL_SHADOW_GRASP_C        = 30207,
-    SPELL_SHADOW_BOLT_VOLLEY    = 30510,
-    SPELL_DARK_MENDING          = 30528,
-    SPELL_BURNING_ABYSSAL       = 30511,
-    SPELL_SOUL_TRANSFER         = 30531,
-    SPELL_FEAR                  = 30530,
+    // Magtheridon - Combat - Phase 3
+    SPELL_DEBRIS                      = 30629,
 
-    // WorldTrigger
-    SPELL_DEBRIS_KNOCKDOWN      = 36449,
+    // Hellfire Channeler
+    SPELL_SHADOW_GRASP_CHANNELER      = 30207,
+    SPELL_SHADOW_BOLT_VOLLEY          = 30510,
+    SPELL_BURNING_ABYSSAL             = 30511,
+    SPELL_DARK_MENDING                = 30528,
+    SPELL_FEAR                        = 30530,
+    SPELL_SOUL_TRANSFER               = 30531,
 
-    // Magtheridon Room
-    SPELL_DEBRIS_VISUAL         = 30632,
-    SPELL_DEBRIS_DAMAGE         = 30631,
+    // World Trigger (Not Immune PC)
+    SPELL_DEBRIS_KNOCKDOWN            = 36449,
 
-    // Target Trigger
-    SPELL_BLAZE                 = 30542
+    // Magtheridon's Room
+    SPELL_DEBRIS_VISUAL               = 30632,
+    SPELL_DEBRIS_DAMAGE               = 30631,
+
+    // Scripts
+    SPELL_BLAZE_SUMMON                = 30542,
+    SPELL_QUAKE_TARGET_SELECTOR       = 30572,
+    SPELL_QUAKE_KNOCK_BACK            = 30571,
+    SPELL_QUAKE_PERIODIC              = 30657,
+    SPELL_DEBRIS_SUMMON               = 30630,
+    SPELL_SHADOW_GRASP                = 30410,
+    SPELL_MIND_EXHAUSTION             = 44032,
+    SPELL_SHADOW_GRASP_VISUAL         = 30166,
+    SPELL_SHADOW_CAGE                 = 30168
 };
 
-enum Events
+enum MagtheridonEvents
 {
-    // Magtheridon
-    EVENT_BERSERK = 1,
+    // Out of Combat
+    EVENT_TAUNT                       = 1,
+
+    // Phase 1
+    EVENT_BREAK_FREE_1,
+    EVENT_BREAK_FREE_2,
+    EVENT_BREAK_FREE_3,
+    EVENT_BREAK_FREE_4,
+
+    // Phase 2, 3: Combat
     EVENT_CLEAVE,
     EVENT_BLAZE,
-    EVENT_BLAST_NOVA,
     EVENT_QUAKE,
-    EVENT_START_FIGHT,
-    EVENT_RELEASED,
-    EVENT_COLLAPSE,
-    EVENT_DEBRIS_KNOCKDOWN,
-    EVENT_DEBRIS,
-    EVENT_NEARLY_EMOTE,
-    EVENT_TAUNT,
-    // Hellfire Channelers events
-    EVENT_SHADOWBOLT,
-    EVENT_FEAR,
-    EVENT_CHECK_FRIEND,
-    EVENT_DARK_MENDING,
-    EVENT_ABYSSAL
+    EVENT_BLAST_NOVA,
+    EVENT_BERSERK,
+
+    // Phase 3: Collapse
+    EVENT_COLLAPSE_1,
+    EVENT_COLLAPSE_2,
+    EVENT_COLLAPSE_3,
+    EVENT_COLLAPSE_4,
+    EVENT_COLLAPSE_5,
+    EVENT_COLLAPSE_6,
+
+    // Phase 3: Combat
+    EVENT_DEBRIS
 };
 
-enum Phases
+enum MagtheridonEventGroups
 {
-    PHASE_BANISH = 1,
-    PHASE_1,
-    PHASE_2,
-    PHASE_3
+    EVENT_GROUP_BREAK_FREE            = 1
 };
 
-enum Misc
+enum MagtheridonPhases
 {
-    SUMMON_GROUP_CHANNELERS       = 1,
-    ACTION_START_CHANNELERS_EVENT = 2
+    PHASE_0_BANISHED                  = 1,
+    PHASE_1_CHANNELERS,
+    PHASE_2_BREAKS_FREE,
+    PHASE_3_COLLAPSE
 };
 
+enum MagtheridonMisc
+{
+    SUMMON_GROUP_CHANNELERS           = 1,
+    ACTION_START_ENCOUNTER            = 0,
+    ACTION_RESET_ENCOUNTER            = 1
+};
+
+// 17257 - Magtheridon
 struct boss_magtheridon : public BossAI
 {
     boss_magtheridon(Creature* creature) : BossAI(creature, DATA_MAGTHERIDON), _channelersCount(5) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        _Reset();
-        DoCastSelf(SPELL_SHADOW_CAGE_C);
+        ///! HACK: Boss sometimes regens health since he can't reach target (happens when boss is stunned). For now we prevent health regeneration completely. Find a better solution
+        me->SetRegenerateHealth(false);
+
+        DoCastSelf(SPELL_SHADOW_CAGE_DUMMY);
         me->SummonCreatureGroup(SUMMON_GROUP_CHANNELERS);
-        events.SetPhase(PHASE_BANISH);
-        _channelersCount = 5;
-        events.ScheduleEvent(EVENT_TAUNT, Minutes(4), Minutes(5));
+
+        events.SetPhase(PHASE_0_BANISHED);
+        events.ScheduleEvent(EVENT_TAUNT, 4min, 5min);
     }
 
-    void CombatStart()
+    void JustEngagedWith(Unit* who) override
     {
-        events.CancelEvent(EVENT_START_FIGHT);
-        events.CancelEvent(EVENT_NEARLY_EMOTE);
-        events.ScheduleEvent(EVENT_RELEASED, 6s);
-        Talk(EMOTE_BREAKS_FREE, me);
-        Talk(SAY_FREE);
-        me->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
-    }
+        BossAI::JustEngagedWith(who);
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        summons.DespawnAll();
-        events.Reset();
-        instance->SetData(DATA_MANTICRON_CUBE, ACTION_DISABLE);
-        instance->SetData(DATA_COLLAPSE, ACTION_DISABLE);
-        instance->SetData(DATA_COLLAPSE_2, ACTION_DISABLE);
-
-        _DespawnAtEvade();
+        events.ScheduleEvent(EVENT_CLEAVE, 8s, 10s);
+        events.ScheduleEvent(EVENT_BLAZE, 20s);
+        events.ScheduleEvent(EVENT_QUAKE, 35s);
+        events.ScheduleEvent(EVENT_BLAST_NOVA, 1min);
+        events.ScheduleEvent(EVENT_BERSERK, 20min);
     }
 
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
-        if (summon->GetEntry() == NPC_HELLFIRE_CHANNELLER && events.IsInPhase(PHASE_1))
+        if (summon->GetEntry() == NPC_HELLFIRE_CHANNELLER && events.IsInPhase(PHASE_1_CHANNELERS))
         {
             _channelersCount--;
 
             if (_channelersCount == 0)
-                CombatStart();
+            {
+                events.CancelEventGroup(EVENT_GROUP_BREAK_FREE);
+                events.ScheduleEvent(EVENT_BREAK_FREE_3, 0s);
+            }
         }
     }
 
     void DoAction(int32 action) override
     {
-        if (action == ACTION_START_CHANNELERS_EVENT && events.IsInPhase(PHASE_BANISH))
+        if (action == ACTION_START_ENCOUNTER && events.IsInPhase(PHASE_0_BANISHED))
         {
-            events.SetPhase(PHASE_1);
-            Talk(EMOTE_WEAKEN, me);
-            summons.DoZoneInCombat(NPC_HELLFIRE_CHANNELLER);
-            events.ScheduleEvent(EVENT_START_FIGHT, 2min);
-            events.ScheduleEvent(EVENT_NEARLY_EMOTE, 1min);
-            events.CancelEvent(EVENT_TAUNT);
-            instance->SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
-            instance->SetData(DATA_CALL_WARDERS, ACTION_ENABLE);
+            events.SetPhase(PHASE_1_CHANNELERS);
+            events.ScheduleEvent(EVENT_BREAK_FREE_1, 0s, EVENT_GROUP_BREAK_FREE);
         }
+        else if (action == ACTION_RESET_ENCOUNTER)
+        {
+            summons.DespawnAll();
+            events.Reset();
+            instance->SetData(DATA_MANTICRON_CUBE, ACTION_DISABLE);
+            instance->SetData(DATA_COLLAPSE_1, ACTION_DISABLE);
+            instance->SetData(DATA_COLLAPSE_2, ACTION_DISABLE);
+            instance->SetBossState(DATA_MAGTHERIDON, FAIL);
+
+            me->DespawnOrUnsummon(0s, 30s);
+        }
+    }
+
+    void OnSpellStart(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BLAST_NOVA)
+            Talk(EMOTE_BLAST_NOVA);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -186,16 +215,22 @@ struct boss_magtheridon : public BossAI
 
     void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(30, damage) && !events.IsInPhase(PHASE_3))
+        if (me->HealthBelowPctDamaged(30, damage) && !events.IsInPhase(PHASE_3_COLLAPSE))
         {
-            events.SetPhase(PHASE_3);
-            me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
-            Talk(SAY_COLLAPSE);
-            instance->SetData(DATA_COLLAPSE, ACTION_ENABLE);
-            DoCastAOE(SPELL_CAMERA_SHAKE);
-            events.ScheduleEvent(EVENT_COLLAPSE, 6s);
+            events.SetPhase(PHASE_3_COLLAPSE);
+            events.ScheduleEvent(EVENT_COLLAPSE_1, 0s);
         }
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        DoAction(ACTION_RESET_ENCOUNTER);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -205,15 +240,9 @@ struct boss_magtheridon : public BossAI
         instance->SetData(DATA_MANTICRON_CUBE, ACTION_DISABLE);
     }
 
-    void KilledUnit(Unit* who) override
-    {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
-    }
-
     void UpdateAI(uint32 diff) override
     {
-        if (!events.IsInPhase(PHASE_BANISH) && !events.IsInPhase(PHASE_1) && !UpdateVictim())
+        if (!events.IsInPhase(PHASE_0_BANISHED) && !events.IsInPhase(PHASE_1_CHANNELERS) && !UpdateVictim())
             return;
 
         events.Update(diff);
@@ -225,63 +254,97 @@ struct boss_magtheridon : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_BERSERK:
-                    DoCastSelf(SPELL_BERSERK);
+                // Out of Combat
+                case EVENT_TAUNT:
+                    Talk(SAY_TAUNT);
+                    events.Repeat(4min, 5min);
                     break;
-                case EVENT_CLEAVE:
-                    DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(Seconds(10));
+
+                // Phase 1
+                case EVENT_BREAK_FREE_1:
+                    Talk(EMOTE_WEAKEN);
+                    summons.DoZoneInCombat(NPC_HELLFIRE_CHANNELLER);
+                    instance->SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
+                    instance->SetData(DATA_CALL_WARDERS, ACTION_ENABLE);
+                    events.CancelEvent(EVENT_TAUNT);
+                    events.ScheduleEvent(EVENT_BREAK_FREE_2, 1min, EVENT_GROUP_BREAK_FREE);
                     break;
-                case EVENT_BLAZE:
-                    DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
-                    events.Repeat(Seconds(20));
+                case EVENT_BREAK_FREE_2:
+                    Talk(EMOTE_NEARLY_FREE);
+                    events.ScheduleEvent(EVENT_BREAK_FREE_3, 1min, EVENT_GROUP_BREAK_FREE);
                     break;
-                case EVENT_QUAKE:
-                    DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
-                    events.Repeat(Seconds(60));
-                    break;
-                case EVENT_START_FIGHT:
-                    CombatStart();
-                    break;
-                case EVENT_RELEASED:
+                case EVENT_BREAK_FREE_3:
+                    me->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_DUMMY);
+                    me->SetReactState(REACT_PASSIVE);
                     me->SetUninteractible(false);
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
-                    events.SetPhase(PHASE_2);
+                    Talk(EMOTE_BREAKS_FREE);
+                    Talk(SAY_FREE);
                     instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
-                    events.ScheduleEvent(EVENT_CLEAVE, 10s);
-                    events.ScheduleEvent(EVENT_BLAST_NOVA, 1min);
-                    events.ScheduleEvent(EVENT_BLAZE, 20s);
-                    events.ScheduleEvent(EVENT_QUAKE, 35s);
-                    events.ScheduleEvent(EVENT_BERSERK, 20min);
+                    events.SetPhase(PHASE_2_BREAKS_FREE);
+                    events.ScheduleEvent(EVENT_BREAK_FREE_4, 2s, EVENT_GROUP_BREAK_FREE);
                     break;
-                case EVENT_COLLAPSE:
-                    instance->SetData(DATA_COLLAPSE_2, ACTION_ENABLE);
-                    events.ScheduleEvent(EVENT_DEBRIS_KNOCKDOWN, 4s);
+                case EVENT_BREAK_FREE_4:
+                    me->SetReactState(REACT_AGGRESSIVE);
                     break;
-                case EVENT_DEBRIS_KNOCKDOWN:
-                    if (Creature* trigger = instance->GetCreature(DATA_WORLD_TRIGGER))
-                    {
-                        trigger->CastSpell(trigger, SPELL_DEBRIS_KNOCKDOWN, true);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        events.ScheduleEvent(EVENT_DEBRIS, 20s);
-                    }
+
+                // Phase 2, 3: Combat
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.Repeat(8s, 10s);
                     break;
-                case EVENT_DEBRIS:
-                    DoCastAOE(SPELL_DEBRIS_SERVERSIDE);
-                    events.Repeat(Seconds(20));
+                case EVENT_BLAZE:
+                    DoCastAOE(SPELL_BLAZE);
+                    events.Repeat(20s);
                     break;
-                case EVENT_NEARLY_EMOTE:
-                    Talk(EMOTE_NEARLY_FREE, me);
+                case EVENT_QUAKE:
+                    DoCastSelf(SPELL_QUAKE);
+                    events.Repeat(60s);
                     break;
                 case EVENT_BLAST_NOVA:
-                    Talk(EMOTE_BLAST_NOVA, me);
-                    DoCastAOE(SPELL_BLAST_NOVA);
-                    events.Repeat(Seconds(55));
+                    DoCastSelf(SPELL_BLAST_NOVA);
+                    events.Repeat(55s);
                     break;
-                case EVENT_TAUNT:
-                    Talk(SAY_TAUNT);
-                    events.Repeat(Minutes(4), Minutes(5));
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK);
+                    break;
+
+                // Phase 3: Collapse
+                case EVENT_COLLAPSE_1:
+                    Talk(SAY_COLLAPSE);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    me->SetEmoteState(EMOTE_STATE_TALK);
+                    events.ScheduleEvent(EVENT_COLLAPSE_2, 6s);
+                    break;
+                case EVENT_COLLAPSE_2:
+                    me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                    instance->SetData(DATA_COLLAPSE_1, ACTION_ENABLE);
+                    events.ScheduleEvent(EVENT_COLLAPSE_3, 1s);
+                    break;
+                case EVENT_COLLAPSE_3:
+                    DoCastAOE(SPELL_CAMERA_SHAKE);
+                    events.ScheduleEvent(EVENT_COLLAPSE_4, 5s);
+                    break;
+                case EVENT_COLLAPSE_4:
+                    instance->SetData(DATA_COLLAPSE_2, ACTION_ENABLE);
+                    events.ScheduleEvent(EVENT_COLLAPSE_5, 3s);
+                    break;
+                case EVENT_COLLAPSE_5:
+                    if (Creature* trigger = instance->GetCreature(DATA_WORLD_TRIGGER))
+                        trigger->CastSpell(trigger, SPELL_DEBRIS_KNOCKDOWN, true);
+                    events.ScheduleEvent(EVENT_COLLAPSE_6, 1s);
+                    break;
+                case EVENT_COLLAPSE_6:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_DEBRIS, 20s);
+                    break;
+
+                // Phase 3: Combat
+                case EVENT_DEBRIS:
+                    DoCastAOE(SPELL_DEBRIS);
+                    events.Repeat(20s);
                     break;
                 default:
                     break;
@@ -296,41 +359,75 @@ private:
     uint8 _channelersCount;
 };
 
+// 17256 - Hellfire Channeler
 struct npc_hellfire_channeler : public ScriptedAI
 {
-    npc_hellfire_channeler(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _canCastDarkMending(true)
+    npc_hellfire_channeler(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
         SetBoundary(_instance->GetBossBoundary(DATA_MAGTHERIDON));
     }
 
+    void InitializeAI() override
+    {
+        ScriptedAI::InitializeAI();
+        me->SetCorpseDelay(4, true);
+        me->SetReactState(REACT_DEFENSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(5s, [this](TaskContext const& /*task*/)
+        {
+            DoCastSelf(SPELL_SHADOW_GRASP_CHANNELER);
+        });
+    }
+
     void Reset() override
     {
-        _events.Reset();
-        DoCastSelf(SPELL_SHADOW_GRASP_C);
-        me->SetReactState(REACT_DEFENSIVE);
+        _scheduler.CancelAll();
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
+        _scheduler.CancelAll();
+
         me->InterruptNonMeleeSpells(false);
 
         if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-            magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
+            magtheridon->AI()->DoAction(ACTION_START_ENCOUNTER);
 
-        _events.ScheduleEvent(EVENT_SHADOWBOLT, 20s);
-        _events.ScheduleEvent(EVENT_CHECK_FRIEND, 1s);
-        _events.ScheduleEvent(EVENT_ABYSSAL, 30s);
-        _events.ScheduleEvent(EVENT_FEAR, 15s, 20s);
-
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        DoCastAOE(SPELL_SOUL_TRANSFER);
-
-        // Channelers killed by "Hit Kill" need trigger combat event too. It's needed for Cata+
-        if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-            magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
+        _scheduler
+            .SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(20s, 30s, [this](TaskContext& task)
+            {
+                DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
+                task.Repeat(10s, 20s);
+            })
+            .Schedule(15s, 55s, [this](TaskContext& task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_BURNING_ABYSSAL);
+                task.Repeat(60s, 80s);
+            })
+            .Schedule(1200ms, [this](TaskContext& task)
+            {
+                if (Unit* target = DoSelectBelowHpPctFriendlyWithEntry(NPC_HELLFIRE_CHANNELLER, 30.0f, 51, false))
+                {
+                    DoCast(target, SPELL_DARK_MENDING);
+                    task.Repeat(10s, 20s);
+                }
+                else
+                    task.Repeat(1200ms);
+            })
+            .Schedule(15s, 20s, [this](TaskContext& task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                    DoCast(target, SPELL_FEAR);
+                task.Repeat(25s, 40s);
+            });
     }
 
     void JustSummoned(Creature* summon) override
@@ -341,81 +438,70 @@ struct npc_hellfire_channeler : public ScriptedAI
         DoZoneInCombat(summon);
     }
 
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+            magtheridon->AI()->SummonedCreatureDespawn(summon);
+    }
+
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (_instance->GetBossState(DATA_MAGTHERIDON) == IN_PROGRESS)
             if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-                magtheridon->AI()->EnterEvadeMode(EvadeReason::Other);
+                magtheridon->AI()->DoAction(ACTION_RESET_ENCOUNTER);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCastAOE(SPELL_SOUL_TRANSFER);
+
+        // One-shotted channelers need trigger combat event too. It's needed for Cata+
+        if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+            magtheridon->AI()->DoAction(ACTION_START_ENCOUNTER);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
-            return;
+        _scheduler.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SHADOWBOLT:
-                    DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
-                    _events.Repeat(Seconds(15), Seconds(20));
-                    break;
-                case EVENT_FEAR:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_FEAR);
-                    _events.Repeat(Seconds(25), Seconds(40));
-                    break;
-                case EVENT_CHECK_FRIEND:
-                    if (_canCastDarkMending)
-                    {
-                        if (Unit* target = DoSelectBelowHpPctFriendlyWithEntry(NPC_HELLFIRE_CHANNELLER, 30.0f, 51, false))
-                        {
-                            DoCast(target, SPELL_DARK_MENDING);
-                            _canCastDarkMending = false;
-                            _events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 20s);
-                        }
-                    }
-                    _events.Repeat(Seconds(1));
-                    break;
-                case EVENT_DARK_MENDING:
-                    _canCastDarkMending = true;
-                    break;
-                case EVENT_ABYSSAL:
-                    DoCastVictim(SPELL_BURNING_ABYSSAL);
-                    _events.Repeat(Seconds(60));
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-        }
+        UpdateVictim();
     }
 
 private:
     InstanceScript* _instance;
-    EventMap _events;
-    bool _canCastDarkMending;
+    TaskScheduler _scheduler;
 };
 
-struct npc_magtheridon_room : public PassiveAI
+// 17516 - Magtheridon's Room
+struct npc_magtheridon_room : public ScriptedAI
 {
-    npc_magtheridon_room(Creature* creature) : PassiveAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
-    void Reset() override
+    void InitializeAI() override
     {
-        DoCastSelf(SPELL_DEBRIS_VISUAL);
+        me->SetReactState(REACT_PASSIVE);
+    }
 
-        _scheduler.Schedule(Seconds(5), [this](TaskContext const& /*context*/)
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(0s, [this](TaskContext& task)
         {
-            DoCastAOE(SPELL_DEBRIS_DAMAGE);
+            switch (task.GetRepeatCounter())
+            {
+                case 0:
+                    DoCastSelf(SPELL_DEBRIS_VISUAL);
+                    task.Repeat(5s);
+                    break;
+                case 1:
+                    DoCastSelf(SPELL_DEBRIS_DAMAGE);
+                    task.Repeat(5s);
+                    break;
+                case 2:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
         });
     }
 
@@ -428,51 +514,140 @@ private:
     TaskScheduler _scheduler;
 };
 
-struct go_manticron_cube : public GameObjectAI
-{
-    go_manticron_cube(GameObject* go) : GameObjectAI(go) { }
-
-    bool OnGossipHello(Player* player) override
-    {
-        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
-            return true;
-
-        if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-            trigger->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
-
-        player->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
-        return true;
-    }
-};
-
 // 30541 - Blaze
 class spell_magtheridon_blaze_target : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_BLAZE });
+        return ValidateSpellInfo({ SPELL_BLAZE_SUMMON });
     }
 
-    void HandleAura()
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLAZE);
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLAZE_SUMMON, true);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_magtheridon_blaze_target::HandleAura);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magtheridon_blaze_target::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_magtheridon_blaze_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 30576 - Quake
+class spell_magtheridon_quake_initial : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_QUAKE_TARGET_SELECTOR });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_QUAKE_TARGET_SELECTOR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_magtheridon_quake_initial::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 30572 - Quake
+class spell_magtheridon_quake_target_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_QUAKE_KNOCK_BACK, SPELL_QUAKE_PERIODIC });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_QUAKE_KNOCK_BACK, true);
+        target->CastSpell(target, SPELL_QUAKE_PERIODIC, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magtheridon_quake_target_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_magtheridon_quake_target_selector::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 30629 - Debris
+class spell_magtheridon_debris : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEBRIS_SUMMON });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DEBRIS_SUMMON, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magtheridon_debris::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_magtheridon_debris::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 30420 - Shadow Grasp
+class spell_magtheridon_shadow_grasp_cube : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION, SPELL_SHADOW_GRASP });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        if (target->HasAura(SPELL_MIND_EXHAUSTION) || target->HasAura(SPELL_SHADOW_GRASP))
+            return;
+
+        target->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magtheridon_shadow_grasp_cube::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 30410 - Shadow Grasp
 class spell_magtheridon_shadow_grasp : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
+        return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION, SPELL_SHADOW_GRASP_VISUAL });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->InterruptNonMeleeSpells(false);
         if (Unit* caster = GetCaster())
@@ -481,39 +656,36 @@ class spell_magtheridon_shadow_grasp : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_magtheridon_shadow_grasp::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-// 30166 - Shadow Grasp (Visual Effect)
+// 30166 - Shadow Grasp
 class spell_magtheridon_shadow_grasp_visual : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spell*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_SHADOW_CAGE,
-            SPELL_SHADOW_GRASP_VISUAL
-        });
+        return ValidateSpellInfo({ SPELL_SHADOW_CAGE });
     }
 
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
-        if (target->GetAuraCount(SPELL_SHADOW_GRASP_VISUAL) == 5)
+        if (target->GetAuraCount(GetId()) == 5)
             target->CastSpell(target, SPELL_SHADOW_CAGE, true);
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_magtheridon_shadow_grasp_visual::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp_visual::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_magtheridon_shadow_grasp_visual::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_magtheridon_shadow_grasp_visual::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -522,8 +694,11 @@ void AddSC_boss_magtheridon()
     RegisterMagtheridonsLairCreatureAI(boss_magtheridon);
     RegisterMagtheridonsLairCreatureAI(npc_hellfire_channeler);
     RegisterMagtheridonsLairCreatureAI(npc_magtheridon_room);
-    RegisterMagtheridonsLairGameObjectAI(go_manticron_cube);
     RegisterSpellScript(spell_magtheridon_blaze_target);
+    RegisterSpellScript(spell_magtheridon_quake_initial);
+    RegisterSpellScript(spell_magtheridon_quake_target_selector);
+    RegisterSpellScript(spell_magtheridon_debris);
+    RegisterSpellScript(spell_magtheridon_shadow_grasp_cube);
     RegisterSpellScript(spell_magtheridon_shadow_grasp);
     RegisterSpellScript(spell_magtheridon_shadow_grasp_visual);
 }
