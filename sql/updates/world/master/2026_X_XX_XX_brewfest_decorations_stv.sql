@@ -1,4 +1,4 @@
-SET @OGUID := SET_VALUE_MANUALLY_HERE; -- Set by TDB team (Need 285)
+SET @OGUID := 35000000; -- Set by TDB team (Need 285)
 SET @EVENT := 24;
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+284;
