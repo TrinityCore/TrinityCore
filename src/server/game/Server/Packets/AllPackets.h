@@ -29,6 +29,7 @@
 #include "AzeritePackets.h"
 #include "BankPackets.h"
 #include "BattlePetPackets.h"
+#include "PetBattlePackets.h"
 #include "BattlegroundPackets.h"
 #include "BattlenetPackets.h"
 #include "BlackMarketPackets.h"

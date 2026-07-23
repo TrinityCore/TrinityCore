@@ -390,7 +390,7 @@ struct AnimKitBoneSetMeta
 {
     static constexpr DB2MetaField Fields[5] =
     {
-        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },

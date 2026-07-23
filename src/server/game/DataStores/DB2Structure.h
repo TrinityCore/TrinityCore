@@ -471,6 +471,46 @@ struct BattlePetAbilityEntry
     int32 Flags;
 };
 
+// These records are the authoritative combat data for pet-battle abilities.
+// They used to be omitted from the server stores, which forced PetBattle.cpp
+// to guess effect IDs and parameters from a hand-generated binary dump.
+struct BattlePetAbilityEffectEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityTurnID;
+    uint8 OrderIndex;
+    uint16 BattlePetEffectPropertiesID;
+    uint16 AuraBattlePetAbilityID;
+    uint16 BattlePetVisualID;
+    std::array<int16, 6> Param;
+};
+
+struct BattlePetAbilityStateEntry
+{
+    uint32 ID;
+    uint32 BattlePetStateID;
+    int32 Value;
+    uint32 BattlePetAbilityID;
+};
+
+struct BattlePetAbilityTurnEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityID;
+    uint8 OrderIndex;
+    uint8 TurnType;
+    uint8 EventType;
+    uint16 BattlePetVisualID;
+};
+
+struct BattlePetEffectPropertiesEntry
+{
+    uint32 ID;
+    std::array<char const*, 6> ParamLabel;
+    uint16 BattlePetVisualID;
+    std::array<uint8, 6> ParamType;
+};
+
 struct BattlePetBreedQualityEntry
 {
     uint32 ID;
@@ -511,6 +551,23 @@ struct BattlePetSpeciesStateEntry
     uint16 BattlePetStateID;
     int32 Value;
     uint32 BattlePetSpeciesID;
+};
+
+struct BattlePetSpeciesXAbilityEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityID;
+    uint8 RequiredLevel;
+    int8 SlotIndex;
+    uint32 BattlePetSpeciesID;
+};
+
+struct BattlePetStateEntry
+{
+    uint32 ID;
+    char const* LuaName;
+    int32 Flags;
+    uint16 BattlePetVisualID;
 };
 
 struct BattlemasterListEntry

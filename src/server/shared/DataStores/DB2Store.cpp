@@ -126,6 +126,9 @@ void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant loc
 
 void DB2StorageBase::LoadFromDB()
 {
+    if (uint32(_loadInfo->Statement) == 0xFFFFFFFF)
+        return;
+
     DB2DatabaseLoader loader(_fileName, _loadInfo);
 
     _dataTableEx[0] = loader.Load(false, _indexTableSize, _indexTable, _stringPool, _minId);
@@ -135,6 +138,9 @@ void DB2StorageBase::LoadFromDB()
 
 void DB2StorageBase::LoadStringsFromDB(LocaleConstant locale)
 {
+    if (uint32(_loadInfo->Statement) == 0xFFFFFFFF)
+        return;
+
     if (!_loadInfo->GetStringFieldCount(true))
         return;
 

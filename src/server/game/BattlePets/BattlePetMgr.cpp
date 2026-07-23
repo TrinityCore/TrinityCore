@@ -707,6 +707,8 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
             return;
 
     uint16 level = pet->PacketInfo.Level;
+    uint16 initialLevel = level;
+    uint32 initialHealth = pet->PacketInfo.Health;
     if (level >= MAX_BATTLE_PET_LEVEL)
         return;
 
@@ -740,7 +742,11 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     pet->PacketInfo.Level = level;
     pet->PacketInfo.Exp = level < MAX_BATTLE_PET_LEVEL ? xp : 0;
     pet->CalculateStats();
-    pet->PacketInfo.Health = pet->PacketInfo.MaxHealth;
+    // A level gained in battle restores the pet. Merely receiving XP must
+    // not silently refill its journal health after every fight.
+    pet->PacketInfo.Health = level > initialLevel
+        ? pet->PacketInfo.MaxHealth
+        : std::min(initialHealth, pet->PacketInfo.MaxHealth);
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
@@ -807,6 +813,27 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
         updates.push_back(pet);
     }
 
+    SendUpdates(updates, false);
+}
+
+void BattlePetMgr::SetBattlePetHealth(ObjectGuid guid, uint32 health)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    pet->PacketInfo.Health = std::min(health, pet->PacketInfo.MaxHealth);
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+
+    // Battle slots carry packet snapshots rather than references to journal
+    // pets. Keep those snapshots in sync or the next battle and the slot UI
+    // will continue to advertise the pre-battle health value.
+    for (WorldPackets::BattlePet::BattlePetSlot& slot : _slots)
+        if (slot.Pet.Guid == guid)
+            slot.Pet = pet->PacketInfo;
+
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
     SendUpdates(updates, false);
 }
 

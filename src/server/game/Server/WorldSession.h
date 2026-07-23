@@ -214,6 +214,15 @@ namespace WorldPackets
         class CageBattlePet;
     }
 
+    namespace PetBattle
+    {
+        class PetBattleRequestWild;
+        class PetBattleInput;
+        class PetBattleReplaceFrontPet;
+        class PetBattleFinalNotify;
+        class PetBattleQuitNotify;
+    }
+
     namespace BlackMarket
     {
         class BlackMarketOpen;
@@ -1871,6 +1880,13 @@ class TC_GAME_API WorldSession
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        // Pet Battle Handlers
+        void HandlePetBattleRequestWild(WorldPackets::PetBattle::PetBattleRequestWild& packet);
+        void HandlePetBattleInput(WorldPackets::PetBattle::PetBattleInput& packet);
+        void HandlePetBattleReplaceFrontPet(WorldPackets::PetBattle::PetBattleReplaceFrontPet& packet);
+        void HandlePetBattleFinalNotify(WorldPackets::PetBattle::PetBattleFinalNotify& packet);
+        void HandlePetBattleQuitNotify(WorldPackets::PetBattle::PetBattleQuitNotify& packet);
 
         // Battlenet
         void HandleBattlenetChangeRealmTicket(WorldPackets::Battlenet::ChangeRealmTicket& changeRealmTicket);
