@@ -691,7 +691,6 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_SHIP_CAPTAIN2_SCRIPT1:
-                    Talk(SAY_GET_TO_POSITIONS);
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN2_SCRIPT2:
@@ -720,28 +719,32 @@ enum BraceForImpactFirstMateData
     EVENT_FIRST_MATE_1              = 1,
     EVENT_FIRST_MATE_2,
 
-    SAY_STORM = 0,
+    NPC_CAPTAIN_GARRICK3            = 245371,
+    NPC_BREKA_GRIMAXE               = 245248,
+
+    CONVERSATION_STORM_ALLIANCE     = 29823,
+    ACTOR_0_STORM_ALLIANCE          = 73556,
+    ACTOR_1_STORM_ALLIANCE          = 108119,
+    CONVERSATION_STORM_HORDE        = 29787,
+    ACTOR_0_STORM_HORDE             = 108041,
+    ACTOR_1_STORM_HORDE             = 108040,
 };
 
 // 160664 - Private Cole
 // 166583 - Grunt Throg
+template<uint32 Path, uint32 NpcID, uint32 _Conversation, uint32 Actor0, uint32 Actor1>
 struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 {
-    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
+    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) {}
 
     void JustAppeared() override
     {
-        if (me->GetEntry() == NPC_PRIVATE_COLE)
-            _path = PATH_COLE_BRACE_FOR_IMPACT;
-        else if (me->GetEntry() == NPC_GRUNT_THROG)
-            _path = PATH_THROG_BRACE_FOR_IMPACT;
-
         _events.ScheduleEvent(EVENT_FIRST_MATE_1, 3s);
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (_path && pathId == _path)
+        if (pathId == Path)
             me->DespawnOrUnsummon();
     }
 
@@ -753,22 +756,42 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_FIRST_MATE_1:
-                    Talk(SAY_STORM);
-                    _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
-                    break;
-                case EVENT_FIRST_MATE_2:
-                    me->GetMotionMaster()->MovePath(_path, false);
-                    break;
-                default:
-                    break;
+            case EVENT_FIRST_MATE_1:
+            {
+                Unit* owner = me->GetDemonCreator();
+                Conversation* conversation = Conversation::CreateConversation(_Conversation, owner, *owner, owner->GetGUID(), nullptr, false);
+                conversation->AddActor(Actor0, 0, me->GetGUID());
+                conversation->AddActor(Actor1, 1, me->FindNearestCreatureWithOptions(75.0f, { .CreatureId = NpcID, .IgnorePhases = true })->GetGUID());
+                conversation->Start();
+                _events.ScheduleEvent(EVENT_FIRST_MATE_2, 4s);
+
+                break;
+            }
+            case EVENT_FIRST_MATE_2:
+                me->GetMotionMaster()->MovePath(Path, false);
+                break;
+            default:
+                break;
             }
         }
     }
 private:
     EventMap _events;
-    uint32 _path;
 };
+
+CreatureAI* ColeAllianceAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_first_mate_brace_for_impact_private<PATH_COLE_BRACE_FOR_IMPACT, NPC_CAPTAIN_GARRICK3, CONVERSATION_STORM_ALLIANCE, ACTOR_0_STORM_ALLIANCE, ACTOR_1_STORM_ALLIANCE>(creature);
+    return new npc_first_mate_stand_your_ground(creature);
+}
+
+CreatureAI* ThrogHordeAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_first_mate_brace_for_impact_private<PATH_THROG_BRACE_FOR_IMPACT, NPC_BREKA_GRIMAXE, CONVERSATION_STORM_HORDE, ACTOR_0_STORM_HORDE, ACTOR_1_STORM_HORDE>(creature);
+    return new npc_first_mate_stand_your_ground(creature);
+}
 
 enum BraceForImpactCrewData
 {
@@ -6913,8 +6936,8 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickAISelector>("npc_captain_garrick");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
-    RegisterPrivatePublicCreatureAIPair("npc_cole_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
-    RegisterPrivatePublicCreatureAIPair("npc_throg_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
+    new FactoryCreatureScript<CreatureAI, &ColeAllianceAISelector>("npc_cole_ship");
+    new FactoryCreatureScript<CreatureAI, &ThrogHordeAISelector>("npc_throg_ship");
     RegisterPrivatePublicCreatureAIPair("npc_crew_ship", npc_crew_ship_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_pet_ship", npc_pet_ship_private, NullCreatureAI);
     new quest_brace_for_impact();
