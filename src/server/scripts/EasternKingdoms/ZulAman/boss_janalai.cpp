@@ -50,6 +50,7 @@ enum JanalaiSpells
 {
     // Jan'alai - Combat
     SPELL_FLAME_BREATH          = 43140,
+    SPELL_FLAME_BREATH_GROUND   = 97497,
     SPELL_SUMMON_HATCHER_1      = 43962,
     SPELL_SUMMON_HATCHER_2      = 45340,
     SPELL_HATCH_ALL_EGGS        = 43144,
@@ -258,7 +259,7 @@ struct boss_janalai : public BossAI
             {
                 // Combat
                 case EVENT_FLAME_BREATH:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, false))
                         DoCast(target, SPELL_FLAME_BREATH);
                     events.Repeat(10s, 15s);
                     break;
@@ -553,6 +554,45 @@ class spell_janalai_summon_all_players : public SpellScript
     }
 };
 
+// 43140 - Flame Breath
+class spell_janalai_flame_breath_aura : public AuraScript
+{
+    void SummonFlamePatch(AuraEffect const* aurEff) const
+    {
+        if (aurEff->GetTickNumber() > 9)
+            return;
+
+        Unit* target = GetTarget();
+        Position dest = target->GetPosition();
+        target->MovePositionToFirstCollision(dest, (aurEff->GetTickNumber() + 1) * 4.0f, Facing - target->GetOrientation());
+
+        target->CastSpell(dest, SPELL_FLAME_BREATH_GROUND, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_janalai_flame_breath_aura::SummonFlamePatch, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+public:
+    float Facing = 0.0f;
+};
+
+class spell_janalai_flame_breath : public SpellScript
+{
+    void InitOrientation(SpellEffIndex /*effIndex*/) const
+    {
+        if (Aura* aura = GetHitAura())
+            if (spell_janalai_flame_breath_aura* script = aura->GetScript<spell_janalai_flame_breath_aura>())
+                script->Facing = GetCaster()->GetAbsoluteAngle(GetHitDest());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_janalai_flame_breath::InitOrientation, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 // 42621 - Fire Bomb
 class spell_janalai_fire_bomb : public AuraScript
 {
@@ -616,6 +656,7 @@ void AddSC_boss_janalai()
     RegisterZulAmanCreatureAI(npc_dragonhawk_egg);
     RegisterZulAmanCreatureAI(npc_amani_dragonhawk_hatchling);
     RegisterSpellScript(spell_janalai_summon_all_players);
+    RegisterSpellAndAuraScriptPair(spell_janalai_flame_breath, spell_janalai_flame_breath_aura);
     RegisterSpellScript(spell_janalai_fire_bomb);
     RegisterSpellScript(spell_janalai_hatch_eggs);
 }
