@@ -21074,6 +21074,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // Prepare to flight start now
+    UnsummonPetTemporaryIfAny();
 
     // stop combat at start taxi flight if any
     CombatStop();
@@ -25209,7 +25210,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
 bool Player::IsPetNeedBeTemporaryUnsummoned() const
 {
-    return !IsInWorld() || !IsAlive() || IsMounted() /*+in flight*/;
+    return !IsInWorld() || !IsAlive() || (IsMounted() && HasUnitMovementFlag(MOVEMENTFLAG_FLYING)) || IsInFlight();
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const
