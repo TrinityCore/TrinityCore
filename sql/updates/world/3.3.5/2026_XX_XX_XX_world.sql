@@ -13,21 +13,21 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3642000 AND `point` IN (43,94);
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=842 AND `AIName`='';
 DELETE FROM `smart_scripts` WHERE `entryorguid`=84200 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(84200, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 234'),
-(84200, 9, 1, 0, 0, 0, 100, 0, 94000, 94000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 94s - Play emote 0'),
+(84200, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 234'),
+(84200, 9, 1, 0, 0, 0, 100, 0, 94000, 94000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 94s - Set emote state 0'),
 (84200, 9, 2, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Morph to model 89');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=84201 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(84201, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 234'),
-(84201, 9, 1, 0, 0, 0, 100, 0, 94000, 94000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 94s - Play emote 0');
+(84201, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 234'),
+(84201, 9, 1, 0, 0, 0, 100, 0, 94000, 94000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 94s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=842 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (3543680,3641920,7188880);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (842, 0, 0, 0, 40, 0, 100, 0, 1, 3543680, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3543680 - Morph to model 89'),
 (842, 0, 1, 0, 40, 0, 100, 0, 14, 3543680, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 14 of path 3543680 - Morph to model 308'),
-(842, 0, 2, 0, 40, 0, 100, 0, 28, 3543680, 0, 0, 0, 80, 84201, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 28 of path 3543680 - Start timed actionlist 84201'),
-(842, 0, 3, 0, 40, 0, 100, 0, 5, 3641920, 0, 0, 0, 80, 84200, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 3641920 - Start timed actionlist 84200'),
+(842, 0, 2, 0, 40, 0, 100, 0, 28, 3543680, 0, 0, 0, 80, 84201, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 28 of path 3543680 - Start timed actionlist 84201'),
+(842, 0, 3, 0, 40, 0, 100, 0, 5, 3641920, 0, 0, 0, 80, 84200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 3641920 - Start timed actionlist 84200'),
 (842, 0, 4, 0, 40, 0, 100, 0, 16, 3641920, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 3641920 - Morph to model 308'),
-(842, 0, 5, 0, 40, 0, 100, 0, 1, 7188880, 0, 0, 0, 80, 84200, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7188880 - Start timed actionlist 84200'),
+(842, 0, 5, 0, 40, 0, 100, 0, 1, 7188880, 0, 0, 0, 80, 84200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7188880 - Start timed actionlist 84200'),
 (842, 0, 6, 0, 40, 0, 100, 0, 11, 7188880, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 7188880 - Morph to model 308');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3543680 AND `point` IN (1,14,28);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3641920 AND `point` IN (5,16);
@@ -182,13 +182,13 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (141306, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 1');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1413 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (6927680);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1413, 0, 0, 0, 40, 0, 100, 0, 6, 6927680, 0, 0, 0, 80, 141300, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 6927680 - Start timed actionlist 141300'),
-(1413, 0, 1, 0, 40, 0, 100, 0, 11, 6927680, 0, 0, 0, 80, 141301, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 6927680 - Start timed actionlist 141301'),
-(1413, 0, 2, 0, 40, 0, 100, 0, 25, 6927680, 0, 0, 0, 80, 141302, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 25 of path 6927680 - Start timed actionlist 141302'),
-(1413, 0, 3, 0, 40, 0, 100, 0, 30, 6927680, 0, 0, 0, 80, 141303, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 30 of path 6927680 - Start timed actionlist 141303'),
-(1413, 0, 4, 0, 40, 0, 100, 0, 46, 6927680, 0, 0, 0, 80, 141304, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 46 of path 6927680 - Start timed actionlist 141304'),
-(1413, 0, 5, 0, 40, 0, 100, 0, 55, 6927680, 0, 0, 0, 80, 141305, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 55 of path 6927680 - Start timed actionlist 141305'),
-(1413, 0, 6, 0, 40, 0, 100, 0, 59, 6927680, 0, 0, 0, 80, 141306, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 59 of path 6927680 - Start timed actionlist 141306');
+(1413, 0, 0, 0, 40, 0, 100, 0, 6, 6927680, 0, 0, 0, 80, 141300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 6927680 - Start timed actionlist 141300'),
+(1413, 0, 1, 0, 40, 0, 100, 0, 11, 6927680, 0, 0, 0, 80, 141301, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 6927680 - Start timed actionlist 141301'),
+(1413, 0, 2, 0, 40, 0, 100, 0, 25, 6927680, 0, 0, 0, 80, 141302, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 25 of path 6927680 - Start timed actionlist 141302'),
+(1413, 0, 3, 0, 40, 0, 100, 0, 30, 6927680, 0, 0, 0, 80, 141303, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 30 of path 6927680 - Start timed actionlist 141303'),
+(1413, 0, 4, 0, 40, 0, 100, 0, 46, 6927680, 0, 0, 0, 80, 141304, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 46 of path 6927680 - Start timed actionlist 141304'),
+(1413, 0, 5, 0, 40, 0, 100, 0, 55, 6927680, 0, 0, 0, 80, 141305, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 55 of path 6927680 - Start timed actionlist 141305'),
+(1413, 0, 6, 0, 40, 0, 100, 0, 59, 6927680, 0, 0, 0, 80, 141306, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 59 of path 6927680 - Start timed actionlist 141306');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6927680 AND `point` IN (6,11,25,30,46,55,59);
 
 -- Entry 1414 (Lisan Pierce)
@@ -218,9 +218,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (141402, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 1');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1414 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (6927760);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1414, 0, 0, 0, 40, 0, 100, 0, 3, 6927760, 0, 0, 0, 80, 141400, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 6927760 - Start timed actionlist 141400'),
-(1414, 0, 1, 0, 40, 0, 100, 0, 8, 6927760, 0, 0, 0, 80, 141401, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 6927760 - Start timed actionlist 141401'),
-(1414, 0, 2, 0, 40, 0, 100, 0, 9, 6927760, 0, 0, 0, 80, 141402, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 6927760 - Start timed actionlist 141402'),
+(1414, 0, 0, 0, 40, 0, 100, 0, 3, 6927760, 0, 0, 0, 80, 141400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 6927760 - Start timed actionlist 141400'),
+(1414, 0, 1, 0, 40, 0, 100, 0, 8, 6927760, 0, 0, 0, 80, 141401, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 6927760 - Start timed actionlist 141401'),
+(1414, 0, 2, 0, 40, 0, 100, 0, 9, 6927760, 0, 0, 0, 80, 141402, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 6927760 - Start timed actionlist 141402'),
 (1414, 0, 3, 0, 40, 0, 100, 0, 18, 6927760, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 18 of path 6927760 - Talk (BroadcastText 205)'),
 (1414, 0, 4, 0, 40, 0, 100, 0, 19, 6927760, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 19 of path 6927760 - Set emote state 1'),
 (1414, 0, 5, 0, 40, 0, 100, 0, 28, 6927760, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 28 of path 6927760 - Talk (BroadcastText 216)'),
@@ -297,17 +297,17 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (141510, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 1');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1415 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (7143520);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1415, 0, 0, 0, 40, 0, 100, 0, 1, 7143520, 0, 0, 0, 80, 141500, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7143520 - Start timed actionlist 141500'),
-(1415, 0, 1, 0, 40, 0, 100, 0, 14, 7143520, 0, 0, 0, 80, 141501, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 14 of path 7143520 - Start timed actionlist 141501'),
-(1415, 0, 2, 0, 40, 0, 100, 0, 16, 7143520, 0, 0, 0, 80, 141502, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 7143520 - Start timed actionlist 141502'),
-(1415, 0, 3, 0, 40, 0, 100, 0, 21, 7143520, 0, 0, 0, 80, 141503, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 21 of path 7143520 - Start timed actionlist 141503'),
-(1415, 0, 4, 0, 40, 0, 100, 0, 27, 7143520, 0, 0, 0, 80, 141504, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 27 of path 7143520 - Start timed actionlist 141504'),
-(1415, 0, 5, 0, 40, 0, 100, 0, 37, 7143520, 0, 0, 0, 80, 141505, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 37 of path 7143520 - Start timed actionlist 141505'),
-(1415, 0, 6, 0, 40, 0, 100, 0, 43, 7143520, 0, 0, 0, 80, 141506, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 43 of path 7143520 - Start timed actionlist 141506'),
-(1415, 0, 7, 0, 40, 0, 100, 0, 51, 7143520, 0, 0, 0, 80, 141507, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 51 of path 7143520 - Start timed actionlist 141507'),
-(1415, 0, 8, 0, 40, 0, 100, 0, 57, 7143520, 0, 0, 0, 80, 141508, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 57 of path 7143520 - Start timed actionlist 141508'),
-(1415, 0, 9, 0, 40, 0, 100, 0, 59, 7143520, 0, 0, 0, 80, 141509, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 59 of path 7143520 - Start timed actionlist 141509'),
-(1415, 0, 10, 0, 40, 0, 100, 0, 62, 7143520, 0, 0, 0, 80, 141510, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 62 of path 7143520 - Start timed actionlist 141510');
+(1415, 0, 0, 0, 40, 0, 100, 0, 1, 7143520, 0, 0, 0, 80, 141500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7143520 - Start timed actionlist 141500'),
+(1415, 0, 1, 0, 40, 0, 100, 0, 14, 7143520, 0, 0, 0, 80, 141501, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 14 of path 7143520 - Start timed actionlist 141501'),
+(1415, 0, 2, 0, 40, 0, 100, 0, 16, 7143520, 0, 0, 0, 80, 141502, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 7143520 - Start timed actionlist 141502'),
+(1415, 0, 3, 0, 40, 0, 100, 0, 21, 7143520, 0, 0, 0, 80, 141503, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 21 of path 7143520 - Start timed actionlist 141503'),
+(1415, 0, 4, 0, 40, 0, 100, 0, 27, 7143520, 0, 0, 0, 80, 141504, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 27 of path 7143520 - Start timed actionlist 141504'),
+(1415, 0, 5, 0, 40, 0, 100, 0, 37, 7143520, 0, 0, 0, 80, 141505, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 37 of path 7143520 - Start timed actionlist 141505'),
+(1415, 0, 6, 0, 40, 0, 100, 0, 43, 7143520, 0, 0, 0, 80, 141506, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 43 of path 7143520 - Start timed actionlist 141506'),
+(1415, 0, 7, 0, 40, 0, 100, 0, 51, 7143520, 0, 0, 0, 80, 141507, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 51 of path 7143520 - Start timed actionlist 141507'),
+(1415, 0, 8, 0, 40, 0, 100, 0, 57, 7143520, 0, 0, 0, 80, 141508, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 57 of path 7143520 - Start timed actionlist 141508'),
+(1415, 0, 9, 0, 40, 0, 100, 0, 59, 7143520, 0, 0, 0, 80, 141509, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 59 of path 7143520 - Start timed actionlist 141509'),
+(1415, 0, 10, 0, 40, 0, 100, 0, 62, 7143520, 0, 0, 0, 80, 141510, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 62 of path 7143520 - Start timed actionlist 141510');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=7143520 AND `point` IN (1,14,16,21,27,37,43,51,57,59,62);
 
 -- Entry 1420 (Toad)
@@ -365,12 +365,12 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=2728880 AND `point` IN (1,8);
 -- Entry 1885 (Scarlet Smith)
 DELETE FROM `smart_scripts` WHERE `entryorguid`=188500 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(188500, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 1s - Play emote 69'),
-(188500, 9, 1, 0, 0, 0, 100, 0, 17000, 17000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 17s - Play emote 0');
+(188500, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 1s - Set emote state 69'),
+(188500, 9, 1, 0, 0, 0, 100, 0, 17000, 17000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 17s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1885 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (4930720);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1885, 0, 3, 0, 40, 0, 100, 0, 9, 4930720, 0, 0, 0, 80, 188500, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 4930720 - Start timed actionlist 188500'),
-(1885, 0, 4, 0, 40, 0, 100, 0, 10, 4930720, 0, 0, 0, 80, 188500, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 4930720 - Start timed actionlist 188500');
+(1885, 0, 3, 0, 40, 0, 100, 0, 9, 4930720, 0, 0, 0, 80, 188500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 4930720 - Start timed actionlist 188500'),
+(1885, 0, 4, 0, 40, 0, 100, 0, 10, 4930720, 0, 0, 0, 80, 188500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 4930720 - Start timed actionlist 188500');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=4930720 AND `point` IN (9,10);
 
 -- Entry 2330 (Karlee Chaddis)
@@ -448,18 +448,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (351304, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 1');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3513 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (6722240);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(3513, 0, 0, 0, 40, 0, 100, 0, 21, 6722240, 0, 0, 0, 80, 351300, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 21 of path 6722240 - Start timed actionlist 351300'),
+(3513, 0, 0, 0, 40, 0, 100, 0, 21, 6722240, 0, 0, 0, 80, 351300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 21 of path 6722240 - Start timed actionlist 351300'),
 (3513, 0, 1, 0, 40, 0, 100, 0, 22, 6722240, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 6722240 - Set emote state 1'),
-(3513, 0, 2, 0, 40, 0, 100, 0, 24, 6722240, 0, 0, 0, 80, 351301, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 24 of path 6722240 - Start timed actionlist 351301'),
-(3513, 0, 3, 0, 40, 0, 100, 0, 25, 6722240, 0, 0, 0, 80, 351302, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 25 of path 6722240 - Start timed actionlist 351302'),
+(3513, 0, 2, 0, 40, 0, 100, 0, 24, 6722240, 0, 0, 0, 80, 351301, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 24 of path 6722240 - Start timed actionlist 351301'),
+(3513, 0, 3, 0, 40, 0, 100, 0, 25, 6722240, 0, 0, 0, 80, 351302, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 25 of path 6722240 - Start timed actionlist 351302'),
 (3513, 0, 4, 0, 40, 0, 100, 0, 39, 6722240, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 39 of path 6722240 - Talk (BroadcastText 1140)'),
 (3513, 0, 5, 0, 40, 0, 100, 0, 40, 6722240, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 40 of path 6722240 - Talk (BroadcastText 1161)'),
 (3513, 0, 6, 0, 40, 0, 100, 0, 41, 6722240, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 41 of path 6722240 - Set emote state 1'),
-(3513, 0, 7, 0, 40, 0, 100, 0, 42, 6722240, 0, 0, 0, 80, 351303, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 42 of path 6722240 - Start timed actionlist 351303'),
+(3513, 0, 7, 0, 40, 0, 100, 0, 42, 6722240, 0, 0, 0, 80, 351303, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 42 of path 6722240 - Start timed actionlist 351303'),
 (3513, 0, 8, 0, 40, 0, 100, 0, 44, 6722240, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 44 of path 6722240 - Set emote state 1'),
 (3513, 0, 9, 0, 40, 0, 100, 0, 58, 6722240, 0, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 58 of path 6722240 - Talk (BroadcastText 1163)'),
 (3513, 0, 10, 0, 40, 0, 100, 0, 59, 6722240, 0, 0, 0, 1, 7, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 59 of path 6722240 - Talk (BroadcastText 1165)'),
-(3513, 0, 11, 0, 40, 0, 100, 0, 60, 6722240, 0, 0, 0, 80, 351304, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 60 of path 6722240 - Start timed actionlist 351304'),
+(3513, 0, 11, 0, 40, 0, 100, 0, 60, 6722240, 0, 0, 0, 80, 351304, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 60 of path 6722240 - Start timed actionlist 351304'),
 (3513, 0, 12, 0, 40, 0, 100, 0, 61, 6722240, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 61 of path 6722240 - Set emote state 1'),
 (3513, 0, 13, 0, 40, 0, 100, 0, 62, 6722240, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 62 of path 6722240 - Set emote state 1');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6722240 AND `point` IN (21,22,24,25,39,40,41,42,44,58,59,60,61,62);
@@ -505,11 +505,15 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=10720 AND `point` IN (1);
 
 -- Entry 5782 (Crildor)
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=5782 AND `AIName`='';
+DELETE FROM `smart_scripts` WHERE `entryorguid`=578200 AND `source_type`=9;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(578200, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set UNIT_FIELD_BYTES_1 1 (sit)'),
+(578200, 9, 1, 0, 0, 0, 100, 0, 29000, 29000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 29s - Set UNIT_FIELD_BYTES_1 0 (stand)');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5782 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (3745280);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(5782, 0, 0, 0, 40, 0, 100, 0, 1, 3745280, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3745280 - Set emote state 13'),
-(5782, 0, 1, 0, 40, 0, 100, 0, 22, 3745280, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 3745280 - Set emote state 13'),
-(5782, 0, 2, 0, 40, 0, 100, 0, 53, 3745280, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 53 of path 3745280 - Set emote state 13');
+(5782, 0, 0, 0, 40, 0, 100, 0, 1, 3745280, 0, 0, 0, 80, 578200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3745280 - Start timed actionlist 578200 (sit)'),
+(5782, 0, 1, 0, 40, 0, 100, 0, 22, 3745280, 0, 0, 0, 80, 578200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 3745280 - Start timed actionlist 578200 (sit)'),
+(5782, 0, 2, 0, 40, 0, 100, 0, 53, 3745280, 0, 0, 0, 80, 578200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 53 of path 3745280 - Start timed actionlist 578200 (sit)');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3745280 AND `point` IN (1,22,53);
 
 -- Entry 6090 (Bartleby)
@@ -536,18 +540,18 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=8640 AND `point` IN (1,4,7,12,1
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=6670 AND `AIName`='';
 DELETE FROM `smart_scripts` WHERE `entryorguid`=667000 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(667000, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 69'),
-(667000, 9, 1, 0, 0, 0, 100, 0, 84000, 84000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 84s - Play emote 0');
+(667000, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 69'),
+(667000, 9, 1, 0, 0, 0, 100, 0, 84000, 84000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 84s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6670 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (3544240,3637760,3641680,7188800);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(6670, 0, 0, 0, 40, 0, 100, 0, 2, 3544240, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 3544240 - Start timed actionlist 667000'),
-(6670, 0, 1, 0, 40, 0, 100, 0, 3, 3544240, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 3544240 - Start timed actionlist 667000'),
-(6670, 0, 2, 0, 40, 0, 100, 0, 1, 3637760, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3637760 - Start timed actionlist 667000'),
-(6670, 0, 3, 0, 40, 0, 100, 0, 3, 3637760, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 3637760 - Start timed actionlist 667000'),
-(6670, 0, 4, 0, 40, 0, 100, 0, 1, 3641680, 0, 0, 0, 17, 16, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3641680 - Set emote state 16'),
-(6670, 0, 5, 0, 40, 0, 100, 0, 2, 3641680, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 3641680 - Start timed actionlist 667000'),
-(6670, 0, 6, 0, 40, 0, 100, 0, 1, 7188800, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7188800 - Start timed actionlist 667000'),
-(6670, 0, 7, 0, 40, 0, 100, 0, 2, 7188800, 0, 0, 0, 80, 667000, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 7188800 - Start timed actionlist 667000');
+(6670, 0, 0, 0, 40, 0, 100, 0, 2, 3544240, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 3544240 - Start timed actionlist 667000'),
+(6670, 0, 1, 0, 40, 0, 100, 0, 3, 3544240, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 3544240 - Start timed actionlist 667000'),
+(6670, 0, 2, 0, 40, 0, 100, 0, 1, 3637760, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3637760 - Start timed actionlist 667000'),
+(6670, 0, 3, 0, 40, 0, 100, 0, 3, 3637760, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 3637760 - Start timed actionlist 667000'),
+(6670, 0, 4, 0, 40, 0, 100, 0, 1, 3641680, 0, 0, 0, 5, 16, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 3641680 - Play emote 16 (oneshot kneel)'),
+(6670, 0, 5, 0, 40, 0, 100, 0, 2, 3641680, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 3641680 - Start timed actionlist 667000'),
+(6670, 0, 6, 0, 40, 0, 100, 0, 1, 7188800, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7188800 - Start timed actionlist 667000'),
+(6670, 0, 7, 0, 40, 0, 100, 0, 2, 7188800, 0, 0, 0, 80, 667000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 7188800 - Start timed actionlist 667000');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3544240 AND `point` IN (2,3);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3637760 AND `point` IN (1,3);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=3641680 AND `point` IN (1,2);
@@ -570,16 +574,16 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 DELETE FROM `smart_scripts` WHERE `entryorguid`=825602 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (825602, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Talk (BroadcastText 4285)'),
-(825602, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 16, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 16');
+(825602, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 5, 16, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Play emote 16 (oneshot kneel)');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=825603 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(825603, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Play emote 69'),
+(825603, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Set emote state 69'),
 (825603, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Talk (BroadcastText 4286)'),
-(825603, 9, 2, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 26, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 26');
+(825603, 9, 2, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 26, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 26');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8256 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (150960);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(8256, 0, 4, 0, 40, 0, 100, 0, 8, 150960, 0, 0, 0, 80, 825602, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 150960 - Start timed actionlist 825602'),
-(8256, 0, 5, 0, 40, 0, 100, 0, 12, 150960, 0, 0, 0, 80, 825603, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 12 of path 150960 - Start timed actionlist 825603');
+(8256, 0, 4, 0, 40, 0, 100, 0, 8, 150960, 0, 0, 0, 80, 825602, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 150960 - Start timed actionlist 825602'),
+(8256, 0, 5, 0, 40, 0, 100, 0, 12, 150960, 0, 0, 0, 80, 825603, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 12 of path 150960 - Start timed actionlist 825603');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=150960 AND `point` IN (8,12);
 
 -- Entry 10428 (Motega Firemane)
@@ -702,20 +706,25 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=11328 AND `AINam
 DELETE FROM `smart_scripts` WHERE `entryorguid`=11328 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (6499920,6500000,6500160,6507840,6507920);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (11328, 0, 0, 0, 40, 0, 100, 0, 1, 6499920, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 6499920 - Morph to model 308'),
-(11328, 0, 1, 0, 40, 0, 100, 0, 4, 6499920, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 6499920 - Play emote 234'),
+(11328, 0, 1, 0, 40, 0, 100, 0, 4, 6499920, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 6499920 - Set emote state 234'),
 (11328, 0, 2, 0, 40, 0, 100, 0, 5, 6499920, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 6499920 - Morph to model 89'),
 (11328, 0, 3, 0, 40, 0, 100, 0, 1, 6500000, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 6500000 - Morph to model 308'),
-(11328, 0, 4, 0, 40, 0, 100, 0, 2, 6500000, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 6500000 - Play emote 234'),
+(11328, 0, 4, 0, 40, 0, 100, 0, 2, 6500000, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 6500000 - Set emote state 234'),
 (11328, 0, 5, 0, 40, 0, 100, 0, 3, 6500000, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 6500000 - Morph to model 89'),
 (11328, 0, 6, 0, 40, 0, 100, 0, 4, 6500160, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 6500160 - Morph to model 308'),
-(11328, 0, 7, 0, 40, 0, 100, 0, 8, 6500160, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 6500160 - Play emote 234'),
+(11328, 0, 7, 0, 40, 0, 100, 0, 8, 6500160, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 6500160 - Set emote state 234'),
 (11328, 0, 8, 0, 40, 0, 100, 0, 9, 6500160, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 6500160 - Morph to model 89'),
 (11328, 0, 9, 0, 40, 0, 100, 0, 5, 6507840, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 6507840 - Morph to model 308'),
-(11328, 0, 10, 0, 40, 0, 100, 0, 10, 6507840, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 6507840 - Play emote 234'),
+(11328, 0, 10, 0, 40, 0, 100, 0, 10, 6507840, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 6507840 - Set emote state 234'),
 (11328, 0, 11, 0, 40, 0, 100, 0, 11, 6507840, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 6507840 - Morph to model 89'),
 (11328, 0, 12, 0, 40, 0, 100, 0, 2, 6507920, 0, 0, 0, 3, 0, 308, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 6507920 - Morph to model 308'),
-(11328, 0, 13, 0, 40, 0, 100, 0, 6, 6507920, 0, 0, 0, 5, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 6507920 - Play emote 234'),
-(11328, 0, 14, 0, 40, 0, 100, 0, 7, 6507920, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 6507920 - Morph to model 89');
+(11328, 0, 13, 0, 40, 0, 100, 0, 6, 6507920, 0, 0, 0, 17, 234, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 6507920 - Set emote state 234'),
+(11328, 0, 14, 0, 40, 0, 100, 0, 7, 6507920, 0, 0, 0, 3, 0, 89, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 6507920 - Morph to model 89'),
+(11328, 0, 15, 0, 40, 0, 100, 0, 5, 6499920, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 6499920 - Set emote state 0'),
+(11328, 0, 16, 0, 40, 0, 100, 0, 3, 6500000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 6500000 - Set emote state 0'),
+(11328, 0, 17, 0, 40, 0, 100, 0, 9, 6500160, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 9 of path 6500160 - Set emote state 0'),
+(11328, 0, 18, 0, 40, 0, 100, 0, 11, 6507840, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 6507840 - Set emote state 0'),
+(11328, 0, 19, 0, 40, 0, 100, 0, 7, 6507920, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 6507920 - Set emote state 0');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6499920 AND `point` IN (1,4,5);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6500000 AND `point` IN (1,2,3);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6500160 AND `point` IN (4,8,9);
@@ -754,20 +763,21 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1473701, 9, 3, 0, 0, 0, 100, 0, 19000, 19000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 19s - Set emote state 69');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=14737 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (7432720);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(14737, 0, 0, 0, 40, 0, 100, 0, 2, 7432720, 0, 0, 0, 80, 1473700, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 7432720 - Start timed actionlist 1473700'),
-(14737, 0, 1, 0, 40, 0, 100, 0, 3, 7432720, 0, 0, 0, 80, 1473701, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 7432720 - Start timed actionlist 1473701');
+(14737, 0, 0, 0, 40, 0, 100, 0, 2, 7432720, 0, 0, 0, 80, 1473700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 7432720 - Start timed actionlist 1473700'),
+(14737, 0, 1, 0, 40, 0, 100, 0, 3, 7432720, 0, 0, 0, 80, 1473701, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 7432720 - Start timed actionlist 1473701');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=7432720 AND `point` IN (2,3);
 
 -- Entry 14739 (Mystic Yayo'jin)
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=14739 AND `AIName`='';
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1473900 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1473900, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Set UNIT_FIELD_BYTES_1 1 (standstate)'),
-(1473900, 9, 1, 0, 0, 0, 100, 0, 37000, 37000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 37s - Set UNIT_FIELD_BYTES_1 0 (standstate)'),
-(1473900, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 17, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Set emote state 133');
+(1473900, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Set UNIT_FIELD_BYTES_1 1 (sit)'),
+(1473900, 9, 1, 0, 0, 0, 100, 0, 37000, 37000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 37s - Set UNIT_FIELD_BYTES_1 0 (stand)'),
+(1473900, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 17, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 2s - Set emote state 133'),
+(1473900, 9, 3, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 6s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=14739 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (7432880);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(14739, 0, 0, 0, 40, 0, 100, 0, 11, 7432880, 0, 0, 0, 80, 1473900, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 7432880 - Start timed actionlist 1473900');
+(14739, 0, 0, 0, 40, 0, 100, 0, 11, 7432880, 0, 0, 0, 80, 1473900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 7432880 - Start timed actionlist 1473900');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=7432880 AND `point` IN (11);
 
 -- Entry 14823 (Silas Darkmoon)
@@ -780,27 +790,27 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=4507840 AND `point` IN (2,6);
 -- Entry 14901 (Peon)
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1490100 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1490100, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 69'),
-(1490100, 9, 1, 0, 0, 0, 100, 0, 232000, 232000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 232s - Play emote 0');
+(1490100, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 69'),
+(1490100, 9, 1, 0, 0, 0, 100, 0, 232000, 232000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 232s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=14901 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (1102000);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(14901, 0, 0, 0, 40, 0, 100, 0, 4, 1102000, 0, 0, 0, 80, 1490100, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 1102000 - Start timed actionlist 1490100');
+(14901, 0, 0, 0, 40, 0, 100, 0, 4, 1102000, 0, 0, 0, 80, 1490100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 1102000 - Start timed actionlist 1490100');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=1102000 AND `point` IN (4);
 
 -- Entry 16591 (Thrallmar Peon)
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1659100 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1659100, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 233, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 233'),
-(1659100, 9, 1, 0, 0, 0, 100, 0, 54000, 54000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 54s - Play emote 0');
+(1659100, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 233, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 233'),
+(1659100, 9, 1, 0, 0, 0, 100, 0, 54000, 54000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 54s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1659101 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(1659101, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 69'),
-(1659101, 9, 1, 0, 0, 0, 100, 0, 54000, 54000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 54s - Play emote 0');
+(1659101, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 69'),
+(1659101, 9, 1, 0, 0, 0, 100, 0, 54000, 54000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 54s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=16591 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (4606080);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(16591, 0, 1, 0, 40, 0, 100, 0, 7, 4606080, 0, 0, 0, 80, 1659100, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 4606080 - Start timed actionlist 1659100'),
-(16591, 0, 2, 0, 40, 0, 100, 0, 16, 4606080, 0, 0, 0, 80, 1659101, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 4606080 - Start timed actionlist 1659101'),
-(16591, 0, 3, 0, 40, 0, 100, 0, 23, 4606080, 0, 0, 0, 80, 1659101, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 23 of path 4606080 - Start timed actionlist 1659101');
+(16591, 0, 1, 0, 40, 0, 100, 0, 7, 4606080, 0, 0, 0, 80, 1659100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 4606080 - Start timed actionlist 1659100'),
+(16591, 0, 2, 0, 40, 0, 100, 0, 16, 4606080, 0, 0, 0, 80, 1659101, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 4606080 - Start timed actionlist 1659101'),
+(16591, 0, 3, 0, 40, 0, 100, 0, 23, 4606080, 0, 0, 0, 80, 1659101, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 23 of path 4606080 - Start timed actionlist 1659101');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=4606080 AND `point` IN (7,16,23);
 
 -- Entry 17994 (Bloodwarder Falconer)
@@ -829,8 +839,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1849701, 9, 1, 0, 0, 0, 100, 0, 32000, 32000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 32s - Set UNIT_FIELD_BYTES_1 0 (standstate)');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=18497 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (6671200);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(18497, 0, 7, 0, 40, 0, 100, 0, 1, 6671200, 0, 0, 0, 80, 1849700, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 6671200 - Start timed actionlist 1849700'),
-(18497, 0, 8, 0, 40, 0, 100, 0, 16, 6671200, 0, 0, 0, 80, 1849701, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 6671200 - Start timed actionlist 1849701');
+(18497, 0, 7, 0, 40, 0, 100, 0, 1, 6671200, 0, 0, 0, 80, 1849700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 6671200 - Start timed actionlist 1849700'),
+(18497, 0, 8, 0, 40, 0, 100, 0, 16, 6671200, 0, 0, 0, 80, 1849701, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 16 of path 6671200 - Start timed actionlist 1849701');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=6671200 AND `point` IN (1,16);
 
 -- Entry 18547 (Scryer Arcanist)
@@ -943,11 +953,11 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (1914702, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 17, 381, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 1s - Set emote state 381');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=19147 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (5477440,5477520,5477600);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(19147, 0, 0, 0, 40, 0, 100, 0, 6, 5477440, 0, 0, 0, 80, 1914700, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 5477440 - Start timed actionlist 1914700'),
+(19147, 0, 0, 0, 40, 0, 100, 0, 6, 5477440, 0, 0, 0, 80, 1914700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 5477440 - Start timed actionlist 1914700'),
 (19147, 0, 1, 0, 40, 0, 100, 0, 12, 5477440, 0, 0, 0, 17, 381, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 12 of path 5477440 - Set emote state 381'),
 (19147, 0, 2, 0, 40, 0, 100, 0, 11, 5477520, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 5477520 - Set emote state 69'),
-(19147, 0, 3, 0, 40, 0, 100, 0, 22, 5477520, 0, 0, 0, 80, 1914701, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 5477520 - Start timed actionlist 1914701'),
-(19147, 0, 4, 0, 40, 0, 100, 0, 6, 5477600, 0, 0, 0, 80, 1914702, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 5477600 - Start timed actionlist 1914702'),
+(19147, 0, 3, 0, 40, 0, 100, 0, 22, 5477520, 0, 0, 0, 80, 1914701, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 5477520 - Start timed actionlist 1914701'),
+(19147, 0, 4, 0, 40, 0, 100, 0, 6, 5477600, 0, 0, 0, 80, 1914702, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 5477600 - Start timed actionlist 1914702'),
 (19147, 0, 5, 0, 40, 0, 100, 0, 11, 5477600, 0, 0, 0, 17, 381, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 5477600 - Set emote state 381');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=5477440 AND `point` IN (6,12);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=5477520 AND `point` IN (11,22);
@@ -982,19 +992,19 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2360204, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 1');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23602 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (2483680);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(23602, 0, 8, 0, 40, 0, 100, 0, 2, 2483680, 0, 0, 0, 80, 2360202, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 2483680 - Start timed actionlist 2360202'),
-(23602, 0, 9, 0, 40, 0, 100, 0, 3, 2483680, 0, 0, 0, 80, 2360203, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 2483680 - Start timed actionlist 2360203'),
-(23602, 0, 10, 0, 40, 0, 100, 0, 4, 2483680, 0, 0, 0, 80, 2360204, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 2483680 - Start timed actionlist 2360204');
+(23602, 0, 8, 0, 40, 0, 100, 0, 2, 2483680, 0, 0, 0, 80, 2360202, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 2483680 - Start timed actionlist 2360202'),
+(23602, 0, 9, 0, 40, 0, 100, 0, 3, 2483680, 0, 0, 0, 80, 2360203, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 2483680 - Start timed actionlist 2360203'),
+(23602, 0, 10, 0, 40, 0, 100, 0, 4, 2483680, 0, 0, 0, 80, 2360204, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 2483680 - Start timed actionlist 2360204');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=2483680 AND `point` IN (2,3,4);
 
 -- Entry 23776 (Dark Ranger)
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2377600 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(2377600, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 5, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Play emote 10'),
-(2377600, 9, 1, 0, 0, 0, 100, 0, 30000, 30000, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 30s - Play emote 0');
+(2377600, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 10'),
+(2377600, 9, 1, 0, 0, 0, 100, 0, 30000, 30000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 30s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23776 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (7132560);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(23776, 0, 3, 0, 40, 0, 100, 0, 1, 7132560, 0, 0, 0, 80, 2377600, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7132560 - Start timed actionlist 2377600');
+(23776, 0, 3, 0, 40, 0, 100, 0, 1, 7132560, 0, 0, 0, 80, 2377600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 7132560 - Start timed actionlist 2377600');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=7132560 AND `point` IN (1);
 
 -- Entry 23858 (Donna Brascoe)
@@ -1016,7 +1026,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2389600, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 0s - Set emote state 15');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23896 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (2451920);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(23896, 0, 0, 0, 40, 0, 100, 0, 2, 2451920, 0, 0, 0, 80, 2389600, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 2451920 - Start timed actionlist 2389600');
+(23896, 0, 0, 0, 40, 0, 100, 0, 2, 2451920, 0, 0, 0, 80, 2389600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 2451920 - Start timed actionlist 2389600');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=2451920 AND `point` IN (2);
 
 -- Entry 24689 (Wretched Bruiser)
@@ -1042,21 +1052,21 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `smart_scripts` WHERE `entryorguid`=25138 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (7729520);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (25138, 0, 0, 0, 40, 0, 100, 0, 2, 7729520, 0, 0, 0, 17, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 7729520 - Set emote state 25'),
-(25138, 0, 1, 0, 40, 0, 100, 0, 4, 7729520, 0, 0, 0, 80, 2513800, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 7729520 - Start timed actionlist 2513800'),
+(25138, 0, 1, 0, 40, 0, 100, 0, 4, 7729520, 0, 0, 0, 80, 2513800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 7729520 - Start timed actionlist 2513800'),
 (25138, 0, 2, 0, 40, 0, 100, 0, 5, 7729520, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 7729520 - Set emote state 18'),
 (25138, 0, 3, 0, 40, 0, 100, 0, 11, 7729520, 0, 0, 0, 17, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 11 of path 7729520 - Set emote state 25'),
 (25138, 0, 4, 0, 40, 0, 100, 0, 12, 7729520, 0, 0, 0, 17, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 12 of path 7729520 - Set emote state 5'),
 (25138, 0, 5, 0, 40, 0, 100, 0, 13, 7729520, 0, 0, 0, 17, 21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 13 of path 7729520 - Set emote state 21'),
-(25138, 0, 6, 0, 40, 0, 100, 0, 17, 7729520, 0, 0, 0, 80, 2513800, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 17 of path 7729520 - Start timed actionlist 2513800'),
+(25138, 0, 6, 0, 40, 0, 100, 0, 17, 7729520, 0, 0, 0, 80, 2513800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 17 of path 7729520 - Start timed actionlist 2513800'),
 (25138, 0, 7, 0, 40, 0, 100, 0, 20, 7729520, 0, 0, 0, 17, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 20 of path 7729520 - Set emote state 25'),
 (25138, 0, 8, 0, 40, 0, 100, 0, 21, 7729520, 0, 0, 0, 17, 274, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 21 of path 7729520 - Set emote state 274'),
 (25138, 0, 9, 0, 40, 0, 100, 0, 22, 7729520, 0, 0, 0, 17, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 22 of path 7729520 - Set emote state 25'),
 (25138, 0, 10, 0, 40, 0, 100, 0, 23, 7729520, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 23 of path 7729520 - Set emote state 11'),
-(25138, 0, 11, 0, 40, 0, 100, 0, 27, 7729520, 0, 0, 0, 80, 2513800, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 27 of path 7729520 - Start timed actionlist 2513800'),
+(25138, 0, 11, 0, 40, 0, 100, 0, 27, 7729520, 0, 0, 0, 80, 2513800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 27 of path 7729520 - Start timed actionlist 2513800'),
 (25138, 0, 12, 0, 40, 0, 100, 0, 30, 7729520, 0, 0, 0, 17, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 30 of path 7729520 - Set emote state 25'),
 (25138, 0, 13, 0, 40, 0, 100, 0, 31, 7729520, 0, 0, 0, 17, 273, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 31 of path 7729520 - Set emote state 273'),
 (25138, 0, 14, 0, 40, 0, 100, 0, 32, 7729520, 0, 0, 0, 17, 21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 32 of path 7729520 - Set emote state 21'),
-(25138, 0, 15, 0, 40, 0, 100, 0, 35, 7729520, 0, 0, 0, 80, 2513800, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 35 of path 7729520 - Start timed actionlist 2513800');
+(25138, 0, 15, 0, 40, 0, 100, 0, 35, 7729520, 0, 0, 0, 80, 2513800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 35 of path 7729520 - Start timed actionlist 2513800');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=7729520 AND `point` IN (2,3,4,5,11,12,13,17,20,21,22,23,27,30,31,32,35);
 
 -- Entry 26222 (Twilight Cryomancer)
@@ -1097,16 +1107,16 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2704401, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 1s - Set emote state 69');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=27044 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (10689520);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(27044, 0, 0, 0, 40, 0, 100, 0, 2, 10689520, 0, 0, 0, 80, 2704400, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10689520 - Start timed actionlist 2704400'),
-(27044, 0, 1, 0, 40, 0, 100, 0, 4, 10689520, 0, 0, 0, 80, 2704401, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 10689520 - Start timed actionlist 2704401'),
-(27044, 0, 2, 0, 40, 0, 100, 0, 6, 10689520, 0, 0, 0, 80, 2704401, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10689520 - Start timed actionlist 2704401');
+(27044, 0, 0, 0, 40, 0, 100, 0, 2, 10689520, 0, 0, 0, 80, 2704400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10689520 - Start timed actionlist 2704400'),
+(27044, 0, 1, 0, 40, 0, 100, 0, 4, 10689520, 0, 0, 0, 80, 2704401, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 4 of path 10689520 - Start timed actionlist 2704401'),
+(27044, 0, 2, 0, 40, 0, 100, 0, 6, 10689520, 0, 0, 0, 80, 2704401, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10689520 - Start timed actionlist 2704401');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=10689520 AND `point` IN (2,4,6);
 
 -- Entry 28052 (Dread Crew)
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=28052 AND `AIName`='';
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2805200 AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(2805200, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 5, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Play emote 69'),
+(2805200, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 3s - Set emote state 69'),
 (2805200, 9, 1, 0, 0, 0, 100, 0, 14000, 14000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 14s - Set emote state 0');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=28052 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (12012800,12012880,12012960,12013200,12013600,12013680,12013760,12014160,12014320);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
@@ -1118,7 +1128,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (28052, 0, 5, 0, 40, 0, 100, 0, 3, 12013200, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 12013200 - Set emote state 11'),
 (28052, 0, 6, 0, 40, 0, 100, 0, 1, 12013600, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 12013600 - Set emote state 1'),
 (28052, 0, 7, 0, 40, 0, 100, 0, 2, 12013600, 0, 0, 0, 11, 6668, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 12013600 - Cast spell 6668 on self'),
-(28052, 0, 8, 0, 40, 0, 100, 0, 3, 12013600, 0, 0, 0, 80, 2805200, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 12013600 - Start timed actionlist 2805200'),
+(28052, 0, 8, 0, 40, 0, 100, 0, 3, 12013600, 0, 0, 0, 80, 2805200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 3 of path 12013600 - Start timed actionlist 2805200'),
 (28052, 0, 9, 0, 40, 0, 100, 0, 1, 12013680, 0, 0, 0, 4, 12845, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 12013680 - Play sound 12845'),
 (28052, 0, 10, 0, 40, 0, 100, 0, 1, 12013760, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 12013760 - Set emote state 1'),
 (28052, 0, 11, 0, 40, 0, 100, 0, 2, 12013760, 0, 0, 0, 17, 92, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 12013760 - Set emote state 92'),
@@ -1223,27 +1233,27 @@ UPDATE `waypoint_data` SET `action`=0 WHERE `id`=9663920 AND `point` IN (8,17);
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=29239 AND `AIName`='';
 DELETE FROM `smart_scripts` WHERE `entryorguid`=29239 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (10066080,10066160,10066240,10066480,10066560);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(29239, 0, 0, 0, 40, 0, 100, 0, 1, 10066080, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066080 - Play emote 429'),
-(29239, 0, 1, 0, 40, 0, 100, 0, 2, 10066080, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066080 - Play emote 0'),
-(29239, 0, 2, 0, 40, 0, 100, 0, 7, 10066080, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066080 - Play emote 429'),
-(29239, 0, 3, 0, 40, 0, 100, 0, 8, 10066080, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 10066080 - Play emote 0'),
-(29239, 0, 4, 0, 40, 0, 100, 0, 13, 10066080, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 13 of path 10066080 - Play emote 429'),
-(29239, 0, 5, 0, 40, 0, 100, 0, 1, 10066160, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066160 - Play emote 0'),
-(29239, 0, 6, 0, 40, 0, 100, 0, 5, 10066160, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 10066160 - Play emote 429'),
-(29239, 0, 7, 0, 40, 0, 100, 0, 6, 10066160, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066160 - Play emote 0'),
-(29239, 0, 8, 0, 40, 0, 100, 0, 10, 10066160, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 10066160 - Play emote 429'),
-(29239, 0, 9, 0, 40, 0, 100, 0, 1, 10066240, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066240 - Play emote 429'),
-(29239, 0, 10, 0, 40, 0, 100, 0, 2, 10066240, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066240 - Play emote 0'),
-(29239, 0, 11, 0, 40, 0, 100, 0, 6, 10066240, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066240 - Play emote 429'),
-(29239, 0, 12, 0, 40, 0, 100, 0, 7, 10066240, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066240 - Play emote 0'),
-(29239, 0, 13, 0, 40, 0, 100, 0, 1, 10066480, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066480 - Play emote 429'),
-(29239, 0, 14, 0, 40, 0, 100, 0, 2, 10066480, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066480 - Play emote 0'),
-(29239, 0, 15, 0, 40, 0, 100, 0, 6, 10066480, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066480 - Play emote 429'),
-(29239, 0, 16, 0, 40, 0, 100, 0, 7, 10066480, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066480 - Play emote 0'),
-(29239, 0, 17, 0, 40, 0, 100, 0, 1, 10066560, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066560 - Play emote 429'),
-(29239, 0, 18, 0, 40, 0, 100, 0, 2, 10066560, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066560 - Play emote 0'),
-(29239, 0, 19, 0, 40, 0, 100, 0, 5, 10066560, 0, 0, 0, 5, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 10066560 - Play emote 429'),
-(29239, 0, 20, 0, 40, 0, 100, 0, 6, 10066560, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066560 - Play emote 0');
+(29239, 0, 0, 0, 40, 0, 100, 0, 1, 10066080, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066080 - Set emote state 429'),
+(29239, 0, 1, 0, 40, 0, 100, 0, 2, 10066080, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066080 - Set emote state 0'),
+(29239, 0, 2, 0, 40, 0, 100, 0, 7, 10066080, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066080 - Set emote state 429'),
+(29239, 0, 3, 0, 40, 0, 100, 0, 8, 10066080, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 8 of path 10066080 - Set emote state 0'),
+(29239, 0, 4, 0, 40, 0, 100, 0, 13, 10066080, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 13 of path 10066080 - Set emote state 429'),
+(29239, 0, 5, 0, 40, 0, 100, 0, 1, 10066160, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066160 - Set emote state 0'),
+(29239, 0, 6, 0, 40, 0, 100, 0, 5, 10066160, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 10066160 - Set emote state 429'),
+(29239, 0, 7, 0, 40, 0, 100, 0, 6, 10066160, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066160 - Set emote state 0'),
+(29239, 0, 8, 0, 40, 0, 100, 0, 10, 10066160, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 10 of path 10066160 - Set emote state 429'),
+(29239, 0, 9, 0, 40, 0, 100, 0, 1, 10066240, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066240 - Set emote state 429'),
+(29239, 0, 10, 0, 40, 0, 100, 0, 2, 10066240, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066240 - Set emote state 0'),
+(29239, 0, 11, 0, 40, 0, 100, 0, 6, 10066240, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066240 - Set emote state 429'),
+(29239, 0, 12, 0, 40, 0, 100, 0, 7, 10066240, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066240 - Set emote state 0'),
+(29239, 0, 13, 0, 40, 0, 100, 0, 1, 10066480, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066480 - Set emote state 429'),
+(29239, 0, 14, 0, 40, 0, 100, 0, 2, 10066480, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066480 - Set emote state 0'),
+(29239, 0, 15, 0, 40, 0, 100, 0, 6, 10066480, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066480 - Set emote state 429'),
+(29239, 0, 16, 0, 40, 0, 100, 0, 7, 10066480, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 7 of path 10066480 - Set emote state 0'),
+(29239, 0, 17, 0, 40, 0, 100, 0, 1, 10066560, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 10066560 - Set emote state 429'),
+(29239, 0, 18, 0, 40, 0, 100, 0, 2, 10066560, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 2 of path 10066560 - Set emote state 0'),
+(29239, 0, 19, 0, 40, 0, 100, 0, 5, 10066560, 0, 0, 0, 17, 429, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 10066560 - Set emote state 429'),
+(29239, 0, 20, 0, 40, 0, 100, 0, 6, 10066560, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 6 of path 10066560 - Set emote state 0');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=10066080 AND `point` IN (1,2,7,8,13);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=10066160 AND `point` IN (1,5,6,10);
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=10066240 AND `point` IN (1,2,6,7);
@@ -1295,7 +1305,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2958600, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 4s - Set UNIT_FIELD_BYTES_1 0 (standstate)');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=29586 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (8517360);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(29586, 0, 1, 0, 40, 0, 100, 0, 14, 8517360, 0, 0, 0, 80, 2958600, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 14 of path 8517360 - Start timed actionlist 2958600');
+(29586, 0, 1, 0, 40, 0, 100, 0, 14, 8517360, 0, 0, 0, 80, 2958600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 14 of path 8517360 - Start timed actionlist 2958600');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=8517360 AND `point` IN (14);
 
 -- Entry 29843 (Stormforged Loreseeker)
@@ -1305,8 +1315,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2984300, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'After 4s - Set UNIT_FIELD_BYTES_1 0 (standstate)');
 DELETE FROM `smart_scripts` WHERE `entryorguid`=29843 AND `source_type`=0 AND `event_type`=40 AND `event_param2` IN (8518400);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(29843, 0, 2, 0, 40, 0, 100, 0, 1, 8518400, 0, 0, 0, 80, 2984300, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 8518400 - Start timed actionlist 2984300'),
-(29843, 0, 3, 0, 40, 0, 100, 0, 5, 8518400, 0, 0, 0, 80, 2984300, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 8518400 - Start timed actionlist 2984300');
+(29843, 0, 2, 0, 40, 0, 100, 0, 1, 8518400, 0, 0, 0, 80, 2984300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 1 of path 8518400 - Start timed actionlist 2984300'),
+(29843, 0, 3, 0, 40, 0, 100, 0, 5, 8518400, 0, 0, 0, 80, 2984300, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'On WP 5 of path 8518400 - Start timed actionlist 2984300');
 UPDATE `waypoint_data` SET `action`=0 WHERE `id`=8518400 AND `point` IN (1,5);
 
 -- Entry 36830 (Wrathbone Laborer)
