@@ -2227,6 +2227,22 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
     }
 }
 
+bool Aura::CallScriptAuraInterruptHandlers(AuraApplication const* aurApp, uint32 interruptMask)
+{
+    bool preventDefault = false;
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_ON_INTERRUPT, aurApp);
+        auto hookItrEnd = (*scritr)->OnInterrupt.end(), hookItr = (*scritr)->OnInterrupt.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            if (hookItr->Call(*scritr, aurApp, interruptMask))
+                preventDefault = true;
+
+        (*scritr)->_FinishScriptCall();
+    }
+    return preventDefault;
+}
+
 bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     bool preventDefault = false;
