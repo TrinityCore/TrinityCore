@@ -23,14 +23,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "zulaman.h"
 
