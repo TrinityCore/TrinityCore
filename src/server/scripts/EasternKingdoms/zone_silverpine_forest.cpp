@@ -1188,20 +1188,6 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
     }
 };
 
-// 44789, 44790 - Deathstalker and Deathstalker Commander Belmont
-struct npc_silverpine_deathstalker : public ScriptedAI
-{
-    npc_silverpine_deathstalker(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustAppeared() override
-    {
-        // @TODO: figure out a common system to allow energy usage without scripts.
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-    }
-};
-
 enum WorgenRenegade
 {
     SPELL_HEARTSTRIKE                           = 84182,
@@ -1655,13 +1641,6 @@ enum DeathstalkerRaneYorick
 struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 {
     npc_silverpine_deathstalker_rane_yorick(Creature* creature) : ScriptedAI(creature), _playerArrived(false), _playerSkipped(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-    }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -3834,10 +3813,6 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-
         // Note: SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
         me->SetReactState(REACT_ASSIST);
     }
@@ -5226,6 +5201,221 @@ private:
     bool _isWorgen;
 };
 
+enum BloodfangStalker
+{
+    QUEST_EXCISING_THE_TAINT                    = 27181,
+
+    NPC_DARKTUSK_BOAR                           = 46575,
+    NPC_BERARD_THE_MOON_CRAZY                   = 46992,
+
+    SPELL_STALKING                              = 86237,
+    SPELL_SHADOWSTEP                            = 79864,
+    SPELL_KILL_ME_QUEST                         = 86559,
+    SPELL_BLOODY_STRIKE                         = 87359,
+    SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG       = 80636,
+
+    EVENT_SNIFFING                              = 1,
+    EVENT_STRIKE_BOAR                           = 2,
+    EVENT_SHADOWSTEP                            = 4
+};
+
+// 45195 - Bloodfang Stalker
+struct npc_silverpine_bloodfang_stalker : public ScriptedAI
+{
+    npc_silverpine_bloodfang_stalker(Creature* creature) : ScriptedAI(creature)
+    {
+        _isRare = me->GetEntry() == NPC_BERARD_THE_MOON_CRAZY;
+    }
+
+    void JustAppeared() override
+    {
+        StartStalking(_isRare);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        StartStalking(_isRare);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        me->RemoveAura(SPELL_STALKING);
+        me->RemoveAura(SPELL_KILL_ME_QUEST);
+
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_SHADOWSTEP, 250ms);
+        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 6s, 8s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (me->GetEntry() == NPC_BERARD_THE_MOON_CRAZY)
+            return;
+
+        if (Player* player = killer->ToPlayer())
+        {
+            if (player->GetQuestStatus(QUEST_EXCISING_THE_TAINT) == QUEST_STATUS_NONE)
+            {
+                if (Quest const* excisingTheTaint = sObjectMgr->GetQuestTemplate(QUEST_EXCISING_THE_TAINT))
+                    player->AddQuest(excisingTheTaint, nullptr);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SNIFFING:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SNIFF);
+                    _events.Repeat(18s, 25s);
+                    break;
+
+                case EVENT_STRIKE_BOAR:
+                    if (Creature* deadBoar = me->FindNearestCreatureWithOptions(10.0f, { .StringId = "darktusk_boar_dead" }))
+                        me->CastSpell(deadBoar, SPELL_BLOODY_STRIKE, true);
+                    _events.Repeat(5s, 7s);
+                    break;
+
+                case EVENT_SHADOWSTEP:
+                    DoCastVictim(SPELL_SHADOWSTEP);
+                    _events.Repeat(14s, 15s);
+                    break;
+
+                case EVENT_SINISTER_STRIKE:
+                    DoCastVictim(SPELL_SINISTER_STRIKE);
+                    _events.Repeat(6s, 8s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void StartStalking(bool isRare = false)
+    {
+        DoCastSelf(SPELL_STALKING);
+
+        if (!isRare)
+            DoCastSelf(SPELL_KILL_ME_QUEST);
+
+        if (me->FindNearestCreatureWithOptions(10.0f, { .StringId = "darktusk_boar_dead" }))
+            _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
+        else
+            _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
+    }
+
+private:
+    EventMap _events;
+    bool _isRare;
+};
+
+Position const SmithersResetPos[2] =
+{
+    { 144.355f, 1524.87f, 114.94f, 4.702f },
+    { 144.111f, 1519.69f, 120.3f, 1.7278f }
+};
+
+enum CaretakerSmithers
+{
+    SPELL_FACE_RIP                              = 84440,
+    SPELL_THROW_LANTERN                         = 81764,
+    SPELL_FRENZY                                = 81173,
+
+    EVENT_SMITHERS_THROW_LANTERN                = 1,
+    EVENT_SMITHERS_FRENZY                       = 2,
+    EVENT_SMITHERS_RESET_POS                    = 3,
+
+    TALK_SMITHERS_AGROO                         = 0,
+    TALK_SMITHERS_LANTERN                       = 1,
+    TALK_SMITHERS_FRENZY                        = 2,
+
+    POINT_BEFORE_JUMPING                        = 1
+};
+
+// 45219 - Caretaker Smithers
+struct npc_silverpine_caretaker_smithers : public ScriptedAI
+{
+    npc_silverpine_caretaker_smithers(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        if (me->GetPosition() != me->GetHomePosition())
+            _events.ScheduleEvent(EVENT_SMITHERS_RESET_POS, 50ms);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_BEFORE_JUMPING)
+            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 7.5f, 7.5f, EVENT_JUMP, true);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->CastSpell(who, SPELL_FACE_RIP, false);
+
+        Talk(TALK_SMITHERS_AGROO);
+
+        _events.ScheduleEvent(EVENT_SMITHERS_THROW_LANTERN, 4s, 5s);
+        _events.ScheduleEvent(EVENT_SMITHERS_FRENZY, 12s, 13s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SMITHERS_THROW_LANTERN:
+                    DoCastVictim(SPELL_THROW_LANTERN);
+                    Talk(TALK_SMITHERS_LANTERN);
+                    _events.Repeat(14s, 16s);
+                    break;
+
+                case EVENT_SMITHERS_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    Talk(TALK_SMITHERS_FRENZY);
+                    _events.Repeat(20s, 25s);
+                    break;
+
+                case EVENT_SMITHERS_RESET_POS:
+                    me->GetMotionMaster()->MovePoint(POINT_BEFORE_JUMPING, SmithersResetPos[0], false, 4.702f);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -5240,7 +5430,6 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_fallen_human);
     RegisterSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
     RegisterCreatureAI(npc_silverpine_sylvanas_windrunner_high_command);
-    RegisterCreatureAI(npc_silverpine_deathstalker);
     RegisterCreatureAI(npc_silverpine_worgen_renegade);
     RegisterSpellScript(spell_silverpine_flurry_of_claws);
     RegisterCreatureAI(npc_silverpine_forsaken_trooper);
@@ -5296,4 +5485,9 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_fenris_keep_camera);
     RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);
     RegisterCreatureAI(npc_silverpine_generic_actor_fenris_keep);
+
+    /* Olsen's Farthing */
+
+    RegisterCreatureAI(npc_silverpine_bloodfang_stalker);
+    RegisterCreatureAI(npc_silverpine_caretaker_smithers);
 }
