@@ -383,7 +383,7 @@ struct boss_blood_queen_lana_thel : public BossAI
                             {
                                 _offtankGUID = newOfftank->GetGUID();
 
-                                // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
+                                // both spells have SPELL_ATTR5_LIMIT_N, no manual removal needed
                                 newOfftank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
                                 me->EnsureVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                 DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
