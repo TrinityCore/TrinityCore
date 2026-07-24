@@ -14220,6 +14220,46 @@ void Unit::UpdateMovementForcesModMagnitude()
     }
 }
 
+void Unit::ApplyInertia(int32 id, uint32 duration)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveApplyInertia applyInertia;
+        applyInertia.MoverGUID = GetGUID();
+        applyInertia.SequenceIndex = m_movementCounter++;
+        applyInertia.ID = id;
+        applyInertia.LifetimeMs = duration;
+        movingPlayer->SendDirectMessage(applyInertia.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateApplyInertia updateApplyInertia;
+        updateApplyInertia.Status = &m_movementInfo;
+        updateApplyInertia.ID = id;
+        updateApplyInertia.LifetimeMs = duration;
+        SendMessageToSet(updateApplyInertia.Write(), true);
+    }
+}
+
+void Unit::RemoveInertia(int32 id)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveRemoveInertia moveRemoveInertia;
+        moveRemoveInertia.MoverGUID = GetGUID();
+        moveRemoveInertia.SequenceIndex = m_movementCounter++;
+        moveRemoveInertia.ID = id;
+        movingPlayer->SendDirectMessage(moveRemoveInertia.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateRemoveInertia updateRemoveInertia;
+        updateRemoveInertia.Status = &m_movementInfo;
+        updateRemoveInertia.ID = id;
+        SendMessageToSet(updateRemoveInertia.Write(), true);
+    }
+}
+
 void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
 {
     if (IsPlayingHoverAnim() == enable)

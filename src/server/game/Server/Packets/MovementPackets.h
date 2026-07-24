@@ -757,6 +757,77 @@ namespace WorldPackets
             uint32 Ticks = 0;
         };
 
+        class MoveApplyInertiaAck final : public ClientPacket
+        {
+        public:
+            explicit MoveApplyInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_APPLY_INERTIA_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            int32 ID = 0;
+            uint32 LifetimeMs = 0;
+        };
+
+        class MoveRemoveInertiaAck final : public ClientPacket
+        {
+        public:
+            explicit MoveRemoveInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_REMOVE_INERTIA_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            int32 ID = 0;
+        };
+
+        class MoveApplyInertia final : public ServerPacket
+        {
+        public:
+            explicit MoveApplyInertia() : ServerPacket(SMSG_MOVE_APPLY_INERTIA, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            int32 ID = 0;
+            uint32 LifetimeMs = 0;
+        };
+
+        class MoveRemoveInertia final : public ServerPacket
+        {
+        public:
+            explicit MoveRemoveInertia() : ServerPacket(SMSG_MOVE_REMOVE_INERTIA, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            int32 ID = 0;
+        };
+
+        class MoveUpdateApplyInertia final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateApplyInertia() : ServerPacket(SMSG_MOVE_UPDATE_APPLY_INERTIA, sizeof(MovementInfo) + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            int32 ID = 0;
+            uint32 LifetimeMs = 0;
+        };
+
+        class MoveUpdateRemoveInertia final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateRemoveInertia() : ServerPacket(SMSG_MOVE_UPDATE_REMOVE_INERTIA, sizeof(MovementInfo) + 4) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            int32 ID = 0;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);
     }
 }
