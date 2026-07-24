@@ -63,6 +63,7 @@
 #include "SystemPackets.h"
 #include "TransmogMgr.h"
 #include "Util.h"
+#include "WarbandGroupMgr.h"
 #include "World.h"
 #include <boost/circular_buffer.hpp>
 #include <sstream>
@@ -487,6 +488,16 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
+    std::vector<ObjectGuid> accountCharacterGuids;
+    accountCharacterGuids.reserve(charEnum.Characters.size());
+    for (WorldPackets::Character::EnumCharactersResult::CharacterInfo const& charInfo : charEnum.Characters)
+        accountCharacterGuids.push_back(charInfo.Basic.Guid);
+
+    if (!charEnum.IsDeletedCharacters)
+        _warbandGroupMgr->EnsureDefaultGroup(accountCharacterGuids);
+
+    charEnum.WarbandGroups = _warbandGroupMgr->BuildEnumGroups();
+
     SendPacket(charEnum.Write());
 
     if (!charEnum.IsDeletedCharacters)
@@ -511,6 +522,20 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     {
         HandleCharEnum(static_cast<EnumCharactersQueryHolder const&>(result));
     });
+}
+
+void WorldSession::HandleSetupWarbandGroups(WorldPackets::Character::SetupWarbandGroups& setupWarbandGroups)
+{
+    std::unordered_set<ObjectGuid> validCharacterGuids;
+    if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = {} AND deleteInfos_Name IS NULL", GetAccountId()))
+    {
+        do
+        {
+            validCharacterGuids.insert(ObjectGuid::Create<HighGuid::Player>(result->Fetch()[0].GetUInt64()));
+        } while (result->NextRow());
+    }
+
+    GetWarbandGroupMgr()->ReplaceGroups(setupWarbandGroups.Groups, *GetCollectionMgr(), validCharacterGuids);
 }
 
 void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)

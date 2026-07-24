@@ -7112,6 +7112,28 @@ struct WarbandSceneLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 17, &WarbandSceneMeta::Instance, HOTFIX_SEL_WARBAND_SCENE };
 };
 
+struct WarbandScenePlacementLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[13] =
+    {
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "PositionX" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "PositionY" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "PositionZ" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "WarbandSceneID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SlotType" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Rotation" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Scale" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Field54210_004" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Field54210_005" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field12063534_008" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SlotID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field12063534_010" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &WarbandScenePlacementMeta::Instance, HOTFIX_SEL_WARBAND_SCENE_PLACEMENT };
+};
+
 struct WmoAreaTableLoadInfo
 {
     static constexpr DB2FieldMeta Fields[15] =

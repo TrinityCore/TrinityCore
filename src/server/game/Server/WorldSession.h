@@ -40,6 +40,7 @@
 
 class BlackMarketEntry;
 class CollectionMgr;
+class WarbandGroupMgr;
 class Creature;
 class InstanceLock;
 class Item;
@@ -261,6 +262,7 @@ namespace WorldPackets
         class GenerateRandomCharacterName;
         class GetUndeleteCharacterCooldownStatus;
         class ReorderCharacters;
+        class SetupWarbandGroups;
         class UndeleteCharacter;
         class PlayerLogin;
         class LogoutRequest;
@@ -1229,6 +1231,7 @@ class TC_GAME_API WorldSession
         BattlePets::BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
 
         CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
+        WarbandGroupMgr* GetWarbandGroupMgr() const { return _warbandGroupMgr.get(); }
 
     public:                                                 // opcodes handlers
 
@@ -1238,6 +1241,7 @@ class TC_GAME_API WorldSession
 
         void HandleCharEnum(CharacterDatabaseQueryHolder const& holder);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
+        void HandleSetupWarbandGroups(WorldPackets::Character::SetupWarbandGroups& setupWarbandGroups);
         void HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
@@ -2047,6 +2051,7 @@ class TC_GAME_API WorldSession
         std::unique_ptr<BattlePets::BattlePetMgr> _battlePetMgr;
 
         std::unique_ptr<CollectionMgr> _collectionMgr;
+        std::unique_ptr<WarbandGroupMgr> _warbandGroupMgr;
 
         ConnectToKey _instanceConnectKey;
 
