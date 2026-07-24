@@ -1,8 +1,9 @@
-SET @ATID		:= 99999999; -- Need 1
-SET @ATIDSPAWN	:= 99999999; -- Need 1
-SET @ATCP 		:= 99999999; -- Need 1
-SET @CGUID 		:= 99999999; -- Need 11
-SET @NPCTEXTID	:= 99999999; -- Need 2
+SET @CGUID 		:= 7003745; -- Need 11
+SET @NPCTEXTID	:= 570052; -- Need 2
+
+SET @ATID		:= 188; -- Need 1
+SET @ATIDSPAWN	:= 290; -- Need 1
+SET @ATCP 		:= 180; -- Need 1
 
 -- Phase
 DELETE FROM `phase_name` WHERE `ID` IN (12777, 13070);
@@ -47,10 +48,6 @@ UPDATE `creature_template_difficulty` SET `ContentTuningID`=1281, `StaticFlags1`
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE `Entry`=120599 AND `DifficultyID`=0; -- 120599 (Greyguard) - CanSwim
 
 -- Quest
-DELETE FROM `quest_template_addon` WHERE `ID`=54976;
-INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES 
-(54976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
-
 DELETE FROM `quest_details` WHERE `ID`=54976;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (54976, 2, 0, 0, 0, 0, 0, 0, 0, 68453); -- The Shadow of Gilneas
