@@ -122,6 +122,7 @@ public:
     void ResetAllCooldowns();
     bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasOnHoldCooldown(uint32 spellId) const;
     uint32 GetRemainingCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
