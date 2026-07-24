@@ -1,6 +1,6 @@
-################################################
-# Trinity Core World Server configuration file #
-################################################
+###############################################
+# TrinityCore World Server configuration file #
+###############################################
 [worldserver]
 
 ###################################################################################################
@@ -177,7 +177,7 @@ ThreadPool = 2
 #    CMakeCommand
 #        Description: The path to your CMake binary.
 #                     If the path is left empty, the built-in CMAKE_COMMAND is used.
-#        Example:     "C:/Program Files (x86)/CMake/bin/cmake.exe"
+#        Example:     "C:/Program Files/CMake/bin/cmake.exe"
 #                     "/usr/bin/cmake"
 #        Default:     ""
 
@@ -1240,10 +1240,10 @@ FlashAtStart = 1
 #
 #    Motd
 #        Description: Message of the Day, displayed at login. Use '@' for a newline.
-#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
-#        Default:     "Welcome to a Trinity Core server."
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by TrinityCore."
+#        Default:     "Welcome to a TrinityCore server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to a TrinityCore server."
 
 #
 #    Server.LoginInfo
