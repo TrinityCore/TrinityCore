@@ -244,6 +244,18 @@ void TempSummon::InitStats(WorldObject* summoner, Milliseconds duration)
             int32 maxLevel = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
             uint8 level = std::clamp<int32>(unitSummoner->GetLevel(), minLevel, maxLevel);
             SetLevel(level);
+            // Recompute combat stats for the newly assigned (summoner-matched) level. SetLevel()
+            // only updates the Level field; without this a scalable creature summoned at a lower
+            // level than its ContentTuning keeps the weapon damage, health and attack power that
+            // were computed at its original (higher) level. Because such a creature is level-
+            // matched to its target, GetDamageMultiplierForTarget() returns 1.0 (no scaling), so
+            // the stale high stats are applied in full - e.g. a summoned creature scaled down to a
+            // starting-zone player one-shots it. UpdateLevelDependantStats() fixes weapon damage
+            // and health and sets the base attack power; UpdateAttackPowerAndDamage() is needed to
+            // propagate that base into the live attack power that drives most of the melee hit.
+            UpdateLevelDependantStats();
+            UpdateAttackPowerAndDamage();
+            UpdateAttackPowerAndDamage(true);
         }
     }
 
