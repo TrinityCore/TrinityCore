@@ -90,8 +90,8 @@ class spell_mana_tombs_summon_arcane_fiends : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_1);
-        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_2);
+        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_1, true);
+        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_2, true);
     }
 
     void Register() override

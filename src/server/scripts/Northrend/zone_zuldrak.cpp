@@ -805,7 +805,7 @@ class spell_zuldrak_cocooned_not_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE);
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE, true);
     }
 
     void Register() override
@@ -826,7 +826,7 @@ class spell_zuldrak_cocooned_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN);
+        GetHitUnit()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN, true);
     }
 
     void Register() override
@@ -1014,7 +1014,7 @@ class spell_zuldrak_summon_nass : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_NASS);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_NASS, true);
     }
 
     void Register() override
@@ -1258,16 +1258,16 @@ class spell_zuldrak_have_ingredient : public AuraScript
         switch (GetId())
         {
             case SPELL_LAB_WORK_HAVE_WITHERED_BATWING:
-                GetTarget()->CastSpell(GetTarget(), SPELL_WITHERED_BATWING_KILL_CREDIT);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WITHERED_BATWING_KILL_CREDIT, true);
                 break;
             case SPELL_LAB_WORK_HAVE_MUDDY_MIRE_MAGGOT:
-                GetTarget()->CastSpell(GetTarget(), SPELL_MUDDY_MIRE_MAGGOT_KILL_CREDIT);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MUDDY_MIRE_MAGGOT_KILL_CREDIT, true);
                 break;
             case SPELL_LAB_WORK_HAVE_AMBERSEED:
-                GetTarget()->CastSpell(GetTarget(), SPELL_AMBERSEED_KILL_CREDIT);
+                GetTarget()->CastSpell(GetTarget(), SPELL_AMBERSEED_KILL_CREDIT, true);
                 break;
             case SPELL_LAB_WORK_HAVE_CHILLED_SERPENT_MUCUS:
-                GetTarget()->CastSpell(GetTarget(), SPELL_CHILLED_SERPENT_MUCUS_KILL_CREDIT);
+                GetTarget()->CastSpell(GetTarget(), SPELL_CHILLED_SERPENT_MUCUS_KILL_CREDIT, true);
                 break;
             default:
                 break;
@@ -1310,8 +1310,8 @@ class spell_zuldrak_summon_escort_aura : public AuraScript
     {
         Unit* target = GetTarget();
         target->RemoveAurasDueToSpell(SPELL_SCOURGE_DISGUISE);
-        target->CastSpell(target, SPELL_SUMMON_ESCORT);
-        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_ESCORT);
+        target->CastSpell(target, SPELL_SUMMON_ESCORT, true);
+        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_ESCORT, true);
     }
 
     void Register() override

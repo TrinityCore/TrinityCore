@@ -734,7 +734,7 @@ class spell_gen_cast_caster_to_target : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
     }
 
     void Register() override
@@ -754,7 +754,7 @@ class spell_gen_cast_target_to_target : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
     }
 
     void Register() override
