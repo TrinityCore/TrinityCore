@@ -36,10 +36,6 @@ target_include_directories(database
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-set_target_properties(database
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_DATABASE)
-
 target_link_libraries(database
   PRIVATE
     trinity-core-interface
@@ -48,9 +44,10 @@ target_link_libraries(database
     common)
 
 set_target_properties(database
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_DATABASE
+    FOLDER "server")
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)

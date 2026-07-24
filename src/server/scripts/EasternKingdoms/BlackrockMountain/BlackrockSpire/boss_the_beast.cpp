@@ -50,7 +50,7 @@ enum BeastMisc
 {
     DATA_BEAST_REACHED              = 1,
     DATA_BEAST_ROOM                 = 2,
-    BEAST_MOVEMENT_ID               = 1379690,
+    BEAST_MOVEMENT_ID               = 11037520,
 
     NPC_BLACKHAND_ELITE             = 10317,
 

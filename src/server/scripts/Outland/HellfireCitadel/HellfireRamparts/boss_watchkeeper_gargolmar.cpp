@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Missing adds to heal him
- * Surge should be used on target furthest away, not random */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "hellfire_ramparts.h"
@@ -36,16 +37,17 @@ enum GargolmarSpells
 {
     SPELL_MORTAL_WOUND     = 30641,
     SPELL_SURGE            = 34645,
+    SPELL_REQUEST_HEAL     = 30642,
     SPELL_RETALIATION      = 22857
 };
 
 enum GargolmarEvents
 {
-    EVENT_MORTAL_WOUND     = 1,
+    EVENT_TAUNT            = 1,
+    EVENT_MORTAL_WOUND,
     EVENT_SURGE,
-    EVENT_RETALIATION,
-    EVENT_TAUNT,
-    EVENT_HEAL
+    EVENT_REQUEST_HEAL,
+    EVENT_RETALIATION
 };
 
 enum GargolmarMisc
@@ -56,7 +58,7 @@ enum GargolmarMisc
 // 17306 - Watchkeeper Gargolmar
 struct boss_watchkeeper_gargolmar : public BossAI
 {
-    boss_watchkeeper_gargolmar(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR), _yelledForHeal(false), _retaliation(false) { }
+    boss_watchkeeper_gargolmar(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR), _hasRequestedHeal(false), _hasRetaliation(false) { }
 
     void JustAppeared() override
     {
@@ -67,37 +69,49 @@ struct boss_watchkeeper_gargolmar : public BossAI
     void Reset() override
     {
         _Reset();
-        _yelledForHeal = false;
-        _retaliation = false;
+        _hasRequestedHeal = false;
+        _hasRetaliation = false;
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s, 10s);
         events.ScheduleEvent(EVENT_SURGE, 3s, 5s);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_yelledForHeal && me->HealthBelowPctDamaged(40, damage))
+        if (!_hasRequestedHeal && me->HealthBelowPctDamaged(40, damage))
         {
-            _yelledForHeal = true;
-            events.ScheduleEvent(EVENT_HEAL, 0s);
+            _hasRequestedHeal = true;
+            events.ScheduleEvent(EVENT_REQUEST_HEAL, 0s);
         }
-        if (!_retaliation && me->HealthBelowPctDamaged(20, damage))
+
+        if (!_hasRetaliation && me->HealthBelowPctDamaged(20, damage))
         {
-            _retaliation = true;
+            _hasRetaliation = true;
             events.ScheduleEvent(EVENT_RETALIATION, 0s);
         }
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SURGE)
-            if (roll_chance_i(50))
-                Talk(SAY_SURGE);
+        switch (spellInfo->Id)
+        {
+            case SPELL_SURGE:
+                if (roll_chance_i(50))
+                    Talk(SAY_SURGE);
+                break;
+            case SPELL_REQUEST_HEAL:
+                Talk(SAY_HEAL);
+                break;
+            default:
+                break;
+        }
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -128,6 +142,9 @@ struct boss_watchkeeper_gargolmar : public BossAI
 
         events.Update(diff);
 
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
@@ -137,28 +154,31 @@ struct boss_watchkeeper_gargolmar : public BossAI
                     events.Repeat(5s, 15s);
                     break;
                 case EVENT_SURGE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0))
                         DoCast(target, SPELL_SURGE);
                     events.Repeat(15s, 40s);
+                    break;
+                case EVENT_REQUEST_HEAL:
+                    DoCastSelf(SPELL_REQUEST_HEAL);
                     break;
                 case EVENT_RETALIATION:
                     DoCastSelf(SPELL_RETALIATION);
                     events.Repeat(30s);
                     break;
-                case EVENT_HEAL:
-                    Talk(SAY_HEAL);
-                    break;
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         DoMeleeAttackIfReady();
     }
 
 private:
-    bool _yelledForHeal;
-    bool _retaliation;
+    bool _hasRequestedHeal;
+    bool _hasRetaliation;
 };
 
 void AddSC_boss_watchkeeper_gargolmar()

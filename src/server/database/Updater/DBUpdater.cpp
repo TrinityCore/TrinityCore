@@ -375,6 +375,14 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (ssl == "ssl")
         args.emplace_back("--ssl-mode=REQUIRED");
 
+#if MYSQL_VERSION_ID >= 90400
+
+    // Since MySQL 9.4 command line client commands are disabled by default
+    // We need to enable them to use `SOURCE` command
+    args.emplace_back("--commands=ON");
+
+#endif
+
 #else
 
     if (ssl == "ssl")

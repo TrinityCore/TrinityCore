@@ -40,6 +40,14 @@ DoorData const doorData[] =
     { 0,                               0,               DOOR_TYPE_ROOM }
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_GRAND_WARLOCK_NETHEKURSE,   DATA_NETHEKURSE },
+    { NPC_LEFT_HEAD,                  DATA_LEFT_HEAD  },
+    { NPC_RIGHT_HEAD,                 DATA_RIGHT_HEAD },
+    { 0,                              0               } // END
+};
+
 class instance_shattered_halls : public InstanceMapScript
 {
     public:
@@ -57,6 +65,7 @@ class instance_shattered_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, nullptr);
                 executionTimer = 0;
                 executed = 0;
                 _team = 0;
@@ -95,6 +104,8 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 if (!_team)
                 {
                     Map::PlayerList const& players = instance->GetPlayers();
@@ -105,9 +116,6 @@ class instance_shattered_halls : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case NPC_GRAND_WARLOCK_NETHEKURSE:
-                        nethekurseGUID = creature->GetGUID();
-                        break;
                     case NPC_KARGATH_BLADEFIST:
                         kargathGUID = creature->GetGUID();
                         break;
@@ -171,8 +179,6 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 switch (data)
                 {
-                    case NPC_GRAND_WARLOCK_NETHEKURSE:
-                        return nethekurseGUID;
                     case NPC_KARGATH_BLADEFIST:
                         return kargathGUID;
                     case NPC_SHATTERED_EXECUTIONER:
@@ -275,7 +281,6 @@ class instance_shattered_halls : public InstanceMapScript
             }
 
         private:
-            ObjectGuid nethekurseGUID;
             ObjectGuid kargathGUID;
             ObjectGuid executionerGUID;
             ObjectGuid victimsGUID[3];

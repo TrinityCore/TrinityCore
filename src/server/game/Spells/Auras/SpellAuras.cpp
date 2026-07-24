@@ -31,6 +31,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Util.h"
@@ -127,7 +128,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_SELF_CAST : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -215,36 +216,35 @@ void AuraApplication::UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewE
                 _HandleEffect(i, true);
 }
 
-void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
+void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const
 {
-    data << uint8(_slot);
+    ASSERT((_target->GetVisibleAura(_slot) != nullptr) != remove);
 
+    auraInfo.Slot = GetSlot();
     if (remove)
-    {
-        ASSERT(!_target->GetVisibleAura(_slot));
-        data << uint32(0);
         return;
-    }
-    ASSERT(_target->GetVisibleAura(_slot));
 
     Aura const* aura = GetBase();
-    data << uint32(aura->GetId());
-    uint32 flags = _flags;
+
+    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.emplace();
+    auraData.SpellID = aura->GetId();
+    auraData.Flags = GetFlags();
     if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-    data << uint8(flags);
-    data << uint8(aura->GetCasterLevel());
+        auraData.Flags |= AFLAG_DURATION;
+
+    auraData.CastLevel = aura->GetCasterLevel();
+
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
 
-    if (!(flags & AFLAG_CASTER))
-        data << aura->GetCasterGUID().WriteAsPacked();
+    if (!(auraData.Flags & AFLAG_SELF_CAST))
+        auraData.CastUnit = aura->GetCasterGUID();
 
-    if (flags & AFLAG_DURATION)
+    if (auraData.Flags & AFLAG_DURATION)
     {
-        data << uint32(aura->GetMaxDuration());
-        data << uint32(aura->GetDuration());
+        auraData.Duration = aura->GetMaxDuration();
+        auraData.Remaining = aura->GetDuration();
     }
 }
 
@@ -252,11 +252,11 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data << GetTarget()->GetPackGUID();
-    BuildUpdatePacket(data, remove);
+    WorldPackets::Spells::AuraUpdate update;
+    update.UnitGUID = GetTarget()->GetGUID();
+    BuildUpdatePacket(update.Aura, remove);
 
-    _target->SendMessageToSet(&data, true);
+    _target->SendMessageToSet(update.Write(), true);
 }
 
 std::string AuraApplication::GetDebugInfo() const
@@ -299,7 +299,7 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
 
 Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask)
 {
-    ASSERT_NODEBUGINFO(createInfo.Caster || createInfo.CasterGUID);
+    ASSERT_NODEBUGINFO(createInfo.Caster || !createInfo.CasterGUID.IsEmpty());
 
     if (createInfo.IsRefresh)
         *createInfo.IsRefresh = false;
@@ -353,7 +353,7 @@ Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 Aura* Aura::Create(AuraCreateInfo& createInfo)
 {
     // try to get caster of aura
-    if (createInfo.CasterGUID)
+    if (!createInfo.CasterGUID.IsEmpty())
     {
         // world gameobjects can't own auras and they send empty casterguid
         // checked on sniffs with spell 22247
@@ -461,7 +461,7 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
-        if (effMask & (uint8(1) << spellEffectInfo.EffectIndex))
+        if (effMask & (1 << spellEffectInfo.EffectIndex))
             m_effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
 }
 
@@ -564,7 +564,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp)
     {
         if (m_spellInfo->IsCooldownStartedOnEvent())
         {
-            Item* castItem = m_castItemGuid ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : nullptr;
+            Item* castItem = !m_castItemGuid.IsEmpty() ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : nullptr;
             caster->GetSpellHistory()->StartCooldown(m_spellInfo, castItem ? castItem->GetEntry() : 0, nullptr, true);
         }
     }
@@ -582,7 +582,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     if (itr == m_applications.end())
     {
         TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: {}, caster: {}, spell:{} was not found in owners application map!",
-        target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "0", auraApp->GetBase()->GetSpellInfo()->Id);
+            target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -1127,7 +1127,7 @@ bool Aura::CanBeSaved() const
         return false;
 
     // don't save permanent auras triggered by items, they'll be recasted on login if necessary
-    if (GetCastItemGUID() && IsPermanent())
+    if (!GetCastItemGUID().IsEmpty() && IsPermanent())
         return false;
 
     return true;
@@ -1189,13 +1189,13 @@ int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
     return 100 - resistChance;
 }
 
-void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
 {
-    m_maxDuration = maxduration;
+    m_maxDuration = maxDuration;
     m_duration = duration;
     m_procCharges = charges;
     m_isUsingCharges = m_procCharges != 0;
-    m_stackAmount = stackamount;
+    m_stackAmount = stackAmount;
     SetCritChance(critChance);
     SetCanApplyResilience(applyResilience);
     Unit* caster = GetCaster();
@@ -1344,10 +1344,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_GENERIC:
                 switch (GetId())
                 {
-                    case 33572: // Gronn Lord's Grasp, becomes stoned
-                        if (GetStackAmount() >= 5 && !target->HasAura(33652))
-                            target->CastSpell(target, 33652, true);
-                        break;
                     case 50836: //Petrifying Grip, becomes stoned
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
                             target->CastSpell(target, 50812, true);
@@ -1552,7 +1548,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             for (std::list<Unit*>::iterator itr = PartyMembers.begin(); itr != PartyMembers.end(); ++itr)
                             {
                                 if ((*itr)!= target)
-                                    (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
+                                    (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, flag96(0, 0x2, 0), GetCasterGUID());
                             }
                         }
                     }
@@ -1682,7 +1678,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_ROGUE:
                 // Remove Vanish on stealth remove
                 if (GetId() == 1784)
-                    target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
+                    target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, flag96(0x0000800, 0, 0), target->GetGUID());
                 break;
             case SPELLFAMILY_PALADIN:
                 // Remove the immunity shield marker on Forbearance removal if AW marker is not present
@@ -1787,6 +1783,19 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+    }
+
+    if (apply)
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraApplied(aurApp);
+    }
+    else
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraRemoved(aurApp);
     }
 }
 
@@ -1944,7 +1953,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         // don't allow passive area auras to stack
         if (m_spellInfo->IsMultiSlotAura() && !IsArea())
             return true;
-        if (GetCastItemGUID() && existingAura->GetCastItemGUID())
+        if (!GetCastItemGUID().IsEmpty() && !existingAura->GetCastItemGUID().IsEmpty())
             if (GetCastItemGUID() != existingAura->GetCastItemGUID() && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC))
                 return true;
         // same spell with same caster should not stack

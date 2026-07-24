@@ -41,6 +41,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointDefines.h"
+#include "WaypointManager.h"
 #include <G3D/Quat.h>
 
 SmartScript::SmartScript()
@@ -316,7 +317,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mUseTextTimer = true;
             sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: {} {}, textGuid: {}",
-                talker->GetName(), talker->GetGUID().ToString(), talkTarget ? talkTarget->GetGUID().ToString() : "0");
+                talker->GetName(), talker->GetGUID().ToString(), talkTarget ? talkTarget->GetGUID().ToString() : "Empty");
             break;
         }
         case SMART_ACTION_SIMPLE_TALK:
@@ -804,7 +805,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.action.fleeAssist.withEmote)
             {
                 Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, me->GetGender());
-                sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
+                CreatureTextMgr::SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature {} DoFleeToGetAssistance", me->GetGUID().ToString());
             break;
@@ -1045,7 +1046,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (e.action.callHelp.withEmote)
                 {
                     Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, me->GetGender());
-                    sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
+                    CreatureTextMgr::SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature {}", me->GetGUID().ToString());
             }
@@ -1363,7 +1364,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            bool run = e.action.wpStart.run != 0;
             uint32 entry = e.action.wpStart.pathID;
             bool repeat = e.action.wpStart.repeat != 0;
 
@@ -1376,7 +1376,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            ENSURE_AI(SmartAI, me->AI())->StartPath(run, entry, repeat, unit);
+            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit);
 
             uint32 quest = e.action.wpStart.quest;
             uint32 DespawnTime = e.action.wpStart.despawnTime;
@@ -1420,7 +1420,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetFacingTo((me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && me->GetTransGUID() ? me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
+                me->SetFacingTo((me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !me->GetTransGUID().IsEmpty() ? me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
             else if (e.GetTargetType() == SMART_TARGET_POSITION)
                 me->SetFacingTo(e.target.o);
             else if (!targets.empty())
@@ -1541,6 +1541,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ne.event_flags = 0;
             if (!ne.minMaxRepeat.repeatMin && !ne.minMaxRepeat.repeatMax)
                 ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+            if (e.event.event_flags != 0 && (e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) != 0)
+                ne.event_flags |= SMART_EVENT_FLAG_WHILE_CHARMED;
 
             SmartAction ac = SmartAction();
             ac.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
@@ -2008,7 +2011,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         for (uint32 pathId : waypoints)
                         {
-                            WaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
+                            WaypointPath const* path = sWaypointMgr->GetPath(pathId);
                             if (!path || path->nodes.empty())
                                 continue;
 
@@ -2025,7 +2028,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (closest.first != 0)
-                            ENSURE_AI(SmartAI, creature->AI())->StartPath(false, closest.first, true, nullptr, closest.second);
+                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second);
                     }
                 }
             }
@@ -2321,6 +2324,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_TO_STORED_TARGET_LIST: var {}, baseObject {}, event {} - tried to add no targets to stored target list",
                     e.action.addToStoredTargets.id, !baseObject ? "" : baseObject->GetName(), e.event_id);
             }
+            break;
+        }
+        case SMART_ACTION_RESUME_MOVEMENT:
+        {
+            for (WorldObject* target : targets)
+                if (IsUnit(target))
+                    target->ToUnit()->ResumeMovement(e.action.resumeMovement.resumeTimer, e.action.resumeMovement.movementSlot);
             break;
         }
         default:
@@ -2965,6 +2975,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_ON_SPELL_CAST:
         case SMART_EVENT_ON_SPELL_FAILED:
         case SMART_EVENT_ON_SPELL_START:
+        case SMART_EVENT_ON_AURA_APPLIED:
+        case SMART_EVENT_ON_AURA_REMOVED:
         {
             if (!spell)
                 return;
@@ -3392,7 +3404,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
                 {
                     Unit* invoker = nullptr;
-                    if (me && mTimedActionListInvoker)
+                    if (me && !mTimedActionListInvoker.IsEmpty())
                         invoker = ObjectAccessor::GetUnit(*me, mTimedActionListInvoker);
                     ProcessEvent(e, invoker);
                     e.enableTimed = false;//disable event if it is in an ActionList and was processed once

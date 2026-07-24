@@ -67,24 +67,24 @@ public:
         float getFloat(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<float*>(offset+field*4);
+            return *reinterpret_cast<float*>(offset + field * 4);
         }
         unsigned int getUInt(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<unsigned int*>(offset+(field*4));
+            return *reinterpret_cast<unsigned int*>(offset + (field * 4));
         }
         int getInt(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<int*>(offset+field*4);
+            return *reinterpret_cast<int*>(offset + field * 4);
         }
         unsigned char getByte(size_t ofs) const
         {
             assert(ofs < file.recordSize);
-            return *reinterpret_cast<unsigned char*>(offset+ofs);
+            return *reinterpret_cast<unsigned char*>(offset + ofs);
         }
-        const char *getString(size_t field) const
+        char const *getString(size_t field) const
         {
             assert(field < file.fieldCount);
             size_t stringOffset = getUInt(field);
@@ -94,9 +94,9 @@ public:
             return reinterpret_cast<char*>(file.stringTable + stringOffset);
         }
     private:
-        Record(DBCFile &file, unsigned char *offset): file(file), offset(offset) {}
-        DBCFile &file;
-        unsigned char *offset;
+        Record(DBCFile& file, unsigned char* offset) : file(file), offset(offset) { }
+        DBCFile& file;
+        unsigned char* offset;
 
         friend class DBCFile;
         friend class Iterator;
@@ -109,12 +109,12 @@ public:
         Iterator(DBCFile &file, unsigned char *offset):
             record(file, offset) {}
         /// Advance (prefix only)
-        Iterator & operator++() {
+        Iterator& operator++() {
             record.offset += record.file.recordSize;
             return *this;
         }
         /// Return address of current instance
-        Record const & operator*() const { return record; }
+        Record const& operator*() const { return record; }
         Record const* operator->() const {
             return &record;
         }
@@ -123,6 +123,7 @@ public:
         {
             return record.offset == b.record.offset;
         }
+
     private:
         Record record;
     };

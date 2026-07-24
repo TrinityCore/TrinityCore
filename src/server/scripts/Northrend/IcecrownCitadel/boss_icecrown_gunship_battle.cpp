@@ -411,7 +411,7 @@ public:
             if (_respawnCooldowns[i] > now)
                 continue;
 
-            if (_controlledSlots[i])
+            if (!_controlledSlots[i].IsEmpty())
             {
                 Creature* current = ObjectAccessor::GetCreature(*_transport, _controlledSlots[i]);
                 if (current && current->IsAlive())
@@ -1761,7 +1761,7 @@ class spell_igb_rocket_pack : public AuraScript
     {
         SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
+        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
     }
@@ -1864,7 +1864,7 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
     void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
     }
 
     void Register() override

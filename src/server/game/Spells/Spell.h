@@ -361,11 +361,12 @@ class TC_GAME_API Spell
         void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEffectInfo, Position const* losPosition) const;
+        bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const& spellEffectInfo) const;
+        bool CheckEffectTarget(Item const* target, SpellEffectInfo const& spellEffectInfo) const;
         bool CanAutoCast(Unit* target);
         void CheckSrc();
         void CheckDst();
 
-        static void WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError, uint32* param1 = nullptr, uint32* param2 = nullptr);
         static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* param1 = nullptr, uint32* param2 = nullptr);
         void SendCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
         void SendPetCastResult(SpellCastResult result);
@@ -465,6 +466,10 @@ class TC_GAME_API Spell
         Trinity::unique_weak_ptr<Spell> GetWeakPtr() const;
 
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
+
+        int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
+        int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
+        int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
 
     protected:
         bool HasGlobalCooldown() const;

@@ -100,9 +100,9 @@ GroupMgr* GroupMgr::instance()
     return &instance;
 }
 
-Group* GroupMgr::GetGroupByGUID(ObjectGuid::LowType groupId) const
+Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
 {
-    GroupContainer::const_iterator itr = GroupStore.find(groupId);
+    GroupContainer::const_iterator itr = GroupStore.find(groupId.GetCounter());
     if (itr != GroupStore.end())
         return itr->second;
 
@@ -117,12 +117,12 @@ void GroupMgr::Update(uint32 diff)
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetLowGUID()] = group;
+    GroupStore[group->GetGUID().GetCounter()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetLowGUID());
+    GroupStore.erase(group->GetGUID().GetCounter());
 }
 
 void GroupMgr::LoadGroups()

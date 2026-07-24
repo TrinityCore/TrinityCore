@@ -516,7 +516,7 @@ void GameEventMgr::LoadFromDB()
                     }
                 }
 
-                equiplist.push_back(std::pair<uint32, ModelEquip>(guid, newModelEquipSet));
+                equiplist.push_back(std::pair<ObjectGuid::LowType, ModelEquip>(guid, newModelEquipSet));
 
                 ++count;
             }

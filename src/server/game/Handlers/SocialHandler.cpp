@@ -59,7 +59,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
         team = Player::TeamForRace(friendCharacterInfo->Race),
         friendNote = std::move(friendNote)]()
     {
-        if (playerGuid.GetCounter() != GetGUIDLow())
+        if (playerGuid.GetCounter() != m_GUIDLow)
             return; // not the player initiating request, do nothing
 
         FriendsResult friendResult = FRIEND_NOT_FOUND;

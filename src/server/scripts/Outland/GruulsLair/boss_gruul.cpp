@@ -16,10 +16,8 @@
  */
 
 /*
- * Dummy spell 39188 apparently handles actions from EVENT_GROUND_SLAM but maybe something else
- * The way Reverberation & Ground Slam timers are handled may be wrong. Both timers are random but sometimes
-  because of that first Reverberation cast may be skipped while so far I never seen it in movies. He can cast
-  it twice between Ground Slam sequences or skip one of 2 casts but never skips all. Maybe it's just random
+ * Spells 36240 and 39188 are used with ignore category cooldown flag because otherwise Ground Slam
+   will be skipped in too many cases. Investigate this
  * The way knock back is handled should be re-checked
  */
 
@@ -42,12 +40,12 @@ enum GruulTexts
 enum GruulSpells
 {
     SPELL_HURTFUL_STRIKE_PRIMER = 33812,
-    SPELL_HURTFUL_STRIKE        = 33813,
     SPELL_CAVE_IN               = 36240,
     SPELL_REVERBERATION         = 36297,
     SPELL_GROWTH                = 36300,
-
     SPELL_GROUND_SLAM_DUMMY     = 39188,
+
+    SPELL_HURTFUL_STRIKE        = 33813,
     SPELL_GROUND_SLAM           = 33525,
     SPELL_LOOK_AROUND           = 33965,
     SPELL_SUMMON_RANDOM_TRACTOR = 39186,
@@ -58,7 +56,7 @@ enum GruulSpells
 
 enum GruulEvents
 {
-    EVENT_HURTFUL_STRIKE = 1,
+    EVENT_HURTFUL_STRIKE        = 1,
     EVENT_CAVE_IN,
     EVENT_REVERBERATION,
     EVENT_GROWTH,
@@ -75,14 +73,10 @@ struct boss_gruul : public BossAI
 {
     boss_gruul(Creature* creature) : BossAI(creature, DATA_GRUUL) { }
 
-    void Reset() override
-    {
-        _Reset();
-    }
-
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
 
         events.ScheduleEvent(EVENT_HURTFUL_STRIKE, 6s);
@@ -90,6 +84,31 @@ struct boss_gruul : public BossAI
         events.ScheduleEvent(EVENT_REVERBERATION, 105s, 115s);
         events.ScheduleEvent(EVENT_GROWTH, 30s);
         events.ScheduleEvent(EVENT_GROUND_SLAM, 40s);
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_GROWTH:
+                Talk(EMOTE_GROW);
+                break;
+            case SPELL_GROUND_SLAM_DUMMY:
+                Talk(SAY_SLAM);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_GROUND_SLAM_DUMMY)
+        {
+            DoCastSelf(SPELL_GROUND_SLAM);
+            events.RescheduleEvent(EVENT_HURTFUL_STRIKE, 21s);
+            events.RescheduleEvent(EVENT_CAVE_IN, 15s);
+        }
     }
 
     void KilledUnit(Unit* who) override
@@ -114,7 +133,7 @@ struct boss_gruul : public BossAI
                 break;
             case EVENT_CAVE_IN:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_CAVE_IN);
+                    DoCast(target, SPELL_CAVE_IN, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
                 events.Repeat(8s);
                 break;
             case EVENT_REVERBERATION:
@@ -123,15 +142,10 @@ struct boss_gruul : public BossAI
                 break;
             case EVENT_GROWTH:
                 DoCastSelf(SPELL_GROWTH);
-                Talk(EMOTE_GROW);
                 events.Repeat(30s);
                 break;
             case EVENT_GROUND_SLAM:
-                DoCastSelf(SPELL_GROUND_SLAM_DUMMY);
-                Talk(SAY_SLAM);
-                DoCastSelf(SPELL_GROUND_SLAM);
-                events.RescheduleEvent(EVENT_HURTFUL_STRIKE, 21s);
-                events.RescheduleEvent(EVENT_CAVE_IN, 15s);
+                DoCastSelf(SPELL_GROUND_SLAM_DUMMY, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
                 events.Repeat(70s, 90s);
                 break;
             default:
@@ -144,6 +158,11 @@ struct boss_gruul : public BossAI
 class spell_gruul_hurtful_strike_primer : public SpellScript
 {
     PrepareSpellScript(spell_gruul_hurtful_strike_primer);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HURTFUL_STRIKE });
+    }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -179,7 +198,7 @@ class spell_gruul_hurtful_strike_primer : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_HURTFUL_STRIKE);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_HURTFUL_STRIKE, true);
     }
 
     void Register() override
@@ -201,8 +220,6 @@ class spell_gruul_ground_slam : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        // Stuns Gruul for 8 seconds
-        GetCaster()->CastSpell(GetCaster(), SPELL_LOOK_AROUND);
         /* I guess he forces all enemies including pets to summon creature 19198 by spell 39186(9 summoned units and
            9 units in his threat list). Summoned by that spell creature 19198 casts 33496 on self after being summoned.
            Then after small delay they casts 33497(Pull Towards: (150)) (guess) on their creators and that's how that
@@ -212,12 +229,40 @@ class spell_gruul_ground_slam : public SpellScript
            that case player will be knocked back for a really small distance. It may look weird and wrong.
            Script for 19198 is handled in SAI. 19198 probably is used in Cata dungeons or raids too, also at least in
            one TBC raid or dungeon since there are more spells to summon that creature. */
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_RANDOM_TRACTOR);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_RANDOM_TRACTOR, true);
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_LOOK_AROUND, true);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gruul_ground_slam::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        AfterCast += SpellCastFn(spell_gruul_ground_slam::HandleAfterCast);
+    }
+};
+
+// 33572 - Gronn Lord's Grasp
+class spell_gruul_gronn_lords_grasp : public AuraScript
+{
+    PrepareAuraScript(spell_gruul_gronn_lords_grasp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STONED });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == 5)
+            GetTarget()->CastSpell(GetTarget(), SPELL_STONED, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gruul_gronn_lords_grasp::AfterApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAPPLY);
     }
 };
 
@@ -300,6 +345,7 @@ void AddSC_boss_gruul()
     RegisterGruulsLairCreatureAI(boss_gruul);
     RegisterSpellScript(spell_gruul_hurtful_strike_primer);
     RegisterSpellScript(spell_gruul_ground_slam);
+    RegisterSpellScript(spell_gruul_gronn_lords_grasp);
     RegisterSpellScript(spell_gruul_look_around);
     RegisterSpellScript(spell_gruul_shatter);
     RegisterSpellScript(spell_gruul_shatter_effect);

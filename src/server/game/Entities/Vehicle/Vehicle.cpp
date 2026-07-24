@@ -110,8 +110,8 @@ void Vehicle::Uninstall()
     /// @Prevent recursive uninstall call. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING && !GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
     {
-        TC_LOG_ERROR("entities.vehicle", "Vehicle {} attempts to uninstall, but already has STATUS_UNINSTALLING! "
-            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString());
+        TC_LOG_ERROR("entities.vehicle", "Vehicle {} Entry: {} attempts to uninstall, but already has STATUS_UNINSTALLING! "
+            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString(), _creatureEntry);
         return;
     }
 
@@ -851,6 +851,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         player->SendOnCancelExpectedVehicleRideAura();
         if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
+
+        // This is not perfectly mirroring official behavior (aura removal is delayed, most likely on heartbeat)
+        player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
     }
 
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))

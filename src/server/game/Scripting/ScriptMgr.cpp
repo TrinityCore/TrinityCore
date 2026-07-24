@@ -404,6 +404,10 @@ class CreatureGameObjectScriptRegistrySwapHooks
     // Hook which is called before a gameobject is swapped
     static void UnloadResetScript(GameObject* gameobject)
     {
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        gameobject->m_Events.KillAllEvents(false);
+
         gameobject->AI()->Reset();
     }
 
@@ -1130,7 +1134,6 @@ void ScriptMgr::Unload()
 
 void ScriptMgr::LoadDatabase()
 {
-    sScriptSystemMgr->LoadScriptWaypoints();
     sScriptSystemMgr->LoadScriptSplineChains();
 }
 
@@ -1275,14 +1278,14 @@ void ScriptMgr::OnNetworkStop()
     FOREACH_SCRIPT(ServerScript)->OnNetworkStop();
 }
 
-void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
+void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> const& socket)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
+void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> const& socket)
 {
     ASSERT(socket);
 

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.43, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.40-0ubuntu0.22.04.1
+-- Server version	8.0.43-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -384,11 +384,11 @@ DROP TABLE IF EXISTS `creature_classlevelstats`;
 CREATE TABLE `creature_classlevelstats` (
   `level` tinyint unsigned NOT NULL,
   `class` tinyint unsigned NOT NULL,
-  `basehp0` smallint unsigned NOT NULL DEFAULT '1',
-  `basehp1` smallint unsigned NOT NULL DEFAULT '1',
-  `basehp2` smallint unsigned NOT NULL DEFAULT '1',
-  `basemana` smallint unsigned NOT NULL DEFAULT '0',
-  `basearmor` smallint unsigned NOT NULL DEFAULT '1',
+  `basehp0` int unsigned NOT NULL DEFAULT '1',
+  `basehp1` int unsigned NOT NULL DEFAULT '1',
+  `basehp2` int unsigned NOT NULL DEFAULT '1',
+  `basemana` int unsigned NOT NULL DEFAULT '1',
+  `basearmor` int unsigned NOT NULL DEFAULT '1',
   `attackpower` smallint unsigned NOT NULL DEFAULT '0',
   `rangedattackpower` smallint unsigned NOT NULL DEFAULT '0',
   `damage_base` float NOT NULL DEFAULT '0',
@@ -1225,7 +1225,7 @@ CREATE TABLE `gameobject` (
   `animprogress` tinyint unsigned NOT NULL DEFAULT '0',
   `state` tinyint unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2134507 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gameobject System';
@@ -1347,33 +1347,33 @@ CREATE TABLE `gameobject_template` (
   `castBarCaption` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `unk1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `size` float NOT NULL DEFAULT '1',
-  `Data0` int unsigned NOT NULL DEFAULT '0',
+  `Data0` int NOT NULL DEFAULT '0',
   `Data1` int NOT NULL DEFAULT '0',
-  `Data2` int unsigned NOT NULL DEFAULT '0',
-  `Data3` int unsigned NOT NULL DEFAULT '0',
-  `Data4` int unsigned NOT NULL DEFAULT '0',
-  `Data5` int unsigned NOT NULL DEFAULT '0',
+  `Data2` int NOT NULL DEFAULT '0',
+  `Data3` int NOT NULL DEFAULT '0',
+  `Data4` int NOT NULL DEFAULT '0',
+  `Data5` int NOT NULL DEFAULT '0',
   `Data6` int NOT NULL DEFAULT '0',
-  `Data7` int unsigned NOT NULL DEFAULT '0',
-  `Data8` int unsigned NOT NULL DEFAULT '0',
-  `Data9` int unsigned NOT NULL DEFAULT '0',
-  `Data10` int unsigned NOT NULL DEFAULT '0',
-  `Data11` int unsigned NOT NULL DEFAULT '0',
-  `Data12` int unsigned NOT NULL DEFAULT '0',
-  `Data13` int unsigned NOT NULL DEFAULT '0',
-  `Data14` int unsigned NOT NULL DEFAULT '0',
-  `Data15` int unsigned NOT NULL DEFAULT '0',
-  `Data16` int unsigned NOT NULL DEFAULT '0',
-  `Data17` int unsigned NOT NULL DEFAULT '0',
-  `Data18` int unsigned NOT NULL DEFAULT '0',
-  `Data19` int unsigned NOT NULL DEFAULT '0',
-  `Data20` int unsigned NOT NULL DEFAULT '0',
-  `Data21` int unsigned NOT NULL DEFAULT '0',
-  `Data22` int unsigned NOT NULL DEFAULT '0',
-  `Data23` int unsigned NOT NULL DEFAULT '0',
+  `Data7` int NOT NULL DEFAULT '0',
+  `Data8` int NOT NULL DEFAULT '0',
+  `Data9` int NOT NULL DEFAULT '0',
+  `Data10` int NOT NULL DEFAULT '0',
+  `Data11` int NOT NULL DEFAULT '0',
+  `Data12` int NOT NULL DEFAULT '0',
+  `Data13` int NOT NULL DEFAULT '0',
+  `Data14` int NOT NULL DEFAULT '0',
+  `Data15` int NOT NULL DEFAULT '0',
+  `Data16` int NOT NULL DEFAULT '0',
+  `Data17` int NOT NULL DEFAULT '0',
+  `Data18` int NOT NULL DEFAULT '0',
+  `Data19` int NOT NULL DEFAULT '0',
+  `Data20` int NOT NULL DEFAULT '0',
+  `Data21` int NOT NULL DEFAULT '0',
+  `Data22` int NOT NULL DEFAULT '0',
+  `Data23` int NOT NULL DEFAULT '0',
   `AIName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `StringId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int DEFAULT NULL,
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
@@ -2828,7 +2828,7 @@ CREATE TABLE `quest_template` (
   `RewardFactionValue5` int NOT NULL DEFAULT '0',
   `RewardFactionOverride5` int NOT NULL DEFAULT '0',
   `TimeAllowed` int unsigned NOT NULL DEFAULT '0',
-  `AllowableRaces` smallint unsigned NOT NULL DEFAULT '0',
+  `AllowableRaces` int unsigned NOT NULL DEFAULT '0',
   `LogTitle` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `LogDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `QuestDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -4071,4 +4071,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-22 23:18:19
+-- Dump completed on 2025-10-21 18:16:59

@@ -19,6 +19,7 @@
 #include "DBCStructure.h"
 #include "Log.h"
 #include "Map.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -28,25 +29,23 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
-    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
-
-    if (!vehicleGUID)                                       // something wrong here...
-    {
-        recvData.rfinish();                                // prevent warnings spam
-        return;
-    }
-
-    ObjectGuid guid;
-
-    recvData >> guid.ReadAsPacked();
-
     MovementInfo mi;
-    mi.guid = guid;
-    ReadMovementInfo(recvData, &mi);
 
-    _player->m_movementInfo = mi;
+    recvData >> mi.guid.ReadAsPacked();
+    recvData >> mi;
 
-    _player->ExitVehicle();
+    Unit* mover = ValidateAndGetUnitBeingMoved(mi.guid, static_cast<OpcodeClient>(recvData.GetOpcode()), false);
+    if (!ValidateMovementInfo(mover, &mi))
+        return;
+
+    mi.time = AdjustClientMovementTime(mi.time);
+    mover->m_movementInfo = mi;
+
+    if (Unit* vehicleBase = _player->GetVehicleBase())
+    {
+        vehicleBase->SendPetDismissSound();
+        _player->ExitVehicle();
+    }
 }
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
@@ -200,7 +199,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
                 GetPlayer()->ExitVehicle();
             else
                 TC_LOG_ERROR("network", "Player {} tried to exit vehicle, but seatflags {} (ID: {}) don't permit that.",
-                GetPlayer()->GetGUID().ToString(), seat->ID, seat->Flags);
+                    GetPlayer()->GetGUID().ToString(), seat->ID, seat->Flags);
         }
     }
 }

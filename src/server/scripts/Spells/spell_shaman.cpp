@@ -959,7 +959,7 @@ class spell_sha_lightning_overload : public AuraScript
             // Chain lightning has [LightOverload_Proc_Chance] / [Max_Number_of_Targets] chance to proc of each individual target hit.
             // A maxed LO would have a 33% / 3 = 11% chance to proc of each target.
             // LO chance was already "accounted" at the proc chance roll, now need to divide the chance by [Max_Number_of_Targets]
-            float chance = 100.0f / spellInfo->GetEffect(EFFECT_0).ChainTarget;
+            float chance = 100.0f / spellInfo->GetEffect(EFFECT_0).ChainTargets;
             if (!roll_chance_f(chance))
                 return;
 

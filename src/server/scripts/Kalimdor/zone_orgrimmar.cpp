@@ -351,7 +351,7 @@ public:
         void Reset() override
         {
             inProgress = false;
-            me->GetMotionMaster()->MovePath(me->GetSpawnId() * 10, true);
+            me->GetMotionMaster()->MovePath((me->GetSpawnId() * 10) << 3, true);
             events.Reset();
         }
 
@@ -613,7 +613,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->GetMotionMaster()->MovePath(me->GetSpawnId() * 10, true);
+            me->GetMotionMaster()->MovePath((me->GetSpawnId() * 10) << 3, true);
             sceneInProgress = false;
 
             if (!spawnedGuards)
@@ -633,7 +633,7 @@ public:
                 return;
 
             if (pointId == 2)
-                me->GetMotionMaster()->MovePath(me->GetSpawnId() * 10, true);
+                me->GetMotionMaster()->MovePath((me->GetSpawnId() * 10) << 3, true);
         }
 
         void DoAction(int32 actionId) override

@@ -67,7 +67,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
     bool isPremade = false;
     if (!sBattlemasterListStore.LookupEntry(battlemasterJoin.BattlemasterListID))
     {
-        TC_LOG_ERROR("network", "Battleground: invalid bgtype ({}) received. possible cheater? player {}", battlemasterJoin.BattlemasterListID, _player->GetGUID().ToString());
+        TC_LOG_ERROR("network", "Battleground: invalid bgtype ({}) received. possible cheater? {}", battlemasterJoin.BattlemasterListID, _player->GetGUID().ToString());
         return;
     }
 
@@ -252,11 +252,13 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPackets::Battleg
         return;
 
     WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
+    ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE);
+    if (!guid.IsEmpty())
         if (Player* allianceFlagCarrier = ObjectAccessor::GetPlayer(*_player, guid))
             playerPositions.FlagCarriers.emplace_back(guid, allianceFlagCarrier->GetPosition());
 
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(TEAM_HORDE))
+    guid = bg->GetFlagPickerGUID(TEAM_HORDE);
+    if (!guid.IsEmpty())
         if (Player* hordeFlagCarrier = ObjectAccessor::GetPlayer(*_player, guid))
             playerPositions.FlagCarriers.emplace_back(guid, hordeFlagCarrier->GetPosition());
 

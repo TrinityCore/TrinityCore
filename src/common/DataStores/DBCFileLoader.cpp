@@ -88,7 +88,7 @@ bool DBCFileLoader::Load(char const* filename, char const* fmt)
     for (uint32 i = 1; i < fieldCount; ++i)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
-        if (fmt[i - 1] == 'b' || fmt[i - 1] == 'X')         // byte fields
+        if (fmt[i - 1] == FT_BYTE || fmt[i - 1] == FT_NA_BYTE)  // byte fields
             fieldsOffset[i] += sizeof(uint8);
         else                                                // 4 byte fields (int32/float/strings)
             fieldsOffset[i] += sizeof(uint32);

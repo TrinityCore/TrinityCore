@@ -169,30 +169,30 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
 
                 switch (talkWing)
                 {
-                case 0: // Pinnacle of Naxxramas
+                    case 0: // Pinnacle of Naxxramas
                     {
-                        switch (urand (0, 1))
+                        switch (urand(0, 1))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_KELTHUZAD, MODEL_IMAGE_OF_KELTHUZAD, SAY_KELTHUZAD_1);
-                                    _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
+                                _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_SAPPHIRON, MODEL_IMAGE_OF_SAPPHIRON, SAY_SAPPHIRON); break;
                         }
                     }
                     break;
-                case 1: // Death knight wing of Naxxramas
+                    case 1: // Death knight wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_RAZUVIOUS, MODEL_IMAGE_OF_RAZUVIOUS, SAY_RAZUVIOUS); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_GOTHIK, MODEL_IMAGE_OF_GOTHIK, SAY_GOTHIK); break;
                             case 2: ChangeImage(NPC_IMAGE_OF_THANE, MODEL_IMAGE_OF_THANE, SAY_DEATH_KNIGHTS_1);
-                                    _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
+                                _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
                         }
                     }
                     break;
-                case 2: // Blighted abomination wing of Naxxramas
+                    case 2: // Blighted abomination wing of Naxxramas
                     {
-                        switch (urand (0, 3))
+                        switch (urand(0, 3))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_PATCHWERK, MODEL_IMAGE_OF_PATCHWERK, SAY_PATCHWERK); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_GROBBULUS, MODEL_IMAGE_OF_GROBBULUS, SAY_GROBBULUS); break;
@@ -201,9 +201,9 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                         }
                     }
                     break;
-                case 3: // Accursed spider wing of Naxxramas
+                    case 3: // Accursed spider wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_ANUBREKHAN, MODEL_IMAGE_OF_ANUBREKHAN, SAY_ANUBREKHAN); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_FAERLINA, MODEL_IMAGE_OF_FAERLINA, SAY_FAERLINA); break;
@@ -211,20 +211,20 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
                         }
                     }
                     break;
-                case 4: // Dread plague wing of Naxxramas
+                    case 4: // Dread plague wing of Naxxramas
                     {
-                        switch (urand (0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0: ChangeImage(NPC_IMAGE_OF_NOTH, MODEL_IMAGE_OF_NOTH, SAY_NOTH); break;
                             case 1: ChangeImage(NPC_IMAGE_OF_HEIGAN, MODEL_IMAGE_OF_HEIGAN, SAY_HEIGAN_1);
-                                    _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
+                                _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
                             case 2: ChangeImage(NPC_IMAGE_OF_LOATHEB, MODEL_IMAGE_OF_LOATHEB, SAY_LOATHEB); break;
                         }
                     }
                     break;
-                case 5: // Home
-                    _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
-                    break;
+                    case 5: // Home
+                        _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
+                        break;
                 }
             }
         }
@@ -348,81 +348,6 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
         ObjectGuid audienceList[10];
         ObjectGuid imageList[5];
         uint8    talkWing;
-};
-
-/*######
-## Quest Strengthen the Ancients (12096|12092)
-######*/
-
-enum StrengthenAncientsMisc
-{
-    SAY_WALKER_FRIENDLY         = 0,
-    SAY_WALKER_ENEMY            = 1,
-    SAY_LOTHALOR                = 0,
-
-    SPELL_CREATE_ITEM_BARK      = 47550,
-    SPELL_CONFUSED              = 47044,
-
-    NPC_LOTHALOR                = 26321
-};
-
-// 47575 - Strengthen the Ancients: On Interact Dummy to Woodlands Walker
-class spell_q12096_q12092_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_q12096_q12092_dummy);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        uint32 roll = rand32() % 2;
-
-        Creature* tree = GetHitCreature();
-        Player* player = GetCaster()->ToPlayer();
-
-        if (!tree || !player)
-            return;
-
-        tree->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-
-        if (roll == 1) // friendly version
-        {
-            tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
-            tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
-            tree->DespawnOrUnsummon(1s);
-        }
-        else // enemy version
-        {
-            tree->AI()->Talk(SAY_WALKER_ENEMY, player);
-            tree->SetFaction(FACTION_MONSTER);
-            tree->Attack(player, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 47530 - Bark of the Walkers
-class spell_q12096_q12092_bark : public SpellScript
-{
-    PrepareSpellScript(spell_q12096_q12092_bark);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Creature* lothalor = GetHitCreature();
-        if (!lothalor || lothalor->GetEntry() != NPC_LOTHALOR)
-            return;
-
-        lothalor->AI()->Talk(SAY_LOTHALOR);
-        lothalor->RemoveAura(SPELL_CONFUSED);
-        lothalor->DespawnOrUnsummon(4s);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_bark::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
 };
 
 /*######
@@ -988,6 +913,36 @@ class spell_dragonblight_fill_blood_unholy_frost_gem : public SpellScript
     }
 };
 
+/*######
+## Quest 12076: Messy Business
+######*/
+
+enum MessyBusiness
+{
+    SPELL_CORROSIVE_SPIT     = 47447
+};
+
+// 47435 - Scrape Corrosive Spit
+class spell_dragonblight_scrape_corrosive_spit : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_scrape_corrosive_spit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CORROSIVE_SPIT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_CORROSIVE_SPIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_scrape_corrosive_spit::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 47447 - Corrosive Spit
 class spell_dragonblight_corrosive_spit : public AuraScript
 {
@@ -1110,11 +1065,69 @@ class spell_dragonblight_end_of_the_line_quest_completion_script : public SpellS
     }
 };
 
+/*######
+## Quest 12028: Spiritual Insight
+######*/
+
+enum SpiritualInsight
+{
+    SPELL_SPIRITUAL_INSIGHT     = 47189
+};
+
+// 47190 - Toalu'u's Spiritual Incense
+class spell_dragonblight_toaluus_spiritual_incense : public AuraScript
+{
+    PrepareAuraScript(spell_dragonblight_toaluus_spiritual_incense);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPIRITUAL_INSIGHT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SPIRITUAL_INSIGHT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dragonblight_toaluus_spiritual_incense::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 24545: The Sacred and the Corrupt
+######*/
+
+enum TheSacredAndTheCorrupt
+{
+    SPELL_KNOCKDOWN     = 13360
+};
+
+// 70653 - Lich King Zap Player
+class spell_dragonblight_lich_king_zap_player : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_lich_king_zap_player);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_KNOCKDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_lich_king_zap_player::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
-    RegisterSpellScript(spell_q12096_q12092_dummy);
-    RegisterSpellScript(spell_q12096_q12092_bark);
     RegisterCreatureAI(npc_wyrmrest_defender);
     RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip);
     RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_dummy);
@@ -1129,8 +1142,11 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_bombard_the_ballistae_fx_master);
     RegisterSpellScript(spell_dragonblight_surge_needle_teleporter);
     RegisterSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
+    RegisterSpellScript(spell_dragonblight_scrape_corrosive_spit);
     RegisterSpellScript(spell_dragonblight_corrosive_spit);
     RegisterSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_toaluus_spiritual_incense);
+    RegisterSpellScript(spell_dragonblight_lich_king_zap_player);
 }

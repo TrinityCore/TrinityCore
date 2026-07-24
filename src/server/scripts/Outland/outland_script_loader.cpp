@@ -68,6 +68,7 @@ void AddSC_boss_hydromancer_thespia();
 void AddSC_boss_mekgineer_steamrigger();
 void AddSC_boss_warlord_kalithresh();
 void AddSC_instance_steam_vault();
+void AddSC_steam_vault();
 
 // Coilfang Reservoir - The Slave Pens
 void AddSC_instance_the_slave_pens();
@@ -135,7 +136,7 @@ void AddSC_netherstorm();
 void AddSC_shadowmoon_valley();
 // void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
-// void AddSC_zangarmarsh();
+void AddSC_zangarmarsh();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -193,6 +194,7 @@ void AddOutlandScripts()
     AddSC_boss_hydromancer_thespia();
     AddSC_boss_mekgineer_steamrigger();
     AddSC_boss_warlord_kalithresh();
+    AddSC_steam_vault();
 
     // Coilfang Reservoir - The Slave Pens
     AddSC_instance_the_slave_pens();
@@ -260,5 +262,5 @@ void AddOutlandScripts()
     AddSC_shadowmoon_valley();
     // AddSC_shattrath_city();
     AddSC_terokkar_forest();
-    // AddSC_zangarmarsh();
+    AddSC_zangarmarsh();
 }

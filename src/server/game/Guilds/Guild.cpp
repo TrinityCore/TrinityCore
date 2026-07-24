@@ -21,7 +21,7 @@
 #include "CalendarMgr.h"
 #include "CalendarPackets.h"
 #include "CharacterCache.h"
-#include "Chat.h"
+#include "ChatPackets.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -121,7 +121,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
     saveResponse.Error = int32(errCode);
     session->SendPacket(saveResponse.Write());
 
-    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [{}] Code: {}", session->GetPlayerInfo(), errCode);
+    TC_LOG_DEBUG("guild", "SMSG_SAVE_GUILD_EMBLEM [{}] Code: {}", session->GetPlayerInfo(), errCode);
 }
 
 // LogHolder
@@ -488,7 +488,7 @@ bool Guild::BankTab::SetItem(CharacterDatabaseTransaction trans, uint8 slotId, I
         trans->Append(stmt);
 
         item->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
-        item->SetGuidValue(ITEM_FIELD_OWNER, ObjectGuid::Empty);
+        item->SetOwnerGUID(ObjectGuid::Empty);
         item->FSetState(ITEM_NEW);
         item->SaveToDB(trans);                                 // Not in inventory and can be saved standalone
     }
@@ -938,9 +938,9 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE)) /// @todo Move this to scripts
     {
         sLog->OutCommand(m_pPlayer->GetSession()->GetAccountId(),
-            "GM {} (Guid: {}) (Account: {}) deposit item: {} (Entry: {} Count: {}) to guild bank named: {} (Guild ID: {})",
-            m_pPlayer->GetName(), m_pPlayer->GetGUID().GetCounter(), m_pPlayer->GetSession()->GetAccountId(),
-            pFrom->GetItem()->GetTemplate()->Name1, pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
+            "GM {} ({}) (Account: {}) deposit item: {} (Entry: {} Count: {}) to guild bank named: {} (Guild ID: {})",
+            m_pPlayer->GetName(), m_pPlayer->GetGUID().ToString(), m_pPlayer->GetSession()->GetAccountId(),
+            pFrom->GetItem()->GetTemplate()->GetDefaultLocaleName(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
             m_pGuild->GetName(), m_pGuild->GetId());
     }
 }
@@ -1917,7 +1917,7 @@ bool Guild::LoadFromDB(Field* fields)
 {
     m_id            = fields[0].GetUInt32();
     m_name          = fields[1].GetString();
-    m_leaderGuid    = ObjectGuid(HighGuid::Player, fields[2].GetUInt32());
+    m_leaderGuid    = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32());
     m_emblemInfo.LoadFromDB(fields);
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
@@ -1947,9 +1947,9 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     ObjectGuid::LowType lowguid = fields[1].GetUInt32();
-    ObjectGuid playerGuid(HighGuid::Player, lowguid);
+    ObjectGuid playerGuid(ObjectGuid::Create<HighGuid::Player>(lowguid));
 
-    auto [memberIt, isNew] = m_members.try_emplace(lowguid, m_id, playerGuid, fields[2].GetUInt8());
+    auto [memberIt, isNew] = m_members.try_emplace(playerGuid, m_id, playerGuid, fields[2].GetUInt8());
     if (!isNew)
     {
         TC_LOG_ERROR("guild", "Tried to add {} to guild '{}'. Member already exists.", playerGuid.ToString(), m_name);
@@ -2128,13 +2128,14 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
 {
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), nullptr, msg);
+        WorldPackets::Chat::Chat packet;
+        packet.Initialize(officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), nullptr, msg);
+        WorldPacket const* data = packet.Write();
         for (auto const& [guid, member] : m_members)
             if (Player* player = member.FindConnectedPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
                     !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUID()))
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(data);
     }
 }
 
@@ -2190,10 +2191,10 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     // Player cannot be in guild
     if (player)
     {
-        if (player->GetGuildId() != 0)
+        if (player->GetGuildId())
             return false;
     }
-    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid) != 0)
+    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid))
         return false;
 
     // Remove all player signs from another petitions
@@ -2206,7 +2207,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     if (rankId == GUILD_RANK_NONE)
         rankId = _GetLowestRankId();
 
-    auto [memberIt, isNew] = m_members.try_emplace(lowguid, m_id, guid, rankId);
+    auto [memberIt, isNew] = m_members.try_emplace(guid, m_id, guid, rankId);
     if (!isNew)
     {
         TC_LOG_ERROR("guild", "Tried to add {} to guild '{}'. Member already exists.", guid.ToString(), m_name);
@@ -2268,7 +2269,6 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
 
 bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked)
 {
-    ObjectGuid::LowType lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
 
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
@@ -2279,7 +2279,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
         Member* newLeader = nullptr;
         for (auto& [memberGuid, member] : m_members)
         {
-            if (memberGuid == lowguid)
+            if (memberGuid == guid)
                 oldLeader = &member;
             else if (!newLeader || newLeader->GetRankId() > member.GetRankId())
                 newLeader = &member;
@@ -2307,7 +2307,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     // Call script on remove before member is actually removed from guild (and database)
     sScriptMgr->OnGuildRemoveMember(this, player, isDisbanding, isKicked);
 
-    m_members.erase(lowguid);
+    m_members.erase(guid);
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if (player)
@@ -2318,7 +2318,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     else
         sCharacterCache->UpdateCharacterGuildId(guid, 0);
 
-    _DeleteMemberFromDB(trans, lowguid);
+    _DeleteMemberFromDB(trans, guid.GetCounter());
     if (!isDisbanding)
         _UpdateAccountsNumber();
 
@@ -2347,7 +2347,7 @@ bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid
 
 bool Guild::IsMember(ObjectGuid guid) const
 {
-    return m_members.find(guid.GetCounter()) != m_members.end();
+    return m_members.find(guid) != m_members.end();
 }
 
 uint64 Guild::GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const

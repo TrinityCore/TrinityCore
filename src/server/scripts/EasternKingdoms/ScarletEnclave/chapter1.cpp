@@ -336,9 +336,12 @@ class go_acherus_soul_prison : public GameObjectScript
             bool OnGossipHello(Player* player) override
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
-                    if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
+                {
+                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
+                    if (!prisonerGUID.IsEmpty())
                         if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                             ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+                }
 
                 return false;
             }
@@ -1097,22 +1100,13 @@ struct npc_scarlet_ghoul : public ScriptedAI
 
     void FindMinions(Unit* owner)
     {
-        std::list<Creature*> MinionList;
+        std::list<TempSummon*> MinionList;
         owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
 
-        if (!MinionList.empty())
-        {
-            for (Creature* creature : MinionList)
-            {
-                if (creature->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
-                {
-                    if (creature->IsInCombat() && creature->getAttackerForHelper())
-                    {
-                        AttackStart(creature->getAttackerForHelper());
-                    }
-                }
-            }
-        }
+        for (TempSummon* summon : MinionList)
+            if (summon->GetOwnerGUID() == me->GetOwnerGUID())
+                if (summon->IsInCombat() && summon->getAttackerForHelper())
+                    AttackStart(summon->getAttackerForHelper());
     }
 
     void UpdateAI(uint32 /*diff*/) override

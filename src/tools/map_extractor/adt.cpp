@@ -69,7 +69,7 @@ bool ADT_file::prepareLoadedData()
         return false;
 
     // Check and prepare MHDR
-    a_grid = (adt_MHDR *)(GetData()+8+version->size);
+    a_grid = (adt_MHDR*)(GetData()+8+version->size);
     if (!a_grid->prepareLoadedData())
         return false;
 

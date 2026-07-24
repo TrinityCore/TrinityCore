@@ -15,55 +15,57 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "scholomance.h"
 #include "ScriptedCreature.h"
 
+enum JandiceTexts
+{
+    EMOTE_DROP_JOURNAL          = 0
+};
+
 enum JandiceSpells
 {
-    SPELL_CURSE_OF_BLOOD        = 24673,
-    SPELL_ILLUSION              = 17773,
+    SPELL_CURSE_OF_BLOOD        = 16098,
+    SPELL_BANISH                = 8994,
+    SPELL_SUMMON_ILLUSION       = 17773,
+    SPELL_SPREAD                = 17774,
+
     SPELL_DROP_JOURNAL          = 26096
 };
 
 enum JandiceEvents
 {
-    EVENT_CURSE_OF_BLOOD = 1,
-    EVENT_ILLUSION,
-    EVENT_CLEAVE,
-    EVENT_SET_VISIBILITY
+    EVENT_CURSE_OF_BLOOD        = 1,
+    EVENT_BANISH,
+    EVENT_SUMMON_ILLUSION
 };
 
 // 10503 - Jandice Barov
 struct boss_jandice_barov : public ScriptedAI
 {
-    boss_jandice_barov(Creature* creature) : ScriptedAI(creature), _summons(me) { }
+    boss_jandice_barov(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
         _events.Reset();
-        _summons.DespawnAll();
-    }
-
-    void JustSummoned(Creature* summoned) override
-    {
-        // Illusions should attack a random target.
-        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-            summoned->AI()->AttackStart(target);
-
-        _summons.Summon(summoned);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15s);
-        _events.ScheduleEvent(EVENT_ILLUSION, 30s);
+        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5s, 10s);
+        _events.ScheduleEvent(EVENT_BANISH, 10s, 15s);
+        _events.ScheduleEvent(EVENT_SUMMON_ILLUSION, 15s, 25s);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        _summons.DespawnAll();
-        DoCastSelf(SPELL_DROP_JOURNAL, true);
+        DoCastSelf(SPELL_DROP_JOURNAL);
+        Talk(EMOTE_DROP_JOURNAL);
     }
 
     void UpdateAI(uint32 diff) override
@@ -81,20 +83,18 @@ struct boss_jandice_barov : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CURSE_OF_BLOOD:
-                    DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                    _events.Repeat(30s);
+                    DoCastSelf(SPELL_CURSE_OF_BLOOD);
+                    _events.Repeat(25s, 30s);
                     break;
-                case EVENT_ILLUSION:
-                    DoCast(SPELL_ILLUSION);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    me->SetDisplayId(11686);  // Invisible Model
-                    ModifyThreatByPercent(me->GetVictim(), -99);
-                    _events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
-                    _events.Repeat(25s);
+                case EVENT_BANISH:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_BANISH);
+                    _events.Repeat(15s, 25s);
                     break;
-                case EVENT_SET_VISIBILITY:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    me->SetDisplayId(11073);     // Jandice Model
+                case EVENT_SUMMON_ILLUSION:
+                    DoCastSelf(SPELL_SUMMON_ILLUSION);
+                    DoCastSelf(SPELL_SPREAD);
+                    _events.Repeat(30s, 40s);
                     break;
                 default:
                     break;
@@ -109,7 +109,6 @@ struct boss_jandice_barov : public ScriptedAI
 
 private:
     EventMap _events;
-    SummonList _summons;
 };
 
 void AddSC_boss_jandicebarov()

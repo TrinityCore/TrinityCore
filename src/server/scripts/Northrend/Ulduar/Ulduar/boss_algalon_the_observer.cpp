@@ -642,7 +642,7 @@ struct boss_algalon_the_observer : public BossAI
                     me->RemoveAllAuras();
                     ResetThreatList();
                     me->SetFaction(FACTION_FRIENDLY);
-                    me->SetUnitFlag(UNIT_FLAG_RENAME);
+                    me->SetUnitFlag(UNIT_FLAG_EVADING_HOME);
                     events.ScheduleEvent(EVENT_OUTRO_2, 2s);
                     break;
                 case EVENT_OUTRO_2:
@@ -981,7 +981,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
             return true;
 
         bool hasKey = true;
-        if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->goober.lockId))
+        if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->GetLockId()))
         {
             hasKey = false;
             for (uint8 i = 0; i < MAX_LOCK_CASE; ++i)

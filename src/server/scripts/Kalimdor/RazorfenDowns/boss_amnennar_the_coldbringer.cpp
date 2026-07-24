@@ -15,147 +15,171 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires update
+ * Guardians are despawned in core, that should not happen here
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "razorfen_downs.h"
 
-enum Say
+enum AmnennarTexts
 {
-    SAY_AGGRO               = 0,
-    SAY_SUMMON60            = 1,
-    SAY_SUMMON30            = 2,
-    SAY_HP                  = 3,
-    SAY_KILL                = 4
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_HEALTH_75                  = 2,
+    SAY_SUMMON_60                  = 3,
+    SAY_SUMMON_30                  = 4,
+    EMOTE_SUMMON                   = 5
 };
 
-enum Spells
+enum AmnennarSpells
 {
-    SPELL_AMNENNARSWRATH    = 13009,
-    SPELL_FROSTBOLT         = 15530,
-    SPELL_FROST_NOVA        = 15531,
-    SPELL_FROST_SPECTRES    = 12642
+    SPELL_AMNENNARS_WRATH          = 13009,
+    SPELL_FROSTBOLT                = 15530,
+    SPELL_FROST_NOVA               = 15531,
+    SPELL_SUMMON_FROST_SPECTRES    = 12642,
+    SPELL_BANISH_FROST_SPECTRES    = 12660
 };
 
-enum Events
+enum AmnennarEvents
 {
-    EVENT_AMNENNARSWRATH    = 1,
-    EVENT_FROSTBOLT         = 2,
-    EVENT_FROST_NOVA        = 3
+    EVENT_AMNENNARS_WRATH          = 1,
+    EVENT_FROSTBOLT,
+    EVENT_FROST_NOVA,
+
+    EVENT_HEALTH_75,
+    EVENT_HEALTH_60,
+    EVENT_HEALTH_30
 };
 
-class boss_amnennar_the_coldbringer : public CreatureScript
+enum AmnennarPhases : uint8
 {
-public:
-    boss_amnennar_the_coldbringer() : CreatureScript("boss_amnennar_the_coldbringer") { }
+    PHASE_NONE                     = 0,
+    PHASE_HEALTH_75,
+    PHASE_HEALTH_60,
+    PHASE_HEALTH_30
+};
 
-    struct boss_amnennar_the_coldbringerAI : public BossAI
+// 7358 - Amnennar the Coldbringer
+struct boss_amnennar_the_coldbringer : public BossAI
+{
+    boss_amnennar_the_coldbringer(Creature* creature) : BossAI(creature, DATA_AMNENNAR_THE_COLD_BRINGER), _phase(PHASE_NONE) { }
+
+    void Reset() override
     {
-        boss_amnennar_the_coldbringerAI(Creature* creature) : BossAI(creature, DATA_AMNENNAR_THE_COLD_BRINGER)
+        _Reset();
+        _phase = PHASE_NONE;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_AMNENNARS_WRATH, 8s);
+        events.ScheduleEvent(EVENT_FROSTBOLT, 0s);
+        events.ScheduleEvent(EVENT_FROST_NOVA, 10s, 15s);
+        Talk(SAY_AGGRO);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase < PHASE_HEALTH_75 && me->HealthBelowPctDamaged(75, damage))
         {
-            Initialize();
+            _phase++;
+            events.ScheduleEvent(EVENT_HEALTH_75, 0s);
         }
 
-        void Initialize()
+        if (_phase < PHASE_HEALTH_60 && me->HealthBelowPctDamaged(60, damage))
         {
-            hp60Spectrals = false;
-            hp30Spectrals = false;
-            hp50 = false;
+            _phase++;
+            events.ScheduleEvent(EVENT_HEALTH_60, 0s);
         }
 
-        void Reset() override
+        if (_phase < PHASE_HEALTH_30 && me->HealthBelowPctDamaged(30, damage))
         {
-            _Reset();
-            Initialize();
+            _phase++;
+            events.ScheduleEvent(EVENT_HEALTH_30, 0s);
         }
+    }
 
-        void JustEngagedWith(Unit* who) override
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    // Despawn is handled by spell, don't store anything
+    void JustSummoned(Creature* /*summon*/) override { }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        DoCastSelf(SPELL_BANISH_FROST_SPECTRES, true);
+        BossAI::EnterEvadeMode(why);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        DoCastSelf(SPELL_BANISH_FROST_SPECTRES, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8s);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
-            events.ScheduleEvent(EVENT_FROST_NOVA, 10s, 15s);
-            Talk(SAY_AGGRO);
-        }
+            switch (eventId)
+            {
+                case EVENT_AMNENNARS_WRATH:
+                    DoCastVictim(SPELL_AMNENNARS_WRATH);
+                    events.Repeat(12s);
+                    break;
+                case EVENT_FROSTBOLT:
+                    DoCastVictim(SPELL_FROSTBOLT);
+                    events.Repeat(8s);
+                    break;
+                case EVENT_FROST_NOVA:
+                    DoCastSelf(SPELL_FROST_NOVA);
+                    events.Repeat(15s);
+                    break;
 
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_KILL);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+                case EVENT_HEALTH_75:
+                    Talk(SAY_HEALTH_75);
+                    break;
+                case EVENT_HEALTH_60:
+                    Talk(EMOTE_SUMMON);
+                    Talk(SAY_SUMMON_60);
+                    DoCastSelf(SPELL_SUMMON_FROST_SPECTRES);
+                    break;
+                case EVENT_HEALTH_30:
+                    Talk(EMOTE_SUMMON);
+                    Talk(SAY_SUMMON_30);
+                    DoCastSelf(SPELL_SUMMON_FROST_SPECTRES);
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_AMNENNARSWRATH:
-                        DoCastVictim(SPELL_AMNENNARSWRATH);
-                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12s);
-                        break;
-                    case EVENT_FROSTBOLT:
-                        DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
-                        break;
-                    case EVENT_FROST_NOVA:
-                        DoCast(me, SPELL_FROST_NOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            if (!hp60Spectrals && HealthBelowPct(60))
-            {
-                Talk(SAY_SUMMON60);
-                DoCastVictim(SPELL_FROST_SPECTRES);
-                hp60Spectrals = true;
-            }
-
-            if (!hp50 && HealthBelowPct(50))
-            {
-                Talk(SAY_HP);
-                hp50 = true;
-            }
-
-            if (!hp30Spectrals && HealthBelowPct(30))
-            {
-                Talk(SAY_SUMMON30);
-                DoCastVictim(SPELL_FROST_SPECTRES);
-                hp30Spectrals = true;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
-    private:
-        bool hp60Spectrals;
-        bool hp30Spectrals;
-        bool hp50;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetRazorfenDownsAI<boss_amnennar_the_coldbringerAI>(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    uint8 _phase;
 };
 
 void AddSC_boss_amnennar_the_coldbringer()
 {
-    new boss_amnennar_the_coldbringer();
+    RegisterRazorfenDownsCreatureAI(boss_amnennar_the_coldbringer);
 }

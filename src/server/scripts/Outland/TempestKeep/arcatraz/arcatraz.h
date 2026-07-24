@@ -31,7 +31,7 @@ enum AZDataTypes
     DATA_ZEREKETH                               = 0,
     DATA_DALLIAH                                = 1,
     DATA_SOCCOTHRATES                           = 2,
-    DATA_HARBINGER_SKYRISS                      = 3,
+    DATA_HARBINGER_SKYRISS                      = 3, // used by SmartAI
 
     // Additional Data
     DATA_CONVERSATION                           = 4,
@@ -40,16 +40,20 @@ enum AZDataTypes
     DATA_WARDEN_3                               = 7, // used by SmartAI
     DATA_WARDEN_4                               = 8, // used by SmartAI
     DATA_WARDEN_5                               = 9, // used by SmartAI
-    DATA_MELLICHAR                              = 10,
-    DATA_WARDENS_SHIELD                         = 11
+    DATA_MELLICHAR,
+    DATA_WARDENS_SHIELD,
+    DATA_STASIS_POD_ALPHA,
+    DATA_STASIS_POD_BETA,
+    DATA_STASIS_POD_DELTA,
+    DATA_STASIS_POD_GAMMA,
+    DATA_STASIS_POD_OMEGA
 };
 
 enum AZCreatureIds
 {
     NPC_DALLIAH                                 = 20885,
     NPC_SOCCOTHRATES                            = 20886,
-    NPC_MELLICHAR                               = 20904, // skyriss will kill this unit
-    NPC_ALPHA_POD_TARGET                        = 21436,
+    NPC_MELLICHAR                               = 20904,
     NPC_MILLHOUSE                               = 20977
 };
 
@@ -68,6 +72,11 @@ enum AZGameObjectIds
 enum AZSpellIds
 {
     SPELL_QID_10886                             = 39564
+};
+
+enum AZMisc
+{
+    ACTION_RESET_PRISON                         = 1
 };
 
 template <class AI, class T>

@@ -847,7 +847,7 @@ public:
                 do
                 {
                     Field* fields = result2->Fetch();
-                    uint32 wpguid = fields[0].GetUInt32();
+                    ObjectGuid::LowType wpguid = fields[0].GetUInt32();
                     if (!Creature::DeleteFromDB(wpguid))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, wpguid);

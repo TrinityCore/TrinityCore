@@ -27,7 +27,6 @@
 template<class T>
 RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -69,19 +68,18 @@ void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
 template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
 
 template<class T>
-void RandomMovementGenerator<T>::DoInitialize(T*) { }
+bool RandomMovementGenerator<T>::DoInitialize(T*) { return false; }
 
 template<>
-void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
+bool RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())
-        return;
+        return false;
 
     _reference = owner->GetPosition();
-    owner->StopMoving();
 
     if (_wanderDistance == 0.f)
         _wanderDistance = owner->GetWanderDistance();
@@ -91,17 +89,18 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 
     _timer.Reset(0);
     _path = nullptr;
+    return true;
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoReset(T*) { }
+bool RandomMovementGenerator<T>::DoReset(T*) { return false; }
 
 template<>
-void RandomMovementGenerator<Creature>::DoReset(Creature* owner)
+bool RandomMovementGenerator<Creature>::DoReset(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>

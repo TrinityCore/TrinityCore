@@ -37,8 +37,8 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         MovementGeneratorType GetMovementGeneratorType() const override;
         bool GetResetPosition(Unit* owner, float& x, float& y, float& z) override;
 
-        void DoInitialize(Player*);
-        void DoReset(Player*);
+        bool DoInitialize(Player*);
+        bool DoReset(Player*);
         bool DoUpdate(Player*, uint32);
         void DoDeactivate(Player*);
         void DoFinalize(Player*, bool, bool);

@@ -15,121 +15,85 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Nerubenkan
-SD%Complete: 70
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-enum Spells
+enum NerubenkanSpells
 {
-    SPELL_ENCASINGWEBS          = 4962,
-    SPELL_PIERCEARMOR           = 6016,
     SPELL_CRYPT_SCARABS         = 31602,
-    SPELL_RAISEUNDEADSCARAB     = 17235
+    SPELL_ENCASING_WEBS         = 4962,
+    SPELL_PIERCE_ARMOR          = 6016,
+    SPELL_RAISE_SCARAB          = 17235
 };
 
-class boss_nerubenkan : public CreatureScript
+enum NerubenkanEvents
 {
-public:
-    boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
+    EVENT_CRYPT_SCARABS         = 1,
+    EVENT_ENCASING_WEBS,
+    EVENT_PIERCE_ARMOR,
+    EVENT_RAISE_SCARAB
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+// 10437 - Nerub'enkan
+struct boss_nerubenkan : public BossAI
+{
+    boss_nerubenkan(Creature* creature) : BossAI(creature, BOSS_NERUB_ENKAN) { }
+
+    void JustEngagedWith(Unit* who) override
     {
-        return GetStratholmeAI<boss_nerubenkanAI>(creature);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_CRYPT_SCARABS, 0s);
+        events.ScheduleEvent(EVENT_ENCASING_WEBS, 5s, 10s);
+        events.ScheduleEvent(EVENT_PIERCE_ARMOR, 5s, 20s);
+        events.ScheduleEvent(EVENT_RAISE_SCARAB, 6s, 12s);
     }
 
-    struct boss_nerubenkanAI : public ScriptedAI
+    void UpdateAI(uint32 diff) override
     {
-        boss_nerubenkanAI(Creature* creature) : ScriptedAI(creature)
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Initialize();
-            instance = me->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            CryptScarabs_Timer = 3000;
-            EncasingWebs_Timer = 7000;
-            PierceArmor_Timer = 19000;
-            RaiseUndeadScarab_Timer = 3000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 EncasingWebs_Timer;
-        uint32 PierceArmor_Timer;
-        uint32 CryptScarabs_Timer;
-        uint32 RaiseUndeadScarab_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(TYPE_NERUB, IN_PROGRESS);
-        }
-
-        void RaiseUndeadScarab(Unit* victim)
-        {
-            if (Creature* pUndeadScarab = DoSpawnCreature(10876, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180s))
-                if (pUndeadScarab->AI())
-                    pUndeadScarab->AI()->AttackStart(victim);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //EncasingWebs
-            if (EncasingWebs_Timer <= diff)
+            switch (eventId)
             {
-                DoCastVictim(SPELL_ENCASINGWEBS);
-                EncasingWebs_Timer = 30000;
-            } else EncasingWebs_Timer -= diff;
-
-            //PierceArmor
-            if (PierceArmor_Timer <= diff)
-            {
-                if (urand(0, 3) < 2)
-                    DoCastVictim(SPELL_PIERCEARMOR);
-                PierceArmor_Timer = 35000;
-            } else PierceArmor_Timer -= diff;
-
-            //CryptScarabs_Timer
-            if (CryptScarabs_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CRYPT_SCARABS);
-                CryptScarabs_Timer = 20000;
-            } else CryptScarabs_Timer -= diff;
-
-            //RaiseUndeadScarab
-            if (RaiseUndeadScarab_Timer <= diff)
-            {
-                RaiseUndeadScarab(me->GetVictim());
-                RaiseUndeadScarab_Timer = 16000;
-            } else RaiseUndeadScarab_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+                case EVENT_CRYPT_SCARABS:
+                    DoCastVictim(SPELL_CRYPT_SCARABS);
+                    events.Repeat(2s, 10s);
+                    break;
+                case EVENT_ENCASING_WEBS:
+                    DoCastVictim(SPELL_ENCASING_WEBS);
+                    events.Repeat(6s, 10s);
+                    break;
+                case EVENT_PIERCE_ARMOR:
+                    DoCastVictim(SPELL_PIERCE_ARMOR);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_RAISE_SCARAB:
+                    DoCastSelf(SPELL_RAISE_SCARAB);
+                    events.Repeat(25s, 30s);
+                    break;
+                default:
+                    break;
+            }
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_nerubenkan()
 {
-    new boss_nerubenkan();
+    RegisterStratholmeCreatureAI(boss_nerubenkan);
 }

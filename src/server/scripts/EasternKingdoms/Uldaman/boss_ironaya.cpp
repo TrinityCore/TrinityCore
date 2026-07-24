@@ -15,87 +15,118 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Ironaya
-SD%Complete: 100
-SDComment:
-SDCategory: Uldaman
-EndScriptData */
+/*
+ * Combat timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "uldaman.h"
 
-enum Ironaya
+enum IronayaTexts
 {
-    SPELL_ARCINGSMASH           = 8374,
-    SPELL_KNOCKAWAY             = 10101,
-    SPELL_WSTOMP                = 11876
+    SAY_INTRO              = 0
 };
 
-struct boss_ironaya : public ScriptedAI
+enum IronayaSpells
 {
-    boss_ironaya(Creature* creature) : ScriptedAI(creature)
+    SPELL_ARCING_SMASH     = 8374,
+    SPELL_KNOCK_AWAY       = 10101,
+    SPELL_WAR_STOMP        = 11876
+};
+
+enum IronayaEvents
+{
+    EVENT_INTRO            = 1,
+
+    EVENT_ARCING_SMASH,
+    EVENT_KNOCK_AWAY,
+    EVENT_WAR_STOMP
+};
+
+enum IronayaMisc
+{
+    PATH_INTRO             = 6
+};
+
+// 7228 - Ironaya
+struct boss_ironaya : public BossAI
+{
+    boss_ironaya(Creature* creature) : BossAI(creature, DATA_IRONAYA) { }
+
+    void JustAppeared() override
     {
-        Initialize();
+        events.ScheduleEvent(EVENT_INTRO, 25s);
     }
 
-    void Initialize()
+    void JustEngagedWith(Unit* who) override
     {
-        _hasCastKnockaway = false;
-        _hasCastWstomp = false;
-    }
+        BossAI::JustEngagedWith(who);
 
-    void Reset() override
-    {
-        _scheduler.CancelAll();
-        Initialize();
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (!_hasCastKnockaway && HealthBelowPct(50) && me->GetVictim())
-        {
-            _hasCastKnockaway = true;
-            DoCastVictim(SPELL_KNOCKAWAY, true);
-            ResetThreat(me->GetVictim(), me);
-        }
-
-        if (!_hasCastWstomp && HealthBelowPct(25))
-        {
-            _hasCastWstomp = true;
-            DoCastSelf(SPELL_WSTOMP);
-        }
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _scheduler.Schedule(3s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_ARCINGSMASH);
-            task.Repeat(13s);
-        });
+        events.ScheduleEvent(EVENT_ARCING_SMASH, 0s, 5s);
+        events.ScheduleEvent(EVENT_KNOCK_AWAY, 20s, 30s);
+        events.ScheduleEvent(EVENT_WAR_STOMP, 20s, 30s);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_INTRO:
+                        Talk(SAY_INTRO);
+                        me->SetFaction(FACTION_TITAN);
+                        me->GetMotionMaster()->MovePath(PATH_INTRO, false);
+
+                        instance->SetData(DATA_IRONAYA_INTRO, DONE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return;
+        }
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        _scheduler.Update(diff, [this]
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            DoMeleeAttackIfReady();
-        });
-    }
+            switch (eventId)
+            {
+                case EVENT_ARCING_SMASH:
+                    DoCastSelf(SPELL_ARCING_SMASH);
+                    events.Repeat(0s, 5s);
+                    break;
+                case EVENT_KNOCK_AWAY:
+                    DoCastVictim(SPELL_KNOCK_AWAY);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_WAR_STOMP:
+                    DoCastSelf(SPELL_WAR_STOMP);
+                    events.Repeat(20s, 30s);
+                    break;
+                default:
+                    break;
+            }
 
-private:
-    TaskScheduler _scheduler;
-    bool _hasCastKnockaway;
-    bool _hasCastWstomp;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-//This is the actual function called only once durring InitScripts()
-//It must define all handled functions that are to be run in this script
 void AddSC_boss_ironaya()
 {
     RegisterUldamanCreatureAI(boss_ironaya);

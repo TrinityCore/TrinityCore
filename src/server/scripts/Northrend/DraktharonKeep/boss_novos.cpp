@@ -215,7 +215,10 @@ private:
     void SetSummonerStatus(bool active)
     {
         for (uint8 i = 0; i < 4; i++)
-            if (ObjectGuid guid = instance->GetGuidData(summoners[i].data))
+        {
+            ObjectGuid guid = instance->GetGuidData(summoners[i].data);
+            if (!guid.IsEmpty())
+            {
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                 {
                     if (active)
@@ -223,14 +226,19 @@ private:
                     else
                         crystalChannelTarget->AI()->Reset();
                 }
+            }
+        }
     }
 
     void SetCrystalsStatus(bool active)
     {
         for (uint8 i = 0; i < 4; i++)
-            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
+        {
+            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
+            if (!guid.IsEmpty())
                 if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                     SetCrystalStatus(crystal, active);
+        }
     }
 
     void SetCrystalStatus(GameObject* crystal, bool active)
@@ -248,13 +256,20 @@ private:
     void CrystalHandlerDied()
     {
         for (uint8 i = 0; i < 4; i++)
-            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
+        {
+            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
+            if (!guid.IsEmpty())
+            {
                 if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
+                {
                     if (crystal->GetGoState() == GO_STATE_ACTIVE)
                     {
                         SetCrystalStatus(crystal, false);
                         break;
                     }
+                }
+            }
+        }
 
         if (++_crystalHandlerCount >= 4)
         {
@@ -265,9 +280,13 @@ private:
             if (IsHeroic())
                 events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
         }
-        else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
-            if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
-                crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
+        else
+        {
+            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4);
+            if (!guid.IsEmpty())
+                if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
+                    crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
+        }
     }
 
     uint8 _crystalHandlerCount;
@@ -319,12 +338,15 @@ struct npc_crystal_channel_target : public ScriptedAI
     void JustSummoned(Creature* summon) override
     {
         if (InstanceScript* instance = me->GetInstanceScript())
-            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
+        {
+            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS);
+            if (!guid.IsEmpty())
                 if (Creature* novos = ObjectAccessor::GetCreature(*me, guid))
                     novos->AI()->JustSummoned(summon);
+        }
 
         if (summon)
-            summon->GetMotionMaster()->MovePath(summon->GetEntry() * 100, false);
+            summon->GetMotionMaster()->MovePath((summon->GetEntry() * 100) << 3, false);
 
         if (_spell == SPELL_SUMMON_CRYSTAL_HANDLER)
             Reset();

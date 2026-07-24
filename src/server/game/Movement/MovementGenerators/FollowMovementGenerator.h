@@ -36,8 +36,8 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle);
         ~FollowMovementGenerator();
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;

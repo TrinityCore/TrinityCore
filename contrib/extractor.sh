@@ -2,39 +2,39 @@
 
 # Set client and server directories as environment variables
 # if you don't want to enter them here
-if [ -z $CLIENT_DIR ]; then
+if [ -z "$CLIENT_DIR" ]; then
 echo -n "Enter directory where client files are located: "
 read CLIENT_DIR
 
-if ! cd $CLIENT_DIR; then
+if ! cd "$CLIENT_DIR"; then
         echo "Cannot access $CLIENT_DIR"
         exit 1
 fi
-if [ ! -d $CLIENT_DIR/Data ]; then
+if [ ! -d "$CLIENT_DIR/Data" ]; then
         echo "Cannot find client files in $CLIENT_DIR"
         exit 1
 fi
 fi
 
-if [ -z $SERVER_DIR ]; then
+if [ -z "$SERVER_DIR" ]; then
 echo -n "Enter directory where server files are located: "
 read SERVER_DIR
 
-if ! cd $SERVER_DIR; then
+if ! cd "$SERVER_DIR"; then
         echo "Cannot access $SERVER_DIR"
         exit 1
 fi
 fi
 
 # These should all be correct on a standard installation
-DATA_DIR=${SERVER_DIR}/data
-MAPEXTRACTOR=${SERVER_DIR}/bin/mapextractor
-VMAP4EXTRACTOR=${SERVER_DIR}/bin/vmap4extractor
-VMAP4ASSEMBLER=${SERVER_DIR}/bin/vmap4assembler
-MMAPS_GENERATOR=${SERVER_DIR}/bin/mmaps_generator
+DATA_DIR="${SERVER_DIR}/data"
+MAPEXTRACTOR="${SERVER_DIR}/bin/mapextractor"
+VMAP4EXTRACTOR="${SERVER_DIR}/bin/vmap4extractor"
+VMAP4ASSEMBLER="${SERVER_DIR}/bin/vmap4assembler"
+MMAPS_GENERATOR="${SERVER_DIR}/bin/mmaps_generator"
 
 check_files() {
-for i in $MAPEXTRACTOR $VMAP4EXTRACTOR $VMAP4ASSEMBLER $MMAPS_GENERATOR
+for i in "$MAPEXTRACTOR" "$VMAP4EXTRACTOR" "$VMAP4ASSEMBLER" "$MMAPS_GENERATOR"
 do
 	if [[ ! -x $i ]]
 	then
@@ -62,23 +62,23 @@ echo "Extracting DBC, Camera and Maps files"
 echo
 echo "-- Using $MAPEXTRACTOR"
 echo "-- Copying extracted data to ${DATA_DIR}"
-if [[ ! -d ${DATA_DIR} ]]
+if [[ ! -d "${DATA_DIR}" ]]
 then
 	echo "-- Creating ${DATA_DIR}"
-	mkdir ${DATA_DIR}
+	mkdir "${DATA_DIR}"
 fi
 echo "-- Starting in 5 seconds"
 sleep 5
 
-cd ${CLIENT_DIR}
-$MAPEXTRACTOR
+cd "${CLIENT_DIR}"
+"$MAPEXTRACTOR"
 
 echo "-- Extraction complete, copying dbc and maps files"
-cp -r dbc maps ${DATA_DIR}
-if [[ -d ${CLIENT_DIR}/Cameras ]]
+cp -r dbc maps "${DATA_DIR}"
+if [[ -d "${CLIENT_DIR}/Cameras" ]]
 then
 	echo "-- Camera files found, copying"
-	cp -r Cameras ${DATA_DIR}
+	cp -r Cameras "${DATA_DIR}"
 fi
 
 echo "-- Done"
@@ -95,13 +95,13 @@ echo "-- Copying extracted data to ${DATA_DIR}/vmaps"
 echo "-- Starting in 5 seconds"
 sleep 5
 
-cd ${CLIENT_DIR}
-$VMAP4EXTRACTOR
+cd "${CLIENT_DIR}"
+"$VMAP4EXTRACTOR"
 mkdir vmaps
-$VMAP4ASSEMBLER Buildings vmaps
+"$VMAP4ASSEMBLER" Buildings vmaps
 
 echo "-- Extraction complete, copying files"
-cp -r vmaps ${DATA_DIR}
+cp -r vmaps "${DATA_DIR}"
 echo "-- Done"
 echo
 }
@@ -115,11 +115,11 @@ echo "-- Copying extracted data to ${DATA_DIR}/mmaps"
 echo "-- Starting in 5 seconds"
 sleep 5
 
-cd ${CLIENT_DIR}
+cd "${CLIENT_DIR}"
 mkdir mmaps
-$MMAPS_GENERATOR
+"$MMAPS_GENERATOR"
 echo "-- Extraction complete, copying files"
-cp -r mmaps ${DATA_DIR}
+cp -r mmaps "${DATA_DIR}"
 echo "-- Done"
 echo
 }
@@ -135,7 +135,7 @@ echo "Enter y to continue or anything else to cancel"
 read a
 if [[ ${a} = "y" ]]
 then
-	cd ${CLIENT_DIR}
+	cd "${CLIENT_DIR}"
 	rm -fr Buildings Cameras dbc maps mmaps vmaps
 	echo "Done"
 fi

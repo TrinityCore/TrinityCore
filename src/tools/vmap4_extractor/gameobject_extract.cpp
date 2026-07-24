@@ -31,18 +31,15 @@ bool ExtractSingleModel(std::string& fname)
     std::string extension = fname.substr(fname.length() - 4, 4);
     if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
     {
-        // replace .mdx -> .m2
-        fname.erase(fname.length()-2,2);
+        fname.erase(fname.length() - 2, 2);
         fname.append("2");
     }
-    // >= 3.1.0 ADT MMDX section store filename.m2 filenames for corresponded .m2 file
-    // nothing do
 
     std::string originalName = fname;
 
     char* name = GetPlainName((char*)fname.c_str());
-    fixnamen(name, strlen(name));
-    fixname2(name, strlen(name));
+    FixNameCase(name, strlen(name));
+    FixNameSpaces(name, strlen(name));
 
     std::string output(szWorkDirWmo);
     output += "/";
@@ -89,9 +86,9 @@ void ExtractGameobjectModels()
         if (path.length() < 4)
             continue;
 
-        fixnamen((char*)path.c_str(), path.size());
+        FixNameCase((char*)path.c_str(), path.size());
         char * name = GetPlainName((char*)path.c_str());
-        fixname2(name, strlen(name));
+        FixNameSpaces(name, strlen(name));
 
         char * ch_ext = GetExtension(name);
         if (!ch_ext)
@@ -106,15 +103,10 @@ void ExtractGameobjectModels()
             isWmo = 1;
             result = ExtractSingleWmo(path);
         }
-        else if (!strcmp(ch_ext, ".mdl"))
-        {
-            // TODO: extract .mdl files, if needed
+        else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
-        }
         else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
-        {
             result = ExtractSingleModel(path);
-        }
 
         if (result)
         {

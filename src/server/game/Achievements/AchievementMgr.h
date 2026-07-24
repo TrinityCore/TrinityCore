@@ -31,6 +31,11 @@ class Player;
 class WorldObject;
 class WorldPacket;
 
+namespace WorldPackets::Achievement
+{
+    struct AllAchievements;
+}
+
 typedef std::vector<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 
@@ -41,23 +46,23 @@ typedef std::unordered_map<uint32, AchievementEntryList>         AchievementList
 
 struct CriteriaProgress
 {
-    uint32 counter;
-    time_t date;                                            // latest update time.
-    bool changed;
+    uint32 counter = 0;
+    time_t date = time_t(0);                                // latest update time.
+    bool changed = false;
 };
 
 enum AchievementCriteriaDataType
-{                                                           // value1         value2        comment
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE                = 0, // 0              0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE          = 1, // creature_id    0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE = 2, // class_id       race_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH= 3, // health_percent 0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD       = 4, // own_team       0             not corpse (not released body), own_team == false if enemy team expected
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5, // spell_id       effect_idx
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6, // area id        0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7, // spell_id       effect_idx
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8, // minvalue                     value provided with achievement update must be not less that limit
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9, // minlevel                     minlevel of target
+{                                                            // value1         value2        comment
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE                = 0,  // 0              0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE          = 1,  // creature_id    0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE = 2,  // class_id       race_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH= 3,  // health_percent 0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD       = 4,  // own_team       0             not corpse (not released body), own_team == false if enemy team expected
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5,  // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6,  // area id        0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7,  // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8,  // minvalue                     value provided with achievement update must be not less that limit
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9,  // minlevel                     minlevel of target
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER            = 10, // gender                       0=male; 1=female
     ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT              = 11, // scripted requirement
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12, // difficulty                   normal/heroic difficulty for current event map
@@ -72,11 +77,11 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
     ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // N                            login on day of N-th Birthday
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23, // title_id                     known (pvp) title, values from dbc
-    // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT       = 24, // 7.x only
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25  // item_quality
-};
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT          = 24, // game_event_id  0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25, // item_quality
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               26 // maximum value in AchievementCriteriaDataType enum
+    MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE
+};
 
 struct AchievementCriteriaData
 {
@@ -188,12 +193,17 @@ struct AchievementCriteriaData
         {
             uint32 title_id;
         } known_title;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT        = 24
+        struct
+        {
+            uint32 id;
+        } game_event;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 25
         struct
         {
             uint32 item_quality;
         } item;
-        // ...
+        // raw
         struct
         {
             uint32 value1;
@@ -303,7 +313,7 @@ class TC_GAME_API AchievementMgr
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref);
-        void BuildAllDataPacket(Player const* receiver, WorldPacket* data) const;
+        void BuildAllDataPacket(Player const* receiver, WorldPackets::Achievement::AllAchievements* data) const;
 
         bool ConditionsSatisfied(AchievementCriteriaEntry const* criteria) const;
         bool RequirementsSatisfied(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref) const;
@@ -319,7 +329,7 @@ class TC_GAME_API AchievementMgr
 class TC_GAME_API AchievementGlobalMgr
 {
         AchievementGlobalMgr() { }
-        ~AchievementGlobalMgr() { }
+        ~AchievementGlobalMgr();
 
     public:
         static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
@@ -331,43 +341,43 @@ class TC_GAME_API AchievementGlobalMgr
 
         AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type) const
         {
-            return m_AchievementCriteriasByTimedType[type];
+            return _achievementCriteriasByTimedType[type];
         }
 
         AchievementCriteriaEntryList const* GetAchievementCriteriaByCondition(AchievementCriteriaCondition condition, uint32 val)
         {
-            AchievementCriteriaListByCondition::const_iterator itr = m_AchievementCriteriasByCondition[condition].find(val);
-            return itr != m_AchievementCriteriasByCondition[condition].end() ? &itr->second : nullptr;
+            AchievementCriteriaListByCondition::const_iterator itr = _achievementCriteriasByCondition[condition].find(val);
+            return itr != _achievementCriteriasByCondition[condition].end() ? &itr->second : nullptr;
         }
 
         AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id) const
         {
-            AchievementCriteriaListByAchievement::const_iterator itr = m_AchievementCriteriaListByAchievement.find(id);
-            return itr != m_AchievementCriteriaListByAchievement.end() ? &itr->second : nullptr;
+            AchievementCriteriaListByAchievement::const_iterator itr = _achievementCriteriaListByAchievement.find(id);
+            return itr != _achievementCriteriaListByAchievement.end() ? &itr->second : nullptr;
         }
 
         AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
         {
-            AchievementListByReferencedId::const_iterator itr = m_AchievementListByReferencedId.find(id);
-            return itr != m_AchievementListByReferencedId.end() ? &itr->second : nullptr;
+            AchievementListByReferencedId::const_iterator itr = _achievementListByReferencedId.find(id);
+            return itr != _achievementListByReferencedId.end() ? &itr->second : nullptr;
         }
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
-            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
-            return iter != m_achievementRewards.end() ? &iter->second : nullptr;
+            AchievementRewards::const_iterator iter = _achievementRewards.find(achievement->ID);
+            return iter != _achievementRewards.end() ? &iter->second : nullptr;
         }
 
         AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
         {
-            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
-            return iter != m_achievementRewardLocales.end() ? &iter->second : nullptr;
+            AchievementRewardLocales::const_iterator iter = _achievementRewardLocales.find(achievement->ID);
+            return iter != _achievementRewardLocales.end() ? &iter->second : nullptr;
         }
 
         AchievementCriteriaDataSet const* GetCriteriaDataSet(AchievementCriteriaEntry const* achievementCriteria) const
         {
-            AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
-            return iter != m_criteriaDataMap.end() ? &iter->second : nullptr;
+            AchievementCriteriaDataMap::const_iterator iter = _criteriaDataMap.find(achievementCriteria->ID);
+            return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
         }
 
         bool IsRealmCompleted(AchievementEntry const* achievement) const;
@@ -380,33 +390,33 @@ class TC_GAME_API AchievementGlobalMgr
         void LoadRewards();
         void LoadRewardLocales();
     private:
-        AchievementCriteriaDataMap m_criteriaDataMap;
+        AchievementCriteriaDataMap _criteriaDataMap;
 
         // store achievement criterias by type to speed up lookup
-        AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
+        AchievementCriteriaEntryList _achievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
 
         static AchievementCriteriaEntryList const EmptyCriteriaList;
 
         // store achievement criterias split by misc values
-        AchievementCriteriaListByMiscValue m_AchievementCriteriasByMiscValue[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
+        AchievementCriteriaListByMiscValue _achievementCriteriasByMiscalue[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
 
-        AchievementCriteriaEntryList m_AchievementCriteriasByTimedType[ACHIEVEMENT_TIMED_TYPE_MAX];
+        AchievementCriteriaEntryList _achievementCriteriasByTimedType[ACHIEVEMENT_TIMED_TYPE_MAX];
 
-        AchievementCriteriaListByCondition m_AchievementCriteriasByCondition[ACHIEVEMENT_CRITERIA_CONDITION_MAX];
+        AchievementCriteriaListByCondition _achievementCriteriasByCondition[ACHIEVEMENT_CRITERIA_CONDITION_MAX];
 
         // store achievement criterias by achievement to speed up lookup
-        AchievementCriteriaListByAchievement m_AchievementCriteriaListByAchievement;
+        AchievementCriteriaListByAchievement _achievementCriteriaListByAchievement;
 
         // store achievements by referenced achievement id to speed up lookup
-        AchievementListByReferencedId m_AchievementListByReferencedId;
+        AchievementListByReferencedId _achievementListByReferencedId;
 
         // store realm first achievements
         // SystemTimePoint::min() is a placeholder value for realm firsts not yet completed
         // SystemTimePoint::max() is a value assigned to realm firsts complete before worldserver started
         std::unordered_map<uint32 /*achievementId*/, SystemTimePoint /*completionTime*/> _allCompletedAchievements;
 
-        AchievementRewards m_achievementRewards;
-        AchievementRewardLocales m_achievementRewardLocales;
+        AchievementRewards _achievementRewards;
+        AchievementRewardLocales _achievementRewardLocales;
 
         friend class UnitTestDataLoader;
 };

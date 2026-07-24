@@ -175,7 +175,7 @@ enum EnslavedProtoDrake
     TYPE_PROTODRAKE_AT      = 28,
     DATA_PROTODRAKE_MOVE    = 6,
 
-    PATH_PROTODRAKE         = 125946,
+    PATH_PROTODRAKE         = 1007568,
 
     EVENT_REND              = 1,
     EVENT_FLAME_BREATH      = 2,

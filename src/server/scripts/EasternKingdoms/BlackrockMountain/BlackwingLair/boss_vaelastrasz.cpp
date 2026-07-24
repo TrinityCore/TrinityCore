@@ -149,8 +149,8 @@ struct boss_vaelastrasz : public BossAI
                         break;
                     case EVENT_SPEECH_4:
                         me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
-                        if (PlayerGUID && ObjectAccessor::GetUnit(*me, PlayerGUID))
-                            AttackStart(ObjectAccessor::GetUnit(*me, PlayerGUID));;
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                            AttackStart(player);
                         break;
                 }
             }

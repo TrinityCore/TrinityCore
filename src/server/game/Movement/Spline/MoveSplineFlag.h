@@ -27,7 +27,7 @@ namespace Movement
     class MoveSplineFlag
     {
     public:
-        enum eFlags
+        enum eFlags : uint32
         {
             None                = 0x00000000,
                                                         // x00-xFF(first byte) used as animation Ids storage in pair with Animation flag
@@ -101,6 +101,7 @@ namespace Movement
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
+        void EnableSwim() { raw() = raw() | CanSwim; }
 
         uint8 animTier;
         bool done                : 1;

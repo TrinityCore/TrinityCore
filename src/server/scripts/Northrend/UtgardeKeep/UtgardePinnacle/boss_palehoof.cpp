@@ -108,23 +108,6 @@ enum Misc
     SUMMON_MINIBOSSES_GROUP = 1
 };
 
-class WormAttackEvent : public BasicEvent
-{
-public:
-    WormAttackEvent(TempSummon* owner) : BasicEvent(), _owner(owner) { }
-
-    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
-    {
-        _owner->SetReactState(REACT_AGGRESSIVE);
-        _owner->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
-        _owner->AI()->DoZoneInCombat();
-        return true;
-    }
-
-private:
-    TempSummon* _owner;
-};
-
 class OrbFinalPositionEvent : public BasicEvent
 {
 public:
@@ -466,7 +449,8 @@ struct boss_massive_jormungar : public PalehoofMinionsBossAI
     {
         if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
         {
-            summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2s));
+            summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+            SetAggressiveStateAfter(2s, summon, true);
             summon->GetMotionMaster()->MoveRandom(5.0f);
         }
     }

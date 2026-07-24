@@ -134,7 +134,7 @@ namespace Trinity::Hyperlinks
             {
                 if (Optional<uint64> res = Trinity::StringTo<uint64>(data, 16))
                 {
-                    val.Set(*res);
+                    val.SetRawValue(*res);
                     return true;
                 }
                 else

@@ -425,6 +425,7 @@ struct npc_twisted_visage : public ScriptedAI
                         ScriptedAI::AttackStartCaster(who, 25.0f);
                         break;
                     default:
+                        ScriptedAI::AttackStart(who);
                         break;
                 }
                 break;
@@ -436,6 +437,7 @@ struct npc_twisted_visage : public ScriptedAI
                         ScriptedAI::AttackStartCaster(who, 25.0f);
                         break;
                     default:
+                        ScriptedAI::AttackStart(who);
                         break;
                 }
                 break;
@@ -444,9 +446,6 @@ struct npc_twisted_visage : public ScriptedAI
             case CLASS_MAGE:
             case CLASS_WARLOCK:
                 ScriptedAI::AttackStartCaster(who, 25.0f);
-                break;
-            case CLASS_ROGUE:
-                ScriptedAI::AttackStart(who);
                 break;
             default:
                 ScriptedAI::AttackStart(who);

@@ -113,10 +113,10 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
             player = source->ToPlayer();
 
         if (!player)
-            TC_LOG_ERROR("scripts", "{} neither source nor target object is player (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
+            TC_LOG_ERROR("scripts", "{} neither source nor target object is player (source: TypeId: {}, Entry: {}, {}; target: TypeId: {}, Entry: {}, {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
-                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
-                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, (source ? source->GetGUID() : ObjectGuid::Empty).ToString().c_str(),
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, (target ? target->GetGUID() : ObjectGuid::Empty).ToString().c_str());
     }
     return player;
 }
@@ -146,10 +146,10 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         }
 
         if (!creature)
-            TC_LOG_ERROR("scripts", "{} neither source nor target are creatures (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
+            TC_LOG_ERROR("scripts", "{} neither source nor target are creatures (source: TypeId: {}, Entry: {}, {}; target: TypeId: {}, Entry: {}, {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
-                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
-                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, (source ? source->GetGUID() : ObjectGuid::Empty).ToString().c_str(),
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, (target ? target->GetGUID() : ObjectGuid::Empty).ToString().c_str());
     }
     return creature;
 }
@@ -179,10 +179,10 @@ inline GameObject* Map::_GetScriptGameObjectSourceOrTarget(Object* source, Objec
         }
 
         if (!gameobject)
-            TC_LOG_ERROR("scripts", "{} neither source nor target are gameobjects (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
+            TC_LOG_ERROR("scripts", "{} neither source nor target are gameobjects (source: TypeId: {}, Entry: {}, {}; target: TypeId: {}, Entry: {}, {}), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
-                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
-                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, (source ? source->GetGUID() : ObjectGuid::Empty).ToString().c_str(),
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, (target ? target->GetGUID() : ObjectGuid::Empty).ToString().c_str());
     }
     return gameobject;
 }
@@ -322,7 +322,7 @@ void Map::ScriptsProcess()
         ScriptAction const& step = iter->second;
 
         Object* source = nullptr;
-        if (step.sourceGUID)
+        if (!step.sourceGUID.IsEmpty())
         {
             switch (step.sourceGUID.GetHigh())
             {
@@ -340,8 +340,8 @@ void Map::ScriptsProcess()
                 case HighGuid::Player:
                     source = GetPlayer(step.sourceGUID);
                     break;
-                case HighGuid::Transport:
                 case HighGuid::GameObject:
+                case HighGuid::Transport:
                     source = GetGameObject(step.sourceGUID);
                     break;
                 case HighGuid::Corpse:
@@ -358,7 +358,7 @@ void Map::ScriptsProcess()
         }
 
         WorldObject* target = nullptr;
-        if (step.targetGUID)
+        if (!step.targetGUID.IsEmpty())
         {
             switch (step.targetGUID.GetHigh())
             {
@@ -369,11 +369,11 @@ void Map::ScriptsProcess()
                 case HighGuid::Pet:
                     target = GetPet(step.targetGUID);
                     break;
-                case HighGuid::Player:                       // empty GUID case also
+                case HighGuid::Player:
                     target = GetPlayer(step.targetGUID);
                     break;
-                case HighGuid::Transport:
                 case HighGuid::GameObject:
+                case HighGuid::Transport:
                     target = GetGameObject(step.targetGUID);
                     break;
                 case HighGuid::Corpse:
@@ -826,6 +826,7 @@ void Map::ScriptsProcess()
                     {
                         return pair.second->IsAlive();
                     });
+
                     cTarget = creatureItr != creatureBounds.second ? creatureItr->second : creatureBounds.first->second;
                 }
 

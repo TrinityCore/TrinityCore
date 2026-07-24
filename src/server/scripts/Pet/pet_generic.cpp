@@ -22,12 +22,13 @@
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
 
 enum PandarenMonkMisc
 {
@@ -211,7 +212,7 @@ class spell_pet_gen_lich_pet_aura : public AuraScript
 
         Unit* owner = GetUnitOwner();
 
-        std::list<Creature*> minionList;
+        std::list<TempSummon*> minionList;
         owner->GetAllMinionsByEntry(minionList, NPC_LICH_PET);
         for (Creature* minion : minionList)
             owner->CastSpell(minion, SPELL_LICH_PET_AURA_ONKILL, true);
@@ -287,6 +288,44 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pet_gen_lich_pet_focus::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71848 - Toxic Wasteling Find Target
+class spell_pet_gen_toxic_wasteling_find_target : public SpellScript
+{
+    PrepareSpellScript(spell_pet_gen_toxic_wasteling_find_target);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_find_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71874 - Toxic Wasteling Devour
+class spell_pet_gen_toxic_wasteling_devour : public SpellScript
+{
+    PrepareSpellScript(spell_pet_gen_toxic_wasteling_devour);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_devour::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -421,6 +460,8 @@ void AddSC_generic_pet_scripts()
     RegisterSpellScript(spell_pet_gen_lich_pet_periodic_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_focus);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_find_target);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_devour);
     RegisterCreatureAI(npc_elwynn_forest_wolf);
     RegisterSpellScript(spell_gen_elwynn_forest_wolf);
     RegisterSpellScript(spell_gen_elwynn_lamb);

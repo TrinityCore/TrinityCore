@@ -173,7 +173,7 @@ struct npc_freed_protodrake : public VehicleAI
                         if (Unit* passenger = vehicle->GetPassenger(0))
                         {
                             Talk(TEXT_EMOTE, passenger);
-                            me->GetMotionMaster()->MovePath(NPC_DRAKE, false);
+                            me->GetMotionMaster()->MovePath(NPC_DRAKE << 3, false);
                         }
                 }
                 else
@@ -202,6 +202,8 @@ struct npc_freed_protodrake : public VehicleAI
     }
 };
 
+static constexpr uint32 PATH_ESCORT_ICEFANG = 236818;
+
 struct npc_icefang : public EscortAI
 {
     npc_icefang(Creature* creature) : EscortAI(creature) { }
@@ -215,7 +217,10 @@ struct npc_icefang : public EscortAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (apply)
-                Start(false, true, who->GetGUID());
+            {
+                LoadPath(PATH_ESCORT_ICEFANG);
+                Start(false, who->GetGUID());
+            }
         }
     }
 
@@ -451,7 +456,7 @@ private:
 
 enum WildWyrm
 {
-    PATH_WILD_WYRM                      = 30275 * 10,
+    PATH_WILD_WYRM                      = (30275 * 10) << 3,
 
     // Phase 1
     SPELL_PLAYER_MOUNT_WYRM             = 56672,
@@ -575,7 +580,7 @@ struct npc_wild_wyrm : public VehicleAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (_playerGuid || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
+        if (!_playerGuid.IsEmpty() || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
             return;
 
         _playerGuid = caster->GetGUID();
@@ -746,8 +751,8 @@ enum JokkumScriptcast
 {
     NPC_KINGJOKKUM                   = 30331,
     NPC_THORIM                       = 30390,
-    PATH_JOKKUM                      = 2072200,
-    PATH_JOKKUM_END                  = 2072201,
+    PATH_JOKKUM                      = 16577600,
+    PATH_JOKKUM_END                  = 16577608,
     SAY_HOLD_ON                      = 0,
     SAY_JOKKUM_1                     = 1,
     SAY_JOKKUM_2                     = 2,
@@ -1321,6 +1326,39 @@ class spell_storm_peaks_flaming_arrow_triggered_effect : public AuraScript
     }
 };
 
+/*######
+## Quest 12920: Catching up with Brann
+######*/
+
+enum CatchingUpWithBrann
+{
+    SPELL_DESPAWN_BRANN    = 61121,
+    SPELL_CONTACT_BRANN    = 55038
+};
+
+// 61122 - Contact Brann
+class spell_storm_peaks_contact_brann : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_contact_brann);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DESPAWN_BRANN, SPELL_CONTACT_BRANN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DESPAWN_BRANN);
+        caster->CastSpell(caster, SPELL_CONTACT_BRANN);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_contact_brann::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
@@ -1350,4 +1388,5 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
     RegisterSpellScript(spell_storm_peaks_call_of_earth);
     RegisterSpellScript(spell_storm_peaks_flaming_arrow_triggered_effect);
+    RegisterSpellScript(spell_storm_peaks_contact_brann);
 }

@@ -23,25 +23,53 @@
 #define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
-#define MAX_ENCOUNTER                   3
+uint32 constexpr EncounterCount = 3;
 
 enum UDDataTypes
 {
-    DATA_ALTAR_DOORS                    = 1,
-    DATA_ANCIENT_DOOR                   = 2,
-    DATA_IRONAYA_DOOR                   = 3,
-    DATA_STONE_KEEPERS                  = 4,
-    DATA_MINIONS                        = 5,
-    DATA_IRONAYA_SEAL                   = 6,
+    DATA_IRONAYA                        = 0,
+    DATA_STONE_KEEPERS                  = 1,
+    DATA_ARCHAEDAS                      = 2,
+
+    DATA_IRONAYA_INTRO,
+    DATA_IRONAYA_SEAL_DOOR
+};
+
+enum UDCreatureIds
+{
+    NPC_ARCHAEDAS                       = 2748,
+    NPC_STONE_KEEPER                    = 4857,
+    NPC_EARTHEN_GUARDIAN                = 7076,
+    NPC_EARTHEN_HALLSHAPER              = 7077,
+    NPC_EARTHEN_CUSTODIAN               = 7309,
+    NPC_VAULT_WARDER                    = 10120
 };
 
 enum UDGameObjectIds
 {
-    GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
-    GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
-    GO_ANCIENT_VAULT_DOOR               = 124369,
     GO_IRONAYA_SEAL_DOOR                = 124372,
     GO_KEYSTONE                         = 124371,
+    GO_TEMPLE_DOOR_TO_KEEPERS           = 124368,
+    GO_TEMPLE_DOOR_TO_ARCHAEDAS         = 124367,
+    GO_TEMPLE_DOOR_ARCHAEDAS            = 141869,
+    GO_ANCIENT_VAULT_DOOR               = 124369
+};
+
+enum UDSpawnGroups
+{
+    SPAWN_GROUP_IRONAYA                 = 334
+};
+
+enum UDActions
+{
+    ACTION_KEEPER_ACTIVATED             = 0,
+    ACTION_ARCHAEDAS_AWAKEN             = 1
+};
+
+enum UDGameEvents
+{
+    EVENT_SUB_BOSS_AGGRO                = 2228,
+    EVENT_BOSS_AGGRO                    = 2268
 };
 
 template <class AI, class T>
@@ -51,5 +79,6 @@ inline AI* GetUldamanAI(T* obj)
 }
 
 #define RegisterUldamanCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUldamanAI)
+#define RegisterUldamanGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetUldamanAI)
 
 #endif

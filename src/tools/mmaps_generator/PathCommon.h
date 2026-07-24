@@ -79,12 +79,12 @@ namespace MMAP
     {
     #ifdef WIN32
         HANDLE hFind;
-        WIN32_FIND_DATA findFileInfo;
+        WIN32_FIND_DATAA findFileInfo;
         std::string directory;
 
         directory = dirpath + "/" + filter;
 
-        hFind = FindFirstFile(directory.c_str(), &findFileInfo);
+        hFind = FindFirstFileA(directory.c_str(), &findFileInfo);
 
         if (hFind == INVALID_HANDLE_VALUE)
             return LISTFILE_DIRECTORY_NOT_FOUND;
@@ -93,7 +93,7 @@ namespace MMAP
             if ((findFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
                 fileList.push_back(std::string(findFileInfo.cFileName));
         }
-        while (FindNextFile(hFind, &findFileInfo));
+        while (FindNextFileA(hFind, &findFileInfo));
 
         FindClose(hFind);
 

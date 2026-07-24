@@ -34,8 +34,8 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         explicit ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
         ~ChaseMovementGenerator();
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;

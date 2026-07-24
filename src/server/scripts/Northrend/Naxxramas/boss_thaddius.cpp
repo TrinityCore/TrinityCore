@@ -648,7 +648,7 @@ private:
     Creature* myCoil()
     {
         Creature* coil = nullptr;
-        if (_myCoil)
+        if (!_myCoil.IsEmpty())
             coil = ObjectAccessor::GetCreature(*me, _myCoil);
         if (!coil)
         {
@@ -665,7 +665,7 @@ private:
     GameObject* myCoilGO()
     {
         GameObject* coil = nullptr;
-        if (_myCoilGO)
+        if (!_myCoilGO.IsEmpty())
             coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
         if (!coil)
         {
@@ -889,7 +889,7 @@ private:
     Creature* myCoil()
     {
         Creature* coil = nullptr;
-        if (_myCoil)
+        if (!_myCoil.IsEmpty())
             coil = ObjectAccessor::GetCreature(*me, _myCoil);
         if (!coil)
         {
@@ -906,7 +906,7 @@ private:
     GameObject* myCoilGO()
     {
         GameObject* coil = nullptr;
-        if (_myCoilGO)
+        if (!_myCoilGO.IsEmpty())
             coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
         if (!coil)
         {
@@ -980,7 +980,7 @@ class spell_thaddius_polarity_charge : public SpellScript
 
         uint8 maxStacks = 0;
         if (GetCaster())
-            switch (GetCaster()->GetMap()->GetDifficulty())
+            switch (GetCaster()->GetMap()->GetDifficultyID())
             {
                 case RAID_DIFFICULTY_10MAN_NORMAL:
                     maxStacks = MAX_POLARITY_10M;

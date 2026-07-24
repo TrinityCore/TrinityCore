@@ -30,15 +30,7 @@
 void UnitAI::AttackStart(Unit* victim)
 {
     if (victim && me->Attack(victim, true))
-    {
-        // Clear distracted state on attacking
-        if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-        {
-            me->ClearUnitState(UNIT_STATE_DISTRACTED);
-            me->GetMotionMaster()->Clear();
-        }
         me->GetMotionMaster()->MoveChase(victim);
-    }
 }
 
 void UnitAI::InitializeAI()
@@ -83,16 +75,16 @@ void UnitAI::DoMeleeAttackIfReady()
     }
 }
 
-bool UnitAI::DoSpellAttackIfReady(uint32 spell)
+bool UnitAI::DoSpellAttackIfReady(uint32 spellId)
 {
     if (me->HasUnitState(UNIT_STATE_CASTING) || !me->isAttackReady())
         return true;
 
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
     {
         if (me->IsWithinCombatRange(me->GetVictim(), spellInfo->GetMaxRange(false)))
         {
-            me->CastSpell(me->GetVictim(), spell, false);
+            me->CastSpell(me->GetVictim(), spellId, false);
             me->resetAttackTimer();
             return true;
         }

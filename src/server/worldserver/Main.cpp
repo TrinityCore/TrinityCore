@@ -15,10 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd Trinity Daemon
-/// @{
-/// \file
-
 #include "Common.h"
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
@@ -74,11 +70,12 @@ namespace fs = boost::filesystem;
     #define _TRINITY_CORE_CONFIG_DIR "worldserver.conf.d"
 #endif
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
-char serviceName[] = "worldserver";
-char serviceLongName[] = "TrinityCore world service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
+#include <tchar.h>
+TCHAR serviceName[] = _T("worldserver");
+TCHAR serviceLongName[] = _T("TrinityCore world service");
+TCHAR serviceDescription[] = _T("TrinityCore World of Warcraft emulator world service");
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -116,7 +113,7 @@ private:
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
@@ -126,7 +123,7 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
-extern int main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
@@ -145,12 +142,13 @@ extern int main(int argc, char** argv)
         return 0;
 
 #ifdef _WIN32
+    Trinity::Service::Init(serviceLongName, serviceName, serviceDescription, &main, &m_ServiceStatus);
     if (winServiceAction == "install")
-        return WinServiceInstall() ? 0 : 1;
+        return Trinity::Service::Install();
     if (winServiceAction == "uninstall")
-        return WinServiceUninstall() ? 0 : 1;
+        return Trinity::Service::Uninstall();
     if (winServiceAction == "run")
-        return WinServiceRun() ? 0 : 1;
+        return Trinity::Service::Run();
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
@@ -334,9 +332,9 @@ extern int main(int argc, char** argv)
     });
 
     // Start the Remote Access port (acceptor) if enabled
-    std::unique_ptr<AsyncAcceptor> raAcceptor;
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
+        raAcceptor = StartRaSocketAcceptor(*ioContext);
 
     // Start soap serving thread if enabled
     std::shared_ptr<std::thread> soapThread;
@@ -583,20 +581,23 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> acceptor = std::make_unique<Trinity::Net::AsyncAcceptor>(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
-        delete acceptor;
         return nullptr;
     }
 
-    acceptor->AsyncAccept<RASession>();
+    acceptor->AsyncAccept([](Trinity::Net::IoContextTcpSocket&& sock, uint32 /*threadIndex*/)
+    {
+        std::make_shared<RASession>(std::move(sock))->Start();
+
+    });
     return acceptor;
 }
 
@@ -706,8 +707,6 @@ void ClearOnlineAccounts()
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
 
-/// @}
-
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {
     options_description all("Allowed options");
@@ -748,3 +747,9 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 
     return vm;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

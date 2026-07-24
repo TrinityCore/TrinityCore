@@ -746,7 +746,7 @@ class TC_GAME_API Guild
         uint64 m_bankMoney;
 
         std::vector<RankInfo> m_ranks;
-        std::unordered_map<uint32, Member> m_members;
+        std::unordered_map<ObjectGuid, Member> m_members;
         std::vector<BankTab> m_bankTabs;
 
         // These are actually ordered lists. The first element is the oldest entry.
@@ -769,13 +769,13 @@ class TC_GAME_API Guild
 
         inline Member const* GetMember(ObjectGuid guid) const
         {
-            auto itr = m_members.find(guid.GetCounter());
+            auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 
         inline Member* GetMember(ObjectGuid guid)
         {
-            auto itr = m_members.find(guid.GetCounter());
+            auto itr = m_members.find(guid);
             return (itr != m_members.end()) ? &itr->second : nullptr;
         }
 

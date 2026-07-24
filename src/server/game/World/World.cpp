@@ -72,7 +72,6 @@
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
-#include "ServerMotd.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartScriptMgr.h"
@@ -224,6 +223,26 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
     m_allowedSecurityLevel = sec;
     if (update)
         KickAllLess(m_allowedSecurityLevel);
+}
+
+void World::SetMotd(std::string motd)
+{
+    /// we are using a string copy here to allow modifications in script hooks
+    sScriptMgr->OnMotdChange(motd);
+
+    _motd.clear();
+
+    std::vector<std::string_view> tokens = Trinity::Tokenize(motd, '@', true);
+
+    _motd.reserve(tokens.size());
+
+    for (std::string_view const& token : tokens)
+        _motd.emplace_back(token);
+}
+
+std::vector<std::string> const& World::GetMotd() const
+{
+    return _motd;
 }
 
 void World::TriggerGuidWarning()
@@ -489,7 +508,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
-    Motd::SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
+    SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetBoolDefault("AllowTickets", true);
@@ -2043,9 +2062,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
 
-    TC_LOG_INFO("server.loading", "Loading SmartAI Waypoints...");
-    sSmartWaypointMgr->LoadFromDB();
-
     TC_LOG_INFO("server.loading", "Loading Creature Formations...");
     sFormationMgr->LoadCreatureFormations();
 
@@ -2090,7 +2106,6 @@ void World::SetInitialWorldSettings()
     LoadAutobroadcasts();
 
     ///- Load and initialize scripts
-    sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadWaypointScripts();
 
@@ -2371,9 +2386,9 @@ void World::Update(uint32 diff)
         if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
             TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Save custom channels"));
-            ChannelMgr* mgr1 = ASSERT_NOTNULL(ChannelMgr::forTeam(ALLIANCE));
+            ChannelMgr* mgr1 = ASSERT_NOTNULL(ChannelMgr::ForTeam(ALLIANCE));
             mgr1->SaveToDB();
-            ChannelMgr* mgr2 = ASSERT_NOTNULL(ChannelMgr::forTeam(HORDE));
+            ChannelMgr* mgr2 = ASSERT_NOTNULL(ChannelMgr::ForTeam(HORDE));
             if (mgr1 != mgr2)
                 mgr2->SaveToDB();
         }
@@ -2662,36 +2677,41 @@ namespace Trinity
     {
         public:
             typedef std::vector<WorldPacket*> WorldPacketList;
-            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) { }
-            void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
-            {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+            static size_t const BufferSize = 2048;
 
+            explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) { }
+
+            void operator()(WorldPacketList& dataList, LocaleConstant locale)
+            {
+                char const* text = sObjectMgr->GetTrinityString(i_textId, locale);
+
+                char strBuffer[BufferSize];
                 if (i_args)
                 {
                     // we need copy va_list before use or original va_list will corrupted
                     va_list ap;
                     va_copy(ap, *i_args);
-
-                    char str[2048];
-                    vsnprintf(str, 2048, text, ap);
+                    vsnprintf(strBuffer, BufferSize, text, ap);
                     va_end(ap);
-
-                    do_helper(data_list, &str[0]);
                 }
                 else
-                    do_helper(data_list, (char*)text);
-            }
-        private:
-            char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
-            void do_helper(WorldPacketList& data_list, char* text)
-            {
-                char* pos = text;
-                while (char* line = lineFromMessage(pos))
                 {
-                    WorldPacket* data = new WorldPacket();
-                    ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-                    data_list.push_back(data);
+                    std::strncpy(strBuffer, text, BufferSize);
+                    strBuffer[BufferSize - 1] = '\0';
+                }
+
+                do_helper(dataList, strBuffer);
+            }
+
+        private:
+            void do_helper(WorldPacketList& dataList, char* text)
+            {
+                while (char* line = ChatHandler::LineFromMessage(text))
+                {
+                    WorldPackets::Chat::Chat packet;
+                    packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                    packet.Write();
+                    dataList.push_back(new WorldPacket(packet.Move()));
                 }
             }
 
@@ -2748,16 +2768,15 @@ void World::SendGMText(uint32 string_id, ...)
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
 void World::SendGlobalText(char const* text, WorldSession* self)
 {
-    WorldPacket data;
-
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(text);
     char* pos = buf;
 
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        SendGlobalMessage(&data, self);
+        WorldPackets::Chat::Chat packet;
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        SendGlobalMessage(packet.Write(), self);
     }
 
     free(buf);

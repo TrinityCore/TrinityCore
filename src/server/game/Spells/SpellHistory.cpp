@@ -25,6 +25,7 @@
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "WorldPacket.h"
 
 SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH));
@@ -236,47 +237,34 @@ void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
     }
 }
 
-template<>
-void SpellHistory::WritePacket<Player>(WorldPacket& packet) const
+void SpellHistory::WritePacket(WorldPackets::Spells::InitialSpells* initialSpells) const
 {
     Clock::time_point now = GameTime::GetSystemTime();
-    Clock::time_point infTime = now + InfinityCooldownDelayCheck;
-
-    packet << uint16(_spellCooldowns.size());
 
     for (auto const& spellCooldown : _spellCooldowns)
     {
-        packet << uint32(spellCooldown.first);
-        packet << uint16(spellCooldown.second.ItemId);        // cast item id
-        packet << uint16(spellCooldown.second.CategoryId);    // spell category
+        WorldPackets::Spells::SpellHistoryEntry historyEntry;
+        historyEntry.SpellID = spellCooldown.first;
+        historyEntry.ItemID = spellCooldown.second.ItemId;
+        historyEntry.Category = spellCooldown.second.CategoryId;
 
-        // send infinity cooldown in special format
-        if (spellCooldown.second.CooldownEnd >= infTime)
-        {
-            packet << uint32(1);                              // cooldown
-            packet << uint32(0x80000000);                     // category cooldown
-            continue;
-        }
-
-        std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CooldownEnd - now);
-        if (cooldownDuration.count() <= 0)
-        {
-            packet << uint32(0);
-            packet << uint32(0);
-            continue;
-        }
-
-        std::chrono::milliseconds categoryDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CategoryEnd - now);
-        if (categoryDuration.count() >= 0)
-        {
-            packet << uint32(0);                              // cooldown
-            packet << uint32(categoryDuration.count());       // category cooldown
-        }
+        if (spellCooldown.second.OnHold)
+            historyEntry.OnHold = true;
         else
         {
-            packet << uint32(cooldownDuration.count());       // cooldown
-            packet << uint32(0);                              // category cooldown
+            Milliseconds cooldownDuration = duration_cast<Milliseconds>(spellCooldown.second.CooldownEnd - now);
+            if (cooldownDuration <= 0ms)
+                continue;
+
+            Milliseconds categoryDuration = duration_cast<Milliseconds>(spellCooldown.second.CategoryEnd - now);
+            if (categoryDuration >= 0ms)
+                historyEntry.CategoryRecoveryTime = categoryDuration.count();
+
+            if (cooldownDuration > categoryDuration)
+                historyEntry.RecoveryTime = cooldownDuration.count();
         }
+
+        initialSpells->SpellHistory.push_back(historyEntry);
     }
 }
 
@@ -374,7 +362,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         {
             WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
             data << uint32(categoryItr->second->SpellId);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             player->SendDirectMessage(&data);
 
             if (startCooldown)
@@ -383,7 +371,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
 
         WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
         data << uint32(spellInfo->Id);
-        data << uint64(_owner->GetGUID());
+        data << _owner->GetGUID();
         player->SendDirectMessage(&data);
     }
 
@@ -423,7 +411,7 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
     {
         WorldPacket modifyCooldown(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
         modifyCooldown << uint32(spellId);
-        modifyCooldown << uint64(_owner->GetGUID());
+        modifyCooldown << _owner->GetGUID();
         modifyCooldown << int32(cooldownModMs);
         playerOwner->SendDirectMessage(&modifyCooldown);
     }
@@ -446,7 +434,7 @@ void SpellHistory::ResetCooldown(CooldownStorageType::iterator& itr, bool update
         {
             WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(itr->first);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             playerOwner->SendDirectMessage(&data);
         }
     }
@@ -611,7 +599,7 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
         {
             WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(spell);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             playerOwner->SendDirectMessage(&data);
         }
     }
@@ -620,7 +608,7 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
 void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const
 {
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + 4 + 4);
-    data << uint64(_owner->GetGUID());
+    data << _owner->GetGUID();
     data << uint8(flags);
     data << uint32(spellId);
     data << uint32(cooldown);
@@ -629,7 +617,7 @@ void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 sp
 void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns) const
 {
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + (4 + 4) * cooldowns.size());
-    data << uint64(_owner->GetGUID());
+    data << _owner->GetGUID();
     data << uint8(flags);
     for (auto const& cooldown : cooldowns)
     {
@@ -651,13 +639,13 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
     {
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
-            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+            for (ItemEffect const& itemEffect : proto->Effects)
             {
-                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
+                if (uint32(itemEffect.SpellID) == spellInfo->Id)
                 {
-                    tmpCooldown = proto->Spells[idx].SpellCooldown;
-                    tmpCategoryId = proto->Spells[idx].SpellCategory;
-                    tmpCategoryCooldown = proto->Spells[idx].SpellCategoryCooldown;
+                    tmpCooldown = itemEffect.CoolDownMSec;
+                    tmpCategoryId = itemEffect.SpellCategoryID;
+                    tmpCategoryCooldown = itemEffect.CategoryCoolDownMSec;
                     break;
                 }
             }

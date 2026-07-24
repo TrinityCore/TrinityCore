@@ -23,10 +23,10 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
@@ -61,29 +61,23 @@ enum Misc
 5 - Lady Vashj Event
 */
 
-class go_bridge_console : public GameObjectScript
+static constexpr ObjectData creatureData[] =
 {
-    public:
-        go_bridge_console() : GameObjectScript("go_bridge_console") { }
+    { NPC_LEOTHERAS_THE_BLIND, BOSS_LEOTHERAS_THE_BLIND },
+    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ          },
+    { 0,                       0                        } // END
+};
 
-        struct go_bridge_consoleAI : public GameObjectAI
-        {
-            go_bridge_consoleAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-            InstanceScript* instance;
-
-            bool OnGossipHello(Player* /*player*/) override
-            {
-                if (instance)
-                    instance->SetData(DATA_CONTROL_CONSOLE, DONE);
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetSerpentshrineCavernAI<go_bridge_consoleAI>(go);
-        }
+static constexpr ObjectData gameObjectData[] =
+{
+    { GO_BRIDGE_PART_1,           DATA_BRIDGE_PART_1      },
+    { GO_BRIDGE_PART_2,           DATA_BRIDGE_PART_2      },
+    { GO_BRIDGE_PART_3,           DATA_BRIDGE_PART_3      },
+    { GO_SHIELD_GENERATOR_1,      DATA_SHIELD_GENERATOR_1 },
+    { GO_SHIELD_GENERATOR_2,      DATA_SHIELD_GENERATOR_2 },
+    { GO_SHIELD_GENERATOR_3,      DATA_SHIELD_GENERATOR_3 },
+    { GO_SHIELD_GENERATOR_4,      DATA_SHIELD_GENERATOR_4 },
+    { 0,                          0                       } //END
 };
 
 class instance_serpent_shrine : public InstanceMapScript
@@ -97,15 +91,10 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadObjectData(creatureData, gameObjectData);
 
-                StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
-                ShieldGeneratorDeactivated[0] = false;
-                ShieldGeneratorDeactivated[1] = false;
-                ShieldGeneratorDeactivated[2] = false;
-                ShieldGeneratorDeactivated[3] = false;
-                FishingTimer = 1000;
                 WaterCheckTimer = 500;
                 FrenzySpawnTimer = 2000;
                 DoSpawnFrenzy = false;
@@ -169,52 +158,24 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
                 else
                     FrenzySpawnTimer -= diff;
-            }
 
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case 184568:
-                        ControlConsole = go->GetGUID();
-                        go->setActive(true);
-                        go->SetFarVisible(true);
-                        break;
-                    case 184203:
-                        BridgePart[0] = go->GetGUID();
-                        go->setActive(true);
-                        go->SetFarVisible(true);
-                        break;
-                    case 184204:
-                        BridgePart[1] = go->GetGUID();
-                        go->setActive(true);
-                        go->SetFarVisible(true);
-                        break;
-                    case 184205:
-                        BridgePart[2] = go->GetGUID();
-                        go->setActive(true);
-                        go->SetFarVisible(true);
-                        break;
-                    default:
-                        break;
-                }
+                Events.Update(diff);
+
+                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
+                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
-                    case 21212:
-                        LadyVashj = creature->GetGUID();
-                        break;
                     case 21214:
                         Karathress = creature->GetGUID();
                         break;
                     case 21966:
                         Sharkkis = creature->GetGUID();
-                        break;
-                    case 21217:
-                        LurkerBelow = creature->GetGUID();
                         break;
                     case 21965:
                         Tidalvess = creature->GetGUID();
@@ -222,84 +183,20 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 21964:
                         Caribdis = creature->GetGUID();
                         break;
-                    case 21215:
-                        LeotherasTheBlind = creature->GetGUID();
-                        break;
                     default:
                         break;
                 }
             }
 
-            void SetGuidData(uint32 type, ObjectGuid data) override
+            void OnUnitDeath(Unit* unit) override
             {
-                if (type == DATA_KARATHRESSEVENT_STARTER)
-                    KarathressEvent_Starter = data;
-                if (type == DATA_LEOTHERAS_EVENT_STARTER)
-                    LeotherasEventStarter = data;
-            }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
+                switch (unit->GetEntry())
                 {
-                    case DATA_THELURKERBELOW:
-                        return LurkerBelow;
-                    case DATA_SHARKKIS:
-                        return Sharkkis;
-                    case DATA_TIDALVESS:
-                        return Tidalvess;
-                    case DATA_CARIBDIS:
-                        return Caribdis;
-                    case DATA_LADYVASHJ:
-                        return LadyVashj;
-                    case DATA_KARATHRESS:
-                        return Karathress;
-                    case DATA_KARATHRESSEVENT_STARTER:
-                        return KarathressEvent_Starter;
-                    case DATA_LEOTHERAS:
-                        return LeotherasTheBlind;
-                    case DATA_LEOTHERAS_EVENT_STARTER:
-                        return LeotherasEventStarter;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                switch (type)
-                {
-                    case DATA_STRANGE_POOL:
-                        StrangePool = data;
-                        break;
-                    case DATA_CONTROL_CONSOLE:
-                        if (data == DONE)
-                        {
-                            HandleGameObject(BridgePart[0], true);
-                            HandleGameObject(BridgePart[1], true);
-                            HandleGameObject(BridgePart[2], true);
-                        }
-                        break;
-                    case DATA_TRASH:
-                        if (data == 1 && TrashCount < MIN_KILLS)
+                    case NPC_COILFANG_PRIESTESS:
+                    case NPC_COILFANG_SHATTERER:
+                        if (TrashCount < MIN_KILLS)
                             ++TrashCount;//+1 died
                         SaveToDB();
-                        break;
-                    case DATA_WATER:
-                        Water = data;
-                        break;
-                    case DATA_SHIELDGENERATOR1:
-                        ShieldGeneratorDeactivated[0] = data != 0;
-                        break;
-                    case DATA_SHIELDGENERATOR2:
-                        ShieldGeneratorDeactivated[1] = data != 0;
-                        break;
-                    case DATA_SHIELDGENERATOR3:
-                        ShieldGeneratorDeactivated[2] = data != 0;
-                        break;
-                    case DATA_SHIELDGENERATOR4:
-                        ShieldGeneratorDeactivated[3] = data != 0;
                         break;
                     default:
                         break;
@@ -311,35 +208,53 @@ class instance_serpent_shrine : public InstanceMapScript
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
 
-                if (id == BOSS_LADY_VASHJ && state == NOT_STARTED)
+                switch (id)
                 {
-                    ShieldGeneratorDeactivated[0] = false;
-                    ShieldGeneratorDeactivated[1] = false;
-                    ShieldGeneratorDeactivated[2] = false;
-                    ShieldGeneratorDeactivated[3] = false;
+                    case BOSS_THE_LURKER_BELOW:
+                        if (state == FAIL)
+                            Events.ScheduleEvent(EVENT_RESPAWN_STRANGE_POOL, 15s);
+                        break;
+                    default:
+                        break;
                 }
 
                 return true;
+            }
+
+            ObjectGuid GetGuidData(uint32 identifier) const override
+            {
+                switch (identifier)
+                {
+                    case DATA_SHARKKIS:
+                        return Sharkkis;
+                    case DATA_TIDALVESS:
+                        return Tidalvess;
+                    case DATA_CARIBDIS:
+                        return Caribdis;
+                    case DATA_KARATHRESS:
+                        return Karathress;
+                    default:
+                        break;
+                }
+                return ObjectGuid::Empty;
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                    case DATA_WATER:
+                        Water = data;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
-                    case DATA_SHIELDGENERATOR1:
-                        return ShieldGeneratorDeactivated[0];
-                    case DATA_SHIELDGENERATOR2:
-                        return ShieldGeneratorDeactivated[1];
-                    case DATA_SHIELDGENERATOR3:
-                        return ShieldGeneratorDeactivated[2];
-                    case DATA_SHIELDGENERATOR4:
-                        return ShieldGeneratorDeactivated[3];
-                    case DATA_CANSTARTPHASE3:
-                        if (ShieldGeneratorDeactivated[0] && ShieldGeneratorDeactivated[1] && ShieldGeneratorDeactivated[2] && ShieldGeneratorDeactivated[3])
-                            return 1;
-                        break;
-                    case DATA_STRANGE_POOL:
-                        return StrangePool;
                     case DATA_WATER:
                         return Water;
                     default:
@@ -360,27 +275,20 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            ObjectGuid LurkerBelow;
             ObjectGuid Sharkkis;
             ObjectGuid Tidalvess;
             ObjectGuid Caribdis;
-            ObjectGuid LadyVashj;
             ObjectGuid Karathress;
-            ObjectGuid KarathressEvent_Starter;
-            ObjectGuid LeotherasTheBlind;
-            ObjectGuid LeotherasEventStarter;
 
-            ObjectGuid ControlConsole;
-            ObjectGuid BridgePart[3];
-            uint32 StrangePool;
-            uint32 FishingTimer;
             uint32 WaterCheckTimer;
             uint32 FrenzySpawnTimer;
             uint32 Water;
             uint32 TrashCount;
 
-            bool ShieldGeneratorDeactivated[4];
             bool DoSpawnFrenzy;
+
+        protected:
+            EventMap Events;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
@@ -392,5 +300,4 @@ class instance_serpent_shrine : public InstanceMapScript
 void AddSC_instance_serpentshrine_cavern()
 {
     new instance_serpent_shrine();
-    new go_bridge_console();
 }

@@ -100,7 +100,7 @@ class TC_GAME_API LFGQueue
 
         // Update Queue timers
         void UpdateQueueTimers(time_t currTime);
-        time_t GetJoinTime(ObjectGuid guid);
+        time_t GetJoinTime(ObjectGuid guid) const;
 
         // Find new group
         uint8 FindGroups();

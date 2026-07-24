@@ -171,7 +171,6 @@ class instance_ulduar : public InstanceMapScript
                 _maxArmorItemLevel = 0;
                 _maxWeaponItemLevel = 0;
                 TeamInInstance = 0;
-                HodirRareCacheData = 0;
                 ColossusData = 0;
                 elderCount = 0;
                 illusion = 0;
@@ -214,7 +213,6 @@ class instance_ulduar : public InstanceMapScript
 
             // Miscellaneous
             uint32 TeamInInstance;
-            uint32 HodirRareCacheData;
             uint32 ColossusData;
             uint8 elderCount;
             uint8 illusion;
@@ -406,22 +404,6 @@ class instance_ulduar : public InstanceMapScript
                 uint32 entry = data->id;
                 switch (entry)
                 {
-                    case NPC_EIVI_NIGHTFEATHER:
-                        return TeamInInstance == HORDE ? NPC_TOR_GREYCLOUD : NPC_EIVI_NIGHTFEATHER;
-                    case NPC_ELLIE_NIGHTFEATHER:
-                        return TeamInInstance == HORDE ? NPC_KAR_GREYCLOUD : NPC_ELLIE_NIGHTFEATHER;
-                    case NPC_ELEMENTALIST_MAHFUUN:
-                        return TeamInInstance == HORDE ? NPC_SPIRITWALKER_TARA : NPC_ELEMENTALIST_MAHFUUN;
-                    case NPC_ELEMENTALIST_AVUUN:
-                        return TeamInInstance == HORDE ? NPC_SPIRITWALKER_YONA : NPC_ELEMENTALIST_AVUUN;
-                    case NPC_MISSY_FLAMECUFFS:
-                        return TeamInInstance == HORDE ? NPC_AMIRA_BLAZEWEAVER : NPC_MISSY_FLAMECUFFS;
-                    case NPC_SISSY_FLAMECUFFS:
-                        return TeamInInstance == HORDE ? NPC_VEESHA_BLAZEWEAVER : NPC_SISSY_FLAMECUFFS;
-                    case NPC_FIELD_MEDIC_PENNY:
-                        return TeamInInstance == HORDE ? NPC_BATTLE_PRIEST_ELIZA : NPC_FIELD_MEDIC_PENNY;
-                    case NPC_FIELD_MEDIC_JESSI:
-                        return TeamInInstance == HORDE ? NPC_BATTLE_PRIEST_GINA : NPC_FIELD_MEDIC_JESSI;
                     case NPC_MERCENARY_CAPTAIN_H:
                         return TeamInInstance == HORDE ? NPC_MERCENARY_CAPTAIN_A : NPC_MERCENARY_CAPTAIN_H;
                     case NPC_MERCENARY_SOLDIER_H:
@@ -594,6 +576,22 @@ class instance_ulduar : public InstanceMapScript
                             flameLeviathan->AI()->DoAction(ACTION_TOWER_OF_LIFE_DESTROYED);
                         break;
 
+                    // Hodir Event triggers
+                    case EVENT_INITIAL_AGGRO_HODIR:
+                        if (Creature* hodir = GetCreature(DATA_HODIR))
+                            hodir->AI()->DoAction(ACTION_INITIAL_AGGRO_HODIR);
+                        break;
+                    case EVENT_CACHE_SHATTERED:
+                        if (Creature* hodir = GetCreature(DATA_HODIR))
+                            hodir->AI()->DoAction(ACTION_CACHE_SHATTERED);
+                        if (GameObject* hodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
+                            hodirRareCache->ActivateObject(GameObjectActions(GameObjectActions::Despawn));
+                        break;
+                    case EVENT_FLASH_FREEZE_FINISHED:
+                        if (Creature* hodir = GetCreature(DATA_HODIR))
+                            hodir->AI()->DoAction(ACTION_FLASH_FREEZE_FINISHED);
+                        break;
+
                     // Yogg-Saron Event triggers
                     case EVENT_ACTIVATE_SANITY_WELL:
                         if (Creature* freya = instance->GetCreature(KeeperGUIDs[0]))
@@ -654,11 +652,10 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_HODIR:
                         if (state == DONE)
                         {
-                            if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE))
-                                    HodirRareCache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-                            if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
-                                HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                            if (GameObject* hodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
+                                hodirRareCache->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
+                            if (GameObject* hodirChest = instance->GetGameObject(HodirChestGUID))
+                                hodirChest->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
 
                             instance->SummonCreature(NPC_HODIR_OBSERVATION_RING, ObservationRingKeepersPos[1]);
                         }
@@ -699,8 +696,8 @@ class instance_ulduar : public InstanceMapScript
                                 if (Player* player = itr->GetSource())
                                     for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_RANGED; ++slot)
                                         if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                                            if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
-                                                _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                            if (item->GetItemLevel() > _maxWeaponItemLevel)
+                                                _maxWeaponItemLevel = item->GetItemLevel();
                         }
                         else if (state == IN_PROGRESS)
                         {
@@ -719,11 +716,11 @@ class instance_ulduar : public InstanceMapScript
                                         {
                                             if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
                                             {
-                                                if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
-                                                    _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                                if (item->GetItemLevel() > _maxWeaponItemLevel)
+                                                    _maxWeaponItemLevel = item->GetItemLevel();
                                             }
-                                            else if (item->GetTemplate()->ItemLevel > _maxArmorItemLevel)
-                                                _maxArmorItemLevel = item->GetTemplate()->ItemLevel;
+                                            else if (item->GetItemLevel() > _maxArmorItemLevel)
+                                                _maxArmorItemLevel = item->GetItemLevel();
                                         }
                                     }
                                 }
@@ -745,15 +742,6 @@ class instance_ulduar : public InstanceMapScript
                         {
                             _events.ScheduleEvent(EVENT_LEVIATHAN_BREAK_DOOR, 5s);
                             SaveToDB();
-                        }
-                        break;
-                    case DATA_HODIR_RARE_CACHE:
-                        HodirRareCacheData = data;
-                        if (!HodirRareCacheData)
-                        {
-                            if (Creature* hodir = GetCreature(DATA_HODIR))
-                                if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
-                                    hodir->RemoveGameObject(gameObject, false);
                         }
                         break;
                     case DATA_UNBROKEN:
@@ -845,14 +833,19 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case DATA_COLOSSUS:
                         return ColossusData;
-                    case DATA_HODIR_RARE_CACHE:
-                        return HodirRareCacheData;
                     case DATA_UNBROKEN:
                         return uint32(Unbroken);
                     case DATA_ILLUSION:
                         return illusion;
                     case DATA_KEEPERS_COUNT:
                         return keepersCount;
+                    case WORLD_STATE_ULDUAR_TEAM_IN_INSTANCE:
+                        switch (TeamInInstance)
+                        {
+                            default: return 0;
+                            case ALLIANCE: return 1;
+                            case HORDE: return 2;
+                        }
                     default:
                         break;
                 }
@@ -940,7 +933,7 @@ class instance_ulduar : public InstanceMapScript
                 data << ColossusData << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
 
                 for (uint8 i = 0; i < 4; ++i)
-                    data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
+                    data << ' ' << uint32(!KeeperGUIDs[i].IsEmpty() ? 1 : 0);
 
                 data << ' ' << _CoUAchivePlayerDeathMask;
             }

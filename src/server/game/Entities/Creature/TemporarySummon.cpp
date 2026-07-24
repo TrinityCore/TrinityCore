@@ -38,7 +38,7 @@ m_timer(0), m_lifetime(0), m_canFollowOwner(true)
 
 WorldObject* TempSummon::GetSummoner() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
 }
 
 Unit* TempSummon::GetSummonerUnit() const
@@ -50,7 +50,7 @@ Unit* TempSummon::GetSummonerUnit() const
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 GameObject* TempSummon::GetSummonerGameObject() const
@@ -198,9 +198,10 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        if (uint32 slot = m_Properties->Slot)
+        std::ptrdiff_t slot = m_Properties->Slot;
+        if (slot != 0)
         {
-            if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
+            if (!owner->m_SummonSlot[slot].IsEmpty() && owner->m_SummonSlot[slot] != GetGUID())
             {
                 Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if (oldSummon && oldSummon->IsSummon())
@@ -287,10 +288,10 @@ void TempSummon::RemoveFromWorld()
         return;
 
     if (m_Properties)
-        if (uint32 slot = m_Properties->Slot)
-            if (Unit* owner = GetSummonerUnit())
-                if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot].Clear();
+        if (Unit* owner = GetSummonerUnit())
+            for (ObjectGuid& summonSlot : owner->m_SummonSlot)
+                if (summonSlot == GetGUID())
+                    summonSlot.Clear();
 
     //if (GetOwnerGUID())
     //    TC_LOG_ERROR("entities.unit", "Unit {} has owner guid when removed from world", GetEntry());
