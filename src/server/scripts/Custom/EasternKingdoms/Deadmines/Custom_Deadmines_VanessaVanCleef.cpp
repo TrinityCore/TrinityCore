@@ -52,7 +52,10 @@ namespace Scripts::EasternKingdoms::Deadmines
     // 49552 - Rope Anchor
     struct npc_rope_ship : public ScriptedAI
     {
-        npc_rope_ship(Creature* creature) : ScriptedAI(creature) { }
+        npc_rope_ship(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetDisableGravity(true);
+        }
 
         void Reset() override
         {
@@ -243,30 +246,82 @@ namespace Scripts::EasternKingdoms::Deadmines
     // 49550 - Rope
     struct npc_rope_away : public ScriptedAI
     {
-        npc_rope_away(Creature* creature) : ScriptedAI(creature) { }
+        npc_rope_away(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetDisableGravity(true);
+        }
 
         void Reset() override
         {
+            Phase = 0;
+            MoveTimer = 500;
+            RunAway = false;
+            me->SetSpeed(MOVE_FLIGHT, 1.0f);
+
+            me->SummonCreature(Creatures::RopeAnchor, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 40.f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
         }
 
-        void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
+        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
-            if (apply)
+            if (passenger->GetTypeId() == TYPEID_PLAYER)
             {
-                me->SetSpeed(MOVE_WALK, 5.0f);
-                me->SetWalk(false);
-                me->GetMotionMaster()->MovePoint(0, -64.75f, -840.0f, 17.56f);
+                if (apply)
+                {
+                    RunAway = true;
+                }
             }
         }
 
-        void MovementInform(uint32 type, uint32 /*pointId*/) override
+        void MovementInform(uint32 /*type*/, uint32 pointId) override
         {
-            if (type != EFFECT_MOTION_TYPE)
-                return;
+            if (pointId == 1)
+            {
+                if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    passenger->ExitVehicle();
 
-            me->GetVehicleKit()->RemoveAllPassengers();
-            me->DespawnOrUnsummon(1s);
+                me->RemoveAllAuras();
+                me->DespawnOrUnsummon();
+            }
         }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (RunAway)
+            {
+                if (MoveTimer <= diff)
+                {
+                    switch (Phase)
+                    {
+                    case 0:
+                    {
+                        //me->GetMotionMaster()->MovePoint(0, -77.97f, -877.09f, 49.44f);
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() - 100.f, me->GetPositionZ() + 10.f, false);
+                        MoveTimer = 2500;
+                        Phase++;
+                        break;
+                    }
+                    case 1:
+                    {
+                        Position homePos = me->GetHomePosition();
+                        me->GetMotionMaster()->MovePoint(1, homePos.GetPositionX(), homePos.GetPositionY(), homePos.GetPositionZ() + 5.f, false);
+                        //me->GetMotionMaster()->MovePoint(1, -64.02f, -839.84f, 41.22f);
+                        MoveTimer = 3000;
+                        Phase++;
+                        break;
+                    }
+                    case 2:
+                        break;
+                    }
+                }
+                else MoveTimer -= diff;
+            }
+        }
+
+    private:
+        bool RunAway = false;
+        uint8 Phase = 0;
+        uint32 MoveTimer = 0;
     };
 
     // 49520 - Lightning Platter
@@ -989,7 +1044,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                         instance->DoRemoveAurasDueToSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixir);
                         instance->DoRemoveAurasDueToSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixirEffect);
                     }
-                    Talk(Texts::VanessaVanCleef::VanessaNightmare1);
+
                     me->SummonCreature(Creatures::VanessaVanCleef, Positions::VanessaBossSpawn, TEMPSUMMON_MANUAL_DESPAWN);
                     me->DespawnOrUnsummon(3s);
                     break;
@@ -1529,19 +1584,6 @@ namespace Scripts::EasternKingdoms::Deadmines
                 Talk(Texts::VanessaVanCleef::KilledUnit);
         }
 
-        void JustSummoned(Creature* summon) override
-        {
-            BossAI::JustSummoned(summon);
-
-            if (summon->GetEntry() == Creatures::Rope)
-            {
-                ropeList.Summon(summon);
-                Position pos = summon->GetPosition();
-                pos.m_positionZ += 40.0f;
-                me->SummonCreature(Creatures::RopeAnchor, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            }
-        }
-
         void SummonedCreatureDespawn(Creature* summon) override
         {
             BossAI::SummonedCreatureDespawn(summon);
@@ -1552,7 +1594,7 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void MovementInform(uint32 type, uint32 id) override
         {
-            if (type == POINT_MOTION_TYPE && id == 0)
+            if (type == POINT_MOTION_TYPE && id == EVENT_JUMP)
             {
                 DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
             }
@@ -1568,11 +1610,13 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 if (_disappearCount == 0 && me->HealthBelowPctDamaged(50, damage))
                 {
+                    Talk(Texts::VanessaVanCleef::Bomb50pct);
                     _disappearCount = 1;
                     events.ScheduleEvent(Events::VanessaVanCleef::Disappear, 1s);
                 }
                 else if (_disappearCount == 1 && me->HealthBelowPctDamaged(25, damage))
                 {
+                    Talk(Texts::VanessaVanCleef::Bomb25pct);
                     _disappearCount = 2;
                     events.ScheduleEvent(Events::VanessaVanCleef::Disappear, 1s);
                 }
@@ -1627,7 +1671,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::SummonAdd1:
                         if (me->HealthAbovePct(50))
                         {
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
+                            Talk(Texts::VanessaVanCleef::Summons);
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
                                 if (Creature* add = me->SummonCreature(Creatures::DefiasShadowguard, Positions::Shadowspawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                                     add->AI()->AttackStart(target);
                             events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
@@ -1636,7 +1681,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::SummonAdd2:
                         if (me->HealthAbovePct(50))
                         {
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
                                 if (Creature* add = me->SummonCreature(Creatures::DefiasEnforcer, Positions::Shadowspawn[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                                     add->AI()->AttackStart(target);
                             events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 15s);
@@ -1645,7 +1690,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::SummonAdd3:
                         if (me->HealthAbovePct(50))
                         {
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
                                 if (Creature* add = me->SummonCreature(Creatures::DefiasBloodWizzard, Positions::Shadowspawn[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                                     add->AI()->AttackStart(target);
                             events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 15s);
@@ -1661,11 +1706,11 @@ namespace Scripts::EasternKingdoms::Deadmines
                         break;
                     case Events::VanessaVanCleef::RopeReady:
                         RopeReady();
-                        events.ScheduleEvent(Events::VanessaVanCleef::FireBoom, 3s);
+                        events.ScheduleEvent(Events::VanessaVanCleef::FireBoom, 10s);
                         break;
                     case Events::VanessaVanCleef::FireBoom:
                         FieryBoom();
-                        events.ScheduleEvent(Events::VanessaVanCleef::ClearShip, 2500ms);
+                        events.ScheduleEvent(Events::VanessaVanCleef::ClearShip, 5s);
                         break;
                     case Events::VanessaVanCleef::ClearShip:
                         DoReappear();
@@ -1705,13 +1750,12 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void DoDisappear()
         {
-            Talk(Texts::VanessaVanCleef::VanessaDetonate);
             me->RemoveAllAuras();
             me->AttackStop();
             me->SetReactState(REACT_PASSIVE);
             me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
-            me->SetVisible(false);
-            me->GetMotionMaster()->MovePoint(0, -52.31f, -820.18f, 51.91f);
+            //me->SetVisible(false);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, Positions::VanessaBossJumpAtopShip, 10.0f, {}, 5.0f);
             summons.DespawnAll();
             _disappearActive = true;
         }
@@ -1719,11 +1763,12 @@ namespace Scripts::EasternKingdoms::Deadmines
         void DoReappear()
         {
             RemoveFiresFromShip();
-            me->SetVisible(true);
-            me->GetMotionMaster()->MoveJump(0, Position(-65.93f, -820.33f, 40.98f, 0.0f), 10.0f, {}, 8.0f);
+            //me->SetVisible(true);
             me->RemoveAllAuras();
+            me->GetMotionMaster()->MoveJump(0, Position(-65.93f, -820.33f, 40.98f, 0.0f), 10.0f, {}, 8.0f);
             me->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, false))
                 AttackStart(target);
             _disappearActive = false;
             if (_disappearCount == 1)
@@ -1740,9 +1785,10 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void RopeReady()
         {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                if (Player* player = target->ToPlayer())
-                    me->Whisper(Texts::VanessaVanCleef::VanessaDetonate, player);
+            if(_disappearCount == 1)
+                Talk(Texts::VanessaVanCleef::VanessaDetonation1);
+            else if(_disappearCount == 2)
+                Talk(Texts::VanessaVanCleef::VanessaDetonation2);
 
             for (ObjectGuid const& guid : ropeList)
             {
@@ -1757,6 +1803,8 @@ namespace Scripts::EasternKingdoms::Deadmines
         {
             if (Creature* bunny = me->SummonCreature(Creatures::GeneralPurposeBunnyJMF, -52.31f, -820.18f, 51.91f, 3.32963f, TEMPSUMMON_MANUAL_DESPAWN))
             {
+                bunny->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                bunny->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 bunny->SetUnitFlag(UNIT_FLAG_STUNNED);
                 bunny->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 bunny->SetReactState(REACT_AGGRESSIVE);
@@ -1765,28 +1813,39 @@ namespace Scripts::EasternKingdoms::Deadmines
                 AddThreat(bunny, 200000.0f);
                 me->SetInCombatWith(bunny);
             }
+            DoZoneInCombat();
         }
 
         void FieryBoom()
         {
-            for (uint8 i = 0; i < 43; ++i)
+            std::list<Creature*> fiery;
+            me->GetCreatureListWithEntryInGrid(fiery, Creatures::GeneralPurposeBunny, 150.0f);
+            fiery.sort(Trinity::ObjectDistanceOrderPred(me));
+            for (std::list<Creature*>::iterator itr = fiery.begin(); itr != fiery.end(); ++itr)
             {
-                if (Creature* fire = me->SummonCreature(Creatures::FireBunny, Positions::FieryBlaze[i], TEMPSUMMON_MANUAL_DESPAWN))
+                if ((*itr)->IsAlive() && (*itr)->GetTypeId() == TYPEID_UNIT)
                 {
-                    _fireBunnyGuids.push_back(fire->GetGUID());
-                    fire->CastSpell(fire, Spells::VanessaVanCleef::FieryBlaze, true);
+                    _fireBunnyGuids.push_back((*itr)->GetGUID());
+                    (*itr)->CastSpell((*itr), Spells::VanessaVanCleef::FieryBlaze, true);
                 }
             }
         }
 
         void RemoveFiresFromShip()
         {
+            static const std::unordered_set<uint32> shipFireSpawnIds = {
+                376125, 376110, 376126, 376109, 376139, 376138,
+                376140, 376141, 376135, 376145, 376134, 376137,
+                376127, 376129, 376133, 376144, 376128, 376142,
+                376147, 376131, 376136, 376146
+            };
+
             for (ObjectGuid const& guid : _fireBunnyGuids)
             {
                 if (Creature* fire = ObjectAccessor::GetCreature(*me, guid))
                 {
-                    fire->RemoveAura(Spells::VanessaVanCleef::FieryBlaze);
-                    fire->DespawnOrUnsummon();
+                    if (shipFireSpawnIds.count(fire->GetSpawnId()))
+                        fire->RemoveAura(Spells::VanessaVanCleef::FieryBlaze);
                 }
             }
             _fireBunnyGuids.clear();

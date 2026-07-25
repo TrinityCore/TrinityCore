@@ -401,7 +401,10 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 Bomb50pct = 2;
             static constexpr int8 Bomb25pct = 3;
             static constexpr int8 KilledUnit = 4;
-            static constexpr int8 FinalAct = 5;
+            static constexpr int8 VanessaDetonation1 = 5;
+            static constexpr int8 VanessaDetonation2 = 6;
+
+            static constexpr int8 FinalAct = 15;
 
             // Trap Bunny
             static constexpr int8 VanessaTrapBunnyWarning = 0;
@@ -432,11 +435,6 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 JamesHarrington0 = 0;
             static constexpr int8 CalissaHarrington0 = 0;
             static constexpr int8 CalissaHarrington1 = 1;
-            
-            
-            
-            static constexpr int8 VanessaNightmare1 = 24;
-            static constexpr int8 VanessaDetonate = 33;
         }
     }
 
@@ -966,6 +964,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr Position VanessaNightmare7 = { -83.16319f, -774.9636f, 26.90351f };
         static constexpr Position FoeReaperNightmareSpawn = { -101.4549f, -663.6493f, 7.505813f, 1.85f };
         static constexpr Position VanessaBossSpawn = { -79.44965f, -819.8351f, 39.89838f, 0.01745329f };
+        static constexpr Position VanessaBossJumpAtopShip = { -52.31f, -820.18f, 51.91f };
 
         static constexpr Position ElectricSpark[7] =
         {

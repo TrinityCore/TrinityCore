@@ -547,7 +547,7 @@ INSERT INTO `vehicle_template` (`creatureId`, `despawnDelayMs`, `Pitch`, `Custom
 (49041, 0, NULL, 0),
 (49042, 0, NULL, 0);
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (48974,48975,48976,49039,49040,49041,49042,48266,49208,47403,47404,
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (48974,48975,48976,49039,49040,49041,49042,48266,49208,47403,47404,49550,
 -- Cookie Bad Food
 48276, 48293, 48295, 48298, 48299, 48302,
 -- Cookie Good Food
@@ -578,7 +578,8 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (49039, 46598, 0, 0),
 (49040, 46598, 0, 0),
 (49041, 46598, 0, 0),
-(49042, 46598, 0, 0);
+(49042, 46598, 0, 0),
+(49550, 46598, 1, 0); -- Deadmines Rope away Ride vehicle
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (91397,87897,87900,89769,88278,92042,89732,89267,89250);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -774,14 +775,15 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Pro
 (49541, 2, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 100, 0, 24621, 49751, 'Vanessa VanCleef - Bomb at 50 pct'),
 (49541, 3, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 100, 0, 24622, 50706, 'Vanessa VanCleef - Bomb at 25 pct'),
 (49541, 4, 0, 'The first of many.', 14, 100, 274, 24618, 49749, 'Vanessa VanCleef - Killed target'),
-
+(49541, 5, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 'Vanessa VanCleef - Warning 1'),
+(49541, 6, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 'Vanessa VanCleef - Warning 2'),
 -- (49541, 0, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 100, 274, 24610, 49753, 'Vanessa VanCleef - Defeated 1'),
 -- (49541, 0, 0, 'If I''m going to die, I''m taking you all with me!', 14, 100, 15, 128140, 170622, 'Vanessa VanCleef - Defeated 2'),
 -- (49541, 0, 0, 'MY FATE IS MY OWN!', 14, 100, 397, 24612, 49754, 'Vanessa VanCleef - Defeated 3'),
 
 -- Warnings
--- (49541, 0, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 'Vanessa VanCleef - Warning 1'),
--- (49541, 0, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 'Vanessa VanCleef - Warning 2'),
+-- 
+
 -- (49541, 0, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it! RUN!', 41, 100, 0, 0, 49757, 'Vanessa VanCleef - Warning 3'), 
 (49454, 0, 0, 'Vanessa injects you with the Nightmare Elixir!', 41, 100, 0, 0, 49483, 'Vanessa Trap Bunny - Warning 1'),
 (49454, 1, 0, 'Activate the steam valves to free yourself!', 41, 100, 0, 0, 49680, 'Vanessa Trap Bunny - Warning 2'),
