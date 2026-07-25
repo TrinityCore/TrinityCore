@@ -55,6 +55,7 @@ UPDATE `creature_template` SET `faction`=35, `npcflag`=3, `speed_run`=1, `BaseAt
 UPDATE `creature_template` SET `faction`=29, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=199288; -- Highmountain Mage
 UPDATE `creature_template` SET `faction`=1604, `BaseAttackTime`=1500, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=255057; -- Silvermoon Magister
 UPDATE `creature_template` SET `faction`=1735, `npcflag`=1, `unit_flags3`=0x40000000 WHERE `entry`=133186; -- Leyline Navigator
+UPDATE `creature_template` SET `npcflag`=49 WHERE `entry`=47253; -- Rundok
 
 -- Creature template difficulty
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=2837, `VerifiedBuild`=68453 WHERE (`Entry`=221293 AND `DifficultyID`=0); -- 221293 (Earthen Runeweaver) - 
