@@ -20,6 +20,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "serpent_shrine.h"
+#include "Unit.h"
 
 /* Serpentshrine cavern encounters:
 0 - Hydross The Unstable event
