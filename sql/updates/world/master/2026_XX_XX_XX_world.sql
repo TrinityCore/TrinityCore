@@ -31,8 +31,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+23, 155739, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1417.2083740234375, -4484.74462890625, -3.01987385749816894, 3.94742751121520996, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Bronze Chronomancer (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: 303508 - [DNT] Caverns of Time Portal Channel)
 (@CGUID+24, 149279, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1446.0989990234375, -4505.0712890625, 18.38956642150878906, 1.775785326957702636, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Stoki Wonderwand (Area: -Unknown- - Difficulty: 0) CreateObject1
 (@CGUID+25, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 0, 1442.90283203125, -4466.9775390625, -4.59815359115600585, 5.182949066162109375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: )
-(@CGUID+26, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1424.3663330078125, -4464.94970703125, 19.18604469299316406, 1.086598515510559082, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
-(@CGUID+27, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1424.9774169921875, -4459.31103515625, 19.18604469299316406, 1.695421576499938964, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453); -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
+(@CGUID+26, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 0, 1424.3663330078125, -4464.94970703125, 19.18604469299316406, 1.086598515510559082, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
+(@CGUID+27, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 0, 1424.9774169921875, -4459.31103515625, 19.18604469299316406, 1.695421576499938964, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453); -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (221293, 198096, 173548, 255057, 149270, 149523, 149616, 150131, 133186, 149279, 149522, 148770);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
@@ -48,6 +48,10 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (149279, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, ''), -- 149279 (Stoki Wonderwand)
 (149522, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, ''), -- 149522 (Orgrimmar Peon)
 (148770, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, '288462'); -- 148770 (Mag'har Darkcaster) - Ashran Portal Channel
+
+DELETE FROM `creature_addon` WHERE `guid`=@CGUID+27;
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(@CGUID+27, 0, 0, 0, 0, 0, 1, 1, 69, 0, 0, 0, 0, ''); -- Orgrimmar Peon
 
 -- Creature template
 UPDATE `creature_template` SET `faction`=1735, `BaseAttackTime`=1500, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=221293; -- Earthen Runeweaver
