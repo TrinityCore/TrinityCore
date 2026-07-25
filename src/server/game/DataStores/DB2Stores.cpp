@@ -822,19 +822,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         return 0;
     }
 
-    // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(15325) ||               // last area added in 4.4.0 (53627)
-        !sCharTitlesStore.LookupEntry(757) ||                // last char title added in 4.4.0 (53627)
-        !sGemPropertiesStore.LookupEntry(2250) ||            // last gem property added in 4.4.0 (53627)
-        !sItemStore.LookupEntry(211851) ||                   // last item added in 4.4.0 (53627)
-        !sItemExtendedCostStore.LookupEntry(8328) ||         // last item extended cost added in 4.4.0 (53627)
-        !sMapStore.LookupEntry(2755) ||                      // last map added in 4.4.0 (53627)
-        !sSpellNameStore.LookupEntry(445043))                // last spell added in 4.4.0 (53627)
-    {
-        TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
-        return 0;
-    }
-
     TC_LOG_INFO("server.loading", ">> Initialized {} DB2 data stores in {} ms", _stores.size(), GetMSTimeDiffToNow(oldMSTime));
 
     return availableDb2Locales.to_ulong();
