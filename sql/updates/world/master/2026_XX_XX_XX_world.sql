@@ -30,7 +30,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+22, 155739, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1417.53125, -4489.56591796875, -3.01987290382385253, 2.670921564102172851, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Bronze Chronomancer (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: 303508 - [DNT] Caverns of Time Portal Channel)
 (@CGUID+23, 155739, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1417.2083740234375, -4484.74462890625, -3.01987385749816894, 3.94742751121520996, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Bronze Chronomancer (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: 303508 - [DNT] Caverns of Time Portal Channel)
 (@CGUID+24, 149279, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1446.0989990234375, -4505.0712890625, 18.38956642150878906, 1.775785326957702636, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Stoki Wonderwand (Area: -Unknown- - Difficulty: 0) CreateObject1
-(@CGUID+25, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1442.90283203125, -4466.9775390625, -4.59815359115600585, 5.182949066162109375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: )
+(@CGUID+25, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 0, 1442.90283203125, -4466.9775390625, -4.59815359115600585, 5.182949066162109375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1 (Auras: )
 (@CGUID+26, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1424.3663330078125, -4464.94970703125, 19.18604469299316406, 1.086598515510559082, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453), -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
 (@CGUID+27, 149522, 1, 1637, 11386, '0', 0, '0', 0, -1, 0, 1, 1424.9774169921875, -4459.31103515625, 19.18604469299316406, 1.695421576499938964, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 68453); -- Orgrimmar Peon (Area: -Unknown- - Difficulty: 0) CreateObject1
 
@@ -56,6 +56,7 @@ UPDATE `creature_template` SET `faction`=29, `BaseAttackTime`=2000, `unit_flags`
 UPDATE `creature_template` SET `faction`=1604, `BaseAttackTime`=1500, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=255057; -- Silvermoon Magister
 UPDATE `creature_template` SET `faction`=1735, `npcflag`=1, `unit_flags3`=0x40000000 WHERE `entry`=133186; -- Leyline Navigator
 
+-- Creature template difficulty
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=2837, `VerifiedBuild`=68453 WHERE (`Entry`=221293 AND `DifficultyID`=0); -- 221293 (Earthen Runeweaver) - 
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=4285, `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=254688 AND `DifficultyID`=0); -- 254688 (Tocho Cloudhide) - CanSwim
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=871, `VerifiedBuild`=68453 WHERE (`Entry`=255057 AND `DifficultyID`=0); -- 255057 (Silvermoon Magister) - 
