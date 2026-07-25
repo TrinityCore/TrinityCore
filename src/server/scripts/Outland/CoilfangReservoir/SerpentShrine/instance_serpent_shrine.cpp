@@ -15,42 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Serpent_Shrine
-SD%Complete: 100
-SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Serpent Shrine Scripts
-SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "EventMap.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 #include "serpent_shrine.h"
-#include "TemporarySummon.h"
-
-#define MAX_ENCOUNTER 6
-
-enum Misc
-{
-    // Spells
-    SPELL_SCALDINGWATER             = 37284,
-
-    // Creatures
-    NPC_COILFANG_FRENZY             = 21508,
-    NPC_COILFANG_PRIESTESS          = 21220,
-    NPC_COILFANG_SHATTERER          = 21301,
-
-    // Misc
-    MIN_KILLS                       = 30
-};
-
-//NOTE: there are 6 platforms
-//there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
-//delete all other elites not on platforms! these mobs should only be on those platforms nowhere else.
 
 /* Serpentshrine cavern encounters:
 0 - Hydross The Unstable event
@@ -63,9 +32,13 @@ enum Misc
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_LEOTHERAS_THE_BLIND, BOSS_LEOTHERAS_THE_BLIND },
-    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ          },
-    { 0,                       0                        } // END
+    { NPC_CARIBDIS,            DATA_CARIBDIS               },
+    { NPC_TIDALVESS,           DATA_TIDALVESS              },
+    { NPC_SHARKKIS,            DATA_SHARKKIS               },
+    { NPC_KARATHRESS,          BOSS_FATHOM_LORD_KARATHRESS },
+    { NPC_LEOTHERAS_THE_BLIND, BOSS_LEOTHERAS_THE_BLIND    },
+    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ             },
+    { 0,                       0                           } // END
 };
 
 static constexpr ObjectData gameObjectData[] =
@@ -77,7 +50,7 @@ static constexpr ObjectData gameObjectData[] =
     { GO_SHIELD_GENERATOR_2,      DATA_SHIELD_GENERATOR_2 },
     { GO_SHIELD_GENERATOR_3,      DATA_SHIELD_GENERATOR_3 },
     { GO_SHIELD_GENERATOR_4,      DATA_SHIELD_GENERATOR_4 },
-    { 0,                          0                       } //END
+    { 0,                          0                       } // END
 };
 
 class instance_serpent_shrine : public InstanceMapScript
@@ -90,102 +63,10 @@ class instance_serpent_shrine : public InstanceMapScript
             instance_serpentshrine_cavern_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
 
-                Water = WATERSTATE_FRENZY;
-
-                WaterCheckTimer = 500;
-                FrenzySpawnTimer = 2000;
-                DoSpawnFrenzy = false;
-                TrashCount = 0;
-            }
-
-            void Update(uint32 diff) override
-            {
-                //Water checks
-                if (WaterCheckTimer <= diff)
-                {
-                    if (TrashCount >= MIN_KILLS)
-                        Water = WATERSTATE_SCALDING;
-                    else
-                        Water = WATERSTATE_FRENZY;
-
-                    Map::PlayerList const& PlayerList = instance->GetPlayers();
-                    if (PlayerList.isEmpty())
-                        return;
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    {
-                        if (Player* player = i->GetSource())
-                        {
-                            if (player->IsAlive() && /*i->GetSource()->GetPositionZ() <= -21.434931f*/player->IsInWater())
-                            {
-                                if (Water == WATERSTATE_SCALDING)
-                                {
-                                    if (!player->HasAura(SPELL_SCALDINGWATER))
-                                        player->CastSpell(player, SPELL_SCALDINGWATER, true);
-
-                                }
-                                else
-                                {
-                                    //spawn frenzy
-                                    if (DoSpawnFrenzy)
-                                    {
-                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2s))
-                                        {
-                                            frenzy->Attack(player, false);
-                                            frenzy->SetSwim(true);
-                                            frenzy->SetDisableGravity(true);
-                                        }
-                                        DoSpawnFrenzy = false;
-                                    }
-                                }
-                            }
-                            if (!player->IsInWater())
-                                player->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
-                        }
-
-                    }
-                    WaterCheckTimer = 500;//remove stress from core
-                }
-                else
-                    WaterCheckTimer -= diff;
-
-                if (FrenzySpawnTimer <= diff)
-                {
-                    DoSpawnFrenzy = true;
-                    FrenzySpawnTimer = 2000;
-                }
-                else
-                    FrenzySpawnTimer -= diff;
-
-                Events.Update(diff);
-
-                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
-                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    case 21214:
-                        Karathress = creature->GetGUID();
-                        break;
-                    case 21966:
-                        Sharkkis = creature->GetGUID();
-                        break;
-                    case 21965:
-                        Tidalvess = creature->GetGUID();
-                        break;
-                    case 21964:
-                        Caribdis = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
+                KilledElitesCount = 0;
             }
 
             void OnUnitDeath(Unit* unit) override
@@ -194,8 +75,8 @@ class instance_serpent_shrine : public InstanceMapScript
                 {
                     case NPC_COILFANG_PRIESTESS:
                     case NPC_COILFANG_SHATTERER:
-                        if (TrashCount < MIN_KILLS)
-                            ++TrashCount;//+1 died
+                        if (KilledElitesCount < MIN_KILLED_ELITES)
+                            ++KilledElitesCount;
                         SaveToDB();
                         break;
                     default:
@@ -221,74 +102,35 @@ class instance_serpent_shrine : public InstanceMapScript
                 return true;
             }
 
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case DATA_SHARKKIS:
-                        return Sharkkis;
-                    case DATA_TIDALVESS:
-                        return Tidalvess;
-                    case DATA_CARIBDIS:
-                        return Caribdis;
-                    case DATA_KARATHRESS:
-                        return Karathress;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                switch (type)
-                {
-                    case DATA_WATER:
-                        Water = data;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             uint32 GetData(uint32 type) const override
             {
-                switch (type)
-                {
-                    case DATA_WATER:
-                        return Water;
-                    default:
-                        break;
-                }
+                if (type == DATA_KILLED_ELITES)
+                    return KilledElitesCount;
 
                 return 0;
             }
 
+            void Update(uint32 diff) override
+            {
+                Events.Update(diff);
+
+                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
+                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
+            }
+
             void WriteSaveDataMore(std::ostringstream& stream) override
             {
-                stream << TrashCount;
+                stream << KilledElitesCount;
             }
 
             void ReadSaveDataMore(std::istringstream& stream) override
             {
-                stream >> TrashCount;
+                stream >> KilledElitesCount;
             }
-
-        private:
-            ObjectGuid Sharkkis;
-            ObjectGuid Tidalvess;
-            ObjectGuid Caribdis;
-            ObjectGuid Karathress;
-
-            uint32 WaterCheckTimer;
-            uint32 FrenzySpawnTimer;
-            uint32 Water;
-            uint32 TrashCount;
-
-            bool DoSpawnFrenzy;
 
         protected:
             EventMap Events;
+            uint32 KilledElitesCount;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
