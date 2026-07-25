@@ -44,9 +44,13 @@ class spell_serpent_shrine_coilfang_water : public AuraScript
 
         if (InstanceScript* instance = target->GetInstanceScript())
             if (instance->GetData(DATA_KILLED_ELITES) < MIN_KILLED_ELITES)
+            {
                 target->CastSpell(nullptr, SPELL_FRENZY_WATER_PERIODIC, true);
+            }
             else
+            {
                 target->CastSpell(nullptr, SPELL_SCALDING_WATER, true);
+            }
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

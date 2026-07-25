@@ -321,7 +321,7 @@ struct boss_fathomguard_sharkkis : public FathomGuardBaseAI
         DoCastSelf(SPELL_POWER_OF_SHARKKIS);
     }
 
-    void ExecuteEvent(uint32 eventId)
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -372,7 +372,7 @@ struct boss_fathomguard_tidalvess : public FathomGuardBaseAI
         DoCastSelf(SPELL_POWER_OF_TIDALVESS);
     }
 
-    void ExecuteEvent(uint32 eventId)
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -416,7 +416,7 @@ struct boss_fathomguard_caribdis : public FathomGuardBaseAI
         DoCastSelf(SPELL_POWER_OF_CARIBDIS);
     }
 
-    void ExecuteEvent(uint32 eventId)
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
