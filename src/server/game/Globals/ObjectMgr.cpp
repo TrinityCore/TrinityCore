@@ -51,6 +51,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "QueryPackets.h"
+#include "QueryResultStructured.h"
 #include "QuestDef.h"
 #include "Random.h"
 #include "RealmList.h"

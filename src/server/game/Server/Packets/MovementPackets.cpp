@@ -277,7 +277,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAn
 {
     data << int32(animTierTransition.TierTransitionID);
     data << uint32(animTierTransition.StartTime);
-    data << uint32(animTierTransition.EndTime);
+    data << uint32(animTierTransition.ExtraDuration);
     data << uint8(animTierTransition.AnimTier);
 
     return data;

@@ -891,8 +891,6 @@ void AreaTrigger::HandleUnitExit(Unit* unit)
     _insideUnits.erase(unit->GetGUID());
 
     HandleUnitExitInternal(unit);
-
-    UpdateHasPlayersFlag();
 }
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
