@@ -114,8 +114,11 @@ namespace FSBOOC
         if (!bot || !bot->IsAlive())
             return false;
 
-        // We do not want to do AFK actions in BG
+        // We do not want to do AFK actions in BG or dungeon
         if (FSBBattleground::IsInBG(bot))
+            return false;
+
+        if (bot->GetMap()->IsDungeon())
             return false;
 
         if (!FollowshipBotsConfig::configFSBUseAFKActions)
