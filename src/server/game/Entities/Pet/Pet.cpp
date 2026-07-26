@@ -905,7 +905,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         // remove elite bonuses included in DB values
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
-        ApplyLevelScaling();
+        if (!m_Properties) // pet loaded from DB
+            ApplyLevelScaling(GetOwner()->m_unitData->ContentTuningID, GetOwner()->m_unitData->ScalingLevelDelta);
 
         CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
         SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class), 0) * creatureDifficulty->HealthModifier * GetHealthMod(cinfo->Classification), 1.0f));
