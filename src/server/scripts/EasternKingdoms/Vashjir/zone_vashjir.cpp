@@ -60,6 +60,20 @@ class spell_vashjir_sea_legs_aura : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_vashjir_sea_legs_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
+
+// 76143 - Low Health
+class spell_vashjir_low_health : public AuraScript
+{
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(10));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_vashjir_low_health::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
 }
 
 void AddSC_vashjir()
@@ -68,4 +82,5 @@ void AddSC_vashjir()
 
     // Spells
     RegisterSpellScript(spell_vashjir_sea_legs_aura);
+    RegisterSpellScript(spell_vashjir_low_health);
 }
