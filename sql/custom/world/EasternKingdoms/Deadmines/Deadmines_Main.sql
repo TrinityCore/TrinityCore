@@ -76,9 +76,22 @@ DELETE FROM `creature_template_difficulty` WHERE `entry` IN (47162,48229,48230,5
 48447,48450,48522,48521,48448,48449,48451,47626,47714,48266,47739,
 -- Cookie Adds
 48672,47754,48301,48300,48297,48296,48006,48294,48295,48276,48299,48293,48298,48302,
--- Vanessa adds
-49454,51594);
+-- Vanessa Encounter
+49454,51594,49493,49494,49495,49674,49670,49681,49541,49532,49520,49521);
 INSERT INTO `creature_template_difficulty` VALUES
+-- Nightmare Adds (only heroic)
+(49532, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39587, 0, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Enraged Worgen
+(49494, 2, 1, 1, 1199, 0, 1, 1, 1, 0.2, 39634, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Warkweb Devourer
+(49493, 2, 0, 0, 1199, 0, 0.5, 1, 1, 0.2, 39636, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Nightmare Skitterling
+(49495, 2, 0, 0, 1199, 0, 0.5, 1, 1, 0.2, 39632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Chattering Horror
+(49674, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39405, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Helix Nightmare
+(49670, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39411, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Glubtok Nightmare
+(49681, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39399, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Mechanical Nightmare
+(49541, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39570, 96, 128, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Vanessa Boss
+(49520, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39613, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Spark
+(49521, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39611, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- Spark Passenger
+(49539, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39575, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- James Harrington
+
 -- Vanessa Adds (only heroic)
 (49454, 2, 0, 0, 338, 0, 1, 1, 1, 1, 39704, 1024, 0, 0, 0, 0, 0, 0, 0, 0x20000000, 0, 0, 0, 0, 0, 0, 0, 0), -- Trap bunny
 (51594, 2, 0, 0, 338, 0, 1, 1, 1, 1, 36170, 1024, 0, 0, 0, 0, 0, 0, 0, (0x00000100 | 0x00000200), 0, 0, 0, 0, 0, 0, 0, 45745), -- Glubtok Fire Bunny
@@ -739,59 +752,58 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Pro
 
 -- Vanessa Encounter
 DELETE FROM `creature_text` WHERE `CreatureID` IN (49429, 49541, 49536, 49539, 49454,49671);
-INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `Emote`, `Sound`, `BroadcastTextID`, `comment`) VALUES
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `Emote`, `Sound`, `BroadcastTextID`, `TextRange`, `comment`) VALUES
 -- Vanessa Intro
-(49429, 0, 0, 'You hear a noise from above the cabin door!', 41, 100, 0, 0, 49476, 'Vanessa VanCleef - Spawn Warning'),
-(49429, 1, 0, 'I''ve been waiting a long time for this, you know.', 12, 100, 1, 24613, 49477, 'Vanessa VanCleef - Intro 1'),
-(49429, 2, 0, 'Biding my time, building my forces, studying the minds of my enemies.', 12, 100, 1, 24614, 49478, 'Vanessa VanCleef - Intro 2'),
-(49429, 3, 0, 'I was never very good at hand-to-hand combat, you know.  Not like my father.', 12, 100, 1, 24615, 49479, 'Vanessa VanCleef - Intro 3'),
-(49429, 4, 0, 'But I always excelled at poisons.', 12, 100, 1, 24616, 49480, 'Vanessa VanCleef - Intro 4'),
-(49429, 5, 0, 'Especially venoms that affect the mind.', 12, 100, 1, 24617, 49481, 'Vanessa VanCleef - Intro 5'),
+(49429, 0, 0, 'You hear a noise from above the cabin door!', 41, 100, 0, 0, 49476, 0, 'Vanessa VanCleef - Spawn Warning'),
+(49429, 1, 0, 'I''ve been waiting a long time for this, you know.', 12, 100, 1, 24613, 49477, 0, 'Vanessa VanCleef - Intro 1'),
+(49429, 2, 0, 'Biding my time, building my forces, studying the minds of my enemies.', 12, 100, 1, 24614, 49478, 0, 'Vanessa VanCleef - Intro 2'),
+(49429, 3, 0, 'I was never very good at hand-to-hand combat, you know.  Not like my father.', 12, 100, 1, 24615, 49479, 0, 'Vanessa VanCleef - Intro 3'),
+(49429, 4, 0, 'But I always excelled at poisons.', 12, 100, 1, 24616, 49480, 0, 'Vanessa VanCleef - Intro 4'),
+(49429, 5, 0, 'Especially venoms that affect the mind.', 12, 100, 1, 24617, 49481, 0, 'Vanessa VanCleef - Intro 5'),
  
  -- Vanessa Nightmare
- (49671, 0, 0, 'The Nightmare Elixir takes hold!', 41, 100, 0, 0, 49705, 'Vanessa VanCleef - Nightmare Warning'),
- (49671, 1, 0, 'Poor Glubtok.  When his powers manifested, his own ogre mound was the first to burn.', 12, 100, 1, 24602, 49715, 'Vanessa VanCleef - Nightmare 1'),
- (49671, 2, 0, 'Deep within his soul, the one thing he feared most of all was...himself.', 12, 100, 1, 24603, 49716, 'Vanessa VanCleef - Nightmare 1'),
- (49671, 3, 0, 'You have entered Glubtok''s Nightmare!', 41, 100, 0, 0, 49706, 'Vanessa VanCleef - Glubtok Nightmare Warning'),
- (49671, 4, 0, 'Get back to the ship!', 41, 100, 0, 0, 50703, 'Vanessa VanCleef - Nightmare Get Back To The Ship Warning'),
- (49671, 5, 0, 'The nightmare shifts!', 41, 100, 0, 0, 49707, 'Vanessa VanCleef - Nightmare Shift'),
- (49671, 6, 0, 'You have entered Helix''s Nightmare!', 41, 100, 0, 0, 49708, 'Vanessa VanCleef - Helix Nightmare Warning'),
- (49671, 7, 0, 'Most rogues prefer to cloak themselves in the shadows, but not Helix.', 12, 100, 1, 24604, 49723, 'Vanessa VanCleef - Nightmare 2'),
- (49671, 8, 0, 'You never know what skitters in the darkness.', 12, 100, 1, 24605, 49724, 'Vanessa VanCleef - Nightmare 2'),
- (49671, 9, 0, 'You have entered the mechanical nightmare!', 41, 100, 0, 0, 49709, 'Vanessa VanCleef - mechanical Nightmare Warning'),
- (49671, 10, 0, 'Can you imagine the life of a machine?', 12, 100, 1, 24606, 49725, 'Vanessa VanCleef - Nightmare 3'),
- (49671, 11, 0, 'A simple spark can mean the difference between life...and death.', 12, 100, 1, 24607, 49726, 'Vanessa VanCleef - Nightmare 3'),
- (49671, 12, 0, 'Ripsnarl wasn''t always a bloodthirsty savage.  Once, he even had a family.', 12, 100, 1, 24608, 49742, 'Vanessa VanCleef - Nightmare 4'),
- (49671, 13, 0, 'He was called James Harrington.  A tragedy in three parts.', 12, 100, 1, 24609, 49745, 'Vanessa VanCleef - Nightmare 4'),
- (49671, 14, 0, 'You have entered Ripsnarl''s nightmare!', 41, 100, 0, 0, 49710, 'Vanessa VanCleef - Ripsnarl Nightmare Warning'),
- (49671, 15, 0, 'Save Emme Harrington!', 41, 100, 0, 0, 49711, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 1'),
- (49671, 16, 0, 'Save Erik Harrington!', 41, 100, 0, 0, 49712, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 2'),
- (49671, 17, 0, 'Save Calissa Harrington!', 41, 100, 0, 0, 49713, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 3'),
- (49671, 18, 0, 'The Nightmare Elixir wears off!', 41, 100, 0, 0, 49714, 'Vanessa VanCleef - Nightmare Elixir Off'),
+ (49671, 0, 0, 'The Nightmare Elixir takes hold!', 41, 100, 0, 0, 49705, 3, 'Vanessa VanCleef - Nightmare Warning'),
+ (49671, 1, 0, 'Poor Glubtok.  When his powers manifested, his own ogre mound was the first to burn.', 12, 100, 1, 24602, 49715, 0, 'Vanessa VanCleef - Nightmare 1'),
+ (49671, 2, 0, 'Deep within his soul, the one thing he feared most of all was...himself.', 12, 100, 1, 24603, 49716, 0, 'Vanessa VanCleef - Nightmare 1'),
+ (49671, 3, 0, 'You have entered Glubtok''s Nightmare!', 41, 100, 0, 0, 49706, 3, 'Vanessa VanCleef - Glubtok Nightmare Warning'),
+ (49671, 4, 0, 'Get back to the ship!', 41, 100, 0, 0, 50703, 3, 'Vanessa VanCleef - Nightmare Get Back To The Ship Warning'),
+ (49671, 5, 0, 'The nightmare shifts!', 41, 100, 0, 0, 49707, 3, 'Vanessa VanCleef - Nightmare Shift'),
+ (49671, 6, 0, 'You have entered Helix''s Nightmare!', 41, 100, 0, 0, 49708, 3, 'Vanessa VanCleef - Helix Nightmare Warning'),
+ (49671, 7, 0, 'Most rogues prefer to cloak themselves in the shadows, but not Helix.', 12, 100, 1, 24604, 49723, 0, 'Vanessa VanCleef - Nightmare 2'),
+ (49671, 8, 0, 'You never know what skitters in the darkness.', 12, 100, 1, 24605, 49724, 0, 'Vanessa VanCleef - Nightmare 2'),
+ (49671, 9, 0, 'You have entered the mechanical nightmare!', 41, 100, 0, 0, 49709, 3, 'Vanessa VanCleef - mechanical Nightmare Warning'),
+ (49671, 10, 0, 'Can you imagine the life of a machine?', 12, 100, 1, 24606, 49725, 0, 'Vanessa VanCleef - Nightmare 3'),
+ (49671, 11, 0, 'A simple spark can mean the difference between life...and death.', 12, 100, 1, 24607, 49726, 0, 'Vanessa VanCleef - Nightmare 3'),
+ (49671, 12, 0, 'Ripsnarl wasn''t always a bloodthirsty savage.  Once, he even had a family.', 12, 100, 1, 24608, 49742, 0, 'Vanessa VanCleef - Nightmare 4'),
+ (49671, 13, 0, 'He was called James Harrington.  A tragedy in three parts.', 12, 100, 1, 24609, 49745, 0, 'Vanessa VanCleef - Nightmare 4'),
+ (49671, 14, 0, 'You have entered Ripsnarl''s nightmare!', 41, 100, 0, 0, 49710, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Warning'),
+ (49671, 15, 0, 'Save Emme Harrington!', 41, 100, 0, 0, 49711, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 1'),
+ (49671, 16, 0, 'Save Erik Harrington!', 41, 100, 0, 0, 49712, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 2'),
+ (49671, 17, 0, 'Save Calissa Harrington!', 41, 100, 0, 0, 49713, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 3'),
+ (49671, 18, 0, 'The Nightmare Elixir wears off!', 41, 100, 0, 0, 49714, 3, 'Vanessa VanCleef - Nightmare Elixir Off'),
  
  -- Vanessa Boss
-(49541, 0, 0, 'I will not share my father''s fate!  Your tale ends here!', 14, 100, 0, 128141, 170621, 'Vanessa VanCleef - Aggro'), -- also text id 49748 with sound 24599
-(49541, 1, 0, 'Did you really think I would come to this fight alone?', 14, 100, 0, 24620, 49750, 'Vanessa VanCleef - Summon Adds'),
-(49541, 2, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 100, 0, 24621, 49751, 'Vanessa VanCleef - Bomb at 50 pct'),
-(49541, 3, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 100, 0, 24622, 50706, 'Vanessa VanCleef - Bomb at 25 pct'),
-(49541, 4, 0, 'The first of many.', 14, 100, 274, 24618, 49749, 'Vanessa VanCleef - Killed target'),
-(49541, 5, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 'Vanessa VanCleef - Warning 1'),
-(49541, 6, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 'Vanessa VanCleef - Warning 2'),
--- (49541, 0, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 100, 274, 24610, 49753, 'Vanessa VanCleef - Defeated 1'),
--- (49541, 0, 0, 'If I''m going to die, I''m taking you all with me!', 14, 100, 15, 128140, 170622, 'Vanessa VanCleef - Defeated 2'),
--- (49541, 0, 0, 'MY FATE IS MY OWN!', 14, 100, 397, 24612, 49754, 'Vanessa VanCleef - Defeated 3'),
+(49541, 0, 0, 'I will not share my father''s fate!  Your tale ends here!', 14, 100, 0, 128141, 170621, 0, 'Vanessa VanCleef - Aggro'), -- also text id 49748 with sound 24599
+(49541, 1, 0, 'Did you really think I would come to this fight alone?', 14, 100, 0, 24620, 49750, 0, 'Vanessa VanCleef - Summon Adds'),
+(49541, 2, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 100, 0, 24621, 49751, 0, 'Vanessa VanCleef - Bomb at 50 pct'),
+(49541, 3, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 100, 0, 24622, 50706, 0, 'Vanessa VanCleef - Bomb at 25 pct'),
+(49541, 4, 0, 'The first of many.', 14, 100, 274, 24618, 49749, 0, 'Vanessa VanCleef - Killed target'),
+(49541, 5, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 0, 'Vanessa VanCleef - Warning 1'),
+(49541, 6, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 0, 'Vanessa VanCleef - Warning 2'),
+(49541, 7, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 100, 274, 24610, 49753, 0, 'Vanessa VanCleef - Defeated 1'),
+(49541, 8, 0, 'If I''m going to die, I''m taking you all with me!', 14, 100, 15, 128140, 170622, 0, 'Vanessa VanCleef - Defeated 2'),
+(49541, 9, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it! RUN!', 41, 100, 0, 0, 49757, 0, 'Vanessa VanCleef - Warning 3'), 
+(49541, 10, 0, 'MY FATE IS MY OWN!', 14, 100, 397, 24612, 49754, 0, 'Vanessa VanCleef - Defeated 3'),
 
 -- Warnings
 -- 
-
--- (49541, 0, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it! RUN!', 41, 100, 0, 0, 49757, 'Vanessa VanCleef - Warning 3'), 
-(49454, 0, 0, 'Vanessa injects you with the Nightmare Elixir!', 41, 100, 0, 0, 49483, 'Vanessa Trap Bunny - Warning 1'),
-(49454, 1, 0, 'Activate the steam valves to free yourself!', 41, 100, 0, 0, 49680, 'Vanessa Trap Bunny - Warning 2'),
+(49454, 0, 0, 'Vanessa injects you with the Nightmare Elixir!', 41, 100, 0, 0, 49483, 0, 'Vanessa Trap Bunny - Warning 1'),
+(49454, 1, 0, 'Activate the steam valves to free yourself!', 41, 100, 0, 0, 49680, 0, 'Vanessa Trap Bunny - Warning 2'),
 
 -- Harringtons
-(49539, 0, 0, 'Calissa...I am so sorry...', 12, 100, 0, 0, 49761, 'James Harrington - To Calissa Harrington'),
-(49536, 0, 0, 'James...please...I love you...', 12, 100, 0, 0, 49762, 'Calissa Harrington - James Harrington'),
-(49536, 1, 0, 'Calissa is dying!', 16, 100, 0, 0, 49763, 'Calissa Harrington - James Harrington');
+(49539, 0, 0, 'Calissa...I am so sorry...', 12, 100, 0, 0, 49761, 0, 'James Harrington - To Calissa Harrington'),
+(49536, 0, 0, 'James...please...I love you...', 12, 100, 0, 0, 49762, 0, 'Calissa Harrington - James Harrington'),
+(49536, 1, 0, 'Calissa is dying!', 16, 100, 0, 0, 49763, 0, 'Calissa Harrington - James Harrington');
 
 -- GO: 207079 Ball and Chain
 UPDATE `gameobject_template` SET `ScriptName` = 'go_ball_and_chain' WHERE `entry` = 207079;

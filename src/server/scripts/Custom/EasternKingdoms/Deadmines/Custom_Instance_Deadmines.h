@@ -403,8 +403,10 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 KilledUnit = 4;
             static constexpr int8 VanessaDetonation1 = 5;
             static constexpr int8 VanessaDetonation2 = 6;
-
-            static constexpr int8 FinalAct = 15;
+            static constexpr int8 VanessaDefeated1 = 7;
+            static constexpr int8 VanessaDefeated2 = 8;
+            static constexpr int8 VanessaDetonation3 = 9;
+            static constexpr int8 VanessaDefeated3 = 10;
 
             // Trap Bunny
             static constexpr int8 VanessaTrapBunnyWarning = 0;
@@ -783,6 +785,8 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 SpiritStrike = 18;
             static constexpr int8 Spiders = 19;
             static constexpr int8 BossIntroMove = 20;
+            static constexpr int8 FinalWarning = 21;
+            static constexpr int8 FinalDetonation = 22;
 
             // Intro
             static constexpr int8 IntroJump = 1;

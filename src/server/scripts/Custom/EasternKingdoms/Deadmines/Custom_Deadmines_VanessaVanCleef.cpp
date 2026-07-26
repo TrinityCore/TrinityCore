@@ -358,7 +358,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                     if (vehicle->HasEmptySeat(i))
                         if (Creature* pas = me->SummonCreature(Creatures::SparkPassenger, me->GetPosition()))
                         {
-                            me->SetSessile(true);
+                            pas->SetSessile(true);
                             pas->EnterVehicle(me, i);
                         }
         }
@@ -752,7 +752,6 @@ namespace Scripts::EasternKingdoms::Deadmines
 
                 if (Creature* Calissa = me->FindNearestCreature(Creatures::CalissaHarrington, 20.f))
                 {
-                    //Calissa->SetRegenerateHealth(false);
                     Calissa->EnterVehicle(me, 0);
                     Calissa->Attack(me, true);
                 }
@@ -779,17 +778,12 @@ namespace Scripts::EasternKingdoms::Deadmines
 
             if (Creature* Calissa = me->FindNearestCreature(Creatures::CalissaHarrington, 20.f))
             {
+                Calissa->SetStandState(UNIT_STAND_STATE_DEAD);
                 Calissa->m_Events.AddEventAtOffset([Calissa]()
                     {
                         if (Calissa)
                             Calissa->ExitVehicle();
                     }, std::chrono::milliseconds(500));
-
-                Calissa->m_Events.AddEventAtOffset([Calissa]()
-                    {
-                        if (Calissa)
-                            Calissa->SetEmoteState(EMOTE_STATE_DEAD);
-                    }, std::chrono::milliseconds(1000));
 
                 Calissa->m_Events.AddEventAtOffset([Calissa]()
                     {
@@ -1034,7 +1028,11 @@ namespace Scripts::EasternKingdoms::Deadmines
                     
                     me->SummonCreature(Creatures::EmmeHarrington, Positions::FamilySpawn[0], TEMPSUMMON_MANUAL_DESPAWN);
                     me->SummonCreature(Creatures::ErikHarrington, Positions::FamilySpawn[1], TEMPSUMMON_MANUAL_DESPAWN);
-                    me->SummonCreature(Creatures::CalissaHarrington, Positions::FamilySpawn[3], TEMPSUMMON_MANUAL_DESPAWN);
+                    if (Creature* calissa = me->SummonCreature(Creatures::CalissaHarrington, Positions::FamilySpawn[3], TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        calissa->SetDisableGravity(false);
+                        calissa->SetRegenerateHealth(false);
+                    }
                     break;
                 }
                 case 5:
@@ -1246,11 +1244,8 @@ namespace Scripts::EasternKingdoms::Deadmines
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void EngageAfterTeleport()
         {
-            if (type != POINT_MOTION_TYPE || id != EVENT_CHARGE)
-                return;
-
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
             me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -1292,8 +1287,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                 switch (eventId)
                 {
                     case Events::VanessaVanCleef::GlubtokCharge:
-                        //me->GetMotionMaster()->MoveCharge(Positions::GlubtokNightmareCharge.GetPositionX(), Positions::GlubtokNightmareCharge.GetPositionY(), Positions::GlubtokNightmareCharge.GetPositionZ(), 10.0f);
                         me->NearTeleportTo(Positions::GlubtokNightmareCharge);
+                        EngageAfterTeleport();
                         break;
                     case Events::VanessaVanCleef::IcicleAOE:
                         if (Unit* target = me->SelectNearestTarget(200.0f))
@@ -1354,7 +1349,9 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 
                 case Creatures::MainSpider:
-                    summon->SetObjectScale(0.3f);
+                    summon->SetObjectScale(0.1f);
+                    summon->SetWalk(true);
+                    summon->SetSpeed(MOVE_WALK, 0.1f);
                     break;
                 case Creatures::NightmareSpider:
                 case Creatures::ChatteringHorror:
@@ -1574,6 +1571,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
+            Talk(Texts::VanessaVanCleef::VanessaDefeated3);
             summons.DespawnAll();
             ropeList.DespawnAll();
         }
@@ -1631,10 +1629,15 @@ namespace Scripts::EasternKingdoms::Deadmines
                 me->AttackStop();
                 me->ClearAllReactives();
                 DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                    if (Player* player = target->ToPlayer())
-                        me->TextEmote(Texts::VanessaVanCleef::FinalAct, player);
+                Talk(Texts::VanessaVanCleef::VanessaDefeated1);
+
                 events.ScheduleEvent(Events::VanessaVanCleef::FinalTimer, 5s);
+            }
+
+            if (damage >= me->GetHealth())
+            {
+                damage = 0;
+                me->SetHealth(1);
             }
         }
 
@@ -1716,7 +1719,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                         DoReappear();
                         break;
                     case Events::VanessaVanCleef::Shadowguard:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
                             if (Creature* add = me->SummonCreature(Creatures::DefiasShadowguard, Positions::Shadowspawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                                 add->AI()->AttackStart(target);
                         break;
@@ -1724,6 +1727,14 @@ namespace Scripts::EasternKingdoms::Deadmines
                         DoCastSelf(Spells::VanessaVanCleef::Vengeance);
                         break;
                     case Events::VanessaVanCleef::FinalTimer:
+                        Talk(Texts::VanessaVanCleef::VanessaDefeated2);
+                        events.ScheduleEvent(Events::VanessaVanCleef::FinalWarning, 3s);
+                        break;
+                    case Events::VanessaVanCleef::FinalWarning:
+                        Talk(Texts::VanessaVanCleef::VanessaDetonation3);
+                        events.ScheduleEvent(Events::VanessaVanCleef::FinalDetonation, 5s);
+                        break;
+                    case Events::VanessaVanCleef::FinalDetonation:
                         DoCastSelf(Spells::VanessaVanCleef::PowderExplosion);
                         me->AttackStop();
                         me->ClearAllReactives();
