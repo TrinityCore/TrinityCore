@@ -75,24 +75,22 @@ INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`)
 (149279, 23767, 68453), -- Stoki Wonderwand
 (254688, 41194, 68453); -- Tocho Cloudhide
 
-DELETE FROM `gossip_menu` WHERE (`MenuID`=23795 AND `TextID`=@NPCTEXTID+0) OR (`MenuID`=41194 AND `TextID`=@NPCTEXTID+1) OR (`MenuID`=41195 AND `TextID`=@NPCTEXTID+2) OR (`MenuID`=41202 AND `TextID`=@NPCTEXTID+3) OR (`MenuID`=41197 AND `TextID`=@NPCTEXTID+4)OR (`MenuID`=23793 AND `TextID`=37234) OR (`MenuID`=23765 AND `TextID`=37144) OR (`MenuID`=23767 AND `TextID`=37146);
+DELETE FROM `gossip_menu` WHERE (`MenuID`=41194 AND `TextID`=@NPCTEXTID+0) OR (`MenuID`=41195 AND `TextID`=@NPCTEXTID+1) OR (`MenuID`=41202 AND `TextID`=@NPCTEXTID+2) OR (`MenuID`=41197 AND `TextID`=@NPCTEXTID+3) OR (`MenuID`=23793 AND `TextID`=37234) OR (`MenuID`=23765 AND `TextID`=37144) OR (`MenuID`=23767 AND `TextID`=37146);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
-(23795, @NPCTEXTID+0, 68453), -- 149616 (Kirin Tor Emissary)
-(41194, @NPCTEXTID+1, 68453), -- 254688 (Tocho Cloudhide)
-(41195, @NPCTEXTID+2, 68453), -- 254688 (Tocho Cloudhide)
-(41202, @NPCTEXTID+3, 68453), -- 254688 (Tocho Cloudhide)
-(41197, @NPCTEXTID+4, 68453), -- 254688 (Tocho Cloudhide)
+(41194, @NPCTEXTID+0, 68453), -- 254688 (Tocho Cloudhide)
+(41195, @NPCTEXTID+1, 68453), -- 254688 (Tocho Cloudhide)
+(41202, @NPCTEXTID+2, 68453), -- 254688 (Tocho Cloudhide)
+(41197, @NPCTEXTID+3, 68453), -- 254688 (Tocho Cloudhide)
 (23793, 37234, 68453), -- 149523 (Zan'chi)
 (23765, 37144, 68453), -- 133186 (Leyline Navigator)
 (23767, 37146, 68453); -- 149279 (Stoki Wonderwand)
 
 DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+4;
 INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
-(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 168992, 0, 0, 0, 0, 0, 0, 0, 68453), -- 149616 (Kirin Tor Emissary)
-(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 297045, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
-(@NPCTEXTID+2, 1, 0, 0, 0, 0, 0, 0, 0, 297050, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
-(@NPCTEXTID+3, 1, 0, 0, 0, 0, 0, 0, 0, 303294, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
-(@NPCTEXTID+4, 1, 0, 0, 0, 0, 0, 0, 0, 297049, 0, 0, 0, 0, 0, 0, 0, 68453); -- 254688 (Tocho Cloudhide)
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 297045, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
+(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 297050, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
+(@NPCTEXTID+2, 1, 0, 0, 0, 0, 0, 0, 0, 303294, 0, 0, 0, 0, 0, 0, 0, 68453), -- 254688 (Tocho Cloudhide)
+(@NPCTEXTID+3, 1, 0, 0, 0, 0, 0, 0, 0, 297049, 0, 0, 0, 0, 0, 0, 0, 68453); -- 254688 (Tocho Cloudhide)
 
 DELETE FROM `gossip_menu_option` WHERE (`MenuID`=41195 AND `OptionID` IN (1,2)) OR (`MenuID`=41202 AND `OptionID` IN (0,1)) OR (`MenuID`=41194 AND `OptionID` IN (1,2)) OR (`MenuID`=41197 AND `OptionID` IN (0,1));
 INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
@@ -111,6 +109,17 @@ UPDATE `creature_template_gossip` SET `VerifiedBuild`=68887 WHERE `CreatureID`=4
 UPDATE `gossip_menu` SET `VerifiedBuild`=68887 WHERE `MenuID`=12235 AND `TextID` IN (17180, 17181);
 
 UPDATE `gossip_menu_option` SET `GossipOptionID`=39057, `VerifiedBuild`=68887 WHERE `MenuID`=12235 AND `OptionID`=0;
+
+-- Correct Kirin Tor Emissary & Vanguard Battlemage gossip
+DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=149616 AND `MenuID`=23795) OR (`CreatureID`=149626 AND `MenuID`=23796);
+INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
+(149616, 23795, 68453), -- Kirin Tor Emissary
+(149626, 23796, 68453); -- Vanguard Battlemage
+
+DELETE FROM `gossip_menu` WHERE (`MenuID`=23795 AND `TextID`=37251) OR (`MenuID`=23796 AND `TextID`=37249);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(23795, 37251, 68453), -- 149616 (Kirin Tor Emissary)
+(23796, 37249, 68453); -- 149626 (Vanguard Battlemage)
 
 -- GameObject
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+6;
