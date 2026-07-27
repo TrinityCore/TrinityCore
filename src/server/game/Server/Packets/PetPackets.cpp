@@ -212,6 +212,15 @@ WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Pet::PetNewlyTamed::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(PlayPingFX);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Pet::PetMode::Write()
 {
     _worldPacket << PetGUID;
