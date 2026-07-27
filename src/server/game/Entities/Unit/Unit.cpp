@@ -5256,11 +5256,21 @@ void Unit::UpdateStatBuffMod(Stats stat)
     float baseMod = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
 
     float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float totalValueMod = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
+    float totalMod = baseMod + totalValueMod;
 
-    // only bonus of baseValue goes into neg/pos, but whole totalValue goes into neg/pos
-    float totalMod = baseMod + totalValue;
+    // recalculate item stat bonuses
+    float itemMod = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    itemMod -= modPos; // remove positive auras
+    itemMod += modNeg; // remove negative auras
 
+    // add item stat bonuses to positive
+    if (itemMod > 0.f)
+        modPos += itemMod;
+    else
+        modNeg += itemMod;
+
+    // add pct mods
     if (totalMod > 0.f)
         modPos += totalMod;
     else
