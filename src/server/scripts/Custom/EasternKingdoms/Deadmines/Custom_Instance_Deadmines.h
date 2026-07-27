@@ -820,6 +820,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 MechanicalEngage = 47;
             static constexpr int8 NightmareElixirReapply = 48;
             static constexpr int8 NightmareSaveEmme = 49;
+            static constexpr int8 RopeStartRide = 50;
         }
     }
 
@@ -834,6 +835,15 @@ namespace Scripts::EasternKingdoms::Deadmines
         namespace VanessaVanCleef
         {
             static constexpr int8 EjectAll = 1;
+        }
+    }
+
+    namespace Points
+    {
+        namespace VanessaVanCleef
+        {
+            static constexpr uint32 RopeOut = 1;
+            static constexpr uint32 RopeHome = 2;
         }
     }
 

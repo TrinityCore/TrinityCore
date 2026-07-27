@@ -254,31 +254,30 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void Reset() override
         {
-            Phase = 0;
-            MoveTimer = 500;
-            RunAway = false;
-            me->SetSpeed(MOVE_FLIGHT, 1.0f);
+            me->SetSpeedRate(MOVE_RUN, 1.2f);
 
-            me->SummonCreature(Creatures::RopeAnchor, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 40.f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
+            me->SummonCreature(Creatures::RopeAnchor, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 40.f, 0, TEMPSUMMON_TIMED_DESPAWN, 40s);
         }
 
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
             if (passenger->GetTypeId() == TYPEID_PLAYER)
-            {
                 if (apply)
-                {
-                    RunAway = true;
-                }
-            }
+                    _events.ScheduleEvent(Events::VanessaVanCleef::RopeStartRide, 500ms);
         }
 
         void MovementInform(uint32 /*type*/, uint32 pointId) override
         {
-            if (pointId == 1)
+            if (pointId == Points::VanessaVanCleef::RopeOut)
             {
-                if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
-                    passenger->ExitVehicle();
+                Position homePos = me->GetHomePosition();
+                me->GetMotionMaster()->MovePoint(Points::VanessaVanCleef::RopeHome, homePos.GetPositionX(), homePos.GetPositionY(), homePos.GetPositionZ() + 5.f, false);
+            }
+
+            if (pointId == Points::VanessaVanCleef::RopeHome)
+            {
+                if (Vehicle* kit = me->GetVehicleKit())
+                    kit->RemoveAllPassengers();
 
                 me->RemoveAllAuras();
                 me->DespawnOrUnsummon();
@@ -287,41 +286,23 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void UpdateAI(uint32 diff) override
         {
-            if (RunAway)
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (MoveTimer <= diff)
+                switch (eventId)
                 {
-                    switch (Phase)
-                    {
-                    case 0:
-                    {
-                        //me->GetMotionMaster()->MovePoint(0, -77.97f, -877.09f, 49.44f);
-                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() - 100.f, me->GetPositionZ() + 10.f, false);
-                        MoveTimer = 2500;
-                        Phase++;
+                    case Events::VanessaVanCleef::RopeStartRide:
+                        me->GetMotionMaster()->MovePoint(Points::VanessaVanCleef::RopeOut, me->GetPositionX(), me->GetPositionY() - 80.f, me->GetPositionZ() + 10.f, false);
                         break;
-                    }
-                    case 1:
-                    {
-                        Position homePos = me->GetHomePosition();
-                        me->GetMotionMaster()->MovePoint(1, homePos.GetPositionX(), homePos.GetPositionY(), homePos.GetPositionZ() + 5.f, false);
-                        //me->GetMotionMaster()->MovePoint(1, -64.02f, -839.84f, 41.22f);
-                        MoveTimer = 3000;
-                        Phase++;
+                    default:
                         break;
-                    }
-                    case 2:
-                        break;
-                    }
                 }
-                else MoveTimer -= diff;
             }
         }
 
     private:
-        bool RunAway = false;
-        uint8 Phase = 0;
-        uint32 MoveTimer = 0;
+        EventMap _events;
     };
 
     // 49520 - Lightning Platter
@@ -385,231 +366,6 @@ namespace Scripts::EasternKingdoms::Deadmines
     private:
         EventMap _events;
         SummonList _summons;
-    };
-
-    // 49505 - Defias Shadowguard
-    struct npc_defias_shadowguard : public ScriptedAI
-    {
-        npc_defias_shadowguard(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-            _evasionCast = false;
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 8s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 13s);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-        {
-            if (!_evasionCast && me->HealthBelowPct(35))
-            {
-                _evasionCast = true;
-                DoCastSelf(Spells::VanessaVanCleef::Evasion);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::SinisterStrike);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 6s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::WhirlingBlades);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 12s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd3:
-                        DoCastVictim(Spells::VanessaVanCleef::Shadowstep);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 10s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-        bool _evasionCast = false;
-    };
-
-    // 49502 - Defias Enforcer
-    struct npc_defias_enforcer : public ScriptedAI
-    {
-        npc_defias_enforcer(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                DoCast(target, Spells::VanessaVanCleef::Charge);
-
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 5s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 10s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastSelf(Spells::VanessaVanCleef::Bloodbath);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 12s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::Recklessness);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    // 48418 - Defias Envoker
-    struct npc_defias_envoker : public ScriptedAI
-    {
-        npc_defias_envoker(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC)
-                _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 8s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::HolyFire);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 8s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::Shield);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 20s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    // 49854 - Defias Blood Wizard
-    struct npc_defias_bloodwizard : public ScriptedAI
-    {
-        npc_defias_bloodwizard(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 6s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 10s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::BloodBolt);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 6s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::BloodWash);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd3:
-                        DoCastSelf(Spells::VanessaVanCleef::Ragezone);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 20s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
     };
 
     // 48445 - Oaf Lackey
@@ -1931,10 +1687,6 @@ void AddSC_custom_deadmines_vanessa_vancleef()
     RegisterCreatureAI(npc_magma_pull);
     RegisterCreatureAI(npc_rope_away);
     RegisterCreatureAI(npc_lightning_orbs);
-    RegisterCreatureAI(npc_defias_shadowguard);
-    RegisterCreatureAI(npc_defias_enforcer);
-    RegisterCreatureAI(npc_defias_envoker);
-    RegisterCreatureAI(npc_defias_bloodwizard);
     RegisterCreatureAI(npc_oaf_lackey);
     RegisterCreatureAI(npc_goblin_overseer);
     RegisterCreatureAI(npc_enraged_worgen_dm);

@@ -77,7 +77,7 @@ DELETE FROM `creature_template_difficulty` WHERE `entry` IN (47162,48229,48230,5
 -- Cookie Adds
 48672,47754,48301,48300,48297,48296,48006,48294,48295,48276,48299,48293,48298,48302,
 -- Vanessa Encounter
-49454,51594,49493,49494,49495,49674,49670,49681,49541,49532,49520,49521);
+49854,49454,51594,49493,49494,49495,49674,49670,49681,49541,49532,49520,49521,49539);
 INSERT INTO `creature_template_difficulty` VALUES
 -- Nightmare Adds (only heroic)
 (49532, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39587, 0, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Enraged Worgen
@@ -93,6 +93,7 @@ INSERT INTO `creature_template_difficulty` VALUES
 (49539, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39575, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- James Harrington
 
 -- Vanessa Adds (only heroic)
+(49854, 2, 0, 0, 1199, 0, 0.75, 0.3632, 1, 1, 39042, 0, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Blood Wizzard
 (49454, 2, 0, 0, 338, 0, 1, 1, 1, 1, 39704, 1024, 0, 0, 0, 0, 0, 0, 0, 0x20000000, 0, 0, 0, 0, 0, 0, 0, 0), -- Trap bunny
 (51594, 2, 0, 0, 338, 0, 1, 1, 1, 1, 36170, 1024, 0, 0, 0, 0, 0, 0, 0, (0x00000100 | 0x00000200), 0, 0, 0, 0, 0, 0, 0, 45745), -- Glubtok Fire Bunny
 -- Cookie Adds
@@ -340,9 +341,9 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `Sta
 (376022, 0, 0, 0, 0, 0, 0, 1, 0, 234, 0, 0, 0, 0, '');
 
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` IN (48229,48279,48440,48441,48442,48278,48351,48338,48418,48419,48420,48505,
-48502,48417,48447,48448,48449,48450,48451);
+48502,48417,48447,48448,48449,48450,48451,49854);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (48229,48279,48440,48441,48442,48278,48351,48338,48418,48419,48420,48505,
-48502,48417,48447,48448,48449,48450,48451) and `source_type` = 0;
+48502,48417,48447,48448,48449,48450,48451,49854) and `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, 
 `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, 
 `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, 
@@ -363,6 +364,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (48417, 0, 2, 0, '', 61, 0, 100, 1, 0, 15, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Say Text at 15% HP'),
 (48417, 0, 3, 0, '', 0, 0, 100, 0, 5000, 5000, 35000, 35000, 0, '', 11, 90932, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Ragezone'),
 (48417, 0, 4, 0, '', 0, 0, 100, 0, 1000, 2000, 12000, 14000, 0, '', 11, 90946, 0, 0, 0, 0, 0, 0, '', 26, 20, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodwash on Friendlies'),
+(49854, 0, 0, 0, '', 0, 0, 100, 0, 0, 0, 3400, 4700, 0, '', 11, 90938, 64, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodbolt'),
+(49854, 0, 1, 2, '', 2, 0, 100, 1, 0, 15, 1000, 1000, 0, '', 25, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Flee at 15% HP'),
+(49854, 0, 2, 0, '', 61, 0, 100, 1, 0, 15, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Say Text at 15% HP'),
+(49854, 0, 3, 0, '', 0, 0, 100, 0, 5000, 5000, 35000, 35000, 0, '', 11, 90385, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Ragezone'),
+(49854, 0, 4, 0, '', 0, 0, 100, 0, 1000, 2000, 12000, 14000, 0, '', 11, 90946, 0, 0, 0, 0, 0, 0, '', 26, 20, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodwash on Friendlies'),
 (48502, 0, 0, 0, '', 4, 0, 100, 1, 0, 0, 0, 0, 0, '', 11, 90928, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Charge on Aggro'),
 (48502, 0, 1, 0, '', 0, 0, 100, 0, 5000, 5000, 17000, 19000, 0, '', 11, 90929, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Recklessness'),
 (48502, 0, 2, 0, '', 2, 0, 100, 0, 0, 40, 8000, 11000, 0, '', 11, 90925, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Bloodbath at 40% HP'),
@@ -487,10 +493,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_note' WHERE `entry` = 49564; 
 UPDATE `creature_template` SET `ScriptName` = 'npc_magma_pull' WHERE `entry` = 49454; -- Vanessa's Trap Bunny
 UPDATE `creature_template` SET `ScriptName` = 'npc_rope_away' WHERE `entry` = 49550; -- Rope
 UPDATE `creature_template` SET `ScriptName` = 'npc_lightning_orbs' WHERE `entry` = 49520; -- Lightning Platter
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_shadowguard' WHERE `entry` = 49505; -- Defias Shadowguard
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_enforcer' WHERE `entry` = 49502; -- Defias Enforcer
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_envoker' WHERE `entry` = 48418; -- Defias Envoker
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_bloodwizard' WHERE `entry` = 49854; -- Defias Blood Wizard
 UPDATE `creature_template` SET `ScriptName` = 'npc_oaf_lackey' WHERE `entry` = 48445; -- Oaf Lackey
 UPDATE `creature_template` SET `ScriptName` = 'npc_goblin_overseer' WHERE `entry` = 48279; -- Goblin Overseer
 UPDATE `creature_template` SET `ScriptName` = 'npc_enraged_worgen_dm' WHERE `entry` = 49532; -- Enraged Worgen
@@ -670,11 +672,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (47162, 6, 0, 'Fists of frost!', 14, 0, 100, 0, 0, 21156, 0, 47238, 0, 'VO_DM_GlubtokHead2_Spell01'),
 (47162, 7, 0, 'Let''s do it!', 14, 0, 100, 15, 0, 21157, 0, 108750, 0, 'VO_DM_GlubtokHead2_Spell02');
 
-DELETE FROM `creature_text` WHERE `CreatureID` IN (48440,48441,48442,48278,48445,48418,48417,48521);
+DELETE FROM `creature_text` WHERE `CreatureID` IN (48440,48441,48442,48278,48445,48418,48417,48521,49854);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `BroadcastTextId`, `comment`) VALUES 
 (48445, 0, 0, '%s becomes enraged!', 16, 100, 7798, 'Oaf Lackey Enraged'),
 (48521, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Squallshaper Flee'),
 (48417, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Blood Wizzard Flee'),
+(49854, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Blood Wizzard Flee'),
 (48418, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Envoker Flee'),
 (48278, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Mining Monkey Flee'),
 (48440, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Mining Monkey Flee'),
