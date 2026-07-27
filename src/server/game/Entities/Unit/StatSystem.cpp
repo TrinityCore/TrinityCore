@@ -110,6 +110,7 @@ bool Player::UpdateStats(Stats stat)
     float value  = GetTotalStatValue(stat);
 
     SetStat(stat, int32(value));
+    UpdateStatBuffMod(stat);
 
     if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
@@ -201,6 +202,7 @@ bool Player::UpdateAllStats()
     {
         float value = GetTotalStatValue(Stats(i));
         SetStat(Stats(i), int32(value));
+        UpdateStatBuffMod(Stats(i));
     }
 
     UpdateArmor();

@@ -5260,7 +5260,7 @@ void Unit::UpdateStatBuffMod(Stats stat)
     float totalMod = baseMod + totalValueMod;
 
     // recalculate item stat bonuses
-    float itemMod = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    float itemMod = totalValue;
     itemMod -= modPos; // remove positive auras
     itemMod += modNeg; // remove negative auras
 
@@ -5276,8 +5276,8 @@ void Unit::UpdateStatBuffMod(Stats stat)
     else
         modNeg += totalMod;
 
-    m_floatStatPosBuff[stat] = modPos;
-    m_floatStatNegBuff[stat] = modNeg;
+    m_floatStatPosBuff[stat] = std::round(modPos);
+    m_floatStatNegBuff[stat] = std::round(modNeg);
 
     UpdateStatBuffModForClient(stat);
 }
