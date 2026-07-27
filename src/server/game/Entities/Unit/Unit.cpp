@@ -11137,9 +11137,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return nullptr;
     }
 
-    uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < GetLevel() ? (GetLevel() - 5) : creatureTarget->GetLevelForTarget(this);
-
-    if (!InitTamedPet(pet, level, spell_id))
+    if (!InitTamedPet(pet, GetLevel(), spell_id))
     {
         delete pet;
         return nullptr;
