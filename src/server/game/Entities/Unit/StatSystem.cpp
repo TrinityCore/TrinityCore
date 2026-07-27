@@ -315,7 +315,6 @@ void Player::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
 
-
     float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
     baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
