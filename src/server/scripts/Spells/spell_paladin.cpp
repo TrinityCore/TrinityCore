@@ -1174,7 +1174,6 @@ private:
     ObjectGuid _targetGUID;
 };
 
-
 // 199422 - Holy Ritual (attached to 6940 - Blessing of Sacrifice and 1022 - Blessing of Protection)
 class spell_pal_holy_ritual : public AuraScript
 {
