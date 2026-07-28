@@ -24,7 +24,7 @@
 #include "DynamicTree.h"
 #include "GridDefines.h"
 #include "GridRefManager.h"
-#include "MapDefines.h"
+#include "MMapDefines.h"
 #include "MapRefManager.h"
 #include "MPSCQueue.h"
 #include "ObjectGuid.h"

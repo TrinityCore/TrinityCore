@@ -18,7 +18,7 @@
 #include "TerrainBuilder.h"
 
 #include "MapBuilder.h"
-#include "MapDefines.h"
+#include "MMapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include "StringFormat.h"

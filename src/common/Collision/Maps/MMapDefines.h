@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MAPDEFINES_H
-#define _MAPDEFINES_H
+#ifndef MMapDefines_h__
+#define MMapDefines_h__
 
 #include "Define.h"
 #include "Optional.h"
@@ -113,4 +113,4 @@ struct PositionFullTerrainStatus
     Optional<LiquidData> liquidInfo;
 };
 
-#endif // _MAPDEFINES_H
+#endif // MMapDefines_h__
