@@ -21,7 +21,7 @@
 #include "Common.h"
 #include "Duration.h"
 #include "EventProcessor.h"
-#include "MMapDefines.h"
+#include "MapDefines.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"

@@ -25,7 +25,7 @@
 #include "GridDefines.h"
 #include "GridRefManager.h"
 #include "MapDefines.h"
-#include "MMapDefines.h"
+#include "MapDefines.h"
 #include "MapRefManager.h"
 #include "MPSCQueue.h"
 #include "ObjectGuid.h"
