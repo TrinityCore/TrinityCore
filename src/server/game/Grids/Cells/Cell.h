@@ -28,16 +28,7 @@ class WorldObject;
 
 struct CellArea
 {
-    CellArea() { }
     CellArea(CellCoord low, CellCoord high) : low_bound(low), high_bound(high) { }
-
-    bool operator!() const { return low_bound == high_bound; }
-
-    void ResizeBorders(CellCoord& begin_cell, CellCoord& end_cell) const
-    {
-        begin_cell = low_bound;
-        end_cell = high_bound;
-    }
 
     CellCoord low_bound;
     CellCoord high_bound;
