@@ -558,9 +558,10 @@ namespace Scripts::EasternKingdoms::Deadmines
             Talk(Texts::HelixKill);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
-            _JustDied();
+            BossAI::JustDied(killer);
+
             Talk(Texts::HelixDeath);
             summons.DespawnAll();
         }

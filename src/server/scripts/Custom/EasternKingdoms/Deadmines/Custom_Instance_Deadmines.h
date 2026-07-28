@@ -218,6 +218,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 OafLackey = 48445;
         static constexpr uint32 GoblinOverseer = 48279;
         static constexpr uint32 VanessaAnchorBunnyJMF = 51624;
+        static constexpr uint32 GeneralPurposeBunnyJMF3 = 47677;
     }
 
     namespace CreatureSpawns
@@ -611,6 +612,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr uint32 DeadlyBlades = 92622;
             static constexpr uint32 Vengeance = 95542;
             static constexpr uint32 PowderExplosion = 96283;
+            static constexpr uint32 VanessaCosmeticBombState = 96280;
             static constexpr uint32 FieryBlaze = 93484;
             static constexpr uint32 FieryBlazeDamage = 93485;
             static constexpr uint32 ClickMe = 95527;

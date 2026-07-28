@@ -802,7 +802,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                         instance->DoRemoveAurasDueToSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixirEffect);
                     }
 
-                    me->SummonCreature(Creatures::VanessaVanCleef, Positions::VanessaBossSpawn, TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(Creatures::VanessaVanCleef, Positions::VanessaBossSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
                     me->DespawnOrUnsummon(3s);
                     break;
                 }
@@ -1344,10 +1344,13 @@ namespace Scripts::EasternKingdoms::Deadmines
             events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 9s);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
-            _JustDied();
             Talk(Texts::VanessaVanCleef::VanessaDefeated3);
+            DoCastSelf(Spells::VanessaVanCleef::PowderExplosion);
+
+            BossAI::JustDied(killer);
+
             summons.DespawnAll();
             ropeList.DespawnAll();
         }
@@ -1404,6 +1407,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                 me->RemoveAllAuras();
                 me->AttackStop();
                 me->ClearAllReactives();
+                me->SetReactState(REACT_PASSIVE);
                 DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
                 Talk(Texts::VanessaVanCleef::VanessaDefeated1);
 
@@ -1508,14 +1512,32 @@ namespace Scripts::EasternKingdoms::Deadmines
                         break;
                     case Events::VanessaVanCleef::FinalWarning:
                         Talk(Texts::VanessaVanCleef::VanessaDetonation3);
+                        DoCastSelf(Spells::VanessaVanCleef::VanessaCosmeticBombState);
                         events.ScheduleEvent(Events::VanessaVanCleef::FinalDetonation, 5s);
                         break;
                     case Events::VanessaVanCleef::FinalDetonation:
-                        DoCastSelf(Spells::VanessaVanCleef::PowderExplosion);
+                    {
                         me->AttackStop();
                         me->ClearAllReactives();
-                        me->KillSelf();
+
+                        Player* killer = nullptr;
+
+                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                        for (auto const& ref : players)
+                        {
+                            if (Player* p = ref.GetSource())
+                            {
+                                if (!killer)
+                                    killer = p;
+                                me->SetTappedBy(p);
+                            }
+                        }
+
+                        if (killer)
+                            killer->Kill(killer, me);
+
                         break;
+                    }
                     default:
                         break;
                 }
