@@ -19,6 +19,7 @@
 #define MMapDefines_h__
 
 #include "Define.h"
+#include "MapDefines.h"
 #include "Optional.h"
 #include <DetourNavMesh.h>
 
@@ -84,7 +85,7 @@ enum ZLiquidStatus : uint32
 
 struct LiquidData
 {
-    uint32 type_flags;
+    EnumFlag<map_liquidHeaderTypeFlags> type_flags = map_liquidHeaderTypeFlags::NoWater;
     uint32 entry;
     float  level;
     float  depth_level;
