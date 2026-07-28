@@ -282,6 +282,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SetUnloadLock(GridCoord const& p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
         void LoadGridForActiveObject(float x, float y, WorldObject const* object);
+        void LoadGridsInRange(float x, float y, float radius);
         void LoadAllGrids();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         void GridMarkNoUnload(uint32 x, uint32 y);
@@ -960,9 +961,6 @@ inline void Map::Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& vis
     const uint32 y = cell.GridY();
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
-
-    if (!cell.NoCreate())
-        EnsureGridLoaded(GridCoord(x, y));
 
     NGridType* grid = getNGrid(x, y);
     if (grid && grid->isGridObjectDataLoaded())
