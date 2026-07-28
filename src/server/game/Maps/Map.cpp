@@ -377,6 +377,18 @@ void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
     EnsureGridLoadedForActiveObject(Trinity::ComputeGridCoord(x, y), object);
 }
 
+void Map::LoadGridsInRange(float x, float y, float radius)
+{
+    CellArea area = Cell::CalculateCellArea(x, y, std::min(radius, SIZE_OF_GRIDS));
+
+    GridCoord gridAreaLow = Cell(area.low_bound).GetGridCoord();
+    GridCoord gridAreaHigh = Cell(area.high_bound).GetGridCoord();
+
+    for (uint32 gx = gridAreaLow.x_coord; gx <= gridAreaHigh.x_coord; ++gx)
+        for (uint32 gy = gridAreaLow.y_coord; gy <= gridAreaHigh.y_coord; ++gy)
+            EnsureGridLoaded(GridCoord(gx, gy));
+}
+
 bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     CellCoord cellCoord = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
@@ -627,7 +639,6 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             markCell(cell_id);
             CellCoord pair(x, y);
             Cell cell(pair);
-            cell.SetNoCreate();
             Visit(cell, gridVisitor);
             Visit(cell, worldVisitor);
         }
@@ -862,7 +873,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
                 CellCoord pair(x, y);
                 Cell cell(pair);
-                cell.SetNoCreate();
 
                 Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, MAX_VISIBILITY_DISTANCE);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, GridTypeMapContainer  > grid_object_relocation(cell_relocation);
@@ -903,7 +913,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
                 CellCoord pair(x, y);
                 Cell cell(pair);
-                cell.SetNoCreate();
                 Visit(cell, grid_notifier);
                 Visit(cell, world_notifier);
             }

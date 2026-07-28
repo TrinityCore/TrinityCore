@@ -82,7 +82,6 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         {
             CellCoord cellCoord(x, y);
             Cell r_zone(cellCoord);
-            r_zone.data.Part.nocreate = this->data.Part.nocreate;
             map.Visit(r_zone, visitor);
         }
     }
@@ -104,7 +103,6 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
         {
             CellCoord cellCoord(x, y);
             Cell r_zone(cellCoord);
-            r_zone.data.Part.nocreate = this->data.Part.nocreate;
             map.Visit(r_zone, visitor);
         }
     }
@@ -128,49 +126,41 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             //e.g. filling 2 trapezoids after filling central cell strip...
             CellCoord cellCoord_left(x_start - step, y);
             Cell r_zone_left(cellCoord_left);
-            r_zone_left.data.Part.nocreate = this->data.Part.nocreate;
             map.Visit(r_zone_left, visitor);
 
             //right trapezoid cell visit
             CellCoord cellCoord_right(x_end + step, y);
             Cell r_zone_right(cellCoord_right);
-            r_zone_right.data.Part.nocreate = this->data.Part.nocreate;
             map.Visit(r_zone_right, visitor);
         }
     }
 }
 
 template<class T>
-inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *center_obj->GetMap(), *center_obj, radius);
 }
 
 template<class T>
-inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *center_obj->GetMap(), *center_obj, radius);
 }
 
 template<class T>
-inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> wnotifier(visitor);
     cell.Visit(p, wnotifier, *center_obj->GetMap(), *center_obj, radius);
@@ -179,36 +169,30 @@ inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, flo
 }
 
 template<class T>
-inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
 template<class T>
-inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> gnotifier(visitor);
     cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
 template<class T>
-inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    if (dont_load)
-        cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> wnotifier(visitor);
     cell.Visit(p, wnotifier, *map, x, y, radius);
