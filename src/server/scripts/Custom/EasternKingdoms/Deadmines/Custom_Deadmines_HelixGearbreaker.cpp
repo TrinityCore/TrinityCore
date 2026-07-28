@@ -530,6 +530,13 @@ namespace Scripts::EasternKingdoms::Deadmines
                 }
 
                 _events.RescheduleEvent(Events::HelixFaceRide, 10s, 15s);
+                _events.RescheduleEvent(Events::HelixThrowBomb, 5s);
+
+                if (me->GetMap()->IsHeroic())
+                {
+                    for (uint8 i = 0; i < 4; ++i)
+                        me->SummonCreature(Creatures::HelixCrew, Positions::HelixCrewSpawn[i], TEMPSUMMON_MANUAL_DESPAWN);
+                }
             }
         }
 
@@ -581,9 +588,6 @@ namespace Scripts::EasternKingdoms::Deadmines
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
-
-            if (!UpdateVictim())
-                return;
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -679,6 +683,9 @@ namespace Scripts::EasternKingdoms::Deadmines
                     break;
                 }
             }
+
+            if (!UpdateVictim())
+                return;
 
             me->DoMeleeAttackIfReady();
         }
