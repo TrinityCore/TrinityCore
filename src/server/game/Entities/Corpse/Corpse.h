@@ -126,9 +126,6 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
         void ResetGhostTime();
         CorpseType GetType() const { return m_type; }
 
-        CellCoord const& GetCellCoord() const { return _cellCoord; }
-        void SetCellCoord(CellCoord const& cellCoord) { _cellCoord = cellCoord; }
-
         std::unique_ptr<Loot> m_loot;
         Loot* GetLootForPlayer(Player const* /*player*/) const override { return m_loot.get(); }
 
@@ -141,6 +138,5 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
     private:
         CorpseType m_type;
         time_t m_time;
-        CellCoord _cellCoord;
 };
 #endif

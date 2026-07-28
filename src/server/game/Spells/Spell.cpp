@@ -2170,13 +2170,8 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject*
     bool searchInWorld = (containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CORPSE)) != 0;
     if (searchInGrid || searchInWorld)
     {
-        float x, y;
-        x = pos->GetPositionX();
-        y = pos->GetPositionY();
-
-        CellCoord p(Trinity::ComputeCellCoord(x, y));
-        Cell cell(p);
-        cell.SetNoCreate();
+        float x = pos->GetPositionX();
+        float y = pos->GetPositionY();
 
         Map* map = referer->GetMap();
 

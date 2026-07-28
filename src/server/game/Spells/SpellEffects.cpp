@@ -2634,16 +2634,11 @@ void Spell::EffectTameCreature()
     // "kill" original creature
     creatureTarget->DespawnOrUnsummon();
 
-    uint8 level = (creatureTarget->GetLevelForTarget(m_caster) < (m_caster->GetLevelForTarget(creatureTarget) - 5)) ? (m_caster->GetLevelForTarget(creatureTarget) - 5) : creatureTarget->GetLevelForTarget(m_caster);
-
-    // prepare visual effect for levelup
-    pet->SetLevel(level - 1);
-
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
-    pet->SetLevel(level);
+    pet->SendNewlyTamed();
 
     // caster have pet now
     unitCaster->SetMinion(pet, true);
@@ -4930,6 +4925,8 @@ void Spell::EffectCreateTamedPet()
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
+
+    pet->SendNewlyTamed();
 
     // unitTarget has pet now
     unitTarget->SetMinion(pet, true);
