@@ -80,7 +80,7 @@ Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -115,7 +115,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -132,7 +132,7 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
