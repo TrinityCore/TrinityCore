@@ -58,26 +58,12 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     if (!standing_cell.IsCoordValid())
         return;
 
-    //no jokes here... Actually placing ASSERT() here was good idea, but
-    //we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
-    //maybe it is better to just return when radius <= 0.0f?
-    if (radius <= 0.0f)
-    {
-        map.Visit(*this, visitor);
-        return;
-    }
     //lets limit the upper value for search radius
     if (radius > SIZE_OF_GRIDS)
         radius = SIZE_OF_GRIDS;
 
     //lets calculate object coord offsets from cell borders.
     CellArea area = Cell::CalculateCellArea(x_off, y_off, radius);
-    //if radius fits inside standing cell
-    if (!area)
-    {
-        map.Visit(*this, visitor);
-        return;
-    }
 
     //visit all cells, found in CalculateCellArea()
     //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
@@ -89,23 +75,15 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         return;
     }
 
-    //ALWAYS visit standing cell first!!! Since we deal with small radiuses
-    //it is very essential to call visitor for standing cell firstly...
-    map.Visit(*this, visitor);
-
     // loop the cell range
     for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
     {
         for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
         {
             CellCoord cellCoord(x, y);
-            //lets skip standing cell since we already visited it
-            if (cellCoord != standing_cell)
-            {
-                Cell r_zone(cellCoord);
-                r_zone.data.Part.nocreate = this->data.Part.nocreate;
-                map.Visit(r_zone, visitor);
-            }
+            Cell r_zone(cellCoord);
+            r_zone.data.Part.nocreate = this->data.Part.nocreate;
+            map.Visit(r_zone, visitor);
         }
     }
 }
