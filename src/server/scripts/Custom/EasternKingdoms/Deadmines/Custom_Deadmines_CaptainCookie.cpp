@@ -81,8 +81,11 @@ namespace Scripts::EasternKingdoms::Deadmines
             me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetReactState(REACT_PASSIVE);
 
-            DoCastSelf(Spells::WhoIsThat, true);
-            Talk(Texts::CookieSpawnWarning);
+            if (!_isEvading)
+            {
+                DoCastSelf(Spells::WhoIsThat, true);
+                Talk(Texts::CookieSpawnWarning);
+            }
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -91,9 +94,6 @@ namespace Scripts::EasternKingdoms::Deadmines
                 return;
 
             if (!who->IsPlayer())
-                return;
-
-            if (instance->GetBossState(DataTypes::BOSS_ADMIRAL_RIPSNARL) != DONE)
                 return;
 
             if (me->GetDistance(who) > 7.0f)
@@ -111,6 +111,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             BossAI::JustEngagedWith(who);
 
             me->RemoveAurasDueToSpell(Spells::WhoIsThat);
+            me->SetHomePosition(me->GetPosition());
             me->AttackStop();
             me->SetReactState(REACT_PASSIVE);
             DoCastSelf(Spells::CookieAchievCredit, true);
@@ -146,8 +147,6 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 _cauldronGuid = summon->GetGUID();
                 summon->SetReactState(REACT_PASSIVE);
-                //summon->CastSpell(summon, Spells::CauldronVisual, true);
-                //summon->CastSpell(summon, Spells::CauldronFire, true);
             }
         }
 
@@ -176,12 +175,26 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void EnterEvadeMode(EvadeReason why) override
         {
+            if (me->GetVehicle())
+            {
+                Position homePos = me->GetHomePosition();
+                me->ExitVehicle();
+                me->SetHomePosition(homePos);
+            }
+
+            _isEvading = true;
             BossAI::EnterEvadeMode(why);
 
             _encounterStarted = false;
+        }
 
-            if (Creature* cauldron = me->GetMap()->GetCreature(_cauldronGuid))
-                cauldron->DespawnOrUnsummon(2s);
+        void JustReachedHome() override
+        {
+            BossAI::JustReachedHome();
+
+            _isEvading = false;
+            DoCastSelf(Spells::WhoIsThat, true);
+            Talk(Texts::CookieSpawnWarning);
         }
 
         void UpdateAI(uint32 diff) override
@@ -239,6 +252,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             EventMap _events;
             bool _murlocEnabled = false;
             bool _encounterStarted = false;
+            bool _isEvading = false;
     };
 
     class spell_captain_cookie_satiated : public SpellScript
