@@ -112,11 +112,11 @@ Map::~Map()
     m_terrain->UnloadMMapInstance(GetId(), GetInstanceId());
 }
 
-void Map::LoadAllCells()
+void Map::LoadAllGrids()
 {
-    for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
-        for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
-            LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
+    for (uint32 gridX = 0; gridX < MAX_NUMBER_OF_GRIDS; ++gridX)
+        for (uint32 gridY = 0; gridY < MAX_NUMBER_OF_GRIDS; ++gridY)
+            EnsureGridLoaded(GridCoord(gridX, gridY));
 }
 
 void Map::InitStateMachine()
@@ -283,7 +283,7 @@ void Map::EnsureGridCreated(GridCoord const& p)
     {
         TC_LOG_DEBUG("maps", "Creating grid[{}, {}] for map {} instance {}", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
-        NGridType* ngrid = new NGridType(p.x_coord * MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD));
+        NGridType* ngrid = new NGridType(p.GetId(), p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD));
         setNGrid(ngrid, p.x_coord, p.y_coord);
 
         // build a linkage between this map and NGridType
@@ -301,38 +301,38 @@ void Map::EnsureGridCreated(GridCoord const& p)
 }
 
 //Load NGrid and make it active
-void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject const* object)
+void Map::EnsureGridLoadedForActiveObject(GridCoord const& p, WorldObject const* object)
 {
-    EnsureGridLoaded(cell);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    EnsureGridLoaded(p);
+    NGridType *grid = getNGrid(p.x_coord, p.y_coord);
     ASSERT(grid != nullptr);
 
     if (object->IsPlayer())
-        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this, cell);
+        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this);
 
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
-        TC_LOG_DEBUG("maps", "Active object {} triggers loading of grid [{}, {}] on map {}", object->GetGUID().ToString(), cell.GridX(), cell.GridY(), GetId());
+        TC_LOG_DEBUG("maps", "Active object {} triggers loading of grid [{}, {}] on map {}", object->GetGUID().ToString(), p.x_coord, p.y_coord, GetId());
         ResetGridExpiry(*grid, 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
     }
 }
 
 //Create NGrid and load the object data in it
-bool Map::EnsureGridLoaded(Cell const& cell)
+bool Map::EnsureGridLoaded(GridCoord const& p)
 {
-    EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    EnsureGridCreated(p);
+    NGridType *grid = getNGrid(p.x_coord, p.y_coord);
 
     ASSERT(grid != nullptr);
     if (!grid->isGridObjectDataLoaded())
     {
-        TC_LOG_DEBUG("maps", "Loading grid[{}, {}] for map {} instance {}", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
+        TC_LOG_DEBUG("maps", "Loading grid[{}, {}] for map {} instance {}", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
         grid->setGridObjectDataLoaded(true);
 
-        LoadGridObjects(grid, cell);
+        LoadGridObjects(grid);
 
         Balance();
         return true;
@@ -341,19 +341,16 @@ bool Map::EnsureGridLoaded(Cell const& cell)
     return false;
 }
 
-void Map::LoadGridObjects(NGridType* grid, Cell const& cell)
+void Map::LoadGridObjects(NGridType* grid)
 {
-    ObjectGridLoader loader(*grid, this, cell);
+    ObjectGridLoader loader(*grid, this);
     loader.LoadN();
 }
 
 void Map::GridMarkNoUnload(uint32 x, uint32 y)
 {
     // First make sure this grid is loaded
-    float gX = ((float(x) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
-    float gY = ((float(y) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
-    Cell cell = Cell(gX, gY);
-    EnsureGridLoaded(cell);
+    EnsureGridLoaded(GridCoord(x, y));
 
     // Mark as don't unload
     NGridType* grid = getNGrid(x, y);
@@ -372,12 +369,12 @@ void Map::GridUnmarkNoUnload(uint32 x, uint32 y)
 
 void Map::LoadGrid(float x, float y)
 {
-    EnsureGridLoaded(Cell(x, y));
+    EnsureGridLoaded(Trinity::ComputeGridCoord(x, y));
 }
 
 void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
 {
-    EnsureGridLoadedForActiveObject(Cell(x, y), object);
+    EnsureGridLoadedForActiveObject(Trinity::ComputeGridCoord(x, y), object);
 }
 
 bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
@@ -390,7 +387,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     }
 
     Cell cell(cellCoord);
-    EnsureGridLoadedForActiveObject(cell, player);
+    EnsureGridLoadedForActiveObject(GridCoord(cell.GridX(), cell.GridY()), player);
     AddToGrid(player, cell);
 
     // Check if we are adding to correct map
@@ -421,8 +418,8 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 
 void Map::UpdatePersonalPhasesForPlayer(Player const* player)
 {
-    Cell cell(player->GetPositionX(), player->GetPositionY());
-    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(cell.GridX(), cell.GridY()), this, cell);
+    GridCoord gridCoord = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY());
+    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(gridCoord.x_coord, gridCoord.y_coord), this);
 }
 
 int32 Map::GetWorldStateValue(int32 worldStateId) const
@@ -541,7 +538,7 @@ bool Map::AddToMap(T* obj)
 
     Cell cell(cellCoord);
     if (obj->isActiveObject())
-        EnsureGridLoadedForActiveObject(cell, obj);
+        EnsureGridLoadedForActiveObject(GridCoord(cell.GridX(), cell.GridY()), obj);
     else
         EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
     AddToGrid(obj, cell);
@@ -1040,7 +1037,7 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         player->RemoveFromGrid();
 
         if (old_cell.DiffGrid(new_cell))
-            EnsureGridLoadedForActiveObject(new_cell, player);
+            EnsureGridLoadedForActiveObject(GridCoord(new_cell.GridX(), new_cell.GridY()), player);
 
         AddToGrid(player, new_cell);
     }
@@ -1451,10 +1448,12 @@ bool Map::MapObjectCellRelocation(T* object, Cell new_cell, [[maybe_unused]] cha
         return true;
     }
 
+    GridCoord new_grid(new_cell.GridX(), new_cell.GridY());
+
     // in diff. grids but active creature
     if (object->isActiveObject())
     {
-        EnsureGridLoadedForActiveObject(new_cell, object);
+        EnsureGridLoadedForActiveObject(new_grid, object);
 
 #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "Active {} {} moved from grid[{}, {}]cell[{}, {}] to grid[{}, {}]cell[{}, {}].", objType, object->GetGUID().ToString(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
@@ -1468,17 +1467,17 @@ bool Map::MapObjectCellRelocation(T* object, Cell new_cell, [[maybe_unused]] cha
 
     if (Creature* c = object->ToCreature())
         if (c->GetCharmerOrOwnerGUID().IsPlayer())
-            EnsureGridLoaded(new_cell);
+            EnsureGridLoaded(new_grid);
 
     // in diff. loaded grid normal object
-    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    if (IsGridLoaded(new_grid))
     {
 #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "{} {} moved from grid[{}, {}]cell[{}, {}] to grid[{}, {}]cell[{}, {}].", objType, object->GetGUID().ToString(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 #endif
 
         object->RemoveFromGrid();
-        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
+        EnsureGridCreated(new_grid);
         AddToGrid(object, new_cell);
 
         return true;
@@ -1672,9 +1671,9 @@ void Map::UnloadAll()
         RemoveFromMap<Transport>(transport, true);
     }
 
-    for (auto& cellCorpsePair : _corpsesByCell)
+    for (auto& [gridId, corpses] : _corpsesByGrid)
     {
-        for (Corpse* corpse : cellCorpsePair.second)
+        for (Corpse* corpse : corpses)
         {
             corpse->RemoveFromWorld();
             corpse->ResetMap();
@@ -1682,7 +1681,7 @@ void Map::UnloadAll()
         }
     }
 
-    _corpsesByCell.clear();
+    _corpsesByGrid.clear();
     _corpsesByPlayer.clear();
     _corpseBones.clear();
 }
@@ -3841,9 +3840,10 @@ void Map::DeleteCorpseData()
 
 void Map::AddCorpse(Corpse* corpse)
 {
+    GridCoord gridCoord = Trinity::ComputeGridCoord(corpse->GetPositionX(), corpse->GetPositionY());
     corpse->SetMap(this);
 
-    _corpsesByCell[corpse->GetCellCoord().GetId()].insert(corpse);
+    _corpsesByGrid[gridCoord.GetId()].insert(corpse);
     if (corpse->GetType() != CORPSE_BONES)
         _corpsesByPlayer[corpse->GetOwnerGUID()] = corpse;
     else
@@ -3852,6 +3852,7 @@ void Map::AddCorpse(Corpse* corpse)
 
 void Map::RemoveCorpse(Corpse* corpse)
 {
+    GridCoord gridCoord = Trinity::ComputeGridCoord(corpse->GetPositionX(), corpse->GetPositionY());
     ASSERT(corpse);
 
     corpse->UpdateObjectVisibilityOnDestroy();
@@ -3863,7 +3864,7 @@ void Map::RemoveCorpse(Corpse* corpse)
         corpse->ResetMap();
     }
 
-    _corpsesByCell[corpse->GetCellCoord().GetId()].erase(corpse);
+    _corpsesByGrid[gridCoord.GetId()].erase(corpse);
     if (corpse->GetType() != CORPSE_BONES)
         _corpsesByPlayer.erase(corpse->GetOwnerGUID());
     else
@@ -3907,7 +3908,6 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->ReplaceAllFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
         bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
 
-        bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 
         PhasingHandler::InheritPhaseShift(bones, corpse);
@@ -4113,7 +4113,7 @@ std::string Map::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << std::boolalpha
-        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << std::to_string(GetDifficultyID())
+        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << AsUnderlyingType(GetDifficultyID())
         << " HasPlayers: " << HavePlayers();
     return sstr.str();
 }

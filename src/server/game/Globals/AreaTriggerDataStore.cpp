@@ -43,7 +43,7 @@ struct std::hash<AreaTriggerId>
 
 namespace
 {
-    typedef std::unordered_map<uint32/*cell_id*/, std::set<ObjectGuid::LowType>> AtCellObjectGuidsMap;
+    typedef std::unordered_map<uint32/*grid_id*/, Trinity::Containers::FlatSet<ObjectGuid::LowType>> AtCellObjectGuidsMap;
     typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, AtCellObjectGuidsMap> AtMapObjectGuids;
 
     AtMapObjectGuids _areaTriggerSpawnsByLocation;
@@ -443,9 +443,9 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
-            CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
+            GridCoord gridCoord = Trinity::ComputeGridCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
             for (Difficulty difficulty : difficulties)
-                _areaTriggerSpawnsByLocation[{ spawn.mapId, difficulty }][cellCoord.GetId()].insert(spawnId);
+                _areaTriggerSpawnsByLocation[{ spawn.mapId, difficulty }][gridCoord.GetId()].insert(spawnId);
         } while (templates->NextRow());
     }
 
@@ -462,10 +462,10 @@ AreaTriggerCreateProperties const* AreaTriggerDataStore::GetAreaTriggerCreatePro
     return Trinity::Containers::MapGetValuePtr(_areaTriggerCreateProperties, areaTriggerCreatePropertiesId);
 }
 
-std::set<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndCell(uint32 mapId, Difficulty difficulty, uint32 cellId) const
+Trinity::Containers::FlatSet<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndGrid(uint32 mapId, Difficulty difficulty, uint32 gridId) const
 {
     if (auto* atForMapAndDifficulty = Trinity::Containers::MapGetValuePtr(_areaTriggerSpawnsByLocation, { mapId, difficulty }))
-        return Trinity::Containers::MapGetValuePtr(*atForMapAndDifficulty, cellId);
+        return Trinity::Containers::MapGetValuePtr(*atForMapAndDifficulty, gridId);
 
     return nullptr;
 }
