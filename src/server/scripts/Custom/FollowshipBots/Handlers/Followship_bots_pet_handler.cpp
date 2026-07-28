@@ -122,7 +122,7 @@ namespace FSBPet
         //entry needs to belong to the creature we want the model
         CreatureModel model = *ObjectMgr::ChooseDisplayId(creatureInfo);
         pet->SetDisplayId(model.CreatureDisplayID, true);
-        pet->ApplyLevelScaling(3325);
+        pet->ApplyLevelScaling(3325, 0);
         pet->SetModCastingSpeed(1.0f);
         pet->SetModSpellHaste(1.0f);
         pet->SetModHaste(1.0f);

@@ -619,7 +619,7 @@ void FSBMgr::SetInitialBotState(Creature* bot)
 
     bot->SetReactState(REACT_DEFENSIVE);
     
-    bot->ApplyLevelScaling(3325); // Sets Content Tuning override
+    bot->ApplyLevelScaling(3325, 0); // Sets Content Tuning override
     bot->RemoveCivilianFlag();
     bot->SetFaction(FSBUtils::GetFactionForFSBRace(botRace));
     baseAI->botLanguage = FSBUtils::GetLanguageForFSBRace(botRace);
