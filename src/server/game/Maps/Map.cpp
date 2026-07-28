@@ -379,10 +379,10 @@ void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
 
 void Map::LoadGridsInRange(float x, float y, float radius)
 {
-    CellArea area = Cell::CalculateCellArea(x, y, std::min(radius, SIZE_OF_GRIDS));
+    radius = std::min(radius, SIZE_OF_GRIDS);
 
-    GridCoord gridAreaLow = Cell(area.low_bound).GetGridCoord();
-    GridCoord gridAreaHigh = Cell(area.high_bound).GetGridCoord();
+    GridCoord gridAreaLow = Trinity::ComputeGridCoord(x - radius, y - radius);
+    GridCoord gridAreaHigh = Trinity::ComputeGridCoord(x + radius, y + radius);
 
     for (uint32 gx = gridAreaLow.x_coord; gx <= gridAreaHigh.x_coord; ++gx)
         for (uint32 gy = gridAreaLow.y_coord; gy <= gridAreaHigh.y_coord; ++gy)
