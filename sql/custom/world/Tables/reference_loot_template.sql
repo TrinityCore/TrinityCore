@@ -507,10 +507,10 @@ INSERT INTO `reference_loot_template` (`entry`, `ItemType`, `Item`, `Chance`, `Q
 (22, 0, 3013, 0.58, 0, 1, 31, 1, 1, 'Scroll of Protection'),
 
 -- Humanoids Zone 2
-(23, 0, 2589, 59.4017, 0, 1, 23, 1, 3, 'Linen Cloth'),
-(23, 0, 2592, 0.287092, 0, 1, 23, 1, 2, 'Wool Cloth'),
-(23, 0, 2996, 1.29487, 0, 1, 24, 1, 1, 'Bolt of Linen Cloth'),
-(23, 0, 2997, 5.39256, 0, 1, 24, 1, 1, 'Bolt of Woolen Cloth'),
+(23, 0, 2589, 60, 0, 1, 23, 1, 3, 'Linen Cloth'),
+(23, 0, 2592, 50, 0, 1, 23, 1, 2, 'Wool Cloth'),
+(23, 0, 2996, 10, 0, 1, 24, 1, 1, 'Bolt of Linen Cloth'),
+(23, 0, 2997, 5, 0, 1, 24, 1, 1, 'Bolt of Woolen Cloth'),
 
 -- Armor Zone 2
 (24, 0, 1497, 0.747863, 0, 1, 32, 1, 1, 'Calico Cloak'),
@@ -940,21 +940,21 @@ INSERT INTO `reference_loot_template` (`entry`, `ItemType`, `Item`, `Chance`, `G
 
 -- Normal loot tables
 -- Consumable
-(32,0,4541,71.7949,14,1,1,'Freshly Baked Bread'),
-(32,0,3770,0.426411,14,1,1,'Mutton Chop'),
+(32,0,4541,7.7949,14,1,1,'Freshly Baked Bread'),
+(32,0,3770,1,14,1,1,'Mutton Chop'),
 (32,0,414,8.5551,14,1,1,'Dalaran Sharp'),
 (32,0,858,9.61098,14,1,1,'Lesser Healing Potion'),
 (32,0,1179,20.4018,14,1,1,'Ice Cold Milk'),
 (32,0,8766,1.46504,14,1,1,'Morning Glory Dew'),
-(32,0,8952,0.452085,14,1,1,'Roasted Quail'),
+(32,0,8952,1,14,1,1,'Roasted Quail'),
 (32,0,4537,31.8182,14,1,1,'Tel''Abim Banana'),
-(32,0,13444,0.14932,14,1,1,'Major Mana Potion'),
-(32,0,13446,0.806202,14,1,1,'Major Healing Potion'),
-(32,0,2287,76.9231,14,1,1,'Haunch of Meat'),
+(32,0,13444,1,14,1,1,'Major Mana Potion'),
+(32,0,13446,1,14,1,1,'Major Healing Potion'),
+(32,0,2287,6.9231,14,1,1,'Haunch of Meat'),
 (32,0,2455,6.69643,14,1,1,'Minor Mana Potion'),
-(32,0,8932,0.391645,14,1,1,'Alterac Swiss'),
-(32,0,3927,0.391645,14,1,1,'Fine Aged Cheddar'),
-(32,0,422,7.03163,14,1,1,'Dwarven Mild'),
+(32,0,8932,5,14,1,1,'Alterac Swiss'),
+(32,0,3927,5,14,1,1,'Fine Aged Cheddar'),
+(32,0,422,7,14,1,1,'Dwarven Mild'),
 
 -- Armor and weapons
 (33,0,1495,1.86421,0,1,1,'Calico Shoes'),
