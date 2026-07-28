@@ -70,6 +70,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 NightmareMechanicalState = 1014;
         static constexpr uint32 SteamValveCount = 1015;
         static constexpr uint32 ActiveNightmare = 1016;
+        static constexpr uint32 VindicatorElixirTime = 1017;
     }
 
     namespace Version
@@ -283,6 +284,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 ReadyForRaidingDeadmines = 5366;
         static constexpr uint32 ItsFrostDamage = 5369;
         static constexpr uint32 ImOnADiet = 5370;
+        static constexpr uint32 VigorousVanCleefVindicator = 5371;
     }
 
     namespace Texts

@@ -21,6 +21,7 @@
  */
 
 #include "CreatureAIImpl.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -630,6 +631,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::IntroElixir:
                     {
                         DoCastAOE(Spells::VanessaVanCleef::NightmareElixir);
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(Misc::VindicatorElixirTime, uint32(GameTime::GetGameTime()));
                         Talk(Texts::VanessaVanCleef::VanessaSay5);
                         _events.ScheduleEvent(Events::VanessaVanCleef::IntroSummonTrap, 0s);
                         _events.ScheduleEvent(Events::VanessaVanCleef::IntroBlackout1, 4s);
@@ -1315,6 +1318,23 @@ namespace Scripts::EasternKingdoms::Deadmines
         void JustEngagedWith(Unit* who) override
         {
             _JustEngagedWith(who);
+
+            if (IsHeroic())
+            {
+                uint32 elixirTime = instance->GetData(Misc::VindicatorElixirTime);
+                if (elixirTime && GameTime::GetGameTime() - elixirTime < 5 * MINUTE)
+                {
+                    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(Achievements::VigorousVanCleefVindicator))
+                    {
+                        instance->instance->DoOnPlayers([achievement](Player* player)
+                        {
+                            if (!player->HasAchieved(achievement->ID))
+                                player->CompletedAchievement(achievement);
+                        });
+                    }
+                }
+            }
+
             Talk(Texts::VanessaVanCleef::Aggro);
             DoZoneInCombat();
             events.ScheduleEvent(Events::VanessaVanCleef::BossIntroMove, 2s);
