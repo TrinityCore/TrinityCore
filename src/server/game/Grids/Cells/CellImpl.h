@@ -34,12 +34,12 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
 {
     if (radius <= 0.0f)
     {
-        CellCoord center = Trinity::ComputeCellCoord(x, y).normalize();
+        CellCoord center = Trinity::ComputeCellCoord(x, y);
         return CellArea(center, center);
     }
 
-    CellCoord centerX = Trinity::ComputeCellCoord(x - radius, y - radius).normalize();
-    CellCoord centerY = Trinity::ComputeCellCoord(x + radius, y + radius).normalize();
+    CellCoord centerX = Trinity::ComputeCellCoord(x - radius, y - radius);
+    CellCoord centerY = Trinity::ComputeCellCoord(x + radius, y + radius);
 
     return CellArea(centerX, centerY);
 }
