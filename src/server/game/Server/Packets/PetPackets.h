@@ -292,6 +292,17 @@ namespace WorldPackets
             uint32 Result = 0;
         };
 
+        class PetNewlyTamed final : public ServerPacket
+        {
+        public:
+            explicit PetNewlyTamed() : ServerPacket(SMSG_PET_NEWLY_TAMED, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool PlayPingFX = false;
+        };
+
         class PetMode final : public ServerPacket
         {
         public:

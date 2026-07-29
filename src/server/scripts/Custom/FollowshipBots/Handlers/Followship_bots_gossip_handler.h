@@ -20,6 +20,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Followship_bots_defines.h"
+
 // Player Notifications
 constexpr auto FSB_PLAYER_NOTIFICATION_PAYMENT_SUCCESS = "Payment successful!";
 constexpr auto FSB_PLAYER_NOTIFICATION_PAYMENT_FAIL = "Not enough money!";
@@ -31,8 +33,12 @@ constexpr auto FSB_GOSSIP_MENU_INSTRUCTIONS = "Instructions";
 constexpr auto FSB_GOSSIP_MENU_FOLLOW_DIST = "Follow Distance";
 constexpr auto FSB_GOSSIP_MENU_FOLLOW_ANGLE = "Follow Angle";
 constexpr auto FSB_GOSSIP_MENU_ROLES = "Roles";
+constexpr auto FSB_GOSSIP_MENU_LANGUAGE = "Language";
 
 constexpr auto FSB_GOSSIP_MENU_PORTAL = "I need a portal";
+
+constexpr auto FSB_GOSSIP_ITEM_LANG_RACIAL = "Speak in your racial tongue";
+constexpr auto FSB_GOSSIP_ITEM_LANG_TEAM = "Speak in the common team language";
 
 // Non menu items
 constexpr auto FSB_GOSSIP_ITEM_PHIRE = "I need you for a longer time...";
@@ -78,17 +84,7 @@ constexpr auto FSB_GOSSIP_ITEM_INFO = "Tell me more about yourself";
 // NPC SAY
 constexpr auto FSB_SAY_DUPLICATE_FOLLOWER = "I'm sorry but I cannot come with you... one of us is already with you!";
 
-enum FSB_GossipMenus
-{
-    FSB_GOSSIP_DEFAULT_MENU = 900000,
-    FSB_GOSSIP_ROLES_MENU = 900001,
-    FSB_GOSSIP_HIRE_MENU = 900002,
-    FSB_GOSSIP_INSTRUCTIONS_MENU = 900003,
-    FSB_GOSSIP_FOLLOW_DIST_MENU = 900004,
-    FSB_GOSSIP_FOLLOW_ANGLE_MENU = 900005,
-    FSB_GOSSIP_PORTAL_MENU = 900006
-
-};
+static constexpr uint32 FSB_GOSSIP_DEFAULT_MENU = 12504;
 
 enum FSB_GossipRoleItems
 {
@@ -108,9 +104,12 @@ namespace FSBGossip
     bool HandleGossipMenuInstructions(Creature* bot, Player* player);
     bool HandleGossipMenuPortals(Creature* bot, Player* player);
     bool HandleGossipMenuRoles(Creature* bot, Player* player);
+    bool HandleGossipMenuLanguage(Creature* bot, Player* player);
 
     void HandleGossipItemInfo(Creature* bot, Player* player);
     void HandleGossipItemRole(Creature* bot, FSB_Class botClass, uint8 roleOption, bool& botHasDemon);
     bool HandleGossipItemHirePermanent(Creature* bot, Player* player);
     bool HandleGossipItemHire(Creature* bot, Player* player, uint32 durationHours);
+
+    bool HandleGossipSelect(Creature* bot, ObjectGuid playerGuid, uint32 menuId, uint32 gossipListId);
 }

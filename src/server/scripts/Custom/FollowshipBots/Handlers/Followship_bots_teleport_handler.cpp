@@ -20,6 +20,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Battleground.h"
+#include "BattlegroundScript.h"
+#include "Creature.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -30,6 +33,8 @@
 
 #include "Followship_bots_pet_handler.h"
 #include "Followship_bots_teleport_handler.h"
+#include "Followship_bots_battleground_handler.h"
+#include "Followship_bots_warsong_gulch.h"
 
 
 namespace FSBTeleport
@@ -80,7 +85,7 @@ namespace FSBTeleport
             }
             else
             {
-                Team team = FSBUtils::GetTeamFromFSBRace(bot);
+                Team team = FSBUtils::GetTeamFromFSBRace(FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()));
                 WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(*bot, team, bot);
 
                 if (graveyard)
@@ -97,6 +102,9 @@ namespace FSBTeleport
             
         case BOT_TOO_FAR:
         {
+            if (FSBBattleground::IsInBG(bot))
+                return false;
+
             if (!player)
                 return false;
 
@@ -134,7 +142,67 @@ namespace FSBTeleport
         }
     }
 
-    void BotPetTeleport(Creature* bot)
+    Position GetBattlegroundGraveyardPosition(Creature* bot)
+    {
+        if (!bot || bot->IsAlive())
+            return Position();
+
+        BattlegroundMap* bgMap = bot->GetMap()->ToBattlegroundMap();
+        if (!bgMap)
+            return Position();
+
+        Battleground* bg = bgMap->GetBG();
+        if (!bg)
+            return Position();
+
+        Team team = FSBUtils::GetTeamFromFSBRace(FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()));
+
+        switch (bg->GetTypeID())
+        {
+            case BATTLEGROUND_WS:
+            case BATTLEGROUND_WG_CTF:
+                return team == Team::ALLIANCE ? FSBBattleground::WarsongGulch::FSB_WSG_GRAVEYARD_ALLIANCE : FSBBattleground::WarsongGulch::FSB_WSG_GRAVEYARD_HORDE;
+            case BATTLEGROUND_AB:
+            case BATTLEGROUND_DOM_AB:
+            case BATTLEGROUND_AB_CS:
+            case BATTLEGROUND_BRAWL_AB2:
+            {
+                uint32 healerEntry = (team == Team::ALLIANCE)
+                    ? FSBBattleground::ArathiBasin::Creatures::BG_AB_SPIRIT_HEALER_ALLIANCE
+                    : FSBBattleground::ArathiBasin::Creatures::BG_AB_SPIRIT_HEALER_HORDE;
+
+                if (Creature* healer = bot->FindNearestCreature(healerEntry, 500.0f))
+                    return healer->GetPosition();
+
+                return (team == Team::ALLIANCE)
+                    ? FSBBattleground::ArathiBasin::Positions::BG_AB_GRAVEYARD_ALLIANCE
+                    : FSBBattleground::ArathiBasin::Positions::BG_AB_GRAVEYARD_HORDE;
+            }
+            default:
+                break;
+        }
+
+        if (WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(*bot, team, bot))
+            return graveyard->Loc;
+
+        return Position();
+    }
+
+    bool BotTeleportToBattlegroundGraveyard(Creature* bot)
+    {
+        if (!bot || bot->IsAlive())
+            return false;
+
+        Position pos = GetBattlegroundGraveyardPosition(bot);
+        if (pos == Position())
+            return false;
+
+        bot->NearTeleportTo(pos);
+        TC_LOG_DEBUG("scripts.fsb.battleground", "FSB: BotTeleportToBattlegroundGraveyard teleported bot {} to graveyard X {} Y {} Z {}", bot->GetName(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        return true;
+    }
+
+    void BotPetTeleport(Creature* bot, float distance)
     {
         if (!bot || !bot->IsAlive())
             return;
@@ -147,20 +215,21 @@ namespace FSBTeleport
         if (FSBPet::BotHasPet(bot))
             pet = FSBPet::GetBotPet(bot);
 
-        if (pet && pet->IsAlive())
+        if (!pet)
+            return;
+
+        if (pet->IsInCombat() || !pet->IsAlive())
+            return;
+
+        if (bot->GetMapId() == pet->GetMapId() && bot->GetDistance(pet) > distance)
         {
-            if (bot->GetMapId() == pet->GetMapId() && bot->GetDistance(pet) > 100.0f)
-            {
-                pet->NearTeleportTo(
-                    bot->GetPositionX() + frand(3.f, 10.f),
-                    bot->GetPositionY(),
-                    bot->GetPositionZ(),
-                    bot->GetOrientation());
+            pet->NearTeleportTo(
+                bot->GetPositionX() + frand(3.f, 10.f),
+                bot->GetPositionY(),
+                bot->GetPositionZ(),
+                bot->GetOrientation());
 
-                TC_LOG_DEBUG("scripts.fsb.movement", "FSB: BotPetTeleport Teleported bot pet {} to bot {} due to distance > 100.", pet->GetName(), bot->GetName());
-            }
+            TC_LOG_DEBUG("scripts.fsb.movement", "FSB: BotPetTeleport Teleported bot pet {} to bot {} due to distance > {}.", pet->GetName(), bot->GetName(), distance);
         }
-
-
     }
 }

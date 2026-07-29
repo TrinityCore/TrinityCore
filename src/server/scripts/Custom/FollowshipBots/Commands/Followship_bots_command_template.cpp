@@ -93,7 +93,7 @@ public:
             return false;
         }
 
-        if (botRace < static_cast<int32>(FSB_Race::Human) || botRace > static_cast<int32>(FSB_Race::VoidElf))
+        if (botRace < static_cast<int32>(FSB_Race::Human) || botRace > static_cast<int32>(FSB_Race::HaranirHorde))
         {
             handler->SendSysMessage("Invalid bot race value.");
             handler->SetSentErrorMessage(true);

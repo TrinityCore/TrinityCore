@@ -24,7 +24,7 @@
 #include "GenAI_client.h"
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_utils.h"
-#include "Config/Followship_bots_config.h"
+#include "Followship_bots_config.h"
 
 #include "DB2Stores.h"
 #include "Log.h"
@@ -36,16 +36,13 @@
 
 namespace FSBMailPrompts
 {
-    MailContent GenerateGoldMailContent(Creature* bot, Player* player, uint32 amount,
-        std::string const& playerRequest,
-        std::string const& botReply)
+    MailGenContext PrepareMailContext(Creature* bot, Player* player, uint32 amount,
+        std::string const& playerRequest, std::string const& botReply)
     {
-        MailContent result;
-        result.subject = "Some spare coin";
-        result.body = botReply;
+        MailGenContext ctx;
 
         if (!bot || !player || !FSBGenAI::IsEnabled())
-            return result;
+            return ctx;
 
         uint32 entry = bot->GetEntry();
         FSB_Class botClass = FSBMgr::Get()->GetBotClassForEntry(entry);
@@ -77,8 +74,12 @@ namespace FSBMailPrompts
         else
             levelBracket = "high level";
 
-        std::string systemPrompt =
-            "You are a World of Warcraft player named " + std::string(bot->GetName()) +
+        ctx.botName = bot->GetName();
+        ctx.botReply = botReply;
+        ctx.maxTokens = FollowshipBotsConfig::configFSBGenAIMailMaxTokens;
+
+        ctx.systemPrompt =
+            "You are a World of Warcraft player named " + ctx.botName +
             ", a " + botRaceStr + " " + botClassStr +
             " with a " + botPersonalityStr + " personality, currently in " + areaName +
             ". You have just decided to send some spare coin/gold to a fellow adventurer via in-game mail.\n\n"
@@ -91,8 +92,7 @@ namespace FSBMailPrompts
             "The body MUST make sense given why the gold is being sent. Reference the player's reason naturally. "
             "Keep it brief, in-universe, and in character. Do not refer to yourself as a bot, NPC, or AI.";
 
-        // Give the AI the actual conversation so it understands context
-        std::string userPrompt =
+        ctx.userPrompt =
             "The player said in chat: " + playerRequest + "\n"
             "Your chat reply was: " + botReply + "\n"
             "You are now sending " + std::to_string(amount) + " copper to " +
@@ -100,7 +100,19 @@ namespace FSBMailPrompts
             "Write a subject and body that naturally follow from this conversation. "
             "The body should acknowledge their actual reason for asking, not invent a different one.";
 
-        std::string aiResponse = FSBGenAI::GetStructuredBotResponse(systemPrompt, userPrompt, FollowshipBotsConfig::configFSBGenAIMailMaxTokens);
+        return ctx;
+    }
+
+    MailContent GenerateGoldMailContent(MailGenContext const& ctx)
+    {
+        MailContent result;
+        result.subject = "Some spare coin";
+        result.body = ctx.botReply;
+
+        if (ctx.systemPrompt.empty())
+            return result;
+
+        std::string aiResponse = FSBGenAI::GetStructuredBotResponse(ctx.systemPrompt, ctx.userPrompt, ctx.maxTokens);
         if (aiResponse.empty())
             return result;
 

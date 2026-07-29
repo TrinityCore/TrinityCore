@@ -27,8 +27,14 @@ namespace FSBCombat
     bool BotCanAttack(Creature* bot, Unit* target);
     void BotDoAttack(Creature* bot, Unit* target);
 
+    void BotTerminateCombat(Creature* bot);
+
     bool ShouldSwitchToMelee(Creature* bot);
     void EnterMeleeMode(Creature* bot);
 
     void SetOwnerTapToVictim(Creature* bot);
+
+    // Add or Remove class related shapeshift
+    // Example on combat start
+    void BotSyncShapeshift(Creature* bot, bool inCombat);
 }

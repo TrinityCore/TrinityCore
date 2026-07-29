@@ -51,6 +51,8 @@ public:
     void RemovePersistentExpiredPlayerBots(Player* player);
     bool RemovePersistentBot(uint64 playerGuid, uint32 botEntry);
 
+    void UpdateHiredBotCount(Player* player);
+
     void SpawnPlayerBots(Player* player);
 
     // Getters
@@ -118,6 +120,9 @@ public:
     bool HasBotTemplate(uint32 entry);
     void AddBotTemplate(FSBEntryRaceClassMap const& data);
     void RemoveBotTemplate(uint32 entry);
+
+    std::unordered_map<uint32, FSBEntryRaceClassMap> const& GetBotTemplates() const { return _botTemplates; }
+    bool IsBotTemplateHired(uint32 entry) const;
 
 private:
     std::unordered_map<uint64 /*playerGuid*/, std::vector<PlayerBotData>> _playerBotsPersistent;

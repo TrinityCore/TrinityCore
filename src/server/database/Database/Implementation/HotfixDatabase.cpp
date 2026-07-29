@@ -1375,7 +1375,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PERKS_ACTIVITY_TAG, "SELECT MAX(ID) + 1 FROM perks_activity_tag", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PERKS_ACTIVITY_TAG, "SELECT ID, TagName_lang FROM perks_activity_tag_locale"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // PerksActivityXHolidays.db2
     PrepareStatement(HOTFIX_SEL_PERKS_ACTIVITY_X_HOLIDAYS, "SELECT HolidayID, PerksActivityID "
@@ -1396,7 +1396,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FROM perks_vendor_category WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PERKS_VENDOR_CATEGORY, "SELECT MAX(ID) + 1 FROM perks_vendor_category", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PERKS_VENDOR_CATEGORY, "SELECT ID, DisplayName_lang FROM perks_vendor_category_locale"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // PerksVendorItem.db2
     PrepareStatement(HOTFIX_SEL_PERKS_VENDOR_ITEM, "SELECT ID, PerksVendorCategoryID, Field_002, ItemID, Field_004, "
@@ -1409,7 +1409,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FROM perks_vendor_item_ui_group WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PERKS_VENDOR_ITEM_UI_GROUP, "SELECT MAX(ID) + 1 FROM perks_vendor_item_ui_group", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PERKS_VENDOR_ITEM_UI_GROUP, "SELECT ID, Name_lang FROM perks_vendor_item_ui_group_locale"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // PerksVendorItemUIInfo.db2
     PrepareStatement(HOTFIX_SEL_PERKS_VENDOR_ITEM_UI_INFO, "SELECT ID, Field_001, CreatureDisplayInfoID, Field_003 "
@@ -1435,7 +1435,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_COMPANION_INFO, "SELECT MAX(ID) + 1 FROM player_companion_info", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_COMPANION_INFO, "SELECT ID, UnlockDescription_lang FROM player_companion_info_locale"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // PlayerCondition.db2
     PrepareStatement(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription, MinLevel, MaxLevel, ClassMask, SkillLogic, LanguageID, MinLanguage, "

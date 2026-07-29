@@ -23,18 +23,20 @@
 #define TBMScriptName "instance_the_black_morass"
 #define DataHeader "TBM"
 
-uint32 const EncounterCount             = 2;
+uint32 constexpr EncounterCount         = 3;
 
 enum TBMDataTypes
 {
-    TYPE_MEDIVH                         = 1,
-    TYPE_RIFT                           = 2,
-    TYPE_AEONUS                         = 3,
-    TYPE_TEMPORUS                       = 4,
-    TYPE_CRONO_LORD_DEJA                = 5,
-    DATA_MEDIVH                         = 10,
-    DATA_PORTAL_COUNT                   = 11,
-    DATA_SHIELD                         = 12
+    DATA_DEJA                           = 0,
+    DATA_TEMPORUS                       = 1,
+    DATA_AEONUS                         = 2,
+
+    DATA_MEDIVH,
+    DATA_SAAT,
+    DATA_EVENT,
+    DATA_RIFT,
+    DATA_RIFT_COUNT,
+    DATA_SHIELD_PCT
 };
 
 enum TBMWorldStateIds
@@ -44,27 +46,59 @@ enum TBMWorldStateIds
     WORLD_STATE_BM_RIFT                 = 2784
 };
 
-enum TBMQuestIds
+enum TBMSpellIds
 {
-    QUEST_OPENING_PORTAL                = 10297,
-    QUEST_MASTER_TOUCH                  = 9836
+    SPELL_THE_BLACK_MORASS_COMPLETE     = 37215,
+    SPELL_THE_MASTERS_TOUCH_COMPLETE    = 39539,
+
+    SPELL_SUMMON_TIME_RIFT_EFFECT_1     = 31354,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_2     = 31355,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_3     = 31356,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_4     = 31357
 };
 
 enum TBMCreatureIds
 {
     NPC_MEDIVH                          = 15608,
-    NPC_TIME_RIFT                       = 17838,
+    NPC_SAAT                            = 20201,
     NPC_TIME_KEEPER                     = 17918,
-    NPC_RIFT_KEEPER                     = 21104,
+    NPC_TIME_RIFT                       = 17838,
     NPC_RIFT_LORD                       = 17839,
+    NPC_RIFT_LORD_ALT                   = 21140,
+    NPC_RIFT_KEEPER                     = 21104,
+    NPC_RIFT_KEEPER_ALT                 = 21148,
     NPC_CRONO_LORD_DEJA                 = 17879,
     NPC_TEMPORUS                        = 17880,
     NPC_AEONUS                          = 17881,
-    NPC_INFINITE_ASSASIN                = 17835,
+    NPC_INFINITE_CHRONO_LORD            = 21697,
+    NPC_INFINITE_TIMEREAVER             = 21698,
     NPC_INFINITE_WHELP                  = 21818,
+    NPC_INFINITE_ASSASIN                = 17835,
+    NPC_INFINITE_ASSASIN_ALT            = 21137,
     NPC_INFINITE_CRONOMANCER            = 17892,
+    NPC_INFINITE_CRONOMANCER_ALT        = 21136,
     NPC_INFINITE_EXECUTIONER            = 18994,
-    NPC_INFINITE_VANQUISHER             = 18995
+    NPC_INFINITE_EXECUTIONER_ALT        = 21138,
+    NPC_INFINITE_VANQUISHER             = 18995,
+    NPC_INFINITE_VANQUISHER_ALT         = 21139
+};
+
+enum TBMActionIds
+{
+    ACTION_SHIELD_75                    = 1560800,
+    ACTION_SHIELD_50                    = 1560801,
+    ACTION_SHIELD_25                    = 1560802,
+    ACTION_SHIELD_0                     = 1560803,
+    ACTION_EPILOGUE                     = 1560804
+};
+
+enum TBMEventIds
+{
+    EVENT_SUMMON_PORTAL                 = 1,
+    EVENT_SUMMON_TIME_RIFT_1            = 11137,
+    EVENT_SUMMON_TIME_RIFT_2            = 11138,
+    EVENT_SUMMON_TIME_RIFT_3            = 11139,
+    EVENT_SUMMON_TIME_RIFT_4            = 11140
 };
 
 template <class AI, class T>

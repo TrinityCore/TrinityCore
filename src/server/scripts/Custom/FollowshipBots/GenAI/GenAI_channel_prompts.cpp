@@ -25,7 +25,7 @@
 #include "GenAI_client.h"
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_utils.h"
-#include "AI/Followship_bots_ai_base.h"
+#include "Followship_bots_ai_base.h"
 
 #include "DB2Stores.h"
 #include "ItemTemplate.h"
@@ -33,6 +33,7 @@
 #include "Log.h"
 #include "Creature.h"
 #include "Containers.h"
+#include "Weather.h"
 
 #include <algorithm>
 #include <mutex>
@@ -133,7 +134,7 @@ namespace FSBChannelPrompts
 
     static void InitLFGCache(Creature* bot)
     {
-        Team botTeam = FSBUtils::GetTeamFromFSBRace(bot);
+        Team botTeam = FSBUtils::GetTeamFromFSBRace(FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()));
 
         for (::LFGDungeonsEntry const* entry : sLFGDungeonsStore)
         {
@@ -210,37 +211,34 @@ namespace FSBChannelPrompts
     }
 
     // ------------------------------------------------------------------
-    //  Trade message via GenAI
+    //  Trade message via GenAI — Prepare (main thread)
     // ------------------------------------------------------------------
-    std::string GenerateTradeMessage(Creature* bot)
+    TradeChatContext PrepareTradeMessage(Creature* bot)
     {
-        if (!FSBGenAI::IsEnabled())
-            return "";
+        TradeChatContext ctx;
 
-        if (!bot)
-            return "";
+        if (!FSBGenAI::IsEnabled() || !bot)
+            return ctx;
 
         uint32 itemId = GetRandomTradeItem();
         if (!itemId)
-            return "";
+            return ctx;
 
-        std::string itemLink = FSBChat::BuildItemLink(itemId, bot->GetLevel());
-        if (itemLink.empty())
-            return "";
+        ctx.itemLink = FSBChat::BuildItemLink(itemId, bot->GetLevel());
+        if (ctx.itemLink.empty())
+            return ctx;
 
-        // Get item name and stack size for the prompt
         ItemSparseEntry const* sparse = sItemSparseStore.LookupEntry(itemId);
-        std::string itemName = "something";
+        ctx.itemName = "something";
         int32 stackSize = 1;
         if (sparse)
         {
             char const* name = sparse->Display[LOCALE_enUS];
             if (name && name[0])
-                itemName = name;
+                ctx.itemName = name;
             stackSize = sparse->Stackable;
         }
 
-        // Quantity
         std::string quantityStr;
         if (stackSize > 1)
         {
@@ -248,7 +246,6 @@ namespace FSBChannelPrompts
             quantityStr = std::to_string(quantity);
         }
 
-        // Intent: 45% selling, 45% buying, 10% free
         uint32 intentRoll = urand(0, 99);
         std::string intent;
         std::vector<std::string> const* pool = nullptr;
@@ -269,21 +266,18 @@ namespace FSBChannelPrompts
             pool = &TradeFreeExamples;
         }
 
-        // Bot location
-        std::string areaName = "around here";
+        ctx.areaName = "around here";
         if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(bot->GetAreaId()))
             if (char const* name = area->AreaName[LOCALE_enUS])
                 if (name[0])
-                    areaName = name;
+                    ctx.areaName = name;
 
-        // Pick 2 random examples from the correct intent pool
         std::string example1 = Trinity::Containers::SelectRandomContainerElement(*pool);
         std::string example2 = Trinity::Containers::SelectRandomContainerElement(*pool);
         while (example2 == example1 && pool->size() > 1)
             example2 = Trinity::Containers::SelectRandomContainerElement(*pool);
 
-        // Build prompts
-        std::string systemPrompt =
+        ctx.systemPrompt =
             "You are a World of Warcraft player typing a short message in the Trade chat channel. "
             "Write exactly ONE short sentence (5 to 12 words). Be natural and varied. "
             "You MUST use the exact placeholder [ITEM] where the item should appear. "
@@ -293,13 +287,24 @@ namespace FSBChannelPrompts
             "Examples (for reference only, do not copy verbatim): " +
             example1 + ", " + example2 + ".";
 
-        std::string userPrompt = "Item name: " + itemName + "\n";
+        ctx.userPrompt = "Item name: " + ctx.itemName + "\n";
         if (!quantityStr.empty())
-            userPrompt += "Quantity: " + quantityStr + "\n";
-        userPrompt += "Intent: " + intent + "\n";
-        userPrompt += "Your location: " + areaName;
+            ctx.userPrompt += "Quantity: " + quantityStr + "\n";
+        ctx.userPrompt += "Intent: " + intent + "\n";
+        ctx.userPrompt += "Your location: " + ctx.areaName;
 
-        std::string aiResponse = FSBGenAI::GetBotResponse(systemPrompt, userPrompt);
+        return ctx;
+    }
+
+    // ------------------------------------------------------------------
+    //  Trade message via GenAI — Generate (worker thread)
+    // ------------------------------------------------------------------
+    std::string GenerateTradeMessage(TradeChatContext const& ctx)
+    {
+        if (ctx.systemPrompt.empty() || ctx.itemLink.empty())
+            return "";
+
+        std::string aiResponse = FSBGenAI::GetBotResponse(ctx.systemPrompt, ctx.userPrompt);
         if (aiResponse.empty())
             return "";
 
@@ -309,50 +314,47 @@ namespace FSBChannelPrompts
             itemPos = aiResponse.find("[item]");
         if (itemPos != std::string::npos)
         {
-            aiResponse.replace(itemPos, 6, itemLink);
+            aiResponse.replace(itemPos, 6, ctx.itemLink);
         }
         else
         {
             // Step 2: AI wrote the raw item name instead of placeholder
-            // Replace the exact item name (case-insensitive) with the clickable link
             std::string lowerResponse = aiResponse;
-            std::string lowerName = itemName;
+            std::string lowerName = ctx.itemName;
             for (char& c : lowerResponse) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
             for (char& c : lowerName)     c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
 
             size_t namePos = lowerResponse.find(lowerName);
             if (namePos != std::string::npos)
-                aiResponse.replace(namePos, itemName.length(), itemLink);
+                aiResponse.replace(namePos, ctx.itemName.length(), ctx.itemLink);
             else
-                return ""; // Neither placeholder nor raw name found; discard response
+                return "";
         }
 
         size_t locPos = aiResponse.find("[LOCATION]");
         if (locPos == std::string::npos)
             locPos = aiResponse.find("[location]");
         if (locPos != std::string::npos)
-            aiResponse.replace(locPos, 10, areaName);
+            aiResponse.replace(locPos, 10, ctx.areaName);
 
         TC_LOG_DEBUG("scripts.fsb.chatter", "FSB TradeMessage (AI): {}", aiResponse);
         return aiResponse;
     }
 
     // ------------------------------------------------------------------
-    //  LFG message via GenAI
+    //  LFG message via GenAI — Prepare (main thread)
     // ------------------------------------------------------------------
-    std::string GenerateLFGMessage(Creature* bot)
+    LFGChatContext PrepareLFGMessage(Creature* bot)
     {
-        if (!FSBGenAI::IsEnabled())
-            return "";
+        LFGChatContext ctx;
 
-        if (!bot)
-            return "";
+        if (!FSBGenAI::IsEnabled() || !bot)
+            return ctx;
 
         LFGDungeonEntry const* dungeon = GetRandomLFGDungeon(bot);
         if (!dungeon)
-            return "";
+            return ctx;
 
-        // Bot class and role context
         FSB_Class botClass = FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry());
         FSB_Roles botRole = FSBMgr::Get()->GetRole(bot);
         std::string classStr = FSBUtils::BotClassToString(botClass);
@@ -360,14 +362,12 @@ namespace FSBChannelPrompts
 
         std::string typeStr = dungeon->isRaid ? "Raid" : "Dungeon";
 
-        // Pick 2 random examples from the appropriate pool
         std::vector<std::string> const& pool = dungeon->isRaid ? LFGRaidExamples : LFGDungeonExamples;
         std::string example1 = Trinity::Containers::SelectRandomContainerElement(pool);
         std::string example2 = Trinity::Containers::SelectRandomContainerElement(pool);
         while (example2 == example1 && pool.size() > 1)
             example2 = Trinity::Containers::SelectRandomContainerElement(pool);
 
-        // Replace [CLASS] in examples with actual class
         size_t classPos = example1.find("[CLASS]");
         if (classPos != std::string::npos)
             example1.replace(classPos, 7, classStr);
@@ -375,8 +375,9 @@ namespace FSBChannelPrompts
         if (classPos != std::string::npos)
             example2.replace(classPos, 7, classStr);
 
-        // Build prompts
-        std::string systemPrompt =
+        ctx.dungeonName = dungeon->name;
+
+        ctx.systemPrompt =
             "You are a World of Warcraft player typing a short message in the Looking For Group chat channel. "
             "Write exactly ONE short sentence (5 to 12 words). Be natural and varied. "
             "Use the exact placeholder [DUNGEON] where the dungeon/raid name should appear. "
@@ -384,20 +385,30 @@ namespace FSBChannelPrompts
             "Examples (for reference only, do not copy verbatim): " +
             example1 + ", " + example2 + ".";
 
-        std::string userPrompt =
+        ctx.userPrompt =
             "Dungeon: " + dungeon->name + "\n"
             "Type: " + typeStr + "\n"
             "Your class: " + classStr + "\n"
             "Your role: " + roleStr;
 
-        std::string aiResponse = FSBGenAI::GetBotResponse(systemPrompt, userPrompt);
+        return ctx;
+    }
+
+    // ------------------------------------------------------------------
+    //  LFG message via GenAI — Generate (worker thread)
+    // ------------------------------------------------------------------
+    std::string GenerateLFGMessage(LFGChatContext const& ctx)
+    {
+        if (ctx.systemPrompt.empty())
+            return "";
+
+        std::string aiResponse = FSBGenAI::GetBotResponse(ctx.systemPrompt, ctx.userPrompt);
         if (aiResponse.empty())
             return "";
 
-        // Replace placeholder with actual dungeon name
         size_t pos = aiResponse.find("[DUNGEON]");
         if (pos != std::string::npos)
-            aiResponse.replace(pos, 9, dungeon->name);
+            aiResponse.replace(pos, 9, ctx.dungeonName);
 
         TC_LOG_DEBUG("scripts.fsb.chatter", "FSB LFGMessage (AI): {}", aiResponse);
         return aiResponse;
@@ -408,27 +419,63 @@ namespace FSBChannelPrompts
     // ------------------------------------------------------------------
     enum class GeneralTopic
     {
-        ZoneCommentary,   // 20%
+        ZoneCommentary,   // 15%
         LoreMemes,        // 15%
         ClassBanter,      // 15%
         NPCCommentary,    // 10%
         AchievementBrag,  // 10%
         PvPBattleground,  // 10%
-        WorldObservation, // 10%
+        WorldObservation, // 5%
+        TimeOfDay,        // 5%
+        Weather,          // 5%
         SocialGuild       // 10%
     };
 
     GeneralTopic PickRandomTopic()
     {
         uint32 roll = urand(0, 99);
-        if (roll < 20)  return GeneralTopic::ZoneCommentary;
-        if (roll < 35)  return GeneralTopic::LoreMemes;
-        if (roll < 50)  return GeneralTopic::ClassBanter;
-        if (roll < 60)  return GeneralTopic::NPCCommentary;
-        if (roll < 70)  return GeneralTopic::AchievementBrag;
-        if (roll < 80)  return GeneralTopic::PvPBattleground;
-        if (roll < 90)  return GeneralTopic::WorldObservation;
+        if (roll < 15)  return GeneralTopic::ZoneCommentary;
+        if (roll < 30)  return GeneralTopic::LoreMemes;
+        if (roll < 45)  return GeneralTopic::ClassBanter;
+        if (roll < 55)  return GeneralTopic::NPCCommentary;
+        if (roll < 65)  return GeneralTopic::AchievementBrag;
+        if (roll < 75)  return GeneralTopic::PvPBattleground;
+        if (roll < 80)  return GeneralTopic::WorldObservation;
+        if (roll < 85)  return GeneralTopic::TimeOfDay;
+        if (roll < 90)  return GeneralTopic::Weather;
         return GeneralTopic::SocialGuild;
+    }
+
+    static std::vector<std::string> const* GetTimeOfDayPool(int8 hour)
+    {
+        if (hour >= 5 && hour <= 7)   return &GeneralDawnExamples;
+        if (hour >= 8 && hour <= 11)  return &GeneralMorningExamples;
+        if (hour >= 12 && hour <= 16) return &GeneralAfternoonExamples;
+        if (hour >= 17 && hour <= 19) return &GeneralEveningExamples;
+        return &GeneralNightExamples;
+    }
+
+    static std::vector<std::string> const* GetWeatherPool(uint32 weatherStateRaw)
+    {
+        switch (static_cast<WeatherState>(weatherStateRaw))
+        {
+            case WEATHER_STATE_FINE:              return &GeneralWeatherFineExamples;
+            case WEATHER_STATE_FOG:               return &GeneralWeatherFogExamples;
+            case WEATHER_STATE_DRIZZLE:           return &GeneralWeatherDrizzleExamples;
+            case WEATHER_STATE_LIGHT_RAIN:        return &GeneralWeatherLightRainExamples;
+            case WEATHER_STATE_MEDIUM_RAIN:       return &GeneralWeatherMediumRainExamples;
+            case WEATHER_STATE_HEAVY_RAIN:        return &GeneralWeatherHeavyRainExamples;
+            case WEATHER_STATE_LIGHT_SNOW:        return &GeneralWeatherLightSnowExamples;
+            case WEATHER_STATE_MEDIUM_SNOW:       return &GeneralWeatherMediumSnowExamples;
+            case WEATHER_STATE_HEAVY_SNOW:        return &GeneralWeatherHeavySnowExamples;
+            case WEATHER_STATE_LIGHT_SANDSTORM:   return &GeneralWeatherLightSandstormExamples;
+            case WEATHER_STATE_MEDIUM_SANDSTORM:  return &GeneralWeatherMediumSandstormExamples;
+            case WEATHER_STATE_HEAVY_SANDSTORM:   return &GeneralWeatherHeavySandstormExamples;
+            case WEATHER_STATE_THUNDERS:          return &GeneralWeatherThunderExamples;
+            case WEATHER_STATE_BLACKRAIN:         return &GeneralWeatherBlackRainExamples;
+            case WEATHER_STATE_BLACKSNOW:         return &GeneralWeatherBlackSnowExamples;
+            default:                              return &GeneralWeatherFineExamples;
+        }
     }
 
     std::string GetRandomAchievementName()
@@ -468,17 +515,18 @@ namespace FSBChannelPrompts
         return FamousNPCs[urand(0, static_cast<uint32>(FamousNPCs.size()) - 1)];
     }
 
-    std::string GenerateGeneralMessage(BotChatContext const& ctx)
+    // ------------------------------------------------------------------
+    //  General message via GenAI — Prepare (main thread)
+    // ------------------------------------------------------------------
+    GeneralChatContext PrepareGeneralMessage(BotChatContext const& ctx)
     {
-        if (!FSBGenAI::IsEnabled())
-            return "";
+        GeneralChatContext genCtx;
 
-        if (!ctx.entry)
-            return "";
+        if (!FSBGenAI::IsEnabled() || !ctx.entry)
+            return genCtx;
 
         GeneralTopic topic = PickRandomTopic();
 
-        // Bot context
         FSB_Class botClass = FSBMgr::Get()->GetBotClassForEntry(ctx.entry);
         std::string classStr = FSBUtils::BotClassToString(botClass);
 
@@ -488,9 +536,6 @@ namespace FSBChannelPrompts
                 if (name[0])
                     areaName = name;
 
-        // Placeholder tracking
-        std::string placeholder;
-        std::string replacement;
         std::string poolDesc;
         std::vector<std::string> const* pool = nullptr;
 
@@ -499,8 +544,8 @@ namespace FSBChannelPrompts
         case GeneralTopic::ZoneCommentary:
             pool = &GeneralZoneExamples;
             poolDesc = "comment about your current location";
-            placeholder = "{area}";
-            replacement = areaName;
+            genCtx.placeholder = "{area}";
+            genCtx.replacement = areaName;
             break;
 
         case GeneralTopic::LoreMemes:
@@ -511,8 +556,8 @@ namespace FSBChannelPrompts
         case GeneralTopic::ClassBanter:
             pool = &GeneralClassExamples;
             poolDesc = "make a light comment about your class";
-            placeholder = "[CLASS]";
-            replacement = classStr;
+            genCtx.placeholder = "[CLASS]";
+            genCtx.replacement = classStr;
             break;
 
         case GeneralTopic::NPCCommentary:
@@ -523,8 +568,8 @@ namespace FSBChannelPrompts
         case GeneralTopic::AchievementBrag:
             pool = &GeneralAchievementExamples;
             poolDesc = "mention an achievement";
-            placeholder = "[ACHIEVEMENT]";
-            replacement = GetRandomAchievementName();
+            genCtx.placeholder = "[ACHIEVEMENT]";
+            genCtx.replacement = GetRandomAchievementName();
             break;
 
         case GeneralTopic::PvPBattleground:
@@ -535,64 +580,94 @@ namespace FSBChannelPrompts
         case GeneralTopic::WorldObservation:
             pool = &GeneralWorldExamples;
             poolDesc = "comment on the surroundings or weather";
-            placeholder = "{area}";
-            replacement = areaName;
+            genCtx.placeholder = "{area}";
+            genCtx.replacement = areaName;
             break;
 
         case GeneralTopic::SocialGuild:
             pool = &GeneralSocialExamples;
             poolDesc = "make casual social chat";
             break;
+
+        case GeneralTopic::TimeOfDay:
+            pool = GetTimeOfDayPool(ctx.inGameHour);
+            if (!pool || pool->empty())
+                pool = &GeneralWorldExamples;
+            poolDesc = "comment about the current time of day";
+            break;
+
+        case GeneralTopic::Weather:
+            pool = GetWeatherPool(ctx.weatherStateRaw);
+            if (!pool || pool->empty())
+                pool = &GeneralWorldExamples;
+            poolDesc = "comment about the current weather";
+            break;
         }
 
         if (!pool || pool->empty())
-            return "";
+            return genCtx;
 
-        // Pick 2 random examples from the pool
         std::string example1 = Trinity::Containers::SelectRandomContainerElement(*pool);
         std::string example2 = Trinity::Containers::SelectRandomContainerElement(*pool);
         while (example2 == example1 && pool->size() > 1)
             example2 = Trinity::Containers::SelectRandomContainerElement(*pool);
 
-        // Pre-fill placeholders in examples for the prompt (so AI sees real data)
-        if (!placeholder.empty())
+        if (!genCtx.placeholder.empty())
         {
-            size_t pos = example1.find(placeholder);
+            size_t pos = example1.find(genCtx.placeholder);
             if (pos != std::string::npos)
-                example1.replace(pos, placeholder.length(), replacement);
-            pos = example2.find(placeholder);
+                example1.replace(pos, genCtx.placeholder.length(), genCtx.replacement);
+            pos = example2.find(genCtx.placeholder);
             if (pos != std::string::npos)
-                example2.replace(pos, placeholder.length(), replacement);
+                example2.replace(pos, genCtx.placeholder.length(), genCtx.replacement);
         }
 
-        // Build prompts
-        std::string systemPrompt =
+        genCtx.systemPrompt =
             "You are a World of Warcraft player chatting casually in the General channel. "
             "Write exactly ONE short sentence (5 to 12 words). Be natural and conversational. "
             "Do NOT add quotation marks. Do NOT explain yourself. "
             "Examples (for reference only, do not copy verbatim): " +
             example1 + ", " + example2 + ".";
 
-        std::string userPrompt = "Topic: " + poolDesc + "\n";
-        if (!classStr.empty())
-            userPrompt += "Your class: " + classStr + "\n";
-        if (topic == GeneralTopic::ZoneCommentary || topic == GeneralTopic::WorldObservation)
-            userPrompt += "Location: " + areaName;
-        else if (topic == GeneralTopic::NPCCommentary)
-            userPrompt += "Character: " + GetRandomFamousNPC();
-        else if (topic == GeneralTopic::AchievementBrag)
-            userPrompt += "Achievement: " + replacement;
+        if (!ctx.inGameTime.empty())
+            genCtx.systemPrompt += " The current in-game time is " + ctx.inGameTime + ".";
+        if (!ctx.weather.empty())
+            genCtx.systemPrompt += " The weather is currently " + ctx.weather + ".";
 
-        std::string aiResponse = FSBGenAI::GetBotResponse(systemPrompt, userPrompt);
+        genCtx.userPrompt = "Topic: " + poolDesc + "\n";
+        if (!classStr.empty())
+            genCtx.userPrompt += "Your class: " + classStr + "\n";
+        if (topic == GeneralTopic::ZoneCommentary || topic == GeneralTopic::WorldObservation)
+            genCtx.userPrompt += "Location: " + areaName;
+        else if (topic == GeneralTopic::NPCCommentary)
+            genCtx.userPrompt += "Character: " + GetRandomFamousNPC();
+        else if (topic == GeneralTopic::AchievementBrag)
+            genCtx.userPrompt += "Achievement: " + genCtx.replacement;
+        else if (topic == GeneralTopic::TimeOfDay && !ctx.inGameTime.empty())
+            genCtx.userPrompt += "Current in-game time: " + ctx.inGameTime;
+        else if (topic == GeneralTopic::Weather && !ctx.weather.empty())
+            genCtx.userPrompt += "Current weather: " + ctx.weather;
+
+        return genCtx;
+    }
+
+    // ------------------------------------------------------------------
+    //  General message via GenAI — Generate (worker thread)
+    // ------------------------------------------------------------------
+    std::string GenerateGeneralMessage(GeneralChatContext const& ctx)
+    {
+        if (ctx.systemPrompt.empty())
+            return "";
+
+        std::string aiResponse = FSBGenAI::GetBotResponse(ctx.systemPrompt, ctx.userPrompt);
         if (aiResponse.empty())
             return "";
 
-        // Post-replace any remaining placeholders
-        if (!placeholder.empty())
+        if (!ctx.placeholder.empty())
         {
-            size_t pos = aiResponse.find(placeholder);
+            size_t pos = aiResponse.find(ctx.placeholder);
             if (pos != std::string::npos)
-                aiResponse.replace(pos, placeholder.length(), replacement);
+                aiResponse.replace(pos, ctx.placeholder.length(), ctx.replacement);
         }
 
         TC_LOG_DEBUG("scripts.fsb.chatter", "FSB GeneralMessage (AI): {}", aiResponse);
@@ -622,6 +697,11 @@ namespace FSBChannelPrompts
             botPersonalityStr + " currently residing in " + areaName + ".\n"
             "Write exactly ONE short reply (5 to 15 words) to the latest player message relevant to YOUR personality.\n"
             "DO NOT ASSUME the latest player message is addressed directly to you unless they included your name or directed to you.\n";
+
+        if (!ctx.inGameTime.empty())
+            systemPrompt += "The current in-game time is " + ctx.inGameTime + ".\n";
+        if (!ctx.weather.empty())
+            systemPrompt += "The weather is currently " + ctx.weather + ".\n";
 
         // Use snapshot values instead of Player* 
         if (!player.name.empty())
@@ -702,7 +782,10 @@ namespace FSBChannelPrompts
             }
         }
 
-        result.reply = GenerateGeneralMessage(ctx);
+        {
+            GeneralChatContext genCtx = PrepareGeneralMessage(ctx);
+            result.reply = GenerateGeneralMessage(genCtx);
+        }
         result.action = "none";
         result.amount = 0;
         return result;

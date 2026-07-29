@@ -32,11 +32,6 @@ enum FSB_Data
     FSB_DATA_HIRE_TIME_LEFT = 2,
 };
 
-enum FSB_Factions
-{
-    FSB_FACTION_HUMAN = 1
-};
-
 enum FSB_GenericEvents
 {
     
@@ -70,13 +65,6 @@ enum FSB_Actions
     FSB_ACTION_WAIT_HEALER_RESSURECT = 2,
     FSB_ACTION_TELEPORT_DUNGEON = 3,
     FSB_ACTION_SOULSTONE_RESSURECT = 4,
-};
-
-enum FSB_MovementPoints
-{
-    FSB_MOVEMENT_POINT_CORPSE = 2,
-    FSB_MOVEMENT_POINT_OUT_FIRE = 10,
-    FSB_MOVEMENT_POINT_NEAR_FIRE = 11,
 };
 
 constexpr float FOLLOW_DISTANCE_CLOSE = 3.0f;

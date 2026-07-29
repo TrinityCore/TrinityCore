@@ -152,7 +152,7 @@ namespace FSBDruid
     bool BotInitialCombatSpells(Creature* bot, uint32& globalCooldown, bool& botCastedCombatBuffs, FSB_Roles botRole);
     bool BotOnAuraApplied(Creature* bot, AuraApplication const* aurApp, bool applied, FSBBotStats& botStats);
     void HandleOnSpellCast(Creature* bot, uint32 spellId);
-    void BotSetRoleAuras(Creature* bot, FSB_Roles role);
+    void BotSetRoleAuras(Creature* bot, FSB_Roles role, bool recalculateStats = true);
     bool BotHasMarkWild(Creature* bot);
     bool BotHasIronbark(Creature* bot);
     bool BotHasSurvivalInstincts(Creature* bot);

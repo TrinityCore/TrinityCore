@@ -28,6 +28,7 @@
 #include "Followship_bots_chat_handler.h"
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_utils.h"
+#include "Followship_bots_npc_chat_manager.h"
 
 class followship_bots_world_script : public WorldScript
 {
@@ -37,6 +38,7 @@ public:
     void OnUpdate(uint32 diff) override
     {
         FSBChatMgr::Get()->Update(diff);
+        FSBNpcChatMgr::Get()->Update(diff);
     }
 };
 
@@ -75,7 +77,7 @@ static void FSBAddBotsToWhoList(WhoListInfoVector& whoList)
             continue;
         wstrToLower(wideBotName);
 
-        Team botTeam = FSBUtils::GetTeamFromFSBRace(bot);
+        Team botTeam = FSBUtils::GetTeamFromFSBRace(FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()));
         FSB_Class botClass = FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry());
         FSB_Race botRace = FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry());
         uint8 tcClass = FSBUtils::FSBToTCClass(botClass);

@@ -103,10 +103,10 @@ class TC_GAME_API ZoneScript
         virtual void ProcessEvent([[maybe_unused]] WorldObject* obj, [[maybe_unused]] uint32 eventId, [[maybe_unused]] WorldObject* invoker) { }
         virtual void DoAction([[maybe_unused]] uint32 actionId, [[maybe_unused]] WorldObject* source = nullptr, [[maybe_unused]] WorldObject* target = nullptr) { }
 
-        virtual void OnFlagStateChange([[maybe_unused]] GameObject* flagInBase, [[maybe_unused]] FlagState oldValue, [[maybe_unused]] FlagState newValue, [[maybe_unused]] Player* player) { }
+        virtual void OnFlagStateChange([[maybe_unused]] GameObject* flagInBase, [[maybe_unused]] FlagState oldValue, [[maybe_unused]] FlagState newValue, [[maybe_unused]] Unit* unit) { }
 
-        virtual bool CanCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { return false; }
-        virtual void OnCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Player* player) { }
+        virtual bool CanCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Unit* unit) { return false; }
+        virtual void OnCaptureFlag([[maybe_unused]] AreaTrigger* areaTrigger, [[maybe_unused]] Unit* unit) { }
 
         // This hook is used with GAMEOBJECT_TYPE_FLAGSTAND. Newer gameobjects use GAMEOBJECT_TYPE_NEW_FLAG and should use `OnFlagStateChange`
         virtual void OnFlagTaken([[maybe_unused]] GameObject* flag, [[maybe_unused]] Player* player) { }

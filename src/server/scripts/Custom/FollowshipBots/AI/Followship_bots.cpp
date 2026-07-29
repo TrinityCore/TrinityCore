@@ -20,7 +20,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 #include "Chat.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -28,6 +31,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptHelpers.h"
 #include "SpellInfo.h"
 
 #include "Followship_bots.h"
@@ -35,14 +39,14 @@
 #include "Followship_bots_mgr.h"
 
 #include "Followship_bots_auras_handler.h"
-#include "Config/Followship_bots_config.h"
+#include "Followship_bots_config.h"
 #include "Followship_bots_chat_handler.h"
 #include "Followship_bots_chatter_handler.h"
 #include "Followship_bots_combat_handler.h"
 
 #include "Followship_bots_db.h"
 
-#include "GenAI/GenAI_chatter_prompts.h"
+#include "GenAI_chatter_prompts.h"
 #include "Followship_bots_death_handler.h"
 #include "Followship_bots_dungeon_handler.h"
 #include "Followship_bots_events_handler.h"
@@ -59,6 +63,8 @@
 #include "Followship_bots_stats_handler.h"
 #include "Followship_bots_party_handler.h"
 #include "Followship_bots_teleport_handler.h"
+#include "Followship_bots_battleground_handler.h"
+#include "Followship_bots_warsong_gulch.h"
 
 
 
@@ -87,6 +93,17 @@ public:
         void InitializeAI() override // Runs once after creature is spawned and AI not loaded
         {
             ScriptedAI::InitializeAI(); // always call base first            
+        }
+
+        void OnDespawn() override
+        {
+            if (me && me->GetMap() && me->GetMap()->IsBattlegroundOrArena())
+            {
+                if (me->GetMap()->IsBattleground())
+                    FSBBattleground::RespawnBotOnDespawn(me);
+                ScriptHelpers::EraseBotScore(me->GetGUID());
+                ScriptHelpers::EraseBotRace(me->GetGUID());
+            }
         }
 
         void Reset() override // Runs at creature respawn, evade or when triggered
@@ -153,202 +170,9 @@ public:
             return FSBGossip::HandleDefaultGossipHello(me, player, botHired, _playerGuid);
         }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override // Runs once when gossip item selected
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override // Runs once when gossip item selected
         {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-
-            switch (action)
-            {
-                // Hire Menu
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                return FSBGossip::HandleGossipMenuHire(me, player);
-
-                // Bot Info
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                FSBGossip::HandleGossipItemInfo(me, player);
-                return true;
-
-                // Roles Menu
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                return FSBGossip::HandleGossipMenuRoles(me, player);
-
-                // Bot Gossip Back to main
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                OnGossipHello(player);
-                return true;
-
-                // Bot Dismiss
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                FSBEvents::ScheduleBotEvent(me, FSB_EVENT_HIRED_EXPIRED, 1s, 3s);
-                break;
-
-                // Bot Instructions Menu
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                return FSBGossip::HandleGossipMenuInstructions(me, player);
-
-                // Bot Follow Distance Menu
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                return FSBGossip::HandleGossipMenuFollowDistance(me, player);
-
-                // Bot Follow Angle Menu
-            case GOSSIP_ACTION_INFO_DEF + 8:
-                return FSBGossip::HandleGossipMenuFollowAngle(me, player);
-
-                // Bot Hire Option 1
-            case GOSSIP_ACTION_INFO_DEF + 10:
-                return FSBGossip::HandleGossipItemHire(me, player, FollowshipBotsConfig::configFSBHireDuration1);
-                
-
-                // Bot Hire Option 2
-            case GOSSIP_ACTION_INFO_DEF + 11:
-                return FSBGossip::HandleGossipItemHire(me, player, FollowshipBotsConfig::configFSBHireDuration2);
-
-                // Bot Hire Option 3
-            case GOSSIP_ACTION_INFO_DEF + 12:
-                return FSBGossip::HandleGossipItemHire(me, player, FollowshipBotsConfig::configFSBHireDuration3);
-
-                // Bot Hire Option Permanent
-            case GOSSIP_ACTION_INFO_DEF + 13:
-            {
-                return FSBGossip::HandleGossipItemHirePermanent(me, player);
-            }
-
-                // Bot Follow Distance Option 1
-            case GOSSIP_ACTION_INFO_DEF + 14:
-            {
-                botFollowDistance = FOLLOW_DISTANCE_CLOSE;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowDistanceClose);
-                break;
-            }
-
-                // Bot Follow Distance Option 2
-            case GOSSIP_ACTION_INFO_DEF + 15:
-            {
-                botFollowDistance = FOLLOW_DISTANCE_NORMAL;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowDistanceNormal);
-                break;
-            }
-
-                // Bot Follow Distance Option 3
-            case GOSSIP_ACTION_INFO_DEF + 16:
-            {
-                botFollowDistance = FOLLOW_DISTANCE_WIDE;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowDistanceWide);
-                break;
-            }
-
-                // Bot Follow Angle Option 1
-            case GOSSIP_ACTION_INFO_DEF + 17:
-            {
-                botFollowAngle = FOLLOW_ANGLE_FRONT;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowAngleFront);
-                break;
-            }
-
-                // Bot Follow Angle Option 2
-            case GOSSIP_ACTION_INFO_DEF + 18:
-            {
-                botFollowAngle = FOLLOW_ANGLE_BEHIND;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowAngleBehind);
-                break;
-            }
-
-                // Bot Follow Angle Option 3
-            case GOSSIP_ACTION_INFO_DEF + 19:
-            {
-                botFollowAngle = FSBUtils::GetRandomRightAngle(); //FOLLOW_ANGLE_RIGHT;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowAngleRight);
-                break;
-            }
-
-                // Bot Stay Option
-            case GOSSIP_ACTION_INFO_DEF + 20:
-            {
-                FSBMovement::StopFollow(me);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::StayCommand);
-                break;
-            }
-
-                // Bot Follow Option
-            case GOSSIP_ACTION_INFO_DEF + 21:
-            {
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowCommand);
-                break;
-            }
-
-                // Bot Follow Angle Option 4
-            case GOSSIP_ACTION_INFO_DEF + 22:
-            {
-                botFollowAngle = FSBUtils::GetRandomLeftAngle(); //FOLLOW_ANGLE_LEFT;
-                FSBMovement::ResumeFollow(me, botFollowDistance, botFollowAngle);
-                FSBGenAIPrompts::DispatchBotAcknowledge(me, FSBGenAIPrompts::FSB_AcknowledgeContext::FollowAngleLeft);
-                break;
-            }
-
-                // Bot Role Option 1
-            case GOSSIP_ACTION_INFO_DEF + 23:
-                FSBGossip::HandleGossipItemRole(me, botClass, FSB_GOSSIP_ROLE_1, botHasDemon);
-                break;
-
-                // Bot Role Option 2
-            case GOSSIP_ACTION_INFO_DEF + 24:
-                FSBGossip::HandleGossipItemRole(me, botClass, FSB_GOSSIP_ROLE_2, botHasDemon);
-                break;
-
-            // Bot Role Option 3
-            case GOSSIP_ACTION_INFO_DEF + 25:
-                FSBGossip::HandleGossipItemRole(me, botClass, FSB_GOSSIP_ROLE_3, botHasDemon);
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF + 26:
-                return FSBGossip::HandleGossipMenuPortals(me, player);
-
-            case GOSSIP_ACTION_INFO_DEF + 27:
-            {
-                me->CastSpell(me, SPELL_MAGE_PORTAL_STORMWIND);
-                me->Say("Okay one portal coming up!", LANG_UNIVERSAL);
-                break;
-            }
-
-            case GOSSIP_ACTION_INFO_DEF + 28:
-            {
-                player->CastSpell(me, 121849);
-                me->Say("Okay one portal coming up!", LANG_UNIVERSAL);
-                break;
-            }
-
-            case GOSSIP_ACTION_INFO_DEF + 29:
-            {
-                player->CastSpell(player, 121851);
-                me->Say("Okay one portal coming up!", LANG_UNIVERSAL);
-                break;
-            }
-
-            case GOSSIP_ACTION_INFO_DEF + 30:
-            {
-                player->CastSpell(player, 121850);
-                me->Say("Okay one portal coming up!", LANG_UNIVERSAL);
-                break;
-            }
-
-            // Bot Role Option 4 - Druid
-            case GOSSIP_ACTION_INFO_DEF + 31:
-                FSBGossip::HandleGossipItemRole(me, botClass, FSB_GOSSIP_ROLE_4, botHasDemon);
-                break;
-
-            default:
-                break;
-            }
-            CloseGossipMenuFor(player);
-            return true;
+            return FSBGossip::HandleGossipSelect(me, player->GetGUID(), menuId, gossipListId);
         }
 
         void JustEngagedWith(Unit* who) override // Runs every time creature gets in combat
@@ -361,6 +185,8 @@ public:
 
         void JustEnteredCombat(Unit* who) override
         {
+            FSBCombat::BotSyncShapeshift(me, true);
+
             for (ObjectGuid const& guid : _summons)
                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
                     if (summon->IsAlive())
@@ -370,6 +196,28 @@ public:
         void JustExitedCombat() override
         {
             botOutOfCombatTimer = getMSTime();
+
+            FSBCombat::BotSyncShapeshift(me, false);
+
+            botGenericData.manaPotionUsed = false;
+            botGenericData.healthPotionUsed = false;
+
+            if (!botHired)
+            {
+                if (me->GetMap()->IsBattleground())
+                {
+                    if (me->HasUnitState(UNIT_STATE_CHASE))
+                        me->GetMotionMaster()->Clear();
+
+                    if (FSB_BattlegroundData* bgData = GetBattlegroundData())
+                    {
+                        // setDeathState calls CombatStop before JustDied, so we must not clear the tap list when the bot is dying.
+                        if (me->IsAlive())
+                            bgData->damageTappers.clear();
+                        // recentPlayerTargets is also needed by OnPlayerKilledByCreature, which runs after death triggers CombatStop.
+                    }
+                }
+            }
         }        
 
         void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) override
@@ -385,16 +233,32 @@ public:
 
         void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
         {
-            damage = FSBStats::CalculateScaledBotDamage(me, victim, damage);
             damage = uint32(damage * FSBStats::ApplyBotDamageDoneReduction(me));
             FSBPowers::GenerateRageFromDamageDone(me, damage);
+
+            if (me->GetMap()->IsBattlegroundOrArena())
+            {
+                ScriptHelpers::RecordBotDamageDone(me->GetGUID(), damage);
+
+                if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+                    if (FSB_BattlegroundData* bgData = GetBattlegroundData())
+                        bgData->recentPlayerTargets.insert(victim->GetGUID());
+            }
         }
 
         // Runs every time creature takes damage
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             damage = uint32(damage * FSBStats::ApplyBotDamageTakenReduction(me));
             FSBPowers::GenerateRageFromDamageTaken(me, damage);
+
+            FSBBattleground::HandleBotDamageTaken(me, attacker, damage);
+        }
+
+        void HealDone(Unit* /*done_to*/, uint32& addhealth) override
+        {
+            if (me->GetMap()->IsBattlegroundOrArena())
+                ScriptHelpers::RecordBotHealingDone(me->GetGUID(), addhealth);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override // Runs every time creature evades
@@ -409,6 +273,14 @@ public:
 
             if (urand(0, 99) <= FollowshipBotsConfig::configFSBChatterRate)
                 FSBGenAIPrompts::DispatchBotTargetKilled(me, victim->GetGUID());
+
+            if (me->GetMap()->IsBattlegroundOrArena())
+            {
+                if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+                    FSBBattleground::HandleBotKilledPlayer(me, victim->GetGUID());
+
+                ScriptHelpers::RecordBotKillingBlow(me->GetGUID());
+            }
         }
 
         void OnSpellCast(SpellInfo const* spell) override // Runs every time the creature casts a spell
@@ -454,14 +326,20 @@ public:
 
         void JustSummoned(Creature* summon) override // Runs every time the creature summons another creature
         {
-            if (summon && botClass == FSB_Class::Warlock)
+            if (summon)
             {
-                FSBWarlock::AdjustSummonHealth(me, summon);
-                botHasDemon = true;
-                TC_LOG_DEBUG("scripts.fsb.general", "FSB: JustSummoned Triggered for Warlock bot {} with summon {}", me->GetName(), summon->GetName());
-            }
+                summon->ApplyLevelScaling(3325, 0);
+                summon->SetLevel(me->GetLevel());
 
-            _summons.Summon(summon);
+                if (botClass == FSB_Class::Warlock)
+                {
+                    FSBWarlock::AdjustSummonHealth(me, summon);
+                    botHasDemon = true;
+                    TC_LOG_DEBUG("scripts.fsb.general", "FSB: JustSummoned Triggered for Warlock bot {} with summon {}", me->GetName(), summon->GetName());
+                }
+
+                _summons.Summon(summon);
+            }
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override // Runs everytime the creature's summon dies - pet or minion
@@ -482,28 +360,41 @@ public:
             FSBChatMgr::Get()->UnregisterActiveBot(me);
             FSBChatMgr::Get()->LeaveBotChannels(me);
             FSBDeath::HandlerJustDied(me, killer);
+
+            FSBBattleground::HandleBotDeathScores(me, killer);
         }
 
         void MovementInform(uint32 type, uint32 id) override
         {
+            if (type == EFFECT_MOTION_TYPE)
+            {
+                FSBMovement::HandleBattlegroundMovement(me, type, id);
+                return;
+            }
+
             if (type != POINT_MOTION_TYPE)
                 return;
 
             switch (id)
             {
-            case FSB_MOVEMENT_POINT_CORPSE:
+            case FSBMovement::MOVEMENT_POINT_CORPSE:
             {
                 FSBDeath::BotSetStateAfterCorpseRevive(me);
                 break;
             }
 
-            case FSB_MOVEMENT_POINT_NEAR_FIRE:
+            case FSBMovement::MOVEMENT_POINT_NEAR_FIRE:
             {
                 FSBEvents::ScheduleBotEvent(me, FSB_EVENT_RANDOM_ACTION_SIT_BY_FIRE, 1s, 3s);
                 break;
             }
+
             default:
+            {
+                if (FSBMovement::IsWsgMovementPoint(id))
+                    FSBMovement::HandleBattlegroundMovement(me, type, id);
                 break;
+            }
             }
         }
 
@@ -540,6 +431,11 @@ public:
                 break;
             }
 
+            case ScriptHelpers::DATA_BOT_CAPTURED_FLAG:
+                if(!botHired)
+                    FSBBattleground::WarsongGulch::OnBotCapturedFlag(me);
+                break;
+
             }
         }
 
@@ -568,6 +464,7 @@ public:
         {
             if (!botDungeonData || !botDungeonData->mechanicFlagC)
                 FSBCombat::EvaluateAttackNeeded(me);
+
             FSBCombat::SetOwnerTapToVictim(me);
 
             events.Update(diff);
@@ -587,7 +484,8 @@ public:
                 {
                     // bot events
                     FSBEvents::ScheduleBotEvent(me, FSB_EVENT_GENERIC_CHECK_HIRED_TIME, 10s);
-                    FSBEvents::ScheduleBotEvent(me, FSB_EVENT_HIRED_DESPAWN_TEMP_BOT, 1s);
+                    if(!botHired)
+                        FSBEvents::ScheduleBotEvent(me, FSB_EVENT_DESPAWN_TEMP_BOT, 1s);
 
                     uint32 now = getMSTime();
 
@@ -616,7 +514,15 @@ public:
 
                     FSBParty::PeriodicPartyNeededCheck(me);
 
-                    FSBDungeon::CheckDungeonHandlingNeeded(me);
+                    if (me->GetMap()->IsBattleground())
+                    {
+                        uint32 nowMs = getMSTime();
+                        if (nowMs >= _bgRaidUpdateMs)
+                        {
+                            _bgRaidUpdateMs = nowMs + 10000;
+                            FSBParty::PeriodicBattlegroundRaidUpdate(me);
+                        }
+                    }
 
                     FSBChatMgr::Get()->UpdateBotChannels(me);
 
@@ -641,6 +547,9 @@ public:
 
                         events.ScheduleEvent(FSB_EVENT_HIRED_CHECK_TELEPORT, 3s, 5s);
                         events.ScheduleEvent(FSB_EVENT_HIRED_CHECK_MOUNT, 3s, 5s);
+                        FSBEvents::ScheduleBotEvent(me, FSB_EVENT_HIRED_DESPAWN_TEMP_BOT, 1s);
+
+                        FSBDungeon::CheckDungeonHandlingNeeded(me);
 
                         if (now >= _5secondsCheckMs)
                         {
@@ -652,7 +561,7 @@ public:
                         }
                     }
 
-                    events.ScheduleEvent(FSB_EVENT_HIRED_MAINTENANCE, 1ms);
+                    events.ScheduleEvent(FSB_EVENT_HIRED_MAINTENANCE, 1s);
                     break;
                 }
 
@@ -698,18 +607,13 @@ public:
                 case FSB_EVENT_COMBAT_MAINTENANCE:
                 {
                     if (me->IsAlive() && me->IsInCombat())
-                    {
-                        // Vehicle combat is handled by the self-scheduling EVENT_DM_VEHICLE_COMBAT_CHECK loop
                         if (!botDungeonData || !botDungeonData->mechanicFlagD)
-                            FSBIC::BotICActions(me, botManaPotionUsed, botHealthPotionUsed, botGlobalCooldown, botCastedCombatBuffs);
-                    }
+                            FSBIC::BotICActions(me, botGlobalCooldown, botCastedCombatBuffs);
 
                     if (botClass == FSB_Class::Hunter && FSBPet::BotHasPet(me))
                         FSBPet::DoAttackSpell(me);
 
                     events.ScheduleEvent(FSB_EVENT_COMBAT_MAINTENANCE, 1s);
-
-                    //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Event Combat Maintenance Reached the end"); // TEMP LOG
 
                     break;
                 }
@@ -756,7 +660,8 @@ public:
             ObjectGuid _lastOwnerVictim;
 
             uint32 _5secondsCheckMs = 0;
-            uint32 _1secondsCheckMs = 0;            
+            uint32 _1secondsCheckMs = 0;
+            uint32 _bgRaidUpdateMs = 0;
     };
 
     
@@ -775,6 +680,7 @@ void AddSC_followship_bots()
     FSBMgr::Get()->LoadAllPersistentBots();
     FSBUtilsDB::LoadBotChatterLines(FSBChatter::BotChatterLinesMap);
     FSBSpells::InitBotSpellTables();
+    FSBSpellsDB::LoadBotSpellsFromDB();
 
     new npc_followship_bots();
 }

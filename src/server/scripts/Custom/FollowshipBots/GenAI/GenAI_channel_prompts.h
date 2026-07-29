@@ -30,7 +30,7 @@ class Creature;
 class Player;
 
 #include "Followship_bots_defines.h"
-#include "GenAI/GenAI_chat_memory.h"
+#include "GenAI_chat_memory.h"
 
 namespace FSBChannelPrompts
 {
@@ -48,6 +48,10 @@ namespace FSBChannelPrompts
         uint32 lastGoldGiveTime = 0;
         std::string botName;
         bool allowGold = false;
+        std::string inGameTime;
+        int8 inGameHour = -1;
+        std::string weather;
+        uint32 weatherStateRaw = 0;
     };
     inline const std::vector<std::string> TradeSellingExamples =
     {
@@ -221,6 +225,288 @@ namespace FSBChannelPrompts
         "Grinding for [ACHIEVEMENT] all week"
     };
 
+    // Time-of-day example pools (5 periods, 10 examples each)
+    inline const std::vector<std::string> GeneralDawnExamples =
+    {
+        "The sunrise is beautiful today",
+        "Dawn light on the water is stunning",
+        "Early morning mist, love it",
+        "First light always gets me going",
+        "Nothing like a dawn patrol to start the day",
+        "The sky is turning pink, gorgeous",
+        "Up before the sun, as usual",
+        "Morning dew on the grass smells amazing",
+        "Dawn is my favorite time to explore",
+        "Watching the sun come up over the hills"
+    };
+
+    inline const std::vector<std::string> GeneralMorningExamples =
+    {
+        "Bright morning, perfect for adventuring",
+        "Morning air really wakes you up",
+        "Love the quiet mornings around here",
+        "Sun's up, time to get moving",
+        "Clear skies this morning, great day ahead",
+        "Morning light makes everything look better",
+        "Good morning everyone, ready for some quests",
+        "Fresh morning breeze, can't beat it",
+        "The morning sun feels nice after last night",
+        "Nothing like a morning stroll through the zone"
+    };
+
+    inline const std::vector<std::string> GeneralAfternoonExamples =
+    {
+        "Sun is high, perfect time for adventure",
+        "Afternoon heat is no joke around here",
+        "Long shadows coming, afternoon already",
+        "Perfect afternoon for a long journey",
+        "The midday sun is beating down today",
+        "Afternoon grind, anyone else working?",
+        "Warm afternoon, ideal weather for exploring",
+        "Sun's still high, plenty of daylight left",
+        "Afternoon light makes the zone look golden",
+        "Could use a break from this afternoon heat"
+    };
+
+    inline const std::vector<std::string> GeneralEveningExamples =
+    {
+        "Sun's going down, evening already",
+        "Twilight colors are amazing tonight",
+        "Evening is the best time to relax",
+        "Getting dark, should probably wrap up soon",
+        "Love the evening breeze around here",
+        "Dusk is falling, time to head back",
+        "The evening sky looks incredible today",
+        "Sunset over the mountains, breathtaking",
+        "Evening shadows creeping in, kind of eerie",
+        "Perfect evening for a drink at the inn"
+    };
+
+    inline const std::vector<std::string> GeneralNightExamples =
+    {
+        "Stars are bright tonight",
+        "Should probably find an inn soon",
+        "Night patrols are the worst",
+        "It's getting late, better watch the roads",
+        "Midnight and still grinding",
+        "The night sky is so clear out here",
+        "Dark roads are dangerous, stay alert",
+        "Nighttime really changes this place",
+        "Moonlight on the water is gorgeous",
+        "Late night adventuring has its own charm"
+    };
+
+    // Weather example pools (15 WeatherState values, 10 examples each)
+    inline const std::vector<std::string> GeneralWeatherFineExamples =
+    {
+        "Love the clear skies right now",
+        "Perfect weather for a long journey",
+        "Can't complain about this sunshine",
+        "Clear skies, smooth sailing today",
+        "Beautiful day, not a cloud in sight",
+        "This weather is just perfect",
+        "Clear and bright, love it",
+        "Perfect day to be out and about",
+        "Nothing but blue skies today",
+        "This fine weather is a rare gift"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherFogExamples =
+    {
+        "The fog is thick enough to cut",
+        "Can barely see anything in this fog",
+        "Fog rolling in, kind of spooky",
+        "This fog makes everything feel mysterious",
+        "Careful out there, fog's reducing visibility",
+        "Love the eerie atmosphere the fog brings",
+        "Fog like this, anything could be lurking",
+        "The fog really changes the mood around here",
+        "Hard to navigate in this thick fog",
+        "Foggy days have their own charm"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherDrizzleExamples =
+    {
+        "Wish it would stop drizzling already",
+        "Just a light drizzle, not too bad",
+        "This drizzle is annoying but manageable",
+        "Light rain, nothing to worry about",
+        "The drizzle makes everything slippery",
+        "Not quite rain but still getting wet",
+        "This drizzle is messing up my gear",
+        "A little drizzle never hurt anyone",
+        "Drizzle again? Typical around here",
+        "At least it's not a full downpour yet"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherLightRainExamples =
+    {
+        "Light rain, good day to stay indoors",
+        "The rain is gentle today, kind of nice",
+        "Light rain won't stop me from questing",
+        "Enjoying the light rain actually",
+        "A little rain never hurt anyone",
+        "The rain makes the roads slippery though",
+        "Light rain freshens up the air",
+        "Rain or shine, still adventuring",
+        "This light rain is kind of peaceful",
+        "Good thing it's only light rain"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherMediumRainExamples =
+    {
+        "This rain is relentless today",
+        "Steady rain all day, soaking wet",
+        "The rain won't let up, typical",
+        "Medium rain, time to find some cover",
+        "Rain like this makes questing miserable",
+        "The rain is really coming down now",
+        "Should have brought a bigger cloak",
+        "This rain is going to ruin my armor",
+        "Nothing but rain, rain, rain today",
+        "At least the rain keeps the mobs away"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherHeavyRainExamples =
+    {
+        "This heavy rain is brutal",
+        "Can barely see through this downpour",
+        "Heavy rain, should find shelter fast",
+        "The rain is hammering down out here",
+        "This downpour is no joke",
+        "Heavy rain flooding the roads already",
+        "Never seen rain this heavy around here",
+        "The storm is really letting loose now",
+        "Heavy rain makes everything harder",
+        "Drenched to the bone in this downpour"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherLightSnowExamples =
+    {
+        "Light snow makes everything look peaceful",
+        "A dusting of snow, quite pretty",
+        "Light snow falling, love the look",
+        "The snow is starting to come down",
+        "Light snow, not too cold yet",
+        "Snowflakes drifting down, kind of magical",
+        "Light snow covering the ground nicely",
+        "The first snow is always special",
+        "Light snow makes the zone look beautiful",
+        "Snow starting to fall, better bundle up"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherMediumSnowExamples =
+    {
+        "Snow is really coming down now",
+        "The snow is piling up fast",
+        "Steady snowfall, getting cold out here",
+        "Snow everywhere, hard to see the path",
+        "This snow is making travel difficult",
+        "Medium snow, time to find a warm inn",
+        "The snowfall is beautiful but freezing",
+        "Snow this thick slows everything down",
+        "Pretty sure I'm lost in this snow",
+        "The snow just keeps falling"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherHeavySnowExamples =
+    {
+        "Heavy snow, can barely see ahead",
+        "This blizzard is intense",
+        "Heavy snow blocking the roads",
+        "The snow is waist deep in places",
+        "Heavy snowfall, should find shelter now",
+        "Blizzard conditions out here, stay safe",
+        "The snow is coming down so hard",
+        "Heavy snow makes everything a struggle",
+        "Can't see two feet in this snowstorm",
+        "This heavy snow is no joke"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherLightSandstormExamples =
+    {
+        "Light sandstorm blowing in, gritty",
+        "Sand in the air, better cover up",
+        "This light sandstorm stings the eyes",
+        "Sand starting to swirl around",
+        "Light sandstorm, annoying but manageable",
+        "The sand is getting everywhere already",
+        "Light sandstorm picking up",
+        "Sand in the wind, gritty day",
+        "This sandstorm is messing up my gear",
+        "Light sand in the air, unpleasant"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherMediumSandstormExamples =
+    {
+        "Sandstorm blowing in, better find cover",
+        "This sandstorm is getting serious",
+        "Medium sandstorm, can barely see",
+        "The sand is whipping around hard",
+        "Sandstorm this bad ruins visibility",
+        "Should have stayed inside for this sandstorm",
+        "The sandstorm is relentless today",
+        "Sand everywhere, this is miserable",
+        "Medium sandstorm makes travel dangerous",
+        "The sand is stinging my face out here"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherHeavySandstormExamples =
+    {
+        "Heavy sandstorm, can't see a thing",
+        "This sandstorm is a full blizzard of sand",
+        "Heavy sandstorm, totally blinded out here",
+        "The sand is tearing at everything",
+        "Worst sandstorm I've seen in ages",
+        "Heavy sandstorm, need to find shelter now",
+        "Can't breathe in this sandstorm",
+        "The heavy sand is burying the roads",
+        "This sandstorm is absolutely brutal",
+        "Heavy sandstorm, no visibility at all"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherThunderExamples =
+    {
+        "Thunderstorm rolling in, dramatic stuff",
+        "The thunder is shaking the ground",
+        "Lightning just struck nearby, yikes",
+        "Thunderstorm makes everything intense",
+        "The storm is really cracking out there",
+        "Thunder and lightning, quite a show",
+        "This thunderstorm is kind of exciting",
+        "The thunder rattles your bones",
+        "Storm's right overhead, better stay low",
+        "Thunderstorm weather, stay safe everyone"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherBlackRainExamples =
+    {
+        "Black rain, this is unsettling",
+        "The rain looks wrong, dark and twisted",
+        "Black rain falling, something's not right",
+        "This black rain gives me the creeps",
+        "Never seen rain this dark before",
+        "Black rain, the sky looks corrupted",
+        "The dark rain is spreading dread",
+        "Black rain makes everything feel cursed",
+        "This black rain is deeply wrong",
+        "The rain is black, what's happening"
+    };
+
+    inline const std::vector<std::string> GeneralWeatherBlackSnowExamples =
+    {
+        "Black snow, this can't be natural",
+        "The snow is dark, something is very wrong",
+        "Black snow falling, this is ominous",
+        "Never seen black snow before, terrifying",
+        "The dark snow feels corrupted",
+        "Black snow covering everything in darkness",
+        "This black snow is deeply disturbing",
+        "The snow is black, the end must be near",
+        "Black snow, the land feels tainted",
+        "Dark snow falling, this is a bad omen"
+    };
+
     struct BotChatResponse
     {
         std::string reply;
@@ -236,9 +522,41 @@ namespace FSBChannelPrompts
         uint32      level = 0;
     };
 
-    std::string GenerateTradeMessage(Creature* bot);
-    std::string GenerateLFGMessage(Creature* bot);
-    std::string GenerateGeneralMessage(BotChatContext const& ctx);
+    // --- Async-ready context structs (by-value, safe to pass to threads) ---
+    struct TradeChatContext
+    {
+        std::string systemPrompt;
+        std::string userPrompt;
+        std::string itemLink;
+        std::string itemName;
+        std::string areaName;
+    };
+
+    struct LFGChatContext
+    {
+        std::string systemPrompt;
+        std::string userPrompt;
+        std::string dungeonName;
+    };
+
+    struct GeneralChatContext
+    {
+        std::string systemPrompt;
+        std::string userPrompt;
+        std::string placeholder;
+        std::string replacement;
+    };
+
+    // Prepare (main thread): gather data from Creature*, build prompts, use urand
+    TradeChatContext PrepareTradeMessage(Creature* bot);
+    LFGChatContext PrepareLFGMessage(Creature* bot);
+    GeneralChatContext PrepareGeneralMessage(BotChatContext const& ctx);
+
+    // Generate (worker thread): call LLM API, do post-processing — no TC object access
+    std::string GenerateTradeMessage(TradeChatContext const& ctx);
+    std::string GenerateLFGMessage(LFGChatContext const& ctx);
+    std::string GenerateGeneralMessage(GeneralChatContext const& ctx);
+
     BotChatResponse GenerateReplyToPlayer(BotChatContext const& ctx, PlayerSnapshot const& player, std::string const& playerMsg,
         std::deque<BotChatMemoryEntry> const& memory);
 }

@@ -2,7 +2,7 @@
 
 -- Creatures
 SET @CGUID := 900000;
-Last GUID: @CGUID+1219
+Last GUID: @CGUID+1246
 
 -- Gameobjects
 SET @OGUID := 900000;
@@ -10,4 +10,4 @@ Last GUID: @OGUID+106
 
 -- Spawn Pools
 SET @POOLID := 900000;
-Last PoolID: @POOLID+6
+Last PoolID: @POOLID+12

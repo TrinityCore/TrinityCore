@@ -40,8 +40,10 @@
 #include "Followship_bots_regen_handler.h"
 #include "Followship_bots_spells_handler.h"
 
-#include "GenAI/GenAI_chat_memory.h"
+#include "GenAI_chat_memory.h"
+#include "GenAI_npc_memory.h"
 
+struct FSB_BattlegroundData;
 struct FSB_ClassStats;
 struct FSB_DungeonData;
 
@@ -52,12 +54,15 @@ public:
         botRole(FSB_Roles::FSB_ROLE_NONE),
         botClass(FSB_Class::None),
         botRace(FSB_Race::None),
+        botTCRace(RACE_NONE),
         botGender(GENDER_NONE),
         botMoveState(FSB_MovementStates::FSB_MOVE_STATE_IDLE),
         botChatterType(FSB_ChatterType::None),
+        botLanguage(LANG_UNIVERSAL),
         botRegenMods(),
         botClassStats(),
         botStats(),
+        botGenericData(),
 
         botFollowDistance(0.f),
         botFollowAngle(0.f),
@@ -65,8 +70,6 @@ public:
         botHired(false),
         botMounted(false),
         botHasSoulstone(false),
-        botManaPotionUsed(false),
-        botHealthPotionUsed(false),
         botHasDemon(false),
         botCastedCombatBuffs(false),
         botSayMemberDead(false),
@@ -97,17 +100,21 @@ public:
     virtual ~FSB_BaseAI();
 
     FSB_DungeonData* GetDungeonData();
-
+    FSB_BattlegroundData* GetBattlegroundData();
     FSB_Roles botRole; 
     FSB_Class botClass;
     FSB_Race botRace;
+    Races botTCRace;
     Gender botGender;
     FSB_MovementStates botMoveState;
     FSB_ChatterType botChatterType;
+    Language botLanguage = LANG_UNIVERSAL;
     FSBRegenMods botRegenMods;
     FSB_ClassStats const* botClassStats = nullptr;
     FSB_DungeonData* botDungeonData = nullptr;
+    FSB_BattlegroundData* botBattlegroundData = nullptr;
     FSBBotStats botStats;
+    FSB_GenericData botGenericData;
 
     float botFollowDistance;
     float botFollowAngle;
@@ -115,8 +122,6 @@ public:
     bool botHired;
     bool botMounted;
     bool botHasSoulstone;
-    bool botManaPotionUsed;
-    bool botHealthPotionUsed;
     bool botHasDemon;
     bool botCastedCombatBuffs;
     bool botSayMemberDead;
@@ -152,6 +157,7 @@ public:
 
     std::vector<ObjectGuid> botLogicalGroup;
     std::vector<FSBSpellRuntime> botRuntimeSpells; // runtime for spells cooldowns
+    FSBSpellsData botSpellsData;
     std::vector<Creature*> partyBots;
 
     struct FSBEventPayload
@@ -195,8 +201,6 @@ public:
 
     BotChatData botChatData;
 
-    std::deque<BotChatMemoryEntry> botChatMemory;
-
     void AddChatMemory(uint32 channelId, std::string const& sender, std::string const& msg, bool isPlayer);
     std::deque<BotChatMemoryEntry> GetChatMemory() const;
     void ClearChatMemory();
@@ -220,9 +224,9 @@ public:
                 if (genAIDeliverAction)
                     genAIDeliverAction(response);
                 else if (pendingGenAIState->replyType == FSB_ReplyType::Yell)
-                    me->Yell(response, LANG_UNIVERSAL);
+                    me->Yell(response, botLanguage);
                 else
-                    me->Say(response, LANG_UNIVERSAL);
+                    me->Say(response, botLanguage);
             }
             else if (genAIFallbackAction)
             {

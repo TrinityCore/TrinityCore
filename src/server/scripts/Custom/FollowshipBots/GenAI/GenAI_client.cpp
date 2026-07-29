@@ -24,7 +24,7 @@
 #include "GenAI_provider.h"
 #include "GenAI_request_builder.h"
 #include "GenAI_response_parser.h"
-#include "Config/Followship_bots_config.h"
+#include "Followship_bots_config.h"
 
 #include "Log.h"
 
@@ -279,9 +279,10 @@ namespace FSBGenAI
         return parser->ExtractContent(responseJson);
     }
 
-    bool ParseStructuredResponse(std::string const& jsonStr, std::string& reply, std::string& action, uint32& amount)
+    bool ParseStructuredResponse(std::string const& jsonStr, std::string& reply, std::string& action, uint32& amount,
+        uint8* questState)
     {
         IGenAIResponseParser const* parser = GetResponseParser(static_cast<GenAIProvider>(FollowshipBotsConfig::configFSBGenAIProvider));
-        return parser->ExtractStructured(jsonStr, reply, action, amount);
+        return parser->ExtractStructured(jsonStr, reply, action, amount, questState);
     }
 }

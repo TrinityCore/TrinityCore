@@ -32,6 +32,12 @@ std::vector<FSBSpellDefinition> RogueSpellsTable =
     { SPELL_DWARF_STONEFORM,                FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_DRAENEI_GIFT_NAARU,             FSBSpellType::Heal,     0.f,        50.f,           100.f,           30.f,          false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_PANDAREN_QUAKING_PALM,          FSBSpellType::Damage,   0.f,        0.f,            100.f,           2.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_ORC_BLOOD_FURY,                 FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_UNDEAD_WILL_OF_FORSAKEN,        FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,        30000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TAUREN_WAR_STOMP,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TROLL_BERSERKING,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       180000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_BLOODELF_ARCANE_TORRENT,        FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_GOBLIN_ROCKET_BARRAGE,          FSBSpellType::Damage,   0.f,        0.f,            100.f,          30.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
 
     { SPELL_ROGUE_THISTLE_TEA,              FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,       60000,          FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_ROGUE_EVASION,                  FSBSpellType::Heal,     0.f,        60.f,           100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
@@ -108,58 +114,4 @@ std::vector<FSBSpellDefinition> RogueSpellsTable =
 
 namespace FSBRogue
 {
-    bool BotOOCBuffSelf(Creature* bot, uint32& outSpellId)
-    {
-        if (!bot || !bot->IsAlive())
-            return false;
-
-        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
-        if (!baseAI)
-            return false;
-
-        auto& buffTimer = baseAI->botBuffsTimer;
-        auto& cooldown = baseAI->botGlobalCooldown;
-        auto hired = baseAI->botHired;
-
-        uint32 now = getMSTime();
-
-        bool deadlyPoison = bot->HasAura(SPELL_ROGUE_INSTANT_POISON) || bot->HasAura(SPELL_ROGUE_WOUND_POISON) || bot->HasAura(SPELL_ROGUE_DEADLY_POISON) || bot->HasAura(SPELL_ROGUE_AMPLIFYING_POISON);
-        bool nonlethalPoison = bot->HasAura(SPELL_ROGUE_CRIPPLING_POISON) || bot->HasAura(SPELL_ROGUE_NUMBING_POISON) || bot->HasAura(SPELL_ROGUE_ATROPHIC_POISON);
-        bool isStealth = bot->HasAura(SPELL_ROGUE_STEALTH);
-
-        if (!deadlyPoison)
-        {
-            uint32 spellId = RAND(SPELL_ROGUE_INSTANT_POISON, SPELL_ROGUE_WOUND_POISON, SPELL_ROGUE_DEADLY_POISON, SPELL_ROGUE_AMPLIFYING_POISON);
-            bot->CastSpell(bot, spellId, false);
-            //buffTimer = now + 60000; // 1 minute
-            cooldown = now + 1500; // 
-            outSpellId = spellId;
-
-            return true;
-        }
-
-        else if (!nonlethalPoison)
-        {
-            uint32 spellId = RAND(SPELL_ROGUE_CRIPPLING_POISON, SPELL_ROGUE_ATROPHIC_POISON, SPELL_ROGUE_NUMBING_POISON);
-            bot->CastSpell(bot, spellId, false);
-            buffTimer = now + 60000; // 1 minute
-            cooldown = now + 1500; // 
-            outSpellId = spellId;
-
-            return true;
-        }
-
-        else if (!isStealth && hired)
-        {
-            uint32 spellId = SPELL_ROGUE_STEALTH;
-            bot->CastSpell(bot, spellId, false);
-            buffTimer = now + 60000; // 1 minute
-            cooldown = now + 1500; // 
-            outSpellId = spellId;
-
-            return true;
-        }
-
-        return false;
-    }
 }

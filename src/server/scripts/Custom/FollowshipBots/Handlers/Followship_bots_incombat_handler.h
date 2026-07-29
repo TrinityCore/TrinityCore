@@ -28,16 +28,21 @@ static constexpr float DefaultHealPCTHealer = 70.f;
 static constexpr float DungeonHealPCT = 70.f;
 static constexpr float DungeonHealPCTHealer = 90.f;
 
+static constexpr float  BOT_IC_SELFHEAL_EMERGENCY_HP = 25.0f;
+static constexpr uint32 BOT_IC_SELFHEAL_ATTACK_CHANCE = 30;
+static constexpr uint32 BOT_IC_SELFHEAL_MAX_CONSECUTIVE = 3;
+
 namespace FSBIC
 {
-    bool BotICActions(Creature* bot, bool& botManaPotionUsed, bool& botHealthPotionUsed, uint32& globalCooldown, bool& botCastedCombatBuffs);
-    bool BotICPotions(Creature* bot, bool& botManaPotionUsed, bool& botHealthPotionUsed);
+    bool BotICActions(Creature* bot, uint32& globalCooldown, bool& botCastedCombatBuffs);
+    bool BotICPotions(Creature* bot);
     bool BotICInitialBuffs(Creature* bot, uint32 globalCooldown, bool& botCastedCombatBuffs);
     bool BotICMeleeMode(Creature* bot);
     bool BotICTryDispel(Creature* bot);
     bool BotICTryOffensiveDispel(Creature* bot);
     bool BotICHealSelf(Creature* bot);
     bool BotICHealGroup(Creature* bot);
+    bool BotICHealBattlegroundAllies(Creature* bot);
     bool BotICTryOffensiveSpell(Creature* bot);
 
     bool BotICRandomActions(Creature* bot);

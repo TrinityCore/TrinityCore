@@ -162,9 +162,9 @@ struct battleground_twin_peaks : BattlegroundScript
                     _assaultStackCount++;
 
                     // update assault debuff stacks
-                    DoForFlagKeepers([&](Player* player) -> void
+                    DoForFlagKeepers([&](Unit* unit) -> void
                     {
-                        ApplyAssaultDebuffToPlayer(player);
+                        ApplyAssaultDebuffToUnit(unit);
                     });
                 }
             }
@@ -190,12 +190,12 @@ struct battleground_twin_peaks : BattlegroundScript
         TriggerGameEvent(TwinPeaks::Events::StartBattle);
     }
 
-    template <std::invocable<Player*> Action>
+    template <std::invocable<Unit*> Action>
     void DoForFlagKeepers(Action const& action) const
     {
         for (ObjectGuid flagGUID : _flags)
             if (GameObject const* flag = battlegroundMap->GetGameObject(flagGUID))
-                if (Player* carrier = ObjectAccessor::FindPlayer(flag->GetFlagCarrierGUID()))
+                if (Unit* carrier = ObjectAccessor::GetUnit(*flag, flag->GetFlagCarrierGUID()))
                     action(carrier);
     }
 
@@ -204,13 +204,13 @@ struct battleground_twin_peaks : BattlegroundScript
         _bothFlagsKept = false;
         _assaultStackCount = 0;
         _flagAssaultTimer.Reset(TwinPeaks::Timers::FlagAssaultTimer);
-        DoForFlagKeepers([&](Player* player) -> void
+        DoForFlagKeepers([&](Unit* unit) -> void
         {
-            RemoveAssaultDebuffFromPlayer(player);
+            RemoveAssaultDebuffFromUnit(unit);
         });
     }
 
-    void ApplyAssaultDebuffToPlayer(Player* player) const
+    void ApplyAssaultDebuffToUnit(Unit* unit) const
     {
         if (_assaultStackCount == 0)
             return;
@@ -218,25 +218,25 @@ struct battleground_twin_peaks : BattlegroundScript
         uint32 spellId = TwinPeaks::Spells::FocusedAssault;
         if (_assaultStackCount >= TwinPeaks::Misc::FlagBrutalAssaultStackCount)
         {
-            player->RemoveAurasDueToSpell(TwinPeaks::Spells::FocusedAssault);
+            unit->RemoveAurasDueToSpell(TwinPeaks::Spells::FocusedAssault);
             spellId = TwinPeaks::Spells::BrutalAssault;
         }
 
-        Aura* aura = player->GetAura(spellId);
+        Aura* aura = unit->GetAura(spellId);
         if (!aura)
         {
-            player->CastSpell(player, spellId, true);
-            aura = player->GetAura(spellId);
+            unit->CastSpell(unit, spellId, true);
+            aura = unit->GetAura(spellId);
         }
 
         if (aura)
             aura->SetStackAmount(_assaultStackCount);
     }
 
-    void RemoveAssaultDebuffFromPlayer(Player* player) const
+    void RemoveAssaultDebuffFromUnit(Unit* unit) const
     {
-        player->RemoveAurasDueToSpell(TwinPeaks::Spells::FocusedAssault);
-        player->RemoveAurasDueToSpell(TwinPeaks::Spells::BrutalAssault);
+        unit->RemoveAurasDueToSpell(TwinPeaks::Spells::FocusedAssault);
+        unit->RemoveAurasDueToSpell(TwinPeaks::Spells::BrutalAssault);
     }
 
     FlagState GetFlagState(TeamId team) const
@@ -257,8 +257,12 @@ struct battleground_twin_peaks : BattlegroundScript
 
     void HandleFlagRoomCapturePoint()
     {
-        DoForFlagKeepers([&](Player* player) -> void
+        DoForFlagKeepers([&](Unit* unit) -> void
         {
+            Player* player = unit->ToPlayer();
+            if (!player)
+                return;
+
             TeamId const team = Battleground::GetTeamIndexByTeamId(battleground->GetPlayerTeam(player->GetGUID()));
             if (AreaTrigger* trigger = battlegroundMap->GetAreaTrigger(_capturePointAreaTriggers[team]))
                 if (trigger->GetInsideUnits().contains(player->GetGUID()))
@@ -355,14 +359,16 @@ struct battleground_twin_peaks : BattlegroundScript
         }
     }
 
-    void OnFlagStateChange(GameObject* flagInBase, FlagState oldValue, FlagState newValue, Player* player) override
+    void OnFlagStateChange(GameObject* flagInBase, FlagState oldValue, FlagState newValue, Unit* unit) override
     {
-        BattlegroundScript::OnFlagStateChange(flagInBase, oldValue, newValue, player);
+        BattlegroundScript::OnFlagStateChange(flagInBase, oldValue, newValue, unit);
 
         Team const team = flagInBase->GetEntry() == TwinPeaks::GameObjects::HordeFlag ? HORDE : ALLIANCE;
         TeamId const otherTeamId = Battleground::GetTeamIndexByTeamId(GetOtherTeam(team));
 
         UpdateFlagState(team, newValue);
+
+        Player* player = unit ? unit->ToPlayer() : nullptr;
 
         switch (newValue)
         {
@@ -401,41 +407,48 @@ struct battleground_twin_peaks : BattlegroundScript
             }
             case FlagState::Dropped:
             {
-                player->RemoveAurasDueToSpell(TwinPeaks::Spells::QuickCapTimer);
-                RemoveAssaultDebuffFromPlayer(player);
-
-                uint32 recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_HORDE_FLAG;
-                if (team == ALLIANCE)
+                if (unit)
                 {
-                    recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG;
-                    battleground->SendBroadcastText(TwinPeaks::Texts::AllianceFlagDropped, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-                }
-                else
-                    battleground->SendBroadcastText(TwinPeaks::Texts::HordeFlagDropped, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                    unit->RemoveAurasDueToSpell(TwinPeaks::Spells::QuickCapTimer);
+                    RemoveAssaultDebuffFromUnit(unit);
 
-                player->CastSpell(player, recentlyDroppedSpellId, true);
+                    uint32 recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_HORDE_FLAG;
+                    if (team == ALLIANCE)
+                    {
+                        recentlyDroppedSpellId = SPELL_RECENTLY_DROPPED_ALLIANCE_FLAG;
+                        battleground->SendBroadcastText(TwinPeaks::Texts::AllianceFlagDropped, CHAT_MSG_BG_SYSTEM_ALLIANCE, unit);
+                    }
+                    else
+                        battleground->SendBroadcastText(TwinPeaks::Texts::HordeFlagDropped, CHAT_MSG_BG_SYSTEM_HORDE, unit);
+
+                    unit->CastSpell(unit, recentlyDroppedSpellId, true);
+                }
                 break;
             }
             case FlagState::Taken:
             {
                 if (team == HORDE)
                 {
-                    battleground->SendBroadcastText(TwinPeaks::Texts::HordeFlagPickedUp, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                    battleground->SendBroadcastText(TwinPeaks::Texts::HordeFlagPickedUp, CHAT_MSG_BG_SYSTEM_HORDE, unit);
                     battleground->PlaySoundToAll(TwinPeaks::Sounds::PvpFlagTakenHorde);
                 }
                 else
                 {
-                    battleground->SendBroadcastText(TwinPeaks::Texts::AllianceFlagPickedUp, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                    battleground->SendBroadcastText(TwinPeaks::Texts::AllianceFlagPickedUp, CHAT_MSG_BG_SYSTEM_ALLIANCE, unit);
                     battleground->PlaySoundToAll(TwinPeaks::Sounds::PvpFlagTakenAlliance);
                 }
 
                 if (GetFlagState(otherTeamId) == FlagState::Taken)
                     _bothFlagsKept = true;
 
-                ApplyAssaultDebuffToPlayer(player);
+                if (unit)
+                {
+                    ApplyAssaultDebuffToUnit(unit);
 
-                flagInBase->CastSpell(player, TwinPeaks::Spells::QuickCapTimer, true);
-                player->StartCriteria(CriteriaStartEvent::BeSpellTarget, TwinPeaks::Spells::QuickCapTimer, Seconds(GameTime::GetGameTime() - flagInBase->GetFlagTakenFromBaseTime()));
+                    flagInBase->CastSpell(unit, TwinPeaks::Spells::QuickCapTimer, true);
+                    if (player)
+                        player->StartCriteria(CriteriaStartEvent::BeSpellTarget, TwinPeaks::Spells::QuickCapTimer, Seconds(GameTime::GetGameTime() - flagInBase->GetFlagTakenFromBaseTime()));
+                }
                 break;
             }
             case FlagState::Respawning:
@@ -446,7 +459,7 @@ struct battleground_twin_peaks : BattlegroundScript
         }
     }
 
-    bool CanCaptureFlag(AreaTrigger* areaTrigger, Player* player) override
+    bool CanCaptureFlag(AreaTrigger* areaTrigger, Unit* player) override
     {
         if (battleground->GetStatus() != STATUS_IN_PROGRESS)
             return false;
@@ -466,7 +479,7 @@ struct battleground_twin_peaks : BattlegroundScript
         return GetFlagState(teamId) == FlagState::InBase;
     }
 
-    void OnCaptureFlag(AreaTrigger* areaTrigger, Player* player) override
+    void OnCaptureFlag(AreaTrigger* areaTrigger, Unit* player) override
     {
         BattlegroundScript::OnCaptureFlag(areaTrigger, player);
 
@@ -511,10 +524,10 @@ struct battleground_twin_peaks : BattlegroundScript
         }
 
         // 4. update criteria's for achievement, player score etc.
-        battleground->UpdatePvpStat(player, TwinPeaks::PvpStats::FlagCaptures, 1);      // +1 flag captures
+        battleground->UpdatePvpStat(player->ToPlayer(), TwinPeaks::PvpStats::FlagCaptures, 1);      // +1 flag captures
 
         // 5. Remove all related auras
-        RemoveAssaultDebuffFromPlayer(player);
+        RemoveAssaultDebuffFromUnit(player);
 
         if (GameObject const* flag = battlegroundMap->GetGameObject(_flags[otherTeamId]))
             player->RemoveAurasDueToSpell(flag->GetGOInfo()->newflag.pickupSpell, flag->GetGUID());

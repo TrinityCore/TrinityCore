@@ -259,7 +259,7 @@ namespace FSBGroup
         return nullptr;
     }
 
-    std::vector<ObjectGuid> BotGetMembersToHeal(Creature* bot, float lowHpThreshold)
+    std::vector<Unit*> BotGetMembersToHeal(Creature* bot, float lowHpThreshold)
     {
         if (!bot || !bot->IsInWorld() || bot->IsDuringRemoveFromWorld())
             return {};
@@ -272,7 +272,7 @@ namespace FSBGroup
         if (group.empty())
             return {};
 
-        std::vector<ObjectGuid> candidates;
+        std::vector<Unit*> candidates;
 
         for (Unit* unit : group)
         {
@@ -281,7 +281,7 @@ namespace FSBGroup
 
             // Emergency 1: HP below threshold
             if (unit->GetHealthPct() <= lowHpThreshold)
-                candidates.push_back(unit->GetGUID());
+                candidates.push_back(unit);
         }
 
         return candidates;

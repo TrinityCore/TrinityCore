@@ -22,11 +22,13 @@
 
 #include "Config.h"
 
+#include "BattlegroundMgr.h"
 #include "Followship_bots_config.h"
-#include "GenAI/GenAI_provider.h"
+#include "GenAI_provider.h"
 
 
 bool  FollowshipBotsConfig::configFSBEnabled = false;
+bool  FollowshipBotsConfig::configFSBOverrideBattlegroundRequirements = false;
 int64 FollowshipBotsConfig::configFSBPricePerLevel = 10;
 int64 FollowshipBotsConfig::configFSBPermanentPricePerLevel = 10000;
 int32 FollowshipBotsConfig::configFSBHireDuration1 = 1;
@@ -81,11 +83,15 @@ float FollowshipBotsConfig::configFSBGenAITemperature = 0.9f;
 float FollowshipBotsConfig::configFSBGenAITopP = 0.95f;
 float FollowshipBotsConfig::configFSBGenAIFrequencyPenalty = 0.8f;
 float FollowshipBotsConfig::configFSBGenAIPresencePenalty = 0.6f;
+bool  FollowshipBotsConfig::configFSBGenAIAutoStartQuest = false;
 
 void FollowshipBotsConfig::Load()
 {
     configFSBEnabled =
         sConfigMgr->GetBoolDefault("Followship.Bots.Enabled", false);
+
+    configFSBOverrideBattlegroundRequirements =
+        sConfigMgr->GetBoolDefault("Followship.Bots.OverrideBattlegroundRequirements", false);
 
     configFSBUseChatChannels =
         sConfigMgr->GetBoolDefault("Followship.Bots.UseChatChannels", true);
@@ -242,4 +248,9 @@ void FollowshipBotsConfig::Load()
 
     configFSBGenAIPresencePenalty =
         sConfigMgr->GetFloatDefault("Followship.Bots.GenAI.PresencePenalty", 0.6f);
+
+    configFSBGenAIAutoStartQuest =
+        sConfigMgr->GetBoolDefault("Followship.Bots.GenAI.AutoStartQuestFromChat", false);
+
+    sBattlegroundMgr->SetFSBOverrideEnabled(configFSBOverrideBattlegroundRequirements);
 }

@@ -117,5 +117,4 @@ extern std::vector<FSBSpellDefinition> RogueSpellsTable;
 
 namespace FSBRogue
 {
-    bool BotOOCBuffSelf(Creature* bot, uint32& outSpellId);
 }

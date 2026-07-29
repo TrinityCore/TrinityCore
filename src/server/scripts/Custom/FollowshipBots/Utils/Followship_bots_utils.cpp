@@ -25,6 +25,7 @@
 
 #include "Containers.h"
 #include "CreatureAI.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
@@ -72,6 +73,20 @@ namespace FSBUtils
         case FSB_Race::Worgen:   return "Worgen";
         case FSB_Race::Pandaren: return "Pandaren";
         case FSB_Race::VoidElf:  return "Void Elf";
+        case FSB_Race::Orc:        return "Orc";
+        case FSB_Race::Undead:     return "Undead";
+        case FSB_Race::Tauren:     return "Tauren";
+        case FSB_Race::Troll:      return "Troll";
+        case FSB_Race::BloodElf:   return "Blood Elf";
+        case FSB_Race::Goblin:     return "Goblin";
+        case FSB_Race::PandarenHorde: return "Pandaren (Horde)";
+        case FSB_Race::HighmountainTauren:  return "Highmountain Tauren";
+        case FSB_Race::Nightborne:          return "Nightborne";
+        case FSB_Race::LightforgedDraenei:  return "Lightforged Draenei";
+        case FSB_Race::EarthenAlliance:     return "Earthen (Alliance)";
+        case FSB_Race::EarthenHorde:        return "Earthen (Horde)";
+        case FSB_Race::HaranirAlliance:     return "Haranir (Alliance)";
+        case FSB_Race::HaranirHorde:        return "Haranir (Horde)";
         default:                 return "Unknown";
         }
     }
@@ -148,47 +163,114 @@ namespace FSBUtils
         case FSB_Race::Gnome:    return RACE_GNOME;
         case FSB_Race::Worgen:   return RACE_WORGEN;
         case FSB_Race::Pandaren: return RACE_PANDAREN_ALLIANCE;
+        case FSB_Race::VoidElf:  return RACE_VOID_ELF;
+        case FSB_Race::Orc:        return RACE_ORC;
+        case FSB_Race::Undead:     return RACE_UNDEAD_PLAYER;
+        case FSB_Race::Tauren:     return RACE_TAUREN;
+        case FSB_Race::Troll:      return RACE_TROLL;
+        case FSB_Race::BloodElf:   return RACE_BLOODELF;
+        case FSB_Race::Goblin:     return RACE_GOBLIN;
+        case FSB_Race::PandarenHorde: return RACE_PANDAREN_HORDE;
+        case FSB_Race::HighmountainTauren:  return RACE_HIGHMOUNTAIN_TAUREN;
+        case FSB_Race::Nightborne:          return RACE_NIGHTBORNE;
+        case FSB_Race::LightforgedDraenei:  return RACE_LIGHTFORGED_DRAENEI;
+        case FSB_Race::EarthenAlliance:     return RACE_EARTHEN_DWARF_ALLIANCE;
+        case FSB_Race::EarthenHorde:        return RACE_EARTHEN_DWARF_HORDE;
+        case FSB_Race::HaranirAlliance:     return RACE_HARANIR_ALLIANCE;
+        case FSB_Race::HaranirHorde:        return RACE_HARANIR_HORDE;
         default:
             TC_LOG_WARN("scripts.ai.fsb", "FSB Utils BotRaceToTC has no mapping for race {}", race);
             return RACE_NONE;
         }
     }
 
-    Team GetTeamFromFSBRace(Creature* bot)
+    Team GetTeamFromFSBRace(FSB_Race race)
     {
-        if (!bot)
-        {
-            TC_LOG_WARN("scripts.fsb.general", "GetTeamFromFSBRace: bot pointer was null!");
-            return Team::PANDARIA_NEUTRAL;
-        }
-
-        FSB_Race race = FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry());
-
         switch (race)
         {
-            // Alliance races
-        case FSB_Race::Human:
-        case FSB_Race::Dwarf:
-        case FSB_Race::NightElf:
-        case FSB_Race::Gnome:
-        case FSB_Race::Draenei:
-        case FSB_Race::Worgen:
-        case FSB_Race::VoidElf:
-        case FSB_Race::Pandaren:
-            return Team::ALLIANCE;
+            case FSB_Race::Human:
+            case FSB_Race::Dwarf:
+            case FSB_Race::NightElf:
+            case FSB_Race::Gnome:
+            case FSB_Race::Draenei:
+            case FSB_Race::Worgen:
+            case FSB_Race::Pandaren:
+            case FSB_Race::VoidElf:
+            case FSB_Race::HighmountainTauren:
+            case FSB_Race::Nightborne:
+            case FSB_Race::LightforgedDraenei:
+            case FSB_Race::EarthenAlliance:
+            case FSB_Race::HaranirAlliance:
+                return Team::ALLIANCE;
 
-            // Pandaren can be neutral or faction-chosen later
-        //case FSB_Race::Pandaren:
-        //    TC_LOG_WARN("server", "GetTeamFromFSBRace: Pandaren bot has no faction assigned, defaulting to NEUTRAL.");
-        //    return Team::PANDARIA_NEUTRAL;
+            case FSB_Race::Orc:
+            case FSB_Race::Undead:
+            case FSB_Race::Tauren:
+            case FSB_Race::Troll:
+            case FSB_Race::BloodElf:
+            case FSB_Race::Goblin:
+            case FSB_Race::PandarenHorde:
+            case FSB_Race::EarthenHorde:
+            case FSB_Race::HaranirHorde:
+                return Team::HORDE;
 
-            // No race / unknown
-        case FSB_Race::None:
-        default:
-            TC_LOG_WARN("scripts.fsb.general", "GetTeamFromFSBRace: Unknown or unsupported FSB race {} for bot {}. Defaulting to NEUTRAL.",
-                uint8(race), bot->GetName());
-            return Team::PANDARIA_NEUTRAL;
+            default:
+                TC_LOG_WARN("scripts.fsb.general", "GetTeamFromFSBRace: Unknown or unsupported FSB race {}. Defaulting to NEUTRAL.", uint8(race));
+                return Team::PANDARIA_NEUTRAL;
         }
+    }
+
+    uint32 GetFactionForFSBRace(FSB_Race race)
+    {
+        Races tcRace = BotRaceToTC(race);
+        if (tcRace == RACE_NONE)
+        {
+            TC_LOG_WARN("scripts.fsb.general", "GetFactionForFSBRace: Unknown FSB race {}. Defaulting to Human faction.", uint8(race));
+            tcRace = RACE_HUMAN;
+        }
+
+        if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(tcRace))
+            return rEntry->FactionID;
+
+        return 0;
+    }
+
+    Language GetLanguageForFSBRace(FSB_Race race)
+    {
+        switch (race)
+        {
+        case FSB_Race::Human:               return LANG_COMMON;
+        case FSB_Race::Dwarf:               return LANG_DWARVISH;
+        case FSB_Race::NightElf:            return LANG_DARNASSIAN;
+        case FSB_Race::Gnome:               return LANG_GNOMISH;
+        case FSB_Race::Draenei:             return LANG_DRAENEI;
+        case FSB_Race::Worgen:              return LANG_COMMON;
+        case FSB_Race::Pandaren:            return LANG_COMMON;
+        case FSB_Race::VoidElf:             return LANG_THALASSIAN;
+        case FSB_Race::Orc:                 return LANG_ORCISH;
+        case FSB_Race::Undead:              return LANG_GUTTERSPEAK;
+        case FSB_Race::Tauren:              return LANG_TAURAHE;
+        case FSB_Race::Troll:               return LANG_TROLL;
+        case FSB_Race::BloodElf:            return LANG_THALASSIAN;
+        case FSB_Race::Goblin:              return LANG_GOBLIN;
+        case FSB_Race::PandarenHorde:       return LANG_ORCISH;
+        case FSB_Race::HighmountainTauren:  return LANG_TAURAHE;
+        case FSB_Race::Nightborne:          return LANG_SHALASSIAN;
+        case FSB_Race::LightforgedDraenei:  return LANG_DRAENEI;
+        case FSB_Race::EarthenAlliance:     return LANG_EARTHEN;
+        case FSB_Race::EarthenHorde:        return LANG_EARTHEN;
+        case FSB_Race::HaranirAlliance:     return LANG_HARANI;
+        case FSB_Race::HaranirHorde:        return LANG_HARANI;
+        default:                            return LANG_UNIVERSAL;
+        }
+    }
+
+    Language GetTeamLanguageForFSBRace(FSB_Race race)
+    {
+        Team team = GetTeamFromFSBRace(race);
+        if (team == ALLIANCE) return LANG_COMMON;
+        if (team == HORDE)    return LANG_ORCISH;
+        return LANG_UNIVERSAL;
     }
 
     const char* PowerTypeToString(Powers power)
@@ -373,6 +455,29 @@ namespace FSBUtils
 
         default:
             return false;
+        }
+    }
+
+    std::string WeatherStateToText(WeatherState state)
+    {
+        switch (state)
+        {
+            case WEATHER_STATE_FOG:               return "foggy";
+            case WEATHER_STATE_DRIZZLE:           return "drizzling";
+            case WEATHER_STATE_LIGHT_RAIN:        return "light rain";
+            case WEATHER_STATE_MEDIUM_RAIN:       return "rain";
+            case WEATHER_STATE_HEAVY_RAIN:        return "heavy rain";
+            case WEATHER_STATE_LIGHT_SNOW:        return "light snow";
+            case WEATHER_STATE_MEDIUM_SNOW:       return "snow";
+            case WEATHER_STATE_HEAVY_SNOW:        return "heavy snow";
+            case WEATHER_STATE_LIGHT_SANDSTORM:   return "light sandstorm";
+            case WEATHER_STATE_MEDIUM_SANDSTORM:  return "sandstorm";
+            case WEATHER_STATE_HEAVY_SANDSTORM:   return "heavy sandstorm";
+            case WEATHER_STATE_THUNDERS:          return "thunderstorm";
+            case WEATHER_STATE_BLACKRAIN:         return "black rain";
+            case WEATHER_STATE_BLACKSNOW:         return "black snow";
+            case WEATHER_STATE_FINE:
+            default:                              return "clear";
         }
     }
 }

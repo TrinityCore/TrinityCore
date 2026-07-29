@@ -37,6 +37,12 @@ std::vector<FSBSpellDefinition> MonkSpellsTable =
     { SPELL_DWARF_STONEFORM,                FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_DRAENEI_GIFT_NAARU,             FSBSpellType::Heal,     0.f,        50.f,           100.f,           30.f,          false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_PANDAREN_QUAKING_PALM,          FSBSpellType::Damage,   0.f,        0.f,            100.f,           2.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_ORC_BLOOD_FURY,                 FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_UNDEAD_WILL_OF_FORSAKEN,        FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,        30000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TAUREN_WAR_STOMP,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TROLL_BERSERKING,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       180000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_BLOODELF_ARCANE_TORRENT,        FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_GOBLIN_ROCKET_BARRAGE,          FSBSpellType::Damage,   0.f,        0.f,            100.f,          30.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
 
     { SPELL_MONK_FORTIFYING_BREW,           FSBSpellType::Heal,     0.f,        20.f,           100.f,           0.f,           true,       90000,          FSB_RoleMask::FSB_ROLEMASK_ANY },
 
@@ -70,6 +76,7 @@ std::vector<FSBSpellDefinition> MonkSpellsTable =
 
 
     //HEAL
+    { SPELL_MONK_SOOTHING_MIST,             FSBSpellType::Heal,     0.f,        75.f,           100.f,           40.f,          false,      8000,           FSB_RoleMask::FSB_ROLEMASK_HEALER },
     { SPELL_MONK_EXPEL_HARM,                FSBSpellType::Heal,     0.15f,      40.f,           100.f,           0.f,           true,       15000,          FSB_RoleMask::FSB_ROLEMASK_HEALER },
     { SPELL_MONK_RENEWING_MIST,             FSBSpellType::Heal,     0.02f,      75.f,           100.f,           40.f,          false,      5000,           FSB_RoleMask::FSB_ROLEMASK_HEALER },
     { SPELL_MONK_VIVIFY,                    FSBSpellType::Heal,     0.03f,      50.f,           100.f,           40.f,          false,      2000,           FSB_RoleMask::FSB_ROLEMASK_HEALER },
@@ -228,5 +235,14 @@ namespace FSBMonk
         }
 
         return false;
+    }
+
+    void SetSerpentStatueTarget(Creature* bot, ObjectGuid targetGuid)
+    {
+        if (!bot || targetGuid.IsEmpty())
+            return;
+
+        if (Creature* statue = bot->FindNearestCreature(Creatures::NPC_JADE_SERPENT_STATUE, 40.f))
+            statue->AI()->SetGUID(targetGuid, 0);
     }
 }

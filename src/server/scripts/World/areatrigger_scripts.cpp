@@ -452,13 +452,9 @@ struct areatrigger_action_capture_flag : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer())
-            return;
-
-        Player* player = unit->ToPlayer();
         if (ZoneScript* zoneScript = at->GetZoneScript())
-            if (zoneScript->CanCaptureFlag(at, player))
-                zoneScript->OnCaptureFlag(at, player);
+            if (zoneScript->CanCaptureFlag(at, unit))
+                zoneScript->OnCaptureFlag(at, unit);
     }
 };
 

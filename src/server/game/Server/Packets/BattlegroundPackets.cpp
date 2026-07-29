@@ -173,6 +173,13 @@ void BattlemasterJoinArena::Read()
     _worldPacket >> Roles;
 }
 
+void BattlemasterJoinSkirmish::Read()
+{
+    _worldPacket >> TeamSizeIndex;
+    _worldPacket >> Roles;
+    _worldPacket >> Bits<1>(AsGroup);
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, BattlefieldStatusHeader const& header)
 {
     data << header.Ticket;

@@ -46,7 +46,9 @@ namespace FSBConvPrompts
         RandomTake,
         Political,
         Question,
-        Story
+        Story,
+        TimeOfDay,
+        Weather
     };
 
     enum class ConversationTopicSubCategory
@@ -66,7 +68,9 @@ namespace FSBConvPrompts
         ClassOpinion,
         ThematicQuestion,
         AdventureStory,
-        BossEncounterStory
+        BossEncounterStory,
+        TimeOfDayComment,
+        WeatherComment
     };
 
     enum class TopicDataSource : uint8
@@ -80,7 +84,9 @@ namespace FSBConvPrompts
         GlobalFaction,
         GlobalRace,
         GlobalClass,
-        GlobalTheme
+        GlobalTheme,
+        InGameTime,
+        CurrentWeather
     };
 
     struct ConversationTopic
@@ -1068,5 +1074,4 @@ namespace FSBConvPrompts
     std::string BuildTopicDescription(Creature* bot, ConversationTopic const& topic);
     std::string BuildConversationSystemPrompt(Creature* bot);
     void DispatchConversationTurn(Creature* speaker, FSBChat::ActiveConversation& conv);
-    std::string GetFallbackConversationLine(FSBChat::ActiveConversation const& conv);
 }

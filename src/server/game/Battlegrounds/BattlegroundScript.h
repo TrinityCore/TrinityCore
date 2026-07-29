@@ -21,6 +21,11 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 
+namespace WorldPackets::Battleground
+{
+    struct PVPMatchStatistics;
+}
+
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
 #include <memory>
 #endif
@@ -46,6 +51,7 @@ public:
     virtual void OnPlayerLeft([[maybe_unused]] Player* player) { }
     virtual void OnPlayerKilled([[maybe_unused]] Player* victim, [[maybe_unused]] Player* killer) { }
     virtual void OnUnitKilled([[maybe_unused]] Creature* victim, [[maybe_unused]] Unit* killer) { }
+    virtual void OnBuildPvPLogDataPacket([[maybe_unused]] WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const { }
     virtual Team GetPrematureWinner();
 
     void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr) override;

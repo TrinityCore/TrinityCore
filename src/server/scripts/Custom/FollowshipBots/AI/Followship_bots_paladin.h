@@ -152,7 +152,6 @@ namespace FSBPaladin
 
     bool BotOOCHealOwner(Creature* bot, Player* player, uint32& globalCooldown);
     bool BotOOCBuffSelf(Creature* bot, uint32& globalCooldown, uint32& selfBuffTimer, uint32& outSpellId);
-    bool BotOOCBuffBeacon(Creature* bot);
 
     void BotSetRoleAuras(Creature* bot, FSB_Roles role);
 }

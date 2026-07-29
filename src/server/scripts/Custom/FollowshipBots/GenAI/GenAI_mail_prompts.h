@@ -36,7 +36,16 @@ namespace FSBMailPrompts
         std::string body;
     };
 
-    MailContent GenerateGoldMailContent(Creature* bot, Player* player, uint32 amount,
-        std::string const& playerRequest,
-        std::string const& botReply);
+    struct MailGenContext
+    {
+        std::string systemPrompt;
+        std::string userPrompt;
+        int32 maxTokens = 0;
+        std::string botName;
+        std::string botReply;
+    };
+
+    MailGenContext PrepareMailContext(Creature* bot, Player* player, uint32 amount,
+        std::string const& playerRequest, std::string const& botReply);
+    MailContent GenerateGoldMailContent(MailGenContext const& ctx);
 }

@@ -26,6 +26,7 @@ namespace FSBDeath
 
     void HandleDeathWithSoulstone(Creature* bot, bool& hasSS);
     void HandleDeathWithGraveyard(Creature* bot, Position botCorpse);
+    void HandleBattlegroundGraveyardResurrect(Creature* bot);
     void HandleDeathInDungeon(Creature* bot, float fDistance, float fAngle);
     void BotSetStateAfterCorpseRevive(Creature* bot);
     // Add dead unit (bot or player) to healer's resurrect queue

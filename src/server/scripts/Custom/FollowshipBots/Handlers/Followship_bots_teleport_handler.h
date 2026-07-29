@@ -20,6 +20,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Position.h"
+
 enum FSB_TeleportReasons
 {
     BOT_DEATH = 0,
@@ -28,6 +30,9 @@ enum FSB_TeleportReasons
 
 namespace FSBTeleport
 {
+    Position GetBattlegroundGraveyardPosition(Creature* bot);
+    bool BotTeleportToBattlegroundGraveyard(Creature* bot);
+
     bool BotTeleport(Creature* bot, FSB_TeleportReasons reason);
-    void BotPetTeleport(Creature* bot);
+    void BotPetTeleport(Creature* bot, float distance = 100.0f);
 }

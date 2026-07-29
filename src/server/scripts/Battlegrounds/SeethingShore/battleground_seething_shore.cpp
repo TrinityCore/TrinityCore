@@ -664,14 +664,14 @@ struct go_bg_seething_shore_azerite : GameObjectAI
 {
     explicit go_bg_seething_shore_azerite(GameObject* go) : GameObjectAI(go) { }
 
-    bool OnCapturePointAssaulted(Player* player) override
+    bool OnCapturePointAssaulted(Unit* user) override
     {
         if (me->GetGoState() != GO_STATE_READY || me->HasFlag(GO_FLAG_NOT_SELECTABLE))
             return true;
 
         if (ZoneScript* zoneScript = me->GetZoneScript())
         {
-            zoneScript->DoAction(SeethingShore::Actions::CaptureAzeriteNode, player, me);
+            zoneScript->DoAction(SeethingShore::Actions::CaptureAzeriteNode, user, me);
             return false;
         }
 

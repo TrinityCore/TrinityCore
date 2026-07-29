@@ -23,18 +23,21 @@
 #include "GenAI_conversation_prompts.h"
 #include "GenAI_client.h"
 
-#include "AI/Followship_bots_ai_base.h"
+#include "Followship_bots_ai_base.h"
 #include "Followship_bots_mgr.h"
-#include "Utils/Followship_bots_utils.h"
+#include "Followship_bots_utils.h"
 
-#include "Handlers/Followship_bots_chat_handler.h"
+#include "Followship_bots_chat_handler.h"
 
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Map.h"
 #include "Random.h"
 #include "StringFormat.h"
+#include "Weather.h"
+#include "WowTime.h"
 
 #include <random>
 #include <thread>
@@ -71,6 +74,10 @@ namespace FSBConvPrompts
             // Story
             { ConversationTopicCategory::Story,      ConversationTopicSubCategory::AdventureStory,   "Tell a short, exaggerated story about an adventure involving {}", TopicDataSource::ZoneFeature },
             { ConversationTopicCategory::Story,      ConversationTopicSubCategory::BossEncounterStory, "Share a dramatic tale about facing {}",                   TopicDataSource::GlobalBoss },
+            // TimeOfDay
+            { ConversationTopicCategory::TimeOfDay,  ConversationTopicSubCategory::TimeOfDayComment,   "Comment about the time of day - it's currently {}",       TopicDataSource::InGameTime },
+            // Weather
+            { ConversationTopicCategory::Weather,    ConversationTopicSubCategory::WeatherComment,     "Talk about the current weather - it's {} right now",       TopicDataSource::CurrentWeather },
         };
 
         std::random_device rd;
@@ -121,11 +128,41 @@ namespace FSBConvPrompts
             case TopicDataSource::GlobalFaction:
                 return Trinity::Containers::SelectRandomContainerElement(Factions);
             case TopicDataSource::GlobalRace:
-                return FSBUtils::BotRaceToString(static_cast<FSB_Race>(urand(1, 8)));
+                return FSBUtils::BotRaceToString(static_cast<FSB_Race>(urand(1, static_cast<int32>(FSB_Race::HaranirHorde))));
             case TopicDataSource::GlobalClass:
                 return FSBUtils::BotClassToString(static_cast<FSB_Class>(urand(1, 11)));
             case TopicDataSource::GlobalTheme:
                 return Trinity::Containers::SelectRandomContainerElement(Themes);
+            case TopicDataSource::InGameTime:
+            {
+                if (WowTime const* wowTime = GameTime::GetWowTime())
+                {
+                    int8 hour = wowTime->GetHour();
+                    int8 minute = wowTime->GetMinute();
+                    if (hour >= 0 && minute >= 0)
+                    {
+                        char buf[32];
+                        const char* period;
+                        if (hour >= 5 && hour <= 7)       period = "dawn";
+                        else if (hour >= 8 && hour <= 11) period = "morning";
+                        else if (hour >= 12 && hour <= 16) period = "afternoon";
+                        else if (hour >= 17 && hour <= 19) period = "evening";
+                        else                                period = "night";
+                        snprintf(buf, sizeof(buf), "%02d:%02d, %s", hour, minute, period);
+                        return buf;
+                    }
+                }
+                return "some time of day";
+            }
+            case TopicDataSource::CurrentWeather:
+            {
+                if (Map* map = bot->GetMap())
+                {
+                    WeatherState ws = map->GetZoneWeather(bot->GetZoneId());
+                    return FSBUtils::WeatherStateToText(ws);
+                }
+                return "clear";
+            }
             default:
                 return "something interesting";
         }
@@ -154,6 +191,10 @@ namespace FSBConvPrompts
                 return "question";
             case ConversationTopicCategory::Story:
                 return "story";
+            case ConversationTopicCategory::TimeOfDay:
+                return "remark about the time";
+            case ConversationTopicCategory::Weather:
+                return "remark about the weather";
             default:
                 return "remark";
         }
@@ -172,7 +213,7 @@ namespace FSBConvPrompts
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         std::string zoneName = areaEntry ? areaEntry->AreaName[LOCALE_enUS] : "Azeroth";
 
-        return Trinity::StringFormat(
+        std::string prompt = Trinity::StringFormat(
             "You are a character in World of Warcraft named {}.\n"
             "You are a {} {} {} currently in {}.\n"
             "Your personality is {}. This is your defining trait - every reply must clearly sound like a {} person in tone, word choice, and attitude.\n\n"
@@ -190,6 +231,28 @@ namespace FSBConvPrompts
             FSBUtils::ChatterTypeToString(chatterType),
             FSBUtils::ChatterTypeToString(chatterType),
             zoneName);
+
+        if (WowTime const* wowTime = GameTime::GetWowTime())
+        {
+            int8 hour = wowTime->GetHour();
+            int8 minute = wowTime->GetMinute();
+            if (hour >= 0 && minute >= 0)
+            {
+                char buf[16];
+                snprintf(buf, sizeof(buf), "%02d:%02d", hour, minute);
+                prompt += "\nThe current in-game time is " + std::string(buf) + ".\n";
+            }
+        }
+
+        if (Map* map = bot->GetMap())
+        {
+            WeatherState ws = map->GetZoneWeather(bot->GetZoneId());
+            std::string weatherText = FSBUtils::WeatherStateToText(ws);
+            if (!weatherText.empty())
+                prompt += "The weather here is currently " + weatherText + ".\n";
+        }
+
+        return prompt;
     }
 
     void DispatchConversationTurn(Creature* speaker, FSBChat::ActiveConversation& conv)
@@ -260,23 +323,4 @@ namespace FSBConvPrompts
         }).detach();
     }
 
-    std::string GetFallbackConversationLine(FSBChat::ActiveConversation const& conv)
-    {
-        if (conv.history.empty())
-            return "So, what do you all think?";
-
-        static const char* fallbacks[] =
-        {
-            "Haha, exactly!",
-            "I couldn't agree more.",
-            "Wait, what?",
-            "Tell me about it.",
-            "You don't say.",
-            "No kidding!",
-            "That's one way to look at it.",
-            "Sounds about right."
-        };
-
-        return fallbacks[urand(0, int(std::size(fallbacks)) - 1)];
-    }
 }

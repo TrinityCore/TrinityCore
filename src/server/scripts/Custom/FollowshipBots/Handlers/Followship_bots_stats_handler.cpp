@@ -59,11 +59,9 @@ namespace FSBStats
         ApplyBotHealth(bot, botClass, true);        
 
         // Power
-        ApplyBotBasePower(bot, botClass);
+        ApplyBotPower(bot, botClass, true);
 
         // Attack Power
-        bot->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->baseAttackPower);
-        bot->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->baseRangedAttackPower);
         ApplyBotAttackPower(bot, botClass);
 
         // Damage
@@ -73,60 +71,6 @@ namespace FSBStats
 
         // Armor
         ApplyBotArmor(bot, botClass);
-
-
-
-        //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Base Stats set for bot: {}, Level= {}, TC Class= {}, FSB Class= {}", bot->GetName(), bot->GetLevel(), bot->GetClass(), botClass);
-    }
-
-    void ApplyBotBasePower(Creature* bot, FSB_Class botClass)
-    {
-        if (!bot)
-            return;
-
-        auto const* stats = GetBotClassStats(botClass);
-        if (!stats)
-            return;
-
-        int32 level = bot->GetLevel();
-
-        float modifier = FollowshipBotsConfig::configFSBPowerRate;
-
-        Powers basePowerType = stats->powerType;
-        
-        // Get base mana from core's GetPlayerClassLevelInfo (uses GtBaseMPEntry game table)
-        Classes tcClass = FSBUtils::FSBToTCClass(botClass);
-        uint32 baseMana = 0;
-        sObjectMgr->GetPlayerClassLevelInfo(tcClass, level, baseMana);
-        
-        uint32 basePower = baseMana * modifier;
-
-        if (FSBPowers::IsRageUser(bot))
-        {
-            basePowerType = POWER_RAGE;
-            basePower = 1000;
-        }
-
-        if (FSBPowers::IsEnergyUser(bot))
-        {
-            basePowerType = POWER_ENERGY;
-            basePower = 100;
-        }
-
-        bot->SetPowerType(basePowerType, true);
-
-        bot->SetStatFlatModifier(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(basePowerType)), BASE_VALUE, (float)basePower);
-        bot->SetCreateMana(basePower);
-        float totalPower = bot->GetTotalAuraModValue(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(basePowerType)));
-        bot->SetMaxPower(basePowerType, totalPower);
-
-        if (FSBPowers::IsRageUser(bot))
-            bot->SetPower(basePowerType, 0, true);
-        else bot->SetPower(basePowerType, totalPower, true);
-
-        //creature->SetOverrideDisplayPowerId(466);
-
-        //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Bot {} statsHandler BASE powerType: {}, base: {}, total: {}", bot->GetName(), basePowerType, basePower, totalPower);
     }
 
     void ApplyBotHealth(Creature* bot, FSB_Class botClass, bool updateHealth)
@@ -138,12 +82,7 @@ namespace FSBStats
         if (!stats)
             return;
 
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-
         int32 level = bot->GetLevel();
-        if (player)
-            level = bot->GetLevelForTarget(player);
-
         float modifier = FollowshipBotsConfig::configFSBHealthRate;
 
         // Get player-level stats using core's PlayerLevelInfo
@@ -190,11 +129,7 @@ namespace FSBStats
         if (!stats)
             return;
 
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-
         int32 level = bot->GetLevel();
-        if (player)
-            level = bot->GetLevelForTarget(player);
 
         float modifier = FollowshipBotsConfig::configFSBPowerRate;
 
@@ -219,10 +154,16 @@ namespace FSBStats
             basePower = 100;
         }
 
+        if (FSBPowers::IsFocusUser(bot))
+        {
+            basePowerType = POWER_FOCUS;
+            basePower = 100;
+        }
+
         bot->SetPowerType(basePowerType, true);
 
         bot->SetStatFlatModifier(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(basePowerType)), BASE_VALUE, (float)basePower);
-        bot->SetCreateMana(basePower);
+        bot->SetCreateMana(0);
         float totalPower = bot->GetTotalAuraModValue(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(basePowerType)));
         bot->SetMaxPower(basePowerType, totalPower);
             
@@ -233,11 +174,6 @@ namespace FSBStats
                 bot->SetPower(basePowerType, totalPower, true);
         }
         else bot->SetPower(basePowerType, bot->GetPower(basePowerType), true);
-        
-
-        //creature->SetOverrideDisplayPowerId(466);
-
-        //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Bot {} statsHandler powerType: {}, base: {}, total: {}", bot->GetName(), basePowerType, basePower, totalPower);
     }
 
     void ApplyBotAttackPower(Creature* bot, FSB_Class botClass)
@@ -249,11 +185,7 @@ namespace FSBStats
         if (!stats)
             return;
 
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-
         int32 level = bot->GetLevel();
-        if (player)
-            level = bot->GetLevelForTarget(player);
 
         // Get player-level stats using core's PlayerLevelInfo
         FSB_Race botRace = FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry());
@@ -281,41 +213,13 @@ namespace FSBStats
         uint32 finalAP = uint32(strengthValue + agilityValue);
         uint32 finalRAP = uint32(agilityValue * classEntry->RangedAttackPowerPerAgility);
 
-        bot->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, finalAP);
-        bot->SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, finalRAP);
+        bot->SetBaseAttackPower(finalAP);
+        bot->SetBaseRangedAttackPower(finalRAP);
+        bot->UpdateAttackPowerAndDamage();
+        bot->UpdateAttackPowerAndDamage(true);
 
         //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Stats AttackPower Bot: {} Has STR: {}, AGI: {}, AP: {}, RAP: {}",
         //    bot->GetName(), strength, agility, finalAP, finalRAP);
-    }
-
-    void ApplyDynamicDamageDealt(Creature* bot, Unit* victim, uint32& damage)
-    {
-        if (!bot || !bot->IsAlive())
-            return;
-
-        if (!victim || !victim->IsAlive())
-            return;
-
-        if (damage <= 0)
-            return;
-
-        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
-        if (!baseAI)
-            return;
-
-        auto stats = baseAI->botClassStats;
-        if (!stats)
-            return;
-
-        uint8 effectiveLevel = bot->GetLevelForTarget(victim);
-        float effectiveAttackPower = stats->baseAttackPower + (stats->attackPowerPerLevel * effectiveLevel);
-
-        float basedamage = (bot->GetBaseDamageForLevel(effectiveLevel) * stats->baseClassDamageVariance) + (effectiveAttackPower / 3);
-
-        float weaponBaseMinDamage = basedamage;
-        float weaponBaseMaxDamage = basedamage * 1.5f;
-
-        damage = urand(weaponBaseMinDamage, weaponBaseMaxDamage);
     }
 
     void ApplyBotDamage(Creature* bot, FSB_Class botClass)
@@ -327,22 +231,14 @@ namespace FSBStats
         if (!stats)
             return;
 
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-
-        int32 level = bot->GetLevel();
-        if (player)
-            level = bot->GetLevelForTarget(player);
-
         float modifier = FollowshipBotsConfig::configFSBDamageRate;
 
-        float effectiveAttackPower = stats->baseAttackPower + (stats->attackPowerPerLevel * level);
+        bot->SetDamageModifier(1.0f);
 
-        //float basedamage = (bot->GetBaseDamageForLevel(level) * stats->baseClassDamageVariance) + effectiveAttackPower;
-        float basedamage = effectiveAttackPower * modifier;
-        
-        //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Bot {} has base damage {} for effective level {}", bot->GetName(), bot->GetBaseDamageForLevel(level), level);
+        int32 level = bot->GetLevel();
+        float basedamage = stats->baseDamagePerLevel * float(level) * stats->baseClassDamageVariance * modifier;
 
-        float weaponBaseMinDamage = basedamage; // / 90;
+        float weaponBaseMinDamage = basedamage;
         float weaponBaseMaxDamage = weaponBaseMinDamage * 1.5f;
 
         bot->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
@@ -368,11 +264,7 @@ namespace FSBStats
         if (!stats)
             return;
 
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-
         int32 level = bot->GetLevel();
-        if (player)
-            level = bot->GetLevelForTarget(player);
 
         // Get player-level stats from core (same pattern as ApplyBotHealth/AttackPower)
         FSB_Race botRace = FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry());
@@ -387,7 +279,7 @@ namespace FSBStats
         float modifier = FollowshipBotsConfig::configFSBArmorRate;
 
         // 1. Base armor: agility * 2 (player model) + armorPerLevel (compensates for no items)
-        float baseArmor = (agility * 2.0f + (float)(stats->armorPerLevel * level)) * modifier;
+        float baseArmor = (agility * 2.0f + (float)(stats->armorPerLevel * level)) * modifier * stats->baseArmorVariance;
         bot->SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, baseArmor);
 
         // 2. Apply BASE_PCT
@@ -436,14 +328,11 @@ namespace FSBStats
 
         Player* player = bot->GetOwner()->ToPlayer();
         if (!player)
-            return; // <-- Prevent crash if owner is gone
+            return;
 
         uint8 pLevel = player->GetLevel();
         if (bot->GetLevel() == pLevel)
-        {
-            //TC_LOG_DEBUG("scripts.ai.fsb", "FSB: UpdateBotLevel: Nothing to do");
-            return; // nothing to do
-        }
+            return;
 
         bot->SetLevel(pLevel);
 
@@ -470,32 +359,7 @@ namespace FSBStats
             return 0;
 
         FSB_Class botClass = FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry());
-        uint16 level = bot->GetLevel();
-
-        Unit* target = nullptr;
-
-        // Owner must exist, be a player, and be in world
-        if (Unit* owner = bot->GetOwner())
-        {
-            if (Player* player = owner->ToPlayer())
-            {
-                if (player->IsInWorld())
-                    target = player;
-            }
-        }
-
-        // If no valid owner, try victim
-        if (!target)
-        {
-            if (Unit* victim = bot->GetVictim())
-            {
-                if (victim->IsInWorld() && victim->IsAlive())
-                    target = victim;
-            }
-        }
-
-        if (target)
-            level = bot->GetLevelForTarget(target);
+        uint8 level = bot->GetLevel();
 
         auto const* stats = GetBotClassStats(botClass);
         if (!stats)
@@ -511,10 +375,6 @@ namespace FSBStats
         }
 
         int32 value = (baseSP + levelSP) * spPct;
-
-        //if (level > 10) value = value * 1.5;
-        //if (level > 20) value = value * 2;
-        //if (level > 30) value = value * 2.5;
 
         return value;
 
@@ -592,62 +452,5 @@ namespace FSBStats
             multiplier *= 1.03f;
 
         return multiplier;
-    }
-
-    float GetBotDamageMultiplier(uint8 level)
-    {
-        if (level < 1)
-            level = 1;
-
-        // Level 1-10: 0.5% ? 5%
-        if (level <= 10)
-        {
-            return 0.005f + (level - 1) * 0.005f;
-        }
-
-        // Level 10-20: 30% ? 80%
-        if (level <= 20)
-        {
-            return 0.30f + (level - 10) * 0.05f;
-        }
-
-        // Level 20-80: 80% ? 140%
-        if (level <= 80)
-        {
-            return 0.80f + (level - 20) * 0.01f;
-        }
-
-        // Above 80: clamp or extend
-        return 1.40f; // or extend formula if needed
-    }
-    int32 CalculateScaledBotDamage(Creature* bot, Unit* victim, int32 rawDamage)
-    {
-        if (!bot || !victim || rawDamage <= 0)
-            return rawDamage;
-
-        // Determine effective level for scaling
-        uint8 level = bot->GetLevel();
-
-        if (Player* owner = FSBMgr::Get()->GetBotOwner(bot))
-        {
-            // Bot hired by a player ? scale with owner
-            level = bot->GetLevelForTarget(owner);
-        }
-        else if (Player* playerVictim = victim->ToPlayer())
-        {
-            // Bot attacking a player ? scale with the player's level
-            level = bot->GetLevelForTarget(playerVictim);
-        }
-
-        // Apply level-based multiplier
-        float mult = FSBStats::GetBotDamageMultiplier(level);
-        int32 scaledDamage = int32(rawDamage * mult);
-
-        TC_LOG_DEBUG("scripts.fsb.combat",
-            "FSB: CalculateScaledBotDamage bot={} lvl={} mult={} raw={} scaled={}",
-            bot->GetName(), level, mult, rawDamage, scaledDamage
-        );
-
-        return scaledDamage;
     }
 }

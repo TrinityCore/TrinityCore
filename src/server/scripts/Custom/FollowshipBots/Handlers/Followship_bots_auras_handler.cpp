@@ -168,23 +168,20 @@ namespace FSBAuras
         {
             float hpPct = bot->GetPctModifierValue(UNIT_MOD_HEALTH, TOTAL_PCT);
             float manaPct = bot->GetPctModifierValue(UNIT_MOD_MANA, TOTAL_PCT);
-            float apPct = bot->GetPctModifierValue(UNIT_MOD_ATTACK_POWER, TOTAL_PCT);
-            float rapPct = bot->GetPctModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT);
 
             if (applied)
             {
                 bot->SetStatPctModifier(UNIT_MOD_HEALTH, TOTAL_PCT, hpPct + 0.1f);
                 bot->SetStatPctModifier(UNIT_MOD_MANA, TOTAL_PCT, manaPct + 0.1f);
-                bot->SetStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, apPct + 0.1f);
-                bot->SetStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, rapPct + 0.1f);
             }
             else if (!applied)
             {
                 bot->SetStatPctModifier(UNIT_MOD_HEALTH, TOTAL_PCT, hpPct - 0.1f);
                 bot->SetStatPctModifier(UNIT_MOD_MANA, TOTAL_PCT, manaPct - 0.1f);
-                bot->SetStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, apPct - 0.1f);
-                bot->SetStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, rapPct - 0.1f);
             }
+
+            bot->HandleAttackPowerModifier(AttackPowerModIndex::Melee, AttackPowerModType::Pct, 10.0f, applied);
+            bot->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, AttackPowerModType::Pct, 10.0f, applied);
 
             FSBStats::RecalculateStats(bot, false, false);
 
@@ -228,10 +225,7 @@ namespace FSBAuras
             // Warrior
         case SPELL_WARRIOR_BATTLE_SHOUT:
         {
-            if(applied)
-                bot->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, 0.05f);
-            else if(!applied)
-                bot->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, -0.05f);
+            bot->HandleAttackPowerModifier(AttackPowerModIndex::Melee, AttackPowerModType::Pct, 5.0f, applied);
 
             FSBStats::RecalculateStats(bot, false, false);
 

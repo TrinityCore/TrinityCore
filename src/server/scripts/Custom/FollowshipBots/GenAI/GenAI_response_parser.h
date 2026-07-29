@@ -34,7 +34,8 @@ namespace FSBGenAI
         virtual std::string ExtractContent(std::string const& responseJson) const = 0;
         virtual bool ExtractStructured(
             std::string const& jsonStr,
-            std::string& reply, std::string& action, uint32& amount) const = 0;
+            std::string& reply, std::string& action, uint32& amount,
+            uint8* questState = nullptr) const = 0;
         virtual ~IGenAIResponseParser() = default;
     };
 

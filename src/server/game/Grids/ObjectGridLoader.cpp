@@ -22,12 +22,10 @@
 #include "Conversation.h"
 #include "Corpse.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "SceneObject.h"
@@ -61,49 +59,24 @@ void ObjectGridEvacuator::Visit(GameObjectMapType &m)
     }
 }
 
-// for loading world object at grid loading (Corpses)
-/// @todo to implement npc on transport, also need to load npcs at grid loading
-class ObjectWorldLoader
-{
-    public:
-        explicit ObjectWorldLoader(ObjectGridLoader& gloader)
-            : i_cell(gloader.i_cell), i_map(gloader.i_map), i_grid(gloader.i_grid), i_corpses(gloader.i_corpses)
-            { }
-
-        void Visit(CorpseMapType &m);
-
-        template<class T> void Visit(GridRefManager<T>&) { }
-
-    private:
-        Cell i_cell;
-        Map* i_map;
-        NGridType& i_grid;
-    public:
-        uint32& i_corpses;
-};
-
-void ObjectGridLoaderBase::SetObjectCell(MapObject* obj, CellCoord const& cellCoord)
-{
-    Cell cell(cellCoord);
-    obj->SetCurrentCell(cell);
-}
-
 template <class T>
-void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
+void ObjectGridLoaderBase::AddToMap(T* obj, Map* map, uint32& objectCount)
 {
-    obj->AddToGrid(m);
-    ObjectGridLoader::SetObjectCell(obj, cell);
+    CellCoord cellCoord = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
+    Cell cell(cellCoord);
+
+    map->AddToGrid<T>(obj, cell);
     obj->AddToWorld();
     if (obj->isActiveObject())
         map->AddToActive(obj);
 
-    ++count;
+    ++objectCount;
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>& m, uint32& count, Map* map, uint32 phaseId = 0, Optional<ObjectGuid> phaseOwner = {})
+void LoadHelper(GridGuidSet const& guid_set, uint32& count, Map* map, uint32 phaseId = 0, Optional<ObjectGuid> phaseOwner = {})
 {
-    for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
+    for (GridGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
         // Don't spawn at all if there's a respawn timer
         ObjectGuid::LowType guid = *i_guid;
@@ -124,108 +97,40 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
             map->GetMultiPersonalPhaseTracker().RegisterTrackedObject(phaseId, *phaseOwner, obj);
         }
 
-        AddObjectHelper(cell, m, count, map, obj);
+        ObjectGridLoaderBase::AddToMap(obj, map, count);
     }
 }
 
-void ObjectGridLoader::Visit(GameObjectMapType& m)
+void ObjectGridLoader::LoadN()
 {
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId()))
-        LoadHelper(cell_guids->gameobjects, cellCoord, m, i_gameObjects, i_map);
-}
+    i_gameObjects = 0; i_creatures = 0; i_corpses = 0; i_areaTriggers = 0;
 
-void ObjectGridLoader::Visit(CreatureMapType &m)
-{
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId()))
-        LoadHelper(cell_guids->creatures, cellCoord, m, i_creatures, i_map);
-}
-
-void ObjectGridLoader::Visit(AreaTriggerMapType& m)
-{
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId()))
-        LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
-}
-
-void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
-{
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInCell(cellCoord.GetId()))
+    //Load creatures and game objects
+    if (GridObjectGuids const* grid_guids = sObjectMgr->GetGridObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), i_grid.GetGridId()))
     {
+        LoadHelper<GameObject>(grid_guids->gameobjects, i_gameObjects, i_map);
+        LoadHelper<Creature>(grid_guids->creatures, i_creatures, i_map);
+    }
+
+    //Load areatriggers
+    if (GridGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndGrid(i_map->GetId(), i_map->GetDifficultyID(), i_grid.GetGridId()))
+        LoadHelper<AreaTrigger>(*areaTriggers, i_areaTriggers, i_map);
+
+    //Load corpses (not bones)
+    if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInGrid(i_grid.GetGridId()))
         for (Corpse* corpse : *corpses)
-        {
-            corpse->AddToWorld();
-            GridType& cell = i_grid.GetGridType(i_cell.CellX(), i_cell.CellY());
-            if (corpse->IsStoredInWorldObjectGridContainer())
-                cell.AddWorldObject(corpse);
-            else
-                cell.AddGridObject(corpse);
+            AddToMap(corpse, i_map, i_corpses);
 
-            ++i_corpses;
-        }
-    }
-}
-
-void ObjectGridLoader::LoadN(void)
-{
-    i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
-    i_cell.data.Part.cell_y = 0;
-    for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
-    {
-        i_cell.data.Part.cell_x = x;
-        for (uint32 y = 0; y < MAX_NUMBER_OF_CELLS; ++y)
-        {
-            i_cell.data.Part.cell_y = y;
-
-            //Load creatures and game objects
-            {
-                TypeContainerVisitor<ObjectGridLoader, GridTypeMapContainer> visitor(*this);
-                i_grid.VisitGrid(x, y, visitor);
-            }
-
-            //Load corpses (not bones)
-            {
-                ObjectWorldLoader worker(*this);
-                TypeContainerVisitor<ObjectWorldLoader, WorldTypeMapContainer> visitor(worker);
-                i_grid.VisitGrid(x, y, visitor);
-            }
-        }
-    }
     TC_LOG_DEBUG("maps", "{} GameObjects, {} Creatures, {} AreaTrriggers, and {} Corpses/Bones loaded for grid {} on map {}",
         i_gameObjects, i_creatures, i_areaTriggers, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 
-void PersonalPhaseGridLoader::Visit(GameObjectMapType& m)
-{
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
-        LoadHelper(cell_guids->gameobjects, cellCoord, m, i_gameObjects, i_map, _phaseId, _phaseOwner);
-}
-
-void PersonalPhaseGridLoader::Visit(CreatureMapType& m)
-{
-    CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
-        LoadHelper(cell_guids->creatures, cellCoord, m, i_creatures, i_map, _phaseId, _phaseOwner);
-}
-
 void PersonalPhaseGridLoader::Load(uint32 phaseId)
 {
-    _phaseId = phaseId;
-    i_cell.data.Part.cell_y = 0;
-    for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
+    if (GridObjectGuids const* grid_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), phaseId, i_grid.GetGridId()))
     {
-        i_cell.data.Part.cell_x = x;
-        for (uint32 y = 0; y < MAX_NUMBER_OF_CELLS; ++y)
-        {
-            i_cell.data.Part.cell_y = y;
-
-            //Load creatures and game objects
-            TypeContainerVisitor<PersonalPhaseGridLoader, GridTypeMapContainer> visitor(*this);
-            i_grid.VisitGrid(x, y, visitor);
-        }
+        LoadHelper<GameObject>(grid_guids->gameobjects, i_gameObjects, i_map, phaseId, _phaseOwner);
+        LoadHelper<Creature>(grid_guids->creatures, i_creatures, i_map, phaseId, _phaseOwner);
     }
 }
 
@@ -266,6 +171,11 @@ void ObjectGridCleaner::Visit(GridRefManager<T> &m)
         iter->GetSource()->CleanupsBeforeDelete();
     }
 }
+
+template void ObjectGridLoaderBase::AddToMap(GameObject*, Map*, uint32&);
+template void ObjectGridLoaderBase::AddToMap(Creature*, Map*, uint32&);
+template void ObjectGridLoaderBase::AddToMap(AreaTrigger*, Map*, uint32&);
+template void ObjectGridLoaderBase::AddToMap(Corpse*, Map*, uint32&);
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);

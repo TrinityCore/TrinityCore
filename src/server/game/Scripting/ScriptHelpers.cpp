@@ -16,7 +16,12 @@
  */
 
 #include "ScriptHelpers.h"
+#include "BattlegroundPackets.h"
+#include "Battleground.h"
 #include "Creature.h"
+#include "DB2Stores.h"
+#include "DB2Structure.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PartyPackets.h"
@@ -25,6 +30,10 @@
 #include "Group.h"
 #include "WorldSession.h"
 #include "GossipDef.h"
+
+#include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace ScriptHelpers
 {
@@ -67,9 +76,6 @@ namespace ScriptHelpers
         if (player->GetMapId() != bot->GetMapId())
             return;
 
-        if (!player->HaveAtClient(bot))
-            return;
-
         WorldPackets::Party::PartyMemberFullState packet;
         packet.ForEnemy = false;
         packet.MemberGuid = bot->GetGUID();
@@ -85,7 +91,20 @@ namespace ScriptHelpers
         stats.PositionX = positionX;
         stats.PositionY = positionY;
         stats.PositionZ = positionZ;
+
+        // Keep the bot member state consistent with the roster PartyUpdate:
+        // PartyType[0] mirrors the group type, PartyType[1] the group category
+        // (e.g. GROUP_CATEGORY_INSTANCE for a BG raid group). For players in a BG
+        // without a real group (solo) we still report the instance category so the
+        // client matches the fake BG raid roster.
+        Group* group = player->GetGroup();
         stats.PartyType[0] = GROUP_TYPE_NORMAL;
+        if (group)
+            stats.PartyType[1] = group->GetGroupCategory();
+        else if (player->InBattleground())
+            stats.PartyType[1] = GROUP_CATEGORY_INSTANCE;
+        else
+            stats.PartyType[1] = GROUP_CATEGORY_HOME;
 
         // Populate auras
         for (uint32 spellId : auraSpellIds)
@@ -149,7 +168,7 @@ namespace ScriptHelpers
 
                 partyUpdate.MyIndex = myIndex;
 
-                if (partyUpdate.PlayerList.size() > 1)
+                if (realGroup->GetMembersCount() > 1)
                 {
                     partyUpdate.LootSettings.emplace();
                     partyUpdate.LootSettings->Method = realGroup->GetLootMethod();
@@ -236,7 +255,7 @@ namespace ScriptHelpers
                 info.RolesAssigned = safeBotRoles[i];
             }
 
-            if (partyUpdate.PlayerList.size() > 1)
+            if (realGroup->GetMembersCount() > 1)
             {
                 partyUpdate.LootSettings.emplace();
                 partyUpdate.LootSettings->Method = realGroup->GetLootMethod();
@@ -291,6 +310,139 @@ namespace ScriptHelpers
         }
     }
 
+    void SendFakeBGRaidUpdate(Player* player, std::vector<Creature*> const& bots, std::vector<uint8> const& botClasses, std::vector<uint8> const& botRaces, std::vector<uint8> const& botRoles)
+    {
+        if (!player || !player->IsInWorld() || player->IsBeingTeleportedNear() || player->IsBeingTeleported() || player->IsBeingTeleportedFar())
+            return;
+
+        Group* realGroup = player->GetGroup();
+
+        // Filter bots and match with class/race/role info
+        std::vector<Creature*> safeBots;
+        std::vector<uint8> safeBotClasses;
+        std::vector<uint8> safeBotRaces;
+        std::vector<uint8> safeBotRoles;
+        for (size_t i = 0; i < bots.size() && i < botClasses.size() && i < botRaces.size() && i < botRoles.size(); ++i)
+        {
+            if (bots[i] && bots[i]->IsInWorld())
+            {
+                safeBots.push_back(bots[i]);
+                safeBotClasses.push_back(botClasses[i]);
+                safeBotRaces.push_back(botRaces[i]);
+                safeBotRoles.push_back(botRoles[i]);
+            }
+        }
+
+        WorldPackets::Party::PartyUpdate partyUpdate;
+
+        // Mimic a BG raid group: raid flag + instance category so the client
+        // renders the multi-subgroup raid frame.
+        partyUpdate.PartyFlags = GROUP_MASK_BGRAID;
+        partyUpdate.PartyIndex = GROUP_CATEGORY_INSTANCE;
+        partyUpdate.PartyType = GROUP_TYPE_NORMAL;
+        partyUpdate.LeaderFactionGroup = Player::GetFactionGroupForRace(player->GetRace());
+        partyUpdate.SequenceNum = player->NextGroupUpdateSequenceNumber(GROUP_CATEGORY_INSTANCE);
+
+        // Track per-subgroup occupancy so bots fill sequentially into the
+        // lowest subgroup that still has room (< MAX_GROUP_SIZE members).
+        uint8 subGroupCounts[MAX_RAID_SUBGROUPS] = {};
+
+        if (realGroup)
+        {
+            partyUpdate.PartyGUID = realGroup->GetGUID();
+            partyUpdate.LeaderGUID = realGroup->GetLeaderGUID();
+
+            int32 myIndex = -1;
+            uint8 index = 0;
+
+            for (auto const& memberSlot : realGroup->GetMemberSlots())
+            {
+                if (memberSlot.guid == player->GetGUID())
+                    myIndex = index;
+
+                if (memberSlot.group < MAX_RAID_SUBGROUPS)
+                    ++subGroupCounts[memberSlot.group];
+
+                Player* member = ObjectAccessor::FindConnectedPlayer(memberSlot.guid);
+
+                WorldPackets::Party::PartyPlayerInfo& info = partyUpdate.PlayerList.emplace_back();
+                info.GUID = memberSlot.guid;
+                info.Name = memberSlot.name;
+                info.Class = memberSlot._class;
+                info.FactionGroup = Player::GetFactionGroupForRace(memberSlot.race);
+                info.Connected = member && member->GetSession() && !member->GetSession()->PlayerLogout();
+                info.Subgroup = memberSlot.group;
+                info.Flags = memberSlot.flags;
+                info.RolesAssigned = memberSlot.roles;
+                ++index;
+            }
+
+            partyUpdate.MyIndex = myIndex;
+        }
+        else
+        {
+            // No real group: create a fake BG raid with the player as leader.
+            partyUpdate.PartyGUID = player->GetGUID();
+            partyUpdate.LeaderGUID = player->GetGUID();
+            partyUpdate.MyIndex = 0;
+
+            WorldPackets::Party::PartyPlayerInfo& playerInfo = partyUpdate.PlayerList.emplace_back();
+            playerInfo.GUID = player->GetGUID();
+            playerInfo.Name = player->GetName();
+            playerInfo.Class = player->GetClass();
+            playerInfo.FactionGroup = Player::GetFactionGroupForRace(player->GetRace());
+            playerInfo.Connected = true;
+            playerInfo.Subgroup = 0;
+            playerInfo.Flags = 0;
+            playerInfo.RolesAssigned = 0;
+
+            // Player occupies slot 0 in subgroup 0.
+            subGroupCounts[0] = 1;
+        }
+
+        // Add bots into the lowest subgroup that still has room (< 5 members).
+        for (size_t i = 0; i < safeBots.size(); ++i)
+        {
+            uint8 targetSub = 0;
+            for (uint8 s = 0; s < MAX_RAID_SUBGROUPS; ++s)
+            {
+                if (subGroupCounts[s] < MAX_GROUP_SIZE)
+                {
+                    targetSub = s;
+                    break;
+                }
+                targetSub = MAX_RAID_SUBGROUPS - 1;
+            }
+
+            ++subGroupCounts[targetSub];
+
+            WorldPackets::Party::PartyPlayerInfo& info = partyUpdate.PlayerList.emplace_back();
+            info.GUID = safeBots[i]->GetGUID();
+            info.Name = safeBots[i]->GetName();
+            info.Class = safeBotClasses[i];
+            info.FactionGroup = Player::GetFactionGroupForRace(safeBotRaces[i]);
+            info.Connected = true;
+            info.Subgroup = targetSub;
+            info.Flags = 0;
+            info.RolesAssigned = safeBotRoles[i];
+        }
+
+        if (realGroup && realGroup->GetMembersCount() > 1)
+        {
+            partyUpdate.LootSettings.emplace();
+            partyUpdate.LootSettings->Method = realGroup->GetLootMethod();
+            partyUpdate.LootSettings->Threshold = realGroup->GetLootThreshold();
+            partyUpdate.LootSettings->LootMaster = ObjectGuid::Empty;
+
+            partyUpdate.DifficultySettings.emplace();
+            partyUpdate.DifficultySettings->DungeonDifficultyID = realGroup->GetDungeonDifficultyID();
+            partyUpdate.DifficultySettings->RaidDifficultyID = realGroup->GetRaidDifficultyID();
+            partyUpdate.DifficultySettings->LegacyRaidDifficultyID = realGroup->GetLegacyRaidDifficultyID();
+        }
+
+        player->SendDirectMessage(partyUpdate.Write());
+    }
+
     void SendGossipMessage(Player* player, ObjectGuid gossipGUID, uint32 gossipID, uint32 lfgDungeonsID, 
                            uint32 broadcastTextID, std::vector<GossipOptionData> const& options,
                            std::vector<std::vector<TreasureItemData>> const& treasureItems)
@@ -336,5 +488,289 @@ namespace ScriptHelpers
         WorldPackets::Delve::ShowDelvesCompanionConfigurationUI configUI;
         configUI.CompanionConfigValue = companionConfigValue;
         player->GetSession()->SendPacket(configUI.Write());
+    }
+
+    void AddCreatureToPvPLogData(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData, ObjectGuid guid, uint8 race, uint8 classId, Gender gender, uint32 creatureId, Team team, uint32 killingBlows, uint32 honorableKills, uint32 deaths, uint32 damageDone, uint32 healingDone)
+    {
+        WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics playerData;
+        playerData.PlayerGUID = guid;
+        playerData.Faction = (team == ALLIANCE) ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE;
+        playerData.IsInWorld = true;
+        playerData.CreatureID = creatureId;
+        playerData.Sex = int8(gender);
+        playerData.Race = int8(race);
+        playerData.Class = int8(classId);
+        playerData.Kills = killingBlows;
+        playerData.DamageDone = damageDone;
+        playerData.HealingDone = healingDone;
+        if (honorableKills || deaths)
+        {
+            playerData.Honor.emplace();
+            playerData.Honor->HonorKills = honorableKills;
+            playerData.Honor->Deaths = deaths;
+        }
+
+        pvpLogData.Statistics.push_back(playerData);
+    }
+
+    Team GetTeamForRace(uint8 race)
+    {
+        ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
+        if (!rEntry)
+            return ALLIANCE;
+
+        switch (rEntry->Alliance)
+        {
+            case 0: return ALLIANCE;
+            case 1: return HORDE;
+            case 2: return PANDARIA_NEUTRAL;
+            default: return ALLIANCE;
+        }
+    }
+
+    std::unordered_map<ObjectGuid, uint8> BotRaces;
+
+    void SetBotRace(ObjectGuid botGuid, uint8 race)
+    {
+        BotRaces[botGuid] = race;
+    }
+
+    uint8 GetBotRace(ObjectGuid botGuid)
+    {
+        auto it = BotRaces.find(botGuid);
+        if (it != BotRaces.end())
+            return it->second;
+
+        return RACE_HUMAN;
+    }
+
+    void EraseBotRace(ObjectGuid botGuid)
+    {
+        BotRaces.erase(botGuid);
+    }
+
+    Team GetBotTeam(Creature* bot)
+    {
+        if (!bot || !bot->IsBot())
+            return TEAM_OTHER;
+
+        FactionTemplateEntry const* ftEntry = bot->GetFactionTemplateEntry();
+        if (!ftEntry)
+            return TEAM_OTHER;
+
+        if (ftEntry->FactionGroup & FACTION_MASK_ALLIANCE)
+            return ALLIANCE;
+        if (ftEntry->FactionGroup & FACTION_MASK_HORDE)
+            return HORDE;
+
+        return TEAM_OTHER;
+    }
+
+    std::unordered_map<ObjectGuid, BotScoreData> BotScores;
+
+    void RecordBotKillingBlow(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.KillingBlows;
+        ++score.HonorableKills;
+    }
+
+    void RecordBotHonorableKill(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.HonorableKills;
+    }
+
+    void RecordBotDeath(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.Deaths;
+    }
+
+    void RecordBotDamageDone(ObjectGuid botGuid, uint32 damage)
+    {
+        if (!damage)
+            return;
+        BotScoreData& score = BotScores[botGuid];
+        score.DamageDone += damage;
+    }
+
+    void RecordBotHealingDone(ObjectGuid botGuid, uint32 heal)
+    {
+        if (!heal)
+            return;
+        BotScoreData& score = BotScores[botGuid];
+        score.HealingDone += heal;
+    }
+
+    void RecordBotFlagReturn(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.FlagReturns;
+    }
+
+    void RecordBotFlagCapture(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.FlagCaptures;
+    }
+
+    void RecordBotBaseAssaulted(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.BasesAssaulted;
+    }
+
+    void RecordBotBaseDefended(ObjectGuid botGuid)
+    {
+        BotScoreData& score = BotScores[botGuid];
+        ++score.BasesDefended;
+    }
+
+    BotScoreData const* GetBotScore(ObjectGuid botGuid)
+    {
+        auto it = BotScores.find(botGuid);
+        return it != BotScores.end() ? &it->second : nullptr;
+    }
+
+    void EraseBotScore(ObjectGuid botGuid)
+    {
+        BotScores.erase(botGuid);
+    }
+
+    void AddBotsToPvPLogData(BattlegroundMap* battlegroundMap, WorldPackets::Battleground::PVPMatchStatistics& pvpLogData)
+    {
+        if (!battlegroundMap)
+            return;
+
+        Battleground* bg = battlegroundMap->GetBG();
+        std::unordered_set<uint32> const* pvpStatIds = bg ? bg->GetPvpStatIds() : nullptr;
+
+        int8 botCountAlliance = 0;
+        int8 botCountHorde = 0;
+
+        for (auto const& [guid, creature] : battlegroundMap->GetObjectsStore().Data.Head)
+        {
+            if (!creature || !creature->IsBot())
+                continue;
+
+            Team team = GetBotTeam(creature);
+            if (team == ALLIANCE)
+                ++botCountAlliance;
+            else if (team == HORDE)
+                ++botCountHorde;
+            else
+                continue;
+
+            uint32 killingBlows = 0;
+            uint32 honorableKills = 0;
+            uint32 deaths = 0;
+            uint32 damageDone = 0;
+            uint32 healingDone = 0;
+            uint32 flagReturns = 0;
+            uint32 flagCaptures = 0;
+            uint32 basesAssaulted = 0;
+            uint32 basesDefended = 0;
+            if (BotScoreData const* score = GetBotScore(guid))
+            {
+                killingBlows = score->KillingBlows;
+                honorableKills = score->HonorableKills;
+                deaths = score->Deaths;
+                damageDone = score->DamageDone;
+                healingDone = score->HealingDone;
+                flagReturns = score->FlagReturns;
+                flagCaptures = score->FlagCaptures;
+                basesAssaulted = score->BasesAssaulted;
+                basesDefended = score->BasesDefended;
+            }
+
+            AddCreatureToPvPLogData(pvpLogData, guid, GetBotRace(guid), creature->GetClass(), creature->GetGender(), creature->GetEntry(), team, killingBlows, honorableKills, deaths, damageDone, healingDone);
+
+            if (pvpStatIds && !pvpStatIds->empty())
+            {
+                constexpr uint32 PVP_STAT_FLAG_CAPTURES = 928;
+                constexpr uint32 PVP_STAT_FLAG_RETURNS = 929;
+                constexpr uint32 PVP_STAT_BASES_ASSAULTED = 926;
+                constexpr uint32 PVP_STAT_BASES_DEFENDED = 927;
+                auto& botEntry = pvpLogData.Statistics.back();
+                for (uint32 statId : *pvpStatIds)
+                {
+                    int32 value = 0;
+                    if (statId == PVP_STAT_FLAG_CAPTURES)
+                        value = int32(flagCaptures);
+                    else if (statId == PVP_STAT_FLAG_RETURNS)
+                        value = int32(flagReturns);
+                    else if (statId == PVP_STAT_BASES_ASSAULTED)
+                        value = int32(basesAssaulted);
+                    else if (statId == PVP_STAT_BASES_DEFENDED)
+                        value = int32(basesDefended);
+                    botEntry.Stats.emplace_back(int32(statId), value);
+                }
+            }
+        }
+
+        pvpLogData.PlayerCount[PVP_TEAM_ALLIANCE] += botCountAlliance;
+        pvpLogData.PlayerCount[PVP_TEAM_HORDE] += botCountHorde;
+    }
+
+    uint32 GetAliveBotCountByTeam(BattlegroundMap* battlegroundMap, Team team)
+    {
+        if (!battlegroundMap)
+            return 0;
+
+        uint32 count = 0;
+        for (auto const& [guid, creature] : battlegroundMap->GetObjectsStore().Data.Head)
+        {
+            if (!creature || !creature->IsBot() || !creature->IsAlive())
+                continue;
+
+            if (GetBotTeam(creature) == team)
+                ++count;
+        }
+
+        return count;
+    }
+
+    uint32 GetBotTeamRating(BattlegroundMap* battlegroundMap, Team team)
+    {
+        if (!battlegroundMap)
+            return 0;
+
+        uint32 totalHealth = 0;
+        for (auto const& [guid, creature] : battlegroundMap->GetObjectsStore().Data.Head)
+        {
+            if (!creature || !creature->IsBot())
+                continue;
+
+            if (GetBotTeam(creature) == team)
+                totalHealth += creature->GetMaxHealth();
+        }
+
+        uint32 rating = totalHealth / 10;
+        if (rating > 2000)
+            rating = 2000;
+
+        return rating;
+    }
+
+    std::unordered_map<uint64, uint8> HiredBotCounts;
+
+    void SetHiredBotCount(uint64 playerGuid, uint8 count)
+    {
+        HiredBotCounts[playerGuid] = count;
+    }
+
+    uint8 GetHiredBotCount(uint64 playerGuid)
+    {
+        auto it = HiredBotCounts.find(playerGuid);
+        if (it != HiredBotCounts.end())
+            return it->second;
+
+        return 0;
+    }
+
+    void EraseHiredBotCount(uint64 playerGuid)
+    {
+        HiredBotCounts.erase(playerGuid);
     }
 }

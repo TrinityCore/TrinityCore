@@ -29,7 +29,7 @@
 #include "Followship_bots_druid.h"
 
 #include "Followship_bots_chatter_handler.h"
-#include "GenAI/GenAI_chatter_prompts.h"
+#include "GenAI_chatter_prompts.h"
 #include "Followship_bots_dungeon_handler.h"
 #include "Followship_bots_events_handler.h"
 #include "Followship_bots_movement_handler.h"
@@ -52,6 +52,10 @@ namespace FSBRecovery
 
         // Determine if this bot uses mana at all
         bool usesMana = bot->GetMaxPower(POWER_MANA) > 0;
+
+        // Druid shapeshifts (bear/cat) use rage/energy, not mana
+        if (bot->HasAura(SPELL_DRUID_BEAR) || bot->HasAura(SPELL_DRUID_CAT))
+            usesMana = false;
 
         bool lowMana = false;
         if (usesMana)
@@ -79,36 +83,63 @@ namespace FSBRecovery
 
         std::vector<BotRecoverAction> recoveryActions;
 
+        bool isBearOrCat = bot->HasAura(SPELL_DRUID_BEAR) || bot->HasAura(SPELL_DRUID_CAT);
+
         switch (intent)
         {
         case BotRecoveryIntent::RecoverHealth:
             recoveryActions.emplace_back(BotRecoverAction::Eat);
-            recoveryActions.emplace_back(BotRecoverAction::Recuperate);
 
-            if (FSBUtils::BotIsHealerClass(bot))
-                recoveryActions.emplace_back(BotRecoverAction::ClassHeal);
-            if (botClass == FSB_Class::Mage)
-                recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
-                
-            if (botRace == FSB_Race::Draenei)
-                recoveryActions.emplace_back(BotRecoverAction::RaceHeal);
+            if (!isBearOrCat)
+            {
+                recoveryActions.emplace_back(BotRecoverAction::Recuperate);
 
+                if (FSBUtils::BotIsHealerClass(bot))
+                    recoveryActions.emplace_back(BotRecoverAction::ClassHeal);
+                if (botClass == FSB_Class::Mage)
+                    recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
+
+                if (botRace == FSB_Race::Draenei)
+                    recoveryActions.emplace_back(BotRecoverAction::RaceHeal);
+            }
             break;
         case BotRecoveryIntent::RecoverMana:
-            recoveryActions.emplace_back(BotRecoverAction::Drink);
-            if (botClass == FSB_Class::Mage)
-                recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
+            if (!isBearOrCat)
+            {
+                recoveryActions.emplace_back(BotRecoverAction::Drink);
+                if (botClass == FSB_Class::Mage)
+                    recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
+            }
             break;
         case BotRecoveryIntent::RecoverHealthAndMana:
-            recoveryActions.emplace_back(BotRecoverAction::DrinkEat);
-            if (botClass == FSB_Class::Mage)
-                recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
+            if (!isBearOrCat)
+            {
+                recoveryActions.emplace_back(BotRecoverAction::DrinkEat);
+                if (botClass == FSB_Class::Mage)
+                    recoveryActions.emplace_back(BotRecoverAction::ClassDrinkEat);
+            }
             break;
         default:
             recoveryActions.emplace_back(BotRecoverAction::None);
         }
 
+        if (recoveryActions.empty())
+            return BotRecoverAction::None;
+
         return Trinity::Containers::SelectRandomContainerElement(recoveryActions);
+    }
+
+    void MarkRecoveryStarted(Creature* bot, uint32 duration)
+    {
+        if (!bot)
+            return;
+
+        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
+        if (!baseAI)
+            return;
+
+        baseAI->botGenericData.isRecovering = true;
+        FSBEvents::ScheduleBotEvent(bot, FSB_EVENT_RECOVERY_END, std::chrono::milliseconds(duration));
     }
 
     bool BotActionDrinkEat(Creature* bot, uint32& globalCooldown, uint32& outSpell, uint8 drinkOrEat)
@@ -143,6 +174,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 30000; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = RAND(SPELL_DRINK_CONJURED_CRYSTAL_WATER, SPELL_FOOD_SCALED_WITH_LVL);
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -162,6 +194,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 30000; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -181,6 +214,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 30000; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -202,6 +236,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 30000; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -221,6 +256,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 10000; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -250,6 +286,7 @@ namespace FSBRecovery
             {
                 globalCooldown = now + 1500; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
         }
@@ -272,6 +309,7 @@ namespace FSBRecovery
                 TC_LOG_DEBUG("scripts.fsb.ooc", "FSB: RecoveryAction Race Heal cast result: {}", result);
                 globalCooldown = now + 1500; // set cooldown to 30s to not interrup the drink spell which lasts 30 seconds max
                 outSpell = spellId;
+                MarkRecoveryStarted(bot, globalCooldown - now);
                 return true;
             }
             else TC_LOG_DEBUG("scripts.fsb.ooc", "FSB: RecoveryAction Race Heal cast result not ok: {}", result);
@@ -292,6 +330,10 @@ namespace FSBRecovery
             return false;
 
         if (bot->HasAura(SPELL_DRUID_TRAVEL) || bot->HasAuraType(SPELL_AURA_MOUNTED))
+            return false;
+
+        // Bears and Cats can only eat to recover health; drinking/ClassHeal/Recuperate breaks the shapeshift.
+        if ((bot->HasAura(SPELL_DRUID_BEAR) || bot->HasAura(SPELL_DRUID_CAT)) && action != BotRecoverAction::Eat)
             return false;
 
         bool check = false;
@@ -405,6 +447,10 @@ namespace FSBRecovery
         if (!bot || !bot->IsAlive())
             return false;
 
+        if (auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI()))
+            if (baseAI->botGenericData.isRecovering)
+                return true;
+
         return bot->HasAura(SPELL_FOOD_SCALED_WITH_LVL)
             || bot->HasAura(SPELL_MAGE_CONJURED_MANA_PUDDING)
             || bot->HasAura(SPELL_DRINK_CONJURED_CRYSTAL_WATER)
@@ -437,6 +483,9 @@ namespace FSBRecovery
             bot->RemoveAurasDueToSpell(SPELL_MAGE_CONJURED_MANA_PUDDING);
 
         if (!BotHasRecoveryActive(bot))
+        {
+            baseAI->botGenericData.isRecovering = false;
             FSBMovement::ResumeFollow(bot, baseAI->botFollowDistance, baseAI->botFollowAngle);
+        }
     }
 }

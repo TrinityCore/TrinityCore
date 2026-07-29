@@ -20,15 +20,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBCEnums.h"
 #include "Log.h"
+#include "Map.h"
 
 #include "Followship_bots_ai_base.h"
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_utils.h"
 
+#include "Followship_bots_battleground_handler.h"
 #include "Followship_bots_events_handler.h"
 #include "Followship_bots_movement_handler.h"
 #include "Followship_bots_spells_handler.h"
+#include "Followship_bots_warsong_gulch.h"
+#include "Followship_bots_arathi_basin.h"
 
 namespace FSBMovement
 {
@@ -91,6 +96,32 @@ namespace FSBMovement
             return IDLE_MOTION_TYPE;
 
         return mm->GetCurrentMovementGeneratorType();
+    }
+
+    void HandleBattlegroundMovement(Creature* bot, uint32 type, uint32 id)
+    {
+        if (!bot || !bot->GetMap()->IsBattleground())
+            return;
+
+        FSB_BaseAI* ai = dynamic_cast<FSB_BaseAI*>(bot->AI());
+        if (!ai)
+            return;
+
+        if (ai->botHired)
+            return;
+
+        FSB_BattlegroundData* bgData = ai->GetBattlegroundData();
+        if (!bgData)
+            return;
+
+        if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+        {
+            FSBBattleground::WarsongGulch::OnMovementInform(bot, bgData, type, id);
+        }
+        else if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+        {
+            FSBBattleground::ArathiBasin::OnMovementInform(bot, bgData, type, id);
+        }
     }
 
     void BotSetMountedState(Creature* bot, bool& botMounted)
@@ -160,8 +191,6 @@ namespace FSBMovement
                         //bot->SetDisplayId(65133, false);
                     }
                 }
-
-                
             }
             else
             {
@@ -204,13 +233,12 @@ namespace FSBMovement
         {
             bot->GetMotionMaster()->Clear();
             bot->ClearUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_CHASE | UNIT_STATE_ROAMING);
-            bot->GetMotionMaster()->MoveIdle();
 
             TC_LOG_DEBUG("scripts.fsb.movement", "FSB: BotHandleReturnMovement bot {} does not have owner so it is set to Idle", bot->GetName());
             return;
         }
 
-        if (owner && baseAI->botMoveState == FSB_MOVE_STATE_FOLLOWING)
+        if (baseAI->botMoveState != FSB_MOVE_STATE_STAY)
         {
             if (bot->HasUnitState(UNIT_STATE_CHASE))
                 bot->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
@@ -228,10 +256,15 @@ namespace FSBMovement
         if (!bot || !target || !target->IsAlive())
             return false;
 
-        // STAY mode bots should only attack if already in range — do not chase
+        // STAY mode bots should only attack if already in range - do not chase
         if (auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI()))
+        {
             if (baseAI->botMoveState == FSB_MOVE_STATE_STAY)
                 return false;
+
+            if (baseAI->botGenericData.pauseCombatChase)
+                return false;
+        }
 
         MotionMaster* mm = bot->GetMotionMaster();
         if (!mm)
@@ -261,10 +294,15 @@ namespace FSBMovement
         if (!bot || !target || !target->IsAlive())
             return false;
 
-        // STAY mode bots should only attack if already in range — do not chase
+        // STAY mode bots should only attack if already in range - do not chase
         if (auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI()))
+        {
             if (baseAI->botMoveState == FSB_MOVE_STATE_STAY)
                 return false;
+
+            if (baseAI->botGenericData.pauseCombatChase)
+                return false;
+        }
 
         MotionMaster* mm = bot->GetMotionMaster();
         if (!mm)

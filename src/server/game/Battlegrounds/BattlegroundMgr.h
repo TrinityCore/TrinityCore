@@ -133,6 +133,9 @@ class TC_GAME_API BattlegroundMgr
         bool isArenaTesting() const { return m_ArenaTesting != 0; }
         bool isTesting() const { return m_Testing; }
 
+        bool IsFSBOverrideEnabled() const { return m_FSBOverrideEnabled; }
+        void SetFSBOverrideEnabled(bool enabled) { m_FSBOverrideEnabled = enabled; }
+
         static bool IsRandomBattleground(uint32 battlemasterListId);
         static BattlegroundQueueTypeId BGQueueTypeId(uint16 battlemasterListId, BattlegroundQueueIdType type, bool rated, uint8 teamSize);
 
@@ -190,6 +193,7 @@ class TC_GAME_API BattlegroundMgr
         uint32 m_UpdateTimer;
         uint32 m_ArenaTesting;
         bool   m_Testing;
+        bool   m_FSBOverrideEnabled;
         BattleMastersMap mBattleMastersMap;
 
         BattlegroundTemplate const* GetBattlegroundTemplateByMapId(uint32 mapId)

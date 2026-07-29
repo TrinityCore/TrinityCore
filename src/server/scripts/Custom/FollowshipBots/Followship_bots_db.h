@@ -28,6 +28,7 @@
 #include "Creature.h"
 
 #include "Followship_bots_defines.h"
+#include "Followship_bots_spells_handler.h"
 
 namespace FSBUtilsDB
 {
@@ -40,4 +41,5 @@ namespace FSBUtilsDB
     bool DeleteBotByEntry(uint32 bot_entry, uint32 player_guid);    
 
     bool LoadBotChatterLines(std::unordered_map<uint32, std::vector<FSBChatterDBLine>>& outMap);
+    bool LoadBotSpellsFromDB(std::vector<FSBSpellDefinition>& outSpells);
 }

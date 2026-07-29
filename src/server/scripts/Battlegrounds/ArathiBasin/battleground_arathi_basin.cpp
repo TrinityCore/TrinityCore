@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ScriptMgr.h"
+#include "ScriptHelpers.h"
 
 struct battleground_arathi_basin : BattlegroundScript
 {
@@ -569,6 +570,12 @@ struct battleground_arathi_basin : BattlegroundScript
             default:
                 break;
         }
+    }
+
+    void OnBuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const override
+    {
+        BattlegroundScript::OnBuildPvPLogDataPacket(pvpLogData);
+        ScriptHelpers::AddBotsToPvPLogData(battlegroundMap, pvpLogData);
     }
 
     void OnEnd(Team winner) override

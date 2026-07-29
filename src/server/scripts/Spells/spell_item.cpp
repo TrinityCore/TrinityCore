@@ -4242,8 +4242,6 @@ enum ThrallmarAndHonorHoldFavor
 // 32098 - Honor Hold's Favor
 class spell_item_thrallmar_and_honor_hold_favor : public AuraScript
 {
-    PrepareAuraScript(spell_item_thrallmar_and_honor_hold_favor);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BUFFBOT_BUFF_EFFECT });
@@ -4274,8 +4272,6 @@ enum DarkmoonCardIllusion
 // 57350 - Illusionary Barrier
 class spell_item_darkmoon_card_illusion : public AuraScript
 {
-    PrepareAuraScript(spell_item_darkmoon_card_illusion);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DARKMOON_CARD_ILLUSION });
@@ -4289,6 +4285,70 @@ class spell_item_darkmoon_card_illusion : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_item_darkmoon_card_illusion::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum DiscoBall
+{
+    SPELL_LISTENING_TO_MUSIC_CHECK     = 50492,
+    SPELL_LISTENING_TO_MUSIC           = 50493
+};
+
+// 50493 - Listening to Music
+class spell_item_disco_ball_listening_to_music_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC_CHECK });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_LISTENING_TO_MUSIC_CHECK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_disco_ball_listening_to_music_periodic::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 50492 - Listening to Music CHECK
+class spell_item_disco_ball_listening_to_music_check : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC });
+    }
+
+    void HandleAfterCast()
+    {
+        if (!GetUnitTargetCountForEffect(EFFECT_0))
+            GetCaster()->RemoveAurasDueToSpell(SPELL_LISTENING_TO_MUSIC);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_item_disco_ball_listening_to_music_check::HandleAfterCast);
+    }
+};
+
+// 50499 - Listening to Music (Parent)
+class spell_item_disco_ball_listening_to_music_parent : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LISTENING_TO_MUSIC });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LISTENING_TO_MUSIC, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_disco_ball_listening_to_music_parent::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4887,6 +4947,9 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_drums_of_forgotten_kings);
     RegisterSpellScript(spell_item_thrallmar_and_honor_hold_favor);
     RegisterSpellScript(spell_item_darkmoon_card_illusion);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_periodic);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_check);
+    RegisterSpellScript(spell_item_disco_ball_listening_to_music_parent);
 
     RegisterSpellScript(spell_item_sephuzs_secret);
     RegisterSpellScript(spell_item_amalgams_seventh_spine);

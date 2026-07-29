@@ -49,6 +49,10 @@ void FollowshipDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(FSB_SEL_BOT_CHATTER_ALL,
         "SELECT id, zoneId, fsbRaceId, fsbClassId, category, chatter_type, line_text FROM bot_chatter_lines", CONNECTION_SYNCH);
+
+    PrepareStatement(FSB_SEL_BOT_SPELLS_ALL,
+        "SELECT id, spell_id, allowed_race, allowed_class, spell_type, power_cost_override, "
+        "hp_threshold, spell_range, is_self_cast, is_location_target, cooldown_override, role_mask, comment FROM bot_spells", CONNECTION_SYNCH);
 }
 
 FollowshipDatabaseConnection::FollowshipDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags)

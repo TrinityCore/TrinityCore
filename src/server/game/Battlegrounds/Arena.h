@@ -64,6 +64,7 @@ class TC_GAME_API Arena : public Battleground
         void UpdateArenaWorldState();
 
         void HandleKillPlayer(Player* player, Player* killer) override;
+        void HandleKillUnit(Creature* victim, Unit* killer) override;
 
         void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const override;
 

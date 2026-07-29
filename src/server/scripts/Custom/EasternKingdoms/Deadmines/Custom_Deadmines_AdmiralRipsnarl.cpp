@@ -256,6 +256,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         void JustDied(Unit* killer) override
         {
             BossAI::JustDied(killer);
+
             _events.Reset();
             Talk(Texts::RipsnarlDeath);
             _summons.DespawnAll();

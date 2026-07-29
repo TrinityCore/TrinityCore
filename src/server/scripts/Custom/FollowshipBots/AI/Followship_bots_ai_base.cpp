@@ -19,39 +19,33 @@
 
 #include "Followship_bots_ai_base.h"
 #include "Followship_bots_chat_handler.h"
-#include "Handlers/Followship_bots_dungeon_handler.h"
+#include "Followship_bots_dungeon_handler.h"
+#include "Followship_bots_battleground_handler.h"
 
 FSB_BaseAI::~FSB_BaseAI()
 {
     FSBChatMgr::Get()->LeaveBotChannels(me);
     FSBChatMgr::Get()->UnregisterActiveBot(me);
     delete botDungeonData;
+    delete botBattlegroundData;
+}
+
+FSB_BattlegroundData* FSB_BaseAI::GetBattlegroundData()
+{
+    return botBattlegroundData;
 }
 
 void FSB_BaseAI::AddChatMemory(uint32 channelId, std::string const& sender, std::string const& msg, bool isPlayer)
 {
-    BotChatMemoryEntry entry;
-    entry.channelId = channelId;
-    entry.senderName = sender;
-    entry.message = msg;
-    entry.isPlayer = isPlayer;
-    entry.timestamp = getMSTime();
-    botChatMemory.push_back(std::move(entry));
-
-    uint32 maxSize = FollowshipBotsConfig::configFSBBotChatMemorySize;
-    if (maxSize < 1)
-        maxSize = 10;
-
-    while (botChatMemory.size() > maxSize)
-        botChatMemory.pop_front();
+    GenAINpcMemoryMgr::Get()->AddEntry(me->GetGUID(), channelId, sender, msg, isPlayer);
 }
 
 std::deque<BotChatMemoryEntry> FSB_BaseAI::GetChatMemory() const
 {
-    return botChatMemory;
+    return GenAINpcMemoryMgr::Get()->GetMemory(me->GetGUID());
 }
 
 void FSB_BaseAI::ClearChatMemory()
 {
-    botChatMemory.clear();
+    GenAINpcMemoryMgr::Get()->ClearMemory(me->GetGUID());
 }

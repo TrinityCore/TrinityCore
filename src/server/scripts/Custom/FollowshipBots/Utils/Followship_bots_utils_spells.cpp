@@ -224,7 +224,10 @@ namespace FSBSpellsUtils
 
             // RACIAL
         case SPELL_PANDAREN_QUAKING_PALM:
-            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Pandaren && CheckCrowdControlRequirements(bot, 5.f);
+        {
+            FSB_Race race = FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry());
+            return (race == FSB_Race::Pandaren || race == FSB_Race::PandarenHorde) && CheckCrowdControlRequirements(bot, 5.f);
+        }
 
         case SPELL_DRAENEI_GIFT_NAARU:
             return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Draenei;
@@ -234,6 +237,24 @@ namespace FSBSpellsUtils
 
         case SPELL_HUMAN_WILL_TO_SURVIVE:
             return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Human && HasAnyMechanic(bot, { MECHANIC_STUN });
+
+        case SPELL_UNDEAD_WILL_OF_FORSAKEN:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Undead && HasAnyMechanic(bot, { MECHANIC_CHARM, MECHANIC_FEAR, MECHANIC_SLEEP });
+
+        case SPELL_TAUREN_WAR_STOMP:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Tauren && CheckCrowdControlRequirements(bot, 8.f);
+
+        case SPELL_BLOODELF_ARCANE_TORRENT:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::BloodElf && target && FindEnemyBuffToDispel(target) && bot->IsWithinDist(target, 8.f);
+
+        case SPELL_GOBLIN_ROCKET_BARRAGE:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Goblin && target && bot->IsWithinDist(target, 30.f);
+
+        case SPELL_ORC_BLOOD_FURY:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Orc;
+
+        case SPELL_TROLL_BERSERKING:
+            return FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()) == FSB_Race::Troll;
 
         case SPELL_PALADIN_BLESSING_SANCTUARY:
             return HasAnyMechanic(target, { MECHANIC_FEAR, MECHANIC_HORROR, MECHANIC_SILENCE, MECHANIC_STUN });

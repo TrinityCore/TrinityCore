@@ -33,5 +33,6 @@ namespace FSBGenAI
     std::string GetBotResponse(std::string const& systemPrompt, std::string const& userMessage);
     std::string GetStructuredBotResponse(std::string const& systemPrompt, std::string const& userMessage);
     std::string GetStructuredBotResponse(std::string const& systemPrompt, std::string const& userMessage, int32 maxTokens);
-    bool ParseStructuredResponse(std::string const& jsonStr, std::string& reply, std::string& action, uint32& amount);
+    bool ParseStructuredResponse(std::string const& jsonStr, std::string& reply, std::string& action, uint32& amount,
+        uint8* questState = nullptr);
 }

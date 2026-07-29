@@ -33,12 +33,15 @@
 #include "SharedDefines.h"
 #include "Unit.h"
 
-#include "GenAI/GenAI_channel_prompts.h"
-#include "GenAI/GenAI_conversation_prompts.h"
+#include "GenAI_channel_prompts.h"
+#include "GenAI_conversation_prompts.h"
+#include "GenAI_mail_prompts.h"
 
 class Channel;
 class Creature;
 class Player;
+
+namespace FSBChat { enum class ChatChannelType : int; }
 
 class FSBChatMgr
 {
@@ -64,6 +67,33 @@ public:
         uint32      deliverAfter = 0;
     };
 
+    struct PendingRandomChat
+    {
+        std::atomic<bool> ready{ false };
+        std::mutex        mutex;
+
+        std::string result;
+
+        ObjectGuid  botGuid;
+        FSBChat::ChatChannelType channelType;
+        ObjectGuid  attackerGuid;
+        bool        hasAttacker = false;
+    };
+
+    struct PendingMailContent
+    {
+        std::atomic<bool> ready{ false };
+        std::mutex        mutex;
+
+        FSBMailPrompts::MailContent mailContent;
+
+        ObjectGuid  botGuid;
+        ObjectGuid  playerGuid;
+        uint32      amount = 0;
+        std::string botReply;
+        uint32      creatureEntry = 0;
+    };
+
     // Active bot registry for /who and whisper routing
     void RegisterActiveBot(Creature* bot);
     void UnregisterActiveBot(Creature* bot);
@@ -81,6 +111,13 @@ public:
     void HandlePlayerGeneralChat(Player* player, Channel* channel, std::string const& msg);
     void HandleBotWhisper(Player* player, Creature* bot, std::string const& msg);
 
+    // Async dispatch for random channel chat (Trade/LFG/General)
+    void DispatchAsyncRandomChat(Creature* bot, FSBChat::ChatChannelType channel, Unit* attacker = nullptr);
+
+    // Async dispatch for gold mail content generation
+    void DispatchAsyncMailContent(Creature* bot, Player* player, uint32 amount,
+        std::string const& playerRequest, std::string const& botReply);
+
     // Global update (called from WorldScript::OnUpdate)
     void Update(uint32 diff);
 
@@ -91,6 +128,12 @@ private:
 
     std::vector<std::shared_ptr<PendingBotReply>> _pendingReplies;
     std::mutex                                    _pendingRepliesMutex;
+
+    std::vector<std::shared_ptr<PendingRandomChat>> _pendingRandomChats;
+    std::mutex                                       _pendingRandomChatsMutex;
+
+    std::vector<std::shared_ptr<PendingMailContent>> _pendingMailContent;
+    std::mutex                                        _pendingMailContentMutex;
 };
 
 namespace FSBChat
@@ -157,6 +200,7 @@ namespace FSBChat
     void BotSendTradeChat(Creature* bot, std::string const& msg);
     void BotSendLocalDefenseChat(Creature* bot, std::string const& msg);
     void BotSendLFGChat(Creature* bot, std::string const& msg);
+    void BotSendRaidChat(Creature* bot, std::string const& msg);
 
     extern std::vector<ConversationTemplate> ChatTables;
     extern std::vector<ActiveConversation> activeConversations;
@@ -173,6 +217,9 @@ namespace FSBChat
 
     // used for chat initiated on combat
     void StartBotRandomChat(Creature* bot, ChatChannelType channel, Unit* attacker);
+
+    // Static fallback when AI returns empty or GenAI is disabled
+    void SendStaticRandomChat(Creature* bot, ChatChannelType channel, Unit* attacker = nullptr);
 
     std::string BuildItemLink(uint32 itemId, uint32 level = 0);
 }

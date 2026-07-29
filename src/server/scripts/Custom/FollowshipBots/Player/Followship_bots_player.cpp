@@ -46,12 +46,14 @@ public:
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
         FSBMgr::Get()->SyncBotPhasingWithOwner(player);
+        FSBMgr::Get()->UpdateHiredBotCount(player);
     }
 
     void OnMapChanged(Player* player) override
     {
         FSBMgr::Get()->RemovePersistentExpiredPlayerBots(player);
         FSBMgr::Get()->SpawnPlayerBots(player);
+        FSBMgr::Get()->UpdateHiredBotCount(player);
     }
 
     void OnPhaseChange(Player* player) override
@@ -66,6 +68,9 @@ public:
             return;
 
         if (channel->GetChannelId() != 1)
+            return;
+
+        if (!msg.empty() && msg[0] == '.')
             return;
 
         FSBChatMgr::Get()->HandlePlayerGeneralChat(player, channel, msg);

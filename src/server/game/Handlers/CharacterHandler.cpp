@@ -246,6 +246,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARENA_INFO, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARENA_STATS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARENA_STATS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACHIEVEMENTS);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS, stmt);
@@ -1435,6 +1439,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
+    pCurrChar->SendRaidDifficulty(false);
+    pCurrChar->SendRaidDifficulty(true);
 
     WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
     loginVerifyWorld.MapID = pCurrChar->GetMapId();

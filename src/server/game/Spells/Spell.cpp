@@ -2170,13 +2170,8 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject*
     bool searchInWorld = (containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CORPSE)) != 0;
     if (searchInGrid || searchInWorld)
     {
-        float x, y;
-        x = pos->GetPositionX();
-        y = pos->GetPositionY();
-
-        CellCoord p(Trinity::ComputeCellCoord(x, y));
-        Cell cell(p);
-        cell.SetNoCreate();
+        float x = pos->GetPositionX();
+        float y = pos->GetPositionY();
 
         Map* map = referer->GetMap();
 
@@ -3822,8 +3817,8 @@ void Spell::_cast(bool skipCheck)
 
         // cleanup after mod system
         // triggered spell pointer can be not removed in some cases
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+        if (modOwner)
+            modOwner->SetSpellModTakingSpell(this, false);
 
         finish(SPELL_FAILED_INTERRUPTED);
         SetExecutedCurrently(false);
@@ -3932,7 +3927,7 @@ void Spell::_cast(bool skipCheck)
         SetDelayStart(0);
 
         if (Unit* unitCaster = m_caster->ToUnit())
-            if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
+            if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true, false, true, true))
                 unitCaster->ClearUnitState(UNIT_STATE_CASTING);
     }
     else
@@ -4376,7 +4371,7 @@ void Spell::finish(SpellCastResult result)
     if (m_spellInfo->IsChanneled())
         unitCaster->UpdateInterruptMask();
 
-    if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
+    if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true, false, true, true))
         unitCaster->ClearUnitState(UNIT_STATE_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
@@ -5398,7 +5393,7 @@ void Spell::TakeCastItem()
     for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
     {
         // item has limited charges
-        if (itemEffect->Charges)
+        if (itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges)
         {
             if (itemEffect->Charges < 0)
                 expendable = true;

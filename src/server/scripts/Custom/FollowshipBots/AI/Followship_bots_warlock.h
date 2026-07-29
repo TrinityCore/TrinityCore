@@ -105,8 +105,6 @@ enum FSB_WARLOCK_DESTRUCTION_SPELLS
 
 namespace FSBWarlock
 {
-    bool BotOOCBuffSoulstone(Creature* bot, uint32& globalCooldown);
-
     bool BotOOCBuffSelf(Creature* bot, uint32& globalCooldown, uint32& selfBuffTimer, uint32& outSpellId);
 
     bool BotSummonRandomDemon(Creature* bot);

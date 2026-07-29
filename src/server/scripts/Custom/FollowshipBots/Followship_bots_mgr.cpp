@@ -25,24 +25,27 @@
 #include "Log.h"
 #include "Map.h"
 #include "PhasingHandler.h"
+#include "ScriptHelpers.h"
 #include "TemporarySummon.h"
 #include "DB2Stores.h"
 #include <random>
+
+#include "GenAI_chatter_prompts.h"
 
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_db.h"
 #include "Followship_bots.h"
 #include "FollowshipDatabase.h"
-#include "Config/Followship_bots_config.h"
+#include "Followship_bots_config.h"
 
+#include "Followship_bots_battleground_handler.h"
 #include "Followship_bots_events_handler.h"
-
-#include "GenAI/GenAI_chatter_prompts.h"
-
 #include "Followship_bots_dungeon_handler.h"
+#include "Followship_bots_gossip_handler.h"
 #include "Followship_bots_movement_handler.h"
 #include "Followship_bots_powers_handler.h"
 #include "Followship_bots_stats_handler.h"
+#include "Followship_bots_utils.h"
 
 FSBMgr* FSBMgr::Get()
 {
@@ -174,6 +177,31 @@ void FSBMgr::RemovePersistentExpiredPlayerBots(Player* player)
     // If the player now has zero bots, you may optionally erase the key entirely:
     if (bots.empty())
         _playerBotsPersistent.erase(guid);
+
+    UpdateHiredBotCount(player);
+}
+
+void FSBMgr::UpdateHiredBotCount(Player* player)
+{
+    if (!player)
+        return;
+
+    auto* bots = GetPersistentBotsForPlayer(player);
+    if (!bots || bots->empty())
+    {
+        ScriptHelpers::EraseHiredBotCount(player->GetGUID().GetCounter());
+        return;
+    }
+
+    uint8 count = 0;
+    for (auto const& botData : *bots)
+        if (!IsBotExpired(botData))
+            ++count;
+
+    if (count > 0)
+        ScriptHelpers::SetHiredBotCount(player->GetGUID().GetCounter(), count);
+    else
+        ScriptHelpers::EraseHiredBotCount(player->GetGUID().GetCounter());
 }
 
 bool FSBMgr::RemovePersistentBot(uint64 playerGuid, uint32 botEntry)
@@ -316,9 +344,15 @@ void FSBMgr::RestoreBotOwnership(Player* player, Creature* bot, uint32 hireTimeL
     FSBMgr::Get()->RegisterBotSpawn(bot, player);
     PhasingHandler::InheritPhaseShift(bot, player);
 
+    bot->SetFaction(player->GetFaction());
+
     // Do not remove the below since they are needed for the Hire flow
     bot->SetStandState(UNIT_STAND_STATE_STAND);
     FSBEvents::ScheduleBotEvent(bot, FSB_EVENT_HIRED_RESUME_FOLLOW, 1s, 3s);
+
+    // Hired bots keep their gossip flag in battlegrounds.
+    if (FSBBattleground::IsInBG(bot))
+        bot->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 }
 
 // ==================== GETTER METHODS ==================================================== //
@@ -436,6 +470,20 @@ bool FSBMgr::IsBotOwned(Creature* bot)
     return false;
 }
 
+bool FSBMgr::IsBotTemplateHired(uint32 entry) const
+{
+    for (auto const& [ownerGuid, bots] : _playerBotsPersistent)
+    {
+        for (auto const& data : bots)
+        {
+            if (data.entry == entry)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 
 // ==================== MANAGEMENT METHODS ==================================================== //
 void FSBMgr::HirePersistentBot(Player* player, Creature* bot, uint32 hireDurationHours)
@@ -468,7 +516,7 @@ void FSBMgr::HirePersistentBot(Player* player, Creature* bot, uint32 hireDuratio
     TC_LOG_DEBUG("scripts.fsb.manager", "FSB: HirePersistentBot Player {} hired bot {} (entry {}) until {}",
         player->GetName(), bot->GetName(), bot->GetEntry(), hireExpiry);
 
-
+    UpdateHiredBotCount(player);
 }
 
 void FSBMgr::DismissPersistentBot(Creature* bot)
@@ -493,6 +541,8 @@ void FSBMgr::DismissPersistentBot(Creature* bot)
     RemovePersistentBot(playerGuidLow, botEntry);
 
     TC_LOG_DEBUG("scripts.fsb.manager", "FSB: DismissPersistentBot Dismissed bot {} for player {}", bot->GetName(), player->GetName());
+
+    UpdateHiredBotCount(player);
 }
 
 void FSBMgr::SetInitialBotState(Creature* bot)
@@ -503,8 +553,12 @@ void FSBMgr::SetInitialBotState(Creature* bot)
     bot->SetBot(true);
     bot->setActive(true);
 
-    if (bot->HasUnitState(UNIT_STAND_STATE_SIT))
-        bot->SetStandState(UNIT_STAND_STATE_STAND);
+    bot->SetStandState(UNIT_STAND_STATE_STAND);
+    bot->SetEmoteState(EMOTE_STATE_NONE);
+    bot->RemoveAllAuras();
+    bot->SetDisableGravity(false);
+
+    bot->SetLevel(90, true);
 
     auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
     if (!baseAI)
@@ -521,13 +575,17 @@ void FSBMgr::SetInitialBotState(Creature* bot)
         baseAI->botMoveState = FSB_MOVE_STATE_IDLE;
         baseAI->botFollowDistance = frand(2.f, 8.f);
         baseAI->botFollowAngle = frand(0.0f, float(M_PI * 2.0f));
-    }   
+    }
 
     auto& botClass = baseAI->botClass;
     auto& botRace = baseAI->botRace;
     auto& botStats = baseAI->botStats;
     auto& botRole = baseAI->botRole;
+    SetBotClassAndRace(bot, botClass, botRace);
     baseAI->botClassStats = FSBStats::GetBotClassStats(botClass);
+    baseAI->botTCRace = FSBUtils::BotRaceToTC(botRace);
+    ScriptHelpers::SetBotRace(bot->GetGUID(), uint8(baseAI->botTCRace));
+    bot->SetClass(uint8(FSBUtils::FSBToTCClass(botClass)));
     baseAI->botHasDemon = false;
 
     // For shaman we set self resurrect flag for reincarnation
@@ -543,12 +601,28 @@ void FSBMgr::SetInitialBotState(Creature* bot)
     bot->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
     bot->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
-    bot->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-    bot->SetReactState(REACT_DEFENSIVE);
-    bot->SetFaction(FSB_FACTION_HUMAN);
-    //creature->SetFaction(12); // it is actually template
+    if (!bot->GetGossipMenuId())
+        bot->SetGossipMenuId(FSB_GOSSIP_DEFAULT_MENU);
 
-    SetBotClassAndRace(bot, botClass, botRace);
+    if (FSBBattleground::IsInBG(bot) && !baseAI->botHired)
+        bot->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+    else bot->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+
+    if (FSBBattleground::IsInBG(bot) && !baseAI->botHired)
+        FSBBattleground::InitializeBot(bot);
+    else if (baseAI->botBattlegroundData)
+    {
+        baseAI->botBattlegroundData->Reset();
+        delete baseAI->botBattlegroundData;
+        baseAI->botBattlegroundData = nullptr;
+    }
+
+    bot->SetReactState(REACT_DEFENSIVE);
+    
+    bot->ApplyLevelScaling(3325, 0); // Sets Content Tuning override
+    bot->RemoveCivilianFlag();
+    bot->SetFaction(FSBUtils::GetFactionForFSBRace(botRace));
+    baseAI->botLanguage = FSBUtils::GetLanguageForFSBRace(botRace);
     FSBStats::ApplyBotBaseClassStats(bot, botClass);
     botStats = FSBBotStats();
     botRole = GetRandomRoleForClass(botClass);
@@ -568,6 +642,7 @@ void FSBMgr::SetInitialBotState(Creature* bot)
             FSBPowers::SetBotToChi(bot);
     }
 
+    FSBStats::RecalculateStats(bot, true, true);
 }
 
 void FSBMgr::SetBotClassAndRace(Creature* creature, FSB_Class& outClass, FSB_Race& outRace)

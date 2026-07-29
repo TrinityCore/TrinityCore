@@ -117,9 +117,27 @@ namespace FSBGenAI
             .supportsSystemParameter = false,
             .supportsResponseFormat = true
         },
+        // OpenRouter (5)
+        {
+            .name = "OpenRouter",
+            .host = "openrouter.ai",
+            .endpoint = "api/v1/chat/completions",
+            .port = -1,
+            .useSSL = true,
+            .apiKeyHeader = "Authorization",
+            .apiKeyPrefix = "Bearer ",
+            .versionHeader = "",
+            .requestFormat = GenAIRequestFormat::OpenAIChat,
+            .responseFormat = GenAIResponseFormat::OpenAIChoices,
+            .supportsTemperature = true,
+            .supportsTopP = true,
+            .supportsPenalties = true,
+            .supportsSystemParameter = false,
+            .supportsResponseFormat = true
+        },
     };
 
-    static_assert(sizeof(s_presets) / sizeof(s_presets[0]) == 5, "GenAIProviderPreset array size must match GenAIProvider enum count");
+    static_assert(sizeof(s_presets) / sizeof(s_presets[0]) == 6, "GenAIProviderPreset array size must match GenAIProvider enum count");
 
     GenAIProviderPreset const& GetPreset(GenAIProvider provider)
     {

@@ -263,7 +263,7 @@ struct at_hun_binding_shot : AreaTriggerAI
             for (ObjectGuid const& guid : at->GetInsideUnits())
             {
                 Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-                if (!unit->HasAura(SPELL_HUNTER_BINDING_SHOT_MARKER))
+                if (!unit || !unit->HasAura(SPELL_HUNTER_BINDING_SHOT_MARKER))
                     continue;
 
                 unit->CastSpell(at->GetPosition(), SPELL_HUNTER_BINDING_SHOT_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);

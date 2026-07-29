@@ -123,6 +123,20 @@ namespace Scripts::EasternKingdoms::Deadmines
         }
     };
 
+    // 89250 - Summon Cauldron
+    class spell_captain_cookie_summon_cauldron : public SpellScript
+    {
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(Positions::CookieCauldronSpawn);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_captain_cookie_summon_cauldron::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
     // 88278 - Force Player to Ride Oaf
     class spell_helix_force_player_to_ride_oaf : public SpellScript
     {
@@ -155,6 +169,7 @@ void AddSC_custom_deadmines_spells()
 
     RegisterSpellScript(spell_glubtok_generic_proc);
     RegisterSpellScript(spell_glubtok_firewall_targetting);
+    RegisterSpellScript(spell_captain_cookie_summon_cauldron);
     RegisterSpellScript(spell_helix_force_player_to_ride_oaf);
     RegisterSpellScript(spell_mining_powder_explode);
 }

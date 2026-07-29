@@ -98,69 +98,63 @@ namespace Scripts::Custom::Hunter
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (GetCaster()->IsPlayer())
+            Unit* caster = GetCaster();
+            if (Unit* pet = caster->GetGuardianPet())
             {
-                if (Unit* pet = GetCaster()->GetGuardianPet())
+                if (!GetExplTargetUnit())
+                    return;
+                Unit* target = GetExplTargetUnit();
+
+                pet->CastSpell(target, Spells::KillCommandTrigger, true);
+
+                if (pet->GetVictim())
                 {
-                    if (!pet)
-                        return;
+                    pet->AttackStop();
+                    pet->ToCreature()->AI()->AttackStart(target);
+                }
+                else
+                    pet->ToCreature()->AI()->AttackStart(target);
 
-                    if (!GetExplTargetUnit())
-                        return;
-                    Unit* target = GetExplTargetUnit();
-                    Player* player = GetCaster()->ToPlayer();
+                pet->CastSpell(target, Spells::KillCommandCharge, true);
 
-                    pet->CastSpell(GetExplTargetUnit(), Spells::KillCommandTrigger, true);
-
-                    if (pet->GetVictim())
+                if (Player* player = caster->ToPlayer())
+                {
+                    ObjectGuid animalCompanionGuid = player->GetAnimalCompanion();
+                    if (!animalCompanionGuid.IsEmpty() && animalCompanionGuid.IsPet())
                     {
-                        pet->AttackStop();
-                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
-                    }
-                    else
-                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
-
-                    pet->CastSpell(GetExplTargetUnit(), Spells::KillCommandCharge, true);
-
-                    if (player)
-                    {
-                        ObjectGuid animalCompanionGuid = player->GetAnimalCompanion();
-                        if (!animalCompanionGuid.IsEmpty() && animalCompanionGuid.IsPet())
+                        if (Pet* animalCompanion = ObjectAccessor::GetPet(*player, animalCompanionGuid))
                         {
-                            if (Pet* animalCompanion = ObjectAccessor::GetPet(*player, animalCompanionGuid))
+                            Unit* animalCompanionTarget = GetExplTargetUnit();
+                            if (!animalCompanionTarget)
+                                animalCompanionTarget = pet->GetVictim();
+
+                            if (!animalCompanionTarget)
+                                return;
+
+                            animalCompanion->CastSpell(animalCompanionTarget, Spells::KillCommandTrigger, true);
+
+                            if (animalCompanion->GetVictim())
                             {
-                                Unit* animalCompanionTarget = GetExplTargetUnit();
-                                if (!animalCompanionTarget)
-                                    animalCompanionTarget = pet->GetVictim();
-
-                                if (!animalCompanionTarget)
-                                    return;
-
-                                animalCompanion->CastSpell(animalCompanionTarget, Spells::KillCommandTrigger, true);
-
-                                if (animalCompanion->GetVictim())
-                                {
-                                    animalCompanion->AttackStop();
-                                    animalCompanion->ToCreature()->AI()->AttackStart(animalCompanionTarget);
-                                }
-                                else
-                                    animalCompanion->ToCreature()->AI()->AttackStart(animalCompanionTarget);
-
-                                animalCompanion->CastSpell(animalCompanionTarget, Spells::KillCommandCharge, true);
+                                animalCompanion->AttackStop();
+                                animalCompanion->ToCreature()->AI()->AttackStart(animalCompanionTarget);
                             }
+                            else
+                                animalCompanion->ToCreature()->AI()->AttackStart(animalCompanionTarget);
+
+                            animalCompanion->CastSpell(animalCompanionTarget, Spells::KillCommandCharge, true);
                         }
                     }
+                }
 
-                    //191384 Aspect of the Beast
-                    if (GetCaster()->HasAura(Spells::AspectOfTheBeast))
-                    {
-                        if (pet->HasAura(Spells::SpikedCollar))
-                            player->CastSpell(target, Spells::BestialFerocity, true);
-                        if (pet->HasAura(Spells::GreatStamina))
-                            pet->CastSpell(pet, Spells::BestialTenacity, true);
-                        if (pet->HasAura(Spells::Cornered))
-                            player->CastSpell(target, Spells::BestialCunning, true);
-                    }
+                //191384 Aspect of the Beast
+                if (caster->HasAura(Spells::AspectOfTheBeast))
+                {
+                    if (pet->HasAura(Spells::SpikedCollar))
+                        caster->CastSpell(target, Spells::BestialFerocity, true);
+                    if (pet->HasAura(Spells::GreatStamina))
+                        pet->CastSpell(pet, Spells::BestialTenacity, true);
+                    if (pet->HasAura(Spells::Cornered))
+                        caster->CastSpell(target, Spells::BestialCunning, true);
                 }
             }
         }
@@ -181,11 +175,17 @@ namespace Scripts::Custom::Hunter
             Unit* owner = caster->GetOwner();
             Unit* target = GetExplTargetUnit();
 
-            // (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))
-            int32 dmg = 4.5f * owner->m_unitData->RangedAttackPower;
-            int32 lowNerf = std::min(int32(owner->GetLevel()), 20) * 0.05f;
+            if (!caster || !target)
+                return;
 
-            if (Player const* ownerPlayer = owner->ToPlayer())
+            // If no owner (e.g. bot pet with no owner reference), use caster's own stats
+            Unit* statSource = owner ? owner : caster;
+
+            // (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))
+            int32 dmg = 4.5f * statSource->m_unitData->RangedAttackPower;
+            int32 lowNerf = std::min(int32(statSource->GetLevel()), 20) * 0.05f;
+
+            if (Player const* ownerPlayer = statSource->ToPlayer())
                 dmg = AddPct(dmg, ownerPlayer->m_activePlayerData->Mastery);
 
             dmg *= lowNerf;

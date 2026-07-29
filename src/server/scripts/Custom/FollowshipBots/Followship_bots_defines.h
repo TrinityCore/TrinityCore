@@ -57,7 +57,8 @@ enum class FSB_ReplyType : uint8
     None,
     Say,
     Yell,
-    Whisper
+    Whisper,
+    Raid
 };
 
 enum class FSB_Class : uint8
@@ -87,6 +88,20 @@ enum class FSB_Race : uint8
     Worgen = 6,
     Pandaren = 7,
     VoidElf = 8,
+    Orc = 9,
+    Undead = 10,
+    Tauren = 11,
+    Troll = 12,
+    BloodElf = 13,
+    Goblin = 14,
+    PandarenHorde = 15,
+    HighmountainTauren = 16,
+    Nightborne = 17,
+    LightforgedDraenei = 18,
+    EarthenAlliance = 19,
+    EarthenHorde = 20,
+    HaranirAlliance = 21,
+    HaranirHorde = 22,
 };
 
 enum FSB_Roles
@@ -174,6 +189,16 @@ struct PlayerBotData
     ObjectGuid runtimeGuid = ObjectGuid::Empty;
 
     PlayerBotData() = default;
+};
+
+struct FSB_GenericData
+{
+    bool isRecovering = false;
+    bool isBuffing = false;
+    uint8 consecutiveSelfHeals = 0;
+    bool pauseCombatChase = false;
+    bool manaPotionUsed = false;
+    bool healthPotionUsed = false;
 };
 
 struct FSBChatterDBLine

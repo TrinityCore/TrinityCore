@@ -28,7 +28,7 @@
 #include "Followship_bots_utils.h"
 
 #include "Followship_bots_chatter_handler.h"
-#include "GenAI/GenAI_chatter_prompts.h"
+#include "GenAI_chatter_prompts.h"
 #include "Followship_bots_combat_handler.h"
 #include "Followship_bots_dungeon_handler.h"
 #include "Followship_bots_events_handler.h"
@@ -37,10 +37,11 @@
 #include "Followship_bots_movement_handler.h"
 #include "Followship_bots_powers_handler.h"
 #include "Followship_bots_spells_handler.h"
+#include "Followship_bots_battleground_handler.h"
 
 namespace FSBIC
 {
-    bool BotICActions(Creature* bot, bool& botManaPotionUsed, bool& botHealthPotionUsed, uint32& globalCooldown, bool& botCastedCombatBuffs)
+    bool BotICActions(Creature* bot, uint32& globalCooldown, bool& botCastedCombatBuffs)
     {
         if (!bot || !bot->IsAlive())
             return false;
@@ -60,7 +61,7 @@ namespace FSBIC
 
         //1. IC Potions
         // These can be cast instant with no GCD
-        if (BotICPotions(bot, botManaPotionUsed, botHealthPotionUsed))
+        if (BotICPotions(bot))
             return true;
 
         //2. IC (initial)Buffs
@@ -76,6 +77,9 @@ namespace FSBIC
             return true;
 
         if (BotICHealGroup(bot))
+            return true;
+
+        if (BotICHealBattlegroundAllies(bot))
             return true;
 
         if (BotICTryDispel(bot))
@@ -300,11 +304,7 @@ namespace FSBIC
         if (healTargets.empty())
             return false;
 
-        auto resolvedTargets = FSBGroup::ResolveGroup(bot, healTargets);
-        if (resolvedTargets.empty())
-            return false;
-
-        auto sortedHealTargets = resolvedTargets;
+        auto sortedHealTargets = healTargets;
         if (botRole == FSB_ROLE_HEALER)
             FSBGroup::SortEmergencyTargets(sortedHealTargets);
 
@@ -351,6 +351,77 @@ namespace FSBIC
         return false;
     }
 
+    bool BotICHealBattlegroundAllies(Creature* bot)
+    {
+        if (!bot || !bot->IsAlive())
+            return false;
+
+        if (!FSBBattleground::IsInBG(bot))
+            return false;
+
+        if (!FSBBattleground::IsInProgress(bot))
+            return false;
+
+        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
+        if (!baseAI)
+            return false;
+
+        if (baseAI->botRole != FSB_ROLE_HEALER)
+            return false;
+
+        if (!FSBSpellsUtils::BotHasHealSpells(bot))
+            return false;
+
+        if (FSBDungeon::ShouldDPSInExecutePhase(bot, bot->GetVictim()))
+            return false;
+
+        auto& globalCooldown = baseAI->botGlobalCooldown;
+        uint32 now = getMSTime();
+
+        if (!FSBSpellsUtils::CanCastNow(bot, now, globalCooldown))
+            return false;
+
+        auto& runtimeSpells = baseAI->botRuntimeSpells;
+
+        float hpPct = 50.0f;
+
+        Unit* target = FSBBattleground::FindBattlegroundAllyToHeal(bot, 40.0f, hpPct);
+        if (!target || !target->IsInWorld() || target->IsDuringRemoveFromWorld() || !target->IsAlive())
+            return false;
+
+        auto heals = FSBSpells::BotGetAvailableSpells(bot, runtimeSpells, FSBSpellType::Heal, false);
+        FSBSpellRuntime* healSpell = FSBSpells::SelectRandomHealSpell(bot, heals, target);
+
+        if (healSpell && target)
+        {
+            if (healSpell->def->isSelfCast && target != bot)
+                return false;
+
+            bool castSuccess = false;
+
+            if (healSpell->def->isLocationSpell)
+            {
+                Position pos = FSBSpells::GetHealingAoEPosition(bot);
+                castSuccess = FSBSpells::BotCastSpellatLocation(bot, healSpell->def->spellId, pos);
+            }
+            else
+            {
+                castSuccess = FSBSpells::BotCastSpell(bot, healSpell->def->spellId, target);
+            }
+
+            if (castSuccess)
+            {
+                healSpell->nextReadyMs = now + healSpell->def->cooldownMs;
+                baseAI->botGlobalCooldown = now + 1500;
+                if (urand(0, 99) <= FollowshipBotsConfig::configFSBChatterRate)
+                    FSBGenAIPrompts::DispatchBotHeal(bot, target->GetGUID(), healSpell->def->spellId);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool BotICHealSelf(Creature* bot)
     {
         if (!bot || !bot->IsAlive())
@@ -377,10 +448,26 @@ namespace FSBIC
 
         if (healSpell)
         {
-            // check other requirements here
+            // Interleave attacks between self-heals unless health is critical
+            if (bot->GetHealthPct() > BOT_IC_SELFHEAL_EMERGENCY_HP)
+            {
+                bool forceAttack = baseAI->botGenericData.consecutiveSelfHeals >= BOT_IC_SELFHEAL_MAX_CONSECUTIVE;
+                bool rollAttack = urand(0, 99) < BOT_IC_SELFHEAL_ATTACK_CHANCE;
+
+                if (forceAttack || rollAttack)
+                {
+                    if (BotICTryOffensiveSpell(bot))
+                    {
+                        baseAI->botGenericData.consecutiveSelfHeals = 0;
+                        return true;
+                    }
+                    // no attack possible -> fall through and heal
+                }
+            }
 
             if (FSBSpells::BotCastSpell(bot, healSpell->def->spellId, bot))
             {
+                ++baseAI->botGenericData.consecutiveSelfHeals;
                 healSpell->nextReadyMs = now + healSpell->def->cooldownMs;
                 baseAI->botGlobalCooldown = now + 1500;
                 if (urand(0, 99) <= FollowshipBotsConfig::configFSBChatterRate)
@@ -388,6 +475,8 @@ namespace FSBIC
                 return true;
             }
         }
+        else
+            baseAI->botGenericData.consecutiveSelfHeals = 0;
 
 
         return false;
@@ -508,7 +597,7 @@ namespace FSBIC
         return false;
     }
 
-    bool BotICPotions(Creature* bot, bool& botManaPotionUsed, bool& botHealthPotionUsed)
+    bool BotICPotions(Creature* bot)
     {
         if (!FollowshipBotsConfig::configFSBUseICPotions)
             return false;
@@ -522,10 +611,14 @@ namespace FSBIC
         if (bot->HasUnitState(UNIT_STATE_CASTING))
             return false;
 
+        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
+        if (!baseAI)
+            return false;
+
         // 1. Generic mana potions for bots with mana
         if (bot->GetPowerType() == POWER_MANA && bot->GetPowerPct(POWER_MANA) < BOT_IC_THRESHOLD_POTION_MP)
         {
-            if (!botManaPotionUsed)
+            if (!baseAI->botGenericData.manaPotionUsed)
             {
                 uint32 ManaPotionSpellId = FSBSpellsUtils::GetManaPotionSpellForLevel(bot->GetLevel());
 
@@ -534,7 +627,7 @@ namespace FSBIC
                     // Global Cooldown does NOT apply for potions
                     // Limit of 1 potion per type (MP or HP) per combat 
                     bot->CastSpell(bot, ManaPotionSpellId, false);
-                    botManaPotionUsed = true;
+                    baseAI->botGenericData.manaPotionUsed = true;
 
                     std::string spellName = FSBSpellsUtils::GetSpellName(ManaPotionSpellId);
 
@@ -551,7 +644,7 @@ namespace FSBIC
         // 2. Generic health potions for non healer bots 
         if (bot->GetHealthPct() < BOT_IC_THRESHOLD_POTION_HP)
         {
-            if (FSBUtils::BotIsHealerClass(bot) || botHealthPotionUsed)
+            if (FSBUtils::BotIsHealerClass(bot) || baseAI->botGenericData.healthPotionUsed)
                 return false;
 
             uint32 HealthPotionSpellId = 0;
@@ -564,7 +657,7 @@ namespace FSBIC
             else HealthPotionSpellId = FSBSpellsUtils::GetHealthPotionSpellForLevel(bot->GetLevel());
 
             bot->CastSpell(bot, HealthPotionSpellId, false);
-            botHealthPotionUsed = true;
+            baseAI->botGenericData.healthPotionUsed = true;
 
             std::string spellName = FSBSpellsUtils::GetSpellName(HealthPotionSpellId);
 

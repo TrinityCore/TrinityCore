@@ -76,10 +76,24 @@ DELETE FROM `creature_template_difficulty` WHERE `entry` IN (47162,48229,48230,5
 48447,48450,48522,48521,48448,48449,48451,47626,47714,48266,47739,
 -- Cookie Adds
 48672,47754,48301,48300,48297,48296,48006,48294,48295,48276,48299,48293,48298,48302,
--- Vanessa adds
-49454,51594);
+-- Vanessa Encounter
+49854,49454,51594,49493,49494,49495,49674,49670,49681,49541,49532,49520,49521,49539);
 INSERT INTO `creature_template_difficulty` VALUES
+-- Nightmare Adds (only heroic)
+(49532, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39587, 0, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Enraged Worgen
+(49494, 2, 1, 1, 1199, 0, 1, 1, 1, 0.2, 39634, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Warkweb Devourer
+(49493, 2, 0, 0, 1199, 0, 0.5, 1, 1, 0.2, 39636, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Nightmare Skitterling
+(49495, 2, 0, 0, 1199, 0, 0.5, 1, 1, 0.2, 39632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Chattering Horror
+(49674, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39405, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Helix Nightmare
+(49670, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39411, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Glubtok Nightmare
+(49681, 2, 2, 2, 1199, 0, 1, 1, 1, 0.5, 39399, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Mechanical Nightmare
+(49541, 2, 2, 2, 1199, 0, 5, 1, 1, 0.5, 39570, 96, 128, 0, 4954102, 0, 0, 20000, 25000, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Vanessa Boss
+(49520, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39613, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Spark
+(49521, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39611, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), -- Spark Passenger
+(49539, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 39575, 104, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- James Harrington
+
 -- Vanessa Adds (only heroic)
+(49854, 2, 0, 0, 1199, 0, 0.75, 0.3632, 1, 1, 39042, 0, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Blood Wizzard
 (49454, 2, 0, 0, 338, 0, 1, 1, 1, 1, 39704, 1024, 0, 0, 0, 0, 0, 0, 0, 0x20000000, 0, 0, 0, 0, 0, 0, 0, 0), -- Trap bunny
 (51594, 2, 0, 0, 338, 0, 1, 1, 1, 1, 36170, 1024, 0, 0, 0, 0, 0, 0, 0, (0x00000100 | 0x00000200), 0, 0, 0, 0, 0, 0, 0, 45745), -- Glubtok Fire Bunny
 -- Cookie Adds
@@ -138,35 +152,35 @@ INSERT INTO `creature_template_difficulty` VALUES
 (47626, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 43037, 104, 128, 0, 4762601, 0, 0, 13029, 13029, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
 (47626, 2, 2, 2, 1199, 0, 2, 1, 1, 0.4, 43037, 104, 128, 0, 4762602, 0, 0, 13029, 13029, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (47626, 24, 2, 2, 2872, 3, 1, 1, 1, 1, 43038, 104, 128, 0, 4762624, 0, 0, 13029, 13029, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Admiral Ripsnarl
-(48448, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41255, 1, 0, 0, 48448, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
-(48448, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41255, 1, 0, 0, 48448, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48448, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41255, 1, 0, 0, 4844801, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48448, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41255, 1, 0, 0, 4844802, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
 (48448, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41256, 1, 0, 0, 48448, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0), -- Albino Eyegouger
-(48449, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41247, 1, 0, 0, 48449, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
-(48449, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41247, 1, 0, 0, 48449, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48449, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41247, 1, 0, 0, 4844901, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48449, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41247, 1, 0, 0, 4844902, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
 (48449, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41248, 1, 0, 0, 48449, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0), -- Brilliant Macaw
-(48451, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41236, 1, 0, 0, 48451, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
-(48451, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41236, 1, 0, 0, 48451, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48451, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41236, 1, 0, 0, 4845101, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48451, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41236, 1, 0, 0, 4845102, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48451, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41237, 1, 0, 0, 48451, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, -1), -- Ol' Beaky
-(48447, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41258, 1, 0, 0, 48447, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
-(48447, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41258, 1, 0, 0, 48447, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48447, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41258, 1, 0, 0, 4844701, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48447, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41258, 1, 0, 0, 4844702, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48447, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41259, 1, 0, 0, 48447, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, -1), -- Monstrous Parrot
-(48450, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41244, 1, 0, 0, 48450, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
-(48450, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41244, 1, 0, 0, 48450, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48450, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41244, 1, 0, 0, 4845001, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0),
+(48450, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41244, 1, 0, 0, 4845002, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48450, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41245, 1, 0, 0, 48450, 0, 0, 0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, -1), -- Sunwing Squawker
-(48521, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.2, 41081, 0, 0, 0, 48521, 0, 0, 5920, 5920, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48521, 2, 0, 0, 1199, 0, 2, 0.7264, 1, 0.5, 41081, 0, 0, 0, 48521, 0, 0, 5920, 5920, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48521, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.2, 41081, 0, 0, 0, 4852101, 0, 0, 3920, 5920, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48521, 2, 0, 0, 1199, 0, 2, 0.7264, 1, 0.5, 41081, 0, 0, 0, 4852102, 0, 0, 3920, 5920, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48521, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41082, 0, 0, 0, 48521, 0, 0, 5920, 5920, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Squallshaper
-(48522, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41078, 0, 0, 0, 48522, 0, 0, 6028, 6028, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48522, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41078, 0, 0, 0, 48522, 0, 0, 6028, 6028, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48522, 1, 0, 0, 202, 0, 1, 1, 1, 0.2, 41078, 0, 0, 0, 4852201, 0, 0, 4028, 6028, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48522, 2, 0, 0, 1199, 0, 2, 1, 1, 0.5, 41078, 0, 0, 0, 4852202, 0, 0, 4028, 6028, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48522, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41079, 0, 0, 0, 48522, 0, 0, 6028, 6028, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Pirate
-(48417, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.5, 41355, 0, 0, 0, 48417, 48417, 0, 8562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48417, 2, 0, 0, 1199, 0, 2, 0.7264, 1, 0.2, 41355, 0, 0, 0, 48417, 48417, 0, 8562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
-(48417, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41356, 0, 0, 0, 48417, 48417, 0, 8562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Enforcer
-(48502, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41129, 0, 0, 0, 48502, 48502, 0, 7576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48502, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41129, 0, 0, 0, 48502, 48502, 0, 7576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), 
-(48502, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41130, 0, 0, 0, 48502, 48502, 0, 7576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Blood Wizzard
-(48505, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41119, 0, 0, 0, 48505, 48505, 0, 7403, 7403, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48505, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41119, 0, 0, 0, 48505, 48505, 0, 7403, 7403, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48417, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.5, 41355, 0, 0, 0, 4841701, 48417, 0, 5562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48417, 2, 0, 0, 1199, 0, 2, 0.7264, 1, 0.2, 41355, 0, 0, 0, 4841702, 48417, 0, 5562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48417, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41356, 0, 0, 0, 48417, 48417, 0, 8562, 8562, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Blood Wizzard
+(48502, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41129, 0, 0, 0, 4850201, 48502, 0, 4576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48502, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41129, 0, 0, 0, 4850202, 48502, 0, 4576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), 
+(48502, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41130, 0, 0, 0, 48502, 48502, 0, 7576, 7576, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Enforcer
+(48505, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41119, 0, 0, 0, 4850501, 48505, 0, 4403, 7403, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48505, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41119, 0, 0, 0, 4850502, 48505, 0, 4403, 7403, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48505, 24, 0, 0, 2872, 3, 1, 1, 1, 1, 41120, 0, 0, 0, 48505, 48505, 0, 7403, 7403, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Shadowguard
 (49229, 2, 0, 0, 1199, 0, 0.5, 1, 1, 0.2, 40067, 512, 0, 0, 0, 0, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 40593), -- Molten Slag (only Heroic)
 (43778, 1, 1, 1, 202, 0, 5, 1, 1, 0.2, 48941 , 32872, 128, 0, 4377801, 0, 0, 20008, 20008, 524288, 0, 0, 0, 0, 0, 0, 0, 45338), -- 51015
@@ -181,17 +195,17 @@ INSERT INTO `creature_template_difficulty` VALUES
 (49208, 1, 0, 0, 202, 0, 10, 1, 1, 3, 40112, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (49208, 2, 0, 0, 1199, 0, 15, 1, 1, 5, 40112, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745),
 (49208, 24, 0, 0, 2872, 0, 10, 1, 1, 3, 40112, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Prototype Reaper
-(48421, 1, 0, 0, 202, 0, 1, 0, 1, 0.5, 41335, 0, 0, 0, 48421, 0, 0, 7165, 7165, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48421, 2, 0, 0, 1199, 0, 3, 0, 1, 0.2, 41335, 0, 0, 0, 48421, 0, 0, 7165, 7165, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48421, 1, 0, 0, 202, 0, 1, 0, 1, 0.5, 41335, 0, 0, 0, 4842101, 0, 0, 3165, 6165, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48421, 2, 0, 0, 1199, 0, 3, 0, 1, 0.2, 41335, 0, 0, 0, 4842102, 0, 0, 3165, 6165, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48421, 24, 0, 0, 2872, 3, 3, 0, 1, 1, 41336, 0, 0, 0, 48421, 0, 0, 7165, 7165, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Overseer
-(48420, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41338, 0, 0, 0, 48420, 48420, 0, 7903, 7903, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48420, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 41338, 0, 0, 0, 48420, 48420, 0, 7903, 7903, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48420, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41338, 0, 0, 0, 4842001, 48420, 0, 4903, 5903, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48420, 2, 0, 0, 1199, 0, 1, 1, 1, 0.2, 41338, 0, 0, 0, 4842002, 48420, 0, 4903, 5903, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48420, 24, 0, 0, 2872, 3, 1.5, 1, 1, 1, 41339, 0, 0, 0, 48420, 48420, 0, 7903, 7903, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Digger
-(48419, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41346, 0, 0, 0, 48419, 0, 0, 7906, 7906, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48419, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41346, 0, 0, 0, 48419, 0, 0, 7906, 7906, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48419, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41346, 0, 0, 0, 4841901, 0, 0, 5006, 7006, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48419, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41346, 0, 0, 0, 4841902, 0, 0, 5006, 7006, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48419, 24, 0, 0, 2872, 3, 1.5, 1, 1, 1, 41347, 0, 0, 0, 48419, 0, 0, 7906, 7906, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Miner
-(48418, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.5, 41350, 0, 0, 0, 48418, 0, 0, 8541, 8541, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48418, 2, 0, 0, 1199, 0, 4, 0.7264, 1, 0.2, 41350, 0, 0, 0, 48418, 0, 0, 8541, 8541, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48418, 1, 0, 0, 202, 0, 1, 0.7264, 1, 0.5, 41350, 0, 0, 0, 4841801, 0, 0, 5541, 8541, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48418, 2, 0, 0, 1199, 0, 4, 0.7264, 1, 0.2, 41350, 0, 0, 0, 4841802, 0, 0, 5541, 8541, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48418, 24, 0, 0, 2872, 3, 3, 3, 1, 1, 41351, 0, 0, 0, 48418, 0, 0, 8541, 8541, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Defias Envoker
 (48957, 1, 0, 0, 202, 0, 0.05, 1, 1, 0.5, 40468, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (48957, 2, 0, 0, 1199, 0, 0.05, 1, 1, 0.2, 40468, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -208,29 +222,29 @@ INSERT INTO `creature_template_difficulty` VALUES
 (47297, 1, 1, 1, 202, 0, 1, 1, 1, 0.5, 43698, 104, 0, 0, 0, 47297, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
 (47297, 2, 2, 2, 1199, 0, 5, 1, 1, 0.2, 43698, 104, 0, 0, 0, 47297, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (47297, 24, 2, 2, 2872, 3, 7, 1, 1, 1, 43699, 104, 0, 0, 0, 47297, 0, 0, 0, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Lumbering Oaf
-(48445, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41267, 0, 0, 0, 48445, 48445, 0, 7141, 7141, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48445, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41267, 0, 0, 0, 48445, 48445, 0, 7141, 7141, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48445, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41267, 0, 0, 0, 4844501, 48445, 0, 5141, 7141, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48445, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41267, 0, 0, 0, 4844502, 48445, 0, 5141, 7141, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48445, 24, 0, 0, 2872, 3, 5, 1, 1, 1, 41268, 0, 0, 0, 48445, 48445, 0, 7141, 7141, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Oaf Lackey
-(48278, 0, -1, -1, 202, 0, 1, 1, 1, 1, 41633, 1, 0, 0, 48278, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48278, 2, 0, 0, 1199, 0, 1, 1, 1, 1, 41633, 1, 0, 0, 48278, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48278, 1, -1, -1, 202, 0, 1, 1, 1, 1, 41633, 1, 0, 0, 4827801, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48278, 2, 0, 0, 1199, 0, 1, 1, 1, 1, 41633, 1, 0, 0, 4827802, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48278, 24, 0, 0, 2872, 3, 3, 1, 1, 1.8, 41634, 1, 0, 0, 48278, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, -1),
-(48440, 0, -1, -1, 202, 0, 1, 1, 1, 1, 41288, 1, 0, 0, 48440, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48440, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41288, 1, 0, 0, 48440, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48440, 1, -1, -1, 202, 0, 1, 1, 1, 1, 41288, 1, 0, 0, 4844001, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48440, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41288, 1, 0, 0, 4844002, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48440, 24, 0, 0, 2872, 3, 3, 1, 1, 1.8, 41289, 1, 0, 0, 48440, 0, 0, 2137, 2137, 524288, 0, 0, 0, 0, 0, 0, 0, -1),
-(48441, 0, -1, -1, 202, 0, 1, 1, 1, 1, 41285, 1, 0, 0, 48441, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48441, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41285, 1, 0, 0, 48441, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48441, 1, -1, -1, 202, 0, 1, 1, 1, 1, 41285, 1, 0, 0, 4844101, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48441, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41285, 1, 0, 0, 4844102, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48441, 24, 0, 0, 2872, 3, 3, 1, 1, 1.8, 41286, 1, 0, 0, 48441, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, -1),
-(48442, 0, -1, -1, 202, 0, 1, 1, 1, 1, 41277, 1, 0, 0, 48442, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48442, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41277, 1, 0, 0, 48442, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48442, 1, -1, -1, 202, 0, 1, 1, 1, 1, 41277, 1, 0, 0, 4844201, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48442, 2, 0, 0, 1199, 0, 1, 1, 1, 1.4, 41277, 1, 0, 0, 4844202, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48442, 24, 0, 0, 2872, 3, 3, 1, 1, 1.8, 41278, 1, 0, 0, 48442, 0, 0, 2285, 2285, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Mining Monkey (multi versions)
-(48338, 1, -1, -1, 202, 0, 1, 1, 1, 0.5, 41507, 0, 0, 0, 48338, 48338, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48338, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41507, 0, 0, 0, 48338, 48338, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48338, 1, -1, -1, 202, 0, 1, 1, 1, 0.5, 41507, 0, 0, 0, 4833801, 48338, 0, 1044, 2544, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48338, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41507, 0, 0, 0, 4833802, 48338, 0, 1044, 2544, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48338, 24, 0, 0, 2872, 3, 5, 1, 1, 1, 41508, 0, 0, 0, 48338, 48338, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Mine Bunny
-(48351, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41481, 0, 0, 0, 48351, 48351, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
-(48351, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41481, 0, 0, 0, 48351, 48351, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48351, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41481, 0, 0, 0, 4835101, 48351, 0, 1044, 2544, 524288, 0, 0, 0, 0, 0, 0, 0, 0),
+(48351, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41481, 0, 0, 0, 4835102, 48351, 0, 1044, 2544, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48351, 24, 0, 0, 2872, 3, 5, 1, 1, 1, 41482, 0, 0, 0, 48351, 48351, 0, 8244, 8244, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Mine Bunny
-(48279, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41627, 0, 0, 0, 48279, 48279, 0, 6975, 6975, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48279, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41627, 0, 0, 0, 48279, 48279, 0, 6975, 6975, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48279, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41627, 0, 0, 0, 4827901, 48279, 0, 4575, 6975, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48279, 2, 0, 0, 1199, 0, 3, 1, 1, 0.2, 41627, 0, 0, 0, 4827902, 48279, 0, 4575, 6975, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48279, 24, 0, 0, 2872, 3, 7, 1, 1, 1, 41628, 0, 0, 0, 48279, 48279, 0, 6975, 6975, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Goblin Overseer
 (48284, 1, 	-1, -1, 202, 1, 1, 1, 1, 1, 41616, 0, 0, 0, 0, 0, 0, 0, 0, 536871168, 0, 0, 0, 0, 0, 0, 0, -1),
 (48284, 2, 	0, 0, 1199, 1, 1, 1, 1, 1, 41617, 0, 0, 0, 0, 0, 0, 0, 0, 536871168, 0, 0, 0, 0, 0, 0, 0, -1),
@@ -255,14 +269,14 @@ INSERT INTO `creature_template_difficulty` VALUES
 (50595, 1, 0, 0, 202, 0, 1, 1, 1, 2, 37807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45338),
 (50595, 2, 0, 0, 1199, 0, 1, 1, 1, 5, 37807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45338),
 (50595, 24, 0, 0, 2872, 0, 1, 1, 1, 5, 37807, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45745), -- Alliance Defender
-(48229, 1, -1, -1, 202, 0, 1, 1, 1, 0.2, 41764, 0, 0, 0, 48229, 48229, 0, 7684, 7684, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48229, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41764, 0, 0, 0, 48229, 48229, 0, 7684, 7684, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48229, 1, -1, -1, 202, 0, 1, 1, 1, 0.2, 41764, 0, 0, 0, 4822901, 48229, 0, 4084, 5084, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48229, 2, 0, 0, 1199, 0, 2, 1, 1, 0.2, 41764, 0, 0, 0, 4822902, 48229, 0, 4084, 5084, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48229, 24, 0, 0, 2872, 3, 2, 1, 1, 1, 41765, 0, 0, 0, 48229, 48229, 0, 7684, 7684, 524288, 0, 0, 0, 0, 0, 0, 0, 64978), -- Kobold Digger
-(48230, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41758, 0, 0, 0, 48230, 48230, 0, 7084, 7084, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48230, 2, 1, 1, 1199, 0, 3, 1, 1, 0.2, 41758, 0, 0, 0, 48230, 48230, 0, 7084, 7084, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48230, 1, 0, 0, 202, 0, 1, 1, 1, 0.5, 41758, 0, 0, 0, 4823001, 48230, 0, 4084, 5084, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48230, 2, 1, 1, 1199, 0, 3, 1, 1, 0.2, 41758, 0, 0, 0, 4823002, 48230, 0, 4084, 5084, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48230, 24, 1, 1, 2872, 3, 7, 1, 1, 1, 41759, 0, 0, 0, 48230, 48230, 0, 7084, 7084, 524288, 0, 0, 0, 0, 0, 0, 0, 45745), -- Ogre Henchman
-(48262, 1, 0, 0, 202, 	0, 1, 1, 1, 0.5, 41681, 0, 0, 0, 0, 0, 0, 4819, 4819, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
-(48262, 2, 1, 1, 1199, 	0, 3, 1, 1, 0.2, 41681, 0, 0, 0, 0, 0, 0, 4819, 4819, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
+(48262, 1, 0, 0, 202, 	0, 1, 1, 1, 0.5, 41681, 0, 0, 0, 4826201, 0, 0, 3519, 4019, 524288, 0, 0, 0, 0, 0, 0, 0, 45338),
+(48262, 2, 1, 1, 1199, 	0, 3, 1, 1, 0.2, 41681, 0, 0, 0, 4826202, 0, 0, 3519, 4019, 524288, 0, 0, 0, 0, 0, 0, 0, 45745),
 (48262, 24, 1, 1, 2872, 3, 7, 1, 1, 1, 41682, 0, 0, 0, 0, 0, 0, 4819, 4819, 524288, 0, 0, 0, 0, 0, 0, 0, -1), -- Ogre Bodyguard
 (47162, 1, 1, 1, 202, 0, 1, 1, 1, 1, 43995, 104, 128, 0, 4716201, 0, 0, 13158, 13158, 524288, 0, 0, 0, 0, 0, 0, 0, 64978),
 (47162, 2, 2, 2, 1199, 0, 5, 1, 1, 5, 43995, 104, 128, 0, 4716202, 0, 0, 13158, 13158, 524288, 0, 0, 0, 0, 0, 0, 0, 64978),
@@ -275,10 +289,11 @@ UPDATE `creature_template_addon` SET `auras` = '87239 88348' WHERE `entry` = 437
 UPDATE `creature_template_addon` SET `auras` = '89734' WHERE `entry` IN (48276, 48293, 48295, 48298, 48299, 48302); -- Rotten Food aura
 
 -- Add missing template addons
-DELETE FROM `creature_template_addon` WHERE `entry` IN (51594);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (51594,47754);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`,
 `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(51594, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '93484');
+(51594, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '93484'),
+(47754, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '89251 89252'); -- Cookies Cauldron
 
 -- Spawn Updates
 UPDATE `creature` SET `ZoneId` = 1581, `AreaId` = 1581, `spawnDifficulties` = '1,2,24' WHERE `map` = 36 AND `PhaseId` IN (0, 169);
@@ -326,9 +341,9 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `Sta
 (376022, 0, 0, 0, 0, 0, 0, 1, 0, 234, 0, 0, 0, 0, '');
 
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` IN (48229,48279,48440,48441,48442,48278,48351,48338,48418,48419,48420,48505,
-48502,48417,48447,48448,48449,48450,48451);
+48502,48417,48447,48448,48449,48450,48451,49854);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (48229,48279,48440,48441,48442,48278,48351,48338,48418,48419,48420,48505,
-48502,48417,48447,48448,48449,48450,48451) and `source_type` = 0;
+48502,48417,48447,48448,48449,48450,48451,49854) and `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, 
 `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, 
 `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, 
@@ -349,6 +364,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (48417, 0, 2, 0, '', 61, 0, 100, 1, 0, 15, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Say Text at 15% HP'),
 (48417, 0, 3, 0, '', 0, 0, 100, 0, 5000, 5000, 35000, 35000, 0, '', 11, 90932, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Ragezone'),
 (48417, 0, 4, 0, '', 0, 0, 100, 0, 1000, 2000, 12000, 14000, 0, '', 11, 90946, 0, 0, 0, 0, 0, 0, '', 26, 20, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodwash on Friendlies'),
+(49854, 0, 0, 0, '', 0, 0, 100, 0, 0, 0, 3400, 4700, 0, '', 11, 90938, 64, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodbolt'),
+(49854, 0, 1, 2, '', 2, 0, 100, 1, 0, 15, 1000, 1000, 0, '', 25, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Flee at 15% HP'),
+(49854, 0, 2, 0, '', 61, 0, 100, 1, 0, 15, 0, 0, 0, '', 1, 0, 0, 0, 0, 0, 0, 0, '', 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Say Text at 15% HP'),
+(49854, 0, 3, 0, '', 0, 0, 100, 0, 5000, 5000, 35000, 35000, 0, '', 11, 90385, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Ragezone'),
+(49854, 0, 4, 0, '', 0, 0, 100, 0, 1000, 2000, 12000, 14000, 0, '', 11, 90946, 0, 0, 0, 0, 0, 0, '', 26, 20, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Blood Wizzard - Cast Bloodwash on Friendlies'),
 (48502, 0, 0, 0, '', 4, 0, 100, 1, 0, 0, 0, 0, 0, '', 11, 90928, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Charge on Aggro'),
 (48502, 0, 1, 0, '', 0, 0, 100, 0, 5000, 5000, 17000, 19000, 0, '', 11, 90929, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Recklessness'),
 (48502, 0, 2, 0, '', 2, 0, 100, 0, 0, 40, 8000, 11000, 0, '', 11, 90925, 0, 0, 0, 0, 0, 0, '', 2, 0, 0, 0, 0, '', 0, 0, 0, 0, 'Defias Enforcer - Cast Bloodbath at 40% HP'),
@@ -473,10 +493,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_note' WHERE `entry` = 49564; 
 UPDATE `creature_template` SET `ScriptName` = 'npc_magma_pull' WHERE `entry` = 49454; -- Vanessa's Trap Bunny
 UPDATE `creature_template` SET `ScriptName` = 'npc_rope_away' WHERE `entry` = 49550; -- Rope
 UPDATE `creature_template` SET `ScriptName` = 'npc_lightning_orbs' WHERE `entry` = 49520; -- Lightning Platter
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_shadowguard' WHERE `entry` = 49505; -- Defias Shadowguard
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_enforcer' WHERE `entry` = 49502; -- Defias Enforcer
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_envoker' WHERE `entry` = 48418; -- Defias Envoker
-UPDATE `creature_template` SET `ScriptName` = 'npc_defias_bloodwizard' WHERE `entry` = 49854; -- Defias Blood Wizard
 UPDATE `creature_template` SET `ScriptName` = 'npc_oaf_lackey' WHERE `entry` = 48445; -- Oaf Lackey
 UPDATE `creature_template` SET `ScriptName` = 'npc_goblin_overseer' WHERE `entry` = 48279; -- Goblin Overseer
 UPDATE `creature_template` SET `ScriptName` = 'npc_enraged_worgen_dm' WHERE `entry` = 49532; -- Enraged Worgen
@@ -546,7 +562,7 @@ INSERT INTO `vehicle_template` (`creatureId`, `despawnDelayMs`, `Pitch`, `Custom
 (49041, 0, NULL, 0),
 (49042, 0, NULL, 0);
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (48974,48975,48976,49039,49040,49041,49042,48266,49208,47403,47404,
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (48974,48975,48976,49039,49040,49041,49042,48266,49208,47403,47404,49550,
 -- Cookie Bad Food
 48276, 48293, 48295, 48298, 48299, 48302,
 -- Cookie Good Food
@@ -577,9 +593,10 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (49039, 46598, 0, 0),
 (49040, 46598, 0, 0),
 (49041, 46598, 0, 0),
-(49042, 46598, 0, 0);
+(49042, 46598, 0, 0),
+(49550, 46598, 1, 0); -- Deadmines Rope away Ride vehicle
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (91397,87897,87900,89769,88278,92042,89732,89267);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (91397,87897,87900,89769,88278,92042,89732,89267,89250);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (88278, 'spell_helix_force_player_to_ride_oaf'),
 (89769, 'spell_mining_powder_explode'),
@@ -587,7 +604,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (87897, 'spell_glubtok_generic_proc'),
 (87900, 'spell_glubtok_generic_proc'),
 (89732, 'spell_captain_cookie_nauseated'),
-(89267, 'spell_captain_cookie_setiated');
+(89267, 'spell_captain_cookie_setiated'),
+(89250, 'spell_captain_cookie_summon_cauldron');
 
 DELETE FROM `creature_template_spell` WHERE `CreatureID` IN (48266,49208,47403,47404);
 INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES
@@ -654,11 +672,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (47162, 6, 0, 'Fists of frost!', 14, 0, 100, 0, 0, 21156, 0, 47238, 0, 'VO_DM_GlubtokHead2_Spell01'),
 (47162, 7, 0, 'Let''s do it!', 14, 0, 100, 15, 0, 21157, 0, 108750, 0, 'VO_DM_GlubtokHead2_Spell02');
 
-DELETE FROM `creature_text` WHERE `CreatureID` IN (48440,48441,48442,48278,48445,48418,48417,48521);
+DELETE FROM `creature_text` WHERE `CreatureID` IN (48440,48441,48442,48278,48445,48418,48417,48521,49854);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `BroadcastTextId`, `comment`) VALUES 
 (48445, 0, 0, '%s becomes enraged!', 16, 100, 7798, 'Oaf Lackey Enraged'),
 (48521, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Squallshaper Flee'),
 (48417, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Blood Wizzard Flee'),
+(49854, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Blood Wizzard Flee'),
 (48418, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Defias Envoker Flee'),
 (48278, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Mining Monkey Flee'),
 (48440, 0, 0, '%s attempts to run away in fear!', 16, 100, 1150, 'Mining Monkey Flee'),
@@ -736,58 +755,58 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Pro
 
 -- Vanessa Encounter
 DELETE FROM `creature_text` WHERE `CreatureID` IN (49429, 49541, 49536, 49539, 49454,49671);
-INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `Emote`, `Sound`, `BroadcastTextID`, `comment`) VALUES
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Probability`, `Emote`, `Sound`, `BroadcastTextID`, `TextRange`, `comment`) VALUES
 -- Vanessa Intro
-(49429, 0, 0, 'You hear a noise from above the cabin door!', 41, 100, 0, 0, 49476, 'Vanessa VanCleef - Spawn Warning'),
-(49429, 1, 0, 'I''ve been waiting a long time for this, you know.', 12, 100, 1, 24613, 49477, 'Vanessa VanCleef - Intro 1'),
-(49429, 2, 0, 'Biding my time, building my forces, studying the minds of my enemies.', 12, 100, 1, 24614, 49478, 'Vanessa VanCleef - Intro 2'),
-(49429, 3, 0, 'I was never very good at hand-to-hand combat, you know.  Not like my father.', 12, 100, 1, 24615, 49479, 'Vanessa VanCleef - Intro 3'),
-(49429, 4, 0, 'But I always excelled at poisons.', 12, 100, 1, 24616, 49480, 'Vanessa VanCleef - Intro 4'),
-(49429, 5, 0, 'Especially venoms that affect the mind.', 12, 100, 1, 24617, 49481, 'Vanessa VanCleef - Intro 5'),
+(49429, 0, 0, 'You hear a noise from above the cabin door!', 41, 100, 0, 0, 49476, 0, 'Vanessa VanCleef - Spawn Warning'),
+(49429, 1, 0, 'I''ve been waiting a long time for this, you know.', 12, 100, 1, 24613, 49477, 0, 'Vanessa VanCleef - Intro 1'),
+(49429, 2, 0, 'Biding my time, building my forces, studying the minds of my enemies.', 12, 100, 1, 24614, 49478, 0, 'Vanessa VanCleef - Intro 2'),
+(49429, 3, 0, 'I was never very good at hand-to-hand combat, you know.  Not like my father.', 12, 100, 1, 24615, 49479, 0, 'Vanessa VanCleef - Intro 3'),
+(49429, 4, 0, 'But I always excelled at poisons.', 12, 100, 1, 24616, 49480, 0, 'Vanessa VanCleef - Intro 4'),
+(49429, 5, 0, 'Especially venoms that affect the mind.', 12, 100, 1, 24617, 49481, 0, 'Vanessa VanCleef - Intro 5'),
  
  -- Vanessa Nightmare
- (49671, 0, 0, 'The Nightmare Elixir takes hold!', 41, 100, 0, 0, 49705, 'Vanessa VanCleef - Nightmare Warning'),
- (49671, 1, 0, 'Poor Glubtok.  When his powers manifested, his own ogre mound was the first to burn.', 12, 100, 1, 24602, 49715, 'Vanessa VanCleef - Nightmare 1'),
- (49671, 2, 0, 'Deep within his soul, the one thing he feared most of all was...himself.', 12, 100, 1, 24603, 49716, 'Vanessa VanCleef - Nightmare 1'),
- (49671, 3, 0, 'You have entered Glubtok''s Nightmare!', 41, 100, 0, 0, 49706, 'Vanessa VanCleef - Glubtok Nightmare Warning'),
- (49671, 4, 0, 'Get back to the ship!', 41, 100, 0, 0, 50703, 'Vanessa VanCleef - Nightmare Get Back To The Ship Warning'),
- (49671, 5, 0, 'The nightmare shifts!', 41, 100, 0, 0, 49707, 'Vanessa VanCleef - Nightmare Shift'),
- (49671, 6, 0, 'You have entered Helix''s Nightmare!', 41, 100, 0, 0, 49708, 'Vanessa VanCleef - Helix Nightmare Warning'),
- (49671, 7, 0, 'Most rogues prefer to cloak themselves in the shadows, but not Helix.', 12, 100, 1, 24604, 49723, 'Vanessa VanCleef - Nightmare 2'),
- (49671, 8, 0, 'You never know what skitters in the darkness.', 12, 100, 1, 24605, 49724, 'Vanessa VanCleef - Nightmare 2'),
- (49671, 9, 0, 'You have entered the mechanical nightmare!', 41, 100, 0, 0, 49709, 'Vanessa VanCleef - mechanical Nightmare Warning'),
- (49671, 10, 0, 'Can you imagine the life of a machine?', 12, 100, 1, 24606, 49725, 'Vanessa VanCleef - Nightmare 3'),
- (49671, 11, 0, 'A simple spark can mean the difference between life...and death.', 12, 100, 1, 24607, 49726, 'Vanessa VanCleef - Nightmare 3'),
- (49671, 12, 0, 'Ripsnarl wasn''t always a bloodthirsty savage.  Once, he even had a family.', 12, 100, 1, 24608, 49742, 'Vanessa VanCleef - Nightmare 4'),
- (49671, 13, 0, 'He was called James Harrington.  A tragedy in three parts.', 12, 100, 1, 24609, 49745, 'Vanessa VanCleef - Nightmare 4'),
- (49671, 14, 0, 'You have entered Ripsnarl''s nightmare!', 41, 100, 0, 0, 49710, 'Vanessa VanCleef - Ripsnarl Nightmare Warning'),
- (49671, 15, 0, 'Save Emme Harrington!', 41, 100, 0, 0, 49711, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 1'),
- (49671, 16, 0, 'Save Erik Harrington!', 41, 100, 0, 0, 49712, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 2'),
- (49671, 17, 0, 'Save Calissa Harrington!', 41, 100, 0, 0, 49713, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 3'),
- (49671, 18, 0, 'The Nightmare Elixir wears off!', 41, 100, 0, 0, 49714, 'Vanessa VanCleef - Nightmare Elixir Off'),
+ (49671, 0, 0, 'The Nightmare Elixir takes hold!', 41, 100, 0, 0, 49705, 3, 'Vanessa VanCleef - Nightmare Warning'),
+ (49671, 1, 0, 'Poor Glubtok.  When his powers manifested, his own ogre mound was the first to burn.', 12, 100, 1, 24602, 49715, 0, 'Vanessa VanCleef - Nightmare 1'),
+ (49671, 2, 0, 'Deep within his soul, the one thing he feared most of all was...himself.', 12, 100, 1, 24603, 49716, 0, 'Vanessa VanCleef - Nightmare 1'),
+ (49671, 3, 0, 'You have entered Glubtok''s Nightmare!', 41, 100, 0, 0, 49706, 3, 'Vanessa VanCleef - Glubtok Nightmare Warning'),
+ (49671, 4, 0, 'Get back to the ship!', 41, 100, 0, 0, 50703, 3, 'Vanessa VanCleef - Nightmare Get Back To The Ship Warning'),
+ (49671, 5, 0, 'The nightmare shifts!', 41, 100, 0, 0, 49707, 3, 'Vanessa VanCleef - Nightmare Shift'),
+ (49671, 6, 0, 'You have entered Helix''s Nightmare!', 41, 100, 0, 0, 49708, 3, 'Vanessa VanCleef - Helix Nightmare Warning'),
+ (49671, 7, 0, 'Most rogues prefer to cloak themselves in the shadows, but not Helix.', 12, 100, 1, 24604, 49723, 0, 'Vanessa VanCleef - Nightmare 2'),
+ (49671, 8, 0, 'You never know what skitters in the darkness.', 12, 100, 1, 24605, 49724, 0, 'Vanessa VanCleef - Nightmare 2'),
+ (49671, 9, 0, 'You have entered the mechanical nightmare!', 41, 100, 0, 0, 49709, 3, 'Vanessa VanCleef - mechanical Nightmare Warning'),
+ (49671, 10, 0, 'Can you imagine the life of a machine?', 12, 100, 1, 24606, 49725, 0, 'Vanessa VanCleef - Nightmare 3'),
+ (49671, 11, 0, 'A simple spark can mean the difference between life...and death.', 12, 100, 1, 24607, 49726, 0, 'Vanessa VanCleef - Nightmare 3'),
+ (49671, 12, 0, 'Ripsnarl wasn''t always a bloodthirsty savage.  Once, he even had a family.', 12, 100, 1, 24608, 49742, 0, 'Vanessa VanCleef - Nightmare 4'),
+ (49671, 13, 0, 'He was called James Harrington.  A tragedy in three parts.', 12, 100, 1, 24609, 49745, 0, 'Vanessa VanCleef - Nightmare 4'),
+ (49671, 14, 0, 'You have entered Ripsnarl''s nightmare!', 41, 100, 0, 0, 49710, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Warning'),
+ (49671, 15, 0, 'Save Emme Harrington!', 41, 100, 0, 0, 49711, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 1'),
+ (49671, 16, 0, 'Save Erik Harrington!', 41, 100, 0, 0, 49712, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 2'),
+ (49671, 17, 0, 'Save Calissa Harrington!', 41, 100, 0, 0, 49713, 3, 'Vanessa VanCleef - Ripsnarl Nightmare Harrington 3'),
+ (49671, 18, 0, 'The Nightmare Elixir wears off!', 41, 100, 0, 0, 49714, 3, 'Vanessa VanCleef - Nightmare Elixir Off'),
  
  -- Vanessa Boss
-(49541, 0, 0, 'I will not share my father''s fate!  Your tale ends here!', 14, 100, 0, 128141, 170621, 'Vanessa VanCleef - Aggro'), -- also text id 49748 with sound 24599
-(49541, 1, 0, 'Did you really think I would come to this fight alone?', 14, 100, 0, 24620, 49750, 'Vanessa VanCleef - Summon Adds'),
-(49541, 2, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 100, 0, 24621, 49751, 'Vanessa VanCleef - Bomb at 50 pct'),
-(49541, 3, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 100, 0, 24622, 50706, 'Vanessa VanCleef - Bomb at 25 pct'),
-(49541, 4, 0, 'The first of many.', 14, 100, 274, 24618, 49749, 'Vanessa VanCleef - Killed target'),
-
--- (49541, 0, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 100, 274, 24610, 49753, 'Vanessa VanCleef - Defeated 1'),
--- (49541, 0, 0, 'If I''m going to die, I''m taking you all with me!', 14, 100, 15, 128140, 170622, 'Vanessa VanCleef - Defeated 2'),
--- (49541, 0, 0, 'MY FATE IS MY OWN!', 14, 100, 397, 24612, 49754, 'Vanessa VanCleef - Defeated 3'),
+(49541, 0, 0, 'I will not share my father''s fate!  Your tale ends here!', 14, 100, 0, 128141, 170621, 0, 'Vanessa VanCleef - Aggro'), -- also text id 49748 with sound 24599
+(49541, 1, 0, 'Did you really think I would come to this fight alone?', 14, 100, 0, 24620, 49750, 0, 'Vanessa VanCleef - Summon Adds'),
+(49541, 2, 0, 'Fools!  This entire ship is rigged with explosives!  Enjoy your fiery deaths!', 14, 100, 0, 24621, 49751, 0, 'Vanessa VanCleef - Bomb at 50 pct'),
+(49541, 3, 0, 'You didn''t honestly think I would only plant ONE set of explosives, did you?', 14, 100, 0, 24622, 50706, 0, 'Vanessa VanCleef - Bomb at 25 pct'),
+(49541, 4, 0, 'The first of many.', 14, 100, 274, 24618, 49749, 0, 'Vanessa VanCleef - Killed target'),
+(49541, 5, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 0, 'Vanessa VanCleef - Warning 1'),
+(49541, 6, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 0, 'Vanessa VanCleef - Warning 2'),
+(49541, 7, 0, 'ENOUGH!  I will not give you the pleasure!', 14, 100, 274, 24610, 49753, 0, 'Vanessa VanCleef - Defeated 1'),
+(49541, 8, 0, 'If I''m going to die, I''m taking you all with me!', 14, 100, 15, 128140, 170622, 0, 'Vanessa VanCleef - Defeated 2'),
+(49541, 9, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it! RUN!', 41, 100, 0, 0, 49757, 0, 'Vanessa VanCleef - Warning 3'), 
+(49541, 10, 0, 'MY FATE IS MY OWN!', 14, 100, 397, 24612, 49754, 0, 'Vanessa VanCleef - Defeated 3'),
 
 -- Warnings
--- (49541, 0, 0, 'Vanessa has detonated charges on the ship!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49755, 'Vanessa VanCleef - Warning 1'),
--- (49541, 0, 0, 'Vanessa is detonating more charges!  Get to the ropes at the side of the boat!', 41, 100, 0, 0, 49756, 'Vanessa VanCleef - Warning 2'),
--- (49541, 0, 0, 'Vanessa pulls out a final barrel of mining powder and ignites it! RUN!', 41, 100, 0, 0, 49757, 'Vanessa VanCleef - Warning 3'), 
-(49454, 0, 0, 'Vanessa injects you with the Nightmare Elixir!', 41, 100, 0, 0, 49483, 'Vanessa Trap Bunny - Warning 1'),
-(49454, 1, 0, 'Activate the steam valves to free yourself!', 41, 100, 0, 0, 49680, 'Vanessa Trap Bunny - Warning 2'),
+-- 
+(49454, 0, 0, 'Vanessa injects you with the Nightmare Elixir!', 41, 100, 0, 0, 49483, 0, 'Vanessa Trap Bunny - Warning 1'),
+(49454, 1, 0, 'Activate the steam valves to free yourself!', 41, 100, 0, 0, 49680, 0, 'Vanessa Trap Bunny - Warning 2'),
 
 -- Harringtons
-(49539, 0, 0, 'Calissa...I am so sorry...', 12, 100, 0, 0, 49761, 'James Harrington - To Calissa Harrington'),
-(49536, 0, 0, 'James...please...I love you...', 12, 100, 0, 0, 49762, 'Calissa Harrington - James Harrington'),
-(49536, 1, 0, 'Calissa is dying!', 16, 100, 0, 0, 49763, 'Calissa Harrington - James Harrington');
+(49539, 0, 0, 'Calissa...I am so sorry...', 12, 100, 0, 0, 49761, 0, 'James Harrington - To Calissa Harrington'),
+(49536, 0, 0, 'James...please...I love you...', 12, 100, 0, 0, 49762, 0, 'Calissa Harrington - James Harrington'),
+(49536, 1, 0, 'Calissa is dying!', 16, 100, 0, 0, 49763, 0, 'Calissa Harrington - James Harrington');
 
 -- GO: 207079 Ball and Chain
 UPDATE `gameobject_template` SET `ScriptName` = 'go_ball_and_chain' WHERE `entry` = 207079;
@@ -836,73 +855,3 @@ INSERT INTO `gameobject` (guid, id, map, spawndifficulties, phaseUseFlags, phase
 -- Defias Gunpowder
 (@OGUID+106, 17155, 36, '1,2,24', 0, 0, -106.409, -617.284, 13.8495, -0.767945, -0.374607, 0.927184, 180, 1);
 
--- Deadmines Loot Tables
-
-DELETE FROM `creature_loot_template` WHERE `Entry` IN (43778,4377801,4377802,47296,4729601,4729602,47162,4716201,4716202,47739,4773901,4773902,
-47626,4762601,4762602);
-INSERT INTO `creature_loot_template` (`Entry`, `ItemType`, `Item`, `Chance`, `QuestRequired`, `LootMode`, `GroupID`, `MinCount`, `MaxCount`, `Comment`) VALUES
--- Glubtok loot normal and heroic
-(4716201, 0, 5444, 37, 0, 1, 0, 1, 1, 'Glubtok Miner Cape'),
-(4716201, 0, 2169, 32, 0, 1, 0, 1, 1, 'Glubtok Buzzer Blade'),
-(4716201, 0, 5195, 32, 0, 1, 0, 1, 1, 'Glubtok Gold-Flecked Gloves'),
-
-(4716202, 0, 65163, 21, 0, 1, 0, 1, 1, 'Glubtok Heroic Buzzer Blade'),
-(4716202, 0, 63468, 20, 0, 1, 0, 1, 1, 'Glubtok Heroic Defias Brotherhood Vest'),
-(4716202, 0, 63470, 20, 0, 1, 0, 1, 1, 'Glubtok Heroic Missing Diplomat Pauldrons'),
-(4716202, 0, 63471, 20, 0, 1, 0, 1, 1, 'Glubtok Heroic Vest of the curious visitor'),
-(4716202, 0, 63467, 20, 0, 1, 1, 1, 1, 'Glubtok Heroic Shadow of the past'),
-(4716202, 0, 157628, 19, 0, 1, 0, 1, 1, 'Glubtok Heroic Gold-Flecked Gloves'),
--- Helix loot normal and heroic
-(4729601, 0, 5199, 25, 0, 1, 0, 1, 1, 'Helix Smelting Pants'),
-(4729601, 0, 5443, 22, 0, 1, 0, 1, 1, 'Helix Gold-Plated Buckler'),
-(4729601, 0, 5191, 20, 0, 1, 0, 1, 1, 'Helix Cruel Barb'),
-(4729601, 0, 5200, 19, 0, 1, 0, 1, 1, 'Helix Impaling Harpoon'),
-(4729601, 0, 151062, 6, 0, 1, 0, 1, 1, 'Helix Armbands of Exiled Architects'),
-(4729601, 0, 132556, 6, 0, 1, 0, 1, 1, 'Helix Smelters Britches'),
-(4729601, 0, 151063, 4, 0, 1, 0, 1, 1, 'Helix Gear-Marked Gauntlets'),
-
-(4729602, 0, 65164, 21, 0, 1, 0, 1, 1, 'Helix Cruel Barb'),
-(4729602, 0, 63474, 20, 0, 1, 0, 1, 1, 'Helix Gear-Marked Gauntlets'),
-(4729602, 0, 63476, 20, 0, 1, 0, 1, 1, 'Helix Gearbreaker Bindings'),
-(4729602, 0, 63475, 20, 0, 1, 0, 1, 1, 'Helix Old Friends Gloves'),
-(4729602, 0, 63473, 19, 0, 1, 0, 1, 1, 'Helix Cloak of Thredd'),
-(4729602, 0, 157752, 1.4, 0, 1, 0, 1, 1, 'Helix Armbands of Exiled Architects'),
--- Foereaper loot normal and heroic
-(4377801, 0, 5201, 31, 0, 1, 0, 1, 1, 'Foereaper Emberstone Staff'),
-(4377801, 0, 1937, 28, 0, 1, 0, 1, 1, 'Foereaper Buzz Saw'),
-(4377801, 0, 5187, 28, 0, 1, 0, 1, 1, 'Foereaper Foe Reaper'),
-(4377801, 0, 151066, 4, 0, 1, 0, 1, 1, 'Foereaper Missing Diplomat Pauldrons'),
-(4377801, 0, 151064, 4, 0, 1, 0, 1, 1, 'Foereaper Vest of the Curious Visitor'),
-(4377801, 0, 151065, 3, 0, 1, 0, 1, 1, 'Foereaper Old Friends Gloves'),
-
-(4377801, 0, 65167, 32, 0, 1, 0, 1, 1, 'Foereaper Emberstone Staff'),
-(4377801, 0, 65166, 31, 0, 1, 0, 1, 1, 'Foereaper Buzz Saw'),
-(4377801, 0, 65165, 31, 0, 1, 0, 1, 1, 'Foereaper Foe Reaper'),
-(4377801, 0, 157755, 1, 0, 1, 0, 1, 1, 'Foereaper Missing Diplomat Pauldrons'),
-(4377801, 0, 157753, 1, 0, 1, 0, 1, 1, 'Foereaper Vest of the Curious Visitor'),
-(4377801, 0, 157754, 1, 0, 1, 0, 1, 1, 'Foereaper Old Friends Gloves'),
--- Admiral Ripsnarl loot normal and Heroic
-(4762601, 0, 1156, 39, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Lavishly Jeweled Ring'),
-(4762601, 0, 872, 31, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Rockslicer'),
-(4762601, 0, 5196, 29, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Smite Reaver'),
-(4762601, 0, 71638, 1, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Ornate Weapon'),
-
-(4762602, 0, 65170, 34, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Smite Reaver'),
-(4762602, 0, 65168, 33, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Rockslicer'),
-(4762602, 0, 65169, 32, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Lavishly Jeweled Ring'),
-(4762602, 0, 44731, 3, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Bouquet of Ebon Roses'),
-(4762602, 0, 22206, 2, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Bouquet of Red Roses'),
-(4762602, 0, 21524, 14, 0, 1, 0, 1, 1, 'Admiral Ripsnarl Red Winter Hat'),
--- Captain Cookie loot normal and heroic
-(4773901, 0, 5193, 28, 0, 1, 0, 1, 1, 'Captain Cookie Cape of the Brotherhood'),
-(4773901, 0, 5198, 21, 0, 1, 0, 1, 1, 'Captain Cookie Cookies Stirring Rod'),
-(4773901, 0, 5202, 18, 0, 1, 0, 1, 1, 'Captain Cookie Corsair Overshirt'),
-(4773901, 0, 5197, 17, 0, 1, 0, 1, 1, 'Captain Cookie Cookies Tenderizer'),
-(4773901, 0, 5192, 16, 0, 1, 0, 1, 1, 'Captain Cookie Thiefs Blade'),
-(4773901, 0, 248332, 1, 0, 1, 0, 1, 1, 'Captain Cookie Stormwind Footlocker'),
-
-(4773902, 0, 65171, 21, 0, 1, 0, 1, 1, 'Captain Cookie Cookies Tenderizer'),
-(4773902, 0, 65174, 21, 0, 1, 0, 1, 1, 'Captain Cookie Corsair Overshirt'),
-(4773902, 0, 65173, 21, 0, 1, 0, 1, 1, 'Captain Cookie Thiefs Blade'),
-(4773902, 0, 65177, 21, 0, 1, 0, 1, 1, 'Captain Cookie Cape of the Brotherhood'),
-(4773902, 0, 65172, 21, 0, 1, 0, 1, 1, 'Captain Cookie Cookies Stirring Rod');

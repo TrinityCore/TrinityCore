@@ -349,7 +349,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
         }
     }
 
-    bool CanCaptureFlag(AreaTrigger* areaTrigger, Player* player) override
+    bool CanCaptureFlag(AreaTrigger* areaTrigger, Unit* player) override
     {
         Team const team = battleground->GetPlayerTeam(player->GetGUID());
         TeamId const teamId = Battleground::GetTeamIndexByTeamId(team);
@@ -363,7 +363,7 @@ struct battleground_deephaul_ravine : BattlegroundScript
         return false;
     }
 
-    void OnCaptureFlag(AreaTrigger* areaTrigger, Player* player) override
+    void OnCaptureFlag(AreaTrigger* areaTrigger, Unit* player) override
     {
         BattlegroundScript::OnCaptureFlag(areaTrigger, player);
 
@@ -371,40 +371,49 @@ struct battleground_deephaul_ravine : BattlegroundScript
             gameObject->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Respawning, player));
 
         player->RemoveAurasDueToSpell(DeephaulRavine::Spells::DeephaulCrystal);
-        battleground->UpdatePvpStat(player, DeephaulRavine::PvpStats::FlagCaptures, 1);
+        battleground->UpdatePvpStat(player->ToPlayer(), DeephaulRavine::PvpStats::FlagCaptures, 1);
 
-        battleground->AddPoint(player->GetBGTeam(), 100);
-        if (player->GetBGTeam() == ALLIANCE)
+        battleground->AddPoint(player->ToPlayer()->GetBGTeam(), 100);
+        if (player->ToPlayer()->GetBGTeam() == ALLIANCE)
         {
             battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalCapturedAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             battleground->PlaySoundToAll(DeephaulRavine::Sounds::PvpFlagCapturedAlliance);
         }
-        else if (player->GetBGTeam() == HORDE)
+        else if (player->ToPlayer()->GetBGTeam() == HORDE)
         {
             battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::CrystalCapturedHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
             battleground->PlaySoundToAll(DeephaulRavine::Sounds::PvpFlagCapturedHorde);
         }
     }
 
-    void OnFlagStateChange(GameObject* flagInBase, FlagState oldValue, FlagState newValue, Player* player) override
+    void OnFlagStateChange(GameObject* flagInBase, FlagState oldValue, FlagState newValue, Unit* unit) override
     {
-        BattlegroundScript::OnFlagStateChange(flagInBase, oldValue, newValue, player);
+        BattlegroundScript::OnFlagStateChange(flagInBase, oldValue, newValue, unit);
+
+        Player* player = unit ? unit->ToPlayer() : nullptr;
 
         switch (newValue)
         {
             case FlagState::Taken:
-                battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN, player->GetBGTeam() == HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-                battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL, CHAT_MSG_RAID_BOSS_EMOTE, player); // player should also be the sender
-                battleground->PlaySoundToAll(player->GetBGTeam() == HORDE ? DeephaulRavine::Sounds::PvpFlagTakenHorde : DeephaulRavine::Sounds::PvpFlagTakenAlliance);
-                UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, player->GetBGTeam() == HORDE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
-                UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                if (player)
+                {
+                    battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN, player->GetBGTeam() == HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                    battleground->SendMessageToAll(LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL, CHAT_MSG_RAID_BOSS_EMOTE, player); // player should also be the sender
+                    battleground->PlaySoundToAll(player->GetBGTeam() == HORDE ? DeephaulRavine::Sounds::PvpFlagTakenHorde : DeephaulRavine::Sounds::PvpFlagTakenAlliance);
+                    UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, player->GetBGTeam() == HORDE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                    UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, player->GetBGTeam() == ALLIANCE ? DeephaulRavine::WorldStates::Values::FlagClaimed : DeephaulRavine::WorldStates::Values::FlagUnclaimed);
+                }
                 break;
             case FlagState::Dropped:
-                if (player->GetBGTeam() == ALLIANCE)
-                    battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
-                else
-                    battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_HORDE, player);
-                player->CastSpell(player, DeephaulRavine::Spells::RecentlyDroppedFlag, true);
+                if (player)
+                {
+                    if (player->GetBGTeam() == ALLIANCE)
+                        battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                    else
+                        battleground->SendBroadcastText(DeephaulRavine::BroadcastTexts::FlagDropped, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                }
+                if (unit)
+                    unit->CastSpell(unit, DeephaulRavine::Spells::RecentlyDroppedFlag, true);
                 UpdateWorldState(DeephaulRavine::WorldStates::HordeFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 UpdateWorldState(DeephaulRavine::WorldStates::AllianceFlagState, DeephaulRavine::WorldStates::Values::FlagUnclaimed);
                 break;

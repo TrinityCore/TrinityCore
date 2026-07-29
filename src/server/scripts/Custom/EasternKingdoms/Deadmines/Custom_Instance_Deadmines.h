@@ -70,6 +70,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 NightmareMechanicalState = 1014;
         static constexpr uint32 SteamValveCount = 1015;
         static constexpr uint32 ActiveNightmare = 1016;
+        static constexpr uint32 VindicatorElixirTime = 1017;
     }
 
     namespace Version
@@ -217,6 +218,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 OafLackey = 48445;
         static constexpr uint32 GoblinOverseer = 48279;
         static constexpr uint32 VanessaAnchorBunnyJMF = 51624;
+        static constexpr uint32 GeneralPurposeBunnyJMF3 = 47677;
     }
 
     namespace CreatureSpawns
@@ -283,6 +285,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr uint32 ReadyForRaidingDeadmines = 5366;
         static constexpr uint32 ItsFrostDamage = 5369;
         static constexpr uint32 ImOnADiet = 5370;
+        static constexpr uint32 VigorousVanCleefVindicator = 5371;
     }
 
     namespace Texts
@@ -401,6 +404,12 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 Bomb50pct = 2;
             static constexpr int8 Bomb25pct = 3;
             static constexpr int8 KilledUnit = 4;
+            static constexpr int8 VanessaDetonation1 = 5;
+            static constexpr int8 VanessaDetonation2 = 6;
+            static constexpr int8 VanessaDefeated1 = 7;
+            static constexpr int8 VanessaDefeated2 = 8;
+            static constexpr int8 VanessaDetonation3 = 9;
+            static constexpr int8 VanessaDefeated3 = 10;
 
             // Trap Bunny
             static constexpr int8 VanessaTrapBunnyWarning = 0;
@@ -431,11 +440,6 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 JamesHarrington0 = 0;
             static constexpr int8 CalissaHarrington0 = 0;
             static constexpr int8 CalissaHarrington1 = 1;
-            
-            
-            
-            static constexpr int8 VanessaNightmare1 = 24;
-            static constexpr int8 VanessaDetonate = 33;
         }
     }
 
@@ -608,6 +612,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr uint32 DeadlyBlades = 92622;
             static constexpr uint32 Vengeance = 95542;
             static constexpr uint32 PowderExplosion = 96283;
+            static constexpr uint32 VanessaCosmeticBombState = 96280;
             static constexpr uint32 FieryBlaze = 93484;
             static constexpr uint32 FieryBlazeDamage = 93485;
             static constexpr uint32 ClickMe = 95527;
@@ -757,11 +762,10 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         // Captain Cookie Events
         static constexpr int8 CookieMoveToCauldron = 1;
-        static constexpr int8 CookieSummonCauldron = 2;
-        static constexpr int8 CookieJumpToCauldron = 3;
-        static constexpr int8 CookieEnterCauldron = 4;
-        static constexpr int8 CookieThrowFood = 5;
-        static constexpr int8 CookieEnableMurloc = 6;
+        static constexpr int8 CookieJumpToCauldron = 2;
+        static constexpr int8 CookieEnterCauldron = 3;
+        static constexpr int8 CookieThrowFood = 4;
+        static constexpr int8 CookieEnableMurloc = 5;
 
         namespace VanessaVanCleef
         {
@@ -784,6 +788,9 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 IcicleAOE = 17;
             static constexpr int8 SpiritStrike = 18;
             static constexpr int8 Spiders = 19;
+            static constexpr int8 BossIntroMove = 20;
+            static constexpr int8 FinalWarning = 21;
+            static constexpr int8 FinalDetonation = 22;
 
             // Intro
             static constexpr int8 IntroJump = 1;
@@ -816,6 +823,8 @@ namespace Scripts::EasternKingdoms::Deadmines
             static constexpr int8 SummonSpiders = 46;
             static constexpr int8 MechanicalEngage = 47;
             static constexpr int8 NightmareElixirReapply = 48;
+            static constexpr int8 NightmareSaveEmme = 49;
+            static constexpr int8 RopeStartRide = 50;
         }
     }
 
@@ -830,6 +839,15 @@ namespace Scripts::EasternKingdoms::Deadmines
         namespace VanessaVanCleef
         {
             static constexpr int8 EjectAll = 1;
+        }
+    }
+
+    namespace Points
+    {
+        namespace VanessaVanCleef
+        {
+            static constexpr uint32 RopeOut = 1;
+            static constexpr uint32 RopeHome = 2;
         }
     }
 
@@ -935,6 +953,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         };
 
         // Captain Cookie
+        static constexpr Position CookieCauldronSpawn = { -64.2552f, -820.2449f, 41.2374f };
         static constexpr Position VanessaNoteSpawn = { -74.3611f, -820.014f, 40.3714f, 0.0f };
 
         // Vanessa VanCleef
@@ -963,6 +982,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         static constexpr Position VanessaNightmare7 = { -83.16319f, -774.9636f, 26.90351f };
         static constexpr Position FoeReaperNightmareSpawn = { -101.4549f, -663.6493f, 7.505813f, 1.85f };
         static constexpr Position VanessaBossSpawn = { -79.44965f, -819.8351f, 39.89838f, 0.01745329f };
+        static constexpr Position VanessaBossJumpAtopShip = { -52.31f, -820.18f, 51.91f };
 
         static constexpr Position ElectricSpark[7] =
         {

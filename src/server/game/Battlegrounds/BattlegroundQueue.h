@@ -33,6 +33,7 @@ struct PlayerQueueInfo                                      // stores informatio
 {
     uint32 LastOnlineTime;                                  // for tracking and removing offline players from queue after 5 minutes
     GroupQueueInfo* GroupInfo;                              // pointer to the associated groupqueueinfo
+    uint8 Roles = 0;                                        // role selected when joining the queue (tank/healer/damage)
 };
 
 struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
@@ -84,6 +85,7 @@ class TC_GAME_API BattlegroundQueue
         bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
         uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id) const;
+        uint8 GetPlayerRoles(ObjectGuid guid) const;
 
         typedef std::map<ObjectGuid, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers;

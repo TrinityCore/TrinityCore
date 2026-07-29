@@ -62,11 +62,14 @@ namespace FSBGenAI
 
             bool ExtractStructured(
                 std::string const& jsonStr,
-                std::string& reply, std::string& action, uint32& amount) const override
+                std::string& reply, std::string& action, uint32& amount,
+                uint8* questState = nullptr) const override
             {
                 reply.clear();
                 action = "none";
                 amount = 0;
+                if (questState)
+                    *questState = 0;
 
                 if (jsonStr.empty())
                     return false;
@@ -95,6 +98,9 @@ namespace FSBGenAI
                     amount = doc["amount"].GetUint();
                 else if (doc.HasMember("amount") && doc["amount"].IsInt() && doc["amount"].GetInt() >= 0)
                     amount = static_cast<uint32>(doc["amount"].GetInt());
+
+                if (questState && doc.HasMember("questState") && doc["questState"].IsUint())
+                    *questState = static_cast<uint8>(doc["questState"].GetUint());
 
                 return true;
             }
@@ -157,7 +163,8 @@ namespace FSBGenAI
 
             bool ExtractStructured(
                 std::string const& jsonStr,
-                std::string& reply, std::string& action, uint32& amount) const override
+                std::string& reply, std::string& action, uint32& amount,
+                uint8* questState = nullptr) const override
             {
                 // GetStructuredBotResponse already called ExtractContent on the raw Anthropic envelope,
                 // so jsonStr here is the plain text extracted from the content block.
@@ -188,6 +195,9 @@ namespace FSBGenAI
                     amount = doc["amount"].GetUint();
                 else if (doc.HasMember("amount") && doc["amount"].IsInt() && doc["amount"].GetInt() >= 0)
                     amount = static_cast<uint32>(doc["amount"].GetInt());
+
+                if (questState && doc.HasMember("questState") && doc["questState"].IsUint())
+                    *questState = static_cast<uint8>(doc["questState"].GetUint());
 
                 return true;
             }

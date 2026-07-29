@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the Stefal WoW Project.
+ * It is designed to work exclusively with the TrinityCore framework.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,10 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+ * This code is provided for personal and educational use within the
+ * Stefal WoW Project. It is not intended for commercial distribution,
+ * resale, or any form of monetization.
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#define CATCH_CONFIG_MAIN
-#include "catch2/catch.hpp"
+#include "Followship_bots_chat_battleground.h"

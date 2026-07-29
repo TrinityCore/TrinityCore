@@ -1765,10 +1765,11 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->m_stealth.AddValue(type, -GetAmountAsInt());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
-        {
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_STEALTH, type))
             target->m_stealth.DelFlag(type);
 
+        if (!target->m_stealth.GetFlags())
+        {
             target->RemoveVisFlag(UNIT_VIS_FLAGS_STEALTHED);
             if (Player * playerTarget = target->ToPlayer())
                 playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_STEALTH);
@@ -2059,8 +2060,11 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         // and also HandleAuraModDisarm is not triggered
         if (!target->CanUseAttackType(BASE_ATTACK))
         {
-            if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, apply);
+            if (Player* playerTarget = target->ToPlayer())
+            {
+                if (Item* pItem = playerTarget->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                    playerTarget->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, apply);
+            }
         }
     }
 
@@ -4362,7 +4366,7 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) == MAX_POWERS)
+    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) >= MAX_POWERS_PER_CLASS)
         return;
 
     if (apply)
@@ -4730,7 +4734,7 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4743,7 +4747,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4753,14 +4757,7 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
 
     Unit* target = aurApp->GetTarget();
 
-    //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4773,14 +4770,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 /********************************/
@@ -5588,9 +5578,9 @@ void AuraEffect::HandleAuraPreventRegeneratePower(AuraApplication const* aurApp,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int32 i = 0; i < MAX_POWERS; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(i));
+    for (Powers power : target->GetPowerTypes())
+        if (GetMiscValue() & (1 << power))
+            target->ToPlayer()->UpdatePowerRegen(power);
 }
 
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6090,11 +6080,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
 void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
 {
-    Powers powerType;
-    if (GetMiscValue() == POWER_ALL)
-        powerType = target->GetPowerType();
-    else
-        powerType = Powers(GetMiscValue());
+    Powers powerType = Powers(GetMiscValue());
 
     if (!target->IsAlive() || !target->GetMaxPower(powerType))
         return;
@@ -6586,7 +6572,7 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Player* target = aurApp->GetTarget()->ToPlayer();
+    Unit* target = aurApp->GetTarget();
     if (!target)
         return;
 
@@ -6607,14 +6593,19 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
                 }
                 else if (gobTemplate->type == GAMEOBJECT_TYPE_FLAGSTAND)
                 {
-                    if (ZoneScript* zonescript = target->FindZoneScript())
-                        zonescript->OnFlagDropped(GetCasterGUID(), target);
+                    if (Player* playerTarget = target->ToPlayer())
+                        if (ZoneScript* zonescript = playerTarget->FindZoneScript())
+                            zonescript->OnFlagDropped(GetCasterGUID(), playerTarget);
                 }
             }
         }
     }
 
-    BattlegroundMap* battlegroundMap = target->GetMap()->ToBattlegroundMap();
+    Player* player = target->ToPlayer();
+    if (!player)
+        return;
+
+    BattlegroundMap* battlegroundMap = player->GetMap()->ToBattlegroundMap();
     if (!battlegroundMap)
         return;
 
@@ -6625,21 +6616,21 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     if (apply)
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition playerPosition;
-        playerPosition.Guid = target->GetGUID();
+        playerPosition.Guid = player->GetGUID();
         playerPosition.ArenaSlot = static_cast<int8>(GetMiscValue());
-        playerPosition.Pos = target->GetPosition();
+        playerPosition.Pos = player->GetPosition();
 
         if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL)
-            playerPosition.IconID = target->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+            playerPosition.IconID = player->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
         else if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION)
-            playerPosition.IconID = target->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+            playerPosition.IconID = player->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         else
             TC_LOG_WARN("spell.auras", "Unknown aura effect {} handled by HandleBattlegroundPlayerPosition.", GetAuraType());
 
         bg->AddPlayerPosition(playerPosition);
     }
     else
-        bg->RemovePlayerPosition(target->GetGUID());
+        bg->RemovePlayerPosition(player->GetGUID());
 }
 
 void AuraEffect::HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const

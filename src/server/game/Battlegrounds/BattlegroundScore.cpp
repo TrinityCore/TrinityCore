@@ -89,6 +89,14 @@ uint32 BattlegroundScore::GetAttr(uint8 index) const
     return itr->second;
 }
 
+void BattlegroundScore::SetPrePostMatchRating(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR)
+{
+    PreMatchRating = preMatchRating;
+    PostMatchRating = postMatchRating;
+    PreMatchMMR = preMatchMMR;
+    PostMatchMMR = postMatchMMR;
+}
+
 void BattlegroundScore::BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const
 {
     playerData.PlayerGUID = PlayerGuid;

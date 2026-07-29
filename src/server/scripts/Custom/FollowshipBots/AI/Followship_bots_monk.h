@@ -58,6 +58,8 @@ enum FSB_MONK_HEALER_SPELLS
     SPELL_MONK_SUMMON_SERPENT_STATUE = 115313, //10s, 40f 5% mana
 
     SPELL_MONK_DETOX_ATTACK = 115450, //8s 40f
+
+    SPELL_MONK_SOOTHING_MIST = 115175 //8s 40f
 };
 
 enum FSB_MONK_TANK_SPELLS
@@ -114,10 +116,17 @@ enum FSB_MONK_DPS_SPELLS
 
 namespace FSBMonk
 {
+    namespace Creatures
+    {
+        static constexpr uint32 NPC_JADE_SERPENT_STATUE = 60849;
+    }
+
     void HandleOnSpellCast(Creature* bot, uint32 spellId);
     bool BotOnAuraApplied(Creature* bot, AuraApplication const* aurApp, bool applied, FSBBotStats& botStats);
 
     bool BotHasFortifyingBrew(Creature* bot);
 
     bool BotOOCHealOwner(Creature* bot);
+
+    void SetSerpentStatueTarget(Creature* bot, ObjectGuid targetGuid);
 }

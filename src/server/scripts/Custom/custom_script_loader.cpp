@@ -26,6 +26,7 @@ void AddSC_custom_demonhunter_spell_fixes();
 void AddSC_custom_evoker_spell_fixes();
 void AddSC_custom_hunter_spell_fixes();
 void AddSC_custom_mage_spell_fixes();
+void AddSC_custom_monk_spell_npcs();
 void AddSC_custom_shaman_totem_npcs();
 void AddSC_custom_warlock_spell_fixes();
 void AddSC_custom_warlock_demon_npcs();
@@ -57,8 +58,11 @@ void AddSC_custom_westfall_quests();
 void AddSC_followship_bots();                // FSB main Script
 void AddSC_followship_bots_player();                // FSB Player Scripts
 void AddSC_followship_bots_commandscript();
+void AddSC_followship_bots_command_stats();
 void AddSC_followship_bots_command_template();
 void AddSC_followship_bots_world();                // FSB World Script
+void AddSC_followship_npcs_player();               // FSB NPC Chat Player Script
+void AddSC_followship_bots_battleground_player(); // FSB Battleground Player Script
 
 // ==================== Delves Scripts ======================= //
 void AddSC_delve_system();
@@ -100,6 +104,9 @@ void AddSC_npc_perks_program_vendor();
 // ==================== Spells Scripts ======================= //
 void AddSC_advanced_flying_spell_scripts();
 
+// ==================== Misc Scripts ========================= //
+void AddSC_gm_fixer();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
@@ -111,6 +118,7 @@ void AddCustomScripts()
     AddSC_custom_evoker_spell_fixes();
     AddSC_custom_hunter_spell_fixes();
     AddSC_custom_mage_spell_fixes();
+    AddSC_custom_monk_spell_npcs();
     AddSC_custom_shaman_totem_npcs();
     AddSC_custom_warlock_spell_fixes();
     AddSC_custom_warlock_demon_npcs();
@@ -140,8 +148,11 @@ void AddCustomScripts()
     AddSC_followship_bots();
     AddSC_followship_bots_player();
     AddSC_followship_bots_commandscript();
+    AddSC_followship_bots_command_stats();
     AddSC_followship_bots_command_template();
     AddSC_followship_bots_world();
+    AddSC_followship_npcs_player();
+    AddSC_followship_bots_battleground_player();
 
     // Creature Codex
     //AddSC_creature_codex_sniffer();
@@ -179,5 +190,9 @@ void AddCustomScripts()
     AddSC_instance_shadow_enclave_delve();
     AddSC_delve_commands();
 
+    // Spells
     AddSC_advanced_flying_spell_scripts();
+
+    // Misc
+    AddSC_gm_fixer();
 }

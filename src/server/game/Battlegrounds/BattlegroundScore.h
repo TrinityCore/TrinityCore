@@ -58,6 +58,8 @@ struct BattlegroundScore
 
     void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
+    void SetPrePostMatchRating(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
+
 protected:
 
     ObjectGuid PlayerGuid;

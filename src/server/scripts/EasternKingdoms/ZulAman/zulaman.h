@@ -20,28 +20,29 @@
 
 #include "CreatureAIImpl.h"
 
-uint32 const EncounterCount = 6;
 #define ZulamanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
 enum ZADataTypes
 {
-    // BossState
-    DATA_AKILZON                = 0,
-    DATA_NALORAKK               = 1,
-    DATA_JANALAI                = 2,
-    DATA_HALAZZI                = 3,
-    DATA_HEXLORD                = 4,
-    DATA_DAAKARA                = 5,
+    BOSS_AKILZON                        = 0,
+    BOSS_NALORAKK                       = 1,
+    BOSS_JANALAI                        = 2,
+    BOSS_HALAZZI                        = 3,
+    BOSS_HEXLORD                        = 4,
+    BOSS_DAAKARA                        = 5,
+    MAX_ENCOUNTER,
 
     // Data64
     DATA_HEXLORD_TRIGGER,
 
-    DATA_STRANGE_GONG,
-    DATA_MASSIVE_GATE,
-
     // SetData
-    DATA_ZULAMAN_STATE
+    DATA_ZULAMAN_STATE,
+
+    DATA_BEAR_SPIRIT,
+    DATA_EAGLE_SPIRIT,
+    DATA_LYNX_SPIRIT,
+    DATA_DRAGONHAWK_SPIRIT
 };
 
 enum ZACreatureIds
@@ -54,13 +55,29 @@ enum ZACreatureIds
     NPC_DAAKARA                 = 23863,
 
     NPC_VOLJIN                  = 52924,
-    NPC_HEXLORD_TRIGGER         = 24363
+    NPC_HEXLORD_TRIGGER         = 24363,
+
+    // Daakara
+    NPC_BEAR_SPIRIT             = 23878,
+    NPC_EAGLE_SPIRIT            = 23880,
+    NPC_LYNX_SPIRIT             = 23877,
+    NPC_DRAGONHAWK_SPIRIT       = 23879
 };
 
 enum ZAGameObjectIds
 {
-    GO_STRANGE_GONG             = 187359,
+    GO_LYNX_TEMPLE_EXIT         = 186303,
+    GO_LYNX_TEMPLE_ENTRANCE     = 186304,
+    GO_HEXLORD_ENTRANCE         = 186305,
+    GO_WOODEN_DOOR              = 186306,
     GO_MASSIVE_GATE             = 186728,
+    GO_DOOR_AKILZON             = 186858,
+    GO_DOOR_DAAKARA             = 186859,
+    GO_BAKKALZUS_SATCHEL        = 187021,
+    GO_HAZLEKS_TRUNK            = 186648,
+    GO_KASHAS_BAG               = 186672,
+    GO_NORKANIS_PACKAGE         = 186667,
+    GO_STRANGE_GONG             = 187359,
 };
 
 enum ZAEvents
@@ -80,10 +97,20 @@ enum ZAWorldStates
     WORLD_STATE_ZULAMAN_TIMER           = 3106,
 };
 
+enum ZAActionIds
+{
+    ACTION_WAVE_DONE_1                  = 0,
+    ACTION_WAVE_DONE_2                  = 1,
+    ACTION_WAVE_DONE_3                  = 2,
+    ACTION_WAVE_DONE_4                  = 3
+};
+
 template <class AI, class T>
 inline AI* GetZulAmanAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ZulamanScriptName);
 }
+
+#define RegisterZulAmanCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetZulAmanAI)
 
 #endif

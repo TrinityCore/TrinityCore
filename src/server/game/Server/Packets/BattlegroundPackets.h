@@ -267,6 +267,18 @@ namespace WorldPackets
             uint8 Roles = 0;
         };
 
+        class BattlemasterJoinSkirmish final : public ClientPacket
+        {
+        public:
+            BattlemasterJoinSkirmish(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_SKIRMISH, std::move(packet)) {}
+
+            void Read() override;
+
+            uint8 TeamSizeIndex = 0;
+            uint8 Roles = 0;
+            bool AsGroup = false;
+        };
+
         class BattlefieldLeave final : public ClientPacket
         {
         public:

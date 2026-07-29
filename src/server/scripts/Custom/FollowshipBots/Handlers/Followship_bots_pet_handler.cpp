@@ -58,6 +58,19 @@ namespace FSBPet
             return false;
 
         uint32 petSource = FSBMgr::Get()->GetBotPetSourceForEntry(bot->GetEntry());
+        if (petSource == 0)
+        {
+            TC_LOG_ERROR("scripts.fsb.pet", "FSB: BotSummonPet() bot {} has no petSource configured", bot->GetName());
+            return false;
+        }
+
+        CreatureTemplate const* petTemplate = sObjectMgr->GetCreatureTemplate(petSource);
+        if (!petTemplate)
+        {
+            TC_LOG_ERROR("scripts.fsb.pet", "FSB: BotSummonPet() bot {} has invalid petSource {} (no creature template)", bot->GetName(), petSource);
+            return false;
+        }
+
         Creature* originalPet = bot->FindNearestCreature(petSource, 10.f);
 
         FSBSpells::BotCastSpell(bot, SPELL_HUNTER_SUMMON_HYENA, bot);
@@ -90,15 +103,26 @@ namespace FSBPet
             return false;
 
         uint32 petSource = FSBMgr::Get()->GetBotPetSourceForEntry(owner->GetEntry());
+        if (petSource == 0)
+        {
+            TC_LOG_ERROR("scripts.fsb.pet", "FSB: SetBasePetInformation() bot {} has no petSource configured", owner->GetName());
+            return false;
+        }
+
+        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petSource);
+        if (!creatureInfo)
+        {
+            TC_LOG_ERROR("scripts.fsb.pet", "FSB: SetBasePetInformation() bot {} has invalid petSource {} (no creature template)", owner->GetName(), petSource);
+            return false;
+        }
 
         // Apply updated template
         pet->UpdateEntry(petSource, nullptr, true); // issue is that we cannot update the name at runtime and we need it from existing creature
 
         //entry needs to belong to the creature we want the model
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petSource); //pet->GetEntry()
         CreatureModel model = *ObjectMgr::ChooseDisplayId(creatureInfo);
         pet->SetDisplayId(model.CreatureDisplayID, true);
-
+        pet->ApplyLevelScaling(3325, 0);
         pet->SetModCastingSpeed(1.0f);
         pet->SetModSpellHaste(1.0f);
         pet->SetModHaste(1.0f);
@@ -106,14 +130,13 @@ namespace FSBPet
         pet->SetModHasteRegen(1.0f);
         pet->SetModTimeRate(1.0f);
         pet->SetSpellEmpowerStage(-1);
-
-        pet->SetSpeedRate(MOVE_WALK, creatureInfo->speed_walk);
-        pet->SetSpeedRate(MOVE_RUN, creatureInfo->speed_run);
+        pet->SetSpeedRate(MOVE_WALK, 1.0f);
+        pet->SetSpeedRate(MOVE_RUN, 1.0f);
         pet->SetSpeedRate(MOVE_SWIM, 1.0f); // using 1.0 rate
         pet->SetSpeedRate(MOVE_FLIGHT, 1.0f); // using 1.0 rate
 
         // Will set UNIT_FIELD_BOUNDINGRADIUS, UNIT_FIELD_COMBATREACH and UNIT_FIELD_DISPLAYSCALE
-        pet->SetObjectScale(pet->GetNativeObjectScale());
+        pet->SetObjectScale(pet->GetNativeObjectScale() * 0.8);
         
         pet->SetSheath(SHEATH_STATE_MELEE);
         pet->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
@@ -123,6 +146,8 @@ namespace FSBPet
 
         // Force regen flag for player pets, just like we do for players themselves
         pet->SetUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
+
+        pet->AddUnitTypeMask(UNIT_MASK_GUARDIAN);
 
         // calculate proper level
         uint8 level = owner->GetLevel();
@@ -134,7 +159,7 @@ namespace FSBPet
         pet->SetGender(GENDER_NONE);
         pet->SetPowerType(POWER_FOCUS);
         pet->SetMaxPower(POWER_FOCUS, 100);
-        pet->SetMaxHealth(owner->GetMaxHealth() * 0.75);
+        pet->SetMaxHealth(owner->GetMaxHealth() * 0.15);
         pet->SetFullHealth();
         pet->AIM_Initialize();
 

@@ -57,7 +57,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                 _nightmareHelixState(*this, "NightmareHelixState", 0),
                 _nightmareMechanicalState(*this, "NightmareMechanicalState", 0),
                 _steamValveCount(*this, "SteamValveCount", 0),
-                _activeNightmare(*this, "ActiveNightmare", 0)
+                _activeNightmare(*this, "ActiveNightmare", 0),
+                _vindicatorElixirTime(*this, "VindicatorElixirTime", 0)
             {
                 SetHeaders(Misc::DataHeader);
                 SetBossNumber(Misc::EncounterCount);
@@ -177,6 +178,10 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Misc::ActiveNightmare:
                         _activeNightmare = data;
                         break;
+                    case Misc::VindicatorElixirTime:
+                        if (!_vindicatorElixirTime)
+                            _vindicatorElixirTime = data;
+                        break;
                     default:
                         // Check if this is a player GUID (used for firewall hit tracking)
                         if (data == 1)
@@ -215,6 +220,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                         return _steamValveCount;
                     case Misc::ActiveNightmare:
                         return _activeNightmare;
+                    case Misc::VindicatorElixirTime:
+                        return _vindicatorElixirTime;
                     default:
                         // Check if this is a player GUID (used for firewall hit tracking)
                         if (_playersHitByFirewall.contains(ObjectGuid::Create<HighGuid::Player>(type)))
@@ -549,6 +556,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             PersistentInstanceScriptValue<uint8> _nightmareMechanicalState;
             PersistentInstanceScriptValue<uint8> _steamValveCount;
             PersistentInstanceScriptValue<int8> _activeNightmare;
+            PersistentInstanceScriptValue<uint32> _vindicatorElixirTime;
 
             uint32 _cannonBlastTimer = 0;
             uint32 _piratesTimer = 0;

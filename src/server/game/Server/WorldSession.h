@@ -186,6 +186,7 @@ namespace WorldPackets
         class PVPLogDataRequest;
         class BattlemasterJoin;
         class BattlemasterJoinArena;
+        class BattlemasterJoinSkirmish;
         class BattlefieldLeave;
         class BattlefieldPort;
         class BattlefieldListRequest;
@@ -1129,8 +1130,6 @@ class TC_GAME_API WorldSession
         void SendBindPoint(Creature* npc);
         void SendOpenTransmogrifier(ObjectGuid const& guid);
 
-        void SendAttackStop(Unit const* enemy);
-
         void SendTradeStatus(WorldPackets::Trade::TradeStatus& status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade(TradeStatus status);
@@ -1433,7 +1432,7 @@ class TC_GAME_API WorldSession
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         // Validates that correct unit is moved, coords are in valid range and movement flags
-        bool ValidateMovementInfo(MovementInfo* mi) const;
+        bool ValidateMovementInfo(Unit const* mover, MovementInfo* mi) const;
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo);
@@ -1762,6 +1761,7 @@ class TC_GAME_API WorldSession
         void HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList);
         void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
         void HandleBattlemasterJoinArena(WorldPackets::Battleground::BattlemasterJoinArena& packet);
+        void HandleBattlemasterJoinSkirmish(WorldPackets::Battleground::BattlemasterJoinSkirmish& packet);
         void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
         void HandleRequestRatedPvpInfo(WorldPackets::Battleground::RequestRatedPvpInfo& packet);
         void HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& getPvPOptionsEnabled);
@@ -2076,6 +2076,9 @@ class TC_GAME_API WorldSession
         {
             return _legitCharacters.find(lowGUID) != _legitCharacters.end();
         }
+
+        // Movement helpers
+        Unit* ValidateAndGetUnitBeingMoved(ObjectGuid guid, OpcodeClient opcode, bool forStatusAck) const;
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login

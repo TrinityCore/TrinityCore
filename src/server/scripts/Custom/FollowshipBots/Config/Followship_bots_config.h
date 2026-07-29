@@ -27,6 +27,7 @@
 struct FollowshipBotsConfig
 {
     static bool configFSBEnabled;
+    static bool configFSBOverrideBattlegroundRequirements;
     static bool configFSBUseCustomRegen;
     static bool configFSBUseOOCActions;
     static bool configFSBUseICPotions;
@@ -79,6 +80,7 @@ struct FollowshipBotsConfig
     static float configFSBGenAITopP;
     static float configFSBGenAIFrequencyPenalty;
     static float configFSBGenAIPresencePenalty;
+    static bool configFSBGenAIAutoStartQuest;
 
     static void Load();
 };

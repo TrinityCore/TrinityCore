@@ -26,8 +26,6 @@
 #include "Followship_bots_utils.h"
 #include "Followship_bots_mgr.h"
 
-#include "Followship_bots_group_handler.h"
-
 std::vector<FSBSpellDefinition> WarlockSpellsTable =
 {
     // Spell ID                             Spell Type              ManaCost %  HP % for heal   Chance           Dist/Range     SelfCast    Cooldown Ms     RoleMask
@@ -37,6 +35,12 @@ std::vector<FSBSpellDefinition> WarlockSpellsTable =
     { SPELL_DWARF_STONEFORM,                FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_DRAENEI_GIFT_NAARU,             FSBSpellType::Heal,     0.f,        50.f,           100.f,           30.f,          false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     { SPELL_PANDAREN_QUAKING_PALM,          FSBSpellType::Damage,   0.f,        0.f,            100.f,           2.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_ORC_BLOOD_FURY,                 FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_UNDEAD_WILL_OF_FORSAKEN,        FSBSpellType::Heal,     0.f,        80.f,           100.f,           0.f,           true,        30000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TAUREN_WAR_STOMP,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_TROLL_BERSERKING,               FSBSpellType::Damage,   0.f,        0.f,            100.f,           0.f,           true,       180000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_BLOODELF_ARCANE_TORRENT,        FSBSpellType::Damage,   0.f,        0.f,            100.f,           8.f,           false,      120000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
+    { SPELL_GOBLIN_ROCKET_BARRAGE,          FSBSpellType::Damage,   0.f,        0.f,            100.f,          30.f,           false,       90000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
 
     { SPELL_WARLOCK_UNENDING_RESOLVE,       FSBSpellType::Heal,     0.f,        50.f,           50.f,            0.f,           true,       180000,         FSB_RoleMask::FSB_ROLEMASK_ANY },
     
@@ -103,77 +107,6 @@ namespace FSBWarlock
         default:
             break;
         }
-    }
-
-    bool BotOOCBuffSoulstone(Creature* bot, uint32& globalCooldown)
-    {
-        if (!bot || !bot->IsAlive())
-            return false;
-
-        if (bot->GetSpellHistory()->HasCooldown(SPELL_WARLOCK_SOULSTONE))
-            return false;
-
-        Unit* target = FSBGroup::BotGetFirstGroupHealer(bot);
-        bool recastNeeded = false;
-
-        if (target && target->HasAura(SPELL_WARLOCK_SOULSTONE))
-            return false;
-        else recastNeeded = true;
-
-        Player* player = FSBMgr::Get()->GetBotOwner(bot);
-        if (!recastNeeded && player && player->HasAura(SPELL_WARLOCK_SOULSTONE))
-            return false;
-        else recastNeeded = true;
-
-        if (!recastNeeded && bot->HasAura(SPELL_WARLOCK_SOULSTONE))
-            return false;
-
-        uint32 spellId = SPELL_WARLOCK_SOULSTONE;
-        uint32 visualId = SPELL_WARLOCK_SOULSTONE_VISUAL;
-        bool check = false;
-
-        if (target && target->IsAlive())
-        {
-            if (!target->HasAura(spellId))
-            {
-                bot->AddAura(spellId, target);
-                bot->CastSpell(target, visualId, false);
-                TC_LOG_DEBUG("scripts.fsb.buffs", "FSB Buffs Bot {} buffed {} on target {}.", bot->GetName(), FSBSpellsUtils::GetSpellName(spellId), target->GetName());
-                check = true;
-            }
-        }
-
-        else if (player && player->IsAlive())
-        {
-            if (!player->HasAura(spellId))
-            {
-                bot->CastSpell(player, spellId, false);
-                check = true;
-                TC_LOG_DEBUG("scripts.fsb.buffs", "FSB Buffs Bot {} buffed {} on player {}.", bot->GetName(), FSBSpellsUtils::GetSpellName(spellId), player->GetName());
-            }
-        }
-
-        else 
-        {
-            if (!bot->HasAura(spellId))
-            {
-                SpellCastResult result = bot->CastSpell(bot, spellId, false);
-                if (result == SPELL_CAST_OK)
-                {
-                    check = true;
-                    TC_LOG_DEBUG("scripts.fsb.buffs", "FSB Buffs Bot {} buffed {} on self.", bot->GetName(), FSBSpellsUtils::GetSpellName(spellId));
-                }
-                else TC_LOG_DEBUG("scripts.ai.fsb", "FSB: Warlock self SS buff failed for bot: {} with result: {}", bot->GetName(), result);
-            }
-        }
-
-        if (check)
-        {
-            uint32 now = getMSTime();
-            globalCooldown = now + 1500;
-            return true;
-        } else
-        return false;
     }
 
     bool BotOOCBuffSelf(Creature* bot, uint32& globalCooldown, uint32& selfBuffTimer, uint32& outSpellId)

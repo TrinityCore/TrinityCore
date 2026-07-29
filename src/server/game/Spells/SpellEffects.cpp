@@ -586,10 +586,6 @@ void Spell::EffectDummy()
             return;
         }
     }
-
-    // normal DB scripted effect
-    TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectDummy({})", m_spellInfo->Id, effectInfo->EffectIndex);
-    m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effectInfo->EffectIndex << 24)), m_caster, unitTarget);
 }
 
 void Spell::EffectTriggerSpell()
@@ -2331,10 +2327,11 @@ void Spell::EffectUntrainTalents()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!unitTarget->IsPlayer())
         return;
 
-    unitTarget->ToPlayer()->SendRespecWipeConfirm(m_caster->GetGUID(), unitTarget->ToPlayer()->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
+    Player* playerTarget = unitTarget->ToPlayer();
+    playerTarget->SendRespecWipeConfirm(m_caster->GetGUID(), playerTarget->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
 }
 
 void Spell::EffectTeleUnitsFaceCaster()
@@ -2637,16 +2634,11 @@ void Spell::EffectTameCreature()
     // "kill" original creature
     creatureTarget->DespawnOrUnsummon();
 
-    uint8 level = (creatureTarget->GetLevelForTarget(m_caster) < (m_caster->GetLevelForTarget(creatureTarget) - 5)) ? (m_caster->GetLevelForTarget(creatureTarget) - 5) : creatureTarget->GetLevelForTarget(m_caster);
-
-    // prepare visual effect for levelup
-    pet->SetLevel(level - 1);
-
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
-    pet->SetLevel(level);
+    pet->SendNewlyTamed();
 
     // caster have pet now
     unitCaster->SetMinion(pet, true);
@@ -3215,10 +3207,6 @@ void Spell::EffectScriptEffect()
             break;
         }
     }
-
-    // normal DB scripted effect
-    TC_LOG_DEBUG("spells", "Spell ScriptStart spellid {} in EffectScriptEffect({})", m_spellInfo->Id, effectInfo->EffectIndex);
-    m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effectInfo->EffectIndex << 24)), m_caster, unitTarget);
 }
 
 void Spell::EffectSanctuary()
@@ -4937,6 +4925,8 @@ void Spell::EffectCreateTamedPet()
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
+
+    pet->SendNewlyTamed();
 
     // unitTarget has pet now
     unitTarget->SetMinion(pet, true);

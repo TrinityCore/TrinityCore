@@ -33,9 +33,11 @@
 #include "Followship_bots_utils.h"
 #include "Followship_bots_mgr.h"
 
+#include "Followship_bots_battleground_handler.h"
+#include "Followship_bots_buffs_handler.h"
 #include "Followship_bots_chatter_handler.h"
-#include "GenAI/GenAI_chatter_prompts.h"
-#include "GenAI/GenAI_client.h"
+#include "GenAI_chatter_prompts.h"
+#include "GenAI_client.h"
 #include "Followship_bots_chat_handler.h"
 #include "Followship_bots_death_handler.h"
 #include "Followship_bots_dungeon_handler.h"
@@ -86,17 +88,12 @@ namespace FSBOOC
         if (player && BotOOCHealOwner(bot, player, globalCooldown))
             return true;
 
-        //2. Buff Group (bots and player)
+        //2. Buffs: self, then group (if hired), then BG allies (if in battleground)
         // If we buff someone this turn return and end tick
-        if (now >= buffTimer && BotOOCBuffGroup(bot, buffTimer, globalCooldown))
+        if (FSBBuffs::HandlePeriodicBuffs(bot, selfBuffTimer, buffTimer))
             return true;
 
-        //3. Buff Self - buffs only for the bot
-        // If we buff something this turn return and end tick
-        if (now >= selfBuffTimer && BotOOCBuffSelf(bot, selfBuffTimer, globalCooldown))
-            return true;
-
-        //4. Recover HP/MP
+        //3. Recover HP/MP
         // One recover action at a time
         if (BotOOCRecovery(bot, globalCooldown))
             return true;
@@ -105,15 +102,7 @@ namespace FSBOOC
         if (BotOOCSummonPetOrDemon(bot))
             return true;
 
-        //6. Warlock SoulStone
-        if (BotOOCBuffSoulstone(bot, globalCooldown))
-            return true;
-
-        //7. Paladin Beacon
-        if (BotOOCBuffBeacon(bot))
-            return true;
-
-        //8. Random event
+        //6. Random event
         if (BotOOCDoRandomEvent(bot))
             return true;       
 
@@ -125,10 +114,15 @@ namespace FSBOOC
         if (!bot || !bot->IsAlive())
             return false;
 
-        if (!FollowshipBotsConfig::configFSBUseAFKActions)
+        // We do not want to do AFK actions in BG or dungeon
+        if (FSBBattleground::IsInBG(bot))
             return false;
 
-        //TC_LOG_INFO("scripts.ai.fsb", "FSB Bot {} Triggered DoRandomEvent", bot->GetName());
+        if (bot->GetMap()->IsDungeon())
+            return false;
+
+        if (!FollowshipBotsConfig::configFSBUseAFKActions)
+            return false;
 
         auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
         auto& botRandomEventCooldown = baseAI->botRandomEventTimer;
@@ -137,15 +131,10 @@ namespace FSBOOC
         if (now < botRandomEventCooldown)
             return false;
 
-        //TC_LOG_INFO("scripts.ai.fsb", "FSB Bot {} Triggered DoRandomEvent passed cooldown", bot->GetName());
-
         bool check = false;
 
         if (BotOOCActionPlayerAFK(bot, false))
-        {
-            //TC_LOG_INFO("scripts.ai.fsb", "FSB Bot {} Triggered DoRandomEvent action player afk", bot->GetName());
             check = true;
-        }
 
         if (check)
         {
@@ -361,7 +350,8 @@ namespace FSBOOC
         case FSB_AFK_ACTION_REST:
         {
             TC_LOG_INFO("scripts.ai.fsb", "FSB Bot {} randomEvent: rest", bot->GetName());
-            bot->Say("Am gonna rest for a while...", LANG_UNIVERSAL);
+            auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
+            bot->Say("Am gonna rest for a while...", baseAI ? baseAI->botLanguage : LANG_UNIVERSAL);
             bot->SetStandState(UNIT_STAND_STATE_SIT);
             return true;
         }
@@ -456,9 +446,8 @@ namespace FSBOOC
         if (baseAI->botDungeonData && baseAI->botDungeonData->mechanicFlagD && !bot->GetVehicle())
             baseAI->botDungeonData->mechanicFlagD = false;
 
-        baseAI->botManaPotionUsed = false;
-        baseAI->botHealthPotionUsed = false;
         baseAI->botCastedCombatBuffs = false;
+        baseAI->botGenericData.consecutiveSelfHeals = 0;
 
         // Set bot to follow if move state is follow but we are idle
         if (baseAI->botMoveState == FSB_MOVE_STATE_FOLLOWING && FSBMovement::GetMovementType(bot) != FOLLOW_MOTION_TYPE)
@@ -526,65 +515,6 @@ namespace FSBOOC
         }
 
         
-    }
-
-    bool BotOOCBuffBeacon(Creature* bot)
-    {
-        if (!bot || !bot->IsAlive())
-            return false;
-
-        if (bot->IsInCombat())
-            return false;
-
-        if (bot->GetStandState() == UNIT_STAND_STATE_SIT)
-            return false;
-
-        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
-        auto isDoingRandomEvent = baseAI->botDoingRandomEvent;
-
-        if (isDoingRandomEvent)
-            return false;
-
-        FSB_Class cls = FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry());
-
-        if (cls != FSB_Class::Paladin)
-            return false;
-
-        if (FSBPaladin::BotOOCBuffBeacon(bot))
-            return true;
-
-        return false;
-    }
-
-    bool BotOOCBuffSoulstone(Creature* bot, uint32& globalCooldown)
-    {
-        if (!bot || !bot->IsAlive())
-            return false;
-
-        if (bot->IsInCombat())
-            return false;
-
-        if (bot->GetStandState() == UNIT_STAND_STATE_SIT)
-            return false;
-
-        auto baseAI = dynamic_cast<FSB_BaseAI*>(bot->AI());
-        if (!baseAI)
-            return false;
-
-        auto isDoingRandomEvent = baseAI->botDoingRandomEvent;
-
-        if (isDoingRandomEvent)
-            return false;
-
-        FSB_Class cls = FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry());
-
-        if (cls != FSB_Class::Warlock)
-            return false;
-
-        if (FSBWarlock::BotOOCBuffSoulstone(bot, globalCooldown))
-            return true;
-
-        return false;
     }
 
     bool BotOOCSummonPetOrDemon(Creature* bot)
@@ -707,6 +637,7 @@ namespace FSBOOC
         return false;
     }
 
+    /*
     bool BotOOCBuffSelf(Creature* bot, uint32& selfBuffTimer, uint32& globalCooldown)
     {
         if (!bot || !bot->IsAlive())
@@ -769,7 +700,9 @@ namespace FSBOOC
         selfBuffTimer = now + 60000; // 1 minute
         return false;
     }
+    */
 
+    /*
     bool BotOOCBuffGroup(Creature* bot, uint32& buffTimer, uint32& globalCooldown)
     {
         if (!bot)
@@ -891,7 +824,9 @@ namespace FSBOOC
 
         return false;
     }
+    */
 
+    /*
     void GetBotBuffTargets(Creature* bot, uint32 buffSpellId, float maxRange, std::vector<Unit*>& outTargets)
     {
         if (!bot)
@@ -925,6 +860,7 @@ namespace FSBOOC
             outTargets.push_back(member);
         }
     }
+    */
 
     bool ExecuteBotEmote(Creature* bot, FSB_ChatterCategory category, TextEmotes textEmote, Emote visualEmote, Unit* target)
     {
@@ -1169,6 +1105,9 @@ namespace FSBOOC
             return false;
 
         if (baseAI->botHired)
+            return false;
+
+        if (FSBBattleground::IsInBG(bot))
             return false;
 
         FSBChat::UpdateBotConversations();

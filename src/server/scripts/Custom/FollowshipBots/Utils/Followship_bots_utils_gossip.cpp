@@ -22,6 +22,12 @@
 
 #include "Followship_bots_utils_gossip.h"
 
+#include "Creature.h"
+#include "Player.h"
+#include "GossipDef.h"
+#include "ObjectMgr.h"
+#include "Followship_bots_gossip_handler.h"
+
 namespace FSBGossipUtils
 {
     // Converts an int64 price in copper to a string like "10 silver"
@@ -41,5 +47,15 @@ namespace FSBGossipUtils
     std::string BuildHireText(int64 price, uint32 hours)
     {
         return std::to_string(hours) + " hour service: " + MoneyToString(price);
+    }
+
+    uint32 ResolveGossipTextId(Player* player, Creature* bot)
+    {
+        uint32 textId = player->GetGossipTextId(bot);
+
+        if (textId == 0 || textId == DEFAULT_GOSSIP_MESSAGE || !sObjectMgr->GetNpcText(textId))
+            textId = player->GetGossipTextId(FSB_GOSSIP_DEFAULT_MENU, bot);
+
+        return textId;
     }
 }

@@ -24,11 +24,13 @@
 #include "Log.h"
 #include "Map.h"
 #include "SpellAuras.h"
+#include "SpellHistory.h"
 #include "SpellInfo.h"
 
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_utils.h"
 
+#include "Followship_bots_db.h"
 #include "Followship_bots_group_handler.h"
 #include "Followship_bots_powers_handler.h"
 #include "Followship_bots_spells_handler.h"
@@ -238,6 +240,53 @@ namespace FSBSpells
         return best;
     }
 
+    FSBSpellRuntime* SelectRandomHealSpell(Creature* bot, const std::vector<FSBSpellRuntime*>& heals, Unit* target)
+    {
+        if (!target || !target->IsInWorld() || target->IsDuringRemoveFromWorld() || !target->IsAlive())
+            return nullptr;
+
+        float hpPct = target->GetHealthPct();
+
+        std::vector<FSBSpellRuntime*> validHeals;
+
+        for (auto* runtime : heals)
+        {
+            if (!runtime)
+                continue;
+
+            auto* def = runtime->def;
+            if (!def)
+                continue;
+
+            if (def->isSelfCast && target != bot)
+                continue;
+
+            if (!FSBSpellsUtils::CheckSpellContextRequirements(bot, def->spellId, target))
+                continue;
+
+            if (target->HasAura(def->spellId))
+                continue;
+
+            if (hpPct > def->hpThreshold)
+                continue;
+
+            validHeals.push_back(runtime);
+        }
+
+        if (validHeals.empty())
+            return nullptr;
+
+        Trinity::Containers::RandomShuffle(validHeals);
+
+        for (auto* runtime : validHeals)
+        {
+            if (urand(0, 99) <= runtime->def->chance)
+                return runtime;
+        }
+
+        return nullptr;
+    }
+
     FSBSpellRuntime* SelectBestDamageSpell(Creature* bot, const std::vector<FSBSpellRuntime*>& damageSpells, Unit* target)
     {
         if (!bot || !bot->IsAlive())
@@ -434,6 +483,10 @@ namespace FSBSpells
         if (result == SPELL_CAST_OK)
         {
             TC_LOG_DEBUG("scripts.ai.fsb", "FSB Bot {} casted spell {} on target {}", bot->GetName(), FSBSpellsUtils::GetSpellName(spellId), target->GetName());
+
+            if (spellId == SPELL_MONK_SOOTHING_MIST || spellId == SPELL_MONK_SOOTHING_MIST_CHI)
+                FSBMonk::SetSerpentStatueTarget(bot, target->GetGUID());
+
             return true;
         }
         else TC_LOG_DEBUG("scripts.ai.fsb", "FSB Bot {} Unable to cast spell {} on target {} with result {}", bot->GetName(), FSBSpellsUtils::GetSpellName(spellId), target->GetName(), result);
@@ -582,5 +635,85 @@ namespace FSBSpells
         if (count == 0)
             return bot->GetPosition();
         return Position{ sumX / count, sumY / count, sumZ / count };
+    }
+}
+
+namespace FSBSpellsDB
+{
+    static std::vector<FSBSpellDefinition> sBotDBSpells;
+
+    bool LoadBotSpellsFromDB()
+    {
+        if (!FSBUtilsDB::LoadBotSpellsFromDB(sBotDBSpells))
+        {
+            TC_LOG_ERROR("scripts.fsb.spells", "FSB: Failed to load bot spells from DB");
+            return false;
+        }
+        return true;
+    }
+
+    std::vector<FSBSpellDefinition> const& GetBotSpellCache()
+    {
+        return sBotDBSpells;
+    }
+
+    uint32 GetEffectiveCooldown(Creature* bot, uint32 spellId, uint32 dbCooldownMs)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+        if (!spellInfo)
+            return 0;
+
+        uint32 coreCooldownMs = static_cast<uint32>(bot->GetSpellHistory()->GetRemainingCooldown(spellInfo).count());
+        if (coreCooldownMs > 0)
+            return coreCooldownMs;
+
+        return dbCooldownMs;
+    }
+
+    bool IsSpellReady(Creature* bot, FSBSpellDefinition const& def)
+    {
+        return GetEffectiveCooldown(bot, def.spellId, def.cooldownMs) == 0;
+    }
+
+    std::vector<FSBSpellDefinition const*> QuerySpells(FSBSpellQuery const& query, Creature* bot)
+    {
+        std::vector<FSBSpellDefinition const*> result;
+        if (!bot)
+            return result;
+
+        uint32 botRoleMask = RoleToMask(FSBMgr::Get()->GetRole(bot));
+
+        for (FSBSpellDefinition const& def : sBotDBSpells)
+        {
+            if (query.type != FSBSpellType::Any && def.type != query.type)
+                continue;
+
+            if (def.allowedClass != FSB_Class::None &&
+                def.allowedClass != FSBMgr::Get()->GetBotClassForEntry(bot->GetEntry()))
+                continue;
+
+            if (def.allowedRace != FSB_Race::None &&
+                def.allowedRace != FSBMgr::Get()->GetBotRaceForEntry(bot->GetEntry()))
+                continue;
+
+            if (def.allowedRoles != FSB_ROLEMASK_ANY && (def.allowedRoles & botRoleMask) == 0)
+                continue;
+
+            if (!query.includeSelfCast && def.isSelfCast)
+                continue;
+
+            if (query.requireLocationSpell && !def.isLocationSpell)
+                continue;
+
+            if (query.respectCooldown && !IsSpellReady(bot, def))
+                continue;
+
+            if (query.excludeAlreadyPresentAura && query.target && query.target->HasAura(def.spellId))
+                continue;
+
+            result.push_back(&def);
+        }
+
+        return result;
     }
 }

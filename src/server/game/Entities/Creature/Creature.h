@@ -124,6 +124,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
         bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
+        void RemoveCivilianFlag();
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
 
@@ -203,6 +204,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool HasScalableLevels() const;
         void ApplyLevelScaling();
+        void ApplyLevelScaling(int32 contentTuningId, int32 scalingLevelDelta);
         uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         uint64 GetMaxHealthByLevel(uint8 level) const;
@@ -247,7 +249,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
         uint32 GetPowerIndex(Powers power) const override;
+        ClassPowerTypes GetPowerTypes() const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
+        void SetBaseAttackPower(uint32 attackPower) { m_baseAttackPower = attackPower; }
+        void SetBaseRangedAttackPower(uint32 attackPower) { m_baseRangedAttackPower = attackPower; }
+        void SetDamageModifier(float mod) { m_overrideDamageModifier = mod; }
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const override;
 
         void SetCanDualWield(bool value) override;
@@ -552,6 +558,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_cannotReachTimer;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
+        uint32 m_baseAttackPower;
+        uint32 m_baseRangedAttackPower;
+        float m_overrideDamageModifier = -1.0f;
         uint32 m_originalEntry;
 
         Position m_homePosition;
@@ -614,7 +623,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Optional<uint32> _trainerId;
         float _sparringHealthPct;
 
-        bool m_isFSBot;
+        bool m_isFSBot = false;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

@@ -41,6 +41,8 @@
 #include "Followship_bots_utils_spells.h"
 #include "Followship_bots_utils_stats.h"
 
+#include "Weather.h"
+
 
 namespace FSBUtils
 {
@@ -54,7 +56,12 @@ namespace FSBUtils
     Classes FSBToTCClass(FSB_Class botClass);
     Races BotRaceToTC(FSB_Race race);
 
-    Team GetTeamFromFSBRace(Creature* bot);
+    Team GetTeamFromFSBRace(FSB_Race race);
+
+    uint32 GetFactionForFSBRace(FSB_Race race);
+
+    Language GetLanguageForFSBRace(FSB_Race race);
+    Language GetTeamLanguageForFSBRace(FSB_Race race);
 
     constexpr float SIDE_OFFSET_MAX = float(M_PI) / 6.0f; // +-30 degrees from pure left/right
 
@@ -73,4 +80,6 @@ namespace FSBUtils
     std::vector<Creature*> FindNearbyBots(Creature* center, float radius = 300.f);
 
     bool IsBotInTradeCity(Creature* bot);
+
+    std::string WeatherStateToText(WeatherState state);
 }

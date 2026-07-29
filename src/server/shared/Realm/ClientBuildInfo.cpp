@@ -18,9 +18,7 @@
 #include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "Util.h"
 #include <algorithm>
-#include <cctype>
 
 namespace
 {
@@ -29,28 +27,20 @@ std::vector<ClientBuild::Info> Builds;
 
 namespace ClientBuild
 {
-std::array<char, 5> ToCharArray(uint32 value)
+bool Program::IsValid(std::string_view program)
 {
-    auto normalize = [](uint8 c) -> char
+    if (program.length() > sizeof(uint32))
+        return false;
+
+    switch (Id::FromString(program))
     {
-        if (!c || std::isprint(c))
-            return char(c);
-        return ' ';
-    };
-
-    std::array<char, 5> chars = { char((value >> 24) & 0xFF), char((value >> 16) & 0xFF), char((value >> 8) & 0xFF), char(value & 0xFF), '\0' };
-
-    auto firstNonZero = std::ranges::find_if(chars, [](char c) { return c != '\0'; });
-    if (firstNonZero != chars.end())
-    {
-        // move leading zeros to end
-        std::rotate(chars.begin(), firstNonZero, chars.end());
-
-        // ensure we only have printable characters remaining
-        std::ranges::transform(chars, chars.begin(), normalize);
+        case WoW:
+            return true;
+        default:
+            break;
     }
 
-    return chars;
+    return false;
 }
 
 bool Platform::IsValid(std::string_view platform)
@@ -58,7 +48,7 @@ bool Platform::IsValid(std::string_view platform)
     if (platform.length() > sizeof(uint32))
         return false;
 
-    switch (ToFourCC(platform))
+    switch (Id::FromString(platform))
     {
         case Win_x86:
         case Win_x64:
@@ -79,7 +69,7 @@ bool PlatformType::IsValid(std::string_view platformType)
     if (platformType.length() > sizeof(uint32))
         return false;
 
-    switch (ToFourCC(platformType))
+    switch (Id::FromString(platformType))
     {
         case Windows:
         case macOS:
@@ -96,7 +86,7 @@ bool Arch::IsValid(std::string_view arch)
     if (arch.length() > sizeof(uint32))
         return false;
 
-    switch (ToFourCC(arch))
+    switch (Id::FromString(arch))
     {
         case x86:
         case x64:
@@ -116,7 +106,7 @@ bool Type::IsValid(std::string_view type)
     if (type.length() > sizeof(uint32))
         return false;
 
-    switch (ToFourCC(type))
+    switch (Id::FromString(type))
     {
         case Retail:
         case RetailChina:
@@ -194,7 +184,7 @@ void LoadBuildInfo()
             }
 
             AuthKey& buildKey = buildInfo->AuthKeys.emplace_back();
-            buildKey.Variant = { .Platform = ToFourCC(platformType), .Arch = ToFourCC(arch), .Type = ToFourCC(type) };
+            buildKey.Variant = { .Platform = Platform::Id::FromString(platformType), .Arch = Arch::Id::FromString(arch), .Type = Type::Id::FromString(type) };
             buildKey.Key = fields[4].GetBinary<AuthKey::Size>();
 
         } while (result->NextRow());

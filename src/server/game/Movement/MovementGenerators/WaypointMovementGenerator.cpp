@@ -46,7 +46,6 @@ WaypointMovementGenerator<T>::WaypointMovementGenerator(uint32 pathId, bool repe
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
     _fadeObject(fadeObject), _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -66,7 +65,6 @@ WaypointMovementGenerator<T>::WaypointMovementGenerator(WaypointPath const& path
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
     _fadeObject(fadeObject), _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -137,7 +135,7 @@ bool WaypointMovementGenerator<T>::GetResetPosition(Unit* /*owner*/, float& x, f
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoInitialize(T* owner)
+bool WaypointMovementGenerator<T>::DoInitialize(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -145,7 +143,7 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     if (!path)
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for {}", owner->GetGUID());
-        return;
+        return false;
     }
 
     if (path->Nodes.size() == 1)
@@ -154,10 +152,11 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
+    return true;
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoReset(T* owner)
+bool WaypointMovementGenerator<T>::DoReset(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -165,6 +164,7 @@ void WaypointMovementGenerator<T>::DoReset(T* owner)
 
     if (!this->HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) && _nextMoveTime.Passed())
         _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+    return true;
 }
 
 template <typename T>

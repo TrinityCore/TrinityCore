@@ -469,6 +469,7 @@ namespace Scripts::EasternKingdoms::Deadmines
             summons.DespawnAll();
             me->SetHomePosition(me->GetPosition());
             _encounterStarted = false;
+            _crewSpawned = false;
             if (!_oafDead)
             {
                 me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -488,7 +489,7 @@ namespace Scripts::EasternKingdoms::Deadmines
 
             if (_oafDead)
             {
-                if (me->GetMap()->IsHeroic())
+                if (me->GetMap()->IsHeroic() && !_crewSpawned)
                     _events.RescheduleEvent(Events::HelixSummonCrew, 1s);
 
                 _events.RescheduleEvent(Events::HelixThrowBomb, 5s);
@@ -501,6 +502,7 @@ namespace Scripts::EasternKingdoms::Deadmines
 
             summons.DespawnAll();
             _encounterStarted = false;
+            _crewSpawned = false;
 
             if (InstanceScript* instance = me->GetInstanceScript())
                 instance->SetBossState(DataTypes::BOSS_HELIX_GEARBREAKER, NOT_STARTED);
@@ -530,6 +532,14 @@ namespace Scripts::EasternKingdoms::Deadmines
                 }
 
                 _events.RescheduleEvent(Events::HelixFaceRide, 10s, 15s);
+                _events.RescheduleEvent(Events::HelixThrowBomb, 5s);
+
+                if (me->GetMap()->IsHeroic() && !_crewSpawned)
+                {
+                    _crewSpawned = true;
+                    for (uint8 i = 0; i < 4; ++i)
+                        me->SummonCreature(Creatures::HelixCrew, Positions::HelixCrewSpawn[i], TEMPSUMMON_MANUAL_DESPAWN);
+                }
             }
         }
 
@@ -548,9 +558,10 @@ namespace Scripts::EasternKingdoms::Deadmines
             Talk(Texts::HelixKill);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
-            _JustDied();
+            BossAI::JustDied(killer);
+
             Talk(Texts::HelixDeath);
             summons.DespawnAll();
         }
@@ -581,9 +592,6 @@ namespace Scripts::EasternKingdoms::Deadmines
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
-
-            if (!UpdateVictim())
-                return;
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -680,6 +688,9 @@ namespace Scripts::EasternKingdoms::Deadmines
                 }
             }
 
+            if (!UpdateVictim())
+                return;
+
             me->DoMeleeAttackIfReady();
         }
 
@@ -688,6 +699,7 @@ namespace Scripts::EasternKingdoms::Deadmines
         SummonList summons;
         bool _oafDead = false;
         bool _encounterStarted = false;
+        bool _crewSpawned = false;
     };
 }
 

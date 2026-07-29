@@ -35,6 +35,7 @@ namespace FSBGenAI
         Anthropic   = 2,
         LlamaServer = 3,
         LMStudio    = 4,
+        OpenRouter  = 5,
     };
 
     enum class GenAIRequestFormat : uint8

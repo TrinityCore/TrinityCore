@@ -52,6 +52,7 @@
 #include "QueryPackets.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "ScriptHelpers.h"
 #include "Transport.h"
 #include "Util.h"
 #include "Vignette.h"
@@ -516,7 +517,7 @@ class NewFlag : public GameObjectTypeBase
 public:
     explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0), _takenFromBaseTime(0) { }
 
-    void SetState(FlagState newState, Player* player)
+    void SetState(FlagState newState, Unit* unit)
     {
         if (_state == newState)
             return;
@@ -524,8 +525,8 @@ public:
         FlagState oldState = _state;
         _state = newState;
 
-        if (player && newState == FlagState::Taken)
-            _carrierGUID = player->GetGUID();
+        if (unit && newState == FlagState::Taken)
+            _carrierGUID = unit->GetGUID();
         else
             _carrierGUID = ObjectGuid::Empty;
 
@@ -542,7 +543,7 @@ public:
             _respawnTime = 0;
 
         if (ZoneScript* zoneScript = _owner.GetZoneScript())
-            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, unit);
     }
 
     void Update([[maybe_unused]] uint32 diff) override
@@ -567,14 +568,14 @@ private:
     time_t _takenFromBaseTime;
 };
 
-SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
+SetNewFlagState::SetNewFlagState(FlagState state, Unit* unit) : _state(state), _unit(unit)
 {
 }
 
 void SetNewFlagState::Execute(GameObjectTypeBase& type) const
 {
     if (NewFlag* newFlag = dynamic_cast<NewFlag*>(&type))
-        newFlag->SetState(_state, _player);
+        newFlag->SetState(_state, _unit);
 }
 
 class ControlZone : public GameObjectTypeBase
@@ -1087,7 +1088,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
             SetGoAnimProgress(animProgress);
-            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock);
+            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, std::max(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock));
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
         {
@@ -1443,7 +1444,7 @@ void GameObject::Update(uint32 diff)
                                 break;
                             case GAMEOBJECT_TYPE_FISHINGHOLE:
                                 // Initialize a new max fish count on respawn
-                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock);
+                                m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishingHole.minRestock, std::max(GetGOInfo()->fishingHole.minRestock, GetGOInfo()->fishingHole.maxRestock));
                                 break;
                             default:
                                 break;
@@ -2631,6 +2632,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
     CastSpellExtraArgs spellArgs;
     if (ignoreCastInProgress)
         spellArgs.TriggerFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
+    bool addUse = false;
 
     if (Player* playerUser = user->ToPlayer())
     {
@@ -3165,18 +3167,29 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 
             if (info->spellCaster.partyOnly)
             {
-                Unit* caster = GetOwner();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                ObjectGuid ownerGuid = GetOwnerGUID();
+                if (ownerGuid.IsEmpty())
                     return;
 
-                if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
-                    return;
+                if (ownerGuid != user->GetGUID())
+                {
+                    if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGuid))
+                        ownerGuid = owner->GetCharmerOrOwnerOrOwnGUID();
+
+                    Player const* playerUser = user->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (!playerUser)
+                        return;
+
+                    Group const* group = playerUser->GetGroup();
+                    if (!group || !group->IsMember(ownerGuid))
+                        return;
+                }
             }
 
             user->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellCaster.spell;
 
-            AddUse();
+            addUse = true;
             break;
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
@@ -3309,12 +3322,9 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             if (!info)
                 return;
 
-            Player* player = user->ToPlayer();
-            if (!player)
-                return;
-
-            if (!player->CanUseBattlegroundObject(this))
-                return;
+            if (Player* player = user->ToPlayer())
+                if (!player->CanUseBattlegroundObject(this))
+                    return;
 
             GameObjectType::NewFlag const* newFlag = dynamic_cast<GameObjectType::NewFlag const*>(m_goTypeImpl.get());
             if (!newFlag)
@@ -3325,15 +3335,14 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 
             spellId = info->newflag.pickupSpell;
             spellCaster = nullptr;
+            if (!user->ToPlayer())
+                spellArgs.TriggerFlags |= TRIGGERED_FULL_MASK;
             break;
         }
         case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
         {
             GameObjectTemplate const* info = GetGOInfo();
             if (!info)
-                return;
-
-            if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             if (!user->IsAlive())
@@ -3355,7 +3364,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                     if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
                     {
                         Delete();
-                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, user->ToPlayer()));
+                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, user));
                         return;
                     }
                     else
@@ -3366,7 +3375,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                         if (result == SPELL_CAST_OK)
                         {
                             Delete();
-                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
+                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user));
                             return;
                         }
                     }
@@ -3378,11 +3387,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
         }
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
         {
-            Player* player = user->ToPlayer();
-            if (!player)
-                return;
-
-            AssaultCapturePoint(player);
+            AssaultCapturePoint(user);
             return;
         }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
@@ -3553,28 +3558,31 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    SpellCastResult castResult;
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, spellArgs);
+        castResult = spellCaster->CastSpell(user, spellId, spellArgs);
     else
-    {
-        SpellCastResult castResult = CastSpell(user, spellId, spellArgs);
-        if (castResult == SPELL_FAILED_SUCCESS)
-        {
-            switch (GetGoType())
-            {
-                case GAMEOBJECT_TYPE_NEW_FLAG:
-                    HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
-                    break;
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                    SetFlag(GO_FLAG_IN_USE);
-                    if (ZoneScript* zonescript = GetZoneScript())
-                        zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+        castResult = CastSpell(user, spellId, spellArgs);
 
-                    Delete();
-                    break;
-                default:
-                    break;
-            }
+    if (castResult == SPELL_FAILED_SUCCESS)
+    {
+        if (addUse)
+            AddUse();
+
+        switch (GetGoType())
+        {
+            case GAMEOBJECT_TYPE_NEW_FLAG:
+                HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user));
+                break;
+            case GAMEOBJECT_TYPE_FLAGSTAND:
+                SetFlag(GO_FLAG_IN_USE);
+                if (ZoneScript* zonescript = GetZoneScript())
+                    zonescript->OnFlagTaken(this, Object::ToPlayer(user));
+
+                Delete();
+                break;
+            default:
+                break;
         }
     }
 }
@@ -4360,13 +4368,13 @@ void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
     SendMessageToSet(packet.Write(), true);
 }
 
-void GameObject::AssaultCapturePoint(Player* player)
+void GameObject::AssaultCapturePoint(Unit* user)
 {
-    if (!CanInteractWithCapturePoint(player))
+    if (!CanInteractWithCapturePoint(user))
         return;
 
     if (GameObjectAI* ai = AI())
-        if (ai->OnCapturePointAssaulted(player))
+        if (ai->OnCapturePointAssaulted(user))
             return;
 
     // only supported in battlegrounds
@@ -4378,19 +4386,25 @@ void GameObject::AssaultCapturePoint(Player* player)
     if (!battleground)
         return;
 
+    Team team = TEAM_OTHER;
+    if (user->GetTypeId() == TYPEID_PLAYER)
+        team = user->ToPlayer()->GetBGTeam();
+    else if (Creature* creature = user->ToCreature())
+        team = ScriptHelpers::GetBotTeam(creature);
+
     // Cancel current timer
     m_goValue.CapturePoint.AssaultTimer = 0;
 
-    if (player->GetBGTeam() == HORDE)
+    if (team == HORDE)
     {
         if (m_goValue.CapturePoint.LastTeamCapture == TEAM_HORDE)
         {
             // defended. capture instantly.
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
-            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, user);
             UpdateCapturePoint();
             if (GetGOInfo()->capturePoint.DefendedEventHorde)
-                GameEvents::Trigger(GetGOInfo()->capturePoint.DefendedEventHorde, player, this);
+                GameEvents::Trigger(GetGOInfo()->capturePoint.DefendedEventHorde, user, this);
             return;
         }
 
@@ -4400,10 +4414,10 @@ void GameObject::AssaultCapturePoint(Player* player)
             case WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured:
             case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance:
                 m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde;
-                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, user);
                 UpdateCapturePoint();
                 if (GetGOInfo()->capturePoint.ContestedEventHorde)
-                    GameEvents::Trigger(GetGOInfo()->capturePoint.ContestedEventHorde, player, this);
+                    GameEvents::Trigger(GetGOInfo()->capturePoint.ContestedEventHorde, user, this);
                 m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
                 break;
             default:
@@ -4416,10 +4430,10 @@ void GameObject::AssaultCapturePoint(Player* player)
         {
             // defended. capture instantly.
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
-            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, user);
             UpdateCapturePoint();
             if (GetGOInfo()->capturePoint.DefendedEventAlliance)
-                GameEvents::Trigger(GetGOInfo()->capturePoint.DefendedEventAlliance, player, this);
+                GameEvents::Trigger(GetGOInfo()->capturePoint.DefendedEventAlliance, user, this);
             return;
         }
 
@@ -4429,10 +4443,10 @@ void GameObject::AssaultCapturePoint(Player* player)
             case WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured:
             case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde:
                 m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance;
-                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, user);
                 UpdateCapturePoint();
                 if (GetGOInfo()->capturePoint.ContestedEventAlliance)
-                    GameEvents::Trigger(GetGOInfo()->capturePoint.ContestedEventAlliance, player, this);
+                    GameEvents::Trigger(GetGOInfo()->capturePoint.ContestedEventAlliance, user, this);
                 m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
                 break;
             default:
@@ -4502,7 +4516,7 @@ void GameObject::UpdateCapturePoint()
     GetMap()->UpdateSpawnGroupConditions();
 }
 
-bool GameObject::CanInteractWithCapturePoint(Player const* target) const
+bool GameObject::CanInteractWithCapturePoint(Unit const* target) const
 {
     if (m_goInfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
         return false;
@@ -4510,13 +4524,19 @@ bool GameObject::CanInteractWithCapturePoint(Player const* target) const
     if (m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::Neutral)
         return true;
 
-    if (target->GetBGTeam() == HORDE)
+    Team team = TEAM_OTHER;
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        team = target->ToPlayer()->GetBGTeam();
+    else if (Creature const* creature = target->ToCreature())
+        team = ScriptHelpers::GetBotTeam(const_cast<Creature*>(creature));
+
+    if (team == HORDE)
     {
         return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance
             || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
     }
 
-    // For Alliance players
+    // For Alliance
     return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde
         || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
 }

@@ -1047,6 +1047,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_BANK_COINAGE,
     PLAYER_LOGIN_QUERY_LOAD_WARBAND_TAXI_MASK,
     PLAYER_LOGIN_QUERY_LOAD_WARBAND_MAX_LEVEL_COUNT,
+    PLAYER_LOGIN_QUERY_LOAD_ARENA_STATS,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -2254,6 +2255,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 GetArenaTeamIdInvited() const { return m_ArenaTeamIdInvited; }
         uint32 GetRBGPersonalRating() const { return GetArenaPersonalRating(3); }
         UF::PVPInfo const* GetPvpInfoForBracket(int8 bracket) const;
+        void ModifyArenaRating(int32 mod, uint8 slot, bool won);
 
         Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
@@ -2285,6 +2287,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
         uint32 GetPowerIndex(Powers power) const override;
+        ClassPowerTypes GetPowerTypes() const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
@@ -2382,8 +2385,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience) const;
 
-        void SendDungeonDifficulty(int32 forcedDifficulty = -1) const;
-        void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1) const;
+        void SendDungeonDifficulty() const;
+        void SendRaidDifficulty(bool legacy) const;
         void ResetInstances(InstanceResetMethod method);
         void SendResetInstanceSuccess(uint32 MapId) const;
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID) const;
@@ -3158,6 +3161,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         GuidList WhisperList;
         TimePoint m_regenInterruptTimestamp;
         uint32 m_regenTimerCount;
+        float m_healthFraction;
         std::array<float, MAX_POWERS_PER_CLASS> m_powerFraction;
         uint32 m_contestedPvPTimer;
 
@@ -3229,6 +3233,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool _LoadHomeBind(PreparedQueryResult result);
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
+        void _LoadArenaStats(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
         void _LoadTransmogCustomSets(PreparedQueryResult result);
         void _LoadTransmogOutfits(PreparedQueryResult setsResult, PreparedQueryResult situationsResult, PreparedQueryResult slotsResult,

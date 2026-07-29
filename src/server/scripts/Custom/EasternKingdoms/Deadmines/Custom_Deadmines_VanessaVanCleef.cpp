@@ -21,6 +21,7 @@
  */
 
 #include "CreatureAIImpl.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -43,6 +44,7 @@
 #include "GameObject.h"
 #include "G3D/Vector3.h"
 #include <list>
+#include <vector>
 
 #include "Custom_Instance_Deadmines.h"
 
@@ -51,7 +53,10 @@ namespace Scripts::EasternKingdoms::Deadmines
     // 49552 - Rope Anchor
     struct npc_rope_ship : public ScriptedAI
     {
-        npc_rope_ship(Creature* creature) : ScriptedAI(creature) { }
+        npc_rope_ship(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetDisableGravity(true);
+        }
 
         void Reset() override
         {
@@ -242,30 +247,63 @@ namespace Scripts::EasternKingdoms::Deadmines
     // 49550 - Rope
     struct npc_rope_away : public ScriptedAI
     {
-        npc_rope_away(Creature* creature) : ScriptedAI(creature) { }
+        npc_rope_away(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetDisableGravity(true);
+        }
 
         void Reset() override
         {
+            me->SetSpeedRate(MOVE_RUN, 1.2f);
+
+            me->SummonCreature(Creatures::RopeAnchor, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 40.f, 0, TEMPSUMMON_TIMED_DESPAWN, 40s);
         }
 
-        void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
+        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
-            if (apply)
+            if (passenger->GetTypeId() == TYPEID_PLAYER)
+                if (apply)
+                    _events.ScheduleEvent(Events::VanessaVanCleef::RopeStartRide, 500ms);
+        }
+
+        void MovementInform(uint32 /*type*/, uint32 pointId) override
+        {
+            if (pointId == Points::VanessaVanCleef::RopeOut)
             {
-                me->SetSpeed(MOVE_WALK, 5.0f);
-                me->SetWalk(false);
-                me->GetMotionMaster()->MovePoint(0, -64.75f, -840.0f, 17.56f);
+                Position homePos = me->GetHomePosition();
+                me->GetMotionMaster()->MovePoint(Points::VanessaVanCleef::RopeHome, homePos.GetPositionX(), homePos.GetPositionY(), homePos.GetPositionZ() + 5.f, false);
+            }
+
+            if (pointId == Points::VanessaVanCleef::RopeHome)
+            {
+                if (Vehicle* kit = me->GetVehicleKit())
+                    kit->RemoveAllPassengers();
+
+                me->RemoveAllAuras();
+                me->DespawnOrUnsummon();
             }
         }
 
-        void MovementInform(uint32 type, uint32 /*pointId*/) override
+        void UpdateAI(uint32 diff) override
         {
-            if (type != EFFECT_MOTION_TYPE)
-                return;
+            _events.Update(diff);
 
-            me->GetVehicleKit()->RemoveAllPassengers();
-            me->DespawnOrUnsummon(1s);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case Events::VanessaVanCleef::RopeStartRide:
+                        me->GetMotionMaster()->MovePoint(Points::VanessaVanCleef::RopeOut, me->GetPositionX(), me->GetPositionY() - 80.f, me->GetPositionZ() + 10.f, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
+
+    private:
+        EventMap _events;
     };
 
     // 49520 - Lightning Platter
@@ -302,7 +340,7 @@ namespace Scripts::EasternKingdoms::Deadmines
                     if (vehicle->HasEmptySeat(i))
                         if (Creature* pas = me->SummonCreature(Creatures::SparkPassenger, me->GetPosition()))
                         {
-                            me->SetSessile(true);
+                            pas->SetSessile(true);
                             pas->EnterVehicle(me, i);
                         }
         }
@@ -329,231 +367,6 @@ namespace Scripts::EasternKingdoms::Deadmines
     private:
         EventMap _events;
         SummonList _summons;
-    };
-
-    // 49505 - Defias Shadowguard
-    struct npc_defias_shadowguard : public ScriptedAI
-    {
-        npc_defias_shadowguard(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-            _evasionCast = false;
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 8s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 13s);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-        {
-            if (!_evasionCast && me->HealthBelowPct(35))
-            {
-                _evasionCast = true;
-                DoCastSelf(Spells::VanessaVanCleef::Evasion);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::SinisterStrike);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 6s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::WhirlingBlades);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 12s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd3:
-                        DoCastVictim(Spells::VanessaVanCleef::Shadowstep);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 10s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-        bool _evasionCast = false;
-    };
-
-    // 49502 - Defias Enforcer
-    struct npc_defias_enforcer : public ScriptedAI
-    {
-        npc_defias_enforcer(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                DoCast(target, Spells::VanessaVanCleef::Charge);
-
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 5s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 10s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastSelf(Spells::VanessaVanCleef::Bloodbath);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 12s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::Recklessness);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    // 48418 - Defias Envoker
-    struct npc_defias_envoker : public ScriptedAI
-    {
-        npc_defias_envoker(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC)
-                _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 8s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::HolyFire);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 8s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::Shield);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 20s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    // 49854 - Defias Blood Wizard
-    struct npc_defias_bloodwizard : public ScriptedAI
-    {
-        npc_defias_bloodwizard(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 3s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 6s);
-            _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 10s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case Events::VanessaVanCleef::SummonAdd1:
-                        DoCastVictim(Spells::VanessaVanCleef::BloodBolt);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 6s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd2:
-                        DoCastSelf(Spells::VanessaVanCleef::BloodWash);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
-                        break;
-                    case Events::VanessaVanCleef::SummonAdd3:
-                        DoCastSelf(Spells::VanessaVanCleef::Ragezone);
-                        _events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 20s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            me->DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
     };
 
     // 48445 - Oaf Lackey
@@ -696,7 +509,6 @@ namespace Scripts::EasternKingdoms::Deadmines
 
                 if (Creature* Calissa = me->FindNearestCreature(Creatures::CalissaHarrington, 20.f))
                 {
-                    Calissa->SetRegenerateHealth(false);
                     Calissa->EnterVehicle(me, 0);
                     Calissa->Attack(me, true);
                 }
@@ -723,7 +535,12 @@ namespace Scripts::EasternKingdoms::Deadmines
 
             if (Creature* Calissa = me->FindNearestCreature(Creatures::CalissaHarrington, 20.f))
             {
-                Calissa->SetEmoteState(EMOTE_STATE_DEAD);
+                Calissa->SetStandState(UNIT_STAND_STATE_DEAD);
+                Calissa->m_Events.AddEventAtOffset([Calissa]()
+                    {
+                        if (Calissa)
+                            Calissa->ExitVehicle();
+                    }, std::chrono::milliseconds(500));
 
                 Calissa->m_Events.AddEventAtOffset([Calissa]()
                     {
@@ -814,6 +631,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::IntroElixir:
                     {
                         DoCastAOE(Spells::VanessaVanCleef::NightmareElixir);
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetData(Misc::VindicatorElixirTime, uint32(GameTime::GetGameTime()));
                         Talk(Texts::VanessaVanCleef::VanessaSay5);
                         _events.ScheduleEvent(Events::VanessaVanCleef::IntroSummonTrap, 0s);
                         _events.ScheduleEvent(Events::VanessaVanCleef::IntroBlackout1, 4s);
@@ -956,7 +775,6 @@ namespace Scripts::EasternKingdoms::Deadmines
                     SummonAllSpiders();
                     break;
                 case 3:
-                    SummonAllSparks();
                     if (Creature* mech = me->SummonCreature(Creatures::NightmareFoeReaper, Positions::FoeReaperNightmareSpawn, TEMPSUMMON_CORPSE_DESPAWN))
                         mech->AI()->DoAction(Actions::MechanicalEngage);
                     break;
@@ -969,7 +787,11 @@ namespace Scripts::EasternKingdoms::Deadmines
                     
                     me->SummonCreature(Creatures::EmmeHarrington, Positions::FamilySpawn[0], TEMPSUMMON_MANUAL_DESPAWN);
                     me->SummonCreature(Creatures::ErikHarrington, Positions::FamilySpawn[1], TEMPSUMMON_MANUAL_DESPAWN);
-                    me->SummonCreature(Creatures::CalissaHarrington, Positions::FamilySpawn[3], TEMPSUMMON_MANUAL_DESPAWN);
+                    if (Creature* calissa = me->SummonCreature(Creatures::CalissaHarrington, Positions::FamilySpawn[3], TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        calissa->SetDisableGravity(false);
+                        calissa->SetRegenerateHealth(false);
+                    }
                     break;
                 }
                 case 5:
@@ -979,8 +801,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                         instance->DoRemoveAurasDueToSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixir);
                         instance->DoRemoveAurasDueToSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixirEffect);
                     }
-                    Talk(Texts::VanessaVanCleef::VanessaNightmare1);
-                    me->SummonCreature(Creatures::VanessaVanCleef, Positions::VanessaBossSpawn, TEMPSUMMON_MANUAL_DESPAWN);
+
+                    me->SummonCreature(Creatures::VanessaVanCleef, Positions::VanessaBossSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
                     me->DespawnOrUnsummon(3s);
                     break;
                 }
@@ -1000,7 +822,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                 case 2:
                     Talk(Texts::VanessaVanCleef::VanessaNightmare2Warning);
                     me->SetVisible(false);
-                    me->SummonCreature(Creatures::NightmareFoeReaper, Positions::MechanicalNightmareSpawn, TEMPSUMMON_CORPSE_DESPAWN);
+                    //if(Creature* foe = me->SummonCreature(Creatures::NightmareFoeReaper, Positions::MechanicalNightmareSpawn, TEMPSUMMON_CORPSE_DESPAWN))
+                    //    foe->SetReactState(REACT_PASSIVE);
                     me->NearTeleportTo(Positions::VanessaNightmare3);
                     break;
                 case 3:
@@ -1029,7 +852,34 @@ namespace Scripts::EasternKingdoms::Deadmines
             }
 
             if (id == 1 && value == 1)
+            {
                 _worgenKilled++;
+
+                if (GetActiveNightmare() == 4)
+                {
+                    if (_worgenKilled == 3)
+                    {
+                        Talk(Texts::VanessaVanCleef::VanessaNightmareSaveErik);
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->DoCastSpellOnPlayers(Spells::VanessaVanCleef::Sprint);
+                        me->NearTeleportTo(Positions::VanessaNightmare7);
+                    }
+                    else if (_worgenKilled == 6)
+                    {
+                        Talk(Texts::VanessaVanCleef::VanessaNightmareSaveCalissa);
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->DoCastSpellOnPlayers(Spells::VanessaVanCleef::Sprint);
+
+                        if (Creature* cannon = me->GetMap()->GetCreatureBySpawnId(CreatureSpawns::CannonFiring1))
+                        {
+                            cannon->SummonCreature(Creatures::JamesHarrington, cannon->GetPosition());
+                            cannon->DespawnOrUnsummon(1s);
+                        }
+                        else
+                            me->SummonCreature(Creatures::JamesHarrington, Positions::FamilySpawn[3], TEMPSUMMON_MANUAL_DESPAWN);
+                    }
+                }
+            }
 
             if (id == 2 && value == 2)
             {
@@ -1060,6 +910,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                     case Events::VanessaVanCleef::NightmareSay2:
                         TalkNightmareIntro(2);
                         _events.ScheduleEvent(Events::VanessaVanCleef::NightmareSummon, 2s);
+                        if (GetActiveNightmare() == 4)
+                            _events.ScheduleEvent(Events::VanessaVanCleef::NightmareSaveEmme, 5s);
                         break;
                     case Events::VanessaVanCleef::NightmareSummon:
                         SummonNightmareBoss();
@@ -1073,6 +925,14 @@ namespace Scripts::EasternKingdoms::Deadmines
                         if (InstanceScript* instance = me->GetInstanceScript())
                             instance->DoCastSpellOnPlayers(Spells::VanessaVanCleef::NightmareElixirEffect);
                         break;
+                    case Events::VanessaVanCleef::NightmareSaveEmme:
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                        {
+                            Talk(Texts::VanessaVanCleef::VanessaNightmareSaveEmme);
+                            instance->DoCastSpellOnPlayers(Spells::VanessaVanCleef::Sprint);
+                            me->NearTeleportTo(Positions::VanessaNightmare6);
+                        }
+                        break;
                     case Events::VanessaVanCleef::NightmareShift:
                         Talk(Texts::VanessaVanCleef::VanessaNightmareShift);
                         _summons.DespawnAll();
@@ -1082,7 +942,11 @@ namespace Scripts::EasternKingdoms::Deadmines
                             if (Creature* helix = me->SummonCreature(Creatures::NightmareHelix, Positions::HelixNightmareSpawn, TEMPSUMMON_CORPSE_DESPAWN))
                                 helix->AI()->DoAction(Actions::HelixEngage);
                         if (GetActiveNightmare() == 3)
-                            me->SummonCreature(Creatures::NightmareFoeReaper, Positions::MechanicalNightmareSpawn);
+                        {
+                            SummonAllSparks();
+                            if (Creature* foe = me->SummonCreature(Creatures::NightmareFoeReaper, Positions::MechanicalNightmareSpawn))
+                                foe->SetReactState(REACT_PASSIVE);
+                        }
                         if (GetActiveNightmare() == 4)
                             me->SummonCreature(Creatures::JamesHarringtonHuman, Positions::FoeReaperNightmareSpawn);
                         if (GetActiveNightmare() < 5)
@@ -1118,7 +982,10 @@ namespace Scripts::EasternKingdoms::Deadmines
 
         void Reset() override
         {
-            _events.Reset();
+            if (InstanceScript* instance = me->GetInstanceScript())
+                if(instance->GetData(Misc::ActiveNightmare) != 1)
+                    _events.Reset();
+            
         }
 
         void DoAction(int32 action) override
@@ -1136,11 +1003,8 @@ namespace Scripts::EasternKingdoms::Deadmines
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void EngageAfterTeleport()
         {
-            if (type != POINT_MOTION_TYPE || id != EVENT_CHARGE)
-                return;
-
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
             me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -1182,8 +1046,8 @@ namespace Scripts::EasternKingdoms::Deadmines
                 switch (eventId)
                 {
                     case Events::VanessaVanCleef::GlubtokCharge:
-                        //me->GetMotionMaster()->MoveCharge(Positions::GlubtokNightmareCharge.GetPositionX(), Positions::GlubtokNightmareCharge.GetPositionY(), Positions::GlubtokNightmareCharge.GetPositionZ(), 10.0f);
                         me->NearTeleportTo(Positions::GlubtokNightmareCharge);
+                        EngageAfterTeleport();
                         break;
                     case Events::VanessaVanCleef::IcicleAOE:
                         if (Unit* target = me->SelectNearestTarget(200.0f))
@@ -1244,7 +1108,9 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 
                 case Creatures::MainSpider:
-                    summon->SetObjectScale(0.3f);
+                    summon->SetObjectScale(0.1f);
+                    summon->SetWalk(true);
+                    summon->SetSpeed(MOVE_WALK, 0.1f);
                     break;
                 case Creatures::NightmareSpider:
                 case Creatures::ChatteringHorror:
@@ -1345,11 +1211,17 @@ namespace Scripts::EasternKingdoms::Deadmines
         void Reset() override
         {
             _events.Reset();
-            if (InstanceScript* instance = me->GetInstanceScript())
-                if (instance->GetData(Misc::ActiveNightmare) > 0)
-                    return;
-            me->RemoveAura(Spells::Offline);
-            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void JustReachedHome() override
+        {
+            DoAction(Actions::MechanicalEngage);
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            if(why == EvadeReason::NoHostiles)
+                DoAction(Actions::MechanicalEngage);
         }
 
         void DoAction(int32 action) override
@@ -1423,9 +1295,10 @@ namespace Scripts::EasternKingdoms::Deadmines
     // 49541 - Vanessa VanCleef
     struct boss_vanessa_vancleef : public BossAI
     {
-        boss_vanessa_vancleef(Creature* creature) : BossAI(creature, DataTypes::BOSS_VANESSA_VANCLEEF)
+        boss_vanessa_vancleef(Creature* creature) : BossAI(creature, DataTypes::BOSS_VANESSA_VANCLEEF), ropeList(creature)
         {
             ApplyCrowdControlImmunities(me);
+            me->setActive(true);
         }
 
         void Reset() override
@@ -1434,22 +1307,52 @@ namespace Scripts::EasternKingdoms::Deadmines
             _disappearCount = 0;
             _disappearActive = false;
             _finalExplosion = false;
+            _fireBunnyGuids.clear();
             me->SetVisible(true);
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
             me->RemoveAura(Spells::VanessaVanCleef::AynashasRoot);
             me->SetReactState(REACT_AGGRESSIVE);
+            ropeList.DespawnAll();
         }
 
         void JustEngagedWith(Unit* who) override
         {
             _JustEngagedWith(who);
+
+            if (IsHeroic())
+            {
+                uint32 elixirTime = instance->GetData(Misc::VindicatorElixirTime);
+                if (elixirTime && GameTime::GetGameTime() - elixirTime < 5 * MINUTE)
+                {
+                    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(Achievements::VigorousVanCleefVindicator))
+                    {
+                        instance->instance->DoOnPlayers([achievement](Player* player)
+                        {
+                            if (!player->HasAchieved(achievement->ID))
+                                player->CompletedAchievement(achievement);
+                        });
+                    }
+                }
+            }
+
             Talk(Texts::VanessaVanCleef::Aggro);
-            events.ScheduleEvent(Events::VanessaVanCleef::DeadlyBlades, 10s);
+            DoZoneInCombat();
+            events.ScheduleEvent(Events::VanessaVanCleef::BossIntroMove, 2s);
+            events.ScheduleEvent(Events::VanessaVanCleef::DeadlyBlades, 12s);
             events.ScheduleEvent(Events::VanessaVanCleef::Backslash, 15s);
-            events.ScheduleEvent(Events::VanessaVanCleef::Deflection, 20s);
-            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 12s);
-            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 18s);
-            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 24s);
+            events.ScheduleEvent(Events::VanessaVanCleef::Deflection, 10s);
+            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 9s);
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            Talk(Texts::VanessaVanCleef::VanessaDefeated3);
+            DoCastSelf(Spells::VanessaVanCleef::PowderExplosion);
+
+            BossAI::JustDied(killer);
+
+            summons.DespawnAll();
+            ropeList.DespawnAll();
         }
 
         void KilledUnit(Unit* victim) override
@@ -1458,17 +1361,39 @@ namespace Scripts::EasternKingdoms::Deadmines
                 Talk(Texts::VanessaVanCleef::KilledUnit);
         }
 
+        void SummonedCreatureDespawn(Creature* summon) override
+        {
+            BossAI::SummonedCreatureDespawn(summon);
+
+            if (summon->GetEntry() == Creatures::Rope)
+                ropeList.Despawn(summon);
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE && id == EVENT_JUMP)
+            {
+                DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
+            }
+            else if (type == POINT_MOTION_TYPE && id == 1)
+            {
+                me->GetMotionMaster()->MoveJump(0, Position(-65.585f, -820.742f, 41.022f, 0.0f), 10.0f, {}, 5.0f);
+            }
+        }
+
         void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!_disappearActive && !_finalExplosion)
             {
                 if (_disappearCount == 0 && me->HealthBelowPctDamaged(50, damage))
                 {
+                    Talk(Texts::VanessaVanCleef::Bomb50pct);
                     _disappearCount = 1;
                     events.ScheduleEvent(Events::VanessaVanCleef::Disappear, 1s);
                 }
                 else if (_disappearCount == 1 && me->HealthBelowPctDamaged(25, damage))
                 {
+                    Talk(Texts::VanessaVanCleef::Bomb25pct);
                     _disappearCount = 2;
                     events.ScheduleEvent(Events::VanessaVanCleef::Disappear, 1s);
                 }
@@ -1477,10 +1402,22 @@ namespace Scripts::EasternKingdoms::Deadmines
             if (!_finalExplosion && me->HealthBelowPctDamaged(1, damage))
             {
                 _finalExplosion = true;
-                damage = 0;
+                damage = me->GetHealth() - 1;
                 events.Reset();
-                DoCastSelf(Spells::VanessaVanCleef::PowderExplosion);
-                me->KillSelf();
+                me->RemoveAllAuras();
+                me->AttackStop();
+                me->ClearAllReactives();
+                me->SetReactState(REACT_PASSIVE);
+                DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
+                Talk(Texts::VanessaVanCleef::VanessaDefeated1);
+
+                events.ScheduleEvent(Events::VanessaVanCleef::FinalTimer, 5s);
+            }
+
+            if (damage >= me->GetHealth())
+            {
+                damage = 0;
+                me->SetHealth(1);
             }
         }
 
@@ -1495,69 +1432,110 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 switch (eventId)
                 {
+                    case Events::VanessaVanCleef::BossIntroMove:
+                    {
+                        Position pos = me->GetNearPosition(5.0f, me->GetOrientation());
+                        me->GetMotionMaster()->MovePoint(1, pos);
+                        break;
+                    }
                     case Events::VanessaVanCleef::DeadlyBlades:
                         DoCastSelf(Spells::VanessaVanCleef::DeadlyBlades);
-                        events.ScheduleEvent(Events::VanessaVanCleef::DeadlyBlades, 20s);
+                        events.ScheduleEvent(Events::VanessaVanCleef::DeadlyBlades, 35s);
                         break;
                     case Events::VanessaVanCleef::Backslash:
                         DoCastVictim(Spells::VanessaVanCleef::Backslash);
-                        events.ScheduleEvent(Events::VanessaVanCleef::Backslash, 15s);
+                        events.ScheduleEvent(Events::VanessaVanCleef::Backslash, 17s);
                         break;
                     case Events::VanessaVanCleef::Deflection:
-                        DoCastSelf(Spells::VanessaVanCleef::Deflection);
-                        events.ScheduleEvent(Events::VanessaVanCleef::Deflection, 30s);
+                        if (me->HealthAbovePct(25))
+                            DoCastSelf(Spells::VanessaVanCleef::Deflection);
+                        events.ScheduleEvent(Events::VanessaVanCleef::Deflection, 50s);
                         break;
                     case Events::VanessaVanCleef::SummonAdd1:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                            if (Creature* add = me->SummonCreature(Creatures::DefiasShadowguardVanessa, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                                add->AI()->AttackStart(target);
-                        events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 30s);
+                        if (me->HealthAbovePct(50))
+                        {
+                            Talk(Texts::VanessaVanCleef::Summons);
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
+                                if (Creature* add = me->SummonCreature(Creatures::DefiasShadowguard, Positions::Shadowspawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+                                    add->AI()->AttackStart(target);
+                            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 15s);
+                        }
                         break;
                     case Events::VanessaVanCleef::SummonAdd2:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                            if (Creature* add = me->SummonCreature(Creatures::DefiasEnforcerVanessa, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                                add->AI()->AttackStart(target);
-                        events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd2, 30s);
+                        if (me->HealthAbovePct(50))
+                        {
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
+                                if (Creature* add = me->SummonCreature(Creatures::DefiasEnforcer, Positions::Shadowspawn[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+                                    add->AI()->AttackStart(target);
+                            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 15s);
+                        }
                         break;
                     case Events::VanessaVanCleef::SummonAdd3:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                            if (Creature* add = me->SummonCreature(Creatures::DefiasBloodWizardVanessa, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                                add->AI()->AttackStart(target);
-                        events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd3, 30s);
+                        if (me->HealthAbovePct(50))
+                        {
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
+                                if (Creature* add = me->SummonCreature(Creatures::DefiasBloodWizzard, Positions::Shadowspawn[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+                                    add->AI()->AttackStart(target);
+                            events.ScheduleEvent(Events::VanessaVanCleef::SummonAdd1, 15s);
+                        }
                         break;
                     case Events::VanessaVanCleef::Disappear:
-                        _disappearActive = true;
-                        Talk(Texts::VanessaVanCleef::VanessaDetonate);
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
-                        me->SetVisible(false);
-                        DoCastSelf(Spells::VanessaVanCleef::AynashasRoot);
-                        for (uint8 i = 0; i < 5; ++i)
-                            if (Creature* rope = me->SummonCreature(Creatures::Rope, Positions::RopeSpawn[i], TEMPSUMMON_TIMED_DESPAWN, 15s))
-                                rope->CastSpell(rope, Spells::VanessaVanCleef::ClickMe, true);
-                        events.ScheduleEvent(Events::VanessaVanCleef::FireBoom, 8s);
+                        DoDisappear();
+                        events.ScheduleEvent(Events::VanessaVanCleef::SummonRope, 2s);
+                        break;
+                    case Events::VanessaVanCleef::SummonRope:
+                        SummonRopes();
+                        events.ScheduleEvent(Events::VanessaVanCleef::RopeReady, 1s);
+                        break;
+                    case Events::VanessaVanCleef::RopeReady:
+                        RopeReady();
+                        events.ScheduleEvent(Events::VanessaVanCleef::FireBoom, 10s);
                         break;
                     case Events::VanessaVanCleef::FireBoom:
-                        for (uint8 i = 0; i < 43; ++i)
-                            if (Creature* fire = me->SummonCreature(Creatures::FireBunny, Positions::FieryBlaze[i], TEMPSUMMON_TIMED_DESPAWN, 10s))
-                                fire->CastSpell(fire, Spells::VanessaVanCleef::FieryBlaze, true);
-                        events.ScheduleEvent(Events::VanessaVanCleef::ClearShip, 10s);
+                        FieryBoom();
+                        events.ScheduleEvent(Events::VanessaVanCleef::ClearShip, 5s);
                         break;
                     case Events::VanessaVanCleef::ClearShip:
+                        DoReappear();
+                        break;
+                    case Events::VanessaVanCleef::Shadowguard:
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, false))
+                            if (Creature* add = me->SummonCreature(Creatures::DefiasShadowguard, Positions::Shadowspawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+                                add->AI()->AttackStart(target);
+                        break;
+                    case Events::VanessaVanCleef::Vengeance:
+                        DoCastSelf(Spells::VanessaVanCleef::Vengeance);
+                        break;
+                    case Events::VanessaVanCleef::FinalTimer:
+                        Talk(Texts::VanessaVanCleef::VanessaDefeated2);
+                        events.ScheduleEvent(Events::VanessaVanCleef::FinalWarning, 3s);
+                        break;
+                    case Events::VanessaVanCleef::FinalWarning:
+                        Talk(Texts::VanessaVanCleef::VanessaDetonation3);
+                        DoCastSelf(Spells::VanessaVanCleef::VanessaCosmeticBombState);
+                        events.ScheduleEvent(Events::VanessaVanCleef::FinalDetonation, 5s);
+                        break;
+                    case Events::VanessaVanCleef::FinalDetonation:
                     {
-                        std::list<Creature*> fires;
-                        me->GetCreatureListWithEntryInGrid(fires, Creatures::FireBunny, 100.0f);
-                        for (Creature* fire : fires)
-                            fire->DespawnOrUnsummon();
+                        me->AttackStop();
+                        me->ClearAllReactives();
 
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
-                        me->RemoveAura(Spells::VanessaVanCleef::AynashasRoot);
-                        me->SetVisible(true);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
-                            AttackStart(target);
-                        _disappearActive = false;
+                        Player* killer = nullptr;
+
+                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                        for (auto const& ref : players)
+                        {
+                            if (Player* p = ref.GetSource())
+                            {
+                                if (!killer)
+                                    killer = p;
+                                me->SetTappedBy(p);
+                            }
+                        }
+
+                        if (killer)
+                            killer->Kill(killer, me);
+
                         break;
                     }
                     default:
@@ -1573,9 +1551,114 @@ namespace Scripts::EasternKingdoms::Deadmines
         }
 
     private:
+        SummonList ropeList;
+        std::vector<ObjectGuid> _fireBunnyGuids;
         uint8 _disappearCount = 0;
         bool _disappearActive = false;
         bool _finalExplosion = false;
+
+        void DoDisappear()
+        {
+            me->RemoveAllAuras();
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+            //me->SetVisible(false);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, Positions::VanessaBossJumpAtopShip, 10.0f, {}, 5.0f);
+            summons.DespawnAll();
+            _disappearActive = true;
+        }
+
+        void DoReappear()
+        {
+            RemoveFiresFromShip();
+            //me->SetVisible(true);
+            me->RemoveAllAuras();
+            me->GetMotionMaster()->MoveJump(0, Position(-65.93f, -820.33f, 40.98f, 0.0f), 10.0f, {}, 8.0f);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, false))
+                AttackStart(target);
+            _disappearActive = false;
+            if (_disappearCount == 1)
+                events.ScheduleEvent(Events::VanessaVanCleef::Shadowguard, 27s);
+            else if (_disappearCount == 2)
+                events.ScheduleEvent(Events::VanessaVanCleef::Vengeance, 4s);
+        }
+
+        void SummonRopes()
+        {
+            for (uint8 i = 0; i < 5; ++i)
+                me->SummonCreature(Creatures::Rope, Positions::RopeSpawn[i], TEMPSUMMON_MANUAL_DESPAWN);
+        }
+
+        void RopeReady()
+        {
+            if(_disappearCount == 1)
+                Talk(Texts::VanessaVanCleef::VanessaDetonation1);
+            else if(_disappearCount == 2)
+                Talk(Texts::VanessaVanCleef::VanessaDetonation2);
+
+            for (ObjectGuid const& guid : ropeList)
+            {
+                if (Creature* rope = ObjectAccessor::GetCreature(*me, guid))
+                    rope->CastSpell(rope, Spells::VanessaVanCleef::ClickMe, true);
+            }
+
+            SummonThreatController();
+        }
+
+        void SummonThreatController()
+        {
+            if (Creature* bunny = me->SummonCreature(Creatures::GeneralPurposeBunnyJMF, -52.31f, -820.18f, 51.91f, 3.32963f, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                bunny->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                bunny->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                bunny->SetUnitFlag(UNIT_FLAG_STUNNED);
+                bunny->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                bunny->SetReactState(REACT_AGGRESSIVE);
+                bunny->SetFaction(18);
+                bunny->Attack(me, true);
+                AddThreat(bunny, 200000.0f);
+                me->SetInCombatWith(bunny);
+            }
+            DoZoneInCombat();
+        }
+
+        void FieryBoom()
+        {
+            std::list<Creature*> fiery;
+            me->GetCreatureListWithEntryInGrid(fiery, Creatures::GeneralPurposeBunny, 150.0f);
+            fiery.sort(Trinity::ObjectDistanceOrderPred(me));
+            for (std::list<Creature*>::iterator itr = fiery.begin(); itr != fiery.end(); ++itr)
+            {
+                if ((*itr)->IsAlive() && (*itr)->GetTypeId() == TYPEID_UNIT)
+                {
+                    _fireBunnyGuids.push_back((*itr)->GetGUID());
+                    (*itr)->CastSpell((*itr), Spells::VanessaVanCleef::FieryBlaze, true);
+                }
+            }
+        }
+
+        void RemoveFiresFromShip()
+        {
+            static const std::unordered_set<uint32> shipFireSpawnIds = {
+                376125, 376110, 376126, 376109, 376139, 376138,
+                376140, 376141, 376135, 376145, 376134, 376137,
+                376127, 376129, 376133, 376144, 376128, 376142,
+                376147, 376131, 376136, 376146
+            };
+
+            for (ObjectGuid const& guid : _fireBunnyGuids)
+            {
+                if (Creature* fire = ObjectAccessor::GetCreature(*me, guid))
+                {
+                    if (shipFireSpawnIds.count(fire->GetSpawnId()))
+                        fire->RemoveAura(Spells::VanessaVanCleef::FieryBlaze);
+                }
+            }
+            _fireBunnyGuids.clear();
+        }
     };
 
     // 49457 - Steam Valve
@@ -1646,10 +1729,6 @@ void AddSC_custom_deadmines_vanessa_vancleef()
     RegisterCreatureAI(npc_magma_pull);
     RegisterCreatureAI(npc_rope_away);
     RegisterCreatureAI(npc_lightning_orbs);
-    RegisterCreatureAI(npc_defias_shadowguard);
-    RegisterCreatureAI(npc_defias_enforcer);
-    RegisterCreatureAI(npc_defias_envoker);
-    RegisterCreatureAI(npc_defias_bloodwizard);
     RegisterCreatureAI(npc_oaf_lackey);
     RegisterCreatureAI(npc_goblin_overseer);
     RegisterCreatureAI(npc_enraged_worgen_dm);

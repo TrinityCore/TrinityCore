@@ -273,6 +273,9 @@ inline void Battleground::_ProcessOfflineQueue()
 Team Battleground::GetPrematureWinner()
 {
     Team winner = TEAM_OTHER;
+    if (sBattlegroundMgr->IsFSBOverrideEnabled() && (GetPlayersCountByTeam(ALLIANCE) == 0 || GetPlayersCountByTeam(HORDE) == 0))
+        return winner;
+
     if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
         winner = ALLIANCE;
     else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
@@ -288,7 +291,9 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     // *********************************************************
     // if less then minimum players are in on one side, then start premature finish timer
     bool broadcastStatusUpdate = false;
-    if (!sBattlegroundMgr->isTesting() && sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
+    bool isTeamUnderMinimum = GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam();
+    bool isFSBOverrideActive = sBattlegroundMgr->IsFSBOverrideEnabled() && (GetPlayersCountByTeam(ALLIANCE) == 0 || GetPlayersCountByTeam(HORDE) == 0);
+    if (!sBattlegroundMgr->isTesting() && sBattlegroundMgr->GetPrematureFinishTime() && isTeamUnderMinimum && !isFSBOverrideActive)
     {
         if (!m_PrematureCountDown)
         {
@@ -1283,6 +1288,9 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
 
     pvpLogData.PlayerCount[PVP_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
     pvpLogData.PlayerCount[PVP_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
+
+    if (BattlegroundScript* script = GetBgMap()->GetBattlegroundScript())
+        script->OnBuildPvPLogDataPacket(pvpLogData);
 }
 
 BattlegroundScore const* Battleground::GetBattlegroundScore(Player* player) const
@@ -1515,6 +1523,9 @@ uint32 Battleground::GetMaxPlayers() const
 
 uint32 Battleground::GetMinPlayers() const
 {
+    if (sBattlegroundMgr->IsFSBOverrideEnabled())
+        return 1;
+
     return GetMinPlayersPerTeam() * 2;
 }
 
@@ -1556,5 +1567,8 @@ uint32 Battleground::GetMaxPlayersPerTeam() const
 
 uint32 Battleground::GetMinPlayersPerTeam() const
 {
+    if (sBattlegroundMgr->IsFSBOverrideEnabled())
+        return 1;
+
     return _battlegroundTemplate->GetMinPlayersPerTeam();
 }

@@ -23,6 +23,7 @@
 #include "DB2Stores.h"
 #include "GameObject.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -31,19 +32,25 @@
 #include "Followship_bots_ai_base.h"
 #include "Followship_bots_mgr.h"
 #include "Followship_bots_dungeon_handler.h"
-#include "Dungeons/Followship_bots_dungeon_deadmines.h"
+#include "Followship_bots_dungeon_deadmines.h"
 
 #include "Followship_bots_chatter_handler.h"
+#include "Followship_bots_chat_handler.h"
 #include "Followship_bots_death_handler.h"
 #include "Followship_bots_events_handler.h"
 #include "Followship_bots_movement_handler.h"
 #include "Followship_bots_outofcombat_handler.h"
+#include "Followship_bots_pet_handler.h"
 #include "Followship_bots_recovery_handler.h"
 #include "Followship_bots_stats_handler.h"
 #include "Followship_bots_teleport_handler.h"
 
+#include "Followship_bots_battleground_handler.h"
+#include "Followship_bots_arena.h"
 #include "Followship_bots_paladin.h"
 #include "Followship_bots_rogue.h"
+
+#include "GenAI_battleground_prompts.h"
 
 void FSB_BaseAI::ScheduleBotEvent(uint32 eventId, Milliseconds time)
 {
@@ -101,7 +108,20 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
     {
         FSBOOC::BotActionsNotHired(bot);
 
+        if (!ai->botHired)
+            ScheduleBotEvent(FSB_EVENT_GENERIC_PET_TELEPORT, 1s);
+
         ScheduleBotEvent(FSB_EVENT_GENERIC_MAINTENANCE, 1s);
+        break;
+    }
+
+    case FSB_EVENT_GENERIC_PET_TELEPORT:
+    {
+        if (!bot || !bot->IsAlive())
+            break;
+
+        if (FSBPet::BotHasPet(bot))
+            FSBTeleport::BotPetTeleport(bot, 50.0f);
         break;
     }
 
@@ -116,6 +136,248 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
     case FSB_EVENT_GENERIC_GRAVEYARD_RESSURECT:
         FSBDeath::HandleDeathWithGraveyard(me, ai->botCorpsePos);
         break;
+
+    case FSB_EVENT_BATTLEGROUND_TELEPORT_GRAVEYARD:
+    {
+        bot->CastSpell(bot, SPELL_SPECIAL_GHOST);
+        FSBTeleport::BotTeleportToBattlegroundGraveyard(bot);
+        ScheduleBotEvent(FSB_EVENT_BATTLEGROUND_GRAVEYARD_RESSURECT, 30s);
+        break;
+    }
+
+    case FSB_EVENT_BATTLEGROUND_GRAVEYARD_RESSURECT:
+    {
+        FSBDeath::HandleBattlegroundGraveyardResurrect(bot);
+        ScheduleBotEvent(FSB_EVENT_HIRED_RESUME_FOLLOW, 1s);
+
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+                ScheduleBotEvent(FSB_EVENT_AB_REROLL_STATE, 2s);
+        }
+        break;
+    }
+
+    case FSB_EVENT_BATTLEGROUND_START:
+    {
+        bot->SetReactState(REACT_AGGRESSIVE);
+
+        if (ai->botHired)
+            break;
+
+        // bot race/class mount and shapeshift
+        // TO-DO we need a dedicated method here to sometimes pick
+        // Spirit wolf for shaman
+        // Travel form for druid (needs handling of shapeshift change)
+        //FSBMovement::BotSetMountedState(bot, ai->botMounted);
+
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+            {
+                if (bgData->wsgState == FSBBattleground::WarsongGulch::WSGState::None)
+                {
+                    FSBBattleground::WarsongGulch::SetBotState(bot, bgData,
+                        FSBBattleground::WarsongGulch::GetWSGBotState(bot, bgData->wsgState));
+                }
+            }
+            else if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+            {
+                if (bgData->abState == FSBBattleground::ArathiBasin::ABState::None)
+                    FSBBattleground::ArathiBasin::SetBotState(bot, bgData,
+                        FSBBattleground::ArathiBasin::RollNewABState(bot, bot->GetMap()->ToBattlegroundMap()));
+
+                ScheduleBotEvent(FSB_EVENT_AB_CHECK_CAPTURE, 5s);
+            }
+        }
+
+        ScheduleBotEvent(FSB_EVENT_BATTLEGROUND_TICK, 2s);
+        break;
+    }
+
+    case FSB_EVENT_WSG_USE_FLAG:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+                FSBBattleground::WarsongGulch::TryUseEnemyFlag(bot, bgData);
+        break;
+    }
+
+    case FSB_EVENT_WSG_USE_DROPPED_FLAG:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+                FSBBattleground::WarsongGulch::TryUseDroppedFlag(bot, bgData);
+        break;
+    }
+
+    case FSB_EVENT_WSG_BOT_CAPTURE:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+                FSBBattleground::WarsongGulch::TryCaptureFlag(bot, bgData);
+
+        ScheduleBotEvent(FSB_EVENT_WSG_REROLL_STATE, 5s, 10s);
+        break;
+    }
+
+    case FSB_EVENT_WSG_REROLL_STATE:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+            {
+                if (FSBBattleground::WarsongGulch::BotHasFlagAura(bot))
+                    break;
+
+                FSBBattleground::WarsongGulch::SetBotState(bot, bgData,
+                    FSBBattleground::WarsongGulch::GetWSGBotState(bot, bgData->wsgState));
+                FSBBattleground::WarsongGulch::UpdateBot(bot, bgData);
+            }
+        }
+        break;
+    }
+
+    case FSB_EVENT_AB_CHECK_CAPTURE:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+            {
+                FSBBattleground::ArathiBasin::CheckCapturePointState(bot, bgData);
+                ScheduleBotEvent(FSB_EVENT_AB_CHECK_CAPTURE, 3s, 5s);
+            }
+        }
+        break;
+    }
+
+    case FSB_EVENT_AB_REROLL_STATE:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+            {
+                if (!bot->IsAlive())
+                    break;
+
+                BattlegroundMap* bgMap = bot->GetMap()->ToBattlegroundMap();
+                if (!bgMap)
+                    break;
+
+                FSBBattleground::ArathiBasin::SetBotState(bot, bgData,
+                    FSBBattleground::ArathiBasin::RollNewABState(bot, bgMap));
+                FSBBattleground::ArathiBasin::UpdateBot(bot, bgData);
+            }
+        }
+        break;
+    }
+
+    case FSB_EVENT_ARENA_START:
+    {
+        bot->SetReactState(REACT_AGGRESSIVE);
+
+        if (ai->botHired)
+            break;
+
+        FSBBattleground::Arena::HandleArenaStart(bot);
+        ScheduleBotEvent(FSB_EVENT_ARENA_TICK, 30s);
+        break;
+    }
+
+    case FSB_EVENT_ARENA_TICK:
+    {
+        if (!ai->botHired && bot->IsAlive())
+            FSBBattleground::Arena::HandleArenaTick(bot);
+
+        ScheduleBotEvent(FSB_EVENT_ARENA_TICK, 30s);
+        break;
+    }
+
+    case FSB_EVENT_BATTLEGROUND_STATE_CHAT:
+    {
+        if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+        {
+            Team botTeam = FSBBattleground::GetBotTeam(bot);
+            if (botTeam != ALLIANCE && botTeam != HORDE)
+                break;
+
+            FSBBattlegroundChat::BGChatState chatState = FSBBattlegroundChat::BGChatState::None;
+            if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+            {
+                switch (bgData->wsgState)
+                {
+                case FSBBattleground::WarsongGulch::WSGState::DefendBase:
+                    chatState = FSBBattlegroundChat::BGChatState::Defend;
+                    break;
+                case FSBBattleground::WarsongGulch::WSGState::HoldCenter:
+                    chatState = FSBBattlegroundChat::BGChatState::HoldMid;
+                    break;
+                case FSBBattleground::WarsongGulch::WSGState::AttackFlag:
+                    chatState = FSBBattlegroundChat::BGChatState::Attack;
+                    break;
+                case FSBBattleground::WarsongGulch::WSGState::ReturnFlag:
+                    chatState = FSBBattlegroundChat::BGChatState::Return;
+                    break;
+                case FSBBattleground::WarsongGulch::WSGState::ProtectCarrier:
+                    chatState = FSBBattlegroundChat::BGChatState::Protect;
+                    break;
+                default:
+                    break;
+                }
+
+                std::string msg = FSBBattlegroundChat::GetStateChatMessage(bgData->bgTypeId, botTeam, chatState);
+                if (!msg.empty())
+                    FSBGenAIPrompts::DispatchBotBattlegroundStateChat(bot, bgData->bgTypeId, botTeam, chatState, msg);
+            }
+            else if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+            {
+                std::string nodeName = FSBBattlegroundChat::GetABNodeName(static_cast<uint8>(bgData->abState));
+
+                switch (bgData->abState)
+                {
+                case FSBBattleground::ArathiBasin::ABState::AttackStables:
+                case FSBBattleground::ArathiBasin::ABState::AttackMine:
+                case FSBBattleground::ArathiBasin::ABState::AttackMill:
+                case FSBBattleground::ArathiBasin::ABState::AttackBlacksmith:
+                case FSBBattleground::ArathiBasin::ABState::AttackFarm:
+                    chatState = FSBBattlegroundChat::BGChatState::Attack;
+                    break;
+                case FSBBattleground::ArathiBasin::ABState::DefendStables:
+                case FSBBattleground::ArathiBasin::ABState::DefendMine:
+                case FSBBattleground::ArathiBasin::ABState::DefendMill:
+                case FSBBattleground::ArathiBasin::ABState::DefendBlacksmith:
+                case FSBBattleground::ArathiBasin::ABState::DefendFarm:
+                    chatState = FSBBattlegroundChat::BGChatState::Defend;
+                    break;
+                default:
+                    break;
+                }
+
+                std::string msg = FSBBattlegroundChat::GetStateChatMessage(bgData->bgTypeId, botTeam, chatState, nodeName);
+                if (!msg.empty())
+                    FSBGenAIPrompts::DispatchBotBattlegroundStateChat(bot, bgData->bgTypeId, botTeam, chatState, msg, nodeName);
+            }
+
+        }
+        break;
+    }
+
+    case FSB_EVENT_BATTLEGROUND_TICK:
+    {
+        if (!ai->botHired)
+        {
+            if (FSB_BattlegroundData* bgData = ai->GetBattlegroundData())
+            {
+                if (bgData->bgTypeId == BATTLEGROUND_WS || bgData->bgTypeId == BATTLEGROUND_WG_CTF)
+                    FSBBattleground::WarsongGulch::UpdateBot(bot, bgData);
+                else if (bgData->bgTypeId == BATTLEGROUND_AB || bgData->bgTypeId == BATTLEGROUND_DOM_AB || bgData->bgTypeId == BATTLEGROUND_AB_CS || bgData->bgTypeId == BATTLEGROUND_BRAWL_AB2)
+                    FSBBattleground::ArathiBasin::UpdateBot(bot, bgData);
+            }
+
+            ScheduleBotEvent(FSB_EVENT_BATTLEGROUND_TICK, 2s, 3s);
+        }
+        break;
+    }
 
     case FSB_EVENT_GENERIC_CHECK_HIRED_TIME:
     {
@@ -135,7 +397,7 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
 
     case FSB_EVENT_HIRED_MOUNT_AURA:
         bot->CastSpell(bot, SPELL_PALADIN_CRUSADER_AURA, false);
-        bot->Say("This should help us go faster", LANG_UNIVERSAL);
+        bot->Say("This should help us go faster", ai->botLanguage);
         break;
 
     case FSB_EVENT_HIRED_RESURRECT_TARGET:
@@ -232,6 +494,18 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
         break;
     }
 
+    case FSB_EVENT_DESPAWN_TEMP_BOT:
+    {
+        if (FSBBattleground::IsFinished(bot))
+        {
+            if (bot->GetSpawnId() == 0 && !FSBMgr::Get()->GetBotOwner(bot))
+                bot->DespawnOrUnsummon(0s);
+            break;
+        }
+        else botEvents.ScheduleEvent(FSB_EVENT_DESPAWN_TEMP_BOT, 10s);
+        break;
+    }
+
     case FSB_EVENT_HIRED_SPELL_RESURRECT_STATE:
         FSBDeath::HandleSpellResurrectionDelayedAction(bot);
         break;
@@ -267,7 +541,7 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
             ai->botSitsByFire = true;
             float offsetx = RAND(-2.f, 2.f);
             float offsety = frand(-2.f, 2.f);
-            bot->GetMotionMaster()->MovePoint(FSB_MOVEMENT_POINT_NEAR_FIRE, go->GetPositionX() + offsetx, go->GetPositionY() + offsety, go->GetPositionZ());
+            bot->GetMotionMaster()->MovePoint(FSBMovement::MOVEMENT_POINT_NEAR_FIRE, go->GetPositionX() + offsetx, go->GetPositionY() + offsety, go->GetPositionZ());
             botEvents.ScheduleEvent(FSB_EVENT_RANDOM_ACTION_FINISH, 30s, 45s);
             TC_LOG_DEBUG("scripts.fsb.events", "FSB: Event RANDOM_ACTION_MOVE_FIRE for bot {} finished. We found object {} and are moving to sit by", bot->GetName(), go->GetName());
             break;
@@ -402,6 +676,10 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId)
         break;
     }
 
+    case FSB_EVENT_RECOVERY_END:
+        ai->botGenericData.isRecovering = false;
+        break;
+
     default:
         break;
     }
@@ -426,15 +704,33 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId, FSB_ReplyType re
         switch (replyType)
         {
         case FSB_ReplyType::Say:
-            if(target && target->IsAlive())
-                target->Say(chatterReply, LANG_UNIVERSAL);
-            else bot->Say(chatterReply, LANG_UNIVERSAL);
+        {
+            if (target && target->IsAlive())
+            {
+                Language targetLanguage = LANG_UNIVERSAL;
+                if (target->GetTypeId() == TYPEID_UNIT)
+                    if (auto targetAI = dynamic_cast<FSB_BaseAI*>(target->ToCreature()->AI()))
+                        targetLanguage = targetAI->botLanguage;
+                target->Say(chatterReply, targetLanguage);
+            }
+            else
+                bot->Say(chatterReply, ai->botLanguage);
             break;
+        }
         case FSB_ReplyType::Yell:
-            if(target && target->IsAlive())
-                target->Yell(chatterReply, LANG_UNIVERSAL);
-            else bot->Yell(chatterReply, LANG_UNIVERSAL);
+        {
+            if (target && target->IsAlive())
+            {
+                Language targetLanguage = LANG_UNIVERSAL;
+                if (target->GetTypeId() == TYPEID_UNIT)
+                    if (auto targetAI = dynamic_cast<FSB_BaseAI*>(target->ToCreature()->AI()))
+                        targetLanguage = targetAI->botLanguage;
+                target->Yell(chatterReply, targetLanguage);
+            }
+            else
+                bot->Yell(chatterReply, ai->botLanguage);
             break;
+        }
         case FSB_ReplyType::Whisper:
         {
             Player* player = FSBMgr::Get()->GetBotOwner(bot);
@@ -461,6 +757,12 @@ void FSB_BaseAI::HandleBotEvent(FSB_BaseAI* ai, uint32 eventId, FSB_ReplyType re
 
         FSBChatter::PlayDummyEmote(target->ToCreature(), chatterReply);
 
+        break;
+    }
+
+    case FSB_EVENT_BATTLEGROUND_SPAWN_CHAT:
+    {
+        FSBGenAIPrompts::DispatchBotBattlegroundSpawnChat(bot, chatterReply);
         break;
     }
 

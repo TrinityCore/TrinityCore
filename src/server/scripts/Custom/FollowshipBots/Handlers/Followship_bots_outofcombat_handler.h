@@ -53,12 +53,12 @@ namespace FSBOOC
 {
     bool BotOOCActions(Creature* bot);
     bool BotOOCHealOwner(Creature* bot, Player* player, uint32& globalCooldown);
-    bool BotOOCBuffGroup(Creature* bot, uint32& buffTimer, uint32& globalCooldown);
-    bool BotOOCBuffSelf(Creature* bot, uint32& selfBuffTimer, uint32& globalCooldown);
+    // Legacy buff methods - replaced by FSBBuffs::HandlePeriodicBuffs
+    // bool BotOOCBuffGroup(Creature* bot, uint32& buffTimer, uint32& globalCooldown);
+    // bool BotOOCBuffSelf(Creature* bot, uint32& selfBuffTimer, uint32& globalCooldown);
+
     bool BotOOCRecovery(Creature* bot, uint32& globalCooldown);
     bool BotOOCSummonPetOrDemon(Creature* bot);
-    bool BotOOCBuffSoulstone(Creature* bot, uint32& globalCooldown);
-    bool BotOOCBuffBeacon(Creature* bot);
     bool BotOOCDoRandomEvent(Creature* bot);
     bool BotOOCSpawnCompanion(Creature* bot);
     bool BotOOCActionPlayerAFK(Creature* bot, bool force);
@@ -66,7 +66,8 @@ namespace FSBOOC
 
     void BotOOCClearFlagsStates(Creature* bot);
 
-    void GetBotBuffTargets(Creature* bot, uint32 buffSpellId, float maxRange, std::vector<Unit*>& outTargets);
+    // Legacy helper for BotOOCBuffGroup - replaced by FSBBuffs::HandlePeriodicBuffs
+    // void GetBotBuffTargets(Creature* bot, uint32 buffSpellId, float maxRange, std::vector<Unit*>& outTargets);
 
     bool BotOOCActionCook(Creature* bot, uint32 spellId, uint32 goId);
     bool BotOOCActionFlirt(Creature* bot);

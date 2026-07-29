@@ -23,6 +23,9 @@
 #include <string>
 #include "Define.h"
 
+class Player;
+class Creature;
+
 namespace FSBGossipUtils
 {
     // Converts an int64 price in copper to a string like 10 silver
@@ -30,4 +33,7 @@ namespace FSBGossipUtils
 
     // Builds the hire option text dynamically
     std::string BuildHireText(int64 price, uint32 hours);
+
+    // Resolves gossip text ID: creature's own gossip text first, fallback to FSB_GOSSIP_DEFAULT_MENU (12504)
+    uint32 ResolveGossipTextId(Player* player, Creature* bot);
 }

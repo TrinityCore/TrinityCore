@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Creature.h"
+#include "Group.h"
 
 #include "Followship_bots_defines.h"
 
@@ -36,12 +37,17 @@ class Player;
 namespace FSBParty
 {
     void PeriodicPartyNeededCheck(Creature* bot);
+    void PeriodicBattlegroundRaidUpdate(Creature* bot);
     std::vector<Creature*> CollectActiveBots(Player* player);
 
     // Sends a fake SMSG_PARTY_UPDATE to the player that includes their bots
     // If the player is in a real group, bots are appended to the real group members
     // If not in a group, creates a standalone fake party with just the player + bots
     void SendFakePartyUpdate(Player* player, Creature* bot = nullptr);
+
+    // Sends a fake SMSG_PARTY_UPDATE for a battleground raid roster.
+    // No 5-member cap is applied; all bots are sent for the client's raid frame.
+    void SendBattlegroundRaidUpdate(Player* player, std::vector<Creature*> const& bots);
 
     // Sends SMSG_PARTY_MEMBER_FULL_STATE for a single bot creature to the owner
     // This updates health, mana, position etc. on the party frame
