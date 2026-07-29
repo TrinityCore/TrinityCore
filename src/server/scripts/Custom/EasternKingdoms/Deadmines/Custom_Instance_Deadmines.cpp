@@ -264,18 +264,21 @@ namespace Scripts::EasternKingdoms::Deadmines
             {
                 TeamId teamId = player->GetTeamId();
 
+                std::vector<Creature*> toDespawn;
                 for (auto const& pair : instance->GetCreatureBySpawnIdStore())
                 {
                     Creature* creature = pair.second;
                     if (!creature || !creature->IsInWorld())
                         continue;
 
-                    // Despawn opposite faction NPCs
                     if (teamId == TEAM_ALLIANCE && IsHordeNPC(creature))
-                        creature->DespawnOrUnsummon();
+                        toDespawn.push_back(creature);
                     else if (teamId == TEAM_HORDE && IsAllianceNPC(creature))
-                        creature->DespawnOrUnsummon();
+                        toDespawn.push_back(creature);
                 }
+
+                for (Creature* creature : toDespawn)
+                    creature->DespawnOrUnsummon();
             }
 
             void OnGameObjectCreate(GameObject* go) override
