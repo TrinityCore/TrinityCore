@@ -34,7 +34,7 @@
 
 #include "Custom_Monk_Defines.h"
 
-namespace Custom::Monk
+namespace Scripts::Custom::Monk
 {
     // Jade Serpent Statue - 60849
     struct npc_monk_jade_serpent_statue : public PassiveAI
@@ -183,7 +183,7 @@ namespace Custom::Monk
 
 void AddSC_custom_monk_spell_npcs()
 {
-    using namespace Custom::Monk;
+    using namespace Scripts::Custom::Monk;
 
     RegisterCreatureAI(npc_monk_jade_serpent_statue);
     RegisterCreatureAI(npc_monk_black_ox_statue);

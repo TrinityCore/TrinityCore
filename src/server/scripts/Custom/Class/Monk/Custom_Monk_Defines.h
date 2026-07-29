@@ -23,7 +23,7 @@
 #ifndef CUSTOM_MONK_DEFINES_H
 #define CUSTOM_MONK_DEFINES_H
 
-namespace Custom::Monk
+namespace Scripts::Custom::Monk
 {
     namespace Creatures
     {
@@ -38,6 +38,11 @@ namespace Custom::Monk
         static constexpr uint32 SOOTHING_MIST_STATUE  = 198533;
         static constexpr uint32 BLACK_OX_STATUE_AURA  = 163177;
         static constexpr uint32 PROVOKE               = 115546;
+
+        static constexpr uint32 RenewingMist           = 119611;
+        static constexpr uint32 RenewingMistCast       = 115151;
+        static constexpr uint32 RenewingMistJump       = 119607;
+        static constexpr uint32 VisualRenewingMist     = 24599;
     }
 
     namespace Events

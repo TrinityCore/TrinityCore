@@ -27,6 +27,7 @@ void AddSC_custom_evoker_spell_fixes();
 void AddSC_custom_hunter_spell_fixes();
 void AddSC_custom_mage_spell_fixes();
 void AddSC_custom_monk_spell_npcs();
+void AddSC_custom_monk_spell_fixes();
 void AddSC_custom_shaman_totem_npcs();
 void AddSC_custom_warlock_spell_fixes();
 void AddSC_custom_warlock_demon_npcs();
@@ -119,6 +120,7 @@ void AddCustomScripts()
     AddSC_custom_hunter_spell_fixes();
     AddSC_custom_mage_spell_fixes();
     AddSC_custom_monk_spell_npcs();
+    AddSC_custom_monk_spell_fixes();
     AddSC_custom_shaman_totem_npcs();
     AddSC_custom_warlock_spell_fixes();
     AddSC_custom_warlock_demon_npcs();
