@@ -422,6 +422,14 @@ UPDATE `smart_scripts` SET `action_param6` = '0' WHERE (`entryorguid` = '34033')
 UPDATE `smart_scripts` SET `action_param6` = '0' WHERE (`entryorguid` = '34103') and (`source_type` = '0') and (`id` = '0') and (`link` = '0');
 UPDATE `smart_scripts` SET `action_param6` = '0' WHERE (`entryorguid` = '962300') and (`source_type` = '9') and (`id` = '4') and (`link` = '0');
 
+-- Training Target fix
+UPDATE creature_template SET AIName = SmartAI WHERE Entry = 53714;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 53714 AND `source_type` = 0;
+INSERT INTO smart_scripts (entryorguid, source_type, id, link, Difficulties, event_type, event_phase_mask, event_chance, event_flags, event_param1, event_param2, event_param3, event_param4, event_param5, event_param_string, action_type, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, action_param7, action_param_string, target_type, target_param1, target_param2, target_param3, target_param4, target_param_string, target_x, target_y, target_z, target_o, COMMENT) VALUES 
+(53714, 0, 0, 0, , 11, 0, 100, 0, 0, 0, 0, 0, 0, , 8, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Training Target - On Respawn - Set React State'),
+(53714, 0, 0, 1, , 6, 0, 100, 0, 0, 0, 0, 0, 0, , 1, 0, 0, 0, 0, 0, 0, 0, NULL, 19, 53565, 7, 0, 0, NULL, 0, 0, 0, 0, 'Death - Speech on Nearest Trainee'),
+(53714, 0, 1, 0, , 61, 0, 100, 0, 0, 0, 0, 0, 0, , 1, 0, 0, 0, 0, 0, 0, 0, NULL, 19, 65469, 7, 0, 0, NULL, 0, 0, 0, 0, 'Link - Speech on Nearest Trainee');
+
 -- Spell Target Positions
 DELETE FROM `spell_target_position` WHERE `ID` IN (104450,108858,102499,116191,116191,115426,115426,115334,115336,115338,
 116190,118500,126040,104571,131974,117615,117597,118499,115435,115495,115494,115493);
