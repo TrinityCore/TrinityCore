@@ -10,9 +10,8 @@ INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`,
 (44614, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0);
 
 -- Flurry scripts
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (44614, 228596, 228354);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (228596, 228354);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(44614, 'spell_mage_flurry'),
 (228596, 'spell_mage_flurry_damage_spell'),
 (228354, 'spell_mage_flurry_missile_damage');
 
@@ -171,3 +170,15 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (385167, 0, 0, 0, 0, 0, 0, 0x10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
 (1222865, 0, 0, 0, 0, 0, 0, 0x10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0),
 (460590, 0, 0, 0, 0, 0, 0, 0x0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+-- Spell Script for 235219 Cold Snap Updated
+DELETE FROM `spell_script_names` WHERE `spell_id` = 235219;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (235219, 'spell_mage_cold_snap_custom');
+
+-- Spell Script for 112965 - Fingers of Frost Updated
+DELETE FROM `spell_script_names` WHERE `spell_id` = 112965;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (112965, 'spell_mage_fingers_of_frost_custom');
+
+-- Spell Script for // 44614 - Flurry (cast) - Manual missile control
+DELETE FROM `spell_script_names` WHERE `spell_id` = 44614;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (44614, 'spell_mage_flurry_custom');

@@ -76,6 +76,10 @@ namespace Scripts::Custom::Mage
         static constexpr uint32 PermafrostLances = 460590;
         static constexpr uint32 PermafrostLancesBuff = 455122;
 
+        static constexpr uint32 RayOfFrostBonus = 208141;
+        static constexpr uint32 RayOfFrostFingersOfFrost = 269748;
+
+        static constexpr uint32 ShatterDamage = 1246949;
         static constexpr uint32 ShatterPassive = 1246769;
 
     }
