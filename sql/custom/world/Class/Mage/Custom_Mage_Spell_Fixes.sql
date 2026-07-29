@@ -182,3 +182,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (112965, 'spe
 -- Spell Script for // 44614 - Flurry (cast) - Manual missile control
 DELETE FROM `spell_script_names` WHERE `spell_id` = 44614;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (44614, 'spell_mage_flurry_custom');
+
+-- Spell Script for // 228598 - Ice Lance (damage)
+DELETE FROM `spell_script_names` WHERE `spell_id` = 228598;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (228598, 'spell_mage_ice_lance_damage_custom');
+
+-- Spell Script for // 205021 - Ray of Frost spell and aura pair
+DELETE FROM `spell_script_names` WHERE `spell_id` = 205021;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (205021, 'spell_mage_ray_of_frost_custom');
+
+-- Spell Script for Flame ON is no longer needed as effect is handled by core.
+DELETE FROM `spell_script_names` WHERE `spell_id` = 205029;
