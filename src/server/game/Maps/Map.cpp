@@ -1827,7 +1827,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
     //Other requirements
     {
         TransferAbortParams params(TRANSFER_ABORT_NONE);
-        if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, &params, true))
+        if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, Difficulty(mapDiff->DifficultyID)), mapid, &params, true))
             return params;
     }
 
