@@ -502,13 +502,14 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     // Pet temporary unsummon/resummon handling.
     if (plrMover)
     {
-        bool wasFlying = oldMovementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
-        bool isFlying  = movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool wasFlying  = oldMovementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool isFlying   = movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool isFalling  = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING);
 
         if (plrMover->IsMounted() && !wasFlying && isFlying)
             plrMover->UnsummonPetTemporaryIfAny();
 
-        if (wasFlying && !isFlying)
+        if (wasFlying && !isFlying && !isFalling)
             plrMover->ResummonPetTemporaryUnSummonedIfAny();
 
         if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
