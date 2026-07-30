@@ -1,4 +1,8 @@
-UPDATE `gameobject` SET `PhaseId`=26622 WHERE  `guid`=218854;
+SET @OGUID := 900000;
+DELETE FROM `gameobject` WHERE `guid` = @OGUID+107;
+INSERT INTO `gameobject` VALUES
+(@OGUID+107, 553793, 2694, 15355, 0, 0, 0, 26622, 0, -1, 1255.01, 807.479, 1330.89, 1.68607, 0, 0, -0.746665, -0.6652, 300, 255, 1, 0, '', '', 0);
+
 
 DELETE FROM `gameobject_loot_template` WHERE `Entry` = 553793;
 INSERT INTO `gameobject_loot_template` (`Entry`, `ItemType`, `Item`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES (553793, 0, 246112, 100, 0, 1, 0, 1, 1, 'Alliance Shield');
