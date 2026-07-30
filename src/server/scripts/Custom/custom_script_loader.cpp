@@ -31,6 +31,7 @@ void AddSC_custom_monk_spell_fixes();
 void AddSC_custom_shaman_totem_npcs();
 void AddSC_custom_warlock_spell_fixes();
 void AddSC_custom_warlock_demon_npcs();
+void AddSC_custom_warrior_spell_fixes();
 
 // ==================== Per Zone Scripts ====================== //
 void AddSC_custom_elwynn_forest_npcs();
@@ -124,6 +125,7 @@ void AddCustomScripts()
     AddSC_custom_shaman_totem_npcs();
     AddSC_custom_warlock_spell_fixes();
     AddSC_custom_warlock_demon_npcs();
+    AddSC_custom_warrior_spell_fixes();
 
     AddSC_custom_elwynn_forest_npcs();
 
