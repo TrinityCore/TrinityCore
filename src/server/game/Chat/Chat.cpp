@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
+#include "ChatPackets.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
@@ -114,37 +115,42 @@ void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
         msg = stream.str();
     }
 
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
     for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        m_session->SendPacket(&data);
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        m_session->SendPacket(packet.Write());
     }
 }
 
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
     for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        sWorld->SendGlobalMessage(&data);
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        sWorld->SendGlobalMessage(packet.Write());
     }
 }
 
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
     for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
-        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        sWorld->SendGlobalGMMessage(&data);
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        sWorld->SendGlobalGMMessage(packet.Write());
     }
 }
 
 void ChatHandler::SendSysMessage(uint32 entry)
 {
     SendSysMessage(GetTrinityString(entry));
+}
+
+std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+{
+    return fmt::vsprintf<char>(messageFormat, messageFormatArgs);
 }
 
 bool ChatHandler::_ParseCommands(std::string_view text)
@@ -183,115 +189,6 @@ bool ChatHandler::ParseCommands(std::string_view text)
         return false;
 
     return _ParseCommands(text.substr(1));
-}
-
-size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string_view message, uint8 chatTag,
-                                  std::string const& senderName /*= ""*/, std::string const& receiverName /*= ""*/,
-                                  uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/)
-{
-    size_t receiverGUIDPos = 0;
-    data.Initialize(!gmMessage ? SMSG_MESSAGECHAT : SMSG_GM_MESSAGECHAT);
-    data << uint8(chatType);
-    data << int32(language);
-    data << senderGUID;
-    data << uint32(0);  // some flags
-    switch (chatType)
-    {
-        case CHAT_MSG_MONSTER_SAY:
-        case CHAT_MSG_MONSTER_PARTY:
-        case CHAT_MSG_MONSTER_YELL:
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_MONSTER_EMOTE:
-        case CHAT_MSG_RAID_BOSS_EMOTE:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
-        case CHAT_MSG_BATTLENET:
-            data << uint32(senderName.length() + 1);
-            data << senderName;
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (!receiverGUID.IsEmpty() && !receiverGUID.IsPlayer() && !receiverGUID.IsPet())
-            {
-                data << uint32(receiverName.length() + 1);
-                data << receiverName;
-            }
-            break;
-        case CHAT_MSG_WHISPER_FOREIGN:
-            data << uint32(senderName.length() + 1);
-            data << senderName;
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            break;
-        case CHAT_MSG_BG_SYSTEM_NEUTRAL:
-        case CHAT_MSG_BG_SYSTEM_ALLIANCE:
-        case CHAT_MSG_BG_SYSTEM_HORDE:
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            if (!receiverGUID.IsEmpty() && !receiverGUID.IsPlayer())
-            {
-                data << uint32(receiverName.length() + 1);
-                data << receiverName;
-            }
-            break;
-        case CHAT_MSG_ACHIEVEMENT:
-        case CHAT_MSG_GUILD_ACHIEVEMENT:
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            break;
-        default:
-            if (gmMessage)
-            {
-                data << uint32(senderName.length() + 1);
-                data << senderName;
-            }
-
-            if (chatType == CHAT_MSG_CHANNEL)
-            {
-                ASSERT(channelName.length() > 0);
-                data << channelName;
-            }
-
-            receiverGUIDPos = data.wpos();
-            data << receiverGUID;
-            break;
-    }
-
-    data << uint32(message.length() + 1);
-    data << message;
-    data << uint8(chatTag);
-
-    if (chatType == CHAT_MSG_ACHIEVEMENT || chatType == CHAT_MSG_GUILD_ACHIEVEMENT)
-        data << uint32(achievementId);
-
-    return receiverGUIDPos;
-}
-
-size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message,
-                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/)
-{
-    ObjectGuid senderGUID;
-    std::string senderName = "";
-    uint8 chatTag = 0;
-    bool gmMessage = false;
-    ObjectGuid receiverGUID;
-    std::string receiverName = "";
-    if (sender)
-    {
-        senderGUID = sender->GetGUID();
-        senderName = sender->GetNameForLocaleIdx(locale);
-        if (Player const* playerSender = sender->ToPlayer())
-        {
-            chatTag = playerSender->GetChatTag();
-            gmMessage = playerSender->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM_CHAT);
-        }
-    }
-
-    if (receiver)
-    {
-        receiverGUID = receiver->GetGUID();
-        receiverName = receiver->GetNameForLocaleIdx(locale);
-    }
-
-    return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName);
 }
 
 Player* ChatHandler::getSelectedPlayer()
@@ -689,7 +586,7 @@ LocaleConstant ChatHandler::GetSessionDbcLocale() const
     return m_session->GetSessionDbcLocale();
 }
 
-int ChatHandler::GetSessionDbLocaleIndex() const
+LocaleConstant ChatHandler::GetSessionDbLocaleIndex() const
 {
     return m_session->GetSessionDbLocaleIndex();
 }
@@ -779,10 +676,12 @@ LocaleConstant CliHandler::GetSessionDbcLocale() const
     return sWorld->GetDefaultDbcLocale();
 }
 
-int CliHandler::GetSessionDbLocaleIndex() const
+LocaleConstant CliHandler::GetSessionDbLocaleIndex() const
 {
     return sObjectMgr->GetDBCLocaleIndex();
 }
+
+std::string_view const AddonChannelCommandHandler::PREFIX = "TrinityCore";
 
 bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
 {
@@ -826,39 +725,36 @@ bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
     }
 }
 
-void AddonChannelCommandHandler::Send(std::string const& msg)
+void AddonChannelCommandHandler::Send(std::string_view msg)
 {
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Chat::Chat chat;
+    chat.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg, 0, "", LOCALE_enUS, PREFIX);
+    GetSession()->SendPacket(chat.Write());
 }
 
 void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 {
     ASSERT(echo);
-    char ack[18] = "TrinityCore\ta";
-    memcpy(ack+13, echo, 4);
-    ack[17] = '\0';
-    Send(ack);
+    char ack[5] = "a";
+    memcpy(ack + 1, echo, 4);
+    Send(std::string_view(ack, 5));
     hadAck = true;
 }
 
 void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 {
     ASSERT(echo);
-    char ok[18] = "TrinityCore\to";
-    memcpy(ok+13, echo, 4);
-    ok[17] = '\0';
-    Send(ok);
+    char ok[5] = "o";
+    memcpy(ok + 1, echo, 4);
+    Send(std::string_view(ok, 5));
 }
 
 void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 {
     ASSERT(echo);
-    char fail[18] = "TrinityCore\tf";
-    memcpy(fail + 13, echo, 4);
-    fail[17] = '\0';
-    Send(fail);
+    char fail[5] = "f";
+    memcpy(fail + 1, echo, 4);
+    Send(std::string_view(fail, 5));
 }
 
 // m Command message, message in body
@@ -868,7 +764,7 @@ void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escap
     if (!hadAck)
         SendAck();
 
-    std::string msg = "TrinityCore\tm";
+    std::string msg = "m";
     msg.append(echo, 4);
     std::string body(str);
     if (escapeCharacters)

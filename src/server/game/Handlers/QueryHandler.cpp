@@ -62,17 +62,17 @@ void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& q
     SendNameQueryOpcode(queryPlayerName.Player);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& /*queryTime*/)
 {
     SendQueryTimeResponse();
 }
 
 void WorldSession::SendQueryTimeResponse()
 {
-    WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(GameTime::GetGameTime());
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime());
-    SendPacket(&data);
+    WorldPackets::Query::QueryTimeResponse queryTimeResponse;
+    queryTimeResponse.CurrentTime = GameTime::GetGameTime();
+    queryTimeResponse.TimeOutRequest = sWorld->GetNextDailyQuestsResetTime() - queryTimeResponse.CurrentTime;
+    SendPacket(queryTimeResponse.Write());
 }
 
 /// Only _static_ data is sent in this packet !!!
@@ -174,128 +174,97 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    uint32 textID;
-    uint64 guid;
+    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: {}", packet.TextID);
 
-    recvData >> textID;
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: {}", textID);
+    GossipText const* npcText = sObjectMgr->GetGossipText(packet.TextID);
 
-    recvData >> guid;
+    WorldPackets::Query::QueryNPCTextResponse response;
+    response.TextID = packet.TextID;
+    response.Allow = true;
 
-    GossipText const* gossip = sObjectMgr->GetGossipText(textID);
-
-    WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
-    data << textID;
-
-    if (!gossip)
+    if (npcText)
     {
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
-        {
-            data << float(0);
-            data << "Greetings $N";
-            data << "Greetings $N";
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-        }
-    }
-    else
-    {
-        std::string text0[MAX_GOSSIP_TEXT_OPTIONS], text1[MAX_GOSSIP_TEXT_OPTIONS];
         LocaleConstant locale = GetSessionDbLocaleIndex();
 
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            BroadcastText const* bct = sObjectMgr->GetBroadcastText(gossip->Options[i].BroadcastTextID);
-            if (bct)
+            response.Options[i].Probability = npcText->Options[i].Probability;
+            if (BroadcastTextEntry const* bct = sObjectMgr->GetBroadcastText(npcText->Options[i].BroadcastTextID))
             {
-                text0[i] = bct->GetText(locale, GENDER_MALE, true);
-                text1[i] = bct->GetText(locale, GENDER_FEMALE, true);
+                response.Options[i].Text = bct->GetText(locale, GENDER_MALE, true);
+                response.Options[i].Text1 = bct->GetText(locale, GENDER_FEMALE, true);
             }
             else
             {
-                text0[i] = gossip->Options[i].Text_0;
-                text1[i] = gossip->Options[i].Text_1;
-            }
+                response.Options[i].Text = npcText->Options[i].Text_0;
+                response.Options[i].Text1 = npcText->Options[i].Text_1;
 
-            if (locale != DEFAULT_LOCALE && !bct)
-            {
-                if (NpcTextLocale const* npcTextLocale = sObjectMgr->GetNpcTextLocale(textID))
+                if (locale != DEFAULT_LOCALE)
                 {
-                    ObjectMgr::GetLocaleString(npcTextLocale->Text_0[i], locale, text0[i]);
-                    ObjectMgr::GetLocaleString(npcTextLocale->Text_1[i], locale, text1[i]);
+                    if (NpcTextLocale const* npcTextLocale = sObjectMgr->GetNpcTextLocale(packet.TextID))
+                    {
+                        ObjectMgr::GetLocaleString(npcTextLocale->Text_0[i], locale, response.Options[i].Text);
+                        ObjectMgr::GetLocaleString(npcTextLocale->Text_1[i], locale, response.Options[i].Text1);
+                    }
                 }
             }
 
-            data << gossip->Options[i].Probability;
+            if (response.Options[i].Text.empty())
+                response.Options[i].Text = response.Options[i].Text1;
 
-            if (text0[i].empty())
-                data << text1[i];
-            else
-                data << text0[i];
+            if (response.Options[i].Text1.empty())
+                response.Options[i].Text1 = response.Options[i].Text;
 
-            if (text1[i].empty())
-                data << text0[i];
-            else
-                data << text1[i];
-
-            data << gossip->Options[i].Language;
+            response.Options[i].LanguageID = npcText->Options[i].Language;
 
             for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
             {
-                data << gossip->Options[i].Emotes[j]._Delay;
-                data << gossip->Options[i].Emotes[j]._Emote;
+                response.Options[i].EmoteDelay[j] = npcText->Options[i].Emotes[j]._Delay;
+                response.Options[i].EmoteID[j] = npcText->Options[i].Emotes[j]._Emote;
             }
         }
     }
+    else
+    {
+        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        {
+            response.Options[i].Text = "Greetings $N";
+            response.Options[i].Text1 = "Greetings $N";
+        }
+    }
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleQueryPageText(WorldPacket& recvData)
+void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PAGE_TEXT_QUERY");
-
-    uint32 pageID;
-    recvData >> pageID;
-    recvData.read_skip<uint64>();                          // guid
-
+    uint32 pageID = packet.PageTextID;
     while (pageID)
     {
-        PageText const* pageText = sObjectMgr->GetPageText(pageID);
-                                                            // guess size
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
-        data << pageID;
+        WorldPackets::Query::QueryPageTextResponse response;
+        response.PageTextID = pageID;
+        if (PageText const* pageText = sObjectMgr->GetPageText(pageID))
+        {
+            response.Allow = true;
 
-        if (!pageText)
-        {
-            data << "Item page missing.";
-            data << uint32(0);
-            pageID = 0;
-        }
-        else
-        {
-            std::string Text = pageText->Text;
+            WorldPackets::Query::QueryPageTextResponse::PageTextInfo& page = response.Page;
+            page.NextPageID = pageText->NextPageID;
+            page.Text = pageText->Text;
 
             LocaleConstant localeConstant = GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
                 if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, page.Text);
 
-            data << Text;
-            data << uint32(pageText->NextPageID);
             pageID = pageText->NextPageID;
         }
-        SendPacket(&data);
+        else
+            pageID = 0;
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        SendPacket(response.Write());
     }
 }
 

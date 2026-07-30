@@ -15,29 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_PACKET_BUILDER_H
-#define TRINITYSERVER_PACKET_BUILDER_H
+#ifndef TRINITYCORE_STRING_FORMAT_FWD_H
+#define TRINITYCORE_STRING_FORMAT_FWD_H
 
-#include "Define.h"
+#include <stdexcept>
 
-class ByteBuffer;
-namespace G3D
+namespace fmt
 {
-    class Vector3;
+inline namespace v12
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
+}
 }
 
-namespace Movement
+namespace Trinity
 {
-    class MoveSpline;
-    class PacketBuilder
+struct NoArgFormatterBase
+{
+    template <typename ParseContext>
+    constexpr typename ParseContext::iterator parse(ParseContext& ctx)
     {
-        static void WriteCommonMonsterMovePart(MoveSpline const& mov, ByteBuffer& data);
-    public:
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
 
-        static void WriteMonsterMove(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
-        static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);
-    };
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
+
+        return begin;
+    }
+};
 }
-#endif // TRINITYSERVER_PACKET_BUILDER_H
+
+#endif // TRINITYCORE_STRING_FORMAT_FWD_H

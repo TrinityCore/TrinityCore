@@ -63,6 +63,7 @@ struct QuaternionData;
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
+static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
 class TC_GAME_API Object
 {
@@ -150,6 +151,8 @@ class TC_GAME_API Object
         void ClearUpdateMask(bool remove);
 
         uint16 GetValuesCount() const { return m_valuesCount; }
+
+        virtual std::string const& GetNameForLocaleIdx(LocaleConstant /*locale*/) const = 0;
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
@@ -339,7 +342,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     public:
         virtual ~WorldObject();
 
-        virtual void Update(uint32 /*time_diff*/) { }
+        virtual void Update(uint32 diff);
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -381,7 +384,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::string const& GetName() const { return m_name; }
         void SetName(std::string newname) { m_name = std::move(newname); }
 
-        virtual std::string const& GetNameForLocaleIdx(LocaleConstant /*locale*/) const { return m_name; }
+        std::string const& GetNameForLocaleIdx(LocaleConstant /*locale*/) const override { return m_name; }
 
         float GetDistance(WorldObject const* obj) const;
         float GetDistance(Position const& pos) const;
@@ -624,6 +627,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
+
+        virtual void Heartbeat() { }
     private:
         Map* m_currMap;                                   // current object's Map location
 
@@ -633,6 +638,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint16 m_notifyflags;
 
         ObjectGuid _privateObjectOwner;
+
+        Milliseconds _heartbeatTimer;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 

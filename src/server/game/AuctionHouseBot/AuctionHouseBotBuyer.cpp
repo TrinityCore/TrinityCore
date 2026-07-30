@@ -165,7 +165,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
         return false;
 
     float itemBuyPrice = float(auction->buyout / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
+    float itemPrice = float(item->GetSellPrice() ? item->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
@@ -189,7 +189,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
     }
 
     // Add config weigh in for quality
-    chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
+    chance *= GetChanceMultiplier(item->GetTemplate()->GetQuality()) / 100.0f;
 
     float rand = frand(0.f, 100.f);
     bool win = rand <= chance;
@@ -201,7 +201,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
 bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice)
 {
     float itemBidPrice = float(bidPrice / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
+    float itemPrice = float(item->GetSellPrice() ? item->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
@@ -225,7 +225,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* ite
         chance = chance / 5.f;
 
     // Add config weigh in for quality
-    chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
+    chance *= GetChanceMultiplier(item->GetTemplate()->GetQuality()) / 100.0f;
 
     float rand = frand(0.f, 100.f);
     bool win = rand <= chance;

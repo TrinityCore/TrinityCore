@@ -95,6 +95,7 @@ enum ConditionTypes
     CONDITION_PRIVATE_OBJECT           = 57,                   // 0                      0              0                  true if entity is private object
     CONDITION_STRING_ID                = 58,
     CONDITION_LABEL                    = 59,                   //                                                          only for master branch
+    CONDITION_GROUP_STATUS             = 60,                   // GroupStatus            0              0                  true if player group status is (0 = not in group, 1 = in group, 2 = in group but not in raid, 3 = in raid group, 4 = not in group or not in raid)
     CONDITION_MAX
 };
 
@@ -181,6 +182,15 @@ enum InstanceInfo
     INSTANCE_INFO_GUID_DATA,
     INSTANCE_INFO_BOSS_STATE,
     INSTANCE_INFO_DATA64
+};
+
+enum class GroupStatusCondition : uint32
+{
+    NotInGroup              = 0,
+    InGroup                 = 1,
+    InGroupButNotInRaid     = 2,
+    InRaid                  = 3,
+    NotInGroupOrNotInRaid   = 4
 };
 
 enum MaxConditionTargets

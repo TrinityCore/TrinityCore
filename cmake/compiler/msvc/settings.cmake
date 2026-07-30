@@ -26,7 +26,8 @@ target_compile_options(trinity-warning-interface
 # disable permissive mode to make msvc more eager to reject code that other compilers don't already accept
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /permissive-)
+    /permissive-
+    /utf-8)
 
 if(PLATFORM EQUAL 32)
   # mark 32 bit executables large address aware so they can use > 2GB address space

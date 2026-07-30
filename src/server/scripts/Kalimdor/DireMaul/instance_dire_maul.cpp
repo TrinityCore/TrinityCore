@@ -101,6 +101,20 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetGUID() == _immoGUID)
+            {
+                if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
+                    tortheldrin->SetFaction(FACTION_ENEMY);
+            }
+            else if (unit->GetGUID() == _tortheldrinGUID)
+            {
+                if (GameObject* chest = instance->GetGameObject(_princechestGUID))
+                    chest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            }
+        }
+
         void OnGameObjectCreate(GameObject* go) override
         {
             InstanceScript::OnGameObjectCreate(go);
@@ -273,21 +287,6 @@ public:
                 // remove previously set non attackable flag
                 if (Creature* immo = instance->GetCreature(_immoGUID))
                     immo->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            }
-        }
-
-        void OnUnitDeath(Unit* unit) override
-        {
-            if (unit->GetGUID() == _immoGUID)
-            {
-                if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
-                    tortheldrin->SetFaction(FACTION_ENEMY);
-            }
-
-            if (unit->GetGUID() == _tortheldrinGUID)
-            {
-                if (GameObject* chest = instance->GetGameObject(_princechestGUID))
-                    chest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             }
         }
 

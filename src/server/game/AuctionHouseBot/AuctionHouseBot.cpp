@@ -499,8 +499,8 @@ void AuctionHouseBot::PrepareStatusInfos(std::unordered_map<AuctionHouseType, Au
                 ItemTemplate const* prototype = item->GetTemplate();
                 if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                 {
-                    if (prototype->Quality < MAX_AUCTION_QUALITY)
-                        ++statusInfo[ahType].QualityInfo[AuctionQuality(prototype->Quality)];
+                    if (prototype->GetQuality() < MAX_AUCTION_QUALITY)
+                        ++statusInfo[ahType].QualityInfo[AuctionQuality(prototype->GetQuality())];
 
                     ++statusInfo[ahType].ItemsCount;
                 }

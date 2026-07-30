@@ -247,7 +247,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
                     {
                         sLog->OutCommand(GetAccountId(), "GM {} ({}) (Account: {}) mail item: {} (Entry: {} Count: {}) "
                             "to: {} ({}) (Account: {})", GetPlayerName(), _player->GetGUID().ToString(), GetAccountId(),
-                            item->GetTemplate()->Name1, item->GetEntry(), item->GetCount(),
+                            item->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()), item->GetEntry(), item->GetCount(),
                             mailInfo.Target, receiverGuid.ToString(), receiverAccountId);
                     }
 
@@ -462,7 +462,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->OutCommand(GetAccountId(), "GM {} (Account: {}) receiver mail item: {} (Entry: {} Count: {}) and send COD money: {} to player: {} (Account: {})",
-                    GetPlayerName(), GetAccountId(), it->GetTemplate()->Name1, it->GetEntry(), it->GetCount(), m->COD, sender_name, sender_accId);
+                    GetPlayerName(), GetAccountId(), it->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()), it->GetEntry(), it->GetCount(), m->COD, sender_name, sender_accId);
             }
             else if (!receiver)
                 sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);

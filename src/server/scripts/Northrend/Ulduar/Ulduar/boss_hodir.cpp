@@ -1088,7 +1088,7 @@ class spell_hodir_icicle_force_cast : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 2 : 3);
+        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->GetDifficultyID() == RAID_DIFFICULTY_10MAN_NORMAL ? 2 : 3);
     }
 
     void Register() override
@@ -1193,7 +1193,7 @@ class spell_hodir_storm_cloud_primer : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ?
+        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->GetDifficultyID() == RAID_DIFFICULTY_10MAN_NORMAL ?
             SPELL_STORM_CLOUD_EFFECT : SPELL_STORM_CLOUD_EFFECT_H);
     }
 

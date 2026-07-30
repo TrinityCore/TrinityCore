@@ -183,7 +183,7 @@ public:
             return false;
         }
 
-        uint32 itemId = item->ItemId;
+        uint32 itemId = item->GetId();
         uint32 maxcount = mc.value_or(0);
         uint32 incrtime = it.value_or(0);
         uint32 extendedcost = ec.value_or(0);
@@ -197,7 +197,7 @@ public:
 
         sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, item->Name1.c_str(), maxcount, incrtime, extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, item->GetDefaultLocaleName(), maxcount, incrtime, extendedcost);
         return true;
     }
 
@@ -341,7 +341,7 @@ public:
             return false;
         }
 
-        uint32 itemId = item->ItemId;
+        uint32 itemId = item->GetId();
         if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId))
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
@@ -349,7 +349,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, item->Name1.c_str());
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, item->GetDefaultLocaleName());
         return true;
     }
 
@@ -1105,16 +1105,13 @@ public:
     static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint8 itemCount, bool alternateString = false)
     {
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
-        ItemLocale const* itemLocale = sObjectMgr->GetItemLocale(itemId);
         char const* name = nullptr;
-        if (itemLocale)
-            name = itemLocale->Name[handler->GetSessionDbcLocale()].c_str();
-        if ((!name || !*name) && itemTemplate)
-            name = itemTemplate->Name1.c_str();
+        if (itemTemplate)
+            name = itemTemplate->GetName(handler->GetSessionDbLocaleIndex()).c_str();
         if (!name)
             name = "Unknown item";
         handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
-            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->Quality : uint32(ITEM_QUALITY_POOR)], itemId, name, itemId);
+            itemCount, ItemQualityColors[itemTemplate ? static_cast<ItemQualities>(itemTemplate->GetQuality()) : ITEM_QUALITY_POOR], itemId, name, itemId);
     }
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
     {

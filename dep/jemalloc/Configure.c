@@ -21,6 +21,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386__) || defined(__x86_64__)
 
 #ifdef _WIN32
@@ -28,7 +32,6 @@
 #include <Windows.h>
 #else
 #include <cpuid.h>
-#include <unistd.h>
 #endif
 
 static uint32_t GetNumSignificantVirtualAddressBits(void)

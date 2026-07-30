@@ -23,6 +23,7 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -62,8 +63,9 @@ enum Misc
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ },
-    { 0,                       0               } // END
+    { NPC_LEOTHERAS_THE_BLIND, BOSS_LEOTHERAS_THE_BLIND },
+    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ          },
+    { 0,                       0                        } // END
 };
 
 static constexpr ObjectData gameObjectData[] =
@@ -91,10 +93,8 @@ class instance_serpent_shrine : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, gameObjectData);
 
-                StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
-                FishingTimer = 1000;
                 WaterCheckTimer = 500;
                 FrenzySpawnTimer = 2000;
                 DoSpawnFrenzy = false;
@@ -158,6 +158,11 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
                 else
                     FrenzySpawnTimer -= diff;
+
+                Events.Update(diff);
+
+                if (Events.ExecuteEvent() == EVENT_RESPAWN_STRANGE_POOL)
+                    SetBossState(BOSS_THE_LURKER_BELOW, NOT_STARTED);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -172,35 +177,54 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 21966:
                         Sharkkis = creature->GetGUID();
                         break;
-                    case 21217:
-                        LurkerBelow = creature->GetGUID();
-                        break;
                     case 21965:
                         Tidalvess = creature->GetGUID();
                         break;
                     case 21964:
                         Caribdis = creature->GetGUID();
                         break;
-                    case 21215:
-                        LeotherasTheBlind = creature->GetGUID();
+                    default:
+                        break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                switch (unit->GetEntry())
+                {
+                    case NPC_COILFANG_PRIESTESS:
+                    case NPC_COILFANG_SHATTERER:
+                        if (TrashCount < MIN_KILLS)
+                            ++TrashCount;//+1 died
+                        SaveToDB();
                         break;
                     default:
                         break;
                 }
             }
 
-            void SetGuidData(uint32 type, ObjectGuid data) override
+            bool SetBossState(uint32 id, EncounterState state) override
             {
-                if (type == DATA_LEOTHERAS_EVENT_STARTER)
-                    LeotherasEventStarter = data;
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
+
+                switch (id)
+                {
+                    case BOSS_THE_LURKER_BELOW:
+                        if (state == FAIL)
+                            Events.ScheduleEvent(EVENT_RESPAWN_STRANGE_POOL, 15s);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
             }
 
             ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
                 {
-                    case DATA_THELURKERBELOW:
-                        return LurkerBelow;
                     case DATA_SHARKKIS:
                         return Sharkkis;
                     case DATA_TIDALVESS:
@@ -209,10 +233,6 @@ class instance_serpent_shrine : public InstanceMapScript
                         return Caribdis;
                     case DATA_KARATHRESS:
                         return Karathress;
-                    case DATA_LEOTHERAS:
-                        return LeotherasTheBlind;
-                    case DATA_LEOTHERAS_EVENT_STARTER:
-                        return LeotherasEventStarter;
                     default:
                         break;
                 }
@@ -223,14 +243,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_STRANGE_POOL:
-                        StrangePool = data;
-                        break;
-                    case DATA_TRASH:
-                        if (data == 1 && TrashCount < MIN_KILLS)
-                            ++TrashCount;//+1 died
-                        SaveToDB();
-                        break;
                     case DATA_WATER:
                         Water = data;
                         break;
@@ -243,8 +255,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_STRANGE_POOL:
-                        return StrangePool;
                     case DATA_WATER:
                         return Water;
                     default:
@@ -265,22 +275,20 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            ObjectGuid LurkerBelow;
             ObjectGuid Sharkkis;
             ObjectGuid Tidalvess;
             ObjectGuid Caribdis;
             ObjectGuid Karathress;
-            ObjectGuid LeotherasTheBlind;
-            ObjectGuid LeotherasEventStarter;
 
-            uint32 StrangePool;
-            uint32 FishingTimer;
             uint32 WaterCheckTimer;
             uint32 FrenzySpawnTimer;
             uint32 Water;
             uint32 TrashCount;
 
             bool DoSpawnFrenzy;
+
+        protected:
+            EventMap Events;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

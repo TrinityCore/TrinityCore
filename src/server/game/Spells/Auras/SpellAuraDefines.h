@@ -34,7 +34,7 @@ enum AURA_FLAGS
     AFLAG_EFF_INDEX_0            = 0x01,
     AFLAG_EFF_INDEX_1            = 0x02,
     AFLAG_EFF_INDEX_2            = 0x04,
-    AFLAG_CASTER                 = 0x08,
+    AFLAG_SELF_CAST              = 0x08,
     AFLAG_POSITIVE               = 0x10,
     AFLAG_DURATION               = 0x20,
     AFLAG_ANY_EFFECT_AMOUNT_SENT = 0x40, // used with AFLAG_EFF_INDEX_0/1/2
@@ -345,10 +345,10 @@ enum AuraType : uint32
     SPELL_AURA_265                                          = 265,
     SPELL_AURA_266                                          = 266,
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL                 = 267,
-    SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT = 268,
+    SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT             = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
     SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST             = 270,  // Possibly need swap vs 195 aura used only in 1 spell Chaos Bolt Passive
-    SPELL_AURA_MOD_DAMAGE_FROM_CASTER                       = 271,
+    SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER                 = 271,
     SPELL_AURA_IGNORE_MELEE_RESET                           = 272,
     SPELL_AURA_X_RAY                                        = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO                      = 274,

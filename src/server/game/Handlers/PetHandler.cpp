@@ -33,6 +33,7 @@
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -736,41 +737,29 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
     }
 }
 
-void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell)
 {
-    TC_LOG_DEBUG("network.opcode", "WORLD: Received CMSG_PET_CAST_SPELL");
-
-    ObjectGuid guid;
-    uint8 castCount;
-    uint32 spellId;
-    uint8 castFlags;
-
-    recvPacket >> guid >> castCount >> spellId >> castFlags;
-
-    TC_LOG_DEBUG("entities.pet", "WORLD: CMSG_PET_CAST_SPELL, {}, castCount: {}, spellId {}, castFlags {}", guid.ToString(), castCount, spellId, castFlags);
-
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharmed())
         return;
 
-    Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* caster = ObjectAccessor::GetUnit(*_player, petCastSpell.PetGUID);
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharmed()))
     {
-        TC_LOG_ERROR("entities.pet", "HandlePetCastSpellOpcode: {} isn't pet of player {} ({}).", guid.ToString(), GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
+        TC_LOG_ERROR("entities.pet", "HandlePetCastSpellOpcode: {} isn't pet of player {} ({}).", petCastSpell.PetGUID.ToString(), GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petCastSpell.Cast.SpellID);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.pet", "WORLD: unknown PET spell id {}", spellId);
+        TC_LOG_ERROR("spells.pet", "WorldSession::HandlePetCastSpellOpcode: unknown spell id {} tried to cast by {}",
+            petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString());
         return;
     }
 
-    SpellCastTargets targets;
-    targets.Read(recvPacket, caster);
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    SpellCastTargets targets(caster, petCastSpell.Cast);
 
     TriggerCastFlags triggerCastFlags = TRIGGERED_NONE;
 
@@ -778,12 +767,12 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         return;
 
     // cast only learned spells
-    if (!caster->HasSpell(spellId))
+    if (!caster->HasSpell(spellInfo->Id))
     {
         bool allow = false;
 
         // allow casting of spells triggered by clientside periodic trigger auras
-        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellInfo->Id))
         {
             allow = true;
             triggerCastFlags = TRIGGERED_FULL_MASK;
@@ -793,9 +782,12 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
             return;
     }
 
+    if (petCastSpell.Cast.MissileTrajectory && petCastSpell.Cast.MissileTrajectory->MoveUpdate)
+        HandleMovementOpcode(MSG_MOVE_STOP, *petCastSpell.Cast.MissileTrajectory->MoveUpdate);
+
     Spell* spell = new Spell(caster, spellInfo, triggerCastFlags);
     spell->m_fromClient = true;
-    spell->m_cast_count = castCount; // probably pending spell cast
+    spell->m_cast_count = petCastSpell.Cast.CastID;
     spell->InitExplicitTargets(targets);
 
     SpellCastResult result = spell->CheckPetCast(nullptr);
@@ -811,7 +803,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
                 if (pet->getPetType() == SUMMON_PET && roll_chance_i(10))
                     pet->SendPetActionSound(PET_ACTION_SPECIAL_SPELL);
                 else
-                    pet->SendPetAIReaction(guid);
+                    pet->SendPetAIReaction(petCastSpell.PetGUID);
             }
         }
 
@@ -821,8 +813,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     {
         spell->SendPetCastResult(result);
 
-        if (!caster->GetSpellHistory()->HasCooldown(spellId))
-            caster->GetSpellHistory()->ResetCooldown(spellId, true);
+        if (!caster->GetSpellHistory()->HasCooldown(spellInfo->Id))
+            caster->GetSpellHistory()->ResetCooldown(spellInfo->Id, true);
 
         spell->finish(false);
         delete spell;

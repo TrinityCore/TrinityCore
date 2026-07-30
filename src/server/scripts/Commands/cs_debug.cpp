@@ -29,6 +29,7 @@ EndScriptData */
 #include "CellImpl.h"
 #include "Channel.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
@@ -37,12 +38,14 @@ EndScriptData */
 #include "Log.h"
 #include "M2Stores.h"
 #include "MapManager.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PoolMgr.h"
 #include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Transport.h"
 #include "Warden.h"
 #include "World.h"
@@ -221,16 +224,13 @@ public:
 
     static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, SpellCastResult result, Optional<uint32> failArg1, Optional<uint32> failArg2)
     {
-        WorldPacket data(SMSG_CAST_FAILED, 5);
-        data << uint8(0);
-        data << uint32(133); // Spell "Fireball"
-        data << uint8(result);
-        if (failArg1 || failArg2)
-            data << uint32(failArg1.value_or(0));
-        if (failArg2)
-            data << uint32(*failArg2);
-
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Spells::CastFailed castFailed;
+        castFailed.CastID = 0;
+        castFailed.SpellID = 133;
+        castFailed.Reason = result;
+        castFailed.FailedArg1 = failArg1;
+        castFailed.FailedArg2 = failArg2;
+        handler->GetSession()->SendPacket(castFailed.Write());
         return true;
     }
 
@@ -491,9 +491,9 @@ public:
 
     static bool HandleDebugSendChatMsgCommand(ChatHandler* handler, ChatMsg type)
     {
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, handler->GetPlayer(), handler->GetPlayer(), "testtest", 0, "chan");
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Chat::Chat packet;
+        packet.Initialize(type, LANG_UNIVERSAL, handler->GetPlayer(), handler->GetPlayer(), "testtest", 0, "chan");
+        handler->GetSession()->SendPacket(packet.Write());
         return true;
     }
 
@@ -1331,7 +1331,11 @@ public:
             if (target->GetTypeId() != TYPEID_PLAYER)
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
             else
-                target->SendMovementFlagUpdate();
+            {
+                WorldPackets::Movement::MoveUpdate moveUpdate;
+                moveUpdate.Status = &target->m_movementInfo;
+                target->SendMessageToSet(moveUpdate.Write(), true);
+            }
 
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }

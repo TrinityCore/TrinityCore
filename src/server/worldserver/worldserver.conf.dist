@@ -79,7 +79,7 @@ DataDir = "."
 #    LogsDir
 #        Description: Logs directory setting.
 #        Important:   LogsDir needs to be quoted, as the string might contain space characters.
-#                     Logs directory must exists, or log file creation will be disabled.
+#                     Logs directory must exist, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
 LogsDir = ""
@@ -115,7 +115,7 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #    LoginDatabase.WorkerThreads
 #    WorldDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
+#        Description: The number of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
 #                     MySQL server and their own thread on the MySQL server.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
@@ -130,7 +130,7 @@ CharacterDatabase.WorkerThreads = 1
 #    LoginDatabase.SynchThreads
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
+#        Description: The number of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.SynchThreads)
 #                     1 - (WorldDatabase.SynchThreads)
 #                     2 - (CharacterDatabase.SynchThreads)
@@ -205,7 +205,7 @@ SourceDirectory  = ""
 #    MySQLExecutable
 #        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
-#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#        Example:     "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe"
 #                     "mysql.exe"
 #                     "/usr/bin/mysql"
 #        Default:     ""
@@ -239,7 +239,7 @@ UseProcessors = 0
 #
 #    ProcessPriority
 #        Description: Process priority setting for Windows and Linux based systems.
-#        Details:     On Linux, a nice value of -15 is used. (requires superuser).
+#        Details:     On Linux, a nice value of -15 is used (requires superuser).
 #                     On Windows, process is set to HIGH class.
 #        Default:     0 - (Normal)
 #                     1 - (High)
@@ -1140,7 +1140,7 @@ MaxRecruitAFriendBonusDistance = 100
 #
 #    MinQuestScaledXPRatio
 #        Description: Min ratio of experience that a quest can grant when player level scaling is factored.
-#        Example:     50 (No less than 50% experience granted from a lower leveled quests completion)
+#        Example:     50 (No less than 50% experience granted from a lower-level quests completion)
 #                     100 (Quests always grant full experience upon completion)
 #        Default:     0 - (Quests too low may grant no experience)
 
@@ -1148,9 +1148,9 @@ MinQuestScaledXPRatio = 0
 
 #
 #    MinCreatureScaledXPRatio
-#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This
-#                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
-#        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.
+#                     This will also allow spell procs to trigger, such as Drain Soul, if > 0 and experience is grantable.
+#        Example:     50 (No less than 50% experience granted from a lower-level creature kill)
 #                     100 (Creature kills always grant full experience upon kill)
 #        Default:     0 - (Creatures too low may grant no experience)
 
@@ -1299,7 +1299,7 @@ DBC.EnforceItemAttributes = 1
 
 #
 #   AccountInstancesPerHour
-#        Description: Controls the max amount of different instances player can enter within hour.
+#        Description: Controls the maximum number of individual instances player can enter per hour.
 #        Default:     5
 
 AccountInstancesPerHour = 5
@@ -1418,7 +1418,7 @@ Updates.AllowRehash = 1
 
 #
 #    Updates.CleanDeadRefMaxCount
-#        Description: Cleans dead/ orphaned references that occur if an update was removed or renamed and edited in one step.
+#        Description: Cleans dead/orphaned references that occur if an update was removed or renamed and edited in one step.
 #                     It only starts the clean up if the count of the missing updates is below or equal the Updates.CleanDeadRefMaxCount value.
 #                     This way prevents erasing of the update history due to wrong source directory state (maybe wrong branch or bad revision).
 #                     Disable this if you want to know if the database is in a possible "dirty state".
@@ -1605,12 +1605,12 @@ AllowTwoSide.Interaction.Guild = 0
 #    AllowTwoSide.Interaction.Auction
 #        Description: Allow auctions between factions.
 #                     This results in all auctions being handled as if placed in the neutral
-#                     auction house and will intentionally lock acces to the Horde and Alliance AH.
+#                     auction house and will intentionally lock access to the Horde and Alliance AH.
 #                     Deposit fee and auction cut values will be taken from neutral auction house.
 #                     If used in combination with the AH-Bot, settings should be set for neutral
 #                     auction house only.
 #
-#                     Warning: changing this in production results in players loosing access to their
+#                     Warning: changing this in production results in players losing access to their
 #                     already placed auctions in the faction houses - these auctions will expire after
 #                     their regular timings.
 #        Default:     0 - (Disabled)
@@ -3832,7 +3832,7 @@ AuctionHouseBot.Buyer.ChanceFactor = 2
 
 #
 #    AuctionHouseBot.Buyer.Baseprice.QUALITY
-#       Description: Base sell prices in copper for non priced items for each quality.
+#       Description: Base sell prices in copper for non-priced items for each quality.
 #                    The default values are based on average item prices of each quality.
 #       Defaults:    Gray   3504
 #                    White  5429

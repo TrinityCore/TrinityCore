@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MiscPackets_h__
-#define MiscPackets_h__
+#ifndef TRINITYCORE_MISC_PACKETS_H
+#define TRINITYCORE_MISC_PACKETS_H
 
 #include "Packet.h"
 #include "Position.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
 #include "Weather.h"
 #include "WowTime.h"
 #include <array>
@@ -67,46 +68,6 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
-        class StartMirrorTimer final : public ServerPacket
-        {
-        public:
-            StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 21) { }
-            StartMirrorTimer(uint32 timer, uint32 value, uint32 maxValue, int32 scale, bool paused, uint32 spellID) :
-                ServerPacket(SMSG_START_MIRROR_TIMER, 21), Timer(timer), Value(value), MaxValue(maxValue), Scale(scale), Paused(paused), SpellID(spellID) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Timer = 0;
-            uint32 Value = 0;
-            uint32 MaxValue = 0;
-            int32 Scale = 0;
-            bool Paused = false;
-            uint32 SpellID = 0;
-        };
-
-        class PauseMirrorTimer final : public ServerPacket
-        {
-        public:
-            PauseMirrorTimer() : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5) { }
-            PauseMirrorTimer(uint32 timer, bool paused) : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5), Timer(timer), Paused(paused) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Timer = 0;
-            bool Paused = true;
-        };
-
-        class StopMirrorTimer final : public ServerPacket
-        {
-        public:
-            StopMirrorTimer() : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4) { }
-            StopMirrorTimer(uint32 timer) : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4), Timer(timer) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Timer = 0;
-        };
-
         class InvalidatePlayer final : public ServerPacket
         {
         public:
@@ -130,12 +91,37 @@ namespace WorldPackets
             int32 GameTimeHolidayOffset = 0;
         };
 
-        class DurabilityDamageDeath final : public ServerPacket
+        class SetSelection final : public ClientPacket
         {
         public:
-            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 0) { }
+            explicit SetSelection(WorldPacket&& packet) : ClientPacket(CMSG_SET_SELECTION, std::move(packet)) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            void Read() override;
+
+            ObjectGuid Selection; ///< Target
+        };
+
+        class TimeSyncRequest final : public ServerPacket
+        {
+        public:
+            explicit TimeSyncRequest() : ServerPacket(SMSG_TIME_SYNC_REQ, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 0;
+        };
+
+        class TimeSyncResponse final : public ClientPacket
+        {
+        public:
+            explicit TimeSyncResponse(WorldPacket&& packet) : ClientPacket(CMSG_TIME_SYNC_RESP, std::move(packet)) { }
+
+            void Read() override;
+
+            TimePoint GetReceivedTime() const { return _worldPacket.GetReceivedTime(); }
+
+            uint32 ClientTime = 0; // Client ticks in ms
+            uint32 SequenceIndex = 0; // Same index as in request
         };
 
         class TriggerCinematic final : public ServerPacket
@@ -158,158 +144,12 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
-        class TC_GAME_API Weather final : public ServerPacket
+        class UITimeRequest final : public ClientPacket
         {
         public:
-            Weather();
-            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
-
-            WorldPacket const* Write() override;
-
-            bool Abrupt = false;
-            float Intensity = 0.0f;
-            WeatherState WeatherID = WeatherState(0);
-        };
-
-        class LevelUpInfo final : public ServerPacket
-        {
-        public:
-            LevelUpInfo() : ServerPacket(SMSG_LEVELUP_INFO, 56) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Level = 0;
-            uint32 HealthDelta = 0;
-            std::array<uint32, MAX_POWERS> PowerDelta = { };
-            std::array<uint32, MAX_STATS> StatDelta = { };
-        };
-
-        class TC_GAME_API PlayMusic final : public ServerPacket
-        {
-        public:
-            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
-            PlayMusic(uint32 soundKitID) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 SoundKitID = 0;
-        };
-
-        class TC_GAME_API PlayObjectSound final : public ServerPacket
-        {
-        public:
-            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8) { }
-            PlayObjectSound(ObjectGuid const& sourceObjectGUID, uint32 soundKitID)
-                : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid SourceObjectGUID;
-            uint32 SoundKitID = 0;
-
-        };
-
-        class TC_GAME_API PlaySound final : public ServerPacket
-        {
-        public:
-            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
-            PlaySound(uint32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 SoundKitID = 0;
-        };
-
-        class CompleteCinematic final : public ClientPacket
-        {
-        public:
-            CompleteCinematic(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_CINEMATIC, std::move(packet)) { }
+            explicit UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_STATE_UI_TIMER_UPDATE, std::move(packet)) { }
 
             void Read() override { }
-        };
-
-        class NextCinematicCamera final : public ClientPacket
-        {
-        public:
-            NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class CompleteMovie final : public ClientPacket
-        {
-        public:
-            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class OpeningCinematic final : public ClientPacket
-        {
-        public:
-            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class CrossedInebriationThreshold final : public ServerPacket
-        {
-        public:
-            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 8 + 4 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-            uint32 Threshold = 0;
-            uint32 ItemID = 0;
-        };
-
-        class OverrideLight final : public ServerPacket
-        {
-        public:
-            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            int32 AreaLightID = 0;
-            int32 TransitionMilliseconds = 0;
-            int32 OverrideLightID = 0;
-        };
-
-        class RandomRollClient final : public ClientPacket
-        {
-        public:
-            RandomRollClient(WorldPacket&& packet) : ClientPacket(MSG_RANDOM_ROLL, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 Min = 0;
-            uint32 Max = 0;
-        };
-
-        class RandomRoll final : public ServerPacket
-        {
-        public:
-            RandomRoll() : ServerPacket(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Min = 0;
-            uint32 Max = 0;
-            uint32 Result = 0;
-            ObjectGuid Roller;
-        };
-
-        class TogglePvP final : public ClientPacket
-        {
-        public:
-            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
-
-            void Read() override;
-
-            bool HasPvPStatus() const { return GetSize() == 1; }
-
-            Optional<bool> Enable;
         };
 
         class UITime final : public ServerPacket
@@ -322,17 +162,84 @@ namespace WorldPackets
             uint32 Time = 0;
         };
 
-        class WorldTeleport final : public ClientPacket
+        class TutorialFlags : public ServerPacket
         {
         public:
-            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
+            explicit TutorialFlags() : ServerPacket(SMSG_TUTORIAL_FLAGS, 32) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> TutorialData = { };
+        };
+
+        class TutorialSetFlag final : public ClientPacket
+        {
+        public:
+            explicit TutorialSetFlag(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_FLAG, std::move(packet)) { }
 
             void Read() override;
 
-            uint32 Time = 0;
-            uint32 MapID = 0;
-            TaggedPosition<Position::XYZ> Pos;
-            float Facing = 0.0f;
+            uint32 TutorialBit = 0;
+        };
+
+        class TutorialClear final : public ClientPacket
+        {
+        public:
+            explicit TutorialClear(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_CLEAR, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TutorialReset final : public ClientPacket
+        {
+        public:
+            explicit TutorialReset(WorldPacket&& packet) : ClientPacket(CMSG_TUTORIAL_RESET, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SetDungeonDifficulty final : public ClientPacket
+        {
+        public:
+            explicit SetDungeonDifficulty(WorldPacket&& packet) : ClientPacket(MSG_SET_DUNGEON_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID = 0;
+        };
+
+        class SetRaidDifficulty final : public ClientPacket
+        {
+        public:
+            explicit SetRaidDifficulty(WorldPacket&& packet) : ClientPacket(MSG_SET_RAID_DIFFICULTY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 DifficultyID = 0;
+        };
+
+        class DungeonDifficultySet final : public ServerPacket
+        {
+        public:
+            explicit DungeonDifficultySet() : ServerPacket(MSG_SET_DUNGEON_DIFFICULTY, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID = 0;
+            int32 ChangeCurrentDifficulyID = 0;
+            int32 ChangeGroupDifficulyID = 0;
+        };
+
+        class RaidDifficultySet final : public ServerPacket
+        {
+        public:
+            explicit RaidDifficultySet() : ServerPacket(MSG_SET_RAID_DIFFICULTY, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 DifficultyID = 0;
+            int32 ChangeCurrentDifficulyID = 0;
+            int32 ChangeGroupDifficulyID = 0;
         };
 
         class CorpseReclaimDelay : public ServerPacket
@@ -396,7 +303,222 @@ namespace WorldPackets
             ObjectGuid Resurrecter;
             uint8 Response = 0;
         };
+
+        class TC_GAME_API Weather final : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WeatherState(0);
+        };
+
+        class StartMirrorTimer final : public ServerPacket
+        {
+        public:
+            StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 21) { }
+            StartMirrorTimer(uint32 timer, uint32 value, uint32 maxValue, int32 scale, bool paused, uint32 spellID) :
+                ServerPacket(SMSG_START_MIRROR_TIMER, 21), Timer(timer), Value(value), MaxValue(maxValue), Scale(scale), Paused(paused), SpellID(spellID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            uint32 Value = 0;
+            uint32 MaxValue = 0;
+            int32 Scale = 0;
+            bool Paused = false;
+            uint32 SpellID = 0;
+        };
+
+        class PauseMirrorTimer final : public ServerPacket
+        {
+        public:
+            PauseMirrorTimer() : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5) { }
+            PauseMirrorTimer(uint32 timer, bool paused) : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5), Timer(timer), Paused(paused) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+            bool Paused = true;
+        };
+
+        class StopMirrorTimer final : public ServerPacket
+        {
+        public:
+            StopMirrorTimer() : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4) { }
+            StopMirrorTimer(uint32 timer) : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4), Timer(timer) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Timer = 0;
+        };
+
+        class LevelUpInfo final : public ServerPacket
+        {
+        public:
+            LevelUpInfo() : ServerPacket(SMSG_LEVELUP_INFO, 56) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Level = 0;
+            uint32 HealthDelta = 0;
+            std::array<uint32, MAX_POWERS> PowerDelta = { };
+            std::array<uint32, MAX_STATS> StatDelta = { };
+        };
+
+        class TC_GAME_API PlayMusic final : public ServerPacket
+        {
+        public:
+            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
+            PlayMusic(uint32 soundKitID) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+        };
+
+        class RandomRollClient final : public ClientPacket
+        {
+        public:
+            RandomRollClient(WorldPacket&& packet) : ClientPacket(MSG_RANDOM_ROLL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+        };
+
+        class RandomRoll final : public ServerPacket
+        {
+        public:
+            RandomRoll() : ServerPacket(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Min = 0;
+            uint32 Max = 0;
+            uint32 Result = 0;
+            ObjectGuid Roller;
+        };
+
+        class DurabilityDamageDeath final : public ServerPacket
+        {
+        public:
+            DurabilityDamageDeath() : ServerPacket(SMSG_DURABILITY_DAMAGE_DEATH, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class TC_GAME_API PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8) { }
+            PlayObjectSound(ObjectGuid const& sourceObjectGUID, uint32 soundKitID)
+                : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
+            uint32 SoundKitID = 0;
+
+        };
+
+        class TC_GAME_API PlaySound final : public ServerPacket
+        {
+        public:
+            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
+            PlaySound(uint32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+        };
+
+        class CompleteCinematic final : public ClientPacket
+        {
+        public:
+            CompleteCinematic(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class NextCinematicCamera final : public ClientPacket
+        {
+        public:
+            NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class OpeningCinematic final : public ClientPacket
+        {
+        public:
+            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool HasPvPStatus() const { return GetSize() == 1; }
+
+            Optional<bool> Enable;
+        };
+
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 Threshold = 0;
+            uint32 ItemID = 0;
+        };
+
+        class OverrideLight final : public ServerPacket
+        {
+        public:
+            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaLightID = 0;
+            int32 TransitionMilliseconds = 0;
+            int32 OverrideLightID = 0;
+        };
+
+        class WorldTeleport final : public ClientPacket
+        {
+        public:
+            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Time = 0;
+            uint32 MapID = 0;
+            TaggedPosition<Position::XYZ> Pos;
+            float Facing = 0.0f;
+        };
     }
 }
 
-#endif // MiscPackets_h__
+#endif // TRINITYCORE_MISC_PACKETS_H

@@ -1170,7 +1170,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2        3         4           5            6
+    //                                               0   1            2      3          4          5          6
     QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
@@ -3644,6 +3644,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         // copy from similar effect of Unstable Affliction (31117)
         spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
         spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+    });
+
+    // Dispersion
+    ApplySpellFix({ 60069 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_0).MiscValue = POWER_MANA;
     });
 
     // Improved Devouring Plague

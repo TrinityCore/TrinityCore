@@ -62,7 +62,7 @@ namespace Movement
 
         /*  Final pass of initialization that stops movement.
          */
-        void Stop();
+        void Stop(bool force = false);
 
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive

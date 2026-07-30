@@ -82,15 +82,20 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos), _storage(std::move(buf._storage))
+        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf.Move())
         {
-            buf._rpos = 0;
-            buf._wpos = 0;
         }
 
         ByteBuffer(ByteBuffer const& right) = default;
 
         ByteBuffer(MessageBuffer&& buffer);
+
+        std::vector<uint8>&& Move()
+        {
+            _rpos = 0;
+            _wpos = 0;
+            return std::move(_storage);
+        }
 
         ByteBuffer& operator=(ByteBuffer const& right)
         {
@@ -109,10 +114,8 @@ class TC_SHARED_API ByteBuffer
             if (this != &right)
             {
                 _rpos = right._rpos;
-                right._rpos = 0;
                 _wpos = right._wpos;
-                right._wpos = 0;
-                _storage = std::move(right._storage);
+                _storage = right.Move();
             }
 
             return *this;
@@ -122,8 +125,9 @@ class TC_SHARED_API ByteBuffer
 
         void clear()
         {
+            _rpos = 0;
+            _wpos = 0;
             _storage.clear();
-            _rpos = _wpos = 0;
         }
 
         template <typename T> void append(T value)
@@ -354,7 +358,7 @@ class TC_SHARED_API ByteBuffer
 
         void read(uint8 *dest, size_t len)
         {
-            if (_rpos  + len > size())
+            if (_rpos + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
             std::memcpy(dest, &_storage[_rpos], len);
             _rpos += len;

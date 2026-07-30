@@ -35,7 +35,7 @@
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
-
+typedef std::map<std::pair<uint32, Difficulty>, MapDifficultyEntry const*> MapDifficultyMap;
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
@@ -132,7 +132,7 @@ DBCStorage <MapEntry> sMapStore(MapEntryfmt);
 
 // DBC used only for initialization sMapDifficultyMap at startup.
 DBCStorage <MapDifficultyEntry> sMapDifficultyStore(MapDifficultyEntryfmt); // only for loading
-MapDifficultyMap sMapDifficultyMap;
+static MapDifficultyMap sMapDifficultyMap;
 
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
@@ -219,20 +219,14 @@ typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
 
-static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
-{
-    TC_LOG_ERROR("misc", "Size of '{}' set by format string ({}) not equal size of C++ structure ({}).", filename, fsize, rsize);
-
-    // ASSERT must fail after function call
-    return false;
-}
-
 template<class T>
 inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename,
                     char const* dbTable = nullptr, char const* dbFormat = nullptr, char const* dbIndexName = nullptr)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
+    ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).",
+        filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
@@ -443,7 +437,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     // fill data
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
-        sMapDifficultyMap[MAKE_PAIR32(entry->MapID, entry->Difficulty)] = MapDifficulty(entry->RaidDuration, entry->MaxPlayers, entry->Message[0] != '\0');
+        sMapDifficultyMap[{ entry->MapID, Difficulty(entry->Difficulty) }] = entry;
 
     for (NamesProfanityEntry const* namesProfanity : sNamesProfanityStore)
     {
@@ -788,8 +782,8 @@ void Zone2MapCoordinates(float& x, float& y, uint32 zone)
         return;
 
     std::swap(x, y);                                         // at client map coords swapped
-    x = x*((maEntry->LocBottom-maEntry->LocTop)/100)+maEntry->LocTop;
-    y = y*((maEntry->LocRight-maEntry->LocLeft)/100)+maEntry->LocLeft;      // client y coord from top to down
+    x = x * ((maEntry->LocBottom - maEntry->LocTop) / 100) + maEntry->LocTop;
+    y = y * ((maEntry->LocRight - maEntry->LocLeft) / 100) + maEntry->LocLeft;      // client y coord from top to down
 }
 
 void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
@@ -800,21 +794,20 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     if (!maEntry)
         return;
 
-    x = (x-maEntry->LocTop)/((maEntry->LocBottom-maEntry->LocTop)/100);
-    y = (y-maEntry->LocLeft)/((maEntry->LocRight-maEntry->LocLeft)/100);    // client y coord from top to down
+    x = (x - maEntry->LocTop) / ((maEntry->LocBottom - maEntry->LocTop) / 100);
+    y = (y - maEntry->LocLeft) / ((maEntry->LocRight - maEntry->LocLeft) / 100);    // client y coord from top to down
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
-    MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
-    return itr != sMapDifficultyMap.end() ? &itr->second : nullptr;
+    return Trinity::Containers::MapGetValuePtr(sMapDifficultyMap, { mapId, difficulty });
 }
 
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     uint32 tmpDiff = difficulty;
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
         if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal

@@ -31,6 +31,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Util.h"
@@ -127,7 +128,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_SELF_CAST : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -215,36 +216,35 @@ void AuraApplication::UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewE
                 _HandleEffect(i, true);
 }
 
-void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
+void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const
 {
-    data << uint8(_slot);
+    ASSERT((_target->GetVisibleAura(_slot) != nullptr) != remove);
 
+    auraInfo.Slot = GetSlot();
     if (remove)
-    {
-        ASSERT(!_target->GetVisibleAura(_slot));
-        data << uint32(0);
         return;
-    }
-    ASSERT(_target->GetVisibleAura(_slot));
 
     Aura const* aura = GetBase();
-    data << uint32(aura->GetId());
-    uint32 flags = _flags;
+
+    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.emplace();
+    auraData.SpellID = aura->GetId();
+    auraData.Flags = GetFlags();
     if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-    data << uint8(flags);
-    data << uint8(aura->GetCasterLevel());
+        auraData.Flags |= AFLAG_DURATION;
+
+    auraData.CastLevel = aura->GetCasterLevel();
+
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
 
-    if (!(flags & AFLAG_CASTER))
-        data << aura->GetCasterGUID().WriteAsPacked();
+    if (!(auraData.Flags & AFLAG_SELF_CAST))
+        auraData.CastUnit = aura->GetCasterGUID();
 
-    if (flags & AFLAG_DURATION)
+    if (auraData.Flags & AFLAG_DURATION)
     {
-        data << uint32(aura->GetMaxDuration());
-        data << uint32(aura->GetDuration());
+        auraData.Duration = aura->GetMaxDuration();
+        auraData.Remaining = aura->GetDuration();
     }
 }
 
@@ -252,11 +252,11 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data << GetTarget()->GetPackGUID();
-    BuildUpdatePacket(data, remove);
+    WorldPackets::Spells::AuraUpdate update;
+    update.UnitGUID = GetTarget()->GetGUID();
+    BuildUpdatePacket(update.Aura, remove);
 
-    _target->SendMessageToSet(&data, true);
+    _target->SendMessageToSet(update.Write(), true);
 }
 
 std::string AuraApplication::GetDebugInfo() const
@@ -461,7 +461,7 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
-        if (effMask & (uint8(1) << spellEffectInfo.EffectIndex))
+        if (effMask & (1 << spellEffectInfo.EffectIndex))
             m_effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
 }
 
@@ -1189,13 +1189,13 @@ int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
     return 100 - resistChance;
 }
 
-void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
 {
-    m_maxDuration = maxduration;
+    m_maxDuration = maxDuration;
     m_duration = duration;
     m_procCharges = charges;
     m_isUsingCharges = m_procCharges != 0;
-    m_stackAmount = stackamount;
+    m_stackAmount = stackAmount;
     SetCritChance(critChance);
     SetCanApplyResilience(applyResilience);
     Unit* caster = GetCaster();

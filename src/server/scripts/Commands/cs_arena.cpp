@@ -62,7 +62,7 @@ public:
     {
         if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name.c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }

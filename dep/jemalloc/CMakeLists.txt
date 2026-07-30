@@ -42,17 +42,18 @@ else()
     set(CPU_SPINWAIT "_mm_pause()")
   else()
     set(CPU_SPINWAIT "__asm__ volatile\(\"pause\"\)")
+    set(JEMALLOC_HAVE_RDTSCP 1)
   endif()
 endif()
 
 # git describe --long --abbrev=40
-set(JEMALLOC_VERSION "5.3.0-0-g54eaed1d8b56b1aa528be3bdd1877e59c56fa90c")
+set(JEMALLOC_VERSION "5.3.1-12-gee4d7b7f9a5c1b48d462be2b65c16e4ead8e3396")
 set(JEMALLOC_VERSION_MAJOR 5)
 set(JEMALLOC_VERSION_MINOR 3)
-set(JEMALLOC_VERSION_BUGFIX 0)
-set(JEMALLOC_VERSION_NREV 0)
-set(JEMALLOC_VERSION_GID "54eaed1d8b56b1aa528be3bdd1877e59c56fa90c")
-set(JEMALLOC_VERSION_GID_IDENT 54eaed1d8b56b1aa528be3bdd1877e59c56fa90c)
+set(JEMALLOC_VERSION_BUGFIX 1)
+set(JEMALLOC_VERSION_NREV 12)
+set(JEMALLOC_VERSION_GID "ee4d7b7f9a5c1b48d462be2b65c16e4ead8e3396")
+set(JEMALLOC_VERSION_GID_IDENT ee4d7b7f9a5c1b48d462be2b65c16e4ead8e3396)
 
 set(JEMALLOC_MAPS_COALESCE 1)
 set(JEMALLOC_TLS 1)
@@ -67,6 +68,9 @@ if(APPLE)
   set(JEMALLOC_ZONE 1)
   unset(JEMALLOC_TLS)
   check_symbol_exists(mach_absolute_time "mach/mach_time.h" JEMALLOC_HAVE_MACH_ABSOLUTE_TIME)
+  if(LG_SIZEOF_PTR STREQUAL "3")
+    set(JEMALLOC_RETAIN 1)
+  endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
   set(JEMALLOC_DSS 1)
   unset(JEMALLOC_TLS)
@@ -114,6 +118,7 @@ if(NOT MSVC)
   set(JEMALLOC_GCC_U8_ATOMIC_ATOMICS 1) # don't bother detecting atomic support, all TC-supported compilers (excluding msvc) have gcc-like atomics
   set(JEMALLOC_HAVE_ATTR 1)
   set(JEMALLOC_TLS_MODEL "__attribute__\(\(tls_model\(\"initial-exec\"\)\)\)")
+  set(JEMALLOC_HAVE_ATTR_DEPRECATED 1)
   set(JEMALLOC_HAVE_ATTR_FORMAT_GNU_PRINTF 1)
   set(JEMALLOC_HAVE_ATTR_FORMAT_PRINTF 1)
   set(JEMALLOC_HAVE_ATTR_FORMAT_ARG 1)
@@ -146,11 +151,15 @@ set(JEMALLOC_CONFIG_MALLOC_CONF "")
 set(JEMALLOC_C11_ATOMICS 1)
 set(JEMALLOC_ENABLE_CXX 1)
 set(JEMALLOC_FILL 1)
+set(JEMALLOC_HAVE_CXX_EXCEPTIONS 1)
 set(JEMALLOC_PRIVATE_NAMESPACE "je_")
 set(JEMALLOC_STATS 1)
+unset(JEMALLOC_CONFIG_ENV)
+unset(JEMALLOC_CONFIG_FILE)
 unset(JEMALLOC_LOG)
 unset(JEMALLOC_OPT_SAFETY_CHECKS)
 unset(JEMALLOC_OPT_SIZE_CHECKS)
+unset(JEMALLOC_PAGEID)
 unset(JEMALLOC_READLINKAT)
 unset(JEMALLOC_UAF_DETECTION)
 unset(JEMALLOC_UTRACE)
@@ -161,6 +170,7 @@ set(CMAKE_REQUIRED_DEFINITIONS ${JEMALLOC_EXTRA_DEFINES})
 
 check_symbol_exists(memalign "malloc.h" JEMALLOC_OVERRIDE_MEMALIGN)
 check_symbol_exists(valloc "stdlib.h" JEMALLOC_OVERRIDE_VALLOC)
+check_symbol_exists(pvalloc "malloc.h" JEMALLOC_OVERRIDE_PVALLOC)
 check_symbol_exists(malloc_size "malloc/malloc.h" JEMALLOC_HAVE_MALLOC_SIZE)
 
 set(wrap_syms "")
@@ -172,6 +182,14 @@ if(NOT JEMALLOC_PREFIX)
   check_function_exists(__libc_free JEMALLOC_OVERRIDE___LIBC_FREE)
   if(JEMALLOC_OVERRIDE___LIBC_FREE)
     list(APPEND wrap_syms "__libc_free")
+  endif()
+  check_function_exists(__libc_free_sized JEMALLOC_OVERRIDE___LIBC_FREE_SIZED)
+  if(JEMALLOC_OVERRIDE___LIBC_FREE_SIZED)
+    list(APPEND wrap_syms "__libc_free_sized")
+  endif()
+  check_function_exists(__libc_free_aligned_sized JEMALLOC_OVERRIDE___LIBC_FREE_ALIGNED_SIZED)
+  if(JEMALLOC_OVERRIDE___LIBC_FREE_ALIGNED_SIZED)
+    list(APPEND wrap_syms "__libc_free_aligned_sized")
   endif()
   check_function_exists(__libc_malloc JEMALLOC_OVERRIDE___LIBC_MALLOC)
   if(JEMALLOC_OVERRIDE___LIBC_MALLOC)
@@ -189,6 +207,10 @@ if(NOT JEMALLOC_PREFIX)
   if(JEMALLOC_OVERRIDE___LIBC_VALLOC)
     list(APPEND wrap_syms "__libc_valloc")
   endif()
+  check_function_exists(__libc_pvalloc JEMALLOC_OVERRIDE___LIBC_PVALLOC)
+  if(JEMALLOC_OVERRIDE___LIBC_PVALLOC)
+    list(APPEND wrap_syms "__libc_pvalloc")
+  endif()
   check_function_exists(__posix_memalign JEMALLOC_OVERRIDE___POSIX_MEMALIGN)
   if(JEMALLOC_OVERRIDE___POSIX_MEMALIGN)
     list(APPEND wrap_syms "__posix_memalign")
@@ -203,7 +225,8 @@ if(NOT WIN32)
   check_symbol_exists(pthread_atfork "pthread.h" JEMALLOC_HAVE_PTHREAD_ATFORK)
   check_symbol_exists(pthread_setname_np "pthread.h" JEMALLOC_HAVE_PTHREAD_SETNAME_NP)
   check_symbol_exists(pthread_getname_np "pthread.h" JEMALLOC_HAVE_PTHREAD_GETNAME_NP)
-  check_symbol_exists(pthread_get_name_np "pthread.h" JEMALLOC_HAVE_PTHREAD_GET_NAME_NP)
+  check_symbol_exists(pthread_set_name_np "pthread_np.h" JEMALLOC_HAVE_PTHREAD_SET_NAME_NP)
+  check_symbol_exists(pthread_get_name_np "pthread_np.h" JEMALLOC_HAVE_PTHREAD_GET_NAME_NP)
   check_c_source_compiles("
   #include <pthread.h>
   int main()
@@ -214,9 +237,11 @@ if(NOT WIN32)
     pthread_mutexattr_destroy(&attr);
   }
   " JEMALLOC_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP)
+  check_symbol_exists(gettid "unistd.h" JEMALLOC_HAVE_GETTID)
   check_symbol_exists(CLOCK_MONOTONIC_COARSE "time.h" JEMALLOC_HAVE_CLOCK_MONOTONIC_COARSE)
   check_symbol_exists(CLOCK_MONOTONIC "time.h" JEMALLOC_HAVE_CLOCK_MONOTONIC)
   check_symbol_exists(CLOCK_REALTIME "time.h" JEMALLOC_HAVE_CLOCK_REALTIME)
+  check_symbol_exists(clock_gettime_nsec_np "time.h" JEMALLOC_HAVE_CLOCK_GETTIME_NSEC_NP)
 
   set(CMAKE_REQUIRED_FLAGS "-Werror")
   check_c_source_compiles("
@@ -229,6 +254,7 @@ if(NOT WIN32)
   check_symbol_exists(secure_getenv "stdlib.h" JEMALLOC_HAVE_SECURE_GETENV)
   check_symbol_exists(sched_getcpu "sched.h" JEMALLOC_HAVE_SCHED_GETCPU)
   check_symbol_exists(sched_setaffinity "sched.h" JEMALLOC_HAVE_SCHED_SETAFFINITY)
+  check_symbol_exists(pthread_setaffinity_np "pthread.h" JEMALLOC_HAVE_PTHREAD_SETAFFINITY_NP)
   check_symbol_exists(issetugid "unistd.h" JEMALLOC_HAVE_ISSETUGID)
   check_symbol_exists(_malloc_thread_cleanup "pthread.h" JEMALLOC_MALLOC_THREAD_CLEANUP)
   if(JEMALLOC_MALLOC_THREAD_CLEANUP)
@@ -244,6 +270,7 @@ if(NOT WIN32)
   endif()
 
   check_symbol_exists(memcntl "sys/types.h;sys/mman.h" JEMALLOC_HAVE_MEMCNTL)
+  check_symbol_exists(prctl "sys/prctl.h" JEMALLOC_HAVE_PRCTL)
   check_symbol_exists(madvise "sys/mman.h" JEMALLOC_HAVE_MADVISE)
   if(JEMALLOC_HAVE_MADVISE)
     check_symbol_exists(MADV_FREE "sys/mman.h" JEMALLOC_PURGE_MADVISE_FREE)
@@ -254,9 +281,11 @@ if(NOT WIN32)
     check_symbol_exists(MADV_DONTNEED "sys/mman.h" JEMALLOC_PURGE_MADVISE_DONTNEED)
     check_symbol_exists(MADV_DONTDUMP "sys/mman.h" JEMALLOC_MADVISE_DONTDUMP)
     check_symbol_exists(MADV_NOCORE "sys/mman.h" JEMALLOC_MADVISE_NOCORE)
+    check_symbol_exists(MADV_COLLAPSE "sys/mman.h" JEMALLOC_HAVE_MADVISE_COLLAPSE)
     if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
       check_symbol_exists(MADV_HUGEPAGE "sys/mman.h" JEMALLOC_HAVE_MADVISE_HUGE)
     endif()
+    check_symbol_exists(SYS_process_madvise "sys/syscall.h" JEMALLOC_HAVE_PROCESS_MADVISE)
   else()
     check_symbol_exists(posix_madvise "sys/mman.h" JEMALLOC_HAVE_POSIX_MADVISE)
     if(JEMALLOC_HAVE_POSIX_MADVISE)
@@ -283,6 +312,13 @@ if(NOT WIN32)
   }
   " JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE)
   unset(CMAKE_REQUIRED_FLAGS)
+  check_c_source_compiles("
+  int main()
+  {
+    __int128 temp = 0;
+    return temp;
+  }
+  " JEMALLOC_HAVE_INT128)
 endif()
 
 unset(CMAKE_REQUIRED_DEFINITIONS)
@@ -312,6 +348,7 @@ add_library(jemalloc STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/buf_writer.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/cache_bin.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ckh.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/conf.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/counter.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ctl.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/decay.c 
@@ -331,7 +368,9 @@ add_library(jemalloc STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/san_bump.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/hook.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/hpa.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/hpa_central.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/hpa_hooks.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/hpa_utils.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/hpdata.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/inspect.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/large.c 
@@ -341,7 +380,6 @@ add_library(jemalloc STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/nstime.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pa.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pa_extra.c 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pai.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pac.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pages.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/peak_event.c 
@@ -349,6 +387,7 @@ add_library(jemalloc STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_data.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_log.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_recent.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_stack_range.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_stats.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/prof_sys.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/psset.c 
@@ -361,8 +400,10 @@ add_library(jemalloc STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tcache.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/test_hooks.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/thread_event.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/thread_event_registry.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ticker.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tsd.c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/util.c 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/witness.c)
 
 if(APPLE)

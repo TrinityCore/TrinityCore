@@ -269,7 +269,7 @@ public:
                 if (target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID)
                     activeStr = handler->GetTrinityString(LANG_ACTIVE);
 
-                std::string titleName = fmt::sprintf(name, player->GetName());
+                std::string titleName = ChatHandler::PGetParseString(name, player->GetName());
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())

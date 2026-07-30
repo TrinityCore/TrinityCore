@@ -33,14 +33,14 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
     if (!enemy)
     {
         // stop attack state at client
-        SendAttackStop(nullptr);
+        _player->SendMeleeAttackStop(nullptr);
         return;
     }
 
     if (!_player->IsValidAttackTarget(enemy))
     {
         // stop attack state at client
-        SendAttackStop(enemy);
+        _player->SendMeleeAttackStop(enemy);
         return;
     }
 
@@ -53,7 +53,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
         ASSERT(seat);
         if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
-            SendAttackStop(enemy);
+            _player->SendMeleeAttackStop(enemy);
             return;
         }
     }
@@ -75,9 +75,4 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
     }
 
     _player->SetSheath(SheathState(packet.CurrentSheathState));
-}
-
-void WorldSession::SendAttackStop(Unit const* enemy)
-{
-    SendPacket(WorldPackets::Combat::SAttackStop(GetPlayer(), enemy).Write());
 }

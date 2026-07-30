@@ -39,6 +39,8 @@
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
+#include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -131,7 +133,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     m_sessionDbLocaleIndex(locale),
     _timezoneOffset(timezoneOffset),
     m_latency(0),
-    m_TutorialsChanged(TUTORIALS_FLAG_NONE),
+    _tutorials(),
+    _tutorialsChanged(TUTORIALS_FLAG_NONE),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     _RBACData(nullptr),
@@ -146,8 +149,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _calendarEventCreationCooldown(0),
     _gameClient(new GameClient(this))
 {
-    memset(m_Tutorials, 0, sizeof(m_Tutorials));
-
     if (m_Socket)
     {
         m_Address = m_Socket->GetRemoteIpAddress().to_string();
@@ -769,7 +770,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 {
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         if (mask & (1 << i))
-            m_accountData[i] = AccountData();
+            _accountData[i] = AccountData();
 
     if (!result)
         return;
@@ -792,13 +793,13 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
             continue;
         }
 
-        m_accountData[type].Time = time_t(fields[1].GetUInt32());
-        m_accountData[type].Data = fields[2].GetString();
+        _accountData[type].Time = time_t(fields[1].GetUInt32());
+        _accountData[type].Data = fields[2].GetString();
     }
     while (result->NextRow());
 }
 
-void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string const& data)
+void WorldSession::SetAccountData(AccountDataType type, time_t time, std::string const& data)
 {
     uint32 id = 0;
     CharacterDatabaseStatements index;
@@ -820,12 +821,12 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
     stmt->setUInt32(0, id);
     stmt->setUInt8 (1, type);
-    stmt->setUInt32(2, uint32(tm));
+    stmt->setUInt32(2, uint32(time));
     stmt->setString(3, data);
     CharacterDatabase.Execute(stmt);
 
-    m_accountData[type].Time = tm;
-    m_accountData[type].Data = data;
+    _accountData[type].Time = time;
+    _accountData[type].Data = data;
 }
 
 void WorldSession::SendAccountDataTimes(uint32 mask)
@@ -842,43 +843,42 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
 
 void WorldSession::LoadTutorialsData(PreparedQueryResult result)
 {
-    memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
+    _tutorials = { };
 
     if (result)
     {
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-            m_Tutorials[i] = (*result)[i].GetUInt32();
-        m_TutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
+            _tutorials[i] = (*result)[i].GetUInt32();
+        _tutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
     }
 
-    m_TutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
+    _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
 void WorldSession::SendTutorialsData()
 {
-    WorldPacket data(SMSG_TUTORIAL_FLAGS, 4 * MAX_ACCOUNT_TUTORIAL_VALUES);
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        data << m_Tutorials[i];
-    SendPacket(&data);
+    WorldPackets::Misc::TutorialFlags packet;
+    packet.TutorialData = _tutorials;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 {
-    if (!(m_TutorialsChanged & TUTORIALS_FLAG_CHANGED))
+    if (!(_tutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
 
-    bool const hasTutorialsInDB = (m_TutorialsChanged & TUTORIALS_FLAG_LOADED_FROM_DB) != 0;
+    bool const hasTutorialsInDB = (_tutorialsChanged & TUTORIALS_FLAG_LOADED_FROM_DB) != 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(hasTutorialsInDB ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        stmt->setUInt32(i, m_Tutorials[i]);
+        stmt->setUInt32(i, _tutorials[i]);
     stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
     trans->Append(stmt);
 
     // now has, set flag so next save uses update query
     if (!hasTutorialsInDB)
-        m_TutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
+        _tutorialsChanged |= TUTORIALS_FLAG_LOADED_FROM_DB;
 
-    m_TutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
+    _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
 void WorldSession::LoadInstanceTimeRestrictions(PreparedQueryResult result)
@@ -943,172 +943,21 @@ void WorldSession::UpdateInstanceEnterTimes()
 
 void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 {
-    data >> mi->flags;
-    data >> mi->flags2;
-    data >> mi->time;
-    data >> mi->pos.PositionXYZOStream();
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-    {
-        data >> mi->transport.guid.ReadAsPacked();
-        data >> mi->transport.pos.PositionXYZOStream();
-        data >> mi->transport.time;
-        data >> mi->transport.seat;
-
-        if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-            data >> mi->transport.time2;
-    }
-
-    if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)))
-        data >> mi->pitch;
-
-    data >> mi->fallTime;
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
-    {
-        data >> mi->jump.zspeed;
-        data >> mi->jump.sinAngle;
-        data >> mi->jump.cosAngle;
-        data >> mi->jump.xyspeed;
-    }
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
-        data >> mi->splineElevation;
-
-    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
-    //! Might be subject to latency, so just remove improper flags.
-    #ifdef TRINITY_DEBUG
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-    { \
-        if (check) \
-        { \
-            TC_LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found ({}). " \
-                "MovementFlags: {}, MovementFlags2: {} for player {}. Mask {} will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().ToString(), maskToRemove); \
-            mi->RemoveMovementFlag((maskToRemove)); \
-        } \
-    }
-    #else
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-        if (check) \
-            mi->RemoveMovementFlag((maskToRemove));
-    #endif
-
+    data >> *mi;
     if (mi->guid.IsEmpty())
     {
         TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: mi->guid is empty, opcode {}", static_cast<uint32>(data.GetOpcode()));
         return;
     }
 
-    Unit* mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
-    if (!mover)
-    {
-        TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: If the server allows the unit (GUID {}) to be moved by the client of player {}, the unit should still exist! Opcode {}",
-            mi->guid.ToString(),
-            GetPlayer()->GetGUID().ToString(),
-            static_cast<uint32>(data.GetOpcode()));
-        return;
-    }
-
-    if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
-        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
-
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
-        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
-        It will freeze clients that receive this player's movement info.
-    */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_MASK_MOVING),
-        MOVEMENTFLAG_MASK_MOVING);
-
-    //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !mover->HasAuraType(SPELL_AURA_HOVER),
-        MOVEMENTFLAG_HOVER);
-
-    //! Cannot ascend and descend at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
-        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
-
-    //! Cannot move left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
-
-    //! Cannot strafe left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
-        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
-
-    //! Cannot pitch up and down at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
-        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
-
-    //! Cannot move forwards and backwards at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
-        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-        !mover->HasAuraType(SPELL_AURA_WATER_WALK) &&
-        !mover->HasAuraType(SPELL_AURA_GHOST),
-        MOVEMENTFLAG_WATERWALKING);
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !mover->HasAuraType(SPELL_AURA_FEATHER_FALL),
-        MOVEMENTFLAG_FALLING_SLOW);
-
-    /*! Cannot fly if no fly auras present. Exception is being a GM.
-        Note that we check for account level instead of Player::IsGameMaster() because in some
-        situations it may be feasable to use .gm fly on as a GM without having .gm on,
-        e.g. aerial combat.
-    */
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !mover->HasAuraType(SPELL_AURA_FLY) &&
-        !mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
-
-    //! Cannot fly and fall at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
-        MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) &&
-        (!mover->movespline->Initialized() || mover->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
-
-    #undef REMOVE_VIOLATING_FLAGS
+    Unit* mover = ValidateAndGetUnitBeingMoved(mi->guid, static_cast<OpcodeClient>(data.GetOpcode()), true /*all remaining uses are ack handlers*/);
+    ValidateMovementInfo(mover, mi);
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 {
     *data << mi->guid.WriteAsPacked();
-    *data << mi->flags;
-    *data << mi->flags2;
-    *data << mi->time;
-    *data << mi->pos.PositionXYZOStream();
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-    {
-       *data << mi->transport.guid.WriteAsPacked();
-       *data << mi->transport.pos.PositionXYZOStream();
-       *data << mi->transport.time;
-       *data << mi->transport.seat;
-
-       if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-           *data << mi->transport.time2;
-    }
-
-    if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
-        *data << mi->pitch;
-
-    *data << mi->fallTime;
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
-    {
-        *data << mi->jump.zspeed;
-        *data << mi->jump.sinAngle;
-        *data << mi->jump.cosAngle;
-        *data << mi->jump.xyspeed;
-    }
-
-    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
-        *data << mi->splineElevation;
+    *data << *mi;
 }
 
 void WorldSession::ReadAddonsInfo(ByteBuffer &data)
@@ -1673,49 +1522,13 @@ void WorldSession::ResetTimeSync()
 
 void WorldSession::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(_timeSyncNextCounter);
-    SendPacket(&data);
+    WorldPackets::Misc::TimeSyncRequest timeSyncRequest;
+    timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
+    SendPacket(timeSyncRequest.Write());
 
     _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
 
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
-}
-
-uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
-{
-    int64 movementTime = int64(time) + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        return GameTime::GetGameTimeMS();
-    }
-    else
-        return uint32(movementTime);
-}
-
-bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
-{
-    GameClient* client = GetGameClient();
-
-    // the client is attempting to tamper movement data
-    // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
-    if (!client->GetActivelyMovedUnit() || client->GetActivelyMovedUnit()->GetGUID() != guid)
-    {
-        TC_LOG_DEBUG("entities.unit", "Attempt at tampering movement data by Player {}", _player->GetName());
-        return false;
-    }
-
-    // This can happen if a legitimate client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
-    // sending this packet yet. The server should silently ignore all MOVE messages coming from the client as soon
-    // as control over that unit is revoked (through a 'SMSG_CONTROL_UPDATE allowMove=false' message).
-    if (!client->IsAllowedToMove(guid))
-    {
-        TC_LOG_DEBUG("entities.unit", "Bad or outdated movement data by Player {}", _player->GetName());
-        return false;
-    }
-
-    return true;
 }

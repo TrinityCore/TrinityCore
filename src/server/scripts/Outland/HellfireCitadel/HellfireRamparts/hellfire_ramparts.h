@@ -23,29 +23,45 @@
 #define HRScriptName "instance_ramparts"
 #define DataHeader "HR"
 
-uint32 const EncounterCount       = 4;
+uint32 constexpr EncounterCount   = 3;
 
 enum HRDataTypes
 {
     DATA_WATCHKEEPER_GARGOLMAR    = 0,
     DATA_OMOR_THE_UNSCARRED       = 1,
-    DATA_VAZRUDEN                 = 2,
-    DATA_NAZAN                    = 3
+    DATA_VAZRUDEN_THE_HERALD      = 2,
+
+    DATA_VAZRUDEN,
+    DATA_FEL_IRON_CHEST
 };
 
 enum HRCreatureIds
 {
     NPC_HELLFIRE_SENTRY           = 17517,
     NPC_VAZRUDEN_HERALD           = 17307,
-    NPC_VAZRUDEN                  = 17537,
     NPC_NAZAN                     = 17536,
-    NPC_LIQUID_FIRE               = 22515
+    NPC_VAZRUDEN                  = 17537
 };
 
 enum HRGameobjectIds
 {
     GO_FEL_IRON_CHEST_NORMAL      = 185168,
     GO_FEL_IRON_CHEST_HEROIC      = 185169
+};
+
+enum HRActionIds
+{
+    ACTION_START_ENCOUNTER        = 1730700
+};
+
+enum HRSpawnGroups
+{
+    SPAWN_GROUP_VAZRUDEN          = 357
+};
+
+enum HREventsIds
+{
+    EVENT_RESET_VAZRUDEN          = 1
 };
 
 template <class AI, class T>
@@ -55,5 +71,6 @@ inline AI* GetHellfireRampartsAI(T* obj)
 }
 
 #define RegisterHellfireRampartsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHellfireRampartsAI)
+#define RegisterHellfireRampartsGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetHellfireRampartsAI)
 
 #endif

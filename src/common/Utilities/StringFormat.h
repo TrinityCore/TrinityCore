@@ -19,6 +19,7 @@
 #define TRINITYCORE_STRING_FORMAT_H
 
 #include "Optional.h"
+#include "StringFormatFwd.h"
 #include <fmt/core.h>
 
 namespace Trinity

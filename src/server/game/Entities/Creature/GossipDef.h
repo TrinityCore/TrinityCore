@@ -25,6 +25,7 @@
 
 class Quest;
 class WorldSession;
+enum QuestGiverStatus : uint8;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
 #define DEFAULT_GOSSIP_MESSAGE              0xffffff
@@ -276,15 +277,15 @@ class TC_GAME_API PlayerMenu
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
-        void SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) const;
+        void SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const;
 
         void SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid npcGUID);
 
         void SendQuestQueryResponse(Quest const* quest) const;
-        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const;
+        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
 
         void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
-        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const;
+        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
 
     private:
         GossipMenu _gossipMenu;

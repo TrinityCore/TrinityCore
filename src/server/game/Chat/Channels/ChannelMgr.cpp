@@ -17,6 +17,7 @@
 
 #include "ChannelMgr.h"
 #include "Channel.h"
+#include "ChannelPackets.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "Log.h"
@@ -76,7 +77,7 @@ ChannelMgr::~ChannelMgr()
             continue;
         }
 
-        ChannelMgr* mgr = forTeam(team);
+        ChannelMgr* mgr = ForTeam(team);
         if (!mgr)
         {
             TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid team {}. Deleted.", dbName, team);
@@ -104,7 +105,7 @@ ChannelMgr::~ChannelMgr()
     TC_LOG_INFO("server.loading", ">> Loaded {} custom chat channels in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-/*static*/ ChannelMgr* ChannelMgr::forTeam(uint32 team)
+/*static*/ ChannelMgr* ChannelMgr::ForTeam(uint32 team)
 {
     static ChannelMgr allianceChannelMgr(ALLIANCE);
     static ChannelMgr hordeChannelMgr(HORDE);
@@ -240,9 +241,7 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
         std::string channelName = name;
         Channel::GetChannelName(channelName, channelId, player->GetSession()->GetSessionDbcLocale(), zoneEntry);
 
-        WorldPacket data;
-        ChannelMgr::MakeNotOnPacket(&data, channelName);
-        player->SendDirectMessage(&data);
+        SendNotOnChannelNotify(player, channelName);
     }
 
     return ret;
@@ -269,8 +268,10 @@ void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
     }
 }
 
-void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string const& name)
+void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const& name)
 {
-    data->Initialize(SMSG_CHANNEL_NOTIFY, 1 + name.size());
-    (*data) << uint8(CHAT_NOT_MEMBER_NOTICE) << name;
+    WorldPackets::Channel::ChannelNotify notify;
+    notify.Type = CHAT_NOT_MEMBER_NOTICE;
+    notify._Channel = name;
+    player->SendDirectMessage(notify.Write());
 }

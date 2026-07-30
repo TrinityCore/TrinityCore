@@ -135,7 +135,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
 
     if (randomPropertyId < 0)
     {
-        if (!val.Item->RandomSuffix)
+        if (!val.Item->GetRandomSuffix())
             return false;
         if (randomPropertyId < -static_cast<int32>(sItemRandomSuffixStore.GetNumRows()))
             return false;
@@ -149,7 +149,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     }
     else if (randomPropertyId > 0)
     {
-        if (!val.Item->RandomProperty)
+        if (!val.Item->GetRandomProperty())
             return false;
         if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(randomPropertyId))
         {

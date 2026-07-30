@@ -160,7 +160,7 @@ public:
 
     static bool HandleListItemCommand(ChatHandler* handler, Hyperlink<item> item, Optional<uint32> countArg)
     {
-        uint32 itemId = item->Item->ItemId;
+        uint32 itemId = item->Item->GetId();
         uint32 count = countArg.value_or(10);
 
         if (count == 0)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,6 +81,44 @@ WorldPacket const* AddonInfo::Write()
 WorldPacket const* ClientCacheVersion::Write()
 {
     _worldPacket << uint32(CacheVersion);
+
+    return &_worldPacket;
+}
+
+void RequestAccountData::Read()
+{
+    _worldPacket >> DataType;
+}
+
+WorldPacket const* UpdateAccountData::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << int32(DataType);
+    _worldPacket << uint32(Time);
+    _worldPacket << uint32(Size);
+    if (!CompressedData.empty())
+        _worldPacket.append(CompressedData.data(), CompressedData.size());
+
+    return &_worldPacket;
+}
+
+void UserClientUpdateAccountData::Read()
+{
+    _worldPacket >> DataType;
+    _worldPacket >> Time;
+    _worldPacket >> Size;
+
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+
+    CompressedData = { _worldPacket.contents() + pos, remainingSize };
+    _worldPacket.rpos(pos + remainingSize);
+}
+
+WorldPacket const* UpdateAccountDataComplete::Write()
+{
+    _worldPacket << int32(DataType);
+    _worldPacket << int32(Result);
 
     return &_worldPacket;
 }
