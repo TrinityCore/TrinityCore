@@ -346,11 +346,11 @@ void WorldSession::HandleMoveWorldportAck()
     else if (player->IsPvP() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         player->UpdatePvP(false, false);
 
-    // resummon pet
-    player->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     player->ProcessDelayedOperations();
+
+    // resummon pet
+    player->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
@@ -391,11 +391,11 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
             plMover->UpdatePvP(false, false);
     }
 
-    // resummon pet
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+
+    // resummon pet
+    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
@@ -470,6 +470,8 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     }
 
     /* process position-change */
+    MovementInfo oldMovementInfo = mover->m_movementInfo;
+
     movementInfo.guid = mover->GetGUID();
     movementInfo.time = AdjustClientMovementTime(movementInfo.time);
     mover->m_movementInfo = movementInfo;
@@ -496,6 +498,22 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     }
 
     mover->UpdatePosition(movementInfo.pos);
+
+    // Pet temporary unsummon/resummon handling.
+    if (plrMover)
+    {
+        bool wasFlying = oldMovementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+        bool isFlying  = movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING);
+
+        if (plrMover->IsMounted() && !wasFlying && isFlying)
+            plrMover->UnsummonPetTemporaryIfAny();
+
+        if (wasFlying && !isFlying)
+            plrMover->ResummonPetTemporaryUnSummonedIfAny();
+
+        if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
+            plrMover->ResummonPetTemporaryUnSummonedIfAny();
+    }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
