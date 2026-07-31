@@ -3215,6 +3215,24 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, SpellCastResult result /*= S
     spell->finish(result);
 }
 
+void Unit::CancelAutoRepeatSpell()
+{
+    if (Spell* spell = m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
+    {
+        if (!spell->IsInterruptable() || spell->getState() == SPELL_STATE_LAUNCHED || spell->getState() == SPELL_STATE_IDLE)
+        {
+            m_currentSpells[CURRENT_AUTOREPEAT_SPELL] = nullptr;
+            spell->SetReferencedFromCurrent(false);
+        }
+        else
+            spell->cancel(SPELL_FAILED_INTERRUPTED);
+
+        // send autorepeat cancel message for autorepeat spells
+        if (Player* player = ToPlayer())
+            player->SendAutoRepeatCancel(this);
+    }
+}
+
 bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled /*= false*/, bool skipAutorepeat /*= false*/, bool isAutoshoot /*= false*/,
     bool skipInstant /*= true*/, bool skipChanneledAllowingActions /*= false*/) const
 {
