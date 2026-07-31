@@ -1444,6 +1444,8 @@ class TC_GAME_API Unit : public WorldObject
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {});
         void FinishSpell(CurrentSpellTypes spellType, SpellCastResult result = SPELL_CAST_OK);
 
+        void CancelAutoRepeatSpell();
+
         // set withDelayed to true to account delayed spells as cast
         // delayed+channeled spells are always accounted as cast
         // we can skip channeled or delayed checks using flags
