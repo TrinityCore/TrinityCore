@@ -2367,14 +2367,10 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             if (!isAffectedByFeignDeath(unit))
                 continue;
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
-            {
-                if (unit->GetCurrentSpell(i)
-                && unit->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
-                {
-                    unit->InterruptSpell(CurrentSpellTypes(i), false);
-                }
-            }
+            for (CurrentSpellTypes i = CURRENT_GENERIC_SPELL; i < CURRENT_MAX_SPELL; i = CurrentSpellTypes(i + 1))
+                if (Spell* currentSpell = unit->GetCurrentSpell(i))
+                    if (currentSpell->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                        unit->InterruptSpell(i, false);
         }
 
         for (auto const& [guid, ref] : target->GetThreatManager().GetThreatenedByMeList())

@@ -1479,7 +1479,6 @@ class TC_GAME_API Unit : public WorldObject
         void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true);
 
         Spell* GetCurrentSpell(CurrentSpellTypes spellType) const { return m_currentSpells[spellType]; }
-        Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         struct GetCastSpellInfoContext
