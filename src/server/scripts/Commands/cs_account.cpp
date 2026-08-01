@@ -373,7 +373,7 @@ public:
             if (!player)
                 continue;
 
-            if constexpr (bool(FilterGetter))
+            if constexpr (FilterGetter != nullptr)
                 if (FilterGetter(session) != filter)
                     continue;
 
