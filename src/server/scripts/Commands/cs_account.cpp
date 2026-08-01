@@ -39,6 +39,7 @@ EndScriptData */
 #include "TOTP.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <fmt/compile.h>
 #include <unordered_map>
 
 using namespace Trinity::ChatCommands;
@@ -358,6 +359,12 @@ public:
 
         size_t sessionsMatchCount = 0;
 
+        // width = 2*n ([]) + sum(col width)
+        static constexpr auto barExtFmt = FMT_COMPILE("-{:=^89}-");
+        static constexpr auto barFmt = FMT_COMPILE("-{:=^66}-");
+
+        auto barStr = extended ? fmt::format(barExtFmt, "") : fmt::format(barFmt, "");
+
         for (const auto& [_, session] : sWorld->GetAllSessions())
         {
             Player* player = session->GetPlayer();
@@ -370,22 +377,42 @@ public:
                 if (FilterGetter(session) != filter)
                     continue;
 
+            static constexpr auto rowExtFmt = FMT_COMPILE("-[{:>16}][{:>12}][{:>15}][{:>16}][{:>4}][{:>5}][{:>3}][{:>2}]-");
+            static constexpr auto rowFmt    = FMT_COMPILE("-[{:>16}][{:>12}][{:>15}]"      "[{:>4}][{:>5}]"     "[{:>2}]-");
             if (!sessionsMatchCount)
             {
                 ///- Display the list of account/characters online on the first matched sessions
-                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR_HEADER);
-                handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
-                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+                handler->SendSysMessage("");
+                handler->SendSysMessage(extended
+                    ? fmt::format(barExtFmt, handler->GetTrinityString(LANG_ACCOUNT_LIST_BAR_HEADER))
+                    : fmt::format(barFmt, handler->GetTrinityString(LANG_ACCOUNT_LIST_BAR_HEADER))
+                );
+
+                handler->SendSysMessage(extended
+                    ? fmt::format(rowExtFmt, handler->GetTrinityString(LANG_ACCOUNT), handler->GetTrinityString(LANG_CHARACTER), "IP", handler->GetTrinityString(LANG_COUNTRY),
+                        handler->GetTrinityString(LANG_MAP), handler->GetTrinityString(LANG_ZONE), handler->GetTrinityString(LANG_EXPANSION), "GM")
+                    : fmt::format(rowFmt, handler->GetTrinityString(LANG_ACCOUNT), handler->GetTrinityString(LANG_CHARACTER), "IP",
+                        handler->GetTrinityString(LANG_MAP), handler->GetTrinityString(LANG_ZONE), "GM")
+                );
+                handler->SendSysMessage(barStr);
             }
 
-            handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                session->GetAccountName().c_str(),
-                session->GetPlayerName().c_str(),
-                session->GetRemoteAddress().c_str(),
-                player->GetMapId(),
-                player->GetZoneId(),
-                session->GetExpansion(),
-                int32(session->GetSecurity()));
+            if (extended)
+            {
+                std::string country = "?";
+                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(session->GetRemoteAddress()))
+                    country = location->CountryName;
+
+                handler->SendSysMessage(fmt::format(rowExtFmt,
+                    session->GetAccountName(), session->GetPlayerName(), session->GetRemoteAddress(), country,
+                    player->GetMapId(), player->GetZoneId(), session->GetExpansion(), session->GetSecurity()
+                ));
+            }
+            else
+                handler->SendSysMessage(fmt::format(rowFmt,
+                    session->GetAccountName(), session->GetPlayerName(), session->GetRemoteAddress(),
+                    player->GetMapId(), player->GetZoneId(), session->GetSecurity()
+                ));
 
             ++sessionsMatchCount;
 
@@ -401,7 +428,7 @@ public:
             return true;
         }
 
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+        handler->SendSysMessage(barStr);
         return true;
     }
 
