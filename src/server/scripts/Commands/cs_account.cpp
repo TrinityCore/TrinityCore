@@ -64,7 +64,6 @@ public:
         {
             { "",         HandleAccountOnlineListCommand,               LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
             { "ip",       HandleAccountOnlineListWithIpFilterCommand,   LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
-            { "limit",    HandleAccountOnlineListWithLimitCommand,      LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
             { "map",      HandleAccountOnlineListWithMapFilterCommand,  LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
             { "zone",     HandleAccountOnlineListWithZoneFilterCommand, LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
         };
@@ -337,60 +336,39 @@ public:
         return true;
     }
 
-    /// Display info on users currently in the realm
-    static bool HandleAccountOnlineListCommand(ChatHandler* handler)
-    {
-        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, {});
-    }
+    using AccountOnlineListCommandOpts = Optional<std::vector<Variant<EXACT_SEQUENCE("extended"), KEYED_ARG(uint32, "limit")>>>;
 
-    static bool HandleAccountOnlineListWithIpFilterCommand(ChatHandler* handler, std::string ipAddress)
+    // Display info on users currently in the realm
+    template<typename FilterT = std::nullptr_t, const auto FilterGetter = nullptr>
+    static bool HandleAccountOnlineListWithFilterCommand(ChatHandler* handler, const FilterT& filter, const AccountOnlineListCommandOpts& opts)
     {
-        return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, {}, {}, {});
-    }
+        bool extended = false;
+        uint32 limit = 0;
+        if (opts)
+            for (const auto& opt : opts.value())
+                switch (opt.index())
+                {
+                    case 0:
+                        extended = true;
+                        break;
+                    case 1:
+                        limit = opt.get<1>();
+                        break;
+                }
 
-    static bool HandleAccountOnlineListWithLimitCommand(ChatHandler* handler, uint32 limit)
-    {
-        return HandleAccountOnlineListCommandWithParameters(handler, {}, limit, {}, {});
-    }
-
-    static bool HandleAccountOnlineListWithMapFilterCommand(ChatHandler* handler, uint32 mapId)
-    {
-        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, mapId, {});
-    }
-
-    static bool HandleAccountOnlineListWithZoneFilterCommand(ChatHandler* handler, uint32 zoneId)
-    {
-        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, zoneId);
-    }
-
-    static bool HandleAccountOnlineListCommandWithParameters(ChatHandler* handler, Optional<std::string> ipAddress, Optional<uint32> limit, Optional<uint32> mapId, Optional<uint32> zoneId)
-    {
         size_t sessionsMatchCount = 0;
 
-        SessionMap const& sessionsMap = sWorld->GetAllSessions();
-        for (SessionMap::value_type const& sessionPair : sessionsMap)
+        for (const auto& [_, session] : sWorld->GetAllSessions())
         {
-            WorldSession* session = sessionPair.second;
             Player* player = session->GetPlayer();
 
             // Ignore sessions on character selection screen
             if (!player)
                 continue;
 
-            uint32 playerMapId = player->GetMapId();
-            uint32 playerZoneId = player->GetZoneId();
-
-            // Apply optional ipAddress filter
-            if (ipAddress && ipAddress != session->GetRemoteAddress())
-                continue;
-
-            // Apply optional mapId filter
-            if (mapId && mapId != playerMapId)
-                continue;
-
-            // Apply optional zoneId filter
-            if (zoneId && zoneId != playerZoneId)
-                continue;
+            if constexpr (bool(FilterGetter))
+                if (FilterGetter(session) != filter)
+                    continue;
 
             if (!sessionsMatchCount)
             {
@@ -404,8 +382,8 @@ public:
                 session->GetAccountName().c_str(),
                 session->GetPlayerName().c_str(),
                 session->GetRemoteAddress().c_str(),
-                playerMapId,
-                playerZoneId,
+                player->GetMapId(),
+                player->GetZoneId(),
                 session->GetExpansion(),
                 int32(session->GetSecurity()));
 
@@ -426,6 +404,15 @@ public:
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
     }
+
+    static inline bool HandleAccountOnlineListCommand(ChatHandler* handler, const AccountOnlineListCommandOpts& opts)
+    {
+        return HandleAccountOnlineListWithFilterCommand<>(handler, {}, opts);
+    }
+
+    static constexpr auto& HandleAccountOnlineListWithIpFilterCommand = HandleAccountOnlineListWithFilterCommand<std::string_view, [](WorldSession* s) { return s->GetRemoteAddress(); }>;
+    static constexpr auto& HandleAccountOnlineListWithMapFilterCommand = HandleAccountOnlineListWithFilterCommand<uint32, [](WorldSession* s) { return s->GetPlayer()->GetMapId(); }>;
+    static constexpr auto& HandleAccountOnlineListWithZoneFilterCommand = HandleAccountOnlineListWithFilterCommand<uint32, [](WorldSession* s) { return s->GetPlayer()->GetZoneId(); }>;
 
     static bool HandleAccountLockCountryCommand(ChatHandler* handler, bool state)
     {
