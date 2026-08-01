@@ -465,7 +465,7 @@ struct boss_hodir : public BossAI
                     std::vector<GameObject*> firesObjects;
                     GetGameObjectListWithEntryInGrid(firesObjects, me, GO_TOASTY_FIRE, 100.0f);
                     for (GameObject* fire : firesObjects)
-                        fire->ActivateObject(GameObjectActions(GameObjectActions::Despawn));
+                        fire->ActivateObject(GameObjectActions::Despawn);
 
                     events.ScheduleEvent(EVENT_FLASH_FREEZE_FINISHED_3, 1s);
                     break;
@@ -751,7 +751,7 @@ struct npc_toasty_fire : public ScriptedAI
         if (spellInfo->Id == SPELL_ICE_SHARDS_DAMAGE_1 || spellInfo->Id == SPELL_ICE_SHARDS_DAMAGE_2)
         {
             if (GameObject* fire = me->FindNearestGameObject(GO_TOASTY_FIRE, 1.0f))
-                fire->ActivateObject(GameObjectActions(GameObjectActions::Despawn));
+                fire->ActivateObject(GameObjectActions::Despawn);
 
             me->DespawnOrUnsummon();
         }

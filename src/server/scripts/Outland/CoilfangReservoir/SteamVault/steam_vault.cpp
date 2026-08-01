@@ -36,7 +36,7 @@ struct go_main_chambers_access_panel : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        me->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+        me->ActivateObject(GameObjectActions::MakeInert);
 
         if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
             controller->AI()->Talk(EMOTE_PANEL_USED);
@@ -49,7 +49,7 @@ struct go_main_chambers_access_panel : public GameObjectAI
             if (GameObject* go = _instance->GetGameObject(DATA_MAIN_CHAMBERS_DOOR))
             {
                 _instance->HandleGameObject(ObjectGuid::Empty, true, go);
-                go->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+                go->ActivateObject(GameObjectActions::MakeInert);
             }
         }
 
