@@ -223,11 +223,7 @@ struct BroggokPrisionerBaseAI : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         if (IsCellPrisoner())
-        {
-            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            me->SetReactState(REACT_AGGRESSIVE);
             Scheduler.CancelAll();
-        }
 
         ScheduleEvents();
 
@@ -243,6 +239,16 @@ struct BroggokPrisionerBaseAI : public ScriptedAI
     bool IsCellPrisoner()
     {
         return me->HasStringId("BroggokPrisonerCell1") || me->HasStringId("BroggokPrisonerCell2") || me->HasStringId("BroggokPrisonerCell3") || me->HasStringId("BroggokPrisonerCell4");
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_PRISONER_ENGAGE)
+        {
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetReactState(REACT_AGGRESSIVE);
+            DoZoneInCombat();
+        }
     }
 
     void DoStartEmotesTask()

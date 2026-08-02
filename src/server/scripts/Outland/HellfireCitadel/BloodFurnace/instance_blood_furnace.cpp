@@ -145,7 +145,7 @@ class instance_blood_furnace : public InstanceMapScript
                         if (waveIndex + 1 < std::ranges::ssize(WaveGuidList))
                             for (ObjectGuid guid : WaveGuidList[waveIndex + 1])
                                 if (Creature* creature = instance->GetCreature(guid))
-                                    creature->AI()->DoZoneInCombat();
+                                    creature->AI()->DoAction(ACTION_PRISONER_ENGAGE);
 
                         if (prisonerWave->BossActionIdOnClear)
                             if (Creature* broggok = GetCreature(DATA_BROGGOK))
@@ -189,7 +189,7 @@ class instance_blood_furnace : public InstanceMapScript
 
                             for (ObjectGuid guid : WaveGuidList[0])
                                 if (Creature* creature = instance->GetCreature(guid))
-                                    creature->AI()->DoZoneInCombat();
+                                    creature->AI()->DoAction(ACTION_PRISONER_ENGAGE);
 
                             break;
                         }
