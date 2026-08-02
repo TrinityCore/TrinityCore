@@ -19,6 +19,7 @@
 #define LFGPacketsCommon_h__
 
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets

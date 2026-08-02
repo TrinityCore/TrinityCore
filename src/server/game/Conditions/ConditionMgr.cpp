@@ -21,6 +21,7 @@
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundScript.h"
+#include "CollectionMgr.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
