@@ -542,20 +542,6 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
         plrMover->GetTransport()->RemovePassenger(plrMover);
 
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == CMSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
-        plrMover->HandleFall(movementInfo);
-
-    // interrupt parachutes upon falling or landing in water
-    if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_FLY)
-        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
-
-    if (opcode == CMSG_MOVE_SET_FLY || opcode == CMSG_MOVE_SET_ADV_FLY)
-    {
-        _player->UnsummonPetTemporaryIfAny(); // always do the pet removal on current client activeplayer only
-        _player->UnsummonBattlePetTemporaryIfAny(true);
-    }
-
     /* process position-change */
     movementInfo.guid = mover->GetGUID();
     movementInfo.time = AdjustClientMovementTime(movementInfo.time);
@@ -583,6 +569,20 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     WorldPackets::Movement::MoveUpdate moveUpdate;
     moveUpdate.Status = &mover->m_movementInfo;
     mover->SendMessageToSet(moveUpdate.Write(), _player);
+
+    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
+    if (opcode == CMSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
+        plrMover->HandleFall();
+
+    // interrupt parachutes upon falling or landing in water
+    if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM)
+        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
+
+    if (opcode == CMSG_MOVE_SET_FLY || opcode == CMSG_MOVE_SET_ADV_FLY)
+    {
+        _player->UnsummonPetTemporaryIfAny(); // always do the pet removal on current client activeplayer only
+        _player->UnsummonBattlePetTemporaryIfAny(true);
+    }
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {

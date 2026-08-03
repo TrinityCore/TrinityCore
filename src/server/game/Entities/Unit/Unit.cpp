@@ -350,6 +350,13 @@ Unit::Unit(bool isWorldObject) :
                                                             // implement 50% base damage from offhand
     m_auraPctModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
+    for (uint32 i = 0; i < uint32(AttackPowerModIndex::End); ++i)
+    {
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatPositive)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::FlatNegative)] = 0.0f;
+        m_attackPowerMods[i][uint32(AttackPowerModType::Pct)] = 1.0f;
+    }
+
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
         m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
@@ -2185,11 +2192,7 @@ void Unit::DoMeleeAttackIfReady()
         return;
 
     if (HasUnitState(UNIT_STATE_CASTING))
-    {
-        Spell* channeledSpell = GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-        if (!channeledSpell || !channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
-            return;
-    }
+        return;
 
     Unit* victim = GetVictim();
     if (!victim)
@@ -2197,6 +2200,9 @@ void Unit::DoMeleeAttackIfReady()
 
     auto getAutoAttackError = [&]() -> Optional<AttackSwingErr>
     {
+        if (!IsValidAttackTarget(victim))
+            return AttackSwingErr::CantAttack;
+
         if (!IsWithinMeleeRange(victim))
             return AttackSwingErr::NotInRange;
 
@@ -3112,15 +3118,23 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
         }
         case CURRENT_CHANNELED_SPELL:
         {
-            // channel spells always break generic non-delayed and any channeled spells
-            InterruptSpell(CURRENT_GENERIC_SPELL, false);
+            // channel spells always break other channeled spells
             InterruptSpell(CURRENT_CHANNELED_SPELL);
 
-            // it also does break autorepeat if not Auto Shot
-            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
-                m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
-                InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-            AddUnitState(UNIT_STATE_CASTING);
+            if (!pSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
+            {
+                // channel spells break generic non-delayed
+                if (m_currentSpells[CURRENT_GENERIC_SPELL]
+                    && !m_currentSpells[CURRENT_GENERIC_SPELL]->GetSpellInfo()->HasAttribute(SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING))
+                    InterruptSpell(CURRENT_GENERIC_SPELL, false);
+
+                // it also does break autorepeat if not Auto Shot
+                if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
+                    m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
+                    InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+
+                AddUnitState(UNIT_STATE_CASTING);
+            }
 
             break;
         }
@@ -3134,7 +3148,11 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
             {
                 // generic autorepeats break generic non-delayed and channeled non-delayed spells
                 InterruptSpell(CURRENT_GENERIC_SPELL, false);
-                InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+
+                if (m_currentSpells[CURRENT_CHANNELED_SPELL]
+                    && !m_currentSpells[CURRENT_CHANNELED_SPELL]->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)
+                    && !pSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR9_ALLOW_CAST_WHILE_CHANNELING))
+                    InterruptSpell(CURRENT_CHANNELED_SPELL, false);
             }
 
             break;
@@ -3197,7 +3215,26 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, SpellCastResult result /*= S
     spell->finish(result);
 }
 
-bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
+void Unit::CancelAutoRepeatSpell()
+{
+    if (Spell* spell = m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
+    {
+        if (!spell->IsInterruptable() || spell->getState() == SPELL_STATE_LAUNCHED || spell->getState() == SPELL_STATE_IDLE)
+        {
+            m_currentSpells[CURRENT_AUTOREPEAT_SPELL] = nullptr;
+            spell->SetReferencedFromCurrent(false);
+        }
+        else
+            spell->cancel(SPELL_FAILED_INTERRUPTED);
+
+        // send autorepeat cancel message for autorepeat spells
+        if (Player* player = ToPlayer())
+            player->SendAutoRepeatCancel(this);
+    }
+}
+
+bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled /*= false*/, bool skipAutorepeat /*= false*/, bool isAutoshoot /*= false*/,
+    bool skipInstant /*= true*/, bool skipChanneledAllowingActions /*= false*/) const
 {
     // We don't do loop here to explicitly show that melee spell is excluded.
     // Maybe later some special spells will be excluded too.
@@ -3209,7 +3246,7 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAu
     {
         if (!skipInstant || m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
         {
-            if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)))
+            if (!isAutoshoot || !m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
                 return true;
         }
     }
@@ -3217,7 +3254,8 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAu
     if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
     {
-        if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)))
+        if ((!isAutoshoot || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)) &&
+            (!skipChanneledAllowingActions || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)))
             return true;
     }
     // autorepeat spells may be finished or delayed, but they are still considered cast
@@ -3259,23 +3297,19 @@ int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
 
 bool Unit::IsMovementPreventedByCasting() const
 {
-    // can always move when not casting
-    if (!HasUnitState(UNIT_STATE_CASTING))
-        return false;
-
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
-        if (CanCastSpellWhileMoving(spell->GetSpellInfo()) || spell->getState() == SPELL_STATE_FINISHED ||
-            !spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
-            return false;
+        if (!CanCastSpellWhileMoving(spell->GetSpellInfo())
+            && spell->getState() == SPELL_STATE_PREPARING && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
+            return true;
 
-    // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
+    // channeled spells during channel stage (after the initial cast timer) allow movement without Moving channel interrupt flag
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            if (spell->GetSpellInfo()->IsMoveAllowedChannel() || CanCastSpellWhileMoving(spell->GetSpellInfo()))
-                return false;
+        if (!CanCastSpellWhileMoving(spell->GetSpellInfo())
+            && ((spell->getState() == SPELL_STATE_PREPARING && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
+                || (spell->getState() == SPELL_STATE_CHANNELING && !spell->GetSpellInfo()->IsMoveAllowedChannel())))
+            return true;
 
-    // prohibit movement for all other spell casts
-    return true;
+    return false;
 }
 
 bool Unit::CanCastSpellWhileMoving(SpellInfo const* spellInfo) const
@@ -4143,12 +4177,12 @@ void Unit::RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID, Aura* exc
     }
 }
 
-void Unit::RemoveAurasWithAttribute(uint32 flags)
+void Unit::RemoveAurasWithAttribute(SpellAttr0 flags)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-        if (spell->Attributes & flags)
+        if (spell->HasAttribute(flags))
             RemoveAura(iter);
         else
             ++iter;
@@ -7602,7 +7636,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA) < MAX_POWERS_PER_CLASS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));  // spellpower from intellect
 
         // Healing bonus from stats
@@ -9590,6 +9624,11 @@ bool Unit::IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 dis
 ########                         ########
 #######################################*/
 
+void ApplyPercentModFloatVar(float& var, float val, bool apply)
+{
+    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
+}
+
 void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply)
 {
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
@@ -9673,7 +9712,7 @@ float Unit::GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierTy
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_PCT_END)
     {
         TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
-        return 0.0f;
+        return 1.0f;
     }
 
     return m_auraPctModifiersGroup[unitMod][modifierType];
@@ -9729,9 +9768,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RESISTANCE_SHADOW:
         case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
 
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
-
         case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
         case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
@@ -9740,6 +9776,41 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
             ABORT_MSG("Not implemented UnitMod %u", unitMod);
             break;
     }
+}
+
+void Unit::HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply)
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in HandleAttackPowerModifier(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return;
+    }
+
+    switch (modifierType)
+    {
+        case AttackPowerModType::Pct:
+            ApplyPercentModFloatVar(m_attackPowerMods[uint32(index)][uint32(modifierType)], amount, apply);
+            break;
+        default:
+            m_attackPowerMods[uint32(index)][uint32(modifierType)] += apply ? amount : -amount;
+            break;
+    }
+
+    if (!CanModifyStats())
+        return;
+
+    UpdateAttackPowerAndDamage(index == AttackPowerModIndex::Ranged);
+}
+
+float Unit::GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const
+{
+    if (index >= AttackPowerModIndex::End || modifierType >= AttackPowerModType::End)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in GetAttackPowerModifierValue(): non-existing AttackPowerModIndex or wrong AttackPowerModType!");
+        return 0.0f;
+    }
+
+    return m_attackPowerMods[uint32(index)][uint32(modifierType)];
 }
 
 void Unit::UpdateDamageDoneMods(WeaponAttackType attackType, int32 /*skipEnchantSlot = -1*/)
@@ -10040,7 +10111,7 @@ void Unit::SetMaxHealth(uint64 val)
 int32 Unit::GetPower(Powers power) const
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return 0;
 
     return m_unitData->Power[powerIndex];
@@ -10049,7 +10120,7 @@ int32 Unit::GetPower(Powers power) const
 int32 Unit::GetMaxPower(Powers power) const
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return 0;
 
     return m_unitData->MaxPower[powerIndex];
@@ -10058,7 +10129,7 @@ int32 Unit::GetMaxPower(Powers power) const
 void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     int32 maxPower = GetMaxPower(power);
@@ -10095,7 +10166,7 @@ void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
 void Unit::SetMaxPower(Powers power, int32 val)
 {
     uint32 powerIndex = GetPowerIndex(power);
-    if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
+    if (powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
     int32 cur_power = GetPower(power);
@@ -10975,11 +11046,6 @@ void Unit::UpdateAttackTimeField(WeaponAttackType att)
     }
 }
 
-void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-}
-
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
     float remainingTimePct = float(m_attackTimer[att]) / (m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]);
@@ -11099,9 +11165,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return nullptr;
     }
 
-    uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < GetLevel() ? (GetLevel() - 5) : creatureTarget->GetLevelForTarget(this);
-
-    if (!InitTamedPet(pet, level, spell_id))
+    if (!InitTamedPet(pet, GetLevel(), spell_id))
     {
         delete pet;
         return nullptr;

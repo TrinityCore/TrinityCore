@@ -672,14 +672,18 @@ void WorldSocket::HandleAuthSessionCallback(WorldPackets::Auth::AuthSession cons
         return;
     }
 
-    ClientBuild::VariantId buildVariant = { .Platform = joinTicket->platform(), .Arch = joinTicket->clientarch(), .Type = joinTicket->type() };
+    ClientBuild::VariantId buildVariant =
+    {
+        .Platform = ClientBuild::Platform::Id(joinTicket->platform()),
+        .Arch = ClientBuild::Arch::Id(joinTicket->clientarch()),
+        .Type = ClientBuild::Type::Id(joinTicket->type())
+    };
     auto clientBuildAuthKey = std::ranges::find(buildInfo->AuthKeys, buildVariant, &ClientBuild::AuthKey::Variant);
     if (clientBuildAuthKey == buildInfo->AuthKeys.end())
     {
         SendAuthResponseError(ERROR_BAD_VERSION);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Missing client build auth key for build {} variant {}-{}-{} ({}).", account.Game.Build,
-            ClientBuild::ToCharArray(buildVariant.Platform).data(), ClientBuild::ToCharArray(buildVariant.Arch).data(),
-            ClientBuild::ToCharArray(buildVariant.Type).data(), address);
+            buildVariant.Platform, buildVariant.Arch, buildVariant.Type, address);
         DelayedCloseSocket();
         return;
     }

@@ -247,7 +247,6 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLogin(std::sh
         context.response.result(boost::beast::http::status::bad_request);
         context.response.set(boost::beast::http::field::content_type, "application/json;charset=utf-8");
         context.response.body() = ::JSON::Serialize(loginResult);
-        session->SendResponse(context);
 
         return RequestHandlerResult::Handled;
     }
@@ -411,7 +410,6 @@ LoginRESTService::RequestHandlerResult LoginRESTService::HandlePostLoginSrpChall
         context.response.result(boost::beast::http::status::bad_request);
         context.response.set(boost::beast::http::field::content_type, "application/json;charset=utf-8");
         context.response.body() = ::JSON::Serialize(loginResult);
-        session->SendResponse(context);
 
         return RequestHandlerResult::Handled;
     }

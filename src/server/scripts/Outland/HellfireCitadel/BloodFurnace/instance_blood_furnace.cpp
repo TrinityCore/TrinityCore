@@ -24,29 +24,32 @@
 
 static constexpr DoorData doorData[] =
 {
-    { GO_PRISON_DOOR_01, DATA_KELIDAN_THE_BREAKER, EncounterDoorBehavior::OpenWhenDone },
-    { GO_PRISON_DOOR_02, DATA_THE_MAKER,           EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_PRISON_DOOR_03, DATA_THE_MAKER,           EncounterDoorBehavior::OpenWhenDone },
-    { GO_PRISON_DOOR_04, DATA_BROGGOK,             EncounterDoorBehavior::OpenWhenDone },
-    { GO_PRISON_DOOR_05, DATA_BROGGOK,             EncounterDoorBehavior::OpenWhenNotInProgress },
-    { GO_SUMMON_DOOR,    DATA_KELIDAN_THE_BREAKER, EncounterDoorBehavior::OpenWhenDone },
+    { GO_PRISON_DOOR_01,     DATA_KELIDAN,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_PRISON_DOOR_02,     DATA_THE_MAKER, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PRISON_DOOR_03,     DATA_THE_MAKER, EncounterDoorBehavior::OpenWhenDone },
+    { GO_PRISON_DOOR_04,     DATA_BROGGOK,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_PRISON_DOOR_05,     DATA_BROGGOK,   EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_SUMMON_DOOR,        DATA_KELIDAN,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_PRISON_CELL_DOOR_4, DATA_THE_MAKER, EncounterDoorBehavior::OpenWhenDone }
 };
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_BROGGOK,             DATA_BROGGOK             },
+    { NPC_THE_MAKER,           DATA_THE_MAKER },
+    { NPC_BROGGOK,             DATA_BROGGOK   },
+    { NPC_KELIDAN,             DATA_KELIDAN   }
 };
 
 static constexpr ObjectData gameObjectData[] =
 {
-    { GO_BROGGOK_LEVER,      DATA_BROGGOK_LEVER },
+    { GO_BROGGOK_LEVER,      DATA_BROGGOK_LEVER }
 };
 
 static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_THE_MAKER, {{ 1922 }} },
     { DATA_BROGGOK, {{ 1924 }} },
-    { DATA_KELIDAN_THE_BREAKER, {{ 1923 }} }
+    { DATA_KELIDAN, {{ 1923 }} }
 };
 
 class instance_blood_furnace : public InstanceMapScript
@@ -76,15 +79,6 @@ class instance_blood_furnace : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case NPC_THE_MAKER:
-                        TheMakerGUID = creature->GetGUID();
-                        break;
-                    case NPC_BROGGOK:
-                        BroggokGUID = creature->GetGUID();
-                        break;
-                    case NPC_KELIDAN_THE_BREAKER:
-                        KelidanTheBreakerGUID = creature->GetGUID();
-                        break;
                     case NPC_PRISONER1:
                     case NPC_PRISONER2:
                         StorePrisoner(creature);
@@ -116,9 +110,6 @@ class instance_blood_furnace : public InstanceMapScript
                     case GO_SUMMON_DOOR:
                         AddDoor(go, true);
                         break;
-                    case GO_BROGGOK_LEVER:
-                        BroggokLeverGUID = go->GetGUID();
-                        break;
                     case GO_PRISON_CELL_DOOR_1:
                         PrisonCellGUIDs[DATA_PRISON_CELL1 - DATA_PRISON_CELL1] = go->GetGUID();
                         break;
@@ -146,23 +137,6 @@ class instance_blood_furnace : public InstanceMapScript
                     default:
                         break;
                 }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_THE_MAKER:
-                        return TheMakerGUID;
-                    case DATA_BROGGOK:
-                        return BroggokGUID;
-                    case DATA_KELIDAN_THE_BREAKER:
-                        return KelidanTheBreakerGUID;
-                    case DATA_BROGGOK_LEVER:
-                        return BroggokLeverGUID;
-                }
-
-                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -313,7 +287,7 @@ class instance_blood_furnace : public InstanceMapScript
                         break;
                     case DATA_DOOR_4:
                         HandleGameObject(PrisonDoor4GUID, true);
-                        if (Creature* broggok = instance->GetCreature(BroggokGUID))
+                        if (Creature* broggok = GetCreature(DATA_BROGGOK))
                             broggok->AI()->DoAction(ACTION_ACTIVATE_BROGGOK);
                         break;
                 }
@@ -330,11 +304,6 @@ class instance_blood_furnace : public InstanceMapScript
             }
 
         protected:
-            ObjectGuid TheMakerGUID;
-            ObjectGuid BroggokGUID;
-            ObjectGuid KelidanTheBreakerGUID;
-
-            ObjectGuid BroggokLeverGUID;
             ObjectGuid PrisonDoor4GUID;
 
             ObjectGuid PrisonCellGUIDs[8];
