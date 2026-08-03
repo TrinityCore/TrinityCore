@@ -35,7 +35,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_NON_ATTACKABLE: return { "UNIT_FLAG_NON_ATTACKABLE", "UNIT_FLAG_NON_ATTACKABLE", "not attackable, set when creature starts to cast spells with SPELL_EFFECT_SPAWN and cast time, removed when spell hits caster, original name is UNIT_FLAG_SPAWNING. Rename when it will be removed from all scripts" };
         case UNIT_FLAG_REMOVE_CLIENT_CONTROL: return { "UNIT_FLAG_REMOVE_CLIENT_CONTROL", "UNIT_FLAG_REMOVE_CLIENT_CONTROL", "This is a legacy flag used to disable movement player's movement while controlling other units, SMSG_CLIENT_CONTROL replaces this functionality clientside now. CONFUSED and FLEEING flags have the same effect on client movement asDISABLE_MOVE_CONTROL in addition to preventing spell casts/autoattack (they all allow climbing steeper hills and emotes while moving)" };
         case UNIT_FLAG_PLAYER_CONTROLLED: return { "UNIT_FLAG_PLAYER_CONTROLLED", "UNIT_FLAG_PLAYER_CONTROLLED", "controlled by player, use _IMMUNE_TO_PC instead of _IMMUNE_TO_NPC" };
-        case UNIT_FLAG_RENAME: return { "UNIT_FLAG_RENAME", "UNIT_FLAG_RENAME", "" };
+        case UNIT_FLAG_EVADING_HOME: return { "UNIT_FLAG_EVADING_HOME", "UNIT_FLAG_EVADING_HOME", "" };
         case UNIT_FLAG_PREPARATION: return { "UNIT_FLAG_PREPARATION", "UNIT_FLAG_PREPARATION", "don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP" };
         case UNIT_FLAG_UNK_6: return { "UNIT_FLAG_UNK_6", "UNIT_FLAG_UNK_6", "" };
         case UNIT_FLAG_NOT_ATTACKABLE_1: return { "UNIT_FLAG_NOT_ATTACKABLE_1", "UNIT_FLAG_NOT_ATTACKABLE_1", "?? (UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_NOT_ATTACKABLE_1) is NON_PVP_ATTACKABLE" };
@@ -79,7 +79,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 1: return UNIT_FLAG_NON_ATTACKABLE;
         case 2: return UNIT_FLAG_REMOVE_CLIENT_CONTROL;
         case 3: return UNIT_FLAG_PLAYER_CONTROLLED;
-        case 4: return UNIT_FLAG_RENAME;
+        case 4: return UNIT_FLAG_EVADING_HOME;
         case 5: return UNIT_FLAG_PREPARATION;
         case 6: return UNIT_FLAG_UNK_6;
         case 7: return UNIT_FLAG_NOT_ATTACKABLE_1;
@@ -120,7 +120,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_NON_ATTACKABLE: return 1;
         case UNIT_FLAG_REMOVE_CLIENT_CONTROL: return 2;
         case UNIT_FLAG_PLAYER_CONTROLLED: return 3;
-        case UNIT_FLAG_RENAME: return 4;
+        case UNIT_FLAG_EVADING_HOME: return 4;
         case UNIT_FLAG_PREPARATION: return 5;
         case UNIT_FLAG_UNK_6: return 6;
         case UNIT_FLAG_NOT_ATTACKABLE_1: return 7;

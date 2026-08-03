@@ -17,8 +17,8 @@
 
 /*
  * Creatures in waves should load waypoints, not engage immediately
- * Surge implementation requires additional research
  * Combat timers requires to be revisited
+ * SAY_EVENT is NYI
  */
 
 #include "ScriptMgr.h"
@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "zulaman.h"
@@ -44,9 +45,8 @@ enum NalorakkTexts
     SAY_BERSERK                     = 9,
     SAY_SLAY                        = 10,
     SAY_DEATH                       = 11,
-    SAY_EVENT_1                     = 12,      // NYI
-    SAY_EVENT_2                     = 13,      // NYI
-    EMOTE_TRANSFORM                 = 14
+    SAY_EVENT                       = 12,
+    EMOTE_TRANSFORM                 = 13
 };
 
 enum NalorakkSpells
@@ -93,6 +93,12 @@ enum NalorakkEvents
     EVENT_BERSERK
 };
 
+enum NalorakkActions
+{
+    ACTION_SHAPE_APPLIED            = 0,
+    ACTION_SHAPE_REMOVED            = 1
+};
+
 enum NalorakkSpawnGroups
 {
     SPAWN_GROUP_NALORAKK_WAVE_1     = 329,
@@ -128,13 +134,12 @@ static constexpr std::array<std::string_view, 4> NalorakkWave =
 struct boss_nalorakk : public BossAI
 {
     boss_nalorakk(Creature* creature) : BossAI(creature, BOSS_NALORAKK),
-        _waveEventInProgress(true), _isMovingToLocation(false), _isWaiting(false), _isInBearForm(false), _currentWaveCount(0) { }
+        _waveEventInProgress(true), _isMovingToLocation(false), _isWaiting(false), _currentWaveCount(0) { }
 
     void Reset() override
     {
         _Reset();
         SetEquipmentSlots(true);
-        _isInBearForm = false;
 
         if (_waveEventInProgress)
         {
@@ -160,11 +165,6 @@ struct boss_nalorakk : public BossAI
     {
         switch (spellInfo->Id)
         {
-            case SPELL_SHAPE_OF_THE_BEAR:
-                Talk(SAY_TO_BEAR);
-                Talk(EMOTE_TRANSFORM);
-                SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                break;
             case SPELL_SURGE:
                 Talk(SAY_SURGE);
                 break;
@@ -237,6 +237,27 @@ struct boss_nalorakk : public BossAI
     {
         switch (action)
         {
+            case ACTION_SHAPE_APPLIED:
+                Talk(SAY_TO_BEAR);
+                Talk(EMOTE_TRANSFORM);
+                SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+                events.CancelEvent(EVENT_BRUTAL_SWIPE);
+                events.CancelEvent(EVENT_MANGLE);
+                events.CancelEvent(EVENT_SURGE);
+                events.ScheduleEvent(EVENT_LACERATING_SLASH, 5s, 10s);
+                events.ScheduleEvent(EVENT_REND_FLESH, 10s, 20s);
+                events.ScheduleEvent(EVENT_DEAFENING_ROAR, 15s, 20s);
+                break;
+            case ACTION_SHAPE_REMOVED:
+                Talk(SAY_TO_TROLL);
+                SetEquipmentSlots(true);
+                events.CancelEvent(EVENT_LACERATING_SLASH);
+                events.CancelEvent(EVENT_REND_FLESH);
+                events.CancelEvent(EVENT_DEAFENING_ROAR);
+                events.ScheduleEvent(EVENT_BRUTAL_SWIPE, 10s, 20s);
+                events.ScheduleEvent(EVENT_MANGLE, 5s, 15s);
+                events.ScheduleEvent(EVENT_SURGE, 20s, 25s);
+                break;
             case ACTION_WAVE_DONE_1:
                 Talk(SAY_WAVE_DONE);
                 _isMovingToLocation = true;
@@ -353,34 +374,9 @@ struct boss_nalorakk : public BossAI
                     break;
 
                 case EVENT_SHAPESHIFT:
-                {
-                    if (_isInBearForm)
-                    {
-                        Talk(SAY_TO_TROLL);
-                        SetEquipmentSlots(true);
-                        events.CancelEvent(EVENT_LACERATING_SLASH);
-                        events.CancelEvent(EVENT_REND_FLESH);
-                        events.CancelEvent(EVENT_DEAFENING_ROAR);
-                        events.ScheduleEvent(EVENT_BRUTAL_SWIPE, 10s, 20s);
-                        events.ScheduleEvent(EVENT_MANGLE, 5s, 15s);
-                        events.ScheduleEvent(EVENT_SURGE, 20s, 25s);
-                        events.Repeat(45s);
-                        _isInBearForm = false;
-                    }
-                    else
-                    {
-                        DoCastSelf(SPELL_SHAPE_OF_THE_BEAR);
-                        events.CancelEvent(EVENT_BRUTAL_SWIPE);
-                        events.CancelEvent(EVENT_MANGLE);
-                        events.CancelEvent(EVENT_SURGE);
-                        events.ScheduleEvent(EVENT_LACERATING_SLASH, 5s, 10s);
-                        events.ScheduleEvent(EVENT_REND_FLESH, 10s, 20s);
-                        events.ScheduleEvent(EVENT_DEAFENING_ROAR, 15s, 20s);
-                        events.Repeat(30s);
-                        _isInBearForm = true;
-                    }
+                    DoCastSelf(SPELL_SHAPE_OF_THE_BEAR);
+                    events.Repeat(75s);
                     break;
-                }
 
                 case EVENT_BERSERK:
                     DoCastSelf(SPELL_BERSERK);
@@ -400,7 +396,6 @@ private:
     bool _waveEventInProgress;
     bool _isMovingToLocation;
     bool _isWaiting;
-    bool _isInBearForm;
     uint32 _currentWaveCount;
 };
 
@@ -416,12 +411,7 @@ class spell_nalorakk_surge : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
+        Trinity::Containers::RandomResize(targets, 1);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -440,8 +430,36 @@ class spell_nalorakk_surge : public SpellScript
     }
 };
 
+// 42377 - Shape of the Bear
+class spell_nalorakk_shape : public AuraScript
+{
+    PrepareAuraScript(spell_nalorakk_shape);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+            target->AI()->DoAction(ACTION_SHAPE_APPLIED);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Creature* target = GetTarget()->ToCreature())
+            target->AI()->DoAction(ACTION_SHAPE_REMOVED);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_nalorakk_shape::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_nalorakk_shape::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_nalorakk()
 {
     RegisterZulAmanCreatureAI(boss_nalorakk);
     RegisterSpellScript(spell_nalorakk_surge);
+    RegisterSpellScript(spell_nalorakk_shape);
 }

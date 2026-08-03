@@ -46,9 +46,9 @@ typedef std::unordered_map<uint32, AchievementEntryList>         AchievementList
 
 struct CriteriaProgress
 {
-    uint32 counter;
-    time_t date;                                            // latest update time.
-    bool changed;
+    uint32 counter = 0;
+    time_t date = time_t(0);                                // latest update time.
+    bool changed = false;
 };
 
 enum AchievementCriteriaDataType
@@ -306,9 +306,10 @@ class TC_GAME_API AchievementMgr
     private:
         void SendAchievementEarned(AchievementEntry const* achievement) const;
         void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const;
+        void SendCriteriaProgressRemoved(uint32 criteriaId) const;
         CriteriaProgress* GetCriteriaProgress(AchievementCriteriaEntry const* entry);
         void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
-        void RemoveCriteriaProgress(AchievementCriteriaEntry const* entry);
+        void RemoveCriteriaProgress(AchievementCriteriaEntry const* criteria);
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);

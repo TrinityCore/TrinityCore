@@ -529,7 +529,7 @@ struct npc_madrigosa : public ScriptedAI
 
                     if (Creature* brutallus = _instance->GetCreature(DATA_BRUTALLUS))
                     {
-                        brutallus->SetImmuneToNPC(false);
+                        brutallus->SetImmuneToAll(false);
                         brutallus->SetHomePosition(brutallus->GetPosition());
                         brutallus->SetReactState(REACT_AGGRESSIVE);
                         /// @temporary: Should not be called, find a better solution to end combat

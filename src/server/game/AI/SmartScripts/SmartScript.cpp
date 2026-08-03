@@ -2328,7 +2328,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_RESUME_MOVEMENT:
         {
-            for (WorldObject* const target : targets)
+            for (WorldObject* target : targets)
                 if (IsUnit(target))
                     target->ToUnit()->ResumeMovement(e.action.resumeMovement.resumeTimer, e.action.resumeMovement.movementSlot);
             break;

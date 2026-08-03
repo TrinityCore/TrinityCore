@@ -647,18 +647,6 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     player->SendDirectMessage(packet.Write());
 }
 
-void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
-{
-    std::string channelName;
-    recvPacket >> channelName;
-
-    TC_LOG_DEBUG("chat.system", "CMSG_DECLINE_CHANNEL_INVITE {} ChannelName: {}",
-        GetPlayerInfo(), channelName);
-
-    if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(channelName, GetPlayer()))
-        channel->DeclineInvite(GetPlayer());
-}
-
 void WorldSession::SendPlayerNotFoundNotice(std::string const& name)
 {
     WorldPacket data(SMSG_CHAT_PLAYER_NOT_FOUND, name.size()+1);

@@ -25,16 +25,6 @@ namespace WorldPackets
 {
     namespace Channel
     {
-        class ChannelListRequest final : public ClientPacket
-        {
-        public:
-            explicit ChannelListRequest(WorldPacket&& packet);
-
-            void Read() override;
-
-            std::string ChannelName;
-        };
-
         class ChannelListResponse final : public ServerPacket
         {
         public:
@@ -76,6 +66,38 @@ namespace WorldPackets
             bool Suspended            = false;
         };
 
+        class ChannelCommand final : public ClientPacket
+        {
+        public:
+            explicit ChannelCommand(WorldPacket&& packet);
+
+            void Read() override;
+
+            std::string ChannelName;
+        };
+
+        class ChannelPlayerCommand final : public ClientPacket
+        {
+        public:
+            explicit ChannelPlayerCommand(WorldPacket&& packet);
+
+            void Read() override;
+
+            std::string ChannelName;
+            std::string Name;
+        };
+
+        class ChannelPassword final : public ClientPacket
+        {
+        public:
+            explicit ChannelPassword(WorldPacket&& packet) : ClientPacket(CMSG_CHANNEL_PASSWORD, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string ChannelName;
+            std::string Password;
+        };
+
         class JoinChannel final : public ClientPacket
         {
         public:
@@ -98,6 +120,18 @@ namespace WorldPackets
             void Read() override;
 
             int32 ZoneChannelID = 0;
+            std::string ChannelName;
+        };
+
+        class ChannelMemberCount final : public ServerPacket
+        {
+        public:
+            ChannelMemberCount() : ServerPacket(SMSG_CHANNEL_MEMBER_COUNT, 30 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint32 MemberCount = 0;
             std::string ChannelName;
         };
     }

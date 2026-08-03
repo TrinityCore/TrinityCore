@@ -246,6 +246,25 @@ namespace WorldPackets
             float Facing = 0.0f;
         };
 
+        class QueryTime final : public ClientPacket
+        {
+        public:
+            explicit QueryTime(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TIME, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QueryTimeResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryTimeResponse() : ServerPacket(SMSG_QUERY_TIME_RESPONSE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            time_t CurrentTime = time_t(0);
+            int32 TimeOutRequest = 0;
+        };
+
         class QueryItemSingle final : public ClientPacket
         {
         public:

@@ -1005,7 +1005,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
     }
 
     ASSERT(grp);
-    grp->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
+    grp->SetDungeonDifficultyID(Difficulty(dungeon->difficulty));
     ObjectGuid gguid = grp->GetGUID();
     SetDungeon(gguid, dungeon->Entry());
     SetState(gguid, LFG_STATE_DUNGEON);
@@ -1687,7 +1687,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
     }
 
     uint8 level = player->GetLevel();
-    uint8 expansion = player->GetSession()->Expansion();
+    uint8 expansion = player->GetSession()->GetExpansion();
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 

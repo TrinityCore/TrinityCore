@@ -235,11 +235,11 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             text.QuestFlags = quest->GetFlags();
             text.Repeatable = quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
 
-            text.QuestTitle = quest->GetTitle();
+            text.QuestTitle = quest->GetLogTitle();
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(localeData->Title, localeConstant, text.QuestTitle);
+                if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, text.QuestTitle);
 
             ++count;
         }
@@ -364,12 +364,12 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
             ++count;
-            std::string title = quest->GetTitle();
+            std::string title = quest->GetLogTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(questTemplateLocaleData->Title, localeConstant, title);
+                if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, title);
 
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);
@@ -396,29 +396,29 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC={}, status={}", npcGUID.ToString(), AsUnderlyingType(questStatus));
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
 {
     WorldPackets::Quest::QuestGiverQuestDetails packet;
 
-    packet.Title = quest->GetTitle();
-    packet.Details = quest->GetDetails();
-    packet.Objectives = quest->GetObjectives();
+    packet.QuestTitle = quest->GetLogTitle();
+    packet.LogDescription = quest->GetLogDescription();
+    packet.DescriptionText = quest->GetQuestDescription();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
-            ObjectMgr::GetLocaleString(localeData->Title,      localeConstant, packet.Title);
-            ObjectMgr::GetLocaleString(localeData->Details,    localeConstant, packet.Details);
-            ObjectMgr::GetLocaleString(localeData->Objectives, localeConstant, packet.Objectives);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           localeConstant, packet.QuestTitle);
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogDescription,     localeConstant, packet.LogDescription);
+            ObjectMgr::GetLocaleString(questTemplateLocale->QuestDescription,   localeConstant, packet.DescriptionText);
         }
     }
 
     packet.QuestGiverGUID = npcGUID;
     packet.InformUnit = _session->GetPlayer()->GetPlayerSharingQuest();
     packet.QuestID = quest->GetQuestId();
-    packet.AutoLaunched = activateAccept;
+    packet.AutoLaunched = autoLaunched;
     packet.Flags = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.SuggestedGroupNum = quest->GetSuggestedPlayers();
 
@@ -450,14 +450,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 {
     WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
 
-    packet.Title = quest->GetTitle();
+    packet.QuestTitle = quest->GetLogTitle();
     packet.RewardText = quest->GetOfferRewardText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(localeData->Title, localeConstant, packet.Title);
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, packet.QuestTitle);
 
         if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
             ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, packet.RewardText);
@@ -479,23 +479,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_OFFER_REWARD NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const
+void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const
 {
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
-
-    std::string questTitle = quest->GetTitle();
-    std::string requestItemsText = quest->GetRequestItemsText();
-
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    if (localeConstant != LOCALE_enUS)
-    {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(localeData->Title,            localeConstant, questTitle);
-
-        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
-            ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);
-    }
 
     if (!quest->GetReqItemsCount() && canComplete)
     {
@@ -503,52 +490,60 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         return;
     }
 
-    WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
-    data << npcGUID;
-    data << uint32(quest->GetQuestId());
-    data << questTitle;
-    data << requestItemsText;
+    WorldPackets::Quest::QuestGiverRequestItems packet;
 
-    data << uint32(0);                                   // unknown
+    packet.QuestTitle = quest->GetLogTitle();
+    packet.CompletionText = quest->GetRequestItemsText();
+
+    LocaleConstant locale = _session->GetSessionDbLocaleIndex();
+    if (locale != LOCALE_enUS)
+    {
+        if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, locale, packet.QuestTitle);
+
+        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, locale, packet.CompletionText);
+    }
+
+    packet.QuestGiverGUID = npcGUID;
+
+    packet.QuestID = quest->GetQuestId();
 
     if (canComplete)
-        data << quest->GetCompleteEmote();
+    {
+        packet.CompEmoteDelay = quest->GetCompleteEmoteDelay();
+        packet.CompEmoteType = quest->GetCompleteEmote();
+    }
     else
-        data << quest->GetIncompleteEmote();
+    {
+        packet.CompEmoteDelay = quest->GetIncompleteEmoteDelay();
+        packet.CompEmoteType = quest->GetIncompleteEmote();
+    }
 
-    // Close Window after cancel
-    data << uint32(closeOnCancel);
+    packet.QuestFlags = quest->GetFlags();
+    packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
 
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
+    packet.Explored = canComplete ? 0x03 : 0x00;
+    packet.HasItems = 0x04;
+    packet.HasFaction = 0x08;
+    packet.HasMoney = 0x10;
 
-    // Required Money
-    data << uint32(quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0);
-
-    data << uint32(quest->GetReqItemsCount());
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    packet.MoneyToGet = quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0;
+    for (uint32 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         if (!quest->RequiredItemId[i])
             continue;
 
-        data << uint32(quest->RequiredItemId[i]);
-        data << uint32(quest->RequiredItemCount[i]);
+        WorldPackets::Quest::QuestObjectiveCollect& collect = packet.Collect.emplace_back();
+        collect.ObjectID = quest->RequiredItemId[i];
+        collect.Amount = quest->RequiredItemCount[i];
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-            data << uint32(itemTemplate->GetDisplayId());
-        else
-            data << uint32(0);
+            collect.DisplayID = itemTemplate->GetDisplayId();
     }
 
-    if (!canComplete)
-        data << uint32(0x00);
-    else
-        data << uint32(0x03);
+    packet.AutoLaunched = autoLaunched;
 
-    data << uint32(0x04);
-    data << uint32(0x08);
-    data << uint32(0x10);
-
-    _session->SendPacket(&data);
+    _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }

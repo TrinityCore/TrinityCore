@@ -108,6 +108,7 @@ struct boss_warbringer_omrogg : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         events.ScheduleEvent(EVENT_FEAR, 20s, 30s);
         events.ScheduleEvent(EVENT_THUNDERCLAP, 15s, 25s);
         events.ScheduleEvent(EVENT_BEATDOWN, 25s, 30s);
@@ -119,18 +120,10 @@ struct boss_warbringer_omrogg : public BossAI
 
     void OnSpellCast(SpellInfo const* spell) override
     {
-        /// @todo: Threat reset and AttackStart should be in spell script
+        // Apparently this and all other are handled by GameEvents since this spell sends GameEvent
         if (spell->Id == SPELL_BEATDOWN)
-        {
-            ResetThreatList();
-
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                AttackStart(target);
-
-            // Apparently this and all other are handled by GameEvents since this spell sends GameEvent
             if (Creature* leftHead = instance->GetCreature(DATA_LEFT_HEAD))
                 leftHead->AI()->DoAction(RAND(ACTION_ATTACK_1, ACTION_ATTACK_2, ACTION_ATTACK_3, ACTION_ATTACK_4));
-        }
 
         if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_BURNING_MAUL, me))
             Talk(EMOTE_ROAR);
@@ -401,8 +394,6 @@ private:
     InstanceScript* _instance;
 };
 
-/// @todo: This requires additional research. Is it handled correctly? Isn't it too over-powered?
-// That's a lot of damage if all melee attacks are successful so we cast it not always for now. No ProcCategoryRecovery for both spells
 // 30598, 36056 - Burning Maul
 class spell_omrogg_burning_maul : public AuraScript
 {
@@ -427,8 +418,10 @@ class spell_omrogg_burning_maul : public AuraScript
 
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        if (roll_chance_i(50))
-            GetTarget()->CastSpell(GetTarget(), SPELL_BLAST_WAVE);
+        /// @todo: This requires additional research. Is it handled correctly? Isn't it too over-powered?
+        /// That's a lot of damage if all melee attacks are successful so we cast it not always for now. No ProcCategoryRecovery for both spells
+        if (roll_chance_i(30))
+            GetTarget()->CastSpell(nullptr, SPELL_BLAST_WAVE);
     }
 
     void Register() override
@@ -439,9 +432,33 @@ class spell_omrogg_burning_maul : public AuraScript
     }
 };
 
+// 30618 - Beatdown
+class spell_omrogg_beatdown : public SpellScript
+{
+    PrepareSpellScript(spell_omrogg_beatdown);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster->IsCreature())
+            return;
+
+        caster->GetThreatManager().ResetAllThreat();
+
+        if (Unit* target = caster->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true))
+            caster->GetAI()->AttackStart(target);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_omrogg_beatdown::HandleAfterCast);
+    }
+};
+
 void AddSC_boss_warbringer_omrogg()
 {
     RegisterShatteredHallsCreatureAI(boss_warbringer_omrogg);
     RegisterShatteredHallsCreatureAI(npc_omrogg_heads);
     RegisterSpellScript(spell_omrogg_burning_maul);
+    RegisterSpellScript(spell_omrogg_beatdown);
 }

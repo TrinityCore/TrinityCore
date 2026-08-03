@@ -94,11 +94,11 @@ namespace WorldPackets
         struct QuestInfo
         {
             uint32 QuestID                  = 0;
-            uint32 QuestMethod              = 0;    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
+            uint32 QuestType                = 0;    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
             int32  QuestLevel               = 0;    // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
             uint32 QuestMinLevel            = 0;
             int32  QuestSortID              = 0;    // zone or sort to display in quest log
-            uint32 QuestType                = 0;
+            uint32 QuestInfoID              = 0;
             uint32 SuggestedGroupNum        = 0;
             int32  AllowableRaces           = -1;
 
@@ -115,34 +115,34 @@ namespace WorldPackets
             float RewardKillHonor           = 0.0f;
             uint32 StartItem                = 0;
             uint32 Flags                    = 0;
-            uint32 RewardTitleId            = 0;    // new 2.4.0, player gets this title (id from CharTitles)
+            uint32 RewardTitle              = 0;    // new 2.4.0, player gets this title (id from CharTitles)
             uint32 RequiredPlayerKills      = 0;
             uint32 RewardTalents            = 0;
             int32  RewardArenaPoints        = 0;
             uint32 RewardFactionFlags       = 0;
 
-            uint32 RewardItems[QUEST_REWARDS_COUNT] = { };
-            uint32 RewardAmount[QUEST_REWARDS_COUNT] = { };
+            uint32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
+            uint32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             QuestInfoChoiceItem UnfilteredChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            uint32 RewardFactionID[QUEST_REPUTATIONS_COUNT] = { };
-            int32  RewardFactionValue[QUEST_REPUTATIONS_COUNT] = { };
-            int32  RewardFactionValueOverride[QUEST_REPUTATIONS_COUNT] = { };
+            uint32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = { };
 
             uint32 POIContinent             = 0;
             float  POIx                     = 0.0f;
             float  POIy                     = 0.0f;
             uint32 POIPriority              = 0;
-            std::string Title;
-            std::string Objectives;
-            std::string Details;
+            std::string LogTitle;
+            std::string LogDescription;
+            std::string QuestDescription;
             std::string AreaDescription;
-            std::string CompletedText;              // display in quest objectives window once all objectives are completed
+            std::string QuestCompletionLog;
 
             int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT] = { };   // >0 Creature <0 Gameobject
             uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT] = { };
 
-            uint32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
-            uint32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT] = { };
+            uint32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };
+            uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = { };
 
             uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT] = { };
             uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT] = { };
@@ -183,9 +183,9 @@ namespace WorldPackets
             uint32 RewardTalents = 0;
             uint32 RewardArenaPoints = 0;
             uint32 RewardFactionFlags = 0;
-            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID = { };
-            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue = { };
-            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride = { };
+            std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionID = { };
+            std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionValue = { };
+            std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionOverride = { };
         };
 
         struct QuestDescEmote
@@ -205,15 +205,69 @@ namespace WorldPackets
             ObjectGuid QuestGiverGUID;
             ObjectGuid InformUnit;
             uint32 QuestID = 0;
-            std::string Title;
-            std::string Details;
-            std::string Objectives;
+            std::string QuestTitle;
+            std::string DescriptionText;
+            std::string LogDescription;
             bool AutoLaunched = false;
             uint32 Flags = 0;
             uint32 SuggestedGroupNum = 0;
             bool StartCheat = false;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> DescEmotes;
+        };
+
+        struct QuestObjectiveCollect
+        {
+            int32 ObjectID = 0;
+            int32 Amount = 0;
+            uint32 DisplayID = 0;
+        };
+
+        class QuestGiverRequestItems final : public ServerPacket
+        {
+        public:
+            explicit QuestGiverRequestItems() : ServerPacket(SMSG_QUESTGIVER_REQUEST_ITEMS, 300) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID               = 0;
+            int32 CompEmoteDelay        = 0;
+            int32 CompEmoteType         = 0;
+            bool AutoLaunched           = false;
+            int32 SuggestPartyMembers   = 0;
+            int32 MoneyToGet            = 0;
+            std::vector<QuestObjectiveCollect> Collect;
+            uint32 Explored             = 0;
+            uint32 HasItems             = 0;
+            uint32 HasFaction           = 0;
+            uint32 HasMoney             = 0;
+            uint32 QuestFlags           = 0;
+            std::string_view QuestTitle;
+            std::string_view CompletionText;
+        };
+
+        class QuestGiverRequestReward final : public ClientPacket
+        {
+        public:
+            explicit QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_REQUEST_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+        };
+
+        class QuestGiverQueryQuest final : public ClientPacket
+        {
+        public:
+            explicit QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUESTGIVER_QUERY_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            bool RespondToGiver = false;
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket
@@ -225,13 +279,31 @@ namespace WorldPackets
 
             ObjectGuid QuestGiverGUID;
             uint32 QuestID = 0;
-            std::string Title;
+            std::string QuestTitle;
             std::string RewardText;
             bool AutoLaunched = false;
             uint32 Flags = 0;
             uint32 SuggestedGroupNum = 0;
             std::vector<QuestDescEmote> Emotes;
             QuestRewards Rewards;
+        };
+
+        class QueryQuestsCompleted final : public ClientPacket
+        {
+        public:
+            explicit QueryQuestsCompleted(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUESTS_COMPLETED, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QueryQuestsCompletedResponse final : public ServerPacket
+        {
+        public:
+            explicit QueryQuestsCompletedResponse() : ServerPacket(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            std::set<uint32> const* QuestsCompleted = nullptr;
         };
     }
 }

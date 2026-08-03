@@ -465,7 +465,7 @@ struct boss_hodir : public BossAI
                     std::vector<GameObject*> firesObjects;
                     GetGameObjectListWithEntryInGrid(firesObjects, me, GO_TOASTY_FIRE, 100.0f);
                     for (GameObject* fire : firesObjects)
-                        fire->ActivateObject(GameObjectActions(GameObjectActions::Despawn));
+                        fire->ActivateObject(GameObjectActions::Despawn);
 
                     events.ScheduleEvent(EVENT_FLASH_FREEZE_FINISHED_3, 1s);
                     break;
@@ -751,7 +751,7 @@ struct npc_toasty_fire : public ScriptedAI
         if (spellInfo->Id == SPELL_ICE_SHARDS_DAMAGE_1 || spellInfo->Id == SPELL_ICE_SHARDS_DAMAGE_2)
         {
             if (GameObject* fire = me->FindNearestGameObject(GO_TOASTY_FIRE, 1.0f))
-                fire->ActivateObject(GameObjectActions(GameObjectActions::Despawn));
+                fire->ActivateObject(GameObjectActions::Despawn);
 
             me->DespawnOrUnsummon();
         }
@@ -1088,7 +1088,7 @@ class spell_hodir_icicle_force_cast : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 2 : 3);
+        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->GetDifficultyID() == RAID_DIFFICULTY_10MAN_NORMAL ? 2 : 3);
     }
 
     void Register() override
@@ -1193,7 +1193,7 @@ class spell_hodir_storm_cloud_primer : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ?
+        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->GetDifficultyID() == RAID_DIFFICULTY_10MAN_NORMAL ?
             SPELL_STORM_CLOUD_EFFECT : SPELL_STORM_CLOUD_EFFECT_H);
     }
 

@@ -34,7 +34,7 @@ namespace
 
 StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.itemIndex), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
-NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), RandomSuffix(lootItem.randomSuffix)
+NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), RandomSuffix(lootItem.randomPropertySeed)
 {
 }
 
@@ -88,7 +88,7 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.is_underthreshold = fields[8].GetBool();
             lootItem.needs_quest = fields[9].GetBool();
             lootItem.randomPropertyId = fields[10].GetInt32();
-            lootItem.randomSuffix = fields[11].GetUInt32();
+            lootItem.randomPropertySeed = fields[11].GetUInt32();
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -165,7 +165,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             li.is_underthreshold = storedItemPair.second.UnderThreshold;
             li.needs_quest = storedItemPair.second.NeedsQuest;
             li.randomPropertyId = storedItemPair.second.RandomPropertyId;
-            li.randomSuffix = storedItemPair.second.RandomSuffix;
+            li.randomPropertySeed = storedItemPair.second.RandomSuffix;
 
             // Copy the extra loot conditions from the item in the loot template
             lt->CopyConditions(&li);
@@ -306,7 +306,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setBool(8, lootItem.is_underthreshold);
     stmt->setBool(9, lootItem.needs_quest);
     stmt->setInt32(10, lootItem.randomPropertyId);
-    stmt->setUInt32(11, lootItem.randomSuffix);
+    stmt->setUInt32(11, lootItem.randomPropertySeed);
 
     trans->Append(stmt);
 }

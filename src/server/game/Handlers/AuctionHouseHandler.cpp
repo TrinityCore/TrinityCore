@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
 #include "CharacterCache.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
@@ -36,15 +37,12 @@
 #include "WorldPacket.h"
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& hello)
 {
-    ObjectGuid guid;                                            //NPC guid
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(hello.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit ({}) not found or you can't interact with him.", guid.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit ({}) not found or you can't interact with him.", hello.Guid.ToString());
         return;
     }
 
@@ -52,7 +50,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendAuctionHello(guid, unit);
+    SendAuctionHello(hello.Guid, unit);
 }
 
 //this void causes that auction window is opened
@@ -68,40 +66,32 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
     if (!ahEntry)
         return;
 
-    WorldPacket data(MSG_AUCTION_HELLO, 12);
-    data << guid;
-    data << uint32(ahEntry->ID);
-    data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    SendPacket(&data);
+    WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
+    auctionHelloResponse.Auctioneer = guid;
+    auctionHelloResponse.AuctionHouseID = ahEntry->ID;
+    auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
+    SendPacket(auctionHelloResponse.Write());
 }
 
 //call this method when player bids, creates, or deletes auction
-void WorldSession::SendAuctionCommandResult(AuctionEntry const* auction, AuctionAction command, AuctionError errorCode, InventoryResult bagResult)
+void WorldSession::SendAuctionCommandResult(AuctionEntry const* auction, AuctionCommand command, AuctionResult errorCode, InventoryResult bagResult /*= 0*/)
 {
-    WorldPacket data(SMSG_AUCTION_COMMAND_RESULT, 4 + 4 + 4 + 8 + 4 + 4);
-    data << int32(auction ? auction->Id : 0);
-    data << int32(command);
-    data << int32(errorCode);
+    WorldPackets::AuctionHouse::AuctionCommandResult auctionCommandResult;
+    auctionCommandResult.Command = AsUnderlyingType(command);
+    auctionCommandResult.ErrorCode = AsUnderlyingType(errorCode);
+    auctionCommandResult.BagResult = AsUnderlyingType(bagResult);
 
-    switch (errorCode)
+    if (auction)
     {
-        case ERR_AUCTION_OK:
-            if (command == AUCTION_PLACE_BID)
-                data << uint32(auction->bid ? auction->GetAuctionOutBid() : 0);
-            break;
-        case ERR_AUCTION_INVENTORY:
-            data << uint32(bagResult);
-            break;
-        case ERR_AUCTION_HIGHER_BID:
-            data << uint64(auction->bidder);
-            data << uint32(auction->bid);
-            data << uint32(auction->bid ? auction->GetAuctionOutBid() : 0);
-            break;
-        default:
-            break;
+        auctionCommandResult.AuctionID = auction->Id;
+        if (auction->bidder)
+            auctionCommandResult.Guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
+
+        auctionCommandResult.MinIncrement = auction->GetAuctionOutBid();
+        auctionCommandResult.Money = auction->bid;
     }
 
-    SendPacket(&data);
+    SendPacket(auctionCommandResult.Write());
 }
 
 //this function sends notification, if bidder is online

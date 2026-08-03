@@ -165,7 +165,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
         return false;
 
     float itemBuyPrice = float(auction->buyout / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->GetSellPrice() ? item->GetTemplate()->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
+    float itemPrice = float(item->GetSellPrice() ? item->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
@@ -201,7 +201,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
 bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice)
 {
     float itemBidPrice = float(bidPrice / item->GetCount());
-    float itemPrice = float(item->GetTemplate()->GetSellPrice() ? item->GetTemplate()->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
+    float itemPrice = float(item->GetSellPrice() ? item->GetSellPrice() : GetVendorPrice(item->GetTemplate()->GetQuality()));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
