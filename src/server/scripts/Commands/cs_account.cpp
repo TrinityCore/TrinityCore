@@ -399,7 +399,7 @@ public:
 
             if (extended)
             {
-                std::string country = "?";
+                std::string country = handler->GetTrinityString(LANG_UNKNOWN);
                 if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(session->GetRemoteAddress()))
                     country = location->CountryName;
 
