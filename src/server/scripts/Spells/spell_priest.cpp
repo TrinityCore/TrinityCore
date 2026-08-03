@@ -2835,14 +2835,14 @@ class spell_pri_master_the_darkness : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_MASTER_THE_DARKNESS_AURA });
     }
 
-    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         return roll_chance(aurEff->GetAmount());
     }
 
-    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    static void HandleOnProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_MASTER_THE_DARKNESS_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_PRIEST_MASTER_THE_DARKNESS_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
