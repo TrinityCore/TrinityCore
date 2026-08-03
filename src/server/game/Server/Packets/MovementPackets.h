@@ -22,6 +22,7 @@
 #include "CombatLogPacketsCommon.h"
 #include "MovementInfo.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 
 namespace Movement
 {
@@ -757,29 +758,6 @@ namespace WorldPackets
             uint32 Ticks = 0;
         };
 
-        class MoveApplyInertiaAck final : public ClientPacket
-        {
-        public:
-            explicit MoveApplyInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_APPLY_INERTIA_ACK, std::move(packet)) { }
-
-            void Read() override;
-
-            MovementAck Ack;
-            int32 ID = 0;
-            uint32 LifetimeMs = 0;
-        };
-
-        class MoveRemoveInertiaAck final : public ClientPacket
-        {
-        public:
-            explicit MoveRemoveInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_REMOVE_INERTIA_ACK, std::move(packet)) { }
-
-            void Read() override;
-
-            MovementAck Ack;
-            int32 ID = 0;
-        };
-
         class MoveApplyInertia final : public ServerPacket
         {
         public:
@@ -789,8 +767,8 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             uint32 SequenceIndex = 0;
-            int32 ID = 0;
-            uint32 LifetimeMs = 0;
+            int32 InertiaID = 0;
+            Duration<Milliseconds, uint32> LifetimeMs;
         };
 
         class MoveRemoveInertia final : public ServerPacket
@@ -802,7 +780,30 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             uint32 SequenceIndex = 0;
-            int32 ID = 0;
+            int32 InertiaID = 0;
+        };
+
+        class MoveApplyInertiaAck final : public ClientPacket
+        {
+        public:
+            explicit MoveApplyInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_APPLY_INERTIA_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            int32 InertiaID = 0;
+            Duration<Milliseconds, uint32> LifetimeMs;
+        };
+
+        class MoveRemoveInertiaAck final : public ClientPacket
+        {
+        public:
+            explicit MoveRemoveInertiaAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_REMOVE_INERTIA_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            int32 InertiaID = 0;
         };
 
         class MoveUpdateApplyInertia final : public ServerPacket
@@ -813,8 +814,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
-            int32 ID = 0;
-            uint32 LifetimeMs = 0;
+            int32 InertiaID = 0;
+            Duration<Milliseconds, uint32> LifetimeMs;
         };
 
         class MoveUpdateRemoveInertia final : public ServerPacket
@@ -825,7 +826,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
-            int32 ID = 0;
+            int32 InertiaID = 0;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);

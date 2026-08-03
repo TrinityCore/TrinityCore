@@ -863,10 +863,11 @@ void WorldSession::HandleMoveApplyInertiaAck(WorldPackets::Movement::MoveApplyIn
         return;
 
     moveApplyInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveApplyInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveApplyInertiaAck.Ack.Status;
 
     WorldPackets::Movement::MoveUpdateApplyInertia updateApplyInertia;
-    updateApplyInertia.Status = &moveApplyInertiaAck.Ack.Status;
-    updateApplyInertia.ID = moveApplyInertiaAck.ID;
+    updateApplyInertia.Status = &mover->m_movementInfo;
+    updateApplyInertia.InertiaID = moveApplyInertiaAck.InertiaID;
     updateApplyInertia.LifetimeMs = moveApplyInertiaAck.LifetimeMs;
     mover->SendMessageToSet(updateApplyInertia.Write(), false);
 }
@@ -881,10 +882,11 @@ void WorldSession::HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemove
         return;
 
     moveRemoveInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveRemoveInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveRemoveInertiaAck.Ack.Status;
 
     WorldPackets::Movement::MoveUpdateRemoveInertia updateRemoveInertia;
-    updateRemoveInertia.Status = &moveRemoveInertiaAck.Ack.Status;
-    updateRemoveInertia.ID = moveRemoveInertiaAck.ID;
+    updateRemoveInertia.Status = &mover->m_movementInfo;
+    updateRemoveInertia.InertiaID = moveRemoveInertiaAck.InertiaID;
     mover->SendMessageToSet(updateRemoveInertia.Write(), false);
 }
 

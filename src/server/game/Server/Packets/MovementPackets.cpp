@@ -1203,8 +1203,8 @@ void MoveInitActiveMoverComplete::Read()
 WorldPacket const* MoveApplyInertia::Write()
 {
     _worldPacket << MoverGUID;
-    _worldPacket << SequenceIndex;
-    _worldPacket << ID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << int32(InertiaID);
     _worldPacket << LifetimeMs;
 
     return &_worldPacket;
@@ -1213,8 +1213,8 @@ WorldPacket const* MoveApplyInertia::Write()
 WorldPacket const* MoveRemoveInertia::Write()
 {
     _worldPacket << MoverGUID;
-    _worldPacket << SequenceIndex;
-    _worldPacket << ID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << int32(InertiaID);
 
     return &_worldPacket;
 }
@@ -1222,20 +1222,20 @@ WorldPacket const* MoveRemoveInertia::Write()
 void MoveApplyInertiaAck::Read()
 {
     _worldPacket >> Ack;
-    _worldPacket >> ID;
+    _worldPacket >> InertiaID;
     _worldPacket >> LifetimeMs;
 }
 
 void MoveRemoveInertiaAck::Read()
 {
     _worldPacket >> Ack;
-    _worldPacket >> ID;
+    _worldPacket >> InertiaID;
 }
 
 WorldPacket const* MoveUpdateApplyInertia::Write()
 {
     _worldPacket << *Status;
-    _worldPacket << ID;
+    _worldPacket << int32(InertiaID);
     _worldPacket << LifetimeMs;
 
     return &_worldPacket;
@@ -1244,7 +1244,7 @@ WorldPacket const* MoveUpdateApplyInertia::Write()
 WorldPacket const* MoveUpdateRemoveInertia::Write()
 {
     _worldPacket << *Status;
-    _worldPacket << ID;
+    _worldPacket << int32(InertiaID);
 
     return &_worldPacket;
 }

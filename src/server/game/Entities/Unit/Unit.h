@@ -1190,7 +1190,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetIgnoreMovementForces(bool ignore);
         void UpdateMovementForcesModMagnitude();
 
-        void ApplyInertia(int32 id, uint32 duration);
+        void ApplyInertia(int32 id, Milliseconds duration);
         void RemoveInertia(int32 id);
 
         void SetInFront(WorldObject const* target);
