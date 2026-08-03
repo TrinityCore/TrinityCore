@@ -853,6 +853,43 @@ void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movem
     mover->SendMessageToSet(updateModMovementForceMagnitude.Write(), false);
 }
 
+void WorldSession::HandleMoveApplyInertiaAck(WorldPackets::Movement::MoveApplyInertiaAck& moveApplyInertiaAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyInertiaAck.Ack.Status.guid, moveApplyInertiaAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveApplyInertiaAck.Ack.Status))
+        return;
+
+    moveApplyInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveApplyInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveApplyInertiaAck.Ack.Status;
+
+    WorldPackets::Movement::MoveUpdateApplyInertia updateApplyInertia;
+    updateApplyInertia.Status = &mover->m_movementInfo;
+    updateApplyInertia.InertiaID = moveApplyInertiaAck.InertiaID;
+    updateApplyInertia.LifetimeMs = moveApplyInertiaAck.LifetimeMs;
+    mover->SendMessageToSet(updateApplyInertia.Write(), false);
+}
+
+void WorldSession::HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemoveInertiaAck& moveRemoveInertiaAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveRemoveInertiaAck.Ack.Status.guid, moveRemoveInertiaAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveRemoveInertiaAck.Ack.Status))
+        return;
+
+    moveRemoveInertiaAck.Ack.Status.time = AdjustClientMovementTime(moveRemoveInertiaAck.Ack.Status.time);
+    mover->m_movementInfo = moveRemoveInertiaAck.Ack.Status;
+
+    WorldPackets::Movement::MoveUpdateRemoveInertia updateRemoveInertia;
+    updateRemoveInertia.Status = &mover->m_movementInfo;
+    updateRemoveInertia.InertiaID = moveRemoveInertiaAck.InertiaID;
+    mover->SendMessageToSet(updateRemoveInertia.Write(), false);
+}
+
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
     Unit* mover = ValidateAndGetUnitBeingMoved(moveSplineDone.Status.guid, moveSplineDone.GetOpcode(), false);
