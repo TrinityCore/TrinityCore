@@ -552,7 +552,6 @@ class spell_warl_cunning_cruelty : public AuraScript
     }
 };
 
-
 // 108416 - Dark Pact
 class spell_warl_dark_pact : public AuraScript
 {
