@@ -38,8 +38,8 @@ class FleeingMovementGenerator : public MovementGenerator
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
-        void Initialize(Unit* owner) override;
-        void Reset(Unit* owner) override;
+        bool Initialize(Unit* owner) override;
+        bool Reset(Unit* owner) override;
         bool Update(Unit* owner, uint32 diff) override;
         void Deactivate(Unit* owner) override;
         void Finalize(Unit* owner, bool, bool) override;

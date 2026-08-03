@@ -619,7 +619,7 @@ struct npc_illidari_fighting_invasion_begins : public ScriptedAI
                 break;
             case EVENT_FEL_RUSH:
                 DoCastVictim(SPELL_ILLIDARI_FEL_RUSH);
-                _events.ScheduleEvent(SPELL_ILLIDARI_FEL_RUSH, 7s);
+                _events.ScheduleEvent(EVENT_FEL_RUSH, 7s);
                 break;
             default:
                 break;

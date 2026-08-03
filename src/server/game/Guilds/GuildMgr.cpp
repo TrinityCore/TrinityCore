@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "World.h"
+#include <advstd.h>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {
@@ -512,7 +513,7 @@ void GuildMgr::LoadGuildRewards()
         Field* fields = result->Fetch();
         reward.ItemID        = fields[0].GetUInt32();
         reward.MinGuildRep   = fields[1].GetUInt8();
-        reward.RaceMask.RawValue = fields[2].GetUInt64();
+        reward.RaceMask      = { advstd::bit_cast<std::array<int32, 2>>(fields[2].GetUInt64()) };
         reward.Cost          = fields[3].GetUInt64();
 
         if (!sObjectMgr->GetItemTemplate(reward.ItemID))

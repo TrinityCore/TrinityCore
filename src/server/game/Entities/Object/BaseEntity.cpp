@@ -41,7 +41,6 @@ struct FragmentInfoInitializer
         EntityFragmentInfos::Register(EntityFragment::FHousingRoomComponentMesh_C, WowCS::FragmentSerializationTraits<UF::HousingRoomComponentMeshData>{});
         EntityFragmentInfos::Register(EntityFragment::FHousingPlayerHouse_C, WowCS::FragmentSerializationTraits<UF::HousingPlayerHouseData>{});
         EntityFragmentInfos::Register(EntityFragment::FJamHousingCornerstone_C, WowCS::FragmentSerializationTraits<UF::HousingCornerstoneData>{});
-        EntityFragmentInfos::Register(EntityFragment::FHousingPlotAreaTrigger_C, WowCS::FragmentSerializationTraits<UF::HousingPlotAreaTriggerData>{});
         EntityFragmentInfos::Register(EntityFragment::FNeighborhoodMirrorData_C, WowCS::FragmentSerializationTraits<UF::NeighborhoodMirrorData>{});
         EntityFragmentInfos::Register(EntityFragment::FMirroredPositionData_C, WowCS::FragmentSerializationTraits<UF::MirroredPositionData>{});
         EntityFragmentInfos::Register(EntityFragment::PlayerHouseInfoComponent_C, WowCS::FragmentSerializationTraits<UF::PlayerHouseInfoComponentData>{});
@@ -621,7 +620,7 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
         Player const* player = static_cast<Player const*>(this);
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
-        bool HasRuneState = player->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+        bool HasRuneState = player->GetPowerIndex(POWER_RUNES) < MAX_POWERS_PER_CLASS;
 
         data.WriteBit(HasSceneInstanceIDs);
         data.WriteBit(HasRuneState);

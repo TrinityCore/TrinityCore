@@ -41,7 +41,7 @@ EndScriptData */
 
 using namespace Trinity::ChatCommands;
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -993,7 +993,7 @@ public:
             return false;
         }
 
-        if (target->GetPowerIndex(Powers(powerType->PowerTypeEnum)) == MAX_POWERS)
+        if (target->GetPowerIndex(Powers(powerType->PowerTypeEnum)) >= MAX_POWERS_PER_CLASS)
         {
             handler->SendSysMessage(LANG_INVALID_POWER_NAME);
             handler->SetSentErrorMessage(true);

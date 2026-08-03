@@ -23,29 +23,20 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Unit.h"
 #include "sunken_temple.h"
 
-enum Gameobject
+static constexpr ObjectData gameObjects[] =
 {
-    GO_ATALAI_STATUE1           = 148830,
-    GO_ATALAI_STATUE2           = 148831,
-    GO_ATALAI_STATUE3           = 148832,
-    GO_ATALAI_STATUE4           = 148833,
-    GO_ATALAI_STATUE5           = 148834,
-    GO_ATALAI_STATUE6           = 148835,
-    GO_ATALAI_IDOL              = 148836,
-    GO_ATALAI_LIGHT1            = 148883,
-    GO_ATALAI_LIGHT2            = 148937
-
-};
-
-enum CreatureIds
-{
-    NPC_MALFURION_STORMRAGE     = 15362
+    { GO_ATALAI_STATUE1, GO_ATALAI_STATUE1 },
+    { GO_ATALAI_STATUE2, GO_ATALAI_STATUE2 },
+    { GO_ATALAI_STATUE3, GO_ATALAI_STATUE3 },
+    { GO_ATALAI_STATUE4, GO_ATALAI_STATUE4 },
+    { GO_ATALAI_STATUE5, GO_ATALAI_STATUE5 },
+    { GO_ATALAI_STATUE6, GO_ATALAI_STATUE6 }
 };
 
 static constexpr DungeonEncounterData Encounters[]
@@ -57,6 +48,18 @@ static constexpr DungeonEncounterData Encounters[]
     { BOSS_MORPHAZ, { { 490 } } },
     { BOSS_HAZZAS, { { 491 } } },
     { BOSS_SHADE_OF_ERANIKUS, { { 493 } } },
+};
+
+static Position const atalalarianPos = { -466.5134f, 95.19822f, -189.6463f, 0.03490658f };
+static uint8 const nStatues = 6;
+static Position const statuePositions[nStatues]
+{
+    { -515.553f,  95.25821f, -173.707f,  0.0f },
+    { -419.8487f, 94.48368f, -173.707f,  0.0f },
+    { -491.4003f, 135.9698f, -173.707f,  0.0f },
+    { -491.4909f, 53.48179f, -173.707f,  0.0f },
+    { -443.8549f, 136.1007f, -173.707f,  0.0f },
+    { -443.4171f, 53.83124f, -173.707f,  0.0f }
 };
 
 class instance_sunken_temple : public InstanceMapScript
@@ -75,6 +78,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
+            LoadObjectData({}, gameObjects);
             LoadDungeonEncounterData(Encounters);
             State = 0;
 
@@ -86,13 +90,7 @@ public:
             s6 = false;
         }
 
-        ObjectGuid GOAtalaiStatue1;
-        ObjectGuid GOAtalaiStatue2;
-        ObjectGuid GOAtalaiStatue3;
-        ObjectGuid GOAtalaiStatue4;
-        ObjectGuid GOAtalaiStatue5;
-        ObjectGuid GOAtalaiStatue6;
-        ObjectGuid GOAtalaiIdol;
+        ObjectGuid ShadeOfEranikusGUID;
 
         uint32 State;
 
@@ -118,17 +116,19 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnCreatureCreate(Creature* creature) override
         {
-            switch (go->GetEntry())
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
             {
-                case GO_ATALAI_STATUE1: GOAtalaiStatue1 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE2: GOAtalaiStatue2 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE3: GOAtalaiStatue3 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE4: GOAtalaiStatue4 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE5: GOAtalaiStatue5 = go->GetGUID();   break;
-                case GO_ATALAI_STATUE6: GOAtalaiStatue6 = go->GetGUID();   break;
-                case GO_ATALAI_IDOL:    GOAtalaiIdol = go->GetGUID();      break;
+                case NPC_SHADE_OF_ERANIKUS:
+                    ShadeOfEranikusGUID = creature->GetGUID();
+                    if (GetBossState(BOSS_JAMMALAN_THE_PROPHET) != DONE)
+                        creature->SetImmuneToAll(true);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -139,34 +139,34 @@ public:
              case GO_ATALAI_STATUE1:
                 if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue1 = instance->GetGameObject(GOAtalaiStatue1))
+                    if (GameObject* pAtalaiStatue1 = GetGameObject(GO_ATALAI_STATUE1))
                         UseStatue(pAtalaiStatue1);
                     s1 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE2:
                 if (s1 && !s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue2 = instance->GetGameObject(GOAtalaiStatue2))
+                    if (GameObject* pAtalaiStatue2 = GetGameObject(GO_ATALAI_STATUE2))
                         UseStatue(pAtalaiStatue2);
                     s2 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE3:
                 if (s1 && s2 && !s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue3 = instance->GetGameObject(GOAtalaiStatue3))
+                    if (GameObject* pAtalaiStatue3 = GetGameObject(GO_ATALAI_STATUE3))
                         UseStatue(pAtalaiStatue3);
                     s3 = true;
                     State = 0;
-                };
+                }
                 break;
              case GO_ATALAI_STATUE4:
                 if (s1 && s2 && s3 && !s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue4 = instance->GetGameObject(GOAtalaiStatue4))
+                    if (GameObject* pAtalaiStatue4 = GetGameObject(GO_ATALAI_STATUE4))
                         UseStatue(pAtalaiStatue4);
                     s4 = true;
                     State = 0;
@@ -175,7 +175,7 @@ public:
              case GO_ATALAI_STATUE5:
                 if (s1 && s2 && s3 && s4 && !s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue5 = instance->GetGameObject(GOAtalaiStatue5))
+                    if (GameObject* pAtalaiStatue5 = GetGameObject(GO_ATALAI_STATUE5))
                         UseStatue(pAtalaiStatue5);
                     s5 = true;
                     State = 0;
@@ -184,8 +184,11 @@ public:
              case GO_ATALAI_STATUE6:
                 if (s1 && s2 && s3 && s4 && s5 && !s6)
                 {
-                    if (GameObject* pAtalaiStatue6 = instance->GetGameObject(GOAtalaiStatue6))
+                    if (GameObject* pAtalaiStatue6 = GetGameObject(GO_ATALAI_STATUE6))
+                    {
                         UseStatue(pAtalaiStatue6);
+                        UseLastStatue(pAtalaiStatue6);
+                    }
                     s6 = true;
                     State = 0;
                 }
@@ -199,7 +202,6 @@ public:
             go->SetFlag(GO_FLAG_INTERACT_COND);
         }
 
-        /*
         void UseLastStatue(GameObject* go)
         {
             for (uint8 i = 0; i < nStatues; ++i)
@@ -207,22 +209,49 @@ public:
 
             go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
-        */
+
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
+            {
+                case BOSS_JAMMALAN_THE_PROPHET:
+                    if (state == DONE)
+                        if (Creature* creature = instance->GetCreature(ShadeOfEranikusGUID))
+                            creature->SetImmuneToAll(false);
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
 
          void SetData(uint32 type, uint32 data) override
          {
-            if (type == EVENT_STATE)
-                State = data;
+            switch (type)
+            {
+                case EVENT_STATE:
+                    State = data;
+                    break;
+                default:
+                    break;
+            }
          }
 
          uint32 GetData(uint32 type) const override
          {
-            if (type == EVENT_STATE)
-                return State;
+            switch (type)
+            {
+                case EVENT_STATE:
+                    return State;
+                default:
+                    break;
+            }
             return 0;
          }
     };
-
 };
 
 void AddSC_instance_sunken_temple()

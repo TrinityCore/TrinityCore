@@ -301,7 +301,6 @@ public:
         castFailed.FailedArg1 = failArg1.value_or(-1);
         castFailed.FailedArg2 = failArg2.value_or(-1);
         handler->GetSession()->SendPacket(castFailed.Write());
-
         return true;
     }
 
@@ -1313,7 +1312,7 @@ public:
         {
             handler->PSendSysMessage("Loading all cells (mapId: %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
 
-            map->LoadAllCells();
+            map->LoadAllGrids();
 
             handler->PSendSysMessage("Cells loaded (mapId: %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
         }

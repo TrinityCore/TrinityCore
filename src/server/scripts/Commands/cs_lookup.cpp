@@ -38,7 +38,7 @@ EndScriptData */
 #include "WorldSession.h"
 #include <sstream>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 

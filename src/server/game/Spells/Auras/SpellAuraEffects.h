@@ -104,10 +104,6 @@ class TC_GAME_API AuraEffect
 
         SpellEffectInfo const& GetSpellEffectInfo() const { return m_effectInfo; }
 
-        bool IsEffect() const { return m_effectInfo.Effect != 0; }
-        bool IsEffect(SpellEffectName effectName) const { return m_effectInfo.Effect == effectName; }
-        bool IsAreaAuraEffect() const;
-
     private:
         Aura* const m_base;
 
@@ -319,6 +315,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraPreventRegeneratePower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSetVignette(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;

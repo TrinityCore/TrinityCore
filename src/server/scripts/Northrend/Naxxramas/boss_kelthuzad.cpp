@@ -156,16 +156,6 @@ static inline Position const& GetRandomMinionSpawnPoint()
     return minionSpawnPoints[urand(0, nMinionSpawnPoints - 1)];
 }
 
-// uniformly distribute on the circle
-static Position GetRandomPositionOnCircle(Position const& center, float radius)
-{
-    float angle = float(M_PI * rand_norm() * 2.0);
-    float relDistance = rand_norm() + rand_norm();
-    if (relDistance > 1)
-        relDistance = 1 - relDistance;
-    return Position(center.GetPositionX() + std::sin(angle) * relDistance * radius, center.GetPositionY() + std::cos(angle) * relDistance * radius, center.GetPositionZ());
-}
-
 class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     public:
@@ -664,7 +654,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             if (_movementTimer <= diff)
             {
                 _movementTimer = 0;
-                me->GetMotionMaster()->MovePoint(MOVEMENT_MINION_RANDOM, GetRandomPositionOnCircle(_home, 3.0f));
+                me->GetMotionMaster()->MovePoint(MOVEMENT_MINION_RANDOM, me->GetRandomPoint(_home, 3.0f));
             }
             else
                 _movementTimer -= diff;

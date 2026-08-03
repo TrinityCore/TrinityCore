@@ -46,7 +46,7 @@ bool SmartAI::IsAIControlled() const
     return !_charmed;
 }
 
-void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/,
+void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 0*/, uint32 fadeObjectDuration /*= 0*/,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult/* = {}*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -73,7 +73,12 @@ void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* in
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default, {}, {}, {}, {}, true, std::move(scriptResult));
+    Optional<MovementFadeObject> fadeObject;
+    if (fadeObjectDuration)
+        fadeObject.emplace(Milliseconds(fadeObjectDuration));
+
+    me->GetMotionMaster()->MovePath(pathId, _repeatWaypointPath, {}, {}, MovementWalkRunSpeedSelectionMode::Default,
+        {}, {}, {}, {}, true, fadeObject, std::move(scriptResult));
 }
 
 WaypointPath const* SmartAI::LoadPath(uint32 entry)
@@ -790,7 +795,7 @@ void SmartAI::SetCombatMove(bool on, bool stopMoving)
         {
             if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
                 {
-                    return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
+                    return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Priority == MOTION_PRIORITY_NORMAL;
                 }))
             {
                 SetRun(_run);
@@ -799,7 +804,7 @@ void SmartAI::SetCombatMove(bool on, bool stopMoving)
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
             {
-                return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
+                return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Priority == MOTION_PRIORITY_NORMAL;
             }))
         {
             me->GetMotionMaster()->Remove(movement);
@@ -950,6 +955,7 @@ void SmartAI::UpdatePath(uint32 diff)
         {
             _OOCReached = false;
             RemoveEscortState(SMART_ESCORT_RETURNING);
+            GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
             if (!HasEscortState(SMART_ESCORT_PAUSED))
                 ResumePath();
         }

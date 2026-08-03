@@ -166,7 +166,10 @@ protected:
 
             static Ret Invoke(BaseClass& script, Args... args, StorageType callImpl)
             {
-                return std::invoke(reinterpret_cast<Impl const*>(callImpl.data())->Func, static_cast<ScriptClass&>(script), args...);
+                if constexpr (std::is_member_function_pointer_v<ScriptFunc>)
+                    return (static_cast<ScriptClass&>(script).*reinterpret_cast<Impl const*>(callImpl.data())->Func)(args...);
+                else
+                    return reinterpret_cast<Impl const*>(callImpl.data())->Func(static_cast<ScriptClass&>(script), args...);
             }
 
             ScriptFunc Func;

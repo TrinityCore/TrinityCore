@@ -167,7 +167,8 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int64(Info.TimeAllowed);
 
         _worldPacket << Size<uint32>(Info.Objectives);
-        _worldPacket << uint64(Info.AllowableRaces.RawValue);
+        for (int32 allowableRaces : Info.AllowableRaces.RawValue)
+            _worldPacket << int32(allowableRaces);
         _worldPacket << Size<uint32>(Info.TreasurePickerID);
         _worldPacket << Size<uint32>(Info.NonDisplayableTreasurePickerIDs);
         _worldPacket << int32(Info.Expansion);

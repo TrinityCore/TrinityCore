@@ -318,8 +318,7 @@ enum Powers : int8
     POWER_ALTERNATE_QUEST               = 23, // TITLE Alternate (Quest)
     POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
     POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
-    MAX_POWERS                          = 26, // SKIP
-    POWER_ALL                           = 127 // SKIP
+    MAX_POWERS                          = 26  // SKIP
 };
 
 #define MAX_POWERS_PER_CLASS            10
@@ -1342,7 +1341,7 @@ constexpr TeamId GetTeamIdForTeam(Team team)
     return TEAM_NEUTRAL;
 }
 
-enum SpellEffectName
+enum SpellEffects
 {
     SPELL_EFFECT_NONE                               = 0,
     SPELL_EFFECT_INSTAKILL                          = 1,
@@ -1699,6 +1698,7 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE = 352, // MiscValue[0] = RoomComponentTexture
     SPELL_EFFECT_CREATE_AREATRIGGER_2               = 353,
     SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE        = 354, // MiscValue[0] = NeighborhoodInitiative
+    SPELL_EFFECT_LEARN_HOUSE_TYPE                   = 355, // MiscValue[0] = HouseExteriorWmoData
     TOTAL_SPELL_EFFECTS
 };
 
@@ -3288,7 +3288,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.db2 (11.2.5.62687)
+// EmotesText.db2 (12.0.5.67186)
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -3558,10 +3558,10 @@ enum TextEmotes
     TEXT_EMOTE_IMPRESSED            = 625,
     TEXT_EMOTE_MAGNIFICENT          = 626,
     TEXT_EMOTE_QUACK                = 627,
-    TEXT_EMOTE_LEAN                 = 628,
+    TEXT_EMOTE_LEAN                 = 633,
 };
 
-// Emotes.db2 (10.1.5.50232)
+// Emotes.db2 (12.0.7.68453)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -3825,6 +3825,8 @@ enum Emote : uint32
     EMOTE_STATE_WORK_CHOPWOOD4                   = 614,
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
     EMOTE_STATE_READ_AND_SIT                     = 616,
+    EMOTE_STATE_READYSPELLDIRECTED               = 617,
+    EMOTE_STATE_READYTHROWN_NO_SOUND             = 618,
     EMOTE_STATE_PARRY_UNARMED                    = 619,
     EMOTE_STATE_BLOCK_SHIELD                     = 620,
     EMOTE_STATE_SIT_GROUND_2                     = 621,
@@ -3976,6 +3978,7 @@ enum Emote : uint32
     EMOTE_ONESHOT_TALK_SUBDUED                   = 1005,
     EMOTE_STATE_EMOTETALK                        = 1006,
     EMOTE_STATE_WAINTERACTION                    = 1007,
+    EMOTE_STATE_WORK_CHOPWOOD_LUMBER_AXE2        = 1008,
     EMOTE_ONESHOT_TAKE_OFF_START                 = 1009,
     EMOTE_ONESHOT_BATTLEROAR_NO_SOUND            = 1010,
     EMOTE_STATE_WAWEAPONSHARPEN                  = 1011,
@@ -4021,9 +4024,34 @@ enum Emote : uint32
     EMOTE_ONESHOT_DANCE_VAR2                     = 1075,
     EMOTE_STATE_KNEEL_INTERACT_INTERRUPT         = 1081,
     EMOTE_STATE_WA2HIDLE_UNSHEATH                = 1082,
+    EMOTE_STATE_SHOVEL                           = 1083,
     EMOTE_STATE_LEAN                             = 1084,
+    EMOTE_STATE_READYSPELLOMNI_INTERRUPTABLE     = 1089,
     EMOTE_ONESHOT_WALEAN01_VAR1                  = 1093,
     EMOTE_ONESHOT_WALEAN01_VAR0                  = 1094,
+    EMOTE_STATE_FLYCHANNELCASTOMNI2              = 1097,
+    EMOTE_STATE_ARTOFFLOOP_HIDES_WEAPON          = 1100,
+    EMOTE_STATE_WORK_HERBALISM_HARANIR_PAINTING  = 1101,
+    EMOTE_STATE_SPELL_CHANNEL_OMNI_UP            = 1103,
+    EMOTE_STATE_WAARMSCROSSED                    = 1110,
+    EMOTE_ONESHOT_PARRY_FIST1H                   = 1111,
+    EMOTE_STATE_WAHANG02                         = 1112,
+    EMOTE_STATE_WORK_HOUSING_HAMMER_SOUND        = 1113,
+    EMOTE_STATE_WACRADLE                         = 1115,
+    EMOTE_STATE_WACRATEHOLD2                     = 1116,
+    EMOTE_STATE_WORK_HAMMER_HARANIR_PAINTING     = 1117,
+    EMOTE_STATE_WORK_HERBALISM_HOUSING_SCYTHE    = 1118,
+    EMOTE_STATE_WORK_MINING_HOUSING              = 1119,
+    EMOTE_ONESHOT_TALK_SUBDUED_NO_SHEATHE        = 1120,
+    EMOTE_STATE_WALEAN02_NO_INTERRUPT            = 1121,
+    EMOTE_STATE_WORK_BLUNT_IMPACT                = 1122,
+    EMOTE_ONESHOT_ARTDUALLOOP                    = 1125,
+    EMOTE_STATE_ARTDUALLOOP                      = 1126,
+    EMOTE_STATE_WORK_ZULAMAN_CHOPPING_WOOD       = 1128,
+    EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING       = 1129,
+    EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND     = 1131,
+    EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND    = 1132,
+    EMOTE_ONESHOT_OFFER_LOOP                     = 1141,
 };
 
 // AnimationData.db2 (6.0.2.18988)
@@ -4861,7 +4889,7 @@ enum LockKeyType
     LOCK_KEY_SPELL = 3,
 };
 
-// LockType.dbc (11.2.5.62687)
+// LockType.db2 (12.0.7.68453)
 enum LockType
 {
     LOCKTYPE_LOCKPICKING                    = 1,
@@ -4949,7 +4977,29 @@ enum LockType
     LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25   = 202,
     LOCKTYPE_KHAZ_ALGAR_MINING_25           = 203,
     LOCKTYPE_KHAZ_ALGAR_SKINNING_25         = 204,
-    LOCKTYPE_KHAZ_ALGAR_TAILORING_25        = 205
+    LOCKTYPE_KHAZ_ALGAR_TAILORING_25        = 205,
+    LOCKTYPE_MIDNIGHT_HERBALISM             = 206,
+    LOCKTYPE_MIDNIGHT_MINING                = 207,
+    LOCKTYPE_MIDNIGHT_SKINNING              = 214,
+    LOCKTYPE_MIDNIGHT_LEATHERWORKING        = 216,
+    LOCKTYPE_MIDNIGHT_ENGINEERING           = 217,
+    LOCKTYPE_MIDNIGHT_BLACKSMITHING         = 218,
+    LOCKTYPE_MIDNIGHT_TAILORING             = 219,
+    LOCKTYPE_MIDNIGHT_ALCHEMY               = 220,
+    LOCKTYPE_LUMBER                         = 222,
+    LOCKTYPE_MIDNIGHT_MINING_25             = 224,
+    LOCKTYPE_MIDNIGHT_HERBALISM_25          = 226,
+    LOCKTYPE_MIDNIGHT_ENCHANTING_25         = 229,
+    LOCKTYPE_MIDNIGHT_SKINNING_25           = 231,
+    LOCKTYPE_MIDNIGHT_ALCHEMY_25            = 233,
+    LOCKTYPE_MIDNIGHT_BLACKSMITHING_25      = 234,
+    LOCKTYPE_MIDNIGHT_ENGINEERING_25        = 235,
+    LOCKTYPE_MIDNIGHT_LEATHERWORKING_25     = 236,
+    LOCKTYPE_MIDNIGHT_TAILORING_25          = 237,
+    LOCKTYPE_MIDNIGHT_INSCRIPTION_25        = 239,
+    LOCKTYPE_MIDNIGHT_JEWELCRAFTING_25      = 241,
+    LOCKTYPE_MIDNIGHT_COOKING_25            = 242,
+    LOCKTYPE_MIDNIGHT_FISHING_25            = 244
 };
 
 // this is important type for npcs!
@@ -4982,7 +5032,7 @@ uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
-// CreatureFamily.dbc (11.2.5.62687)
+// CreatureFamily.dbc (12.0.5.67602)
 enum CreatureFamily
 {
     CREATURE_FAMILY_NONE                = 0,
@@ -5037,13 +5087,13 @@ enum CreatureFamily
     CREATURE_FAMILY_HYDRA               = 68,
     CREATURE_FAMILY_FELIMP              = 100,
     CREATURE_FAMILY_VOIDLORD            = 101,
-    CREATURE_FAMILY_SHIVARA             = 102,
+    CREATURE_FAMILY_SHIVARRA            = 102,
     CREATURE_FAMILY_OBSERVER            = 103,
     CREATURE_FAMILY_WRATHGUARD          = 104,
     CREATURE_FAMILY_INFERNAL            = 108,
     CREATURE_FAMILY_FIREELEMENTAL       = 116,
     CREATURE_FAMILY_EARTHELEMENTAL      = 117,
-    CREATURE_FAMILY_CRANE               = 125,
+    CREATURE_FAMILY_WATERFOWL           = 125,
     CREATURE_FAMILY_WATERSTRIDER        = 126,
     CREATURE_FAMILY_RODENT              = 127,
     CREATURE_FAMILY_STONE_HOUND         = 128,
@@ -5051,7 +5101,7 @@ enum CreatureFamily
     CREATURE_FAMILY_BASILISK            = 130,
     CREATURE_FAMILY_DIREHORN            = 138,
     CREATURE_FAMILY_STORMELEMENTAL      = 145,
-    CREATURE_FAMILY_TORRORGUARD         = 147,
+    CREATURE_FAMILY_TERRORGUARD         = 147,
     CREATURE_FAMILY_ABYSSAL             = 148,
     CREATURE_FAMILY_RIVERBEAST          = 150,
     CREATURE_FAMILY_STAG                = 151,
@@ -5062,14 +5112,15 @@ enum CreatureFamily
     CREATURE_FAMILY_FEATHERMANE         = 160,
     CREATURE_FAMILY_LIZARD              = 288,
     CREATURE_FAMILY_PTERRORDAX          = 290,
-    CREATURE_FAMILY_TOAD                = 291,
+    CREATURE_FAMILY_HOPPER              = 291,
     CREATURE_FAMILY_CARAPID             = 292,
     CREATURE_FAMILY_BLOOD_BEAST         = 296,
     CREATURE_FAMILY_CAMEL               = 298,
     CREATURE_FAMILY_COURSER             = 299,
     CREATURE_FAMILY_MAMMOTH             = 300,
     CREATURE_FAMILY_INCUBUS             = 302,
-    CREATURE_FAMILY_LESSER_DRAGONKIN    = 303
+    CREATURE_FAMILY_LESSER_DRAGONKIN    = 303,
+    CREATURE_FAMILY_WHIPTAIL            = 315
 };
 
 enum CreatureTypeFlags
@@ -5492,7 +5543,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (11.2.5.62687)
+// QuestInfo.db2 (12.0.7.68367)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5507,7 +5558,6 @@ enum QuestInfo
     QUEST_INFO_RAID_10                              = 88,
     QUEST_INFO_RAID_25                              = 89,
     QUEST_INFO_SCENARIO                             = 98,
-    QUEST_INFO_ACCOUNT                              = 102,
     QUEST_INFO_SIDE_QUEST                           = 104,
     QUEST_INFO_ARTIFACT                             = 107,
     QUEST_INFO_WORLD_QUEST                          = 109,
@@ -5575,10 +5625,13 @@ enum QuestInfo
     QUEST_INFO_DELVE                                = 288,
     QUEST_INFO_WORLD_BOSS                           = 289,
     QUEST_INFO_HIDDEN                               = 291,
-    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292
+    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292,
+    QUEST_INFO_PREY_WORLD_QUEST                     = 295,
+    QUEST_INFO_WORLD_QUEST_SHORT_DURATION           = 296,
+    QUEST_INFO_IMPORTANT_QUEST_RAID                 = 297
 };
 
-// QuestSort.dbc (11.2.5.62687)
+// QuestSort.db2 (12.0.7.68367)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
@@ -5762,8 +5815,24 @@ enum QuestSort
     QUEST_SORT_META_QUESTS                      = 645,
     QUEST_SORT_SECRETS_OF_AZEROTH               = 646,
     QUEST_SORT_LOREWALKING                      = 647,
+    QUEST_SORT_MIDNIGHT                         = 649,
+    QUEST_SORT_ABUNDANCE                        = 650,
     QUEST_SORT_DASTARDLY_DUOS                   = 651,
     QUEST_SORT_DELVES                           = 652,
+    QUEST_SORT_ARATORS_JOURNEY                  = 653,
+    QUEST_SORT_ABUNDANCE_2                      = 654,
+    QUEST_SORT_NEIGHBORHOOD                     = 655,
+    QUEST_SORT_PREY                             = 656,
+    QUEST_SORT_CATCH_UP                         = 657,
+    QUEST_SORT_SIEGE_OF_ARATHI_HIGHLANDS        = 658,
+    QUEST_SORT_DEPTH_DIVERS                     = 659,
+    QUEST_SORT_CLOAK_AND_CAPTURE                = 661,
+    QUEST_SORT_LEGACY_OF_THE_AMANI              = 663,
+    QUEST_SORT_HARANIR                          = 664,
+    QUEST_SORT_DECOR_DUEL                       = 665,
+    QUEST_SORT_OMNIUM_FOLIO                     = 670,
+    QUEST_SORT_VOID_ASSAULTS                    = 671,
+    QUEST_SORT_RITUAL_SITES                     = 672,
 };
 
 constexpr uint8 ClassByQuestSort(int32 QuestSort)
@@ -6250,6 +6319,27 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_KHAZ_ALGAR_JEWELCRAFTING_25:    return SKILL_KHAZ_ALGAR_JEWELCRAFTING;
         case LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25:   return SKILL_KHAZ_ALGAR_LEATHERWORKING;
         case LOCKTYPE_KHAZ_ALGAR_SKINNING_25:         return SKILL_KHAZ_ALGAR_SKINNING;
+        case LOCKTYPE_MIDNIGHT_MINING:
+        case LOCKTYPE_MIDNIGHT_MINING_25:             return SKILL_MIDNIGHT_MINING;
+        case LOCKTYPE_MIDNIGHT_HERBALISM:
+        case LOCKTYPE_MIDNIGHT_HERBALISM_25:          return SKILL_MIDNIGHT_HERBALISM;
+        case LOCKTYPE_MIDNIGHT_SKINNING:
+        case LOCKTYPE_MIDNIGHT_SKINNING_25:           return SKILL_MIDNIGHT_SKINNING;
+        case LOCKTYPE_MIDNIGHT_ALCHEMY:
+        case LOCKTYPE_MIDNIGHT_ALCHEMY_25:            return SKILL_MIDNIGHT_ALCHEMY;
+        case LOCKTYPE_MIDNIGHT_BLACKSMITHING:
+        case LOCKTYPE_MIDNIGHT_BLACKSMITHING_25:      return SKILL_MIDNIGHT_BLACKSMITHING;
+        case LOCKTYPE_MIDNIGHT_ENGINEERING:
+        case LOCKTYPE_MIDNIGHT_ENGINEERING_25:        return SKILL_MIDNIGHT_ENGINEERING;
+        case LOCKTYPE_MIDNIGHT_LEATHERWORKING:
+        case LOCKTYPE_MIDNIGHT_LEATHERWORKING_25:     return SKILL_MIDNIGHT_LEATHERWORKING;
+        case LOCKTYPE_MIDNIGHT_TAILORING:
+        case LOCKTYPE_MIDNIGHT_TAILORING_25:          return SKILL_MIDNIGHT_TAILORING;
+        case LOCKTYPE_MIDNIGHT_ENCHANTING_25:         return SKILL_MIDNIGHT_ENCHANTING;
+        case LOCKTYPE_MIDNIGHT_INSCRIPTION_25:        return SKILL_MIDNIGHT_INSCRIPTION;
+        case LOCKTYPE_MIDNIGHT_JEWELCRAFTING_25:      return SKILL_MIDNIGHT_JEWELCRAFTING;
+        case LOCKTYPE_MIDNIGHT_COOKING_25:            return SKILL_MIDNIGHT_COOKING;
+        case LOCKTYPE_MIDNIGHT_FISHING_25:            return SKILL_MIDNIGHT_FISHING;
         default: break;
     }
     return SKILL_NONE;
@@ -6775,6 +6865,7 @@ enum ResponseCodes
     CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 109,
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 110,
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 111,
+    CHAR_NAME_SPACES_DISALLOWED                            = 112,
 };
 
 enum CharacterUndeleteResult
@@ -8607,65 +8698,69 @@ enum class GameError : uint32
     ERR_BANK_TAB_INVALID_NAME                                       = 1175,
     ERR_BANK_TAB_INVALID_TEXT                                       = 1176,
     ERR_CHARACTER_BANK_NOT_CONVERTED                                = 1177,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1178,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1179,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1180,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1181,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1182,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1183,
-    ERR_WOW_LABS_SET_WOW_LABS_AREA_ID_FAILED                        = 1184,
-    ERR_PLUNDERSTORM_CANNOT_QUEUE                                   = 1185,
-    ERR_TARGET_IS_SELF_FOUND_CANNOT_TRADE                           = 1186,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_TRADE                           = 1187,
-    ERR_MAIL_RECEPIENT_IS_SELF_FOUND_CANNOT_RECEIVE_MAIL            = 1188,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_SEND_MAIL                       = 1189,
-    ERR_PLAYER_IS_SELF_FOUND_CANNOT_USE_AUCTION_HOUSE               = 1190,
-    ERR_MAIL_TARGET_CANNOT_RECEIVE_MAIL                             = 1191,
-    ERR_REMIX_INVALID_TRANSFER_REQUEST                              = 1192,
-    ERR_CURRENCY_TRANSFER_INVALID_CHARACTER                         = 1193,
-    ERR_CURRENCY_TRANSFER_INVALID_CURRENCY                          = 1194,
-    ERR_CURRENCY_TRANSFER_INSUFFICIENT_CURRENCY                     = 1195,
-    ERR_CURRENCY_TRANSFER_MAX_QUANTITY                              = 1196,
-    ERR_CURRENCY_TRANSFER_NO_VALID_SOURCE                           = 1197,
-    ERR_CURRENCY_TRANSFER_CHARACTER_LOGGED_IN                       = 1198,
-    ERR_CURRENCY_TRANSFER_SERVER_ERROR                              = 1199,
-    ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1200,
-    ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1201,
-    ERR_CURRENCY_TRANSFER_DISABLED                                  = 1202,
-    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1203,
-    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1204,
-    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1205,
-    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1206,
-    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1207,
-    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1208,
-    ERR_HOUSE_MOVED                                                 = 1209,
-    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1210,
-    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1211,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1212,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1213,
-    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1214,
-    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1215,
-    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1216,
-    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1217,
-    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1218,
-    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1219,
-    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1220,
-    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1221,
-    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1222,
-    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1223,
-    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1224,
-    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1225,
-    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1226,
-    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1227,
-    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1228,
-    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1229,
-    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1230,
-    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1231,
-    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_S                  = 1232,
-    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1233,
-    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1234,
-    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1235,
-    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1236,
+    ERR_NO_SALVAGED_ITEMS_IN_ACCOUNT_BANK                           = 1178,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1179,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1180,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1181,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1182,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1183,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1184,
+    ERR_WOW_LABS_SET_WOW_LABS_AREA_ID_FAILED                        = 1185,
+    ERR_PLUNDERSTORM_CANNOT_QUEUE                                   = 1186,
+    ERR_TARGET_IS_SELF_FOUND_CANNOT_TRADE                           = 1187,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_TRADE                           = 1188,
+    ERR_MAIL_RECEPIENT_IS_SELF_FOUND_CANNOT_RECEIVE_MAIL            = 1189,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_SEND_MAIL                       = 1190,
+    ERR_PLAYER_IS_SELF_FOUND_CANNOT_USE_AUCTION_HOUSE               = 1191,
+    ERR_MAIL_TARGET_CANNOT_RECEIVE_MAIL                             = 1192,
+    ERR_REMIX_INVALID_TRANSFER_REQUEST                              = 1193,
+    ERR_FOLLOWER_DUNGEON_INVALID_TRANSFER_REQUEST                   = 1194,
+    ERR_CURRENCY_TRANSFER_INVALID_CHARACTER                         = 1195,
+    ERR_CURRENCY_TRANSFER_INVALID_CURRENCY                          = 1196,
+    ERR_CURRENCY_TRANSFER_INSUFFICIENT_CURRENCY                     = 1197,
+    ERR_CURRENCY_TRANSFER_MAX_QUANTITY                              = 1198,
+    ERR_CURRENCY_TRANSFER_NO_VALID_SOURCE                           = 1199,
+    ERR_CURRENCY_TRANSFER_CHARACTER_LOGGED_IN                       = 1200,
+    ERR_CURRENCY_TRANSFER_SERVER_ERROR                              = 1201,
+    ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1202,
+    ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1203,
+    ERR_CURRENCY_TRANSFER_DISABLED                                  = 1204,
+    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1205,
+    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1206,
+    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1207,
+    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1208,
+    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1209,
+    ERR_NOT_WHILE_HOUSE_INSPECT_MODE                                = 1210,
+    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1211,
+    ERR_HOUSE_MOVED                                                 = 1212,
+    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1213,
+    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1214,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1215,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1216,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1217,
+    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1218,
+    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1219,
+    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1220,
+    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1221,
+    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1222,
+    ERR_HOUSING_ACTION_NOENTRY                                      = 1223,
+    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1224,
+    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1225,
+    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1226,
+    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1227,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1228,
+    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1229,
+    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1230,
+    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1231,
+    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1232,
+    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1233,
+    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1234,
+    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1235,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_SS                 = 1236,
+    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1237,
+    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1238,
+    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1239,
+    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1240,
 };
 
 enum class MountResult : uint32

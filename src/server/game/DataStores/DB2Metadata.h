@@ -276,8 +276,9 @@ struct AdventureMapPOIMeta
 
 struct AlliedRaceMeta
 {
-    static constexpr DB2MetaField Fields[8] =
+    static constexpr DB2MetaField Fields[9] =
     {
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -293,9 +294,9 @@ struct AlliedRaceMeta
         .FileDataId         = 1710672,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 8,
-        .FileFieldCount     = 8,
-        .LayoutHash         = 0x979EBCE5,
+        .FieldCount         = 9,
+        .FileFieldCount     = 9,
+        .LayoutHash         = 0x5A623B82,
         .Fields             = Fields
     };
 };
@@ -806,13 +807,14 @@ struct AreaGroupMemberMeta
 
 struct AreaPOIMeta
 {
-    static constexpr DB2MetaField Fields[21] =
+    static constexpr DB2MetaField Fields[22] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -835,10 +837,10 @@ struct AreaPOIMeta
     {
         .FileDataId         = 1000630,
         .IndexField         = 2,
-        .ParentIndexField   = 12,
-        .FieldCount         = 21,
-        .FileFieldCount     = 21,
-        .LayoutHash         = 0x5F5EE2EF,
+        .ParentIndexField   = 13,
+        .FieldCount         = 22,
+        .FileFieldCount     = 22,
+        .LayoutHash         = 0xA8930CBB,
         .Fields             = Fields
     };
 };
@@ -2395,8 +2397,9 @@ struct BoneWindModifiersMeta
 
 struct BonusRollMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
@@ -2408,9 +2411,9 @@ struct BonusRollMeta
         .FileDataId         = 1983274,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 4,
-        .FileFieldCount     = 4,
-        .LayoutHash         = 0x567FCB5C,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0x8012475D,
         .Fields             = Fields
     };
 };
@@ -3202,10 +3205,10 @@ struct CharacterLoadoutMeta
 {
     static constexpr DB2MetaField Fields[4] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -3215,7 +3218,7 @@ struct CharacterLoadoutMeta
         .ParentIndexField   = -1,
         .FieldCount         = 4,
         .FileFieldCount     = 4,
-        .LayoutHash         = 0x3367E385,
+        .LayoutHash         = 0xA5B16B13,
         .Fields             = Fields
     };
 };
@@ -3935,7 +3938,6 @@ struct ChrCustomizationReqMeta
 {
     static constexpr DB2MetaField Fields[9] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -3944,6 +3946,7 @@ struct ChrCustomizationReqMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -3953,7 +3956,7 @@ struct ChrCustomizationReqMeta
         .ParentIndexField   = -1,
         .FieldCount         = 9,
         .FileFieldCount     = 9,
-        .LayoutHash         = 0xEFC66872,
+        .LayoutHash         = 0xCA154412,
         .Fields             = Fields
     };
 };
@@ -5813,24 +5816,24 @@ struct CreatureDisplayInfoCondMeta
 {
     static constexpr DB2MetaField Fields[8] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
     {
         .FileDataId         = 1332686,
-        .IndexField         = 1,
+        .IndexField         = 0,
         .ParentIndexField   = 7,
         .FieldCount         = 8,
         .FileFieldCount     = 7,
-        .LayoutHash         = 0xD6D105AE,
+        .LayoutHash         = 0xB0E544B6,
         .Fields             = Fields
     };
 };
@@ -6376,7 +6379,7 @@ struct CriteriaTreeXEffectMeta
 {
     static constexpr DB2MetaField Fields[2] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
 
@@ -6387,7 +6390,7 @@ struct CriteriaTreeXEffectMeta
         .ParentIndexField   = 1,
         .FieldCount         = 2,
         .FileFieldCount     = 1,
-        .LayoutHash         = 0xA95C5FCA,
+        .LayoutHash         = 0x5766D2AA,
         .Fields             = Fields
     };
 };
@@ -6520,6 +6523,31 @@ struct CurvePointMeta
         .FieldCount         = 5,
         .FileFieldCount     = 5,
         .LayoutHash         = 0x7D4954A1,
+        .Fields             = Fields
+    };
+};
+
+struct DBData_M2LightMeta
+{
+    static constexpr DB2MetaField Fields[7] =
+    {
+        { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+    };
+
+    static constexpr DB2Meta Instance =
+    {
+        .FileDataId         = 7813613,
+        .IndexField         = 1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 7,
+        .FileFieldCount     = 7,
+        .LayoutHash         = 0x3ABEF5E4,
         .Fields             = Fields
     };
 };
@@ -7231,7 +7259,6 @@ struct EmotesMeta
 {
     static constexpr DB2MetaField Fields[9] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -7240,6 +7267,7 @@ struct EmotesMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -7249,7 +7277,7 @@ struct EmotesMeta
         .ParentIndexField   = -1,
         .FieldCount         = 9,
         .FileFieldCount     = 9,
-        .LayoutHash         = 0x590311E0,
+        .LayoutHash         = 0x0A598B68,
         .Fields             = Fields
     };
 };
@@ -7537,7 +7565,7 @@ struct ExpectedStatModMeta
 
 struct ExteriorComponentMeta
 {
-    static constexpr DB2MetaField Fields[13] =
+    static constexpr DB2MetaField Fields[14] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
@@ -7552,16 +7580,17 @@ struct ExteriorComponentMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
     {
         .FileDataId         = 6931305,
         .IndexField         = 2,
-        .ParentIndexField   = 12,
-        .FieldCount         = 13,
-        .FileFieldCount     = 12,
-        .LayoutHash         = 0x027A2F44,
+        .ParentIndexField   = 13,
+        .FieldCount         = 14,
+        .FileFieldCount     = 13,
+        .LayoutHash         = 0x53EA0925,
         .Fields             = Fields
     };
 };
@@ -7721,9 +7750,8 @@ struct ExtraAbilityInfoMeta
 
 struct FactionMeta
 {
-    static constexpr DB2MetaField Fields[17] =
+    static constexpr DB2MetaField Fields[20] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  4, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
@@ -7740,6 +7768,10 @@ struct FactionMeta
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned =  true },
         { .Type = FT_FLOAT,                .ArraySize =  2, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  2, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -7747,9 +7779,9 @@ struct FactionMeta
         .FileDataId         = 1361972,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 17,
-        .FileFieldCount     = 17,
-        .LayoutHash         = 0xCD0F0C19,
+        .FieldCount         = 20,
+        .FileFieldCount     = 20,
+        .LayoutHash         = 0xE7553DC7,
         .Fields             = Fields
     };
 };
@@ -10315,10 +10347,11 @@ struct GroupFinderActivityXPvpBracketMeta
 
 struct GroupFinderCategoryMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
@@ -10328,9 +10361,9 @@ struct GroupFinderCategoryMeta
         .FileDataId         = 974812,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 4,
-        .FileFieldCount     = 4,
-        .LayoutHash         = 0x039D6BF9,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0x0D5F1625,
         .Fields             = Fields
     };
 };
@@ -10859,10 +10892,12 @@ struct HouseDecorThemeSetMeta
 
 struct HouseExteriorWmoDataMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[5] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
 
@@ -10871,18 +10906,19 @@ struct HouseExteriorWmoDataMeta
         .FileDataId         = 6931309,
         .IndexField         = 1,
         .ParentIndexField   = -1,
-        .FieldCount         = 3,
-        .FileFieldCount     = 3,
-        .LayoutHash         = 0x6E03D8C8,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0x95E7A088,
         .Fields             = Fields
     };
 };
 
 struct HouseLevelDataMeta
 {
-    static constexpr DB2MetaField Fields[3] =
+    static constexpr DB2MetaField Fields[4] =
     {
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
@@ -10892,9 +10928,9 @@ struct HouseLevelDataMeta
         .FileDataId         = 7149539,
         .IndexField         = 0,
         .ParentIndexField   = -1,
-        .FieldCount         = 3,
-        .FileFieldCount     = 3,
-        .LayoutHash         = 0xB9536B25,
+        .FieldCount         = 4,
+        .FileFieldCount     = 4,
+        .LayoutHash         = 0xF8146F9D,
         .Fields             = Fields
     };
 };
@@ -10925,10 +10961,11 @@ struct HouseLevelRewardInfoMeta
 
 struct HouseRoomMeta
 {
-    static constexpr DB2MetaField Fields[7] =
+    static constexpr DB2MetaField Fields[8] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -10941,9 +10978,9 @@ struct HouseRoomMeta
         .FileDataId         = 5163003,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 7,
-        .FileFieldCount     = 7,
-        .LayoutHash         = 0xDA77DDD3,
+        .FieldCount         = 8,
+        .FileFieldCount     = 8,
+        .LayoutHash         = 0xFC6C2118,
         .Fields             = Fields
     };
 };
@@ -12129,8 +12166,9 @@ struct ItemEffectMeta
 
 struct ItemExtendedCostMeta
 {
-    static constexpr DB2MetaField Fields[10] =
+    static constexpr DB2MetaField Fields[11] =
     {
+        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -12148,9 +12186,9 @@ struct ItemExtendedCostMeta
         .FileDataId         = 801681,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 10,
-        .FileFieldCount     = 10,
-        .LayoutHash         = 0x6F3FC018,
+        .FieldCount         = 11,
+        .FileFieldCount     = 11,
+        .LayoutHash         = 0x22331DAB,
         .Fields             = Fields
     };
 };
@@ -12691,7 +12729,6 @@ struct ItemSearchNameMeta
 {
     static constexpr DB2MetaField Fields[13] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -12704,6 +12741,7 @@ struct ItemSearchNameMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  5, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -12713,7 +12751,7 @@ struct ItemSearchNameMeta
         .ParentIndexField   = -1,
         .FieldCount         = 13,
         .FileFieldCount     = 13,
-        .LayoutHash         = 0x40C3317A,
+        .LayoutHash         = 0x4516C8B0,
         .Fields             = Fields
     };
 };
@@ -12768,7 +12806,6 @@ struct ItemSparseMeta
 {
     static constexpr DB2MetaField Fields[67] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
@@ -12790,6 +12827,7 @@ struct ItemSparseMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
@@ -12844,7 +12882,7 @@ struct ItemSparseMeta
         .ParentIndexField   = -1,
         .FieldCount         = 67,
         .FileFieldCount     = 67,
-        .LayoutHash         = 0xABF517CD,
+        .LayoutHash         = 0x1C17D17F,
         .Fields             = Fields
     };
 };
@@ -14049,7 +14087,7 @@ struct LoadingScreenTaxiSplinesMeta
 {
     static constexpr DB2MetaField Fields[5] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_FLOAT,                .ArraySize = 10, .IsSigned =  true },
@@ -14063,7 +14101,7 @@ struct LoadingScreenTaxiSplinesMeta
         .ParentIndexField   = -1,
         .FieldCount         = 5,
         .FileFieldCount     = 5,
-        .LayoutHash         = 0x7B0D052E,
+        .LayoutHash         = 0x877DB13E,
         .Fields             = Fields
     };
 };
@@ -15250,8 +15288,9 @@ struct MountXSpellVisualKitPickerMeta
 
 struct MovieMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[6] =
     {
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
@@ -15264,9 +15303,9 @@ struct MovieMeta
         .FileDataId         = 1332556,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 5,
-        .FileFieldCount     = 5,
-        .LayoutHash         = 0x2C44DB9A,
+        .FieldCount         = 6,
+        .FileFieldCount     = 6,
+        .LayoutHash         = 0xF53888FA,
         .Fields             = Fields
     };
 };
@@ -16134,7 +16173,7 @@ struct OccluderNodeMeta
 {
     static constexpr DB2MetaField Fields[3] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
@@ -16146,7 +16185,7 @@ struct OccluderNodeMeta
         .ParentIndexField   = -1,
         .FieldCount         = 3,
         .FileFieldCount     = 3,
-        .LayoutHash         = 0xC1037415,
+        .LayoutHash         = 0x5F2092E5,
         .Fields             = Fields
     };
 };
@@ -16497,7 +16536,7 @@ struct PathNodeMeta
 {
     static constexpr DB2MetaField Fields[3] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
@@ -16509,7 +16548,7 @@ struct PathNodeMeta
         .ParentIndexField   = -1,
         .FieldCount         = 3,
         .FileFieldCount     = 3,
-        .LayoutHash         = 0xC1037415,
+        .LayoutHash         = 0x5F2092E5,
         .Fields             = Fields
     };
 };
@@ -16518,7 +16557,7 @@ struct PathNodePropertyMeta
 {
     static constexpr DB2MetaField Fields[4] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -16531,7 +16570,7 @@ struct PathNodePropertyMeta
         .ParentIndexField   = -1,
         .FieldCount         = 4,
         .FileFieldCount     = 4,
-        .LayoutHash         = 0x4C0E1D44,
+        .LayoutHash         = 0xBFE87314,
         .Fields             = Fields
     };
 };
@@ -16540,7 +16579,7 @@ struct PathPropertyMeta
 {
     static constexpr DB2MetaField Fields[3] =
     {
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
@@ -16552,7 +16591,7 @@ struct PathPropertyMeta
         .ParentIndexField   = -1,
         .FieldCount         = 3,
         .FileFieldCount     = 3,
-        .LayoutHash         = 0x27A2BE5C,
+        .LayoutHash         = 0xEE64C24C,
         .Fields             = Fields
     };
 };
@@ -17034,7 +17073,6 @@ struct PlayerConditionMeta
 {
     static constexpr DB2MetaField Fields[86] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
@@ -17117,6 +17155,7 @@ struct PlayerConditionMeta
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  6, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  4, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  4, .IsSigned = false },
@@ -17129,7 +17168,7 @@ struct PlayerConditionMeta
         .ParentIndexField   = -1,
         .FieldCount         = 86,
         .FileFieldCount     = 86,
-        .LayoutHash         = 0x2060B1E8,
+        .LayoutHash         = 0x7A9E50CE,
         .Fields             = Fields
     };
 };
@@ -18300,7 +18339,6 @@ struct QuestV2CliTaskMeta
 {
     static constexpr DB2MetaField Fields[24] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -18324,6 +18362,7 @@ struct QuestV2CliTaskMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  3, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  3, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -18333,7 +18372,7 @@ struct QuestV2CliTaskMeta
         .ParentIndexField   = -1,
         .FieldCount         = 24,
         .FileFieldCount     = 24,
-        .LayoutHash         = 0x5F34001B,
+        .LayoutHash         = 0xD6D31C39,
         .Fields             = Fields
     };
 };
@@ -19157,12 +19196,13 @@ struct SSAOSettingsMeta
 
 struct ScenarioMeta
 {
-    static constexpr DB2MetaField Fields[5] =
+    static constexpr DB2MetaField Fields[6] =
     {
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
     };
 
@@ -19171,9 +19211,9 @@ struct ScenarioMeta
         .FileDataId         = 1139062,
         .IndexField         = -1,
         .ParentIndexField   = -1,
-        .FieldCount         = 5,
-        .FileFieldCount     = 5,
-        .LayoutHash         = 0x64D88505,
+        .FieldCount         = 6,
+        .FileFieldCount     = 6,
+        .LayoutHash         = 0xB7C9ECF5,
         .Fields             = Fields
     };
 };
@@ -19573,7 +19613,6 @@ struct SkillLineAbilityMeta
 {
     static constexpr DB2MetaField Fields[17] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
@@ -19590,16 +19629,17 @@ struct SkillLineAbilityMeta
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
     {
         .FileDataId         = 1266278,
-        .IndexField         = 3,
-        .ParentIndexField   = 4,
+        .IndexField         = 2,
+        .ParentIndexField   = 3,
         .FieldCount         = 17,
         .FileFieldCount     = 17,
-        .LayoutHash         = 0xC070825E,
+        .LayoutHash         = 0xF98AA48E,
         .Fields             = Fields
     };
 };
@@ -19629,23 +19669,23 @@ struct SkillRaceClassInfoMeta
 {
     static constexpr DB2MetaField Fields[7] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
     {
         .FileDataId         = 1240406,
         .IndexField         = -1,
-        .ParentIndexField   = 1,
+        .ParentIndexField   = 0,
         .FieldCount         = 7,
         .FileFieldCount     = 7,
-        .LayoutHash         = 0x7BCD9960,
+        .LayoutHash         = 0x24277B48,
         .Fields             = Fields
     };
 };
@@ -21216,12 +21256,12 @@ struct SpellFlyoutMeta
 {
     static constexpr DB2MetaField Fields[6] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -21231,7 +21271,7 @@ struct SpellFlyoutMeta
         .ParentIndexField   = -1,
         .FieldCount         = 6,
         .FileFieldCount     = 6,
-        .LayoutHash         = 0x380879DE,
+        .LayoutHash         = 0xBE7036C6,
         .Fields             = Fields
     };
 };
@@ -22853,7 +22893,7 @@ struct TaxiPathNodeMeta
     {
         { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
-        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
@@ -22869,7 +22909,7 @@ struct TaxiPathNodeMeta
         .ParentIndexField   = 2,
         .FieldCount         = 9,
         .FileFieldCount     = 9,
-        .LayoutHash         = 0xB70D1EE0,
+        .LayoutHash         = 0xFE362E70,
         .Fields             = Fields
     };
 };
@@ -23027,6 +23067,25 @@ struct TierTransitionMeta
         .FieldCount         = 4,
         .FileFieldCount     = 4,
         .LayoutHash         = 0x6019C9CF,
+        .Fields             = Fields
+    };
+};
+
+struct TieredEntranceMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+    };
+
+    static constexpr DB2Meta Instance =
+    {
+        .FileDataId         = 7833678,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 1,
+        .FileFieldCount     = 1,
+        .LayoutHash         = 0x519069A5,
         .Fields             = Fields
     };
 };
@@ -23834,7 +23893,7 @@ struct TransmogIllusionMeta
 
 struct TransmogOutfitEntryMeta
 {
-    static constexpr DB2MetaField Fields[8] =
+    static constexpr DB2MetaField Fields[9] =
     {
         { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
@@ -23844,6 +23903,7 @@ struct TransmogOutfitEntryMeta
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
     };
 
     static constexpr DB2Meta Instance =
@@ -23851,9 +23911,9 @@ struct TransmogOutfitEntryMeta
         .FileDataId         = 7320164,
         .IndexField         = 2,
         .ParentIndexField   = -1,
-        .FieldCount         = 8,
-        .FileFieldCount     = 8,
-        .LayoutHash         = 0xD6AF6580,
+        .FieldCount         = 9,
+        .FileFieldCount     = 9,
+        .LayoutHash         = 0x91D51304,
         .Fields             = Fields
     };
 };
@@ -24553,6 +24613,25 @@ struct UIModifiedInstanceMeta
         .FieldCount         = 8,
         .FileFieldCount     = 8,
         .LayoutHash         = 0x41E631A7,
+        .Fields             = Fields
+    };
+};
+
+struct UIScenarioDisplayInfoMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+    };
+
+    static constexpr DB2Meta Instance =
+    {
+        .FileDataId         = 7725784,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 1,
+        .FileFieldCount     = 1,
+        .LayoutHash         = 0x1BD175A4,
         .Fields             = Fields
     };
 };
@@ -26237,9 +26316,8 @@ struct WarbandScenePlacementMeta
 
 struct WarbandScenePlacementFilterReqMeta
 {
-    static constexpr DB2MetaField Fields[4] =
+    static constexpr DB2MetaField Fields[3] =
     {
-        { .Type = FT_LONG,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
@@ -26249,10 +26327,10 @@ struct WarbandScenePlacementFilterReqMeta
     {
         .FileDataId         = 6251586,
         .IndexField         = -1,
-        .ParentIndexField   = 1,
-        .FieldCount         = 4,
-        .FileFieldCount     = 4,
-        .LayoutHash         = 0x939C3CD6,
+        .ParentIndexField   = 0,
+        .FieldCount         = 3,
+        .FileFieldCount     = 3,
+        .LayoutHash         = 0x16F5877A,
         .Fields             = Fields
     };
 };
@@ -26722,6 +26800,25 @@ struct WindSettingsMeta
         .FieldCount         = 10,
         .FileFieldCount     = 10,
         .LayoutHash         = 0xCF880AC0,
+        .Fields             = Fields
+    };
+};
+
+struct WmoMaxScaleMeta
+{
+    static constexpr DB2MetaField Fields[1] =
+    {
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+    };
+
+    static constexpr DB2Meta Instance =
+    {
+        .FileDataId         = 7836461,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 1,
+        .FileFieldCount     = 1,
+        .LayoutHash         = 0x83D2EFFC,
         .Fields             = Fields
     };
 };

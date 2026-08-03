@@ -343,6 +343,15 @@ enum SpellCastTargetFlags : uint32
     TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM
 };
 
+struct SpellRange
+{
+    float Min = 0.0f;
+    float Max = 0.0f;
+
+    constexpr SpellRange operator*(float mul) const { return { Min * mul, Max * mul }; }
+    bool operator==(SpellRange const&) const = default;
+};
+
 struct TC_GAME_API SpellDestination
 {
     SpellDestination() { }
@@ -428,7 +437,7 @@ public:
     float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
 
     void Update(WorldObject* caster);
-    std::string GetTargetString() const { return m_strTarget; }
+    std::string const& GetTargetString() const { return m_strTarget; }
 
 private:
     uint32 m_targetMask;

@@ -261,31 +261,28 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
         return GetDifficulty(Difficulty(difficultyEntry->FallbackDifficultyID));
 
     // No data for DIFFICULTY_NONE (0)
-    struct DefaultCreatureDifficulty : public CreatureDifficulty
+    static CreatureDifficulty constexpr DefDifficulty =
     {
-        DefaultCreatureDifficulty()
-        {
-            DeltaLevelMin = 0;
-            DeltaLevelMax = 0;
-            ContentTuningID = 0;
-            HealthScalingExpansion = 0;
-            HealthModifier = 1.f;
-            ManaModifier = 1.f;
-            ArmorModifier = 1.f;
-            DamageModifier = 1.f;
-            CreatureDifficultyID = 0;
-            TypeFlags = 0;
-            TypeFlags2 = 0;
-            TypeFlags3 = 0;
-            LootID = 0;
-            PickPocketLootID = 0;
-            SkinLootID = 0;
-            GoldMin = 0;
-            GoldMax = 0;
-        }
+        .DeltaLevelMin = 0,
+        .DeltaLevelMax = 0,
+        .ContentTuningID = 0,
+        .HealthScalingExpansion = 0,
+        .HealthModifier = 1.f,
+        .ManaModifier = 1.f,
+        .ArmorModifier = 1.f,
+        .DamageModifier = 1.f,
+        .CreatureDifficultyID = 0,
+        .TypeFlags = 0,
+        .TypeFlags2 = 0,
+        .TypeFlags3 = 0,
+        .LootID = 0,
+        .PickPocketLootID = 0,
+        .SkinLootID = 0,
+        .GoldMin = 0,
+        .GoldMax = 0,
+        .StaticFlags = CreatureStaticFlagsHolder()
     };
-    static const DefaultCreatureDifficulty defDifficulty;
-    return &defDifficulty;
+    return &DefDifficulty;
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -323,10 +320,10 @@ Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_Pla
     m_boundaryCheckTime(2500), m_reactState(REACT_AGGRESSIVE),
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0),
     m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
-    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(),
-    m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _aggroGracePeriodExpired(false), _lastDamagedTime(0),
-    _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
+    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_baseAttackPower(0), m_baseRangedAttackPower(0), m_originalEntry(0),
+    m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(),
+    _waypointPathId(0), _currentWaypointNodeInfo(0, 0), m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false),
+    _aggroGracePeriodExpired(false), _lastDamagedTime(0), _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
 
@@ -1183,9 +1180,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     LoadCreaturesAddon();
     LoadCreaturesSparringHealth(true);
 
-    //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
-    m_positionZ += GetHoverOffset();
-
     LastUsedScriptID = GetScriptId();
 
     if (IsSpiritHealer() || IsAreaSpiritHealer() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
@@ -1484,24 +1478,21 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 
     // check if it's a custom model and if not, use 0 for displayId
     CreatureTemplate const* cinfo = GetCreatureTemplate();
-    if (cinfo)
-    {
-        for (CreatureModel const& model : cinfo->Models)
-            if (displayId && displayId == model.CreatureDisplayID)
-                displayId = 0;
+    for (CreatureModel const& model : cinfo->Models)
+        if (displayId && displayId == model.CreatureDisplayID)
+            displayId = 0;
 
-        if (spawnNpcFlags != cinfo->npcflag)
-            npcflag = spawnNpcFlags;
+    if (spawnNpcFlags != cinfo->npcflag)
+        npcflag = spawnNpcFlags;
 
-        if (m_unitData->Flags != cinfo->unit_flags)
-            unitFlags = m_unitData->Flags;
+    if (m_unitData->Flags != cinfo->unit_flags)
+        unitFlags = m_unitData->Flags;
 
-        if (m_unitData->Flags2 != cinfo->unit_flags2)
-            unitFlags2 = m_unitData->Flags2;
+    if (m_unitData->Flags2 != cinfo->unit_flags2)
+        unitFlags2 = m_unitData->Flags2;
 
-        if (m_unitData->Flags3 != cinfo->unit_flags3)
-            unitFlags3 = m_unitData->Flags3;
-    }
+    if (m_unitData->Flags3 != cinfo->unit_flags3)
+        unitFlags3 = m_unitData->Flags3;
 
     if (!data.spawnId)
         data.spawnId = m_spawnId;
@@ -1526,7 +1517,9 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     // prevent add data integrity problems
     data.wander_distance = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_wanderDistance;
     data.currentwaypoint = 0;
-    data.curHealthPct = uint32(GetHealthPct());
+    if (!cinfo->RegenHealth)
+        data.curHealthPct = uint32(GetHealthPct());
+
     // prevent add data integrity problems
     data.movementType = !m_wanderDistance && GetDefaultMovementType() == RANDOM_MOTION_TYPE
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
@@ -1666,8 +1659,8 @@ void Creature::UpdateLevelDependantStats()
     SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
-    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+    m_baseAttackPower       = stats->AttackPower;
+    m_baseRangedAttackPower = stats->RangedAttackPower;
 
     float armor = GetBaseArmorForLevel(level);
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
@@ -2001,7 +1994,13 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 
 void Creature::SetSpawnHealth()
 {
-    SetHealth(CountPctFromMaxHealth(m_creatureData ? m_creatureData->curHealthPct : 100));
+    // set health only if regenerating is not enabled (otherwise it would immediately go back to full health anyway)
+    if (!_regenerateHealth && m_creatureData && m_creatureData->curHealthPct)
+        SetHealth(CountPctFromMaxHealth(*m_creatureData->curHealthPct));
+    // or when creature respawns in legacy compatibility mode
+    else if (getDeathState() == JUST_RESPAWNED)
+        SetFullHealth();
+
     SetInitialPowerValue(GetPowerType());
 }
 
@@ -2315,7 +2314,10 @@ void Creature::setDeathState(DeathState s)
 
         Motion_Initialize();
         Unit::setDeathState(ALIVE);
-        LoadCreaturesAddon();
+
+        if (!IsPet())
+            LoadCreaturesAddon();
+
         LoadCreaturesSparringHealth();
     }
 }
@@ -2461,7 +2463,7 @@ void Creature::LoadTemplateImmunities(int32 creatureImmunitiesId)
             if (immunities->Mechanic[i])
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, apply);
 
-        for (SpellEffectName effect : immunities->Effect)
+        for (SpellEffects effect : immunities->Effect)
             ApplySpellImmune(placeholderSpellId, IMMUNITY_EFFECT, effect, apply);
 
         for (AuraType aura : immunities->Aura)
@@ -3060,26 +3062,59 @@ void Creature::ApplyLevelScaling()
 {
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, {}))
+    int32 contentTuningId = creatureDifficulty->ContentTuningID;
+
+    if (!contentTuningId && !IsCritter())
+    {
+        if (MapDifficultyEntry const* mapDifficulty = GetMap()->GetMapDifficulty())
+            if (mapDifficulty->ContentTuningID)
+                contentTuningId = mapDifficulty->ContentTuningID;
+
+        if (!contentTuningId)
+        {
+            AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+            while (area)
+            {
+                if (area->ContentTuningID)
+                {
+                    contentTuningId = area->ContentTuningID;
+                    break;
+                }
+
+                area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+            }
+        }
+    }
+
+    int32 scalingLevelDelta = 0;
+    if (contentTuningId)
+    {
+        int32 mindelta = std::min(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
+        int32 maxdelta = std::max(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
+        scalingLevelDelta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
+    }
+
+    ApplyLevelScaling(contentTuningId, scalingLevelDelta);
+}
+
+void Creature::ApplyLevelScaling(int32 contentTuningId, int32 scalingLevelDelta)
+{
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(contentTuningId, {}))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
     }
 
-    int32 mindelta = std::min(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 maxdelta = std::max(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
-
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelDelta), delta);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ContentTuningID), creatureDifficulty->ContentTuningID);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelDelta), scalingLevelDelta);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ContentTuningID), contentTuningId);
 }
 
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0);
+    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return std::ceil(baseHealth * creatureDifficulty->HealthModifier);
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
@@ -3096,7 +3131,7 @@ float Creature::GetBaseDamageForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
 }
 
 float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
@@ -3113,7 +3148,7 @@ float Creature::GetBaseArmorForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
     return baseArmor * creatureDifficulty->ArmorModifier;
 }
 
@@ -3314,7 +3349,7 @@ void Creature::SetVendor(NPCFlags flags, bool apply)
         if (addFragment)
             m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
-    else if (m_vendorData)
+    else if (m_vendorData.has_value())
     {
         RemoveNpcFlag(flags);
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
@@ -3338,7 +3373,7 @@ void Creature::SetPetitioner(bool apply)
         if (addFragment)
             m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld(), WowCS::GetRawFragmentData(m_vendorData));
     }
-    else if (m_vendorData)
+    else if (m_vendorData.has_value())
     {
         RemoveNpcFlag(UNIT_NPC_FLAG_PETITIONER);
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
@@ -3818,11 +3853,13 @@ std::string Creature::GetDebugInfo() const
 
 void Creature::ExitVehicle(Position const* /*exitPosition*/)
 {
+    bool const isInVehicle = GetVehicle();
     Unit::ExitVehicle();
 
-    // if the creature exits a vehicle, set it's home position to the
+    // if alive creature exits a vehicle, set it's home position to the
     // exited position so it won't run away (home) and evade if it's hostile
-    SetHomePosition(GetPosition());
+    if (isInVehicle && IsAlive())
+        SetHomePosition(GetPosition());
 }
 
 uint32 Creature::GetGossipMenuId() const

@@ -246,7 +246,7 @@ namespace WorldPackets
         class MoveSplineSetFlag final : public ServerPacket
         {
         public:
-            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 8) { }
+            explicit MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 18) { }
 
             WorldPacket const* Write() override;
 
@@ -256,7 +256,7 @@ namespace WorldPackets
         class MoveSetFlag final : public ServerPacket
         {
         public:
-            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+            explicit MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 18 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -316,6 +316,7 @@ namespace WorldPackets
             TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
             int32 Counter = 0;
+            uint64 InstanceID = 0u;                          // Required for damageMeterResetOnNewInstance cvar to function
         };
 
         class WorldPortResponse final : public ClientPacket

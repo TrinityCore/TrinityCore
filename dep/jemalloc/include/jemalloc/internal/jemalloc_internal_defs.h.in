@@ -14,10 +14,13 @@
  */
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_CALLOC
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_FREE
+#cmakedefine JEMALLOC_OVERRIDE___LIBC_FREE_SIZED
+#cmakedefine JEMALLOC_OVERRIDE___LIBC_FREE_ALIGNED_SIZED
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_MALLOC
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_MEMALIGN
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_REALLOC
 #cmakedefine JEMALLOC_OVERRIDE___LIBC_VALLOC
+#cmakedefine JEMALLOC_OVERRIDE___LIBC_PVALLOC
 #cmakedefine JEMALLOC_OVERRIDE___POSIX_MEMALIGN
 
 /*
@@ -88,6 +91,9 @@
 /* Defined if pthread_getname_np(3) is available. */
 #cmakedefine JEMALLOC_HAVE_PTHREAD_GETNAME_NP
 
+/* Defined if pthread_set_name_np(3) is available. */
+#cmakedefine JEMALLOC_HAVE_PTHREAD_SET_NAME_NP
+
 /* Defined if pthread_get_name_np(3) is available. */
 #cmakedefine JEMALLOC_HAVE_PTHREAD_GET_NAME_NP
 
@@ -110,6 +116,11 @@
  * Defined if clock_gettime(CLOCK_REALTIME, ...) is available.
  */
 #cmakedefine JEMALLOC_HAVE_CLOCK_REALTIME
+
+/*
+ * Defined if clock_gettime_nsec_np(CLOCK_UPTIME_RAW) is available.
+ */
+#cmakedefine JEMALLOC_HAVE_CLOCK_GETTIME_NSEC_NP
 
 /*
  * Defined if _malloc_thread_cleanup() exists.  At least in the case of
@@ -160,6 +171,15 @@
 
 /* Use gcc intrinsics for profile backtracing if defined. */
 #cmakedefine JEMALLOC_PROF_GCC
+
+/* Use frame pointer for profile backtracing if defined. Linux only. */
+#cmakedefine JEMALLOC_PROF_FRAME_POINTER
+
+/* JEMALLOC_PAGEID enabled page id */
+#cmakedefine JEMALLOC_PAGEID
+
+/* JEMALLOC_HAVE_PRCTL checks prctl */
+#cmakedefine JEMALLOC_HAVE_PRCTL
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate extents from the data storage
@@ -260,6 +280,12 @@
 #cmakedefine JEMALLOC_READLINKAT
 
 /*
+ * If defined, use getenv() (instead of secure_getenv() or
+ * alternatives) to access MALLOC_CONF.
+ */
+#cmakedefine JEMALLOC_FORCE_GETENV
+
+/*
  * Darwin (OS X) uses zones to work around Mach-O symbol override shortcomings.
  */
 #cmakedefine JEMALLOC_ZONE
@@ -281,6 +307,13 @@
  * arguments to madvise(2).
  */
 #cmakedefine JEMALLOC_HAVE_MADVISE_HUGE
+
+/*
+ * Defined if best-effort synchronous collapse of the native
+ * pages mapped by the memory range into transparent huge pages is supported
+ * via MADV_COLLAPSE arguments to madvise(2).
+ */
+#cmakedefine JEMALLOC_HAVE_MADVISE_COLLAPSE
 
 /*
  * Methods for purging unused pages differ between operating systems.
@@ -312,8 +345,22 @@
  */
 #cmakedefine JEMALLOC_MADVISE_NOCORE
 
+/* Defined if process_madvise(2) is available. */
+#cmakedefine JEMALLOC_HAVE_PROCESS_MADVISE
+
+#cmakedefine EXPERIMENTAL_SYS_PROCESS_MADVISE_NR @EXPERIMENTAL_SYS_PROCESS_MADVISE_NR@
+
 /* Defined if mprotect(2) is available. */
 #cmakedefine JEMALLOC_HAVE_MPROTECT
+
+/* Defined if sys/sdt.h is available and sdt tracing enabled */
+#cmakedefine JEMALLOC_EXPERIMENTAL_USDT_STAP
+
+/*
+ * Defined if sys/sdt.h is unavailable, sdt tracing enabled, and
+ * platform is supported
+ */
+#cmakedefine JEMALLOC_EXPERIMENTAL_USDT_CUSTOM
 
 /*
  * Defined if transparent huge pages (THPs) are supported via the
@@ -378,11 +425,17 @@
 /* Adaptive mutex support in pthreads. */
 #cmakedefine JEMALLOC_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
 
+/* gettid() support */
+#cmakedefine JEMALLOC_HAVE_GETTID
+
 /* GNU specific sched_getcpu support */
 #cmakedefine JEMALLOC_HAVE_SCHED_GETCPU
 
 /* GNU specific sched_setaffinity support */
 #cmakedefine JEMALLOC_HAVE_SCHED_SETAFFINITY
+
+/* pthread_setaffinity_np support */
+#cmakedefine JEMALLOC_HAVE_PTHREAD_SETAFFINITY_NP
 
 /*
  * If defined, all the features necessary for background threads are present.
@@ -412,6 +465,9 @@
 /* Is C++ support being built? */
 #cmakedefine JEMALLOC_ENABLE_CXX
 
+/* Are C++ exceptions enabled? */
+#cmakedefine JEMALLOC_HAVE_CXX_EXCEPTIONS
+
 /* Performs additional size checks when defined. */
 #cmakedefine JEMALLOC_OPT_SIZE_CHECKS
 
@@ -423,5 +479,19 @@
 
 /* If defined, realloc(ptr, 0) defaults to "free" instead of "alloc". */
 #cmakedefine JEMALLOC_ZERO_REALLOC_DEFAULT_FREE
+
+/* If defined, use volatile asm during benchmarks. */
+#cmakedefine JEMALLOC_HAVE_ASM_VOLATILE
+
+/*
+ * If defined, support the use of rdtscp to get the time stamp counter
+ * and the processor ID.
+ */
+#cmakedefine JEMALLOC_HAVE_RDTSCP
+
+/* If defined, use __int128 for optimization. */
+#cmakedefine JEMALLOC_HAVE_INT128
+
+#include "jemalloc/internal/jemalloc_internal_overrides.h"
 
 #endif /* JEMALLOC_INTERNAL_DEFS_H_ */

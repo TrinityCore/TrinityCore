@@ -285,7 +285,7 @@ class spell_nokhudon_proving_grounds_reaction_trigger : public AuraScript
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
         if (ZoneScript* zonescript = GetTarget()->FindZoneScript())
-            zonescript->DoAction(NokhudonProvingGrounds::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetProcTarget());
+            zonescript->DoAction(NokhudonProvingGrounds::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetActionTarget());
     }
 
     void Register() override

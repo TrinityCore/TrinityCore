@@ -2,6 +2,8 @@
 #undef je_calloc
 #undef je_dallocx
 #undef je_free
+#undef je_free_sized
+#undef je_free_aligned_sized
 #undef je_mallctl
 #undef je_mallctlbymib
 #undef je_mallctlnametomib
@@ -12,7 +14,7 @@
 #undef je_malloc_stats_print
 #undef je_malloc_usable_size
 #undef je_mallocx
-#undef je_smallocx_54eaed1d8b56b1aa528be3bdd1877e59c56fa90c
+#undef je_smallocx_ee4d7b7f9a5c1b48d462be2b65c16e4ead8e3396
 #undef je_nallocx
 #undef je_posix_memalign
 #undef je_rallocx
@@ -22,4 +24,5 @@
 #undef je_xallocx
 #undef je_memalign
 #undef je_valloc
+#undef je_pvalloc
 #undef je_malloc_size

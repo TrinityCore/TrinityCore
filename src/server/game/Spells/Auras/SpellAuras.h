@@ -86,7 +86,7 @@ class TC_GAME_API AuraApplication
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_NOCASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_SELF_CAST) != 0; }
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
@@ -362,16 +362,16 @@ class TC_GAME_API Aura
         Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
         {
             return Trinity::Containers::MakeIteratorPair(
-                DBStorageIterator(_effects.data(), _effects.size()),
-                DBStorageIterator(_effects.data(), _effects.size(), _effects.size()));
+                DBStorageIterator(m_effects.data(), m_effects.size()),
+                DBStorageIterator(m_effects.data(), m_effects.size(), m_effects.size()));
         }
         Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
         {
             return Trinity::Containers::MakeIteratorPair(
-                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size()),
-                DBStorageIterator<AuraEffect const*>(_effects.data(), _effects.size(), _effects.size()));
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size()),
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size(), m_effects.size()));
         }
-        std::size_t GetAuraEffectCount() const { return _effects.size(); }
+        std::size_t GetAuraEffectCount() const { return m_effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 
@@ -410,6 +410,7 @@ class TC_GAME_API Aura
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
+        AuraEffectVector m_effects;
         ApplicationMap m_applications;
 
         bool m_isRemoved;
@@ -424,8 +425,6 @@ class TC_GAME_API Aura
 
     private:
         std::vector<AuraApplication*> _removedApplications;
-
-        AuraEffectVector _effects;
 
         struct NoopAuraDeleter { void operator()(Aura*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Aura> m_scriptRef;

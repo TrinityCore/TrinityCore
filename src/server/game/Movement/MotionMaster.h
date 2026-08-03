@@ -33,6 +33,7 @@
 
 class PathGenerator;
 class Unit;
+class WorldObject;
 struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
@@ -145,15 +146,13 @@ class TC_GAME_API MotionMaster
         // Removes all movements for the given MovementSlot
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
         void Clear(MovementSlot slot);
-        // Removes all movements with the given MovementGeneratorMode
-        // NOTE: MOTION_SLOT_DEFAULT wont be affected
-        void Clear(MovementGeneratorMode mode);
         // Removes all movements with the given MovementGeneratorPriority
         // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear(MovementGeneratorPriority priority);
         void PropagateSpeedChange();
         bool GetDestination(float &x, float &y, float &z);
         bool StopOnDeath();
+        void InterruptOnTeleport();
 
         void MoveIdle();
         void MoveTargetedHome();
@@ -169,9 +168,11 @@ class TC_GAME_API MotionMaster
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         /*
          *  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
@@ -216,11 +217,13 @@ class TC_GAME_API MotionMaster
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
         /**
@@ -236,12 +239,14 @@ class TC_GAME_API MotionMaster
             Optional<float> turnSpeed = {}, Optional<float> totalTurnAngle = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
+        void MoveFace(float orientation, uint32 id = EVENT_FACE);
+        void MoveFace(WorldObject const* object, uint32 id = EVENT_FACE);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
     private:
         typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
-        typedef std::multiset<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
+        typedef std::set<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
         typedef std::unordered_multimap<uint32, MovementGenerator const*> MotionMasterUnitStatesContainer;
 
         void AddFlag(uint8 const flag) { _flags |= flag; }
@@ -249,7 +254,7 @@ class TC_GAME_API MotionMaster
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
         void ResolveDelayedActions();
-        void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
+        void Remove(MotionMasterContainer::iterator& iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
         void DirectInitialize();
         void DirectClear();

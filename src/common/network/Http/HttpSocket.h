@@ -29,7 +29,7 @@ class TC_NETWORK_API Socket : public BaseSocket<Impl::BoostBeastSocketWrapper>
 public:
     explicit Socket(IoContextTcpSocket&& socket);
 
-    explicit Socket(boost::asio::io_context& context);
+    explicit Socket(Asio::IoContext& context);
 
     Socket(Socket const& other) = delete;
     Socket(Socket&& other) = delete;

@@ -121,6 +121,7 @@ DumpTable const DumpTables[] =
     { "character_queststatus_seasonal",   DTT_CHAR_TABLE },
     { "character_queststatus_weekly",     DTT_CHAR_TABLE },
     { "character_reputation",             DTT_CHAR_TABLE },
+    { "character_select_screen_equipment_cache", DTT_CHAR_TABLE },
     { "character_skills",                 DTT_CHAR_TABLE },
     { "character_spell",                  DTT_CHAR_TABLE },
     { "character_spell_charges",          DTT_CHAR_TABLE },

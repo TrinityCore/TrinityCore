@@ -50,6 +50,7 @@ class GetStateRequest;
 class GetStateResponse;
 class BlockPlayerRequest;
 class UnblockPlayerRequest;
+class PassExternalBlockListRequest;
 
 // ===================================================================
 
@@ -491,6 +492,79 @@ class TC_PROTO_API UnblockPlayerRequest : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static UnblockPlayerRequest* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API PassExternalBlockListRequest : public ::google::protobuf::Message {
+ public:
+  PassExternalBlockListRequest();
+  virtual ~PassExternalBlockListRequest();
+
+  PassExternalBlockListRequest(const PassExternalBlockListRequest& from);
+
+  inline PassExternalBlockListRequest& operator=(const PassExternalBlockListRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PassExternalBlockListRequest& default_instance();
+
+  void Swap(PassExternalBlockListRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  PassExternalBlockListRequest* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated string blocked_external_ids = 1;
+  inline int blocked_external_ids_size() const;
+  inline void clear_blocked_external_ids();
+  static const int kBlockedExternalIdsFieldNumber = 1;
+  inline const ::std::string& blocked_external_ids(int index) const;
+  inline ::std::string* mutable_blocked_external_ids(int index);
+  inline void set_blocked_external_ids(int index, const ::std::string& value);
+  inline void set_blocked_external_ids(int index, const char* value);
+  inline void set_blocked_external_ids(int index, const char* value, size_t size);
+  inline ::std::string* add_blocked_external_ids();
+  inline void add_blocked_external_ids(const ::std::string& value);
+  inline void add_blocked_external_ids(const char* value);
+  inline void add_blocked_external_ids(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& blocked_external_ids() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_blocked_external_ids();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> blocked_external_ids_;
+  friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto();
+  friend void protobuf_AssignDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static PassExternalBlockListRequest* default_instance_;
+};
 // ===================================================================
 
 class TC_PROTO_API BlockListService : public ServiceBase
@@ -519,6 +593,7 @@ class TC_PROTO_API BlockListService : public ServiceBase
   virtual uint32 HandleBlockPlayer(::bgs::protocol::block_list::v1::client::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnblockPlayer(::bgs::protocol::block_list::v1::client::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleBlockPlayerForSession(::bgs::protocol::block_list::v1::client::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandlePassExternalBlockList(::bgs::protocol::block_list::v1::client::PassExternalBlockListRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   void ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer);
@@ -527,6 +602,7 @@ class TC_PROTO_API BlockListService : public ServiceBase
   void ParseAndHandleBlockPlayer(uint32 token, uint32 methodId, MessageBuffer& buffer);
   void ParseAndHandleUnblockPlayer(uint32 token, uint32 methodId, MessageBuffer& buffer);
   void ParseAndHandleBlockPlayerForSession(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandlePassExternalBlockList(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================
@@ -721,6 +797,64 @@ inline void UnblockPlayerRequest::set_allocated_options(::bgs::protocol::block_l
     clear_has_options();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.block_list.v1.client.UnblockPlayerRequest.options)
+}
+
+// -------------------------------------------------------------------
+
+// PassExternalBlockListRequest
+
+// repeated string blocked_external_ids = 1;
+inline int PassExternalBlockListRequest::blocked_external_ids_size() const {
+  return blocked_external_ids_.size();
+}
+inline void PassExternalBlockListRequest::clear_blocked_external_ids() {
+  blocked_external_ids_.Clear();
+}
+inline const ::std::string& PassExternalBlockListRequest::blocked_external_ids(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+  return blocked_external_ids_.Get(index);
+}
+inline ::std::string* PassExternalBlockListRequest::mutable_blocked_external_ids(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+  return blocked_external_ids_.Mutable(index);
+}
+inline void PassExternalBlockListRequest::set_blocked_external_ids(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+  blocked_external_ids_.Mutable(index)->assign(value);
+}
+inline void PassExternalBlockListRequest::set_blocked_external_ids(int index, const char* value) {
+  blocked_external_ids_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+}
+inline void PassExternalBlockListRequest::set_blocked_external_ids(int index, const char* value, size_t size) {
+  blocked_external_ids_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+}
+inline ::std::string* PassExternalBlockListRequest::add_blocked_external_ids() {
+  return blocked_external_ids_.Add();
+}
+inline void PassExternalBlockListRequest::add_blocked_external_ids(const ::std::string& value) {
+  blocked_external_ids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+}
+inline void PassExternalBlockListRequest::add_blocked_external_ids(const char* value) {
+  blocked_external_ids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+}
+inline void PassExternalBlockListRequest::add_blocked_external_ids(const char* value, size_t size) {
+  blocked_external_ids_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PassExternalBlockListRequest::blocked_external_ids() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+  return blocked_external_ids_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PassExternalBlockListRequest::mutable_blocked_external_ids() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest.blocked_external_ids)
+  return &blocked_external_ids_;
 }
 
 // @@protoc_insertion_point(namespace_scope)

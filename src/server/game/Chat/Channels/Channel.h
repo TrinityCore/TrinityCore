@@ -27,14 +27,6 @@
 class Player;
 struct AreaTableEntry;
 
-namespace WorldPackets
-{
-    namespace Channel
-    {
-        class ChannelNotify;
-    }
-}
-
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
 {
@@ -218,14 +210,14 @@ class TC_GAME_API Channel
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void SilenceAll(Player const* player, std::string const& name);
         void UnsilenceAll(Player const* player, std::string const& name);
-        void List(Player const* player);
+        void List(Player const* player) const;
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
         void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void JoinNotify(Player const* player);
-        void LeaveNotify(Player const* player);
+        void JoinNotify(ObjectGuid const& guid) const;
+        void LeaveNotify(ObjectGuid const& guid) const;
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
 
     private:

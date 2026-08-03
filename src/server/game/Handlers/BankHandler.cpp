@@ -271,12 +271,6 @@ void WorldSession::HandleAutoDepositCharacterBank(WorldPackets::Bank::AutoDeposi
         return;
     }
 
-    if (!_player->IsReagentBankUnlocked())
-    {
-        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
-        return;
-    }
-
     // query all reagents from player's inventory
     bool anyDeposited = false;
     for (Item* item : _player->GetCraftingReagentItemsToDeposit())

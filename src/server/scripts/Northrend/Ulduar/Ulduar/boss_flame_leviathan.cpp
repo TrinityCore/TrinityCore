@@ -1724,7 +1724,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                            Trinity::WorldObjectSpellAreaTargetCheck check({ .Min = 0.0f, .Max = 99.0f }, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
@@ -1746,7 +1746,8 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                                         }
                                                     }
                             }
-                            if (target && target->IsWithinDist2d(targets.GetDstPos(), GetEffectInfo().CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
+                            SpellRange radius = GetEffectInfo().CalcRadius();
+                            if (target && target->IsInRange2d(targets.GetDstPos(), radius.Min, radius.Max * 2)) // now we use *2 because the location of the seat is not correct
                                 passenger->EnterVehicle(target, 0);
                             else
                             {

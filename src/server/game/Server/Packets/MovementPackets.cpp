@@ -781,6 +781,7 @@ WorldPacket const* NewWorld::Write()
     _worldPacket << uint32(Reason);
     _worldPacket << MovementOffset;
     _worldPacket << int32(Counter);
+    _worldPacket << uint64(InstanceID);
 
     return &_worldPacket;
 }

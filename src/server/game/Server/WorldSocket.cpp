@@ -202,34 +202,38 @@ bool WorldSocket::InitializeCompression()
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer(_sendBufferSize);
-    while (_bufferQueue.Dequeue(queued))
+    if (_bufferQueue.Dequeue(queued))
     {
-        uint32 packetSize = queued->size() + 4 /*opcode*/;
-        if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
-            packetSize = deflateBound(_compressionStream, packetSize) + sizeof(CompressedWorldPacket);
-
-        // Flush current buffer if too small for next packet
-        if (buffer.GetRemainingSpace() < packetSize + sizeof(PacketHeader))
+        // Allocate buffer only when it's needed but not on every Update() call.
+        MessageBuffer buffer(_sendBufferSize);
+        do
         {
+            uint32 packetSize = queued->size() + 4 /*opcode*/;
+            if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
+                packetSize = deflateBound(_compressionStream, packetSize) + sizeof(CompressedWorldPacket);
+
+            // Flush current buffer if too small for next packet
+            if (buffer.GetRemainingSpace() < packetSize + sizeof(PacketHeader))
+            {
+                QueuePacket(std::move(buffer));
+                buffer.Resize(_sendBufferSize);
+            }
+
+            if (buffer.GetRemainingSpace() >= packetSize + sizeof(PacketHeader))
+                WritePacketToBuffer(*queued, buffer);
+            else    // single packet larger than _sendBufferSize
+            {
+                MessageBuffer packetBuffer(packetSize + sizeof(PacketHeader));
+                WritePacketToBuffer(*queued, packetBuffer);
+                QueuePacket(std::move(packetBuffer));
+            }
+
+            delete queued;
+        } while (_bufferQueue.Dequeue(queued));
+
+        if (buffer.GetActiveSize() > 0)
             QueuePacket(std::move(buffer));
-            buffer.Resize(_sendBufferSize);
-        }
-
-        if (buffer.GetRemainingSpace() >= packetSize + sizeof(PacketHeader))
-            WritePacketToBuffer(*queued, buffer);
-        else    // single packet larger than _sendBufferSize
-        {
-            MessageBuffer packetBuffer(packetSize + sizeof(PacketHeader));
-            WritePacketToBuffer(*queued, packetBuffer);
-            QueuePacket(std::move(packetBuffer));
-        }
-
-        delete queued;
     }
-
-    if (buffer.GetActiveSize() > 0)
-        QueuePacket(std::move(buffer));
 
     if (!BaseSocket::Update())
         return false;
@@ -668,14 +672,18 @@ void WorldSocket::HandleAuthSessionCallback(WorldPackets::Auth::AuthSession cons
         return;
     }
 
-    ClientBuild::VariantId buildVariant = { .Platform = joinTicket->platform(), .Arch = joinTicket->clientarch(), .Type = joinTicket->type() };
+    ClientBuild::VariantId buildVariant =
+    {
+        .Platform = ClientBuild::Platform::Id(joinTicket->platform()),
+        .Arch = ClientBuild::Arch::Id(joinTicket->clientarch()),
+        .Type = ClientBuild::Type::Id(joinTicket->type())
+    };
     auto clientBuildAuthKey = std::ranges::find(buildInfo->AuthKeys, buildVariant, &ClientBuild::AuthKey::Variant);
     if (clientBuildAuthKey == buildInfo->AuthKeys.end())
     {
         SendAuthResponseError(ERROR_BAD_VERSION);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Missing client build auth key for build {} variant {}-{}-{} ({}).", account.Game.Build,
-            ClientBuild::ToCharArray(buildVariant.Platform).data(), ClientBuild::ToCharArray(buildVariant.Arch).data(),
-            ClientBuild::ToCharArray(buildVariant.Type).data(), address);
+            buildVariant.Platform, buildVariant.Arch, buildVariant.Type, address);
         DelayedCloseSocket();
         return;
     }

@@ -248,11 +248,6 @@ class spell_dru_astral_smolder : public AuraScript
             && sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
-    {
-        return eventInfo.GetProcTarget() != nullptr;
-    }
-
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
@@ -264,12 +259,11 @@ class spell_dru_astral_smolder : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, args);
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, args);
     }
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_astral_smolder::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_astral_smolder::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1612,12 +1606,12 @@ class spell_dru_luxuriant_soil : public AuraScript
         Unit* rejuvCaster = GetTarget();
 
         // let's use the ProcSpell's max. range.
-        float spellRange = eventInfo.GetSpellInfo()->GetMaxRange();
+        SpellRange spellRange = eventInfo.GetSpellInfo()->GetMinMaxRange();
 
         std::vector<Unit*> targetList;
         Trinity::WorldObjectSpellAreaTargetCheck check(spellRange, rejuvCaster, rejuvCaster, rejuvCaster, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(rejuvCaster, targetList, check);
-        Cell::VisitAllObjects(rejuvCaster, searcher, spellRange);
+        Cell::VisitAllObjects(rejuvCaster, searcher, spellRange.Max);
 
         if (targetList.empty())
             return;
@@ -1910,7 +1904,7 @@ class spell_dru_power_of_the_archdruid : public AuraScript
         float spellRange = aurEff->GetAmount();
 
         std::vector<Unit*> targetList;
-        Trinity::WorldObjectSpellAreaTargetCheck checker(spellRange, procTarget, druid, druid, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck checker({ .Max = spellRange }, procTarget, druid, druid, eventInfo.GetSpellInfo(), TARGET_CHECK_ALLY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(procTarget, targetList, checker);
         Cell::VisitAllObjects(procTarget, searcher, spellRange);
         std::erase(targetList, procTarget);
@@ -2419,7 +2413,7 @@ class spell_dru_t3_6p_bonus : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, aurEff);
     }
 
     void Register() override
@@ -2499,7 +2493,7 @@ class spell_dru_t10_balance_4p_bonus : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         SpellEffectInfo const& spellEffect = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH, GetCastDifficulty())->GetEffect(EFFECT_0);
         SpellEffectValue amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
@@ -2581,7 +2575,7 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
         if (!caster)
             return false;
 
-        return caster->GetGroup() || caster != eventInfo.GetProcTarget();
+        return caster->GetGroup() || caster != eventInfo.GetActionTarget();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -2870,7 +2864,7 @@ class spell_dru_twin_moonfire : public SpellScript
         float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
 
         std::list<Unit*> targets;
-        Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck check({ .Max = maxRange }, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(hitUnit, targets, check);
         Cell::VisitAllObjects(hitUnit, searcher, maxRange);
 

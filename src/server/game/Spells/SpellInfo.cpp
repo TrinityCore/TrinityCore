@@ -237,9 +237,10 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 DispelImmuneMask = 0;
     uint32 DamageSchoolMask = 0;
     uint8 OtherImmuneMask = 0;
+    bool RemoveEffectsWithMechanic = false;
 
     Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
-    Trinity::Containers::FlatSet<SpellEffectName> SpellEffectImmune;
+    Trinity::Containers::FlatSet<SpellEffects> SpellEffectImmune;
 };
 
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
@@ -415,7 +416,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
 
     _spellInfo = spellInfo;
     EffectIndex = SpellEffIndex(_effect.EffectIndex);
-    Effect = SpellEffectName(_effect.Effect);
+    Effect = SpellEffects(_effect.Effect);
     ApplyAuraName = AuraType(_effect.EffectAura);
     ApplyAuraPeriod = _effect.EffectAuraPeriod;
     BasePoints = _effect.EffectBasePoints;
@@ -456,7 +457,7 @@ bool SpellEffectInfo::IsEffect() const
     return Effect != 0;
 }
 
-bool SpellEffectInfo::IsEffect(SpellEffectName effectName) const
+bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
     return Effect == effectName;
 }
@@ -779,7 +780,7 @@ bool SpellEffectInfo::HasRadius(SpellTargetIndex targetIndex) const
     }
 }
 
-float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTargetIndex targetIndex /*=SpellTargetIndex::TargetA*/, Spell* spell /*= nullptr*/) const
+SpellRange SpellEffectInfo::CalcRadius(WorldObject const* caster /*= nullptr*/, SpellTargetIndex targetIndex /*=SpellTargetIndex::TargetA*/, Spell* spell /*= nullptr*/) const
 {
     // TargetA -> TargetARadiusEntry
     // TargetB -> TargetBRadiusEntry
@@ -792,69 +793,38 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, SpellTarget
         entry = TargetBRadiusEntry;
     }
 
+    SpellRange radius;
     if (!entry)
-        return 0.0f;
+        return radius;
 
-    float radius = entry->RadiusMin;
+    radius = { .Min = entry->RadiusMin, .Max = entry->RadiusMax };
+
+    if (caster)
+    {
+        if (Unit const* casterUnit = caster->ToUnit())
+            radius.Max = std::min(entry->Radius + entry->RadiusPerLevel * casterUnit->GetLevel(), radius.Max);
+
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius.Max, spell);
+
+        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
+        {
+            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
+            {
+                radius.Min = std::max(radius.Min - 2.0f, 0.0f);
+                radius.Max += 2.0f;
+            }
+        }
+    }
 
     // Random targets use random value between RadiusMin and RadiusMax
     // For other cases, client uses RadiusMax if RadiusMin is 0
     if (target.GetTarget() == TARGET_DEST_CASTER_RANDOM ||
         target.GetTarget() == TARGET_DEST_TARGET_RANDOM ||
         target.GetTarget() == TARGET_DEST_DEST_RANDOM)
-        radius += (entry->RadiusMax - radius) * rand_norm();
-    else if (radius == 0.0f)
-        radius = entry->RadiusMax;
-
-    if (caster)
-    {
-        if (Unit const* casterUnit = caster->ToUnit())
-            radius += entry->RadiusPerLevel * casterUnit->GetLevel();
-
-        radius = std::min(radius, entry->RadiusMax);
-
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
-
-        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
-            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
-                radius += 2.0f;
-    }
+        radius.Max = (radius.Max - radius.Min) * std::sqrt(rand_norm());
 
     return radius;
-}
-
-Optional<std::pair<float, float>> SpellEffectInfo::CalcRadiusBounds(WorldObject* caster, SpellTargetIndex targetIndex, Spell* spell) const
-{
-    // TargetA -> TargetARadiusEntry
-    // TargetB -> TargetBRadiusEntry
-    // Aura effects have TargetARadiusEntry == TargetBRadiusEntry (mostly)
-    SpellRadiusEntry const* entry = TargetARadiusEntry;
-    if (targetIndex == SpellTargetIndex::TargetB && HasRadius(targetIndex))
-        entry = TargetBRadiusEntry;
-
-    Optional<std::pair<float, float>> bounds;
-    if (!entry)
-        return bounds;
-
-    bounds.emplace(entry->RadiusMin, entry->RadiusMax);
-
-    if (caster)
-    {
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, bounds->second, spell);
-
-        if (!_spellInfo->HasAttribute(SPELL_ATTR9_NO_MOVEMENT_RADIUS_BONUS))
-        {
-            if (Unit const* casterUnit = caster->ToUnit(); casterUnit && Spell::CanIncreaseRangeByMovement(casterUnit))
-            {
-                bounds->first = std::max(bounds->first - 2.0f, 0.0f);
-                bounds->second += 2.0f;
-            }
-        }
-    }
-
-    return bounds;
 }
 
 uint32 SpellEffectInfo::GetProvidedTargetMask() const
@@ -1344,6 +1314,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 352 SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 353 SPELL_EFFECT_CREATE_AREATRIGGER_2
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 355 SPELL_EFFECT_LEARN_HOUSE_TYPE
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -1578,7 +1549,7 @@ uint32 SpellInfo::GetCategory() const
     return CategoryId;
 }
 
-bool SpellInfo::HasEffect(SpellEffectName effect) const
+bool SpellInfo::HasEffect(SpellEffects effect) const
 {
     for (SpellEffectInfo const& eff : GetEffects())
         if (eff.IsEffect(effect))
@@ -1804,22 +1775,21 @@ bool SpellInfo::IsStackableWithRanks() const
         return false;
 
     // All stance spells. if any better way, change it.
-    for (SpellEffectInfo const& effect : GetEffects())
+    switch (SpellFamilyName)
     {
-        switch (SpellFamilyName)
-        {
-            case SPELLFAMILY_PALADIN:
-                // Paladin aura Spell
-                if (effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
-                    return false;
-                break;
-            case SPELLFAMILY_DRUID:
-                // Druid form Spell
-                if (effect.Effect == SPELL_EFFECT_APPLY_AURA &&
-                    effect.ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
-                    return false;
-                break;
-        }
+        case SPELLFAMILY_PALADIN:
+            // Paladin aura Spell
+            if (HasEffect(SPELL_EFFECT_APPLY_AREA_AURA_RAID))
+                return false;
+            // Seal of Righteousness
+            if (SpellFamilyFlags[1] & 0x20000000)
+                return false;
+            break;
+        case SPELLFAMILY_DRUID:
+            // Druid form Spell
+            if (HasAura(SPELL_AURA_MOD_SHAPESHIFT))
+                return false;
+            break;
     }
 
     return true;
@@ -1846,6 +1816,11 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
     if (HasAttribute(SPELL_ATTR0_COOLDOWN_ON_EVENT))
         return true;
 
+    return IsCooldownStartedOnEventAfterCombat();
+}
+
+bool SpellInfo::IsCooldownStartedOnEventAfterCombat() const
+{
     SpellCategoryEntry const* category = sSpellCategoryStore.LookupEntry(CategoryId);
     return category && category->GetFlags().HasFlag(SpellCategoryFlags::CooldownEventOnLeaveCombat);
 }
@@ -1930,7 +1905,7 @@ bool SpellInfo::IsRangedWeaponSpell() const
 {
     return (SpellFamilyName == SPELLFAMILY_HUNTER && !(SpellFamilyFlags[1] & 0x10000000)) // for 53352, cannot find better way
         || (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
-        || (Attributes & SPELL_ATTR0_USES_RANGED_SLOT);
+        || (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT));
 }
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
@@ -3512,6 +3487,7 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 dispelImmunityMask = 0;
         uint32 damageImmunityMask = 0;
         uint8 otherImmunityMask = 0;
+        bool removeEffectsWithMechanic = false;
 
         int32 miscVal = effect.MiscValue;
 
@@ -3527,7 +3503,7 @@ void SpellInfo::_LoadImmunityInfo()
                     dispelImmunityMask |= creatureImmunities->DispelType.to_ulong();
                     mechanicImmunityMask |= creatureImmunities->Mechanic.to_ullong();
                     otherImmunityMask |= creatureImmunities->Other.AsUnderlyingType();
-                    for (SpellEffectName effectType : creatureImmunities->Effect)
+                    for (SpellEffects effectType : creatureImmunities->Effect)
                         immuneInfo.SpellEffectImmune.insert(effectType);
                     for (AuraType aura : creatureImmunities->Aura)
                         immuneInfo.AuraTypeImmune.insert(aura);
@@ -3542,6 +3518,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 59752: // Every Man for Himself
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
                         immuneInfo.AuraTypeImmune.insert(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED);
+                        removeEffectsWithMechanic = true;
                         break;
                     case 34471: // The Beast Within
                     case 19574: // Bestial Wrath
@@ -3553,6 +3530,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 195710: // Honorable Medallion
                     case 208683: // Gladiator's Medallion
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+                        removeEffectsWithMechanic = true;
                         break;
                     case 54508: // Demonic Empowerment
                         mechanicImmunityMask |= (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN);
@@ -3564,11 +3542,16 @@ void SpellInfo::_LoadImmunityInfo()
                         mechanicImmunityMask |= UI64LIT(1) << miscVal;
                         break;
                 }
+
+                // Special 100 ms duration spells - PvP trinket, Every Man for Himself and some other
+                if (GetMaxDuration() == 100)
+                    removeEffectsWithMechanic = true;
+
                 break;
             }
             case SPELL_AURA_EFFECT_IMMUNITY:
             {
-                immuneInfo.SpellEffectImmune.insert(static_cast<SpellEffectName>(miscVal));
+                immuneInfo.SpellEffectImmune.insert(static_cast<SpellEffects>(miscVal));
                 break;
             }
             case SPELL_AURA_STATE_IMMUNITY:
@@ -3606,6 +3589,7 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.DispelImmuneMask = dispelImmunityMask;
         immuneInfo.DamageSchoolMask = damageImmunityMask;
         immuneInfo.OtherImmuneMask = otherImmunityMask;
+        immuneInfo.RemoveEffectsWithMechanic = removeEffectsWithMechanic;
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
@@ -3756,8 +3740,8 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
             if (apply)
-                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
-            else
+                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id, immuneInfo->RemoveEffectsWithMechanic);
+            else if (!immuneInfo->RemoveEffectsWithMechanic)
             {
                 std::vector<Aura*> aurasToUpdateTargets;
                 target->RemoveAppliedAuras([mechanicImmunity, &aurasToUpdateTargets](AuraApplication const* aurApp)
@@ -3814,7 +3798,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             });
     }
 
-    for (SpellEffectName effectType : immuneInfo->SpellEffectImmune)
+    for (SpellEffects effectType : immuneInfo->SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
 
     if (uint8 otherImmuneMask = immuneInfo->OtherImmuneMask)
@@ -3962,7 +3946,7 @@ float SpellInfo::GetMinRange(bool positive /*= false*/) const
     return RangeEntry->RangeMin[positive ? 1 : 0];
 }
 
-float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
+float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject const* caster /*= nullptr*/, Spell* spell /*= nullptr*/) const
 {
     if (!RangeEntry)
         return 0.0f;
@@ -3970,6 +3954,20 @@ float SpellInfo::GetMaxRange(bool positive /*= false*/, WorldObject* caster /*= 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(this, SpellModOp::Range, range, spell);
+
+    return range;
+}
+
+SpellRange SpellInfo::GetMinMaxRange(bool positive, WorldObject const* caster, Spell* spell) const
+{
+    SpellRange range;
+    if (!RangeEntry)
+        return range;
+
+    range = { .Min = RangeEntry->RangeMin[positive ? 1 : 0], .Max = RangeEntry->RangeMax[positive ? 1 : 0] };
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(this, SpellModOp::Range, range.Max, spell);
 
     return range;
 }
@@ -4389,7 +4387,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             }
             case SPELL_PPM_MOD_RACE:
             {
-                if (caster->GetRaceMask() & mod->Param)
+                if (Trinity::RaceMask<int32>{ mod->Param }.HasRace(caster->GetRace()))
                     ppm *= 1.0f + mod->Coeff;
                 break;
             }

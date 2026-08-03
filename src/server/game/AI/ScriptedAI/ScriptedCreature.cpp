@@ -17,11 +17,12 @@
 
 #include "ScriptedCreature.h"
 #include "AreaBoundary.h"
-#include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CommonHelpers.h"
 #include "CreatureAIImpl.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -394,13 +395,14 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         // Check if the spell meets our range requirements
-        if (rangeMin && me->GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
+        SpellRange spellRange = me->GetSpellMinMaxRangeForTarget(target, tempSpell);
+        if (rangeMin && spellRange.Min < rangeMin)
             continue;
-        if (rangeMax && me->GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
+        if (rangeMax && spellRange.Max > rangeMax)
             continue;
 
         // Check if our target is in range
-        if (me->IsWithinDistInMap(target, float(me->GetSpellMinRangeForTarget(target, tempSpell))) || !me->IsWithinDistInMap(target, float(me->GetSpellMaxRangeForTarget(target, tempSpell))))
+        if (me->IsWithinDistInMap(target, spellRange.Min) || !me->IsWithinDistInMap(target, spellRange.Max))
             continue;
 
         // All good so lets add it to the spell list
@@ -523,6 +525,20 @@ void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO
 void ScriptedAI::SetCombatMovement(bool allowMovement)
 {
     _isCombatMovementAllowed = allowMovement;
+}
+
+void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = nullptr*/, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/, StartCombatArgs const& combatArgs/* = { }*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner ? summoner->GetGUID() : ObjectGuid::Empty, combatArgs), who->m_Events.CalculateTime(timer));
+}
+
+void ScriptedAI::DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who/* = nullptr*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(event, who->m_Events.CalculateTime(timer));
 }
 
 // BossAI - for instanced bosses

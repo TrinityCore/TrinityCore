@@ -106,9 +106,9 @@ TEST_CASE("Trinity::unique_weak_ptr", "[UniqueTrackablePtr]")
 }
 
 // disable warning about invalid reinterpret_cast, test intentionally tests this
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreinterpret-base-class"
+#if TRINITY_COMPILER_IS_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreinterpret-base-class"
 #endif
 
 TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
@@ -160,6 +160,6 @@ TEST_CASE("Trinity::unique_strong_ref_ptr type casts", "[UniqueTrackablePtr]")
     }
 }
 
-#ifdef __clang__
-#pragma GCC diagnostic pop
+#if TRINITY_COMPILER_IS_CLANG
+#pragma clang diagnostic pop
 #endif

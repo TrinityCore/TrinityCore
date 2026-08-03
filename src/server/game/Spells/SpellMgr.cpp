@@ -1753,10 +1753,12 @@ void SpellMgr::LoadSpellProcs()
     count = 0;
     oldMSTime = getMSTime();
 
+    std::unordered_map<std::pair<uint32, Difficulty>, SpellProcEntry> generatedSpellProcMap;
+
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {
         // Data already present in DB, overwrites default proc
-        if (mSpellProcMap.find({ spellInfo.Id, spellInfo.Difficulty }) != mSpellProcMap.end())
+        if (GetSpellProcEntry(&spellInfo) != nullptr)
             continue;
 
         // Nothing to do if no flags set
@@ -1899,9 +1901,11 @@ void SpellMgr::LoadSpellProcs()
             continue;
         }
 
-        mSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
+        generatedSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
         ++count;
     }
+
+    mSpellProcMap.merge(generatedSpellProcMap);
 
     TC_LOG_INFO("server.loading", ">> Generated spell proc data for {} spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -2322,7 +2326,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.questEndStatus      = fields[4].GetUInt32();
         spellArea.questEnd            = fields[5].GetUInt32();
         spellArea.auraSpell           = fields[6].GetInt32();
-        spellArea.raceMask.RawValue   = fields[7].GetUInt64();
+        spellArea.raceMask            = { fields[7].GetUInt64() };
         spellArea.gender              = Gender(fields[8].GetUInt8());
         spellArea.flags               = fields[9].GetUInt8();
 
@@ -2443,7 +2447,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (!spellArea.raceMask.IsEmpty() && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE).IsEmpty())
         {
-            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_area` has wrong race mask ({}) requirement.", spell, spellArea.raceMask.RawValue);
+            TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_area` has wrong race mask ({}) requirement.", spell, spellArea.raceMask.RawValue[0]);
             continue;
         }
 
@@ -3460,15 +3464,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             });
         });
 
-        // Remote Toy
-        ApplySpellFix({ 37027 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-            {
-                spellEffectInfo->TriggerSpell = 37029;
-            });
-        });
-
         // Eye of Grillok
         ApplySpellFix({ 38495 }, [](SpellInfo* spellInfo)
         {
@@ -3534,7 +3529,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         63665, // Charge (Argent Tournament emote on riders)
-        31298, // Sleep (needs target selection script)
         51904, // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
         68933, // Wrath of Air Totem rank 2 (Aura)
         29200  // Purify Helboar Meat
@@ -3558,18 +3552,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS;
     });
 
-    // Howl of Azgalor
-    ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->TargetARadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
-        });
-    });
-
     ApplySpellFix({
         42818, // Headless Horseman - Wisp Flight Port
-        42821  // Headless Horseman - Wisp Flight Missile
+        42821, // Headless Horseman - Wisp Flight Missile
+        720,   // Entangle
+        731    // Entangle
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100 yards
@@ -3585,7 +3572,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
-        31347, // Doom
         36327, // Shoot Arcane Explosion Arrow
         39365, // Thundering Storm
         41071, // Raise Dead (HACK)
@@ -3731,6 +3717,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellEffectInfo->ApplyAuraPeriod = 3000;
         });
+    });
+
+    // Radius in DBC is not enough
+    ApplySpellFix({
+        36854, // Channel
+        36856  // Channel
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
     });
 
     // Nether Portal - Perseverence
@@ -5151,6 +5146,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
+    ApplySpellFix({
+        61874, // Noblegarden Chocolate
+        71068, // Sweet Surprise
+        71071, // Very Berry Cream
+        71073, // Dark Desire
+        71074  // Buttermilk Delight
+    }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect          = SPELL_EFFECT_APPLY_AURA;
+            spellEffectInfo->TargetA         = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+            spellEffectInfo->ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+            spellEffectInfo->ApplyAuraPeriod = 10 * IN_MILLISECONDS;
+            spellEffectInfo->TriggerSpell    = 24870;
+        });
+    });
+
     // Horde / Alliance switch (BG mercenary system)
     ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
     {
@@ -5214,6 +5227,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellEffectInfo->Effect = SPELL_EFFECT_NONE;
         });
+    });
+
+    // Eradicate, Reap, Cull
+    ApplySpellFix({ 1225826, 1226019, 1245453 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->NegativeEffects[EFFECT_0] = true;
     });
 
     // Collective Anguish channel hack (triggered by another channel)
@@ -5363,7 +5382,7 @@ void SpellMgr::LoadSpellInfoImmunities()
             for (std::string_view token : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
             {
                 if (Optional<uint32> effect = Trinity::StringTo<uint32>(token); effect && effect < uint32(TOTAL_SPELL_EFFECTS))
-                    immunities.Effect.push_back(SpellEffectName(*effect));
+                    immunities.Effect.push_back(SpellEffects(*effect));
                 else
                     TC_LOG_ERROR("sql.sql", "Invalid effect type in `Effects` {} for creature immunities {}, skipped", token, id);
             }
@@ -5524,6 +5543,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 1265579, 1265580, 1265581, 1265582 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, 1265357, EFFECT_0, {}, {});
+    });
+
+    // Eradicate
+    ApplySpellFix({ 1225827, 1279200 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 1226033, EFFECT_0, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

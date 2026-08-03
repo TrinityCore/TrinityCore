@@ -802,7 +802,7 @@ enum class CriteriaType : int16
     RemoveDecor                                    = 271, /*NYI*/ // Remove any decor
     CollectUniqueDecor                             = 272, /*NYI*/ // Collect Unique Decor
 
-    Count                                          = 283
+    Count                                          = 284
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1512,6 +1512,25 @@ enum ItemLimitCategoryMode
 enum ItemSetFlags
 {
     ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
+};
+
+enum class ItemSheatheType : uint8
+{
+    None                    = 0,
+    Shoulder                = 1,
+    Inverted                = 2,
+    Hip                     = 3,
+    Shield                  = 4,
+    Crossbow                = 5,
+    ShoulderInvis           = 6,
+    InvertedInvis           = 7,
+    HipInvis                = 8,
+    ShieldInvis             = 9,
+    CrossbowInvis           = 10,
+    InvertedDualWield       = 11,
+    InvertedDualWieldInvis  = 12,
+
+    Max
 };
 
 enum ItemSpecStat
@@ -2626,6 +2645,16 @@ enum class TransmogOutfitSlotOptionFlags : int32
 
 DEFINE_ENUM_FLAG(TransmogOutfitSlotOptionFlags);
 
+enum class TransmogOutfitSlotOptionSheatheCategory : uint8
+{
+    Default = 0,
+    Back    = 1,
+    Side    = 2,
+    Hide    = 3,
+
+    Max
+};
+
 enum class TransmogSituation : int8
 {
     AllSpecs                = 0,
@@ -2814,7 +2843,8 @@ enum class TraitConditionType : int32
     Visible         = 1,
     Granted         = 2,
     Increased       = 3,
-    DisplayError    = 4
+    DisplayError    = 4,
+    RanksAllowed    = 5
 };
 
 enum class TraitConfigType : int32

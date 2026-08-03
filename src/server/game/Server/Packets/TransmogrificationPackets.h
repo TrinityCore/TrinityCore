@@ -27,6 +27,7 @@ enum class TransmogOutfitEntrySource : uint8;
 enum class TransmogOutfitSetType : uint8;
 enum class TransmogOutfitSlot : int8;
 enum class TransmogOutfitSlotOption : uint8;
+enum class TransmogOutfitSlotOptionSheatheCategory : uint8;
 
 namespace WorldPackets
 {
@@ -147,6 +148,7 @@ namespace WorldPackets
         {
             TransmogOutfitSlot Slot = { };
             TransmogOutfitSlotOption SlotOption = { };
+            TransmogOutfitSlotOptionSheatheCategory SheatheCategory = { };
             TransmogOutfitDisplayType AppearanceDisplayType = { };
             TransmogOutfitDisplayType IllusionDisplayType = { };
             uint32 ItemModifiedAppearanceID = 0;

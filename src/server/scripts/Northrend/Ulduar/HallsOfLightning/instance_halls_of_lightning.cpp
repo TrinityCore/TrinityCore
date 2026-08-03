@@ -24,17 +24,17 @@
 
 static constexpr DoorData doorData[] =
 {
-    { GO_VOLKHAN_DOOR, DATA_VOLKHAN, EncounterDoorBehavior::OpenWhenDone },
-    { GO_IONAR_DOOR,   DATA_IONAR,   EncounterDoorBehavior::OpenWhenDone },
-    { GO_LOKEN_DOOR,   DATA_LOKEN,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_VOLKHAN_DOOR, BOSS_VOLKHAN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_IONAR_DOOR,   BOSS_IONAR,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_LOKEN_DOOR,   BOSS_LOKEN,   EncounterDoorBehavior::OpenWhenDone },
 };
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_GENERAL_BJARNGRIM,    DATA_GENERAL_BJARNGRIM  },
-    { NPC_VOLKHAN,              DATA_VOLKHAN            },
-    { NPC_IONAR,                DATA_IONAR              },
-    { NPC_LOKEN,                DATA_LOKEN              },
+    { NPC_GENERAL_BJARNGRIM,    BOSS_GENERAL_BJARNGRIM  },
+    { NPC_VOLKHAN,              BOSS_VOLKHAN            },
+    { NPC_IONAR,                BOSS_IONAR              },
+    { NPC_LOKEN,                BOSS_LOKEN              },
     { NPC_INVISIBLE_STALKER,    DATA_INVISIBLE_STALKER  },
     { NPC_VOLKHANS_ANVIL,       DATA_VOLKHANS_ANVIL     },
 };
@@ -47,10 +47,10 @@ static constexpr ObjectData gameObjectData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_GENERAL_BJARNGRIM, {{ 1987 }} },
-    { DATA_VOLKHAN, {{ 1985 }} },
-    { DATA_IONAR, {{ 1984 }} },
-    { DATA_LOKEN, {{ 1986 }} }
+    { BOSS_GENERAL_BJARNGRIM, {{ 1987 }} },
+    { BOSS_VOLKHAN, {{ 1985 }} },
+    { BOSS_IONAR, {{ 1984 }} },
+    { BOSS_LOKEN, {{ 1986 }} }
 };
 
 class instance_halls_of_lightning : public InstanceMapScript
@@ -76,9 +76,9 @@ class instance_halls_of_lightning : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_MOLTEN_GOLEM:
-                        if (GetBossState(DATA_VOLKHAN) == IN_PROGRESS)
+                        if (GetBossState(BOSS_VOLKHAN) == IN_PROGRESS)
                         {
-                            if (Creature* volkhan = GetCreature(DATA_VOLKHAN))
+                            if (Creature* volkhan = GetCreature(BOSS_VOLKHAN))
                                 if (CreatureAI* ai = volkhan->AI())
                                     ai->JustSummoned(creature);
                         }
@@ -97,7 +97,7 @@ class instance_halls_of_lightning : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_LOKEN:
+                    case BOSS_LOKEN:
                         if (state == DONE)
                             if (GameObject* globe = GetGameObject(DATA_LOKEN_GLOBE))
                                 globe->SendCustomAnim(0);

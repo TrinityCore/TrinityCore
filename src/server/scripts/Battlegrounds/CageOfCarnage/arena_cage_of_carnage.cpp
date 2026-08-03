@@ -254,7 +254,7 @@ class spell_undermine_arena_reaction_trigger : public AuraScript
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
         if (ZoneScript* zonescript = GetTarget()->FindZoneScript())
-            zonescript->DoAction(CageOfCarnage::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetProcTarget());
+            zonescript->DoAction(CageOfCarnage::Actions::ReactionDead, eventInfo.GetActor(), eventInfo.GetActionTarget());
     }
 
     void Register() override

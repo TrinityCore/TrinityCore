@@ -255,7 +255,7 @@ int main(int argc, char** argv)
     auto sSessionMgrHandle = Trinity::make_unique_ptr_with_deleter<&Battlenet::SessionManager::StopNetwork>(&sSessionMgr);
 
     // Set signal handlers
-    boost::asio::basic_signal_set<Trinity::Asio::IoContext::Executor> signals(*ioContext, SIGINT, SIGTERM);
+    boost::asio::basic_signal_set<Trinity::Asio::IoContextExecutor> signals(*ioContext, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -339,7 +339,7 @@ void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPing
     {
         if (std::shared_ptr<Trinity::Asio::DeadlineTimer> dbPingTimer = dbPingTimerRef.lock())
         {
-            TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
+            TC_LOG_DEBUG("sql.driver", "Ping MySQL to keep connection alive");
             LoginDatabase.KeepAlive();
 
             dbPingTimer->expires_after(std::chrono::minutes(dbPingInterval));
@@ -437,7 +437,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
     return variablesMap;
 }
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if TRINITY_COMPILER_IS_MICROSOFT
 #include "WheatyExceptionReport.h"
 // must be at end of file because of init_seg pragma
 INIT_CRASH_HANDLER();

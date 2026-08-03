@@ -243,11 +243,8 @@ void Battlefield::InvitePlayerToWar(Player* player)
     if (player->IsInFlight())
         return;
 
-    if (player->InArena() || player->GetBattleground())
-    {
-        m_PlayersInQueue[player->GetTeamId()].erase(player->GetGUID());
+    if (player->GetBattleground())
         return;
-    }
 
     // If the player does not match minimal level requirements for the battlefield, kick him
     if (player->GetLevel() < m_MinLevel)
@@ -600,12 +597,14 @@ WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
 // ----------------------
 // - BfGraveyard Method -
 // ----------------------
-BfGraveyard::BfGraveyard(Battlefield* battlefield)
+BfGraveyard::BfGraveyard(Battlefield* bf)
 {
-    m_Bf = battlefield;
+    m_Bf = bf;
     m_GraveyardId = 0;
     m_ControlTeam = TEAM_NEUTRAL;
 }
+
+BfGraveyard::~BfGraveyard() = default;
 
 void BfGraveyard::Initialize(TeamId startControl, uint32 graveyardId)
 {
@@ -736,6 +735,8 @@ GameObject* Battlefield::GetGameObject(ObjectGuid guid)
 BattlefieldControlZoneHandler::BattlefieldControlZoneHandler(Battlefield* bf) : _battlefield(bf)
 {
 }
+
+BattlefieldControlZoneHandler::~BattlefieldControlZoneHandler() = default;
 
 Battlefield* BattlefieldControlZoneHandler::GetBattlefield()
 {

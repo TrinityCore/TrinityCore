@@ -1122,17 +1122,11 @@ public:
         // set pet to defensive mode by default (some classes can't control controlled pets in fact).
         pet->SetReactState(REACT_DEFENSIVE);
 
-        // calculate proper level
-        uint8 level = std::max<uint8>(player->GetLevel()-5, creatureTarget->GetLevel());
-
-        // prepare visual effect for levelup
-        pet->SetLevel(level - 1);
-
         // add to world
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetLevel(level);
+        pet->SendNewlyTamed();
 
         // caster have pet now
         player->SetMinion(pet, true);

@@ -403,10 +403,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 if (player->GetGUID() == guid || !player->IsGameMaster())
                                 {
                                     player->CombatStop(true);
-                                    constexpr float offsetDist = 10.0f;
-                                    float myAngle = rand_norm() * static_cast<float>(2.0f * M_PI);
-                                    Position myTarget(target.GetPositionX() + std::sin(myAngle) * offsetDist, target.GetPositionY() + std::sin(myAngle) * offsetDist, target.GetPositionZ(), myAngle + M_PI);
-                                    player->NearTeleportTo(myTarget);
+                                    player->NearTeleportTo(player->GetRandomPoint(target, 10.0f));
                                 }
                         }
                         break;
@@ -603,7 +600,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         _plagueCrates.push_back(creature->GetGUID());
                         break;
                     case NPC_ARTHAS:
-                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at {}", creature->GetPosition().ToString());
+                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::OnCreatureCreate: Arthas spawned at {}", creature->GetPosition());
                         _arthasGUID = creature->GetGUID();
                         creature->setActive(true);
                         break;

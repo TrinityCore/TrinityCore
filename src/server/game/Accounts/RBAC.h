@@ -97,11 +97,13 @@ enum RBACPermissions
     RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE                  = 44,
     RBAC_PERM_SILENTLY_JOIN_CHANNEL                          = 45,
     RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR                   = 46,
-    RBAC_PERM_CHECK_FOR_LOWER_SECURITY                       = 47,
+    RBAC_PERM_CAN_IGNORE_LOWER_SECURITY_CHECK                = 47,
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
     RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
     RBAC_PERM_MAY_CHECK_OWN_EMAIL                            = 50,
     RBAC_PERM_ALLOW_TWO_SIDE_TRADE                           = 51,
+    RBAC_PERM_NO_BATTLEGROUND_DESERTER_DEBUFF                = 52,
+    RBAC_PERM_CAN_AFK_ON_BATTLEGROUND                        = 53,
 
     // Free space for core permissions (till 149)
     // Roles (Permissions with delegated permissions) use 199 and descending
@@ -569,7 +571,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 697,
     RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT                = 698,
     RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 699,
-    RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS                   = 700,
+    // 700 previously used, do not reuse
     RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
     RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS                   = 702,
     RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 703,
@@ -749,6 +751,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES              = 882,
     RBAC_PERM_COMMAND_QUEST_OBJECTIVE_COMPLETE               = 883,
+    RBAC_PERM_COMMAND_BG_START                               = 884,
+    RBAC_PERM_COMMAND_BG_STOP                                = 885,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //

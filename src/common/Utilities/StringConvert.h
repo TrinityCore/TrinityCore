@@ -174,7 +174,7 @@ namespace Trinity::Impl::StringConvertImpl
         }
     };
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if TRINITY_COMPILER_IS_MICROSOFT
     template <typename T>
     struct For<T, std::enable_if_t<std::is_floating_point_v<T>>>
     {

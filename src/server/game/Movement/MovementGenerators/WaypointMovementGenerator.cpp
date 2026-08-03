@@ -39,13 +39,13 @@ template <typename T>
 WaypointMovementGenerator<T>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
+    Optional<MovementFadeObject> fadeObject /*= {}*/,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : PathMovementBase(sWaypointMgr->GetPath(pathId)), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
+    _fadeObject(fadeObject), _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -58,13 +58,13 @@ template <typename T>
 WaypointMovementGenerator<T>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
+    Optional<MovementFadeObject> fadeObject,
     Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : PathMovementBase(std::make_unique<WaypointPath>(path)), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
+    _fadeObject(fadeObject), _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
-    this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
@@ -135,7 +135,7 @@ bool WaypointMovementGenerator<T>::GetResetPosition(Unit* /*owner*/, float& x, f
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoInitialize(T* owner)
+bool WaypointMovementGenerator<T>::DoInitialize(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -143,7 +143,7 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     if (!path)
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for {}", owner->GetGUID());
-        return;
+        return false;
     }
 
     if (path->Nodes.size() == 1)
@@ -152,10 +152,11 @@ void WaypointMovementGenerator<T>::DoInitialize(T* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
+    return true;
 }
 
 template <typename T>
-void WaypointMovementGenerator<T>::DoReset(T* owner)
+bool WaypointMovementGenerator<T>::DoReset(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -163,6 +164,7 @@ void WaypointMovementGenerator<T>::DoReset(T* owner)
 
     if (!this->HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) && _nextMoveTime.Passed())
         _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+    return true;
 }
 
 template <typename T>
@@ -591,6 +593,22 @@ void WaypointMovementGenerator<T>::StartMove(T* owner, bool relaunch/* = false*/
     if (lastWaypointForSegment->Orientation.has_value()
         && (lastWaypointForSegment->Delay || (_isReturningToStart ? _currentNode == 0 : _currentNode == path->Nodes.size() - 1)))
         init.SetFacing(*lastWaypointForSegment->Orientation);
+
+    if (_fadeObject && !_repeating)
+    {
+        std::size_t lastWaypointForPath = IsFollowingPathBackwardsFromEndToStart() ? 0 : path->Nodes.size() - 1;
+        if (IsExactSplinePath())
+        {
+            auto [lastSegmentFirstNode, segmentLength] = path->ContinuousSegments[IsFollowingPathBackwardsFromEndToStart() ? 0 : path->ContinuousSegments.size() - 1];
+            if (lastWaypointForPath >= lastSegmentFirstNode && lastWaypointForPath < lastSegmentFirstNode + segmentLength)
+                init.SetFadeObject(_fadeObject->Duration.value_or(1s));
+        }
+        else
+        {
+            if (lastWaypointForSegment->Id == path->Nodes[lastWaypointForPath].Id)
+                init.SetFadeObject(_fadeObject->Duration.value_or(1s));
+        }
+    }
 
     switch (lastWaypointForSegment->MoveType.value_or(path->MoveType))
     {

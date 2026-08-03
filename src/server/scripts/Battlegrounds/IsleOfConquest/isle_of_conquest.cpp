@@ -321,9 +321,10 @@ class spell_ioc_seaforium_blast_credit : public SpellScript
         if (!caster)
             return;
 
-        if (GetSpellInfo()->Id == SPELL_SEAFORIUM_BLAST)
+        uint32 spellId = GetSpellInfo()->Id;
+        if (spellId == SPELL_SEAFORIUM_BLAST)
             _creditSpell = SPELL_A_BOMB_INABLE_CREDIT;
-        else if (GetSpellInfo()->Id == SPELL_HUGE_SEAFORIUM_BLAST)
+        else if (spellId == SPELL_HUGE_SEAFORIUM_BLAST)
             _creditSpell = SPELL_A_BOMB_INATION_CREDIT;
 
         if (GetHitGObj() && GetHitGObj()->IsDestructibleBuilding())

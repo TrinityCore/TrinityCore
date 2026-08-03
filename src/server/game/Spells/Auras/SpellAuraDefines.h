@@ -24,7 +24,7 @@
 enum AURA_FLAGS
 {
     AFLAG_NONE                   = 0x0000,
-    AFLAG_NOCASTER               = 0x0001,
+    AFLAG_SELF_CAST              = 0x0001,
     AFLAG_POSITIVE               = 0x0002,
     AFLAG_DURATION               = 0x0004,
     AFLAG_SCALABLE               = 0x0008,
@@ -419,7 +419,7 @@ enum AuraType : uint32
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED          = 333,  // Spells cast with this override have no cast time or power cost
     SPELL_AURA_MOD_AUTOATTACK_CRIT_CHANCE                   = 334,
-    SPELL_AURA_335                                          = 335,
+    SPELL_AURA_DETECT_VISIBLE_WHILE_INVISIBLE               = 335,
     SPELL_AURA_MOUNT_RESTRICTIONS                           = 336,
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,
     SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,
@@ -740,6 +740,12 @@ enum AuraType : uint32
     SPELL_AURA_653                                          = 653,
     SPELL_AURA_654                                          = 654,
     SPELL_AURA_MOD_TRANSMOG_OUTFIT_UPDATE_COST              = 655,
+    SPELL_AURA_656                                          = 656,
+    SPELL_AURA_657                                          = 657,
+    SPELL_AURA_658                                          = 658,
+    SPELL_AURA_659                                          = 659,
+    SPELL_AURA_660                                          = 660,
+    SPELL_AURA_ALTERED_FORM_IN_COMBAT                       = 661,
 
     TOTAL_AURAS
 };

@@ -257,14 +257,22 @@ namespace WorldPackets
                 } Address = { };
             };
 
-            struct ConnectPayload
+            struct BleepToken
             {
-                SocketAddress Where;
-                uint16 Port = 0;
-                std::array<uint8, 256> Signature = { };
+                std::string_view Token;
+                std::string_view ProxyId;
+                std::string_view Address;
+                Duration<std::chrono::nanoseconds> TokenLifespan;
             };
 
-            explicit ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 256 + 1 + 16 + 2 + 4 + 1 + 8) { }
+            struct ConnectPayload
+            {
+                SocketAddress Address;
+                uint16 Port = 0;
+                BleepToken Token;
+            };
+
+            explicit ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 4 + 4 + 1 + 8 + 4 + 4 + 1 + 16 + 2 + 1 + 3 + 1 + 8 + 0 + 0 + 0) { }
 
             WorldPacket const* Write() override;
 
@@ -272,7 +280,7 @@ namespace WorldPackets
             uint32 NativeRealmAddress = 0;
             uint32 Key3 = 0;
             ConnectToSerial Serial = ConnectToSerial::None;
-            ConnectPayload Payload;
+            std::vector<ConnectPayload> Payload;
             uint8 Con = 0;
         };
 

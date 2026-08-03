@@ -850,6 +850,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetId() const { return BasicData->ID; }
     uint32 GetClass() const { return BasicData->ClassID; }
     uint32 GetSubClass() const { return BasicData->SubclassID; }
+    ItemSheatheType GetSheatheType() const { return static_cast<ItemSheatheType>(BasicData->SheatheType); }
     uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
     uint32 GetOtherFactionItemId() const { return ExtendedData->FactionRelated; }
     float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
@@ -859,7 +860,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
     int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
-    Trinity::RaceMask<int64> GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    Trinity::RaceMask<int32, 2> GetAllowableRace() const { return ExtendedData->AllowableRace; }
     uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
     int32 GetBaseRequiredLevel() const { return ExtendedData->RequiredLevel; }
     uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
@@ -928,7 +929,6 @@ struct TC_GAME_API ItemTemplate
 
     uint32 GetSkill() const;
 
-    bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return HasFlag(ITEM_FLAG3_CAN_STORE_ENCHANTS); }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && HasFlag(ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return HasFlag(ITEM_FLAG2_USED_IN_A_TRADESKILL); }

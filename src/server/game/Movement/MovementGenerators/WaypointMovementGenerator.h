@@ -35,11 +35,13 @@ class WaypointMovementGenerator : public MovementGeneratorMedium<T, WaypointMove
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
+            Optional<MovementFadeObject> fadeObject = {},
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         explicit WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
             MovementWalkRunSpeedSelectionMode speedSelectionMode,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd, Optional<float> wanderDistanceAtPathEnds,
             Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
+            Optional<MovementFadeObject> fadeObject,
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         ~WaypointMovementGenerator();
 
@@ -50,8 +52,8 @@ class WaypointMovementGenerator : public MovementGeneratorMedium<T, WaypointMove
         void Resume(uint32 overrideTimer) override;
         bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
-        void DoInitialize(T* owner);
-        void DoReset(T* owner);
+        bool DoInitialize(T* owner);
+        bool DoReset(T* owner);
         bool DoUpdate(T* owner, uint32 diff);
         void DoDeactivate(T* owner);
         void DoFinalize(T* owner, bool active, bool movementInform);
@@ -93,6 +95,7 @@ class WaypointMovementGenerator : public MovementGeneratorMedium<T, WaypointMove
         Optional<bool> _exactSplinePath;
         bool _repeating;
         bool _generatePath;
+        Optional<MovementFadeObject> _fadeObject;
 
         TimeTracker _moveTimer;
         TimeTracker _nextMoveTime;
