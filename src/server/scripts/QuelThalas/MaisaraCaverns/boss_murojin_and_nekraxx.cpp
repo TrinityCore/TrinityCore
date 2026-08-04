@@ -1003,8 +1003,12 @@ struct at_murojin_and_nekraxx_icy_slick : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        // To-Do: this at should apply inertia too (NYI)
-        caster->CastSpell(unit, Spells::IcySlickDamage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        unit->ApplyInertia(at->GetEntry(), 1000ms);
+    }
+
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
+    {
+        unit->RemoveInertia(at->GetEntry());
     }
 };
 }
