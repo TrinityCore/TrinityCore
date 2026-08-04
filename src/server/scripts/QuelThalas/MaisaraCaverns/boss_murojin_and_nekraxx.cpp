@@ -1003,6 +1003,7 @@ struct at_murojin_and_nekraxx_icy_slick : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
+        caster->CastSpell(unit, Spells::IcySlickDamage, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         unit->ApplyInertia(at->GetEntry(), 1000ms);
     }
 
