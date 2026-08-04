@@ -101,13 +101,13 @@ class TC_GAME_API PoolGroup
         bool isEmptyDeepCheck() const;
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        void DespawnObject(SpawnedPoolData& spawns, uint64 guid=0, bool alwaysDeleteRespawnTime = false);
+        void DespawnObject(SpawnedPoolData& spawns, uint64 guid, bool alwaysDeleteRespawnTime = false);
+        void DespawnAllObjects(SpawnedPoolData& spawns, bool alwaysDeleteRespawnTime = false);
         void Despawn1Object(SpawnedPoolData& spawns, uint64 guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true);
         void SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint64 triggerFrom);
         void RemoveRespawnTimeFromDB(SpawnedPoolData& spawns, uint64 guid);
 
         void Spawn1Object(SpawnedPoolData& spawns, PoolObject* obj);
-        void ReSpawn1Object(SpawnedPoolData& spawns, PoolObject* obj);
         void RemoveOneRelation(uint32 child_pool_id);
         uint32 GetPoolId() const { return poolId; }
     private:

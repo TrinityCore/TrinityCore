@@ -45,10 +45,10 @@ void WorldSession::SendBattlenetResponse(uint32 serviceHash, uint32 methodId, ui
     bnetResponse.Method.ObjectId = 1;
     bnetResponse.Method.Token = token;
 
-    if (response->ByteSize())
+    if (int32 size = response->ByteSize(); size > 0)
     {
-        bnetResponse.Data.resize(response->ByteSize());
-        response->SerializePartialToArray(bnetResponse.Data.data(), response->ByteSize());
+        bnetResponse.Data.resize(size);
+        response->SerializePartialToArray(bnetResponse.Data.data(), size);
     }
 
     SendPacket(bnetResponse.Write());
@@ -78,10 +78,10 @@ void WorldSession::SendBattlenetRequest(uint32 serviceHash, uint32 methodId, pb:
     notification.Method.ObjectId = 1;
     notification.Method.Token = _battlenetRequestToken++;
 
-    if (request->ByteSize())
+    if (int32 size = request->ByteSize(); size > 0)
     {
-        notification.Data.resize(request->ByteSize());
-        request->SerializePartialToArray(notification.Data.data(), request->ByteSize());
+        notification.Data.resize(size);
+        request->SerializePartialToArray(notification.Data.data(), size);
     }
 
     SendPacket(notification.Write());

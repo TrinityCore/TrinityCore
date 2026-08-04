@@ -19,12 +19,12 @@
 #define TRINITYCORE_SOCKET_H
 
 #include "Concepts.h"
+#include "IoContext.h"
 #include "IpAddress.h"
 #include "Log.h"
 #include "MessageBuffer.h"
 #include "SocketConnectionInitializer.h"
 #include <boost/asio/compose.hpp>
-#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
 #include <memory>
@@ -37,7 +37,7 @@
 
 namespace Trinity::Net
 {
-using IoContextTcpSocket = boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::io_context::executor_type>;
+using IoContextTcpSocket = boost::asio::basic_stream_socket<boost::asio::ip::tcp, Asio::IoContextExecutor>;
 
 namespace Impl::Operations
 {
@@ -94,7 +94,7 @@ struct ReadConnectionInitializer final : SocketConnectionInitializer
     @tparam Stream stream type used for operations on socket
             Stream must implement the following methods:
 
-            boost::asio::io_context::executor_type get_executor();
+            executor_type get_executor();
 
             bool is_open() const;
 
@@ -133,7 +133,8 @@ public:
     }
 
     template<typename... Args>
-    explicit Socket(boost::asio::io_context& context, Args&&... args) : _socket(context, std::forward<Args>(args)...), _openState(OpenState_Closed)
+    explicit Socket(Asio::IoContext& context, Args&&... args) : _socket(context, std::forward<Args>(args)...),
+        _openState(OpenState_Closed)
     {
     }
 

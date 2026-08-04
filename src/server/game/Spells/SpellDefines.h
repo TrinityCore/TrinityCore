@@ -437,7 +437,7 @@ public:
     float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
 
     void Update(WorldObject* caster);
-    std::string GetTargetString() const { return m_strTarget; }
+    std::string const& GetTargetString() const { return m_strTarget; }
 
 private:
     uint32 m_targetMask;

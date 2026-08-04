@@ -36,8 +36,7 @@ void protobuf_AssignDesc_api_2fcommon_2fv1_2fclub_5fmember_5fid_2eproto() {
       "api/common/v1/club_member_id.proto");
   GOOGLE_CHECK(file != NULL);
   MemberId_descriptor_ = file->message_type(0);
-  static const int MemberId_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, account_id_deprecated_),
+  static const int MemberId_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, unique_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, account_id_),
   };
@@ -88,10 +87,8 @@ void protobuf_AddDesc_api_2fcommon_2fv1_2fclub_5fmember_5fid_2eproto() {
     "\n\"api/common/v1/club_member_id.proto\022\024bg"
     "s.protocol.club.v1\032\'global_extensions/me"
     "ssage_options.proto\032\023account_types.proto"
-    "\032\017rpc_types.proto\"\204\001\n\010MemberId\022I\n\025accoun"
-    "t_id_deprecated\030\001 \001(\0132\".bgs.protocol.acc"
-    "ount.v1.AccountIdB\006\222\371+\002 \001\022\021\n\tunique_id\030\002"
-    " \001(\004\022\022\n\naccount_id\030\003 \001(\004:\006\202\371+\002\010\001B\002H\002", 276);
+    "\032\017rpc_types.proto\"9\n\010MemberId\022\021\n\tunique_"
+    "id\030\002 \001(\004\022\022\n\naccount_id\030\003 \001(\004:\006\202\371+\002\010\001B\002H\002", 200);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/common/v1/club_member_id.proto", &protobuf_RegisterTypes);
   MemberId::default_instance_ = new MemberId();
@@ -108,7 +105,6 @@ struct StaticDescriptorInitializer_api_2fcommon_2fv1_2fclub_5fmember_5fid_2eprot
 // ===================================================================
 
 #ifndef _MSC_VER
-const int MemberId::kAccountIdDeprecatedFieldNumber;
 const int MemberId::kUniqueIdFieldNumber;
 const int MemberId::kAccountIdFieldNumber;
 #endif  // !_MSC_VER
@@ -120,7 +116,6 @@ MemberId::MemberId()
 }
 
 void MemberId::InitAsDefaultInstance() {
-  account_id_deprecated_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 MemberId::MemberId(const MemberId& from)
@@ -132,7 +127,6 @@ MemberId::MemberId(const MemberId& from)
 
 void MemberId::SharedCtor() {
   _cached_size_ = 0;
-  account_id_deprecated_ = NULL;
   unique_id_ = GOOGLE_ULONGLONG(0);
   account_id_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -145,7 +139,6 @@ MemberId::~MemberId() {
 
 void MemberId::SharedDtor() {
   if (this != default_instance_) {
-    delete account_id_deprecated_;
   }
 }
 

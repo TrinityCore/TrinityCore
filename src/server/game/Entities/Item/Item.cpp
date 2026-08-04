@@ -1380,7 +1380,7 @@ void Item::SetCount(uint32 value)
     }
 }
 
-uint64 Item::CalculateDurabilityRepairCost(float discount) const
+uint64 Item::CalculateDurabilityRepairCost(float discount, bool useRateConfig /*= true*/) const
 {
     uint32 maxDurability = m_itemData->MaxDurability;
     if (!maxDurability)
@@ -1411,7 +1411,7 @@ uint64 Item::CalculateDurabilityRepairCost(float discount) const
         dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->GetSubClass()];
 
     uint64 cost = std::round(lostDurability * dmultiplier * durabilityQualityEntry->Data * GetRepairCostMultiplier());
-    cost = uint64(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+    cost = uint64(cost * discount * (useRateConfig ? sWorld->getRate(RATE_REPAIRCOST) : 1));
 
     if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
         cost = 1;
@@ -1700,7 +1700,7 @@ void Item::SendUpdateSockets()
 {
     WorldPackets::Item::SocketGemsSuccess socketGems;
     socketGems.Item = GetGUID();
-    GetOwner()->GetSession()->SendPacket(socketGems.Write());
+    GetOwner()->SendDirectMessage(socketGems.Write());
 }
 
 // Though the client has the information in the item's data field,
@@ -1715,7 +1715,7 @@ void Item::SendTimeUpdate(Player* owner)
     WorldPackets::Item::ItemTimeUpdate itemTimeUpdate;
     itemTimeUpdate.ItemGuid = GetGUID();
     itemTimeUpdate.DurationLeft = duration;
-    owner->GetSession()->SendPacket(itemTimeUpdate.Write());
+    owner->SendDirectMessage(itemTimeUpdate.Write());
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player /*= nullptr*/, bool addDefaultBonuses /*= true*/)
@@ -2231,9 +2231,27 @@ uint32 Item::GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemL
     return uint32(proto->GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto->GetPriceRandomValue());
 }
 
-uint32 Item::GetSellPrice(Player const* owner) const
+uint32 Item::GetSellPrice(Player const* owner, bool forVendor /*= false*/) const
 {
-    return Item::GetSellPrice(GetTemplate(), GetQuality(), GetItemLevel(owner));
+    ItemTemplate const* itemTemplate = GetTemplate();
+    int64 price = Item::GetSellPrice(itemTemplate, GetQuality(), GetItemLevel(owner));
+    if (forVendor)
+    {
+        std::span<ItemEffectEntry const* const> effects = GetEffects();
+        auto effectWithCharges = std::ranges::find_if(effects,
+            [](ItemEffectEntry const* itemEffect) { return itemEffect->SpellID && itemEffect->TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect->Charges < 0; });
+
+        if (effectWithCharges != effects.end())
+            price = price * GetSpellCharges(*effectWithCharges) / (*effectWithCharges)->Charges;
+
+        int64 repairCost = CalculateDurabilityRepairCost(1.0f, false);
+        if (repairCost < price)
+            price -= repairCost;
+        else
+            price = 1;
+    }
+
+    return price;
 }
 
 uint32 Item::GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel)
@@ -2295,13 +2313,13 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
             else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, {}, true))
                 level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
-            itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
+            itemLevel = uint32(std::round(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level)));
         }
 
         itemLevel += bonusData.ItemLevelBonus;
     }
     else
-        itemLevel = bonusData.ItemLevelOffset + uint32(sDB2Manager.GetCurveValueAt(bonusData.ItemLevelOffsetCurveId, bonusData.ItemLevelOffsetItemLevel));
+        itemLevel = bonusData.ItemLevelOffset + uint32(std::round(sDB2Manager.GetCurveValueAt(bonusData.ItemLevelOffsetCurveId, bonusData.ItemLevelOffsetItemLevel)));
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         itemLevel += bonusData.GemItemLevelBonus[i];
@@ -2323,17 +2341,17 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
             int32 currentBuild = ClientBuild::GetMinorMajorBugfixVersionForBuild(currentRealm->Build);
 
             // apply all squishes between items_squish and server_squish
-            for (uint32 squishId = bonusData.ItemSquishEraID; squishId < sItemSquishEraStore.GetNumRows(); ++squishId)
+            for (uint32 squishId = bonusData.ItemSquishEraID + 1; squishId < sItemSquishEraStore.GetNumRows(); ++squishId)
             {
                 ItemSquishEraEntry const* squish = sItemSquishEraStore.LookupEntry(squishId);
-                if (!squish)
+                if (!squish || squish->Flags & 0x1)
                     continue;
 
                 if (squish->Patch > currentBuild)
                     break;
 
                 if (squish->CurveID)
-                    itemLevel = uint32(sDB2Manager.GetCurveValueAt(squish->CurveID, itemLevel));
+                    itemLevel = uint32(std::round(sDB2Manager.GetCurveValueAt(squish->CurveID, itemLevel)));
             }
         }
     }
@@ -2367,7 +2385,7 @@ float Item::GetItemStatValue(uint32 index, Player const* owner) const
     {
         float statValue = float(_bonusData.StatPercentEditor[index] * randomPropPoints) * 0.0001f;
         if (GtItemSocketCostPerLevelEntry const* gtCost = sItemSocketCostPerLevelGameTable.GetRow(itemLevel))
-            statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->SocketCost));
+            statValue -= float(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->SocketCost);
 
         return statValue;
     }

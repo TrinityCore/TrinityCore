@@ -96,6 +96,7 @@ void AddSC_boss_buru();
 void AddSC_boss_ayamiss();
 void AddSC_boss_ossirian();
 void AddSC_instance_ruins_of_ahnqiraj();
+void AddSC_ruins_of_ahnqiraj();
 // Temple of ahn'qiraj
 void AddSC_boss_cthun();
 void AddSC_boss_viscidus();
@@ -108,6 +109,7 @@ void AddSC_boss_twinemperors();
 void AddSC_boss_ouro();
 void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
+void AddSC_temple_of_ahnqiraj();
 // Throne of the Four Winds
 void AddSC_instance_throne_of_the_four_winds();
 // The Lost City of the Tol'vir
@@ -242,6 +244,7 @@ void AddKalimdorScripts()
     AddSC_boss_ayamiss();
     AddSC_boss_ossirian();
     AddSC_instance_ruins_of_ahnqiraj();
+    AddSC_ruins_of_ahnqiraj();
     // Temple of ahn'qiraj
     AddSC_boss_cthun();
     AddSC_boss_viscidus();
@@ -254,6 +257,7 @@ void AddKalimdorScripts()
     AddSC_boss_ouro();
     AddSC_npc_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
+    AddSC_temple_of_ahnqiraj();
     // Throne of the Four Winds
     AddSC_instance_throne_of_the_four_winds();
     // The Lost City of the Tol'vir

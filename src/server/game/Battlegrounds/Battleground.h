@@ -312,6 +312,7 @@ class TC_GAME_API Battleground
 
         void AddToBGFreeSlotQueue();                        //this queue will be useful when more battlegrounds instances will be available
         void RemoveFromBGFreeSlotQueue();                   //this method could delete whole BG instance, if another free is available
+        void RemoveFromBGFreeSlotQueueOnShutdown() { m_InBGFreeSlotQueue = false; }
 
         void DecreaseInvitedCount(Team team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
         void IncreaseInvitedCount(Team team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
@@ -370,7 +371,6 @@ class TC_GAME_API Battleground
         void BlockMovement(Player* player);
 
         void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
-        void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
 
         // Raid Group
         Group* GetBgRaid(Team team) const { return team == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
@@ -537,7 +537,6 @@ class TC_GAME_API Battleground
         int32  m_StartDelayTime;
         bool   m_IsRated;                                   // is this battle rated?
         bool   m_PrematureCountDown;
-        uint32 m_PrematureCountDownTimer;
         uint32 m_LastPlayerPositionBroadcast;
 
         // Player lists

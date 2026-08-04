@@ -2088,7 +2088,7 @@ public:
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
 
         if (!caster || !target)
             return;

@@ -27,7 +27,6 @@
 FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2) : AbstractFollower(ASSERT_NOTNULL(leader)),
     _range(range), _angle(angle), _point1(point1), _point2(point2), _lastLeaderSplineID(0), _hasPredictedDestination(false)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FOLLOW_FORMATION;
@@ -38,7 +37,7 @@ MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() con
     return FORMATION_MOTION_TYPE;
 }
 
-void FormationMovementGenerator::DoInitialize(Creature* owner)
+bool FormationMovementGenerator::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -47,17 +46,18 @@ void FormationMovementGenerator::DoInitialize(Creature* owner)
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
-        return;
+        return true;
     }
 
     _nextMoveTimer.Reset(0);
+    return true;
 }
 
-void FormationMovementGenerator::DoReset(Creature* owner)
+bool FormationMovementGenerator::DoReset(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)

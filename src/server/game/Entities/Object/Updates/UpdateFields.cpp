@@ -146,7 +146,7 @@ bool ItemMod::operator==(ItemMod const& right) const
 
 void ItemModList::WriteCreate(ByteBuffer& data, Player const* receiver, Item const* owner) const
 {
-    data.WriteBits(Values.size(), 6);
+    data.WriteBits(Values.size(), 7);
     for (uint32 i = 0; i < Values.size(); ++i)
     {
         Values[i].WriteCreate(data, receiver, owner);
@@ -165,9 +165,9 @@ void ItemModList::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player c
     if (changesMask[0])
     {
         if (!ignoreChangesMask)
-            Values.WriteUpdateMask(data, 6);
+            Values.WriteUpdateMask(data, 7);
         else
-            WriteCompleteDynamicFieldUpdateMask(Values.size(), data, 6);
+            WriteCompleteDynamicFieldUpdateMask(Values.size(), data, 7);
     }
     data.FlushBits();
     if (changesMask[0])
@@ -4101,19 +4101,57 @@ void TraitConfig::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
+void CraftingReagentBase::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const
+{
+    data.WriteBits(ItemID.has_value(), 1);
+    data.WriteBits(CurrencyID.has_value(), 1);
+    data.FlushBits();
+    if (ItemID.has_value())
+    {
+        data << int32(*ItemID);
+    }
+    if (CurrencyID.has_value())
+    {
+        data << int32(*CurrencyID);
+    }
+}
+
+void CraftingReagentBase::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, Player const* owner) const
+{
+    data.WriteBits(ItemID.has_value(), 1);
+    data.WriteBits(CurrencyID.has_value(), 1);
+    data.FlushBits();
+    if (ItemID.has_value())
+    {
+        data << int32(*ItemID);
+    }
+    if (CurrencyID.has_value())
+    {
+        data << int32(*CurrencyID);
+    }
+}
+
+bool CraftingReagentBase::operator==(CraftingReagentBase const& right) const
+{
+    return ItemID == right.ItemID
+        && CurrencyID == right.CurrencyID;
+}
+
 void CraftingOrderItem::WriteCreate(ByteBuffer& data, Player const* receiver, Player const* owner) const
 {
     data << uint64(OrderItemID);
+    data << int32(OrderItemType);
     data << *ItemGUID;
     data << *OwnerGUID;
-    data << int32(ItemID);
     data << uint32(Quantity);
     data << int32(ReagentQuality);
+    data << uint32(Flags);
+    Reagent->WriteCreate(data, receiver, owner);
     data.WriteBits(DataSlotIndex.has_value(), 1);
     data.FlushBits();
     if (DataSlotIndex.has_value())
     {
-        data << uint8(DataSlotIndex);
+        data << uint8(*DataSlotIndex);
     }
 }
 
@@ -4123,40 +4161,63 @@ void CraftingOrderItem::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Pl
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 7);
+    data.WriteBits(changesMask.GetBlock(0), 12);
 
     data.FlushBits();
     if (changesMask[0])
     {
-        data << uint64(OrderItemID);
-    }
-    if (changesMask[1])
-    {
-        data << *ItemGUID;
-    }
-    if (changesMask[2])
-    {
-        data << *OwnerGUID;
-    }
-    if (changesMask[3])
-    {
-        data << int32(ItemID);
+        if (changesMask[1])
+        {
+            data << uint64(OrderItemID);
+        }
+        if (changesMask[2])
+        {
+            data << int32(OrderItemType);
+        }
+        if (changesMask[3])
+        {
+            data << *ItemGUID;
+        }
     }
     if (changesMask[4])
     {
-        data << uint32(Quantity);
-    }
-    if (changesMask[5])
-    {
-        data << int32(ReagentQuality);
-    }
-    data.WriteBits(DataSlotIndex.has_value(), 1);
-    data.FlushBits();
-    if (changesMask[6])
-    {
-        if (DataSlotIndex.has_value())
+        if (changesMask[5])
         {
-            data << uint8(DataSlotIndex);
+            data << *OwnerGUID;
+        }
+        if (changesMask[7])
+        {
+            data << uint32(Quantity);
+        }
+    }
+    if (changesMask[8])
+    {
+        if (changesMask[9])
+        {
+            data << int32(ReagentQuality);
+        }
+        if (changesMask[11])
+        {
+            data << uint32(Flags);
+        }
+    }
+    if (changesMask[4])
+    {
+        if (changesMask[6])
+        {
+            Reagent->WriteUpdate(ignoreChangesMask, data, receiver, owner);
+        }
+    }
+    if (changesMask[8])
+    {
+        data.WriteBits(DataSlotIndex.has_value(), 1);
+        data.FlushBits();
+        if (changesMask[10])
+        {
+            if (DataSlotIndex.has_value())
+            {
+                data << uint8(*DataSlotIndex);
+            }
         }
     }
 }
@@ -4164,12 +4225,14 @@ void CraftingOrderItem::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Pl
 void CraftingOrderItem::ClearChangesMask()
 {
     Base::ClearChangesMask(OrderItemID);
+    Base::ClearChangesMask(OrderItemType);
     Base::ClearChangesMask(ItemGUID);
     Base::ClearChangesMask(OwnerGUID);
-    Base::ClearChangesMask(ItemID);
+    Base::ClearChangesMask(Reagent);
     Base::ClearChangesMask(Quantity);
     Base::ClearChangesMask(ReagentQuality);
     Base::ClearChangesMask(DataSlotIndex);
+    Base::ClearChangesMask(Flags);
     _changesMask.ResetAll();
 }
 
@@ -7383,6 +7446,7 @@ void GameObjectData::WriteCreate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags,
     data << *CreatedBy;
     data << *GuildGUID;
     data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, receiver, owner));
+    data << uint32(FlagsB);
     data << float(ParentRotation->x);
     data << float(ParentRotation->y);
     data << float(ParentRotation->z);
@@ -7423,7 +7487,7 @@ void GameObjectData::WriteUpdate(EnumFlag<UpdateFieldFlag> fieldVisibilityFlags,
 
 void GameObjectData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player const* receiver, GameObject const* owner, bool ignoreNestedChangesMask) const
 {
-    data.WriteBits(changesMask.GetBlock(0), 26);
+    data.WriteBits(changesMask.GetBlock(0), 27);
 
     ViewerDependentValue<StateWorldEffectIDsTag>::value_type stateWorldEffectIDs = {};
 
@@ -7518,58 +7582,62 @@ void GameObjectData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Play
         }
         if (changesMask[13])
         {
+            data << uint32(FlagsB);
+        }
+        if (changesMask[14])
+        {
             data << float(ParentRotation->x);
             data << float(ParentRotation->y);
             data << float(ParentRotation->z);
             data << float(ParentRotation->w);
         }
-        if (changesMask[14])
+        if (changesMask[15])
         {
             data << int32(FactionTemplate);
         }
-        if (changesMask[15])
+        if (changesMask[16])
         {
             data << int8(ViewerDependentValue<StateTag>::GetValue(this, receiver, owner));
         }
-        if (changesMask[16])
+        if (changesMask[17])
         {
             data << int8(TypeID);
         }
-        if (changesMask[17])
+        if (changesMask[18])
         {
             data << uint8(PercentHealth);
         }
-        if (changesMask[18])
+        if (changesMask[19])
         {
             data << uint32(ArtKit);
         }
-        if (changesMask[19])
+        if (changesMask[20])
         {
             data << uint32(CustomParam);
         }
-        if (changesMask[20])
+        if (changesMask[21])
         {
             data << int32(Level);
         }
-        if (changesMask[21])
+        if (changesMask[22])
         {
             data << uint32(AnimGroupInstance);
         }
-        if (changesMask[22])
+        if (changesMask[23])
         {
             data << uint32(UiWidgetItemID);
         }
-        if (changesMask[23])
+        if (changesMask[24])
         {
             data << uint32(UiWidgetItemQuality);
         }
-        if (changesMask[24])
+        if (changesMask[25])
         {
             data << uint32(UiWidgetItemCount);
         }
         data.WriteBits(AssistActionData.has_value(), 1);
         data.FlushBits();
-        if (changesMask[25])
+        if (changesMask[26])
         {
             if (AssistActionData.has_value())
             {
@@ -7593,6 +7661,7 @@ void GameObjectData::ClearChangesMask()
     Base::ClearChangesMask(CreatedBy);
     Base::ClearChangesMask(GuildGUID);
     Base::ClearChangesMask(Flags);
+    Base::ClearChangesMask(FlagsB);
     Base::ClearChangesMask(ParentRotation);
     Base::ClearChangesMask(FactionTemplate);
     Base::ClearChangesMask(State);
@@ -7873,7 +7942,7 @@ void VisualAnim::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigg
     data << uint32(AnimProgress);
     if (AnimationDataID.has_value())
     {
-        data << int16(AnimationDataID);
+        data << int16(*AnimationDataID);
     }
     data.FlushBits();
 }
@@ -7909,7 +7978,7 @@ void VisualAnim::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player co
         {
             if (AnimationDataID.has_value())
             {
-                data << int16(AnimationDataID);
+                data << int16(*AnimationDataID);
             }
         }
     }

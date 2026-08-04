@@ -26,7 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
-enum ScriptTexts
+enum FestergutTexts
 {
     SAY_STINKY_DEAD             = 0,
     SAY_AGGRO                   = 1,
@@ -40,7 +40,7 @@ enum ScriptTexts
     SAY_DEATH                   = 9,
 };
 
-enum Spells
+enum FestergutSpells
 {
     // Festergut
     SPELL_INHALE_BLIGHT         = 69165,
@@ -64,7 +64,7 @@ enum Spells
 uint32 const gaseousBlight[3]        = {69157, 69162, 69164};
 uint32 const gaseousBlightVisual[3]  = {69126, 69152, 69154};
 
-enum Events
+enum FestergutEvents
 {
     EVENT_BERSERK       = 1,
     EVENT_INHALE_BLIGHT = 2,
@@ -76,11 +76,12 @@ enum Events
     EVENT_MORTAL_WOUND  = 7,
 };
 
-enum Misc
+enum FestergutMisc
 {
     DATA_INOCULATED_STACK       = 69291
 };
 
+// 36626 - Festergut
 struct boss_festergut : public BossAI
 {
     boss_festergut(Creature* creature) : BossAI(creature, DATA_FESTERGUT)
@@ -287,6 +288,7 @@ private:
     uint32 _inhaleCounter;
 };
 
+// 37025 - Stinky
 struct npc_stinky_icc : public ScriptedAI
 {
     npc_stinky_icc(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }

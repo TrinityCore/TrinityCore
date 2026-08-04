@@ -125,15 +125,15 @@ void protobuf_AddDesc_api_2fcommon_2fv1_2fmessage_5ftypes_2eproto() {
     "rnalMessageId\022/\n\010platform\030\001 \001(\rB\035\202\371+\031*\027E"
     "xternalMessagePlatform\022\031\n\002id\030\002 \001(\tB\r\212\371+\t"
     "\"\007\n\005\010\001\020\200\002\022!\n\ncreator_id\030\003 \001(\tB\r\212\371+\t\"\007\n\005\010"
-    "\001\020\200\002\022+\n\024creator_display_name\030\004 \001(\tB\r\212\371+\t"
-    "\"\007\n\005\010\001\020\200\002\0221\n\rplatform_data\030\005 \003(\0132\032.bgs.p"
+    "\000\020\200\002\022+\n\024creator_display_name\030\004 \001(\tB\r\212\371+\t"
+    "\"\007\n\005\010\000\020\200\002\0221\n\rplatform_data\030\005 \003(\0132\032.bgs.p"
     "rotocol.v2.Attribute*4\n\017TypingIndicator\022"
     "\020\n\014TYPING_START\020\000\022\017\n\013TYPING_STOP\020\001*d\n\027Ex"
     "ternalMessagePlatform\022\"\n\036EXTERNAL_MESSAG"
     "E_PLATFORM_NONE\020\000\022%\n!EXTERNAL_MESSAGE_PL"
-    "ATFORM_DISCORD\020\001*a\n\rMessageOrigin\022\031\n\025MES"
+    "ATFORM_DISCORD\020\001*b\n\rMessageOrigin\022\031\n\025MES"
     "SAGE_ORIGIN_PLAYER\020\000\022\031\n\025MESSAGE_ORIGIN_S"
-    "YSTEM\020\001\022\032\n\026MESSAGE_ORIGIN_DISCORD\020\002B\002H\002", 759);
+    "YSTEM\020\001\022\033\n\027MESSAGE_ORIGIN_EXTERNAL\020\002B\002H\002", 760);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/common/v1/message_types.proto", &protobuf_RegisterTypes);
   MessageId::default_instance_ = new MessageId();

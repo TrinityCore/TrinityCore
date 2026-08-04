@@ -38,7 +38,6 @@ FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, Opti
     bool ignoreTargetWalk /*= false*/, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _ignoreTargetWalk(ignoreTargetWalk), _checkTimer(CHECK_INTERVAL)
 {
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FOLLOW;
@@ -56,22 +55,22 @@ static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseA
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
 
-void FollowMovementGenerator::Initialize(Unit* owner)
+bool FollowMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
-    owner->StopMoving();
     UpdatePetSpeed(owner);
     _path = nullptr;
     _lastTargetPosition.reset();
+    return true;
 }
 
-void FollowMovementGenerator::Reset(Unit* owner)
+bool FollowMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -158,9 +157,6 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             }
 
             target->GetNearPoint(owner, x, y, z, range, target->ToAbsoluteAngle(tAngle));
-
-            if (owner->IsHovering())
-                owner->UpdateAllowedPositionZ(x, y, z);
 
             // pets are allowed to "cheat" on pathfinding when following their master
             bool allowShortcut = false;

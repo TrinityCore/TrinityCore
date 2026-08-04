@@ -113,7 +113,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NOCASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_SELF_CAST : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -261,7 +261,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     auraData.Applications = aura->IsUsingStacks() ? aura->GetStackAmount() : aura->GetCharges();
     if (!aura->GetCasterGUID().IsUnit())
         auraData.CastUnit = ObjectGuid::Empty; // optional data is filled in, but cast unit contains empty guid in packet
-    else if (!(auraData.Flags & AFLAG_NOCASTER))
+    else if (!(auraData.Flags & AFLAG_SELF_CAST))
         auraData.CastUnit = aura->GetCasterGUID();
 
     if (!aura->GetCastItemGUID().IsEmpty())
@@ -304,10 +304,7 @@ void AuraApplication::ClientUpdate(bool remove)
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = false;
     update.UnitGUID = GetTarget()->GetGUID();
-
-    WorldPackets::Spells::AuraInfo auraInfo;
-    BuildUpdatePacket(auraInfo, remove);
-    update.Auras.push_back(auraInfo);
+    BuildUpdatePacket(update.Auras.emplace_back(), remove);
 
     _target->SendMessageToSet(update.Write(), true);
 }
@@ -1465,11 +1462,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_GENERIC:
                 switch (GetId())
                 {
-                    case 33572: // Gronn Lord's Grasp, becomes stoned
-                        if (GetStackAmount() >= 5 && !target->HasAura(33652))
-                            target->CastSpell(target, 33652, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCastId(GetCastId()));
-                        break;
                     case 50836: //Petrifying Grip, becomes stoned
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
                             target->CastSpell(target, 50812, CastSpellExtraArgs(TRIGGERED_FULL_MASK)

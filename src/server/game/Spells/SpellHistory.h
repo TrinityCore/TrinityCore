@@ -105,7 +105,6 @@ public:
 
     void Update();
 
-    void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
     bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     void WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpellHistory) const;
@@ -113,8 +112,6 @@ public:
     void WritePacket(WorldPackets::Pet::PetSpells* petSpells) const;
 
     // Cooldowns
-    static Duration const InfinityCooldownDelay;  // used for set "infinity cooldowns" for spells and check
-
     void StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool onHold = false, Optional<Duration> forcedCooldown = {});
     void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = nullptr, bool startCooldown = true);
 
@@ -132,7 +129,7 @@ public:
     {
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
         {
-            if (std::forward<Predicate>(predicate)(itr->second))
+            if (!itr->second.OnHold && std::forward<Predicate>(predicate)(itr->second))
                 ModifySpellCooldown(itr, cooldownMod, withoutCategoryCooldown);
             else
                 ++itr;
@@ -144,7 +141,7 @@ public:
     {
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
         {
-            if (std::forward<Predicate>(predicate)(itr->second))
+            if (!itr->second.OnHold && std::forward<Predicate>(predicate)(itr->second))
                 UpdateCooldownRecoveryRate(itr, modChange, apply);
         }
     }
@@ -157,7 +154,7 @@ public:
         resetCooldowns.reserve(_spellCooldowns.size());
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
         {
-            if (std::forward<Predicate>(predicate)(itr->second))
+            if (!itr->second.OnHold && std::forward<Predicate>(predicate)(itr->second))
             {
                 resetCooldowns.push_back(int32(itr->first));
                 ResetCooldown(itr, false);
@@ -167,7 +164,7 @@ public:
         }
 
         if (update && !resetCooldowns.empty())
-            SendClearCooldowns(resetCooldowns);
+            SendClearCooldowns(std::move(resetCooldowns));
     }
 
     void ResetAllCooldowns();
@@ -204,6 +201,8 @@ public:
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, Duration* cooldown, uint32* categoryId, Duration* categoryCooldown);
 
+    void AtExitCombat();
+
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 
@@ -213,7 +212,7 @@ private:
     void ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown);
     void UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
-    void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
+    void SendClearCooldowns(std::vector<int32>&& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr);
 
     void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection) const;

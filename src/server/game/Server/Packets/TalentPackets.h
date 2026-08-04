@@ -115,6 +115,16 @@ namespace WorldPackets
             uint8 RespecType = 0;
         };
 
+        class TalentsInvoluntarilyReset final : public ServerPacket
+        {
+        public:
+            explicit TalentsInvoluntarilyReset(bool isPetTalents) : ServerPacket(SMSG_TALENTS_INVOLUNTARILY_RESET, 1), IsPetTalents(isPetTalents) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPetTalents = false;
+        };
+
         class LearnTalentFailed final : public ServerPacket
         {
         public:

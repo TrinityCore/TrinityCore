@@ -209,6 +209,7 @@ namespace WorldPackets
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
                 bool RpeAvailable = false;
+                uint32 NoRpeReason = 4; // recently active
             };
 
             struct CharacterInfo

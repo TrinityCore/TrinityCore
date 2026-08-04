@@ -15,18 +15,53 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameUtilitiesService_h__
-#define GameUtilitiesService_h__
+#ifndef TRINITYCORE_GAME_UTILITIES_SERVICE_H
+#define TRINITYCORE_GAME_UTILITIES_SERVICE_H
 
 #include "Service.h"
-#include "game_utilities_service.pb.h"
+#include "Client/game_utilities_service.pb.h"
+#include "Client/api/client/v2/game_utilities_service.pb.h"
+#include <variant>
+#include <vector>
 
-namespace Battlenet
+namespace Battlenet::Services
 {
-    class Session;
+    using Variant = std::variant<bool, int64, double, std::string, std::vector<uint8>, uint64>;
 
-    namespace Services
+    namespace Shared
     {
+        class GameUtilities
+        {
+        public:
+            static std::string_view ParseParamName(std::string_view command);
+            static Variant* FindParamValue(std::vector<std::pair<std::string_view, Variant>>& params, std::string_view paramName);
+            static std::vector<uint8> CompressJson(std::string const& json);
+
+            static uint32 HandleClientRequest(Session* session,
+                std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+
+            static uint32 HandleGetAllValuesForAttribute(Session const* session, std::string_view command, std::vector<Variant>& responseValues);
+
+        private:
+            static uint32 GetLastCharPlayed(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetRealmListTicket(Session* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetRealmList(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 JoinRealm(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+            static uint32 GetBleepProxies(Session const* session, std::vector<std::pair<std::string_view, Variant>>& params,
+                std::vector<std::pair<std::string_view, Variant>>& responseValues);
+        };
+    }
+
+    namespace V1
+    {
+        Battlenet::Services::Variant FromProto(bgs::protocol::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::Variant* to);
+
         class GameUtilities : public Service<game_utilities::v1::GameUtilitiesService>
         {
             typedef Service<game_utilities::v1::GameUtilitiesService> GameUtilitiesService;
@@ -38,6 +73,23 @@ namespace Battlenet
             uint32 HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
         };
     }
+
+    namespace V2
+    {
+        Battlenet::Services::Variant FromProto(bgs::protocol::v2::Variant const& from);
+        void ToProto(Battlenet::Services::Variant const& from, bgs::protocol::v2::Variant* to);
+
+        class GameUtilities : public Service<game_utilities::v2::client::GameUtilitiesService>
+        {
+            typedef Service<game_utilities::v2::client::GameUtilitiesService> GameUtilitiesService;
+
+        public:
+            GameUtilities(Session* session);
+
+            uint32 HandleProcessTask(game_utilities::v2::client::ProcessTaskRequest const* request, game_utilities::v2::client::ProcessTaskResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleGetAllValuesForAttribute(game_utilities::v2::client::GetAllValuesForAttributeRequest const* request, game_utilities::v2::client::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+        };
+    }
 }
 
-#endif // GameUtilitiesService_h__
+#endif // TRINITYCORE_GAME_UTILITIES_SERVICE_H
