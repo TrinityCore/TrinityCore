@@ -144,7 +144,7 @@ struct boss_talon_king_ikiss : public BossAI
         }
     }
 
-    void KilledUnit(Unit* who) override
+    void KilledUnit(Unit* /*who*/) override
     {
         Talk(SAY_SLAY);
     }
