@@ -872,19 +872,14 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     if (invoker)
                     {
                         invoker->CastSpell(invoker, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
-                        /*
-                        if (Group* group = invoker->GetGroup())
+                        for (ObjectGuid tapperGUID : me->GetTapList())
                         {
-                            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                            {
-                                Player* groupMember = itr->GetSource();
-                                if (groupMember && groupMember->IsInMap(invoker) && groupMember->GetQuestStatus(Quests::LousPartingThoughts) == QUEST_STATUS_INCOMPLETE && groupMember->GetDistance(me) <= 75.f)
-                                {
-                                    groupMember->CastSpell(groupMember, Spells::HoboInformation, TriggerCastFlags(TRIGGERED_FULL_MASK));
-                                }
-                            }
+                            Player* tapper = ObjectAccessor::GetPlayer(*me, tapperGUID);
+                            if (!tapper || tapper->GetQuestStatus(Quests::LousPartingThoughts) != QUEST_STATUS_INCOMPLETE || tapper->GetDistance(me) > 75.f)
+                                continue;
+
+                            tapper->CastSpell(tapper, Spells::HoboInformation, false);
                         }
-                        */
                     }
                     _events.ScheduleEvent(Events::LousPartingThoughts::ThugShoot1, 1s + 500ms);
                     break;
