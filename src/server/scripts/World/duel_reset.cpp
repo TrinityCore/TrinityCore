@@ -114,7 +114,6 @@ class DuelResetScript : public PlayerScript
                     applySpellMod(categoryCooldown);
 
                 return remainingCooldown > 0ms
-                    && !cooldown.OnHold
                     && Milliseconds(totalCooldown) < 10min
                     && Milliseconds(categoryCooldown) < 10min
                     && Milliseconds(remainingCooldown) < 10min

@@ -1317,7 +1317,7 @@ class spell_icehowl_massive_crash : public AuraScript
     void HandleSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* target = GetTarget()->ToPlayer())
-            if (target->GetMap()->IsHeroic())
+            if (!target->GetMap()->IsHeroic())
                 target->CastSpell(target, SPELL_SURGE_OF_ADRENALINE, true);
     }
 

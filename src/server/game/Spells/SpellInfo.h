@@ -501,6 +501,7 @@ class TC_GAME_API SpellInfo
         bool IsMultiSlotAura() const;
         bool IsStackableOnOneSlotWithDifferentCasters() const;
         bool IsCooldownStartedOnEvent() const;
+        bool IsCooldownStartedOnEventAfterCombat() const;
         bool IsDeathPersistent() const;
         bool IsRequiringDeadTarget() const;
         bool IsAllowingDeadTarget() const;

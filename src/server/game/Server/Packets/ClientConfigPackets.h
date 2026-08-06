@@ -84,7 +84,7 @@ namespace WorldPackets
             Timestamp<> Time;
             uint32 Size    = 0; ///< decompressed size
             int32 DataType = 0; ///< @see enum AccountDataType
-            std::span<uint8 const> CompressedData;
+            std::span<uint8> CompressedData;
         };
 
         class UpdateAccountDataComplete final : public ServerPacket

@@ -45,11 +45,37 @@ enum STCreatureIds
     NPC_MORPHAZ                 = 5719,
     NPC_HAZZAS                  = 5722,
     NPC_SHADE_OF_ERANIKUS       = 5709,
+    NPC_ATALALARION             = 8580,
+    NPC_ZOLO                    = 5712,
+    NPC_GASHER                  = 5713,
+    NPC_LORO                    = 5714,
+    NPC_HUKKU                   = 5715,
+    NPC_ZUL_LOR                 = 5716,
+    NPC_MIJAN                   = 5717,
+};
+
+enum STGameObjectIds
+{
+    GO_ATALAI_STATUE1 = 148830,
+    GO_ATALAI_STATUE2 = 148831,
+    GO_ATALAI_STATUE3 = 148832,
+    GO_ATALAI_STATUE4 = 148833,
+    GO_ATALAI_STATUE5 = 148834,
+    GO_ATALAI_STATUE6 = 148835,
+    GO_ATALAI_LIGHT1  = 148883,
+    GO_ATALAI_LIGHT2  = 148937,
+    GO_FORCEFIELD     = 149431,
 };
 
 enum STEvents
 {
     EVENT_STATE = 1
+};
+
+enum STShareSpells
+{
+    SPELL_SUPPRESSION      = 12623,
+    SPELL_GREEN_CHANNELING = 13540
 };
 
 template <class AI, class T>

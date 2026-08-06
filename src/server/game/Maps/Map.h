@@ -66,6 +66,7 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+class WorldSession;
 struct DungeonEncounterEntry;
 struct MapDifficultyEntry;
 struct MapEntry;
@@ -281,7 +282,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SetUnloadLock(GridCoord const& p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
         void LoadGridForActiveObject(float x, float y, WorldObject const* object);
-        void LoadAllCells();
+        void LoadGridsInRange(float x, float y, float radius);
+        void LoadAllGrids();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         void GridMarkNoUnload(uint32 x, uint32 y);
         void GridUnmarkNoUnload(uint32 x, uint32 y);
@@ -363,6 +365,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         uint32 GetId() const;
         bool Instanceable() const;
+        bool IsWorldMap() const;
         bool IsDungeon() const;
         bool IsNonRaidDungeon() const;
         bool IsRaid() const;
@@ -399,6 +402,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveWorldObject(WorldObject* obj);
 
         void SendToPlayers(WorldPacket const* data) const;
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self = nullptr, Optional<Team> team = { }) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
@@ -470,10 +474,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         AreaTriggerBySpawnIdContainer& GetAreaTriggerBySpawnIdStore() { return _areaTriggerBySpawnIdStore; }
         AreaTriggerBySpawnIdContainer const& GetAreaTriggerBySpawnIdStore() const { return _areaTriggerBySpawnIdStore; }
 
-        std::unordered_set<Corpse*> const* GetCorpsesInCell(uint32 cellId) const
+        std::unordered_set<Corpse*> const* GetCorpsesInGrid(uint32 cellId) const
         {
-            auto itr = _corpsesByCell.find(cellId);
-            if (itr != _corpsesByCell.end())
+            auto itr = _corpsesByGrid.find(cellId);
+            if (itr != _corpsesByGrid.end())
                 return &itr->second;
 
             return nullptr;
@@ -546,6 +550,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
         void SendZoneWeather(uint32 zoneId, Player* player) const;
         void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
+        void SendZoneText(uint32 zoneId, const char* text, WorldSession const* self = nullptr, Optional<Team> team = { }) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
@@ -622,10 +627,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool _areaTriggersToMoveLock;
         std::vector<AreaTrigger*> _areaTriggersToMove;
 
-        bool IsGridLoaded(GridCoord const&) const;
-        void EnsureGridCreated(GridCoord const&);
-        bool EnsureGridLoaded(Cell const&);
-        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject const* object);
+        bool IsGridLoaded(GridCoord const& p) const;
+        void EnsureGridCreated(GridCoord const& p);
+        bool EnsureGridLoaded(GridCoord const& p);
+        void EnsureGridLoadedForActiveObject(GridCoord const& p, WorldObject const* object);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
@@ -635,16 +640,13 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return i_grids[x][y];
         }
 
-        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x, y)->isGridObjectDataLoaded(); }
-        void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x, y)->setGridObjectDataLoaded(pLoaded); }
-
         void setNGrid(NGridType* grid, uint32 x, uint32 y);
         void ScriptsProcess();
 
         void SendObjectUpdates();
 
     protected:
-        virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
+        virtual void LoadGridObjects(NGridType* grid);
 
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
@@ -764,6 +766,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     private:
         // Type specific code for add/remove to/from grid
+        friend class ObjectGridLoaderBase;
+
         template<class T>
         void AddToGrid(T* object, Cell const& cell);
 
@@ -819,7 +823,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
         AreaTriggerBySpawnIdContainer _areaTriggerBySpawnIdStore;
-        std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
+        std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByGrid;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;
 
@@ -958,10 +962,8 @@ inline void Map::Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& vis
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
 
-    if (!cell.NoCreate() || IsGridLoaded(GridCoord(x, y)))
-    {
-        EnsureGridLoaded(cell);
-        getNGrid(x, y)->VisitGrid(cell_x, cell_y, visitor);
-    }
+    NGridType* grid = getNGrid(x, y);
+    if (grid && grid->isGridObjectDataLoaded())
+        grid->VisitGrid(cell_x, cell_y, visitor);
 }
 #endif

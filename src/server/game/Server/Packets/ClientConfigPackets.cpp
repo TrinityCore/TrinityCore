@@ -49,9 +49,8 @@ WorldPacket const* UpdateAccountData::Write()
     _worldPacket << uint32(Size);
     _worldPacket << Player;
     _worldPacket << int32(DataType);
-    _worldPacket << WorldPackets::Size<uint32>(CompressedData);
-    if (!CompressedData.empty())
-        _worldPacket.append(CompressedData.data(), CompressedData.size());
+    _worldPacket << Bytes::Size<uint32>(CompressedData);
+    _worldPacket << Bytes::Data(CompressedData);
 
     return &_worldPacket;
 }
@@ -62,15 +61,8 @@ void UserClientUpdateAccountData::Read()
     _worldPacket >> Size;
     _worldPacket >> PlayerGuid;
     _worldPacket >> DataType;
-
-    uint32 compressedSize = _worldPacket.read<uint32>();
-    std::size_t pos = _worldPacket.rpos();
-    std::size_t remainingSize = _worldPacket.size() - pos;
-    if (compressedSize > remainingSize)
-        OnInvalidArraySize(compressedSize, remainingSize);
-
-    CompressedData = { _worldPacket.data() + pos, compressedSize };
-    _worldPacket.rpos(pos + compressedSize);
+    _worldPacket >> Bytes::Size<uint32>(CompressedData);
+    _worldPacket >> Bytes::Data(CompressedData);
 }
 
 WorldPacket const* UpdateAccountDataComplete::Write()

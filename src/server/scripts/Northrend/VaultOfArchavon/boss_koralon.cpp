@@ -108,7 +108,7 @@ class spell_koralon_meteor_fists : public AuraScript
     void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
     }
 
     void Register() override
@@ -160,7 +160,7 @@ class spell_flame_warder_meteor_fists : public AuraScript
     void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
     }
 
     void Register() override

@@ -52,8 +52,8 @@ class WaypointMovementGenerator : public MovementGeneratorMedium<T, WaypointMove
         void Resume(uint32 overrideTimer) override;
         bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
-        void DoInitialize(T* owner);
-        void DoReset(T* owner);
+        bool DoInitialize(T* owner);
+        bool DoReset(T* owner);
         bool DoUpdate(T* owner, uint32 diff);
         void DoDeactivate(T* owner);
         void DoFinalize(T* owner, bool active, bool movementInform);

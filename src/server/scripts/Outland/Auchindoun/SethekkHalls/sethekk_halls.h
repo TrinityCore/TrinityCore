@@ -36,12 +36,6 @@ enum SHDataTypes
     DATA_TALON_KING_COFFER              = 3
 };
 
-enum SHCreatureIds
-{
-    NPC_ANZU                            = 23035,
-    NPC_BROOD_OF_ANZU                   = 23132
-};
-
 enum SHGameObjectIds
 {
     GO_IKISS_DOOR                       = 183398,

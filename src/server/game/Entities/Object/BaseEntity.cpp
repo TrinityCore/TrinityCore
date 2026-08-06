@@ -620,7 +620,7 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
         Player const* player = static_cast<Player const*>(this);
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
-        bool HasRuneState = player->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+        bool HasRuneState = player->GetPowerIndex(POWER_RUNES) < MAX_POWERS_PER_CLASS;
 
         data.WriteBit(HasSceneInstanceIDs);
         data.WriteBit(HasRuneState);

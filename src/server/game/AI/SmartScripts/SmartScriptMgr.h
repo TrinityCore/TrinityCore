@@ -613,7 +613,7 @@ enum SMART_ACTION
     SMART_ACTION_ENTER_VEHICLE                      = 155,    // seat id
     SMART_ACTION_BOARD_PASSENGER                    = 156,    // seat id
     SMART_ACTION_EXIT_VEHICLE                       = 157,
-    SMART_ACTION_RESUME_MOVEMENT                    = 158,    // UNUSED NEEDS CHERRYPICK
+    SMART_ACTION_RESUME_MOVEMENT                    = 158,    // MovementSlot (default = 0, active = 1, controlled = 2), ResumeTime (ms)
     SMART_ACTION_FALL                               = 159,    // pointId
     SMART_ACTION_END                                = 160
 };
@@ -1273,6 +1273,12 @@ struct SmartAction
             SAIBool isPrivate;
             uint32 range;
         } destroyConversation;
+
+        struct
+        {
+            uint32 movementSlot;
+            uint32 resumeTimer;
+        } resumeMovement;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

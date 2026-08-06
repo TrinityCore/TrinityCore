@@ -35,6 +35,7 @@ message LoginForm {
   required string program_id = 2;
   required string version = 3;
   repeated FormInputValue inputs = 4;
+  optional uint32 title_id = 5;
 }
 
 message SrpLoginChallenge {

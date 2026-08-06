@@ -21,6 +21,7 @@
 #include "BattlegroundScript.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
+#include "ChatPackets.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -111,11 +112,11 @@ Map::~Map()
     m_terrain->UnloadMMapInstance(GetId(), GetInstanceId());
 }
 
-void Map::LoadAllCells()
+void Map::LoadAllGrids()
 {
-    for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
-        for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
-            LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
+    for (uint32 gridX = 0; gridX < MAX_NUMBER_OF_GRIDS; ++gridX)
+        for (uint32 gridY = 0; gridY < MAX_NUMBER_OF_GRIDS; ++gridY)
+            EnsureGridLoaded(GridCoord(gridX, gridY));
 }
 
 void Map::InitStateMachine()
@@ -282,7 +283,7 @@ void Map::EnsureGridCreated(GridCoord const& p)
     {
         TC_LOG_DEBUG("maps", "Creating grid[{}, {}] for map {} instance {}", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
-        NGridType* ngrid = new NGridType(p.x_coord * MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD));
+        NGridType* ngrid = new NGridType(p.GetId(), p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD));
         setNGrid(ngrid, p.x_coord, p.y_coord);
 
         // build a linkage between this map and NGridType
@@ -300,38 +301,38 @@ void Map::EnsureGridCreated(GridCoord const& p)
 }
 
 //Load NGrid and make it active
-void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject const* object)
+void Map::EnsureGridLoadedForActiveObject(GridCoord const& p, WorldObject const* object)
 {
-    EnsureGridLoaded(cell);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    EnsureGridLoaded(p);
+    NGridType *grid = getNGrid(p.x_coord, p.y_coord);
     ASSERT(grid != nullptr);
 
     if (object->IsPlayer())
-        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this, cell);
+        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this);
 
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
-        TC_LOG_DEBUG("maps", "Active object {} triggers loading of grid [{}, {}] on map {}", object->GetGUID().ToString(), cell.GridX(), cell.GridY(), GetId());
+        TC_LOG_DEBUG("maps", "Active object {} triggers loading of grid [{}, {}] on map {}", object->GetGUID().ToString(), p.x_coord, p.y_coord, GetId());
         ResetGridExpiry(*grid, 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
     }
 }
 
 //Create NGrid and load the object data in it
-bool Map::EnsureGridLoaded(Cell const& cell)
+bool Map::EnsureGridLoaded(GridCoord const& p)
 {
-    EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    EnsureGridCreated(p);
+    NGridType *grid = getNGrid(p.x_coord, p.y_coord);
 
     ASSERT(grid != nullptr);
-    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
+    if (!grid->isGridObjectDataLoaded())
     {
-        TC_LOG_DEBUG("maps", "Loading grid[{}, {}] for map {} instance {}", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
+        TC_LOG_DEBUG("maps", "Loading grid[{}, {}] for map {} instance {}", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
-        setGridObjectDataLoaded(true, cell.GridX(), cell.GridY());
+        grid->setGridObjectDataLoaded(true);
 
-        LoadGridObjects(grid, cell);
+        LoadGridObjects(grid);
 
         Balance();
         return true;
@@ -340,19 +341,16 @@ bool Map::EnsureGridLoaded(Cell const& cell)
     return false;
 }
 
-void Map::LoadGridObjects(NGridType* grid, Cell const& cell)
+void Map::LoadGridObjects(NGridType* grid)
 {
-    ObjectGridLoader loader(*grid, this, cell);
+    ObjectGridLoader loader(*grid, this);
     loader.LoadN();
 }
 
 void Map::GridMarkNoUnload(uint32 x, uint32 y)
 {
     // First make sure this grid is loaded
-    float gX = ((float(x) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
-    float gY = ((float(y) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
-    Cell cell = Cell(gX, gY);
-    EnsureGridLoaded(cell);
+    EnsureGridLoaded(GridCoord(x, y));
 
     // Mark as don't unload
     NGridType* grid = getNGrid(x, y);
@@ -371,12 +369,24 @@ void Map::GridUnmarkNoUnload(uint32 x, uint32 y)
 
 void Map::LoadGrid(float x, float y)
 {
-    EnsureGridLoaded(Cell(x, y));
+    EnsureGridLoaded(Trinity::ComputeGridCoord(x, y));
 }
 
 void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
 {
-    EnsureGridLoadedForActiveObject(Cell(x, y), object);
+    EnsureGridLoadedForActiveObject(Trinity::ComputeGridCoord(x, y), object);
+}
+
+void Map::LoadGridsInRange(float x, float y, float radius)
+{
+    radius = std::min(radius, SIZE_OF_GRIDS);
+
+    GridCoord gridAreaLow = Trinity::ComputeGridCoord(x - radius, y - radius);
+    GridCoord gridAreaHigh = Trinity::ComputeGridCoord(x + radius, y + radius);
+
+    for (uint32 gx = gridAreaLow.x_coord; gx <= gridAreaHigh.x_coord; ++gx)
+        for (uint32 gy = gridAreaLow.y_coord; gy <= gridAreaHigh.y_coord; ++gy)
+            EnsureGridLoaded(GridCoord(gx, gy));
 }
 
 bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
@@ -389,7 +399,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     }
 
     Cell cell(cellCoord);
-    EnsureGridLoadedForActiveObject(cell, player);
+    EnsureGridLoadedForActiveObject(GridCoord(cell.GridX(), cell.GridY()), player);
     AddToGrid(player, cell);
 
     // Check if we are adding to correct map
@@ -420,8 +430,8 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 
 void Map::UpdatePersonalPhasesForPlayer(Player const* player)
 {
-    Cell cell(player->GetPositionX(), player->GetPositionY());
-    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(cell.GridX(), cell.GridY()), this, cell);
+    GridCoord gridCoord = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY());
+    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(gridCoord.x_coord, gridCoord.y_coord), this);
 }
 
 int32 Map::GetWorldStateValue(int32 worldStateId) const
@@ -540,7 +550,7 @@ bool Map::AddToMap(T* obj)
 
     Cell cell(cellCoord);
     if (obj->isActiveObject())
-        EnsureGridLoadedForActiveObject(cell, obj);
+        EnsureGridLoadedForActiveObject(GridCoord(cell.GridX(), cell.GridY()), obj);
     else
         EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
     AddToGrid(obj, cell);
@@ -603,7 +613,8 @@ bool Map::AddToMap(Transport* obj)
 
 bool Map::IsGridLoaded(GridCoord const& p) const
 {
-    return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
+    NGridType* grid = getNGrid(p.x_coord, p.y_coord);
+    return grid && grid->isGridObjectDataLoaded();
 }
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
@@ -628,7 +639,6 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             markCell(cell_id);
             CellCoord pair(x, y);
             Cell cell(pair);
-            cell.SetNoCreate();
             Visit(cell, gridVisitor);
             Visit(cell, worldVisitor);
         }
@@ -863,7 +873,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
                 CellCoord pair(x, y);
                 Cell cell(pair);
-                cell.SetNoCreate();
 
                 Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, MAX_VISIBILITY_DISTANCE);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, GridTypeMapContainer  > grid_object_relocation(cell_relocation);
@@ -904,7 +913,6 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
                 CellCoord pair(x, y);
                 Cell cell(pair);
-                cell.SetNoCreate();
                 Visit(cell, grid_notifier);
                 Visit(cell, world_notifier);
             }
@@ -1038,7 +1046,7 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         player->RemoveFromGrid();
 
         if (old_cell.DiffGrid(new_cell))
-            EnsureGridLoadedForActiveObject(new_cell, player);
+            EnsureGridLoadedForActiveObject(GridCoord(new_cell.GridX(), new_cell.GridY()), player);
 
         AddToGrid(player, new_cell);
     }
@@ -1449,10 +1457,12 @@ bool Map::MapObjectCellRelocation(T* object, Cell new_cell, [[maybe_unused]] cha
         return true;
     }
 
+    GridCoord new_grid(new_cell.GridX(), new_cell.GridY());
+
     // in diff. grids but active creature
     if (object->isActiveObject())
     {
-        EnsureGridLoadedForActiveObject(new_cell, object);
+        EnsureGridLoadedForActiveObject(new_grid, object);
 
 #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "Active {} {} moved from grid[{}, {}]cell[{}, {}] to grid[{}, {}]cell[{}, {}].", objType, object->GetGUID().ToString(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
@@ -1466,17 +1476,17 @@ bool Map::MapObjectCellRelocation(T* object, Cell new_cell, [[maybe_unused]] cha
 
     if (Creature* c = object->ToCreature())
         if (c->GetCharmerOrOwnerGUID().IsPlayer())
-            EnsureGridLoaded(new_cell);
+            EnsureGridLoaded(new_grid);
 
     // in diff. loaded grid normal object
-    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    if (IsGridLoaded(new_grid))
     {
 #ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "{} {} moved from grid[{}, {}]cell[{}, {}] to grid[{}, {}]cell[{}, {}].", objType, object->GetGUID().ToString(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 #endif
 
         object->RemoveFromGrid();
-        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
+        EnsureGridCreated(new_grid);
         AddToGrid(object, new_cell);
 
         return true;
@@ -1670,9 +1680,9 @@ void Map::UnloadAll()
         RemoveFromMap<Transport>(transport, true);
     }
 
-    for (auto& cellCorpsePair : _corpsesByCell)
+    for (auto& [gridId, corpses] : _corpsesByGrid)
     {
-        for (Corpse* corpse : cellCorpsePair.second)
+        for (Corpse* corpse : corpses)
         {
             corpse->RemoveFromWorld();
             corpse->ResetMap();
@@ -1680,7 +1690,7 @@ void Map::UnloadAll()
         }
     }
 
-    _corpsesByCell.clear();
+    _corpsesByGrid.clear();
     _corpsesByPlayer.clear();
     _corpseBones.clear();
 }
@@ -1803,7 +1813,8 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
     if (!entry->IsDungeon())
         return TRANSFER_ABORT_NONE;
 
-    Difficulty targetDifficulty = player->GetDifficultyID(entry);
+    Group* group = player->GetGroup();
+    Difficulty targetDifficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, targetDifficulty);
     if (!mapDiff)
@@ -1816,11 +1827,10 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
     //Other requirements
     {
         TransferAbortParams params(TRANSFER_ABORT_NONE);
-        if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, &params, true))
+        if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, Difficulty(mapDiff->DifficultyID)), mapid, &params, true))
             return params;
     }
 
-    Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)) // can only enter in a raid group but raids from old expansion don't need a group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
             return TRANSFER_ABORT_NEED_GROUP;
@@ -1834,7 +1844,7 @@ TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
-        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->GetSession()->UpdateAndCheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return TRANSFER_ABORT_TOO_MANY_INSTANCES;
     }
 
@@ -2108,7 +2118,7 @@ bool Map::AddRespawnInfo(RespawnInfo const& info)
         if (it != bySpawnIdMap->end()) // spawnid already has a respawn scheduled
         {
             RespawnInfo* const existing = it->second;
-            if (info.respawnTime <= existing->respawnTime) // delete existing in this case
+            if (info.respawnTime < existing->respawnTime) // delete existing in this case
                 DeleteRespawnInfo(existing);
             else
                 return false;
@@ -2691,6 +2701,27 @@ void Map::SendToPlayers(WorldPacket const* data) const
         itr->GetSource()->SendDirectMessage(data);
 }
 
+/// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+bool Map::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession const* self, Optional<Team> team) const
+{
+    bool foundPlayerToSend = false;
+
+    for (MapReference const& ref : GetPlayers())
+    {
+        Player* player = ref.GetSource();
+        if (player->IsInWorld() &&
+            player->GetZoneId() == zone &&
+            player->GetSession() != self &&
+            (!team || player->GetTeam() == *team))
+        {
+            player->SendDirectMessage(packet);
+            foundPlayerToSend = true;
+        }
+    }
+
+    return foundPlayerToSend;
+}
+
 bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
 {
     CellCoord cell_min(ngrid.getX() * MAX_NUMBER_OF_CELLS, ngrid.getY() * MAX_NUMBER_OF_CELLS);
@@ -2920,7 +2951,7 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
 bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     // increase current instances (hourly limit)
-    player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
+    player->GetSession()->AddInstanceEnterTime(GetInstanceId(), GameTime::GetSystemTime());
 
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
     if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew() && i_data)
@@ -3262,6 +3293,11 @@ uint32 Map::GetId() const
 bool Map::Instanceable() const
 {
     return i_mapEntry && i_mapEntry->Instanceable();
+}
+
+bool Map::IsWorldMap() const
+{
+    return i_mapEntry && i_mapEntry->IsWorldMap();
 }
 
 bool Map::IsDungeon() const
@@ -3813,9 +3849,10 @@ void Map::DeleteCorpseData()
 
 void Map::AddCorpse(Corpse* corpse)
 {
+    GridCoord gridCoord = Trinity::ComputeGridCoord(corpse->GetPositionX(), corpse->GetPositionY());
     corpse->SetMap(this);
 
-    _corpsesByCell[corpse->GetCellCoord().GetId()].insert(corpse);
+    _corpsesByGrid[gridCoord.GetId()].insert(corpse);
     if (corpse->GetType() != CORPSE_BONES)
         _corpsesByPlayer[corpse->GetOwnerGUID()] = corpse;
     else
@@ -3824,6 +3861,7 @@ void Map::AddCorpse(Corpse* corpse)
 
 void Map::RemoveCorpse(Corpse* corpse)
 {
+    GridCoord gridCoord = Trinity::ComputeGridCoord(corpse->GetPositionX(), corpse->GetPositionY());
     ASSERT(corpse);
 
     corpse->UpdateObjectVisibilityOnDestroy();
@@ -3835,7 +3873,7 @@ void Map::RemoveCorpse(Corpse* corpse)
         corpse->ResetMap();
     }
 
-    _corpsesByCell[corpse->GetCellCoord().GetId()].erase(corpse);
+    _corpsesByGrid[gridCoord.GetId()].erase(corpse);
     if (corpse->GetType() != CORPSE_BONES)
         _corpsesByPlayer.erase(corpse->GetOwnerGUID());
     else
@@ -3879,7 +3917,6 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->ReplaceAllFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
         bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
 
-        bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 
         PhasingHandler::InheritPhaseShift(bones, corpse);
@@ -3973,21 +4010,20 @@ void Map::SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player
         Weather::SendFineWeatherUpdateToPlayer(player);
 }
 
+/// Send a System Message to all players in the zone (except self if mentioned)
+void Map::SendZoneText(uint32 zoneId, char const* text, WorldSession const* self, Optional<Team> team) const
+{
+    WorldPackets::Chat::Chat packet;
+    packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
+    SendZoneMessage(zoneId, packet.Write(), self, team);
+}
+
 void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
 {
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.empty())
-    {
-        WorldPackets::Misc::PlayMusic playMusic(musicId);
-        playMusic.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId && !player->HasAuraType(SPELL_AURA_FORCE_WEATHER))
-                    player->SendDirectMessage(playMusic.GetRawPacket());
-    }
+    WorldPackets::Misc::PlayMusic playMusic(musicId);
+    SendZoneMessage(zoneId, WorldPackets::Misc::PlayMusic(musicId).Write());
 }
 
 Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
@@ -3999,7 +4035,7 @@ Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     if (!info.DefaultWeather)
     {
-        info.DefaultWeather = std::make_unique<Weather>(zoneId, weatherData);
+        info.DefaultWeather = std::make_unique<Weather>(this, zoneId, weatherData);
         info.DefaultWeather->ReGenerate();
         info.DefaultWeather->UpdateWeather();
     }
@@ -4036,7 +4072,7 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
+                if (player->GetZoneId() == zoneId && !player->HasAuraType(SPELL_AURA_FORCE_WEATHER))
                     player->SendDirectMessage(weather.GetRawPacket());
     }
 }
@@ -4059,20 +4095,11 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrid
         lightOverride.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
     }
 
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.empty())
-    {
-        WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = areaLightId;
-        overrideLight.OverrideLightID = overrideLightId;
-        overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
-        overrideLight.Write();
-
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(overrideLight.GetRawPacket());
-    }
+    WorldPackets::Misc::OverrideLight overrideLight;
+    overrideLight.AreaLightID = areaLightId;
+    overrideLight.OverrideLightID = overrideLightId;
+    overrideLight.TransitionMilliseconds = static_cast<uint32>(transitionTime.count());
+    SendZoneMessage(zoneId, overrideLight.Write());
 }
 
 void Map::UpdateAreaDependentAuras()
@@ -4095,7 +4122,7 @@ std::string Map::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << std::boolalpha
-        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << std::to_string(GetDifficultyID())
+        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << AsUnderlyingType(GetDifficultyID())
         << " HasPlayers: " << HavePlayers();
     return sstr.str();
 }

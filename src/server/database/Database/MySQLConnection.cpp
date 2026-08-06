@@ -51,7 +51,7 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 struct MySQLConnection::WorkerThread
 {
     std::thread ThreadHandle;
-    boost::asio::executor_work_guard<Trinity::Asio::IoContext::Executor> WorkGuard;
+    boost::asio::executor_work_guard<Trinity::Asio::IoContextExecutor> WorkGuard;
 };
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) :

@@ -35,12 +35,9 @@ class Player;
 class WorldPacket;
 enum Difficulty : int16;
 
-namespace WorldPackets
+namespace WorldPackets::Quest
 {
-    namespace Quest
-    {
-        struct QuestRewards;
-    }
+    struct QuestRewards;
 }
 
 #define MAX_QUEST_LOG_SIZE 35
@@ -48,7 +45,6 @@ namespace WorldPackets
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARD_ITEM_COUNT 4
-#define QUEST_DEPLINK_COUNT 10
 #define QUEST_REWARD_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_REWARD_CURRENCY_COUNT 4
@@ -642,7 +638,7 @@ class TC_GAME_API Quest
         uint32 GetMaxLevel() const { return _maxLevel; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
-        Trinity::RaceMask<std::array<int32, 2>> GetAllowableRaces() const { return _allowableRaces; }
+        Trinity::RaceMask<int32, 2> GetAllowableRaces() const { return _allowableRaces; }
         uint32 GetRequiredSkill() const { return _requiredSkillId; }
         uint32 GetRequiredSkillValue() const { return _requiredSkillPoints; }
         uint32 GetRequiredMinRepFaction() const { return _requiredMinRepFaction; }
@@ -655,7 +651,7 @@ class TC_GAME_API Quest
         uint32 GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
         int32  GetBreadcrumbForQuestId() const { return _breadcrumbForQuestId; }
-        uint32 GetNextQuestInChain() const { return _nextQuestInChain; }
+        uint32 GetNextQuestInChain() const { return _rewardNextQuest; }
         int32  GetRewArenaPoints() const {return _rewardArenaPoints; }
         uint32 GetXPDifficulty() const { return _rewardXPDifficulty; }
         float  GetXPMultiplier() const { return _rewardXPMultiplier; }
@@ -693,8 +689,8 @@ class TC_GAME_API Quest
         uint32 GetRewMailSenderEntry() const { return _rewardMailSenderEntry; }
         uint32 GetRewTitle() const { return _rewardTitleId; }
         uint32 GetPOIContinent() const { return _poiContinent; }
-        float GetPOIx() const { return _poix; }
-        float GetPOIy() const { return _poiy; }
+        float GetPOIx() const { return _poiX; }
+        float GetPOIy() const { return _poiY; }
         uint32 GetPOIPriority() const { return _poiPriority; }
         uint32 GetSoundAccept() const { return _soundAccept; }
         uint32 GetSoundTurnIn() const { return _soundTurnIn; }
@@ -740,14 +736,14 @@ class TC_GAME_API Quest
 
         // multiple values
         std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
-        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
-        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
         std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDrop = { };
         std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDropQuantity = { };
         std::array<LootItemType, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemType = { };
         std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemId = { };
         std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemCount = { };
         std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemDisplayId = { };
+        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
+        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
         std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionId = { };
         std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionValue = { };
         std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionOverride = { };
@@ -793,7 +789,7 @@ class TC_GAME_API Quest
         int32 _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;
-        uint32 _nextQuestInChain = 0;
+        uint32 _rewardNextQuest = 0;
         uint32 _rewardXPDifficulty = 0;
         float _rewardXPMultiplier = 0.f;
         uint32 _rewardMoneyDifficulty = 0;
@@ -812,8 +808,8 @@ class TC_GAME_API Quest
         uint32 _flagsEx2 = 0;
         uint32 _flagsEx3 = 0;
         uint32 _poiContinent = 0;
-        float _poix = 0.f;
-        float _poiy = 0.f;
+        float _poiX = 0.f;
+        float _poiY = 0.f;
         uint32 _poiPriority = 0;
         uint32 _rewardTitleId = 0;
         int32 _rewardArenaPoints = 0;
@@ -823,12 +819,12 @@ class TC_GAME_API Quest
         int32 _questGiverPortraitMount = 0;
         int32 _questGiverPortraitModelSceneId = 0;
         uint32 _questTurnInPortrait = 0;
-        uint32 _rewardReputationMask;
+        uint32 _rewardReputationMask = 0;
         uint32 _soundAccept = 0;
         uint32 _soundTurnIn = 0;
         uint32 _areaGroupID = 0;
         int64 _limitTime = 0;
-        Trinity::RaceMask<std::array<int32, 2>> _allowableRaces;
+        Trinity::RaceMask<int32, 2> _allowableRaces;
         std::vector<int32> _treasurePickerID;
         int32 _expansion = 0;
         int32 _managedWorldStateID = 0;

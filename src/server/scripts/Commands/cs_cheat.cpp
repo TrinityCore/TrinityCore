@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "ChatCommand.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -129,8 +130,8 @@ public:
         {
             Player* player = handler->GetSession()->GetPlayer();
             // Set max power to all powers
-            for (uint32 i = 0; i < MAX_POWERS; ++i)
-                player->SetFullPower(Powers(i));
+            for (Powers power : player->GetPowerTypes())
+                player->SetFullPower(power);
             player->SetCommandStatusOn(CHEAT_POWER);
             handler->SendSysMessage("Power Cheat is ON. You don't need mana/rage/energy to use spells.");
         }
