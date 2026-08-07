@@ -558,6 +558,8 @@ namespace WorldPackets
         class SuspendTokenResponse;
         class MoveApplyMovementForceAck;
         class MoveRemoveMovementForceAck;
+        class MoveApplyInertiaAck;
+        class MoveRemoveInertiaAck;
         class MoveInitActiveMoverComplete;
     }
 
@@ -1307,6 +1309,10 @@ class TC_GAME_API WorldSession
         void HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck);
         void HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck);
         void HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck);
+
+        // Inertia
+        void HandleMoveApplyInertiaAck(WorldPackets::Movement::MoveApplyInertiaAck& moveApplyInertiaAck);
+        void HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemoveInertiaAck& moveRemoveInertiaAck);
 
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);

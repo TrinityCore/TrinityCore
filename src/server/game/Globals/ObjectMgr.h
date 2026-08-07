@@ -22,6 +22,7 @@
 #include "ConditionMgr.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
+#include "FlatSet.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
@@ -467,15 +468,15 @@ struct AccessRequirement
     std::string questFailedText;
 };
 
-typedef std::set<ObjectGuid::LowType> CellGuidSet;
-struct CellObjectGuids
+typedef Trinity::Containers::FlatSet<ObjectGuid::LowType> GridGuidSet;
+struct GridObjectGuids
 {
-    CellGuidSet creatures;
-    CellGuidSet gameobjects;
+    GridGuidSet creatures;
+    GridGuidSet gameobjects;
 };
-typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, CellObjectGuidsMap> MapObjectGuids;
-typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
+typedef std::unordered_map<uint32/*grid_id*/, GridObjectGuids> GridObjectGuidsMap;
+typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, GridObjectGuidsMap> MapObjectGuids;
+typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, GridObjectGuidsMap> MapPersonalObjectGuids;
 
 struct TrinityString
 {
@@ -1383,12 +1384,12 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const* GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id);
+        GridObjectGuids const* GetGridObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 gridId);
 
-        CellObjectGuidsMap const* GetMapObjectGuids(uint32 mapid, Difficulty spawnMode);
+        GridObjectGuidsMap const* GetMapObjectGuids(uint32 mapid, Difficulty spawnMode);
 
         bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const;
-        CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const;
+        GridObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 gridId) const;
 
         /**
          * Gets temp summon data for all creatures of specified group.
@@ -1777,10 +1778,10 @@ class TC_GAME_API ObjectMgr
         QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
-        template<CellGuidSet CellObjectGuids::*guids>
+        template<GridGuidSet GridObjectGuids::*guids>
         void AddSpawnDataToGrid(SpawnData const* data);
 
-        template<CellGuidSet CellObjectGuids::*guids>
+        template<GridGuidSet GridObjectGuids::*guids>
         void RemoveSpawnDataFromGrid(SpawnData const* data);
 
         MailLevelRewardContainer _mailLevelRewardStore;
