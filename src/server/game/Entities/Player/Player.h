@@ -2667,7 +2667,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
         WorldObject* m_seer;
         void SetFallInformation(uint32 time, float z);
-        void HandleFall(MovementInfo const& movementInfo);
+        void HandleFall();
 
         void SetClientControl(Unit* target, bool allowMove);
 

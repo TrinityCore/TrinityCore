@@ -24,9 +24,9 @@
 
 static constexpr ObjectData gameObjectData[] =
 {
-    { GO_ACCESS_PANEL_HYDRO, DATA_ACCESS_PANEL_HYDRO },
-    { GO_ACCESS_PANEL_MEK,   DATA_ACCESS_PANEL_MEK   },
-    { GO_MAIN_CHAMBERS_DOOR, DATA_MAIN_DOOR          },
+    { GO_ACCESS_PANEL_THESPIA,      DATA_ACCESS_PANEL_THESPIA     },
+    { GO_ACCESS_PANEL_STEAMRIGGER,  DATA_ACCESS_PANEL_STEAMRIGGER },
+    { GO_MAIN_CHAMBERS_DOOR,        DATA_MAIN_CHAMBERS_DOOR       }
 };
 
 static constexpr ObjectData creatureData[] =
@@ -62,29 +62,15 @@ class instance_steam_vault : public InstanceMapScript
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
+
                 if (go->GetEntry() == GO_MAIN_CHAMBERS_DOOR)
-                    CheckMainDoor();
-            }
-
-            void CheckMainDoor()
-            {
-                if (GetBossState(DATA_HYDROMANCER_THESPIA) == DONE && GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE)
                 {
-                    if (Creature* controller = GetCreature(DATA_DOOR_CONTROLLER))
-                        controller->AI()->Talk(CONTROLLER_TEXT_MAIN_DOOR_OPEN);
-
-                    if (GameObject* mainDoor = GetGameObject(DATA_MAIN_DOOR))
+                    if (GetBossState(DATA_HYDROMANCER_THESPIA) == DONE && GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE)
                     {
-                        HandleGameObject(ObjectGuid::Empty, true, mainDoor);
-                        mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
+                        go->ActivateObject(GameObjectActions::MakeInert, 0);
                     }
                 }
-            }
-
-            void SetData(uint32 type, uint32 /*data*/) override
-            {
-                if (type == ACTION_OPEN_DOOR)
-                    CheckMainDoor();
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -96,13 +82,13 @@ class instance_steam_vault : public InstanceMapScript
                 {
                     case DATA_HYDROMANCER_THESPIA:
                         if (state == DONE)
-                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_HYDRO))
-                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_THESPIA))
+                                panel->ActivateObject(GameObjectActions::MakeActive, 0);
                         break;
                     case DATA_MEKGINEER_STEAMRIGGER:
                         if (state == DONE)
-                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_MEK))
-                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_STEAMRIGGER))
+                                panel->ActivateObject(GameObjectActions::MakeActive, 0);
                         break;
                     default:
                         break;

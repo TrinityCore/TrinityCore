@@ -376,8 +376,10 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                     uint8 disabledModes = itr->second.flags;
                     Group const* group = player->GetGroup();
                     Difficulty targetDifficulty = group ? group->GetDifficultyID(mapEntry) : player->GetDifficultyID(mapEntry);
-                    sDB2Manager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
-                    switch (targetDifficulty)
+                    MapDifficultyEntry const* mapDifficulty = sDB2Manager.GetDownscaledMapDifficultyData(entry, targetDifficulty);
+                    if (!mapDifficulty)
+                        return false;
+                    switch (Difficulty(mapDifficulty->DifficultyID))
                     {
                         case DIFFICULTY_NORMAL:
                             return (disabledModes & DUNGEON_STATUSFLAG_NORMAL) != 0;

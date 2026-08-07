@@ -1190,6 +1190,9 @@ class TC_GAME_API Unit : public WorldObject
         bool SetIgnoreMovementForces(bool ignore);
         void UpdateMovementForcesModMagnitude();
 
+        void ApplyInertia(int32 id, Milliseconds duration);
+        void RemoveInertia(int32 id);
+
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
         void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
@@ -1468,6 +1471,8 @@ class TC_GAME_API Unit : public WorldObject
             SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {}, ObjectGuid const& interrupter = ObjectGuid::Empty);
         void FinishSpell(CurrentSpellTypes spellType, SpellCastResult result = SPELL_CAST_OK);
 
+        void CancelAutoRepeatSpell();
+
         // set withDelayed to true to account delayed spells as cast
         // delayed+channeled spells are always accounted as cast
         // we can skip channeled or delayed checks using flags
@@ -1479,7 +1484,6 @@ class TC_GAME_API Unit : public WorldObject
         void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true);
 
         Spell* GetCurrentSpell(CurrentSpellTypes spellType) const { return m_currentSpells[spellType]; }
-        Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         struct GetCastSpellInfoContext
