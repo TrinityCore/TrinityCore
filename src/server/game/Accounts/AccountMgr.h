@@ -39,7 +39,7 @@ enum PasswordChangeSecurity
 };
 
 #define MAX_PASS_STR 16
-#define MAX_ACCOUNT_STR 16
+#define MAX_ACCOUNT_STR 17
 #define MAX_EMAIL_STR 64
 
 namespace rbac
