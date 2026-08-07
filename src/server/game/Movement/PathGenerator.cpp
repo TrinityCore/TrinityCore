@@ -702,11 +702,11 @@ NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)
 
     switch (data.type_flags)
     {
-        case MAP_LIQUID_TYPE_WATER:
-        case MAP_LIQUID_TYPE_OCEAN:
+        case map_liquidHeaderTypeFlags::Water:
+        case map_liquidHeaderTypeFlags::Ocean:
             return NAV_WATER;
-        case MAP_LIQUID_TYPE_MAGMA:
-        case MAP_LIQUID_TYPE_SLIME:
+        case map_liquidHeaderTypeFlags::Magma:
+        case map_liquidHeaderTypeFlags::Slime:
             return NAV_MAGMA_SLIME;
         default:
             return NAV_GROUND;
