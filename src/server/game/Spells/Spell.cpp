@@ -2170,13 +2170,8 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, WorldObject*
     bool searchInWorld = (containerMask & (GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER | GRID_MAP_TYPE_MASK_CORPSE)) != 0;
     if (searchInGrid || searchInWorld)
     {
-        float x, y;
-        x = pos->GetPositionX();
-        y = pos->GetPositionY();
-
-        CellCoord p(Trinity::ComputeCellCoord(x, y));
-        Cell cell(p);
-        cell.SetNoCreate();
+        float x = pos->GetPositionX();
+        float y = pos->GetPositionY();
 
         Map* map = referer->GetMap();
 
@@ -5791,10 +5786,10 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         {
             if (!m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
             {
-                if (m_triggeredByAuraSpell || m_spellInfo->IsCooldownStartedOnEvent())
+                if (m_triggeredByAuraSpell || (m_spellInfo->IsCooldownStartedOnEvent() && !m_caster->ToUnit()->GetSpellHistory()->HasCooldownOnHold(m_spellInfo->Id)))
                     return SPELL_FAILED_DONT_REPORT;
-                else
-                    return SPELL_FAILED_NOT_READY;
+
+                return SPELL_FAILED_NOT_READY;
             }
 
             if ((IsAutoRepeat() || m_spellInfo->CategoryId == 76) && !m_caster->ToUnit()->isAttackReady(RANGED_ATTACK))

@@ -3062,25 +3062,58 @@ void Creature::ApplyLevelScaling()
 {
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, {}))
+    int32 contentTuningId = creatureDifficulty->ContentTuningID;
+
+    if (!contentTuningId && !IsCritter())
+    {
+        if (MapDifficultyEntry const* mapDifficulty = GetMap()->GetMapDifficulty())
+            if (mapDifficulty->ContentTuningID)
+                contentTuningId = mapDifficulty->ContentTuningID;
+
+        if (!contentTuningId)
+        {
+            AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+            while (area)
+            {
+                if (area->ContentTuningID)
+                {
+                    contentTuningId = area->ContentTuningID;
+                    break;
+                }
+
+                area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+            }
+        }
+    }
+
+    int32 scalingLevelDelta = 0;
+    if (contentTuningId)
+    {
+        int32 mindelta = std::min(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
+        int32 maxdelta = std::max(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
+        scalingLevelDelta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
+    }
+
+    ApplyLevelScaling(contentTuningId, scalingLevelDelta);
+}
+
+void Creature::ApplyLevelScaling(int32 contentTuningId, int32 scalingLevelDelta)
+{
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(contentTuningId, {}))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
     }
 
-    int32 mindelta = std::min(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 maxdelta = std::max(creatureDifficulty->DeltaLevelMax, creatureDifficulty->DeltaLevelMin);
-    int32 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
-
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelDelta), delta);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ContentTuningID), creatureDifficulty->ContentTuningID);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelDelta), scalingLevelDelta);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ContentTuningID), contentTuningId);
 }
 
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
     return std::ceil(baseHealth * creatureDifficulty->HealthModifier);
 }
 
@@ -3098,7 +3131,7 @@ float Creature::GetBaseDamageForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
 }
 
 float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
@@ -3115,7 +3148,7 @@ float Creature::GetBaseArmorForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cInfo->unit_class), 0);
     return baseArmor * creatureDifficulty->ArmorModifier;
 }
 

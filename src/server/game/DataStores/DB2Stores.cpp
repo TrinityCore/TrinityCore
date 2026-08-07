@@ -434,7 +434,7 @@ typedef std::array<ItemClassEntry const*, 21> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
-typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
+typedef std::vector<MapDifficultyEntry const*> MapDifficultyContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
 typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
@@ -1382,8 +1382,11 @@ void DB2Manager::IndexLoadedStores()
         _journalTiersByIndex.push_back(journalTier);
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
-        if (sMapStore.HasRecord(entry->MapID))
-            _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
+        if (sMapStore.HasRecord(entry->MapID) && (!entry->DifficultyID || sDifficultyStore.HasRecord(entry->DifficultyID)))
+            _mapDifficulties.push_back(entry);
+
+    std::ranges::sort(_mapDifficulties, std::ranges::less(),
+        [](MapDifficultyEntry const* entry) { return std::pair(entry->MapID, entry->DifficultyID); });
 
     std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
     mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
@@ -2706,72 +2709,68 @@ uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
     return 0;
 }
 
-MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/) const
+MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId) const
 {
-    std::unordered_map<uint32, MapDifficultyEntry const*>* difficultiesForMap = Trinity::Containers::MapGetValuePtr(_mapDifficulties, mapId);
-    if (!difficultiesForMap)
-        return nullptr;
-
-    auto difficultyEnd = difficultiesForMap->end();
-
-    // first find any valid difficulty
-    auto foundDifficulty = std::ranges::find_if(difficultiesForMap->begin(), difficultyEnd,
-        [](uint32 difficultyId) { return sDifficultyStore.HasRecord(difficultyId); },
-        Trinity::Containers::MapKey);
-
-    if (foundDifficulty == difficultyEnd)
-        return nullptr; // nothing valid was found
-
-    if (!(sDifficultyStore.AssertEntry(foundDifficulty->first)->Flags & DIFFICULTY_FLAG_DEFAULT))
+    auto difficultyBegin = std::ranges::lower_bound(_mapDifficulties, mapId, std::ranges::less(), &MapDifficultyEntry::MapID);
+    struct
     {
-        // first valid difficulty wasn't default, try finding one
-        auto defaultDifficulty = std::ranges::find_if(foundDifficulty, difficultyEnd,
-            [](DifficultyEntry const* difficultyEntry) { return difficultyEntry && (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT) != 0; },
-            [](std::pair<uint32 const, MapDifficultyEntry const*> const& p) { return sDifficultyStore.LookupEntry(p.first); });
+        bool operator==(MapDifficultyContainer::const_iterator const& itr) const { return itr == end || (*itr)->MapID != mapId; }
+        MapDifficultyContainer::const_iterator end = _mapDifficulties.end();
+        uint32 mapId;
+    } difficultyEnd { .mapId = mapId };
 
-        if (defaultDifficulty != difficultyEnd)
-            foundDifficulty = defaultDifficulty; // got a default
+    MapDifficultyEntry const* defaultDifficulty = nullptr;
+    while (difficultyBegin != difficultyEnd)
+    {
+        if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry((*difficultyBegin)->DifficultyID))
+        {
+            // if a default difficulty exists then use that
+            if (difficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
+            {
+                defaultDifficulty = *difficultyBegin;
+                break;
+            }
+            // otherwise pick first existing difficulty
+            if (!defaultDifficulty)
+                defaultDifficulty = *difficultyBegin;
+        }
+        ++difficultyBegin;
     }
 
-    if (difficulty)
-        *difficulty = Difficulty(foundDifficulty->first);
+    // if no difficulty waa found in Difficulty.db2 then we should only have DIFFICULTY_NONE
 
-    return foundDifficulty->second;
+    return defaultDifficulty;
 }
 
 MapDifficultyEntry const* DB2Manager::GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const
 {
-    auto itr = _mapDifficulties.find(mapId);
-    if (itr == _mapDifficulties.end())
-        return nullptr;
+    auto itr = std::ranges::lower_bound(_mapDifficulties, std::pair(mapId, difficulty) , std::ranges::less(),
+        [](MapDifficultyEntry const* mapDifficulty) { return std::pair(mapDifficulty->MapID, Difficulty(mapDifficulty->DifficultyID)); });
 
-    auto diffItr = itr->second.find(difficulty);
-    if (diffItr == itr->second.end())
-        return nullptr;
+    if (itr != _mapDifficulties.end() && (*itr)->MapID == mapId && (*itr)->DifficultyID == difficulty)
+        return *itr;
 
-    return diffItr->second;
+    return nullptr;
 }
 
-MapDifficultyEntry const* DB2Manager::GetDownscaledMapDifficultyData(uint32 mapId, Difficulty& difficulty) const
+MapDifficultyEntry const* DB2Manager::GetDownscaledMapDifficultyData(uint32 mapId, Difficulty difficulty) const
 {
-    DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
-    if (!diffEntry)
-        return GetDefaultMapDifficulty(mapId, &difficulty);
-
-    uint32 tmpDiff = difficulty;
-    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
-    while (!mapDiff)
+    MapDifficultyEntry const* mapDiff = nullptr;
+    Difficulty currentDifficulty = difficulty;
+    do
     {
-        tmpDiff = diffEntry->FallbackDifficultyID;
-        diffEntry = sDifficultyStore.LookupEntry(tmpDiff);
-        if (!diffEntry)
-            return GetDefaultMapDifficulty(mapId, &difficulty);
+        mapDiff = GetMapDifficultyData(mapId, currentDifficulty);
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(currentDifficulty);
+        if (!currentDifficulty)
+            break;
 
-        // pull new data
-        mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
-    }
+        currentDifficulty = Difficulty(difficultyEntry->FallbackDifficultyID);
 
-    difficulty = Difficulty(tmpDiff);
+    } while (!mapDiff);
+
+    if (!mapDiff)
+        mapDiff = GetDefaultMapDifficulty(mapId);
+
     return mapDiff;
 }
 

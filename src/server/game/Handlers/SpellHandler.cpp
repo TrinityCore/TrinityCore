@@ -348,9 +348,7 @@ void WorldSession::HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::Canc
 
 void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& /*cancelAutoRepeatSpell*/)
 {
-    // may be better send SMSG_CANCEL_AUTO_REPEAT?
-    // cancel and prepare for deleting
-    _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+    _player->CancelAutoRepeatSpell();
 }
 
 void WorldSession::HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& /*cancelQueuedSpell*/)
