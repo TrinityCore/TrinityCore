@@ -1149,7 +1149,7 @@ uint32 Item::GetSellPrice(bool forVendor /*= false*/) const
 {
     ItemTemplate const* itemTemplate = GetTemplate();
     int32 price = Item::GetSellPrice(itemTemplate);
-    if (forVendor)
+    if (price && forVendor)
     {
         auto effectWithCharges = std::ranges::find_if(itemTemplate->Effects,
             [](ItemEffect const& itemEffect) { return itemEffect.SpellID && itemEffect.TriggerType == ITEM_SPELLTRIGGER_ON_USE && itemEffect.Charges < 0; });
