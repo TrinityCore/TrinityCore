@@ -341,9 +341,9 @@ class spell_magus_telestra_summon_clones : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_CLONE_FIRE);
-        caster->CastSpell(caster, SPELL_SUMMON_CLONE_ARCANE);
-        caster->CastSpell(caster, SPELL_SUMMON_CLONE_FROST);
+        caster->CastSpell(caster, SPELL_SUMMON_CLONE_FIRE, true);
+        caster->CastSpell(caster, SPELL_SUMMON_CLONE_ARCANE, true);
+        caster->CastSpell(caster, SPELL_SUMMON_CLONE_FROST, true);
     }
 
     void Register() override
@@ -368,7 +368,7 @@ class spell_magus_telestra_clone_dies : public AuraScript
     {
         Unit* target = GetTarget();
         if (target->HasAura(SPELL_CLONE_DIES_FIRE) && target->HasAura(SPELL_CLONE_DIES_FROST) && target->HasAura(SPELL_CLONE_DIES_ARCANE))
-            target->CastSpell(target, SPELL_TRIGGER_000);
+            target->CastSpell(target, SPELL_TRIGGER_000, true);
     }
 
     void Register() override

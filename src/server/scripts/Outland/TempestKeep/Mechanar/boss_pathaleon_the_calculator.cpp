@@ -229,9 +229,9 @@ class spell_pathaleon_summon_nether_wraiths : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_LEFT);
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_FRONT);
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_BACK);
+        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_LEFT, true);
+        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_FRONT, true);
+        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_BACK, true);
     }
 
     void Register() override

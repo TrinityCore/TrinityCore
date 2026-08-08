@@ -502,7 +502,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
     }
 
     void Register() override
@@ -569,13 +569,13 @@ class spell_sholazar_song_of_cleansing : public SpellScript
         switch (caster->GetAreaId())
         {
             case AREA_BITTERTIDE_LAKE:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATHA);
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATHA, true);
                 break;
             case AREA_RIVERS_HEART:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN, true);
                 break;
             case AREA_WINTERGRASP_RIVER:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU, true);
                 break;
             default:
                 break;
