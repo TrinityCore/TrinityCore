@@ -80,7 +80,7 @@ namespace Scripts::Spells::Mage
             if ((eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & (0x800 | 0x200000)) != 0)
                 return false;
 
-            return roll_chance_i(aurEff->GetAmount());
+            return roll_chance(aurEff->GetAmount());
         }
 
         void Register() override

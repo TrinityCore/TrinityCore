@@ -235,7 +235,7 @@ namespace Scripts::Spells::Paladin
                 return false;
 
             // The proc chance is defined in the aura effect's amount
-            return roll_chance_i(aurEff->GetAmount());
+            return roll_chance(aurEff->GetAmount());
         }
 
         void Register() override
