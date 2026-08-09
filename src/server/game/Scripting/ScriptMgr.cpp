@@ -25,6 +25,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "Concepts.h"
 #include "CreatureAISelector.h"
 #include "DB2Stores.h"
 #include "Errors.h"

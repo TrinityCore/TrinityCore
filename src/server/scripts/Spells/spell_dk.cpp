@@ -205,7 +205,7 @@ class spell_dk_death_coil : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         // According to tooltip: ($m1+0.23*$AP)
-        int32 damage = GetEffectValue() + 0.23f * GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
+        SpellEffectValue damage = GetEffectValue() + 0.23f * GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK);
         if (_healTarget)
             damage *= 3.5f;
 

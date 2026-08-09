@@ -2556,18 +2556,6 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
         loadData[{ cooldowns->SpellID, Difficulty(cooldowns->DifficultyID) }].Cooldowns = cooldowns;
 
-    for (SpellEmpowerStageEntry const* empowerStage : sSpellEmpowerStageStore)
-    {
-        if (SpellEmpowerEntry const* empower = sSpellEmpowerStore.LookupEntry(empowerStage->SpellEmpowerID))
-        {
-            std::vector<SpellEmpowerStageEntry const*>& empowerStages = loadData[{empower->SpellID, DIFFICULTY_NONE}].EmpowerStages;
-
-            auto where = std::ranges::lower_bound(empowerStages, empowerStage->Stage, std::ranges::less(), &SpellEmpowerStageEntry::Stage);
-
-            empowerStages.insert(where, empowerStage);
-        }
-    }
-
     for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
         loadData[{ equippedItems->SpellID, DIFFICULTY_NONE }].EquippedItems = equippedItems;
 
@@ -2659,9 +2647,6 @@ void SpellMgr::LoadSpellInfoStore()
                     for (std::size_t i = 0; i < data.Effects.size(); ++i)
                         if (!data.Effects[i])
                             data.Effects[i] = fallbackData->Effects[i];
-
-                    if (data.EmpowerStages.empty())
-                        data.EmpowerStages = fallbackData->EmpowerStages;
 
                     if (!data.EquippedItems)
                         data.EquippedItems = fallbackData->EquippedItems;
@@ -2923,10 +2908,10 @@ void SpellMgr::LoadSpellInfoServerside()
             spellInfo.TargetAuraSpell = fields[32].GetUInt32();
             spellInfo.ExcludeCasterAuraSpell = fields[33].GetUInt32();
             spellInfo.ExcludeTargetAuraSpell = fields[34].GetUInt32();
-            spellInfo.CasterAuraType = AuraType(fields[35].GetInt32());
-            spellInfo.TargetAuraType = AuraType(fields[36].GetInt32());
-            spellInfo.ExcludeCasterAuraType = AuraType(fields[37].GetInt32());
-            spellInfo.ExcludeTargetAuraType = AuraType(fields[38].GetInt32());
+            // spellInfo.CasterAuraType = AuraType(fields[35].GetInt32());
+            // spellInfo.TargetAuraType = AuraType(fields[36].GetInt32());
+            // spellInfo.ExcludeCasterAuraType = AuraType(fields[37].GetInt32());
+            // spellInfo.ExcludeTargetAuraType = AuraType(fields[38].GetInt32());
             spellInfo.CastTimeEntry = sSpellCastTimesStore.LookupEntry(fields[39].GetUInt32());
             spellInfo.RecoveryTime = fields[40].GetUInt32();
             spellInfo.CategoryRecoveryTime = fields[41].GetUInt32();

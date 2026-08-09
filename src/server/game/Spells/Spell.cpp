@@ -8861,7 +8861,7 @@ void Spell::PrepareTriggersExecutedOnHit()
             // this possibly needs fixing
             SpellEffectValue auraBaseAmount = aurEff->GetBaseAmount();
             // proc chance is stored in effect amount
-            int32 chance = unitCaster->CalcValueAsInt(unitCaster, aurEff->GetSpellEffectInfo(), &auraBaseAmount);
+            int32 chance = aurEff->GetSpellEffectInfo().CalcValueAsInt(unitCaster, &auraBaseAmount);
             chance *= aurEff->GetBase()->GetStackAmount();
 
             // build trigger and add to the list

@@ -334,7 +334,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 // 26400 - Arcane Shroud
 class spell_item_arcane_shroud : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -1355,7 +1355,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        int32 pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
+        SpellEffectValue pct = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
                 if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
@@ -1692,7 +1692,7 @@ class spell_item_persistent_shield : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
-        int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
+        SpellEffectValue bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
 
         // Scarab Brooch does not replace stronger shields
         if (AuraEffect const* shield = target->GetAuraEffect(SPELL_PERSISTENT_SHIELD_TRIGGERED, EFFECT_0, caster->GetGUID()))
@@ -2331,7 +2331,7 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
 // 28862 - The Eye of Diminution
 class spell_item_the_eye_of_diminution : public AuraScript
 {
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
@@ -3561,7 +3561,7 @@ public:
             Aura* dummy = caster->GetAura(_stackSpell); // retrieve aura
 
             //dont do anything if it's not the right amount of stacks;
-            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmount())
+            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmountAsInt())
                 return;
 
             // if right amount, remove the aura and cast real trigger
