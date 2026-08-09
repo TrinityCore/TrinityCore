@@ -1,5 +1,5 @@
-SET @CGUID := 30000000; -- Need 1
-SET @OGUID := 30000000; -- Need 7
+SET @CGUID := 10006983; -- Need 1
+SET @OGUID := 10001996; -- Need 7
 
 -- Quest
 UPDATE `creature_queststarter` SET `VerifiedBuild`=68887 WHERE `id`=252312 AND `quest`=92572;
