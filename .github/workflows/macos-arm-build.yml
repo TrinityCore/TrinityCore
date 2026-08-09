@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-14
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
       id: strings

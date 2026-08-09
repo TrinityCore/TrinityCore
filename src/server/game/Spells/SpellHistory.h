@@ -170,6 +170,7 @@ public:
     void ResetAllCooldowns();
     bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
+    bool HasCooldownOnHold(uint32 spellId) const;
     Duration GetRemainingCooldown(SpellInfo const* spellInfo) const;
     Duration GetRemainingCategoryCooldown(uint32 categoryId) const;
     Duration GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const;

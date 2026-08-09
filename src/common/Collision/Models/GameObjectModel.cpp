@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VMapFactory.h"
-#include "VMapManager.h"
-#include "VMapDefinitions.h"
-#include "WorldModel.h"
 #include "GameObjectModel.h"
 #include "Log.h"
 #include "MapTree.h"
 #include "Memory.h"
 #include "Timer.h"
+#include "VMapDefinitions.h"
+#include "VMapFactory.h"
+#include "VMapManager.h"
+#include "WorldModel.h"
 #include <G3D/Quat.h>
 
 using G3D::Vector3;
@@ -193,15 +193,16 @@ bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationI
     // child bounds are defined in object space:
     Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
     Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-    float zDist;
 
-    VMAP::GroupLocationInfo groupInfo;
-    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
+    VMAP::WorldModelLocationInfoQueryResult locationQueryResult;
+    if (iModel->GetLocationInfo(pModel, zDirModel, locationQueryResult))
     {
-        Vector3 modelGround = pModel + zDist * zDirModel;
+        Vector3 modelGround = pModel + locationQueryResult.distanceToModel * zDirModel;
         float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
         if (info.ground_Z < world_Z)
         {
+            info.rootId = locationQueryResult.rootId;
+            info.hitModel = locationQueryResult.hitModel;
             info.ground_Z = world_Z;
             return true;
         }
@@ -210,13 +211,13 @@ bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationI
     return false;
 }
 
-bool GameObjectModel::GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const
+bool GameObjectModel::GetLiquidLevel(G3D::Vector3 const& point, VMAP::GroupModel const* model, float& liqHeight) const
 {
     // child bounds are defined in object space:
     Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
     //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
     float zDist;
-    if (info.hitModel->GetLiquidLevel(pModel, zDist))
+    if (model->GetLiquidLevel(pModel, zDist))
     {
         // calculate world height (zDist in model coords):
         liqHeight = (Vector3(pModel.x, pModel.y, zDist) * iInvRot * iScale + iPos).z;

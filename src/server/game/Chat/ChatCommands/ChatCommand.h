@@ -112,7 +112,6 @@ namespace Trinity::Impl::ChatCommands
     template <typename... Ts> struct CommandInvokerTraits<bool(ChatHandler*, Ts...)>
     {
         using Func = bool(ChatHandler*, Ts...);
-        using Refs = std::tuple<Ts...>;
         using Vals = std::tuple<std::remove_cvref_t<Ts>...>;
 
         static bool Wrapper(void* handler, ChatHandler* chatHandler, std::string_view argsStr) noexcept
@@ -121,7 +120,7 @@ namespace Trinity::Impl::ChatCommands
             ChatCommandResult result = std::nullopt;
             ConsumeFromOffset<Vals, 0>(result, arguments, chatHandler, argsStr);
             if (result.IsSuccessful())
-                return Invoke(reinterpret_cast<Func*>(handler), chatHandler, arguments, std::make_index_sequence<std::tuple_size_v<Vals>>{});
+                return Invoke(reinterpret_cast<Func*>(handler), chatHandler, arguments, std::index_sequence_for<Ts...>{});
 
             if (result.HasErrorMessage())
                 SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
@@ -133,7 +132,7 @@ namespace Trinity::Impl::ChatCommands
         inline static constexpr bool Invoke(Func* handler, ChatHandler* chatHandler, Vals& arguments, std::index_sequence<I...>) noexcept
         {
             // Invoke command handler preserving original reference category of each argument
-            return handler(chatHandler, std::get<I>(advstd::forward_like<std::tuple_element_t<I, Refs>>(arguments))...);
+            return handler(chatHandler, std::get<I>(advstd::forward_like<Ts>(arguments))...);
         }
     };
 
