@@ -11,9 +11,9 @@ DELETE FROM `spawn_group` WHERE `spawnType`= 0 AND `spawnId` IN (275809, 280400,
 
 -- Difficulty
 DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID` IN (0,1) AND `Entry` IN (42515,42492));
-INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `TypeFlags3`) VALUES
-(42515, 0, 0, 1, 1, 53141, 0x0, 0, 0), -- Shadowy Figure
-(42492, 0, 0, 10, 1, 53158, 0x0, 0, 0); -- Glubtok
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
+(42515, 0, 0, 1, 1, 53141, 0x0, 0), -- Shadowy Figure
+(42492, 0, 0, 10, 1, 53158, 0x0, 0); -- Glubtok
 
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000200, `VerifiedBuild`=63305 WHERE (`Entry`=42515 AND `DifficultyID`=0); -- 42515 (Shadowy Figure) - CanSwim
 UPDATE `creature_template_difficulty` SET `VerifiedBuild`=63305 WHERE (`Entry`=42492 AND `DifficultyID`=0); -- 42492 (Glubtok) -
