@@ -116,7 +116,7 @@ struct boss_exarch_maladaar : public BossAI
 
         Talk(SAY_AGGRO);
 
-        events.ScheduleEvent(EVENT_SOUL_SCREAM, 10s, 15s);
+        events.ScheduleEvent(EVENT_SOUL_SCREAM, 10s, 25s);
         events.ScheduleEvent(EVENT_RIBBON_OF_SOULS, 0s, 5s);
         events.ScheduleEvent(EVENT_STOLEN_SOUL, 10s, 25s);
     }
