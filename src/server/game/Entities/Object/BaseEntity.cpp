@@ -274,9 +274,7 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
 
         data << GetGUID();                                             // MoverGUID
 
-        data << uint32(unit->GetUnitMovementFlags());
-        data << uint32(unit->GetExtraUnitMovementFlags());
-        data << uint32(unit->GetExtraUnitMovementFlags2());
+        data << uint64(unit->GetUnitMovementFlags());
 
         data << uint32(unit->m_movementInfo.time);                     // MoveTime
         data << float(unit->GetPositionX());

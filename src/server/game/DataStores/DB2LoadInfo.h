@@ -4363,7 +4363,7 @@ struct PhaseXPhaseGroupLoadInfo
 
 struct PlayerConditionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[163] =
+    static constexpr DB2FieldMeta Fields[162] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_STRING, .Name = "FailureDescription" },
@@ -4414,6 +4414,7 @@ struct PlayerConditionLoadInfo
         { .IsSigned = true, .Type = FT_BYTE, .Name = "PowerType" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "PowerTypeComp" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "PowerTypeValue" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "MovementFlags" },
         { .IsSigned = true, .Type = FT_INT, .Name = "WeaponSubclassMask" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "MaxGuildLevel" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "MinGuildLevel" },
@@ -4512,8 +4513,6 @@ struct PlayerConditionLoadInfo
         { .IsSigned = false, .Type = FT_INT, .Name = "QuestKillMonster4" },
         { .IsSigned = false, .Type = FT_INT, .Name = "QuestKillMonster5" },
         { .IsSigned = false, .Type = FT_INT, .Name = "QuestKillMonster6" },
-        { .IsSigned = true, .Type = FT_INT, .Name = "MovementFlags1" },
-        { .IsSigned = true, .Type = FT_INT, .Name = "MovementFlags2" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RaceMask1" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RaceMask2" },
         { .IsSigned = true, .Type = FT_INT, .Name = "TraitNodeEntryID1" },
@@ -4530,7 +4529,7 @@ struct PlayerConditionLoadInfo
         { .IsSigned = false, .Type = FT_SHORT, .Name = "TraitNodeEntryMaxRank4" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 163, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
+    static constexpr DB2LoadInfo Instance{ Fields, 162, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
 };
 
 struct PlayerDataElementAccountLoadInfo

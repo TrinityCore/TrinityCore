@@ -17122,6 +17122,7 @@ struct PlayerConditionMeta
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
         { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
@@ -17155,7 +17156,6 @@ struct PlayerConditionMeta
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  6, .IsSigned = false },
         { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
-        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
         { .Type = FT_INT,                  .ArraySize =  4, .IsSigned =  true },
         { .Type = FT_SHORT,                .ArraySize =  4, .IsSigned = false },
         { .Type = FT_SHORT,                .ArraySize =  4, .IsSigned = false },
@@ -17168,7 +17168,7 @@ struct PlayerConditionMeta
         .ParentIndexField   = -1,
         .FieldCount         = 86,
         .FileFieldCount     = 86,
-        .LayoutHash         = 0x7A9E50CE,
+        .LayoutHash         = 0x1D743D99,
         .Fields             = Fields
     };
 };

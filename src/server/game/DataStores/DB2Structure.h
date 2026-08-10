@@ -3310,6 +3310,7 @@ struct PlayerConditionEntry
     int8 PowerType;
     uint8 PowerTypeComp;
     int8 PowerTypeValue;
+    int32 MovementFlags;
     int32 WeaponSubclassMask;
     uint8 MaxGuildLevel;
     uint8 MinGuildLevel;
@@ -3343,7 +3344,6 @@ struct PlayerConditionEntry
     std::array<uint32, 4> CurrencyID;
     std::array<uint32, 4> CurrencyCount;
     std::array<uint32, 6> QuestKillMonster;
-    std::array<int32, 2> MovementFlags;
     Trinity::RaceMask<int32, 2> RaceMask;
     std::array<int32, 4> TraitNodeEntryID;
     std::array<uint16, 4> TraitNodeEntryMinRank;

@@ -76,9 +76,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
 
     data << movementInfo.guid;
-    data << uint32(movementInfo.flags);
-    data << uint32(movementInfo.flags2);
-    data << uint32(movementInfo.flags3);
+    data << WorldPackets::As<uint64>(movementInfo.flags);
     data << uint32(movementInfo.time);
     data << movementInfo.pos.PositionXYZOStream();
     data << float(movementInfo.pitch);
@@ -158,9 +156,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 {
     data >> movementInfo.guid;
-    data >> movementInfo.flags;
-    data >> movementInfo.flags2;
-    data >> movementInfo.flags3;
+    data >> WorldPackets::As<uint64>(movementInfo.flags);
     data >> movementInfo.time;
     data >> movementInfo.pos.PositionXYZOStream();
     data >> movementInfo.pitch;

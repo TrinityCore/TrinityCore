@@ -52,7 +52,7 @@ namespace Movement
         TransportBase* _transport;
     };
 
-    UnitMoveType SelectSpeedType(uint32 moveFlags)
+    UnitMoveType SelectSpeedType(MovementFlags moveFlags)
     {
         if (moveFlags & MOVEMENTFLAG_FLYING)
         {
@@ -116,7 +116,7 @@ namespace Movement
         args.flags.Enter_Cycle = args.flags.Cyclic;
         move_spline.onTransport = transport;
 
-        uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
+        MovementFlags moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (!args.flags.Backward)
             moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
         else
@@ -129,7 +129,7 @@ namespace Movement
         {
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
-            uint32 moveFlagsForSpeed = moveFlags;
+            MovementFlags moveFlagsForSpeed = moveFlags;
             if (args.walk)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
             else
