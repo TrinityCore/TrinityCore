@@ -566,13 +566,15 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::Requ
     WorldPackets::Party::PartyMemberFullState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
-    if (!player)
+    if (!player || !player->GetGroup() || !GetPlayer()->GetGroup() || (player->GetGroup() != GetPlayer()->GetGroup()))
     {
         partyMemberStats.MemberGuid = packet.TargetGUID;
         partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
     }
     else
+    {
         partyMemberStats.Initialize(player);
+    }
 
     SendPacket(partyMemberStats.Write());
 }
