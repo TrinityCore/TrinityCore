@@ -43,14 +43,14 @@ namespace Scripts::Spells::Mage
         {
             // Though the tooltip states that any target that is permanently stun immune can take damage, only creatures can actually achieve such a state
             // So we save ourselves some checks by filtering for creatures first
-            if (!eventInfo.GetProcTarget() || !eventInfo.GetProcTarget()->IsCreature())
+            if (!eventInfo.GetActionTarget() || !eventInfo.GetActionTarget()->IsCreature())
                 return false;
 
             // We check for permanent immunities first by checking for a DB set immunities value.
             // If that check passes, we will check for the creature's current stun immunity to determine if we may proc or not.
-            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(eventInfo.GetProcTarget()->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
+            if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(eventInfo.GetActionTarget()->ToCreature()->GetCreatureTemplate()->CreatureImmunitiesId))
                 if (immunities->Mechanic[MECHANIC_STUN])
-                    if ((eventInfo.GetProcTarget()->GetMechanicImmunityMask() & (1 << MECHANIC_STUN)) != 0)
+                    if ((eventInfo.GetActionTarget()->GetMechanicImmunityMask() & (1 << MECHANIC_STUN)) != 0)
                         return true;
 
             return false;

@@ -297,7 +297,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* target = eventInfo.GetActionTarget();
 
                 caster->CastSpell(nullptr, SPELL_MOTE_OF_ANGER, true);
                 Aura const* motes = caster->GetAura(SPELL_MOTE_OF_ANGER);
@@ -493,7 +493,7 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() != nullptr;
+        return eventInfo.GetActionTarget() != nullptr;
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -505,7 +505,7 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
             return;
 
         int32 absorb = int32(CalculatePct(healInfo->GetHeal(), 15.0f));
-        if (AuraEffect* protEff = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PROTECTION_OF_ANCIENT_KINGS, EFFECT_0, eventInfo.GetActor()->GetGUID()))
+        if (AuraEffect* protEff = eventInfo.GetActionTarget()->GetAuraEffect(SPELL_PROTECTION_OF_ANCIENT_KINGS, EFFECT_0, eventInfo.GetActor()->GetGUID()))
         {
             // The shield can grow to a maximum size of 20,000 damage absorbtion
             protEff->SetAmount(std::min<int32>(protEff->GetAmount() + absorb, 20000));
@@ -517,7 +517,7 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
         {
             CastSpellExtraArgs args(aurEff);
             args.AddSpellBP0(absorb);
-            GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PROTECTION_OF_ANCIENT_KINGS, args);
+            GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_PROTECTION_OF_ANCIENT_KINGS, args);
         }
     }
 
@@ -1543,7 +1543,7 @@ class spell_item_necrotic_touch : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
+        return eventInfo.GetActionTarget() && eventInfo.GetActionTarget()->IsAlive();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -1691,7 +1691,7 @@ class spell_item_persistent_shield : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
+        Unit* target = eventInfo.GetActionTarget();
         SpellEffectValue bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
 
         // Scarab Brooch does not replace stronger shields
@@ -2155,7 +2155,7 @@ class spell_item_shadowmourne : public AuraScript
     {
         if (GetTarget()->HasAura(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF)) // cant collect shards while under effect of Chaos Bane buff
             return false;
-        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
+        return eventInfo.GetActionTarget() && eventInfo.GetActionTarget()->IsAlive();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -2168,7 +2168,7 @@ class spell_item_shadowmourne : public AuraScript
         {
             if (soulFragments->GetStackAmount() >= 10)
             {
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE, aurEff);
                 soulFragments->Remove();
             }
         }
@@ -3277,7 +3277,7 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* target = eventInfo.GetActionTarget();
 
                 if (eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HELPFUL_SPELL)
                     caster->CastSpell(target, HealProc, aurEff);
@@ -3406,7 +3406,7 @@ class spell_item_sunwell_neck : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Player* player = eventInfo.GetActor()->ToPlayer();
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* target = eventInfo.GetActionTarget();
 
                 // Aggression checks are in the spell system... just cast and forget
                 if (player->GetReputationRank(FACTION_ALDOR) == REP_EXALTED)
