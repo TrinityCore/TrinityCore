@@ -3322,6 +3322,11 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
                         unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 
             SendChannelUpdate(0);
+
+            // Channeled spells with cooldown started on event should send cast result packet to client on cancel
+            if (m_spellInfo->IsCooldownStartedOnEvent())
+                SendCastResult(result);
+
             SendInterrupted(result, resultOther);
 
             m_appliedMods.clear();
