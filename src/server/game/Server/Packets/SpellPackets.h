@@ -243,7 +243,7 @@ namespace WorldPackets
             Optional<uint64> CraftingOrderID;
             uint8 CraftingFlags = 0; // 1 = ApplyConcentration
             ObjectGuid CraftingNPC;
-            int32 Misc[2] = { };
+            std::array<int32, 2> Misc = { };
         };
 
         class CastSpell final : public ClientPacket
