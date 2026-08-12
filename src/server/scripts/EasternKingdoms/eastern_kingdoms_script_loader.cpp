@@ -401,6 +401,7 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+    AddSC_westfall();
 
     // Vashjir
     AddSC_vashjir();
