@@ -10582,7 +10582,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto, bool skipRequiredL
         learnedCount += HasSpell(itemEffect->SpellID) ? 1 : 0;
     }
     if (learnableCount && learnedCount == learnableCount)
-        return EQUIP_ERR_NONE;
+        return EQUIP_NONE_3;
 
     return EQUIP_ERR_OK;
 }
