@@ -239,7 +239,15 @@ void TempSummon::InitStats(WorldObject* summoner, Milliseconds duration)
         }
 
         if (!m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
+        {
             SetLevel(unitSummoner->GetLevel());
+            if (!IsGuardian())
+            {
+                UpdateLevelDependantStats();
+                UpdateAttackPowerAndDamage(false);
+                UpdateAttackPowerAndDamage(true);
+            }
+        }
     }
 
     uint32 faction = m_Properties->Faction;
