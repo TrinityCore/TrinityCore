@@ -31,6 +31,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "shadow_labyrinth.h"
+#include "TemporarySummon.h"
 
 enum BlackheartTexts
 {
