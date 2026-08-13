@@ -175,10 +175,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data >> movementInfo.gravityModifier;
 
     for (uint32 i = 0; i < removeMovementForcesCount; ++i)
-    {
-        ObjectGuid guid;
-        data >> guid;
-    }
+        data >> WorldPackets::Ignored<ObjectGuid>;
 
     data >> WorldPackets::OptionalInit(movementInfo.standingOnGameObjectGUID);
     bool hasTransport = data.ReadBit();
