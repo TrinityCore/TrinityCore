@@ -1397,15 +1397,15 @@ struct CriteriaEntry
         // CriteriaType::LearnTaxiNode                              = 262
         int32 TaxiNodesID;
     } Asset;
-    uint32 ModifierTreeId;
+    int32 ModifierTreeId;
     int32 StartEvent;
     int32 StartAsset;
-    uint16 StartTimer;
+    int32 StartTimer;
     int32 FailEvent;
     int32 FailAsset;
     int32 Flags;
-    int16 EligibilityWorldStateID;
-    int8 EligibilityWorldStateValue;
+    int32 EligibilityWorldStateID;
+    int32 EligibilityWorldStateValue;
 
     EnumFlag<CriteriaFlags> GetFlags() const { return static_cast<CriteriaFlags>(Flags); }
 };
@@ -1847,6 +1847,7 @@ struct GameObjectsEntry
     uint32 ID;
     uint32 OwnerID;
     int32 DisplayID;
+    int32 Flags;
     float Scale;
     int32 TypeID;
     int32 PhaseUseFlags;
@@ -1862,7 +1863,7 @@ struct GarrAbilityEntry
     LocalizedString Name;
     LocalizedString Description;
     uint8 GarrAbilityCategoryID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 IconFileDataID;
     uint16 FactionChangeGarrAbilityID;
     int32 Flags;
@@ -1925,7 +1926,7 @@ struct GarrFollowerEntry
     LocalizedString AllianceSourceText;
     LocalizedString TitleName;
     int8 GarrTypeID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 HordeCreatureID;
     int32 AllianceCreatureID;
     uint8 HordeGarrFollRaceID;
@@ -1975,7 +1976,7 @@ struct GarrMissionEntry
     DBCPosition2D WorldPos;
     int8 GarrTypeID;
     uint8 GarrMissionTypeID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     uint8 MaxFollowers;
     uint32 MissionCost;
     uint16 MissionCostCurrencyTypesID;
@@ -2109,7 +2110,7 @@ struct GossipNPCOptionEntry
     int32 GossipNpcOption;
     int32 LFGDungeonsID;
     int32 TrainerID;
-    int8 GarrFollowerTypeID;
+    uint8 GarrFollowerTypeID;
     int32 CharShipmentID;
     int32 GarrTalentTreeID;
     int32 UiMapID;
@@ -3868,7 +3869,7 @@ struct SpellClassOptionsEntry
     uint32 ID;
     int32 SpellID;
     uint32 ModalNextSpell;
-    uint8 SpellClassSet;
+    int32 SpellClassSet;
     flag128 SpellClassMask;
 };
 
