@@ -8737,6 +8737,11 @@ void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
 {
     if (!target->IsEngaged() && !canInitialAggro)
         return;
+    if (target->IsPolymorphed() && !IsWithinMeleeRange(target)) // Skipping aggro and tapping for ranged Polymorph
+    {
+        if (!target->IsEngaged())
+            return;
+    }
     target->EngageWithTarget(this);
     if (Unit* targetOwner = target->GetCharmerOrOwner())
         targetOwner->EngageWithTarget(this);
