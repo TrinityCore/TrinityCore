@@ -7994,7 +7994,7 @@ void Player::CastItemUseSpell(Item* item, uint32 spellId, SpellCastTargets const
             for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
                 if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot))))
                     for (uint8 enchantEffect = 0; enchantEffect < MAX_ITEM_ENCHANTMENT_EFFECTS; ++enchantEffect)
-                        if (enchant->Effect[enchantEffect] == ITEM_ENCHANTMENT_TYPE_USE_SPELL && enchant->EffectArg[enchantEffect] == spellId)
+                        if (enchant->Effect[enchantEffect] == ITEM_ENCHANTMENT_TYPE_USE_SPELL && enchant->EffectArg[enchantEffect] == static_cast<int32>(spellId))
                             return true;
 
             return false;
