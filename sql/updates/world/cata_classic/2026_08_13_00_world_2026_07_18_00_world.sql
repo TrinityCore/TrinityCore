@@ -4,8 +4,7 @@ SET @OGUID := 94138; -- 13
 SET @SPAWN_GROUP_ID := 385; -- 14
 
 DELETE FROM `creature_template_difficulty` WHERE `Entry` IN (18412,19525,17547,17543,17546,17535,18168) AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `DifficultyID` = 0, `ContentTuningID` = 0 WHERE `Entry` IN (18412,19525,17547,17543,17546,17535,18168) AND `DifficultyID` = 1;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 3, `LevelScalingDeltaMax` = 3 WHERE `Entry` IN (17534,17521,17533) AND `DifficultyID` = 0;
+UPDATE `creature_template_difficulty` SET `DifficultyID` = 0 WHERE `Entry` IN (18412,19525,17547,17543,17546,17535,18168) AND `DifficultyID` = 1;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+12;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnDifficulties`,`phaseId`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`wander_distance`,`currentwaypoint`,`MovementType`,`ScriptName`,`StringId`,`VerifiedBuild`) VALUES

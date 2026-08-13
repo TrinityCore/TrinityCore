@@ -21,14 +21,14 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (40680, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '60921'); -- 40680 (Stormwind Soldier) - Generic Quest Invisibility 3
 
 -- Difficulty
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40696 AND `DifficultyID`=0); -- 40696 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40695 AND `DifficultyID`=0); -- 40695 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40694 AND `DifficultyID`=0); -- 40694 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40693 AND `DifficultyID`=0); -- 40693 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40692 AND `DifficultyID`=0); -- 40692 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40691 AND `DifficultyID`=0); -- 40691 (Stormwind Soldier) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40690 AND `DifficultyID`=0); -- 40690 (Captain Taylor) - CanSwim - AllowInteractionWhileInCombat
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40680 AND `DifficultyID`=0); -- 40680 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40696 AND `DifficultyID`=0); -- 40696 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40695 AND `DifficultyID`=0); -- 40695 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40694 AND `DifficultyID`=0); -- 40694 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40693 AND `DifficultyID`=0); -- 40693 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40692 AND `DifficultyID`=0); -- 40692 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40691 AND `DifficultyID`=0); -- 40691 (Stormwind Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40690 AND `DifficultyID`=0); -- 40690 (Captain Taylor) - CanSwim - AllowInteractionWhileInCombat
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68887 WHERE (`Entry`=40680 AND `DifficultyID`=0); -- 40680 (Stormwind Soldier) - CanSwim
 
 -- Gossip
 DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=40680 AND `MenuID`=11423) OR (`CreatureID`=39887 AND `MenuID`=11424);

@@ -36,8 +36,8 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (40664, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, '49415'); -- 40664 (Recovering Soldier) - Generic Quest Invisibility 2
 
 -- Difficulty
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=39887 AND `DifficultyID`=0); -- 39887 (Captain Taylor) - CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=40664 AND `DifficultyID`=0); -- 40664 (Recovering Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=39887 AND `DifficultyID`=0); -- 39887 (Captain Taylor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=40664 AND `DifficultyID`=0); -- 40664 (Recovering Soldier) - CanSwim
 
 -- Gossip
 DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=40664 AND `MenuID`=11421);

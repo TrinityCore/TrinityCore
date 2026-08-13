@@ -38,11 +38,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (13,1,97630,0,0,31,0,3,24239,0,0,0,0,"","Group 0: Spell 'Blood Worms' (Effect 0) targets creature 'Hex Lord Malacrass'");
 
 UPDATE `creature_template_addon` SET `PvpFlags`=0 WHERE `entry`=24363;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2,`LevelScalingDeltaMax`=2,`ContentTuningID`=1112,`DamageModifier`=35,`LootID`=24239,`GoldMin`=419816,`GoldMax`=513109,`StaticFlags1`=524288 WHERE `Entry`=24239 AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `DamageModifier`=35,`LootID`=24239,`GoldMin`=419816,`GoldMax`=513109,`StaticFlags1`=524288 WHERE `Entry`=24239 AND `DifficultyID`=2;
 UPDATE `creature` SET `guid`=89357 WHERE `guid`=313406;
 
 UPDATE `creature_template` SET `ScriptName`='npc_malacrass_blood_worm' WHERE `entry`=52827;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112, `VerifiedBuild`=68453 WHERE `Entry`=52827 AND `DifficultyID`=2; -- 52827 (Blood Worm)
 
 -- Companions
 UPDATE `creature_template` SET `ScriptName`='boss_alyson_antille' WHERE `entry`=24240;
@@ -53,7 +52,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_gazakroth' WHERE `entry`=24244
 UPDATE `creature_template` SET `ScriptName`='boss_fenstalker' WHERE `entry`=24245;
 UPDATE `creature_template` SET `ScriptName`='boss_darkheart' WHERE `entry`=24246;
 UPDATE `creature_template` SET `ScriptName`='boss_koragg' WHERE `entry`=24247;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112,`DamageModifier`=7.5,`StaticFlags1`=524288 WHERE `Entry` IN (24240,24241,24242,24243,24244,24245,24246,24247) AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `DamageModifier`=7.5,`StaticFlags1`=524288 WHERE `Entry` IN (24240,24241,24242,24243,24244,24245,24246,24247) AND `DifficultyID`=2;
 
 DELETE FROM `creature` WHERE `guid` IN (313405,313407);
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+7;

@@ -15,11 +15,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Halazzi
 UPDATE `creature_template` SET `flags_extra` = `flags_extra`|0x00200000 WHERE `entry` = 23577;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2,`LevelScalingDeltaMax`=2,`ContentTuningID`=1112,`DamageModifier`=35,`LootID`=23577,`GoldMin`=345432,`GoldMax`=422195,`StaticFlags1`=3498573824 WHERE `Entry` = 23577 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier`=35,`LootID`=23577,`GoldMin`=345432,`GoldMax`=422195,`StaticFlags1`=3498573824 WHERE `Entry` = 23577 AND `DifficultyID` = 2;
 
 -- Halazzi (Transform)
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.7812495, `CombatReach` = 3.375 WHERE `DisplayID` = 22348;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2,`LevelScalingDeltaMax`=2,`ContentTuningID`=1112,`DamageModifier`=35,`StaticFlags1`=3498573832 WHERE `Entry` = 24144 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier`=35,`StaticFlags1`=3498573832 WHERE `Entry` = 24144 AND `DifficultyID` = 2;
 
 -- Corrupted Lightning Totem
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1, `AIName` = '', `ScriptName` = 'npc_corrupted_lightning_totem' WHERE `entry` = 24224;
@@ -31,7 +31,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` = 24224 AND `source_type` = 0;
 
 -- Spirit of the Lynx
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 2.14286, `BaseAttackTime` = 1500, `ScriptName` = 'npc_spirit_of_the_lynx' WHERE `entry` = 24143;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `ContentTuningID` = 1112, `DamageModifier` = 35, `StaticFlags1` = 3498573832, `StaticFlags2` = 4174, `StaticFlags4` = 1114112, `VerifiedBuild` = 68453 WHERE `Entry` = 24143 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 35, `StaticFlags1` = 3498573832, `StaticFlags2` = 4174, `StaticFlags4` = 1114112, `VerifiedBuild` = 68453 WHERE `Entry` = 24143 AND `DifficultyID` = 2;
 
 UPDATE `creature_model_info` SET `BoundingRadius` = 1.311124086380004882, `CombatReach` = 0 WHERE `DisplayID` = 20808;
 

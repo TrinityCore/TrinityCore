@@ -3,10 +3,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 76377;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (76377, 'spell_vashjir_sea_legs_aura');
 
--- Sea Legs
-UPDATE `gameobject_template` SET `RequiredLevel`=30, `VerifiedBuild`=68453 WHERE `entry`=205989; -- Saltwater Star
-UPDATE `gameobject_template` SET `RequiredLevel`=30, `VerifiedBuild`=68453 WHERE `entry`=202560; -- Conch Shell
-
 UPDATE `quest_details` SET `Emote2`=5, `VerifiedBuild`=68453 WHERE `ID`=25281; -- Pay It Forward
 UPDATE `quest_details` SET `Emote2`=396, `VerifiedBuild`=68453 WHERE `ID`=24432; -- Sea Legs
 

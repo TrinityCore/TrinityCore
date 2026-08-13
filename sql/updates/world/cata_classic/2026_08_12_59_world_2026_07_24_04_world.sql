@@ -22,10 +22,10 @@ UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_vashjir_drowni
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=68453 WHERE (`Entry`=46316 AND `DifficultyID`=0); -- 46316 (Gimme Shelter Kill Credit 00) - Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000100, `VerifiedBuild`=68453 WHERE (`Entry`=40676 AND `DifficultyID`=0); -- 40676 (Drowned Soldier) - Sessile, CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=68453 WHERE (`Entry`=39316 AND `DifficultyID`=0); -- 39316 (Vashj'ir Rescue Bunny) - Floating
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000100, `VerifiedBuild`=68453 WHERE (`Entry`=39886 AND `DifficultyID`=0); -- 39886 (Drowned Soldier) - Sessile, CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000100, `VerifiedBuild`=68453 WHERE (`Entry`=39886 AND `DifficultyID`=0); -- 39886 (Drowned Soldier) - Sessile, CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=68453 WHERE (`Entry`=39848 AND `DifficultyID`=0); -- 39848 (Vashj'ir Waypoint) - Floating
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000100, `VerifiedBuild`=68453 WHERE (`Entry`=40661 AND `DifficultyID`=0); -- 40661 (Drowned Crewman) - Sessile, CanSwim
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=39663 AND `DifficultyID`=0); -- 39663 (Drowning Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000100, `VerifiedBuild`=68453 WHERE (`Entry`=40661 AND `DifficultyID`=0); -- 40661 (Drowned Crewman) - Sessile, CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=68453 WHERE (`Entry`=39663 AND `DifficultyID`=0); -- 39663 (Drowning Soldier) - CanSwim
 
 -- Conditions
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 17) AND (`SourceEntry` IN (74151));

@@ -2,7 +2,7 @@
 SET @SPAWN_GROUP_ID := 376; -- 1
 
 -- Jan'alai
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=1112, `DamageModifier`=35, `GoldMin`=80000, `GoldMax`=100000, `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry`=23578 AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `DamageModifier`=35, `GoldMin`=80000, `GoldMax`=100000, `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry`=23578 AND `DifficultyID`=2;
 UPDATE `creature` SET `guid`=89322 WHERE `guid`=339123 AND `id`=23578;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 23578 AND `GroupID` IN (7,8);
@@ -13,7 +13,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Amani Dragonhawk Hatchling
 UPDATE `creature_template` SET `speed_walk` = 1, `ScriptName` = 'npc_amani_dragonhawk_hatchling' WHERE `entry` = 23598;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112, `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry`=23598 AND `DifficultyID`=2; -- 23598 (Amani Dragonhawk Hatchling) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry`=23598 AND `DifficultyID`=2; -- 23598 (Amani Dragonhawk Hatchling) - CanSwim
 
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.165, `CombatReach` = 0.82500005 WHERE `DisplayID` = 17546;
 
@@ -115,7 +115,7 @@ INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 
 -- Amani'shi Hatcher
 UPDATE `creature_template` SET `speed_walk` = 1, `ScriptName` = 'npc_amanishi_hatcher' WHERE `entry` IN (23818,24504);
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112, `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry` IN (23818,24504) AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10080000, `VerifiedBuild`=68453 WHERE `Entry` IN (23818,24504) AND `DifficultyID`=2;
 
 UPDATE `creature` SET `guid` = 86476, `StringId` = 'AmanishiHatcherTrigger' WHERE `guid` = 339110 AND `id` = 22515;
 
@@ -126,7 +126,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 
 -- Fire Bomb (Zul'Aman)
 UPDATE `creature_template` SET `speed_walk`=1, `unit_flags2`=0x0, `ScriptName` = 'npc_fire_bomb_zulaman' WHERE `entry` = 23920;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=261, `StaticFlags1`=0x20000100, `VerifiedBuild`=68453 WHERE `Entry`=23920 AND `DifficultyID`=0;
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=68453 WHERE `Entry`=23920 AND `DifficultyID`=0;
 
 -- Misc
 UPDATE `spell_target_position` SET `PositionX` = -34.6677, `PositionY` = 1149.56, `PositionZ` = 19.1438, `Orientation` = 3.14159, `VerifiedBuild` = 15595 WHERE `ID` = 43098;

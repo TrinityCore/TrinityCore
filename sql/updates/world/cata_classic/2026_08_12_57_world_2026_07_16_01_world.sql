@@ -4,7 +4,7 @@ SET @SPAWN_GROUP_ID := 381; -- 4
 
 -- Akil'zon
 UPDATE `creature_template` SET `unit_flags2`=0x800 WHERE `entry`=23574;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=2, `LevelScalingDeltaMax`=2, `ContentTuningID`=1112, `StaticFlags1`=0x90880000, `StaticFlags2`=0x4C, `StaticFlags4`=0x510000, `VerifiedBuild`=68887 WHERE `Entry`=23574 AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x90880000, `StaticFlags2`=0x4C, `StaticFlags4`=0x510000, `VerifiedBuild`=68887 WHERE `Entry`=23574 AND `DifficultyID`=2;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 23574;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -20,7 +20,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Soaring Eagle
 UPDATE `creature_template` SET `ScriptName` = 'npc_soaring_eagle' WHERE `entry` = 24858;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112, `StaticFlags1`=0x20080000, `VerifiedBuild`=68887 WHERE `Entry`=24858 AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20080000, `VerifiedBuild`=68887 WHERE `Entry`=24858 AND `DifficultyID`=2;
 
 DELETE FROM `creature` WHERE `id`=24858 AND `map`=568;
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnDifficulties`,`phaseId`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`wander_distance`,`currentwaypoint`,`MovementType`,`ScriptName`,`StringId`,`VerifiedBuild`) VALUES
@@ -210,7 +210,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 
 -- Amani Kidnapper
 UPDATE `creature_template` SET `speed_run`=1.4285714285714285714285714285714, `VehicleId`=1612, `ScriptName` = 'npc_akilzon_amani_kidnapper' WHERE `entry` = 52638;
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1112, `StaticFlags1`=0x20880006, `StaticFlags2`=0x8, `StaticFlags3`=0x10000000, `StaticFlags4`=0x400000, `VerifiedBuild`=68887 WHERE `Entry`=52638 AND `DifficultyID`=2;
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20880006, `StaticFlags2`=0x8, `StaticFlags3`=0x10000000, `StaticFlags4`=0x400000, `VerifiedBuild`=68887 WHERE `Entry`=52638 AND `DifficultyID`=2;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=52638;
 INSERT INTO `creature_template_addon` (`entry`, `AnimTier`) VALUES

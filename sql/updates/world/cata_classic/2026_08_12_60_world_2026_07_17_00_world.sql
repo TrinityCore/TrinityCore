@@ -96,13 +96,11 @@ INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 -- Chrono Lord Deja / Infinite Chrono-Lord
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857142857 WHERE `entry` = 17879;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857142857, `BaseAttackTime` = 2000 WHERE `entry` = 20738;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `DamageModifier` = 7.5, `LootID` = 17879, `GoldMin` = 3902, `GoldMax` = 5100 WHERE `Entry` = 17879 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2 WHERE `Entry` = 17879 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5, `LootID` = 17879, `GoldMin` = 3902, `GoldMax` = 5100 WHERE `Entry` = 17879 AND `DifficultyID` = 0;
 
 UPDATE `creature_template` SET `speed_run` = 1.42857142857, `AIName` = '', `ScriptName` = 'boss_chrono_lord_deja' WHERE `entry` = 21697;
 UPDATE `creature_template` SET `speed_run` = 1.42857142857 WHERE `entry` = 21712;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `DamageModifier` = 7.5 WHERE `Entry` = 21697 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2 WHERE `Entry` = 21697 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5 WHERE `Entry` = 21697 AND `DifficultyID` = 0;
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 21697 AND `source_type` = 0;
 
@@ -123,15 +121,13 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (21697,4,0,"Time... is on our side.",14,0,100,0,0,10417,16816,0,"Infinite Chrono-Lord SAY_DEATH");
 
 -- Temporus / Infinite Timereaver
-UPDATE `creature_template` SET /*`minlevel` = 72, `maxlevel` = 72,*/ `speed_walk` = 1, `speed_run` = 1.42857142857 WHERE `entry` = 17880;
-UPDATE `creature_template` SET /*`minlevel` = 72, `maxlevel` = 72,*/ `speed_walk` = 1, `speed_run` = 1.42857142857, `BaseAttackTime` = 2000 WHERE `entry` = 20745;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `DamageModifier` = 7.5, `LootID` = 17880, `GoldMin` = 6266, `GoldMax` = 5100 WHERE `Entry` = 17880 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2 WHERE `Entry` = 17880 AND `DifficultyID` = 2;
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857142857 WHERE `entry` = 17880;
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857142857, `BaseAttackTime` = 2000 WHERE `entry` = 20745;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5, `LootID` = 17880, `GoldMin` = 6266, `GoldMax` = 5100 WHERE `Entry` = 17880 AND `DifficultyID` = 0;
 
 UPDATE `creature_template` SET `speed_run` = 1.42857142857, `ScriptName` = 'boss_temporus' WHERE `entry` = 21698;
 UPDATE `creature_template` SET `speed_run` = 1.42857142857 WHERE `entry` = 22167;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `DamageModifier` = 7.5 WHERE `Entry` = 21698 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2 WHERE `Entry` = 21698 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5 WHERE `Entry` = 21698 AND `DifficultyID` = 0;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (17880,21698);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -151,8 +147,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Aeonus
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.71429, `BaseAttackTime` = 2000 WHERE `entry` = 20737;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2, `DamageModifier` = 7.5, `LootID` = 17881, `GoldMin` = 6494, `GoldMax` = 8486 WHERE `Entry` = 17881 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 2, `LevelScalingDeltaMax` = 2 WHERE `Entry` = 17881 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET  `DamageModifier` = 7.5, `LootID` = 17881, `GoldMin` = 6494, `GoldMax` = 8486 WHERE `Entry` = 17881 AND `DifficultyID` = 0;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 17881;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -189,12 +184,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 -- Rift Lord
 -- UPDATE `creature_template` SET `difficulty_entry_1` = 20744, `minlevel` = 71, `maxlevel` = 71 WHERE `entry` = 17839;
 UPDATE `creature_template` SET `faction` = 1720, `speed_walk` = 1, `speed_run` = 1.42857 WHERE `entry` = 20744;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1, `DamageModifier` = 7.5, `LootID` = 17839, `GoldMin` = 2880, `GoldMax` = 3766 WHERE `Entry` = 17839 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1 WHERE `Entry` = 17839 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET  `DamageModifier` = 7.5, `LootID` = 17839, `GoldMin` = 2880, `GoldMax` = 3766 WHERE `Entry` = 17839 AND `DifficultyID` = 0;
 UPDATE `creature_template` SET /*`difficulty_entry_1` = 22172,*/ `AIName` = 'SmartAI' WHERE `entry` = 21140;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857 WHERE `entry` = 22172;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1, `DamageModifier` = 7.5 WHERE `Entry` = 21140 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1 WHERE `Entry` = 21140 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5 WHERE `Entry` = 21140 AND `DifficultyID` = 0;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (17839,21140);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -256,10 +249,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`Difficulti
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 21148;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857 WHERE `entry` = 22170;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.42857 WHERE `entry` = 22171;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1, `DamageModifier` = 7.5 WHERE `Entry` = 21148 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1, `LootID` = 21104 WHERE `Entry` = 21148 AND `DifficultyID` = 2;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1, `DamageModifier` = 7.5, `LootID` = 21104, `GoldMin` = 2285, `GoldMax` = 2989 WHERE `Entry` = 21104 AND `DifficultyID` = 0;
-UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin` = 1, `LevelScalingDeltaMax` = 1 WHERE `Entry` = 21104 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5 WHERE `Entry` = 21148 AND `DifficultyID` = 0;
+UPDATE `creature_template_difficulty` SET `LootID` = 21104 WHERE `Entry` = 21148 AND `DifficultyID` = 2;
+UPDATE `creature_template_difficulty` SET `DamageModifier` = 7.5, `LootID` = 21104, `GoldMin` = 2285, `GoldMax` = 2989 WHERE `Entry` = 21104 AND `DifficultyID` = 0;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (21104,21148);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

@@ -9,7 +9,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (74145, 5012, 14482, 0, 0, 0, 2, 3, 66, 11); -- (Cast) SpellID: 74145 (Kelp Forest Quest Invisibility Detection 1)
 
 -- Difficulty
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=53, `StaticFlags1`=0x0, `VerifiedBuild`=68453 WHERE (`Entry`=36915 AND `DifficultyID`=0); -- 36915 (Erunak Stonespeaker) - 
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x0, `VerifiedBuild`=68453 WHERE (`Entry`=36915 AND `DifficultyID`=0); -- 36915 (Erunak Stonespeaker) -
 
 -- Quest
 UPDATE `quest_details` SET `Emote2`=396, `VerifiedBuild`=68453 WHERE `ID`=14482; -- Call of Duty
