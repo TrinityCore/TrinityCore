@@ -15,7 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
@@ -44,9 +49,9 @@ enum LajSpells
 
 enum LajEvents
 {
-    EVENT_TELEPORT             = 1,
-    EVENT_EMOTE,
-    EVENT_SUMMON,
+    EVENT_SEQUENCE_1             = 1,
+    EVENT_SEQUENCE_2,
+    EVENT_SEQUENCE_3,
     EVENT_ALLERGIC_REACTION,
     EVENT_TRANSFORM,
     EVENT_THRASH
@@ -55,18 +60,22 @@ enum LajEvents
 // 17980 - Laj
 struct boss_laj : public BossAI
 {
-    boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _activeTransformAura(0) { }
+    boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _lastTransformSpell(0), _isFirstTransform(true) { }
 
     void Reset() override
     {
         _Reset();
-        _activeTransformAura = 0;
+        _lastTransformSpell = 0;
+        _isFirstTransform = true;
+
+        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_TELEPORT, 15s, 25s);
+
+        events.ScheduleEvent(EVENT_SEQUENCE_1, 15s, 25s);
         events.ScheduleEvent(EVENT_ALLERGIC_REACTION, 10s, 20s);
         events.ScheduleEvent(EVENT_TRANSFORM, 20s, 30s);
         events.ScheduleEvent(EVENT_THRASH, 0s, 10s);
@@ -94,24 +103,22 @@ struct boss_laj : public BossAI
             switch (eventId)
             {
                 // Teleport sequence
-                case EVENT_TELEPORT:
+                case EVENT_SEQUENCE_1:
                     DoCastSelf(SPELL_TELEPORT_SELF);
                     me->SetReactState(REACT_PASSIVE);
                     events.Repeat(25s, 40s);
-                    events.ScheduleEvent(EVENT_EMOTE, 2s);
+                    events.ScheduleEvent(EVENT_SEQUENCE_2, 2s);
                     break;
-                case EVENT_EMOTE:
+                case EVENT_SEQUENCE_2:
                     Talk(EMOTE_SUMMON);
-                    events.ScheduleEvent(EVENT_SUMMON, 1s);
+                    events.ScheduleEvent(EVENT_SEQUENCE_3, 1s);
                     break;
-                case EVENT_SUMMON:
-                    // He can summon 2 creatures of one type or 2 different. He always spawns them at 2 platforms(despite there are 4 in the room)
-                    // Even if he uses other 4 spells, that does not make sense because the only difference between them is spells entries
-                    // Best guess other spells were added on early development stage for second pair of platforms and were never used on live
-                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_1, SPELL_SUMMON_FLAYER_1), true);
-                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_2, SPELL_SUMMON_FLAYER_2), true);
+                case EVENT_SEQUENCE_3:
+                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_1, SPELL_SUMMON_FLAYER_1));
+                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_2, SPELL_SUMMON_FLAYER_2));
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
+
                 // Abilities
                 case EVENT_ALLERGIC_REACTION:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 8.f))
@@ -120,13 +127,25 @@ struct boss_laj : public BossAI
                     break;
                 case EVENT_TRANSFORM:
                 {
-                    /// @todo: Don't apply same aura twice in a row and don't transform to shadow if the event is executed first time
-                    if (_activeTransformAura)
-                        me->RemoveAurasDueToSpell(_activeTransformAura);
+                    std::vector<uint32> transformSpells = { SPELL_TRANSFORM_ARCANE, SPELL_TRANSFORM_FIRE, SPELL_TRANSFORM_FROST, SPELL_TRANSFORM_NATURE, SPELL_TRANSFORM_SHADOW };
 
-                    uint32 spell = RAND(SPELL_TRANSFORM_ARCANE, SPELL_TRANSFORM_FIRE, SPELL_TRANSFORM_FROST, SPELL_TRANSFORM_NATURE, SPELL_TRANSFORM_SHADOW);
-                    DoCastSelf(spell);
-                    _activeTransformAura = spell;
+                    if (_isFirstTransform)
+                    {
+                        std::erase(transformSpells, SPELL_TRANSFORM_SHADOW);
+                        _isFirstTransform = false;
+                    }
+
+                    if (_lastTransformSpell)
+                    {
+                        std::erase(transformSpells, _lastTransformSpell);
+                        me->RemoveAurasDueToSpell(_lastTransformSpell);
+                    }
+
+                    uint32 selectedSpell = Trinity::Containers::SelectRandomContainerElement(transformSpells);
+
+                    _lastTransformSpell = selectedSpell;
+
+                    DoCastSelf(selectedSpell);
                     events.Repeat(25s, 45s);
                     break;
                 }
@@ -146,7 +165,8 @@ struct boss_laj : public BossAI
     }
 
 private:
-    uint32 _activeTransformAura;
+    uint32 _lastTransformSpell;
+    bool _isFirstTransform;
 };
 
 void AddSC_boss_laj()
