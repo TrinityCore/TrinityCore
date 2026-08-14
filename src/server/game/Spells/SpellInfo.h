@@ -270,6 +270,7 @@ public:
     int32 CalcValueAsInt(WorldObject const* caster = nullptr, SpellEffectValue const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr) const;
     SpellEffectValue CalcValue(WorldObject const* caster = nullptr, SpellEffectValue const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr) const;
     SpellEffectValue CalcBaseValue(WorldObject const* caster, Unit const* target) const;
+    SpellEffectValue CalcPointsPerResource(WorldObject const* caster) const;
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
