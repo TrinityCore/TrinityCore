@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.41-0ubuntu0.22.04.1
+-- Server version	8.0.46-0ubuntu0.22.04.3
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -610,7 +610,7 @@ CREATE TABLE `creature` (
   `spawntimesecs` int unsigned NOT NULL DEFAULT '120',
   `wander_distance` float NOT NULL DEFAULT '0',
   `currentwaypoint` int unsigned NOT NULL DEFAULT '0',
-  `curHealthPct` int unsigned NOT NULL DEFAULT '100',
+  `curHealthPct` int unsigned DEFAULT NULL,
   `MovementType` tinyint unsigned NOT NULL DEFAULT '0',
   `npcflag` bigint unsigned DEFAULT NULL,
   `unit_flags` int unsigned DEFAULT NULL,
@@ -643,9 +643,9 @@ CREATE TABLE `creature_addon` (
   `SheathState` tinyint unsigned NOT NULL DEFAULT '1',
   `PvPFlags` tinyint unsigned NOT NULL DEFAULT '0',
   `emote` int unsigned NOT NULL DEFAULT '0',
-  `aiAnimKit` smallint NOT NULL DEFAULT '0',
-  `movementAnimKit` smallint NOT NULL DEFAULT '0',
-  `meleeAnimKit` smallint NOT NULL DEFAULT '0',
+  `aiAnimKit` smallint unsigned NOT NULL DEFAULT '0',
+  `movementAnimKit` smallint unsigned NOT NULL DEFAULT '0',
+  `meleeAnimKit` smallint unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint unsigned NOT NULL DEFAULT '0',
   `auras` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`guid`)
@@ -1025,9 +1025,9 @@ CREATE TABLE `creature_template_addon` (
   `SheathState` tinyint unsigned NOT NULL DEFAULT '1',
   `PvPFlags` tinyint unsigned NOT NULL DEFAULT '0',
   `emote` int unsigned NOT NULL DEFAULT '0',
-  `aiAnimKit` smallint NOT NULL DEFAULT '0',
-  `movementAnimKit` smallint NOT NULL DEFAULT '0',
-  `meleeAnimKit` smallint NOT NULL DEFAULT '0',
+  `aiAnimKit` smallint unsigned NOT NULL DEFAULT '0',
+  `movementAnimKit` smallint unsigned NOT NULL DEFAULT '0',
+  `meleeAnimKit` smallint unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint unsigned NOT NULL DEFAULT '0',
   `auras` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`)
@@ -1405,6 +1405,7 @@ CREATE TABLE `game_event` (
   `length` bigint unsigned NOT NULL DEFAULT '2592000' COMMENT 'Length in minutes of the event',
   `holiday` int unsigned NOT NULL DEFAULT '0' COMMENT 'Client side holiday id',
   `holidayStage` tinyint unsigned NOT NULL DEFAULT '0',
+  `WorldStateId` int DEFAULT NULL,
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Description of the event displayed in console',
   `world_event` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '0 if normal event, 1 if world event',
   `announce` tinyint unsigned DEFAULT '2' COMMENT '0 dont announce, 1 announce, 2 value from config',
@@ -2196,10 +2197,13 @@ CREATE TABLE `jump_charge_params` (
   `id` int NOT NULL,
   `speed` float NOT NULL DEFAULT '42',
   `treatSpeedAsMoveTimeSeconds` tinyint(1) NOT NULL DEFAULT '0',
-  `jumpGravity` float NOT NULL DEFAULT '19.2911',
+  `unlimitedSpeed` tinyint(1) NOT NULL DEFAULT '0',
+  `minHeight` float DEFAULT NULL,
+  `maxHeight` float DEFAULT NULL,
   `spellVisualId` int DEFAULT NULL,
   `progressCurveId` int DEFAULT NULL,
   `parabolicCurveId` int DEFAULT NULL,
+  `triggerSpellId` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4412,29 +4416,6 @@ CREATE TABLE `spell_script_names` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `spell_scripts`
---
-
-DROP TABLE IF EXISTS `spell_scripts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `spell_scripts` (
-  `id` int unsigned NOT NULL DEFAULT '0',
-  `effIndex` tinyint unsigned NOT NULL DEFAULT '0',
-  `delay` int unsigned NOT NULL DEFAULT '0',
-  `command` int unsigned NOT NULL DEFAULT '0',
-  `datalong` int unsigned NOT NULL DEFAULT '0',
-  `datalong2` int unsigned NOT NULL DEFAULT '0',
-  `dataint` int NOT NULL DEFAULT '0',
-  `x` float NOT NULL DEFAULT '0',
-  `y` float NOT NULL DEFAULT '0',
-  `z` float NOT NULL DEFAULT '0',
-  `o` float NOT NULL DEFAULT '0',
-  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `spell_target_position`
 --
 
@@ -4692,6 +4673,8 @@ DROP TABLE IF EXISTS `vehicle_template`;
 CREATE TABLE `vehicle_template` (
   `creatureId` int unsigned NOT NULL,
   `despawnDelayMs` int NOT NULL DEFAULT '0',
+  `Pitch` float DEFAULT NULL,
+  `CustomFlags` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`creatureId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4815,26 +4798,6 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `target_o`,
  1 AS `comment`*/;
 SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `warden_checks`
---
-
-DROP TABLE IF EXISTS `warden_checks`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `warden_checks` (
-  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
-  `type` tinyint unsigned DEFAULT NULL,
-  `str` varchar(170) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `address` int unsigned DEFAULT NULL,
-  `length` tinyint unsigned DEFAULT NULL,
-  `comment` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `data` binary(24) DEFAULT NULL,
-  `result` varbinary(24) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=791 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `waypoint_path`
@@ -4977,4 +4940,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-11 10:42:36
+-- Dump completed on 2026-08-14  6:53:04
