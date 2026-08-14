@@ -37,11 +37,12 @@ namespace Scripts::Spells::Rogue
             return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
         }
 
-        // Damage: effectValue + (basePoints * Combo) + (AP * 0.091 * Combo)
-        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
+        // Damage: effectValue + (comboBonus * Combo) + (AP * 0.091 * Combo)
+        void CalculateDamage(SpellEffectInfo const& spellEffectInfo, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& /*pctMod*/) const
         {
             int32 combo = GetSpell()->m_spentComboPoints;
-            flatMod += (GetSpellInfo()->GetEffect(EFFECT_0).BasePoints * combo) + (GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
+            SpellEffectValue comboDamage = spellEffectInfo.CalcPointsPerResource(GetCaster());
+            flatMod += static_cast<int32>(comboDamage * combo + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f * combo);
         }
 
         void Register() override

@@ -561,15 +561,6 @@ SpellEffectValue SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullpt
         }
     }
 
-    // bonus amount from combo points
-    if (casterUnit && _spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DAMAGE))
-    {
-        SpellEffectValue comboDamage = CalcPointsPerResource(casterUnit);
-        if (comboDamage != 0.0)
-            if (int32 comboPoints = casterUnit->GetPower(POWER_COMBO_POINTS))
-                value += comboDamage * comboPoints;
-    }
-
     if (_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS))
         if (Player const* playerCaster = Object::ToPlayer(caster))
             value += *playerCaster->m_activePlayerData->Mastery * BonusCoefficient;
