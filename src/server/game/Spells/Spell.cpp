@@ -5302,7 +5302,7 @@ void Spell::TakePower()
             if (!targetGUID.IsEmpty())
                 hit = std::ranges::any_of(m_UniqueTargetInfo, [&](TargetInfo const& targetInfo) { return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition == SPELL_MISS_NONE; });
 
-            if (m_spendComboPoints)
+            if (!hit && m_spendComboPoints)
                 m_spentComboPoints = 0;
         }
     }
