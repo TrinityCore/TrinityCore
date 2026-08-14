@@ -528,15 +528,7 @@ SpellEffectValue SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullpt
     if (caster)
         casterUnit = caster->ToUnit();
 
-    if (DieSides)
-    {
-        // roll in a range <1;EffectDieSides> as of patch 3.3.3
-        if (DieSides == 1)
-            value += DieSides;
-        else
-            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
-    }
-    else if (Scaling.Variance != 0.0f)
+    if (Scaling.Variance != 0.0f)
     {
         float delta = fabs(Scaling.Variance * 0.5f);
         float valueVariance = frand(-delta, delta);
@@ -544,6 +536,14 @@ SpellEffectValue SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullpt
 
         if (variance)
             *variance = valueVariance;
+    }
+    else if (DieSides)
+    {
+        // roll in a range <1;EffectDieSides> as of patch 3.3.3
+        if (DieSides == 1)
+            value += DieSides;
+        else
+            value += (DieSides >= 1) ? irand(1, DieSides) : irand(DieSides, 1);
     }
 
     // base amount modification based on spell lvl vs caster lvl
