@@ -23,7 +23,7 @@
 #define MechanarScriptName "instance_mechanar"
 #define DataHeader "MR"
 
-uint32 const EncounterCount             = 5;
+uint32 constexpr EncounterCount         = 5;
 
 enum MRDataTypes
 {
