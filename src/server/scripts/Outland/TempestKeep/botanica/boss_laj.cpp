@@ -131,7 +131,7 @@ struct boss_laj : public BossAI
 
                     if (_isFirstTransform)
                     {
-                        std::erase(transformSpells, SPELL_TRANSFORM_SHADOW);
+                        std::erase(transformSpells, static_cast<uint32>(SPELL_TRANSFORM_SHADOW));
                         _isFirstTransform = false;
                     }
 
