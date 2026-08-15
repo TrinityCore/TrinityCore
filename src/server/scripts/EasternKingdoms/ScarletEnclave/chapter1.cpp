@@ -1215,7 +1215,7 @@ class spell_chapter1_runeforging_credit : public SpellScript
     {
         if (Player* caster = GetCaster()->ToPlayer())
             if (caster->GetQuestStatus(QUEST_RUNEFORGING) == QUEST_STATUS_INCOMPLETE)
-                caster->CastSpell(caster, SPELL_RUNEFORGING_CREDIT);
+                caster->CastSpell(caster, SPELL_RUNEFORGING_CREDIT, true);
     }
 
     void Register() override

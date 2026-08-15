@@ -1285,7 +1285,7 @@ class spell_borean_tundra_neural_needle : public SpellScript
         if (!caster || !target)
             return;
 
-        target->CastSpell(target, SPELL_NEURAL_NEEDLE_IMPACT);
+        target->CastSpell(target, SPELL_NEURAL_NEEDLE_IMPACT, true);
 
         if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
         {
@@ -1339,7 +1339,7 @@ class spell_borean_tundra_prototype_neural_needle : public SpellScript
         if (!caster || !target)
             return;
 
-        target->CastSpell(target, SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT);
+        target->CastSpell(target, SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT, true);
 
         uint32 text = 0;
         if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))

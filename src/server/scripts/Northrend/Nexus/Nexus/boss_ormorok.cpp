@@ -267,7 +267,7 @@ class spell_ormorok_summon_crystal_spikes : public SpellScript
     {
         Unit* caster = GetCaster();
         for (uint32 spells : SummonSpells)
-            caster->CastSpell(caster, spells);
+            caster->CastSpell(caster, spells, true);
     }
 
     void Register() override

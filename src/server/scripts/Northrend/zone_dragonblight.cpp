@@ -571,7 +571,7 @@ class spell_dragonblight_moti_mirror_image_script_effect : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA, true);
     }
 
     void Register() override
@@ -594,7 +594,7 @@ class spell_dragonblight_moti_hourglass_cast_see_invis_on_master : public SpellS
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
     }
 
     void Register() override
@@ -671,7 +671,7 @@ class spell_dragonblight_high_executor_branding_iron : public SpellScript
         if (!caster || !target)
             return;
 
-        target->CastSpell(target, SPELL_BRANDING_IRON_IMPACT);
+        target->CastSpell(target, SPELL_BRANDING_IRON_IMPACT, true);
 
         if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
         {
@@ -691,7 +691,7 @@ class spell_dragonblight_high_executor_branding_iron : public SpellScript
                     break;
                 case 5:
                     target->AI()->Talk(WHISPER_TORTURE_5, caster);
-                    target->CastSpell(caster, SPELL_TORTURER_KILL_CREDIT);
+                    target->CastSpell(caster, SPELL_TORTURER_KILL_CREDIT, true);
                     break;
                 case 6:
                     target->AI()->Talk(WHISPER_TORTURE_RANDOM, caster);
@@ -761,7 +761,7 @@ class spell_dragonblight_scarlet_raven_priest_image_master : public SpellScript
     void HandleAfterHit()
     {
         if (Player* target = GetHitUnit()->ToPlayer())
-            target->CastSpell(target, target->GetNativeGender() == GENDER_FEMALE ? SPELL_PRIEST_IMAGE_FEMALE : SPELL_PRIEST_IMAGE_MALE);
+            target->CastSpell(target, target->GetNativeGender() == GENDER_FEMALE ? SPELL_PRIEST_IMAGE_FEMALE : SPELL_PRIEST_IMAGE_MALE, true);
     }
 
     void Register() override
@@ -870,10 +870,10 @@ class spell_dragonblight_surge_needle_teleporter : public SpellScript
         switch (caster->GetAreaId())
         {
             case AREA_SURGE_NEEDLE:
-                caster->CastSpell(caster, SPELL_TELE_MOONREST_GARDENS);
+                caster->CastSpell(caster, SPELL_TELE_MOONREST_GARDENS, true);
                 break;
             case AREA_MOONREST_GARDENS:
-                caster->CastSpell(caster, SPELL_TELE_SURGE_NEEDLE);
+                caster->CastSpell(caster, SPELL_TELE_SURGE_NEEDLE, true);
                 break;
             default:
                 break;
