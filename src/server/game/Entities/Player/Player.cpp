@@ -1194,9 +1194,9 @@ void Player::ToggleDND()
         SetPlayerFlag(PLAYER_FLAGS_DND);
 }
 
-uint16 Player::GetChatFlags() const
+uint32 Player::GetChatFlags() const
 {
-    uint16 tag = CHAT_FLAG_NONE;
+    uint32 tag = CHAT_FLAG_NONE;
 
     if (isGMChat())
         tag |= CHAT_FLAG_GM;

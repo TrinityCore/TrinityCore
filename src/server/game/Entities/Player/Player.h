@@ -1281,7 +1281,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ToggleDND();
         bool isAFK() const { return HasPlayerFlag(PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasPlayerFlag(PLAYER_FLAGS_DND); }
-        uint16 GetChatFlags() const;
+        uint32 GetChatFlags() const;
         std::string autoReplyMsg;
 
         int64 GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const;
