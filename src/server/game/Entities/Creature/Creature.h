@@ -154,10 +154,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsSwimDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANT_SWIM); }
 
         // Returns true if CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS is set which prevents 'Amphibious' creatures from swimming when engaged until the victim is no longer on the ocean floor
-        bool CanOnlySwimIfTargetSwims() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS); }
+        bool IsSwimPrevented() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS); }
 
         bool CanSwim() const override;
-        bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); }
+        bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); };
         bool CanFly()  const override { return (IsFlying() || HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY)); }
 
         MovementGeneratorType GetDefaultMovementType() const override;
