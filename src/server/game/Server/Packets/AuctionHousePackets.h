@@ -442,8 +442,8 @@ namespace WorldPackets
 
             std::vector<BucketInfo> Buckets;
             uint32 DesiredDelay = 0;
-            int32 Unknown830_0 = 0;
-            int32 Unknown830_1 = 0;
+            AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
+            int32 TotalCount = 0;
             AuctionHouseBrowseMode BrowseMode = AuctionHouseBrowseMode(0);
             bool HasMoreResults = false;
         };
@@ -467,8 +467,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<AuctionItem> Items;
-            uint32 Unknown830 = 0;
-            uint32 TotalCount = 0;
+            uint32 TotalCount = 0;                                  ///< number of auctions
+            uint32 TotalQuantity = 0;                               ///< number of items (summing stack counts)
             uint32 DesiredDelay = 0;
             AuctionHouseListType ListType = AuctionHouseListType(0);
             bool HasMoreResults = false;
