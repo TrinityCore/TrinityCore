@@ -604,7 +604,7 @@ WorldPacket const* AuctionListItemsResult::Write()
         _worldPacket.FlushBits();
 
         _worldPacket << BucketKey;
-        _worldPacket << uint32(TotalCount);
+        _worldPacket << uint32(TotalQuantity);
     }
 
     return &_worldPacket;

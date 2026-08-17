@@ -486,8 +486,8 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
     data << SizedString::BitsSize<6>(playerInfo.Name);
     data << SizedCString::BitsSize<6>(playerInfo.VoiceStateID);
     data << Bits<1>(playerInfo.Connected);
-    data << Bits<1>(playerInfo.VoiceChatSilenced);
     data << Bits<1>(playerInfo.FromSocialQueue);
+    data << Bits<1>(playerInfo.VoiceChatSilenced);
     data << playerInfo.Leaver;
     data << playerInfo.GUID;
     data << uint8(playerInfo.Subgroup);
