@@ -75,17 +75,31 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, CharDisplayInfo const& displayInfo)
+{
+    data << SizedString::BitsSize<6>(displayInfo.Name);
+    data << uint8(displayInfo.GenderID);
+    data << uint8(displayInfo.Race);
+    data << uint8(displayInfo.ClassID);
+    data << Size<uint32>(displayInfo.Customizations);
+    data << SizedString::Data(displayInfo.Name);
+
+    for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
+        data << customization;
+
+    return data;
+}
 void PlayerModelDisplayInfo::Initialize(Player const* player)
 {
     GUID = player->GetGUID();
     SpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
-    Name = player->GetName();
-    GenderID = player->GetNativeGender();
-    Race = player->GetRace();
-    ClassID = player->GetClass();
+    DisplayInfo.Name = player->GetName();
+    DisplayInfo.GenderID = player->GetNativeGender();
+    DisplayInfo.Race = player->GetRace();
+    DisplayInfo.ClassID = player->GetClass();
 
     for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
-        Customizations.push_back(customization);
+        DisplayInfo.Customizations.push_back(customization);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -97,15 +111,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerModelDisplayInfo const& displayIn
     data << displayInfo.GUID;
     data << int32(displayInfo.SpecializationID);
     data << Size<uint32>(displayInfo.Items);
-    data << SizedString::BitsSize<6>(displayInfo.Name);
-    data << uint8(displayInfo.GenderID);
-    data << uint8(displayInfo.Race);
-    data << uint8(displayInfo.ClassID);
-    data << Size<uint32>(displayInfo.Customizations);
-    data << SizedString::Data(displayInfo.Name);
-
-    for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
-        data << customization;
+    data << displayInfo.DisplayInfo;
 
     for (InspectItemData const& item : displayInfo.Items)
         data << item;

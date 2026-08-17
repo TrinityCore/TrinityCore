@@ -235,9 +235,9 @@ namespace WorldPackets
 
             struct ClassUnlock
             {
-               int8 ClassID = 0;
-               bool HasUnlockedAchievement = false;
-               uint32 AchievementID = 0;
+                int8 ClassID = 0;
+                bool HasUnlockedAchievement = false;
+                uint32 AchievementID = 0;
             };
 
             struct RaceUnlock

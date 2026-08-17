@@ -79,8 +79,8 @@ WorldPacket const* PartyInvite::Write()
 
     _worldPacket << SizedString::Data(InviterName);
 
-    for (uint32 LfgSlot : LfgSlots)
-        _worldPacket << LfgSlot;
+    for (uint32 lfgSlot : LfgSlots)
+        _worldPacket << lfgSlot;
 
     return &_worldPacket;
 }

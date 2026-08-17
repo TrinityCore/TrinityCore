@@ -171,20 +171,20 @@ namespace WorldPackets
             bool LfgRequireAuthenticatorEnabled      = false;
             bool ScriptsDisallowedForBeta            = false;
             bool TimerunningEnabled                  = false;
-            bool PlayerIdentityOptionsEnabled                     = false; // classic only
+            bool PlayerIdentityOptionsEnabled        = false; // classic only
             bool IsPlayerContentTrackingEnabled      = false;
-            bool LfdEnabled                  = false;
-            bool LfrEnabled                  = true;  // classic only
-            bool PetHappinessEnabled               = true;  // classic only
+            bool LfdEnabled                          = false;
+            bool LfrEnabled                          = true;  // classic only
+            bool PetHappinessEnabled                 = true;  // classic only
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
             bool IsAccountCurrencyTransferEnabled    = false;
             bool NetEaseChatTelemetryEnabled         = false;
             bool LobbyMatchmakerQueueFromMainlineEnabled = false;
             bool CanSendLobbyMatchmakerPartyCustomizations = false;
-            bool AddonProfilingEnabled                = false;
+            bool AddonProfilingEnabled               = false;
             bool GlobalUserGeneratedContentMuteEnabled = false;
-            bool AccountUserGeneratedContentIsRisky   = false;
+            bool AccountUserGeneratedContentIsRisky  = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
