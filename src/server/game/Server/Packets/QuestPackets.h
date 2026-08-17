@@ -800,7 +800,7 @@ namespace WorldPackets
             bool HideWarboardHeader = false;
             bool KeepOpenAfterChoice = false;
             bool ShowChoicesAsList = false;
-            bool ForceDontShowChoicesAsList = false;
+            bool HasPowerChoice = false;
             bool RequiresSelection = false;
         };
 

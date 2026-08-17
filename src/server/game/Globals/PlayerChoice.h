@@ -118,7 +118,6 @@ struct PlayerChoice
     bool HideWarboardHeader = false;
     bool KeepOpenAfterChoice = false;
     bool ShowChoicesAsList = false;
-    bool ForceDontShowChoicesAsList = false;
     bool RequiresSelection = false;
 
     Optional<uint32> MaxResponses;

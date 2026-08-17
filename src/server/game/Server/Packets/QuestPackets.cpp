@@ -852,7 +852,7 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << Bits<1>(HideWarboardHeader);
     _worldPacket << Bits<1>(KeepOpenAfterChoice);
     _worldPacket << Bits<1>(ShowChoicesAsList);
-    _worldPacket << Bits<1>(ForceDontShowChoicesAsList);
+    _worldPacket << Bits<1>(HasPowerChoice);
     _worldPacket << Bits<1>(RequiresSelection);
     _worldPacket.FlushBits();
 
