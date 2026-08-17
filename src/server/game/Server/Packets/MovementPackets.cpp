@@ -107,24 +107,11 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 
     data.FlushBits();
 
-    if (hasTransportData)
-        data << movementInfo.transport;
-
     if (movementInfo.standingOnGameObjectGUID)
         data << *movementInfo.standingOnGameObjectGUID;
 
-    if (movementInfo.inertia)
-    {
-        data << uint32(movementInfo.inertia->id);
-        data << movementInfo.inertia->force.PositionXYZStream();
-        data << uint32(movementInfo.inertia->lifetime);
-    }
-
-    if (movementInfo.advFlying)
-    {
-        data << float(movementInfo.advFlying->forwardVelocity);
-        data << float(movementInfo.advFlying->upVelocity);
-    }
+    if (hasTransportData)
+        data << movementInfo.transport;
 
     if (hasFallData)
     {
@@ -139,6 +126,19 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
             data << float(movementInfo.jump.cosAngle);
             data << float(movementInfo.jump.xyspeed);
         }
+    }
+
+    if (movementInfo.inertia)
+    {
+        data << uint32(movementInfo.inertia->id);
+        data << movementInfo.inertia->force.PositionXYZStream();
+        data << uint32(movementInfo.inertia->lifetime);
+    }
+
+    if (movementInfo.advFlying)
+    {
+        data << float(movementInfo.advFlying->forwardVelocity);
+        data << float(movementInfo.advFlying->upVelocity);
     }
 
     if (movementInfo.driveStatus)
@@ -183,24 +183,11 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data >> WorldPackets::OptionalInit(movementInfo.advFlying);
     data >> WorldPackets::OptionalInit(movementInfo.driveStatus);
 
-    if (hasTransport)
-        data >> movementInfo.transport;
-
     if (movementInfo.standingOnGameObjectGUID)
         data >> *movementInfo.standingOnGameObjectGUID;
 
-    if (movementInfo.inertia)
-    {
-        data >> movementInfo.inertia->id;
-        data >> movementInfo.inertia->force.PositionXYZStream();
-        data >> movementInfo.inertia->lifetime;
-    }
-
-    if (movementInfo.advFlying)
-    {
-        data >> movementInfo.advFlying->forwardVelocity;
-        data >> movementInfo.advFlying->upVelocity;
-    }
+    if (hasTransport)
+        data >> movementInfo.transport;
 
     if (hasFall)
     {
@@ -216,6 +203,19 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
             data >> movementInfo.jump.cosAngle;
             data >> movementInfo.jump.xyspeed;
         }
+    }
+
+    if (movementInfo.inertia)
+    {
+        data >> movementInfo.inertia->id;
+        data >> movementInfo.inertia->force.PositionXYZStream();
+        data >> movementInfo.inertia->lifetime;
+    }
+
+    if (movementInfo.advFlying)
+    {
+        data >> movementInfo.advFlying->forwardVelocity;
+        data >> movementInfo.advFlying->upVelocity;
     }
 
     if (movementInfo.driveStatus)
@@ -356,14 +356,14 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
     data << OptionalInit(movementSpline.SpellVisualData);
     data.FlushBits();
 
-    if (movementSpline.SplineFilter)
-        data << *movementSpline.SplineFilter;
-
     for (TaggedPosition<Position::XYZ> const& pos : movementSpline.Points)
         data << pos;
 
     for (TaggedPosition<Position::PackedXYZ> const& pos : movementSpline.PackedDeltas)
         data << pos;
+
+    if (movementSpline.SplineFilter)
+        data << *movementSpline.SplineFilter;
 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
@@ -386,11 +386,11 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
 ByteBuffer& operator<<(ByteBuffer& data, MovementMonsterSpline const& movementMonsterSpline)
 {
     data << movementMonsterSpline.ID;
+    data << movementMonsterSpline.Move;
     data << Bits<1>(movementMonsterSpline.CrzTeleport);
     data << Bits<1>(movementMonsterSpline.StopUseFaceDirection);
     data << Bits<3>(movementMonsterSpline.StopSplineStyle);
-
-    data << movementMonsterSpline.Move;
+    data.FlushBits();
 
     return data;
 }
@@ -420,35 +420,11 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
     if (hasSplineMove)                                                          // MovementSplineMove
     {
         data << uint32(moveSpline.splineflags.Raw.AsUnderlyingType());          // SplineFlags
+        data << uint8(moveSpline.facing.type);                                  // Face
         data << int32(moveSpline.timePassed());                                 // Elapsed
         data << uint32(moveSpline.Duration());                                  // Duration
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
-        data << Bits<2>(moveSpline.facing.type);                                // Face
-        bool hasFadeObjectTime = moveSpline.splineflags.FadeObject && moveSpline.effect_start_time < moveSpline.Duration();
-        data << Bits<1>(hasFadeObjectTime);
-        data << BitsSize<16>(moveSpline.getPath());
-        data << Bits<1>(false);                                                 // HasSplineFilter
-        data << OptionalInit(moveSpline.spell_effect_extra);                    // HasSpellEffectExtraData
-        bool hasJumpExtraData = moveSpline.splineflags.Parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time);
-        data << Bits<1>(hasJumpExtraData);
-        data << OptionalInit(moveSpline.turn);                                  // HasTurnData
-        data << OptionalInit(moveSpline.anim_tier);                             // HasAnimTierTransition
-        data << Bits<1>(false);                                                 // HasSpellVisualData
-        data.FlushBits();
-
-        //if (HasSplineFilterKey)
-        //{
-        //    data << uint32(FilterKeysCount);
-        //    for (var i = 0; i < FilterKeysCount; ++i)
-        //    {
-        //        data << float(In);
-        //        data << float(Out);
-        //    }
-
-        //    data << Bits<2>(FilterFlags);
-        //    data.FlushBits();
-        //}
 
         switch (moveSpline.facing.type)
         {
@@ -470,10 +446,35 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
                 break;
         }
 
+        bool hasFadeObjectTime = moveSpline.splineflags.FadeObject && moveSpline.effect_start_time < moveSpline.Duration();
+        data << Bits<1>(hasFadeObjectTime);
+        data << BitsSize<16>(moveSpline.getPath());
+        data << Bits<1>(false);                                                 // HasSplineFilter
+        data << OptionalInit(moveSpline.spell_effect_extra);                    // HasSpellEffectExtraData
+        bool hasJumpExtraData = moveSpline.splineflags.Parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time);
+        data << Bits<1>(hasJumpExtraData);
+        data << OptionalInit(moveSpline.turn);                                  // HasTurnData
+        data << OptionalInit(moveSpline.anim_tier);                             // HasAnimTierTransition
+        data << Bits<1>(false);                                                 // HasSpellVisualData
+        data.FlushBits();
+
         if (hasFadeObjectTime)
             data << uint32(moveSpline.effect_start_time);                       // FadeObjectTime
 
         data.append(reinterpret_cast<float const*>(moveSpline.getPath().data()), moveSpline.getPath().size() * 3);
+
+        //if (HasSplineFilterKey)
+        //{
+        //    data << uint32(FilterKeysCount);
+        //    for (var i = 0; i < FilterKeysCount; ++i)
+        //    {
+        //        data << float(In);
+        //        data << float(Out);
+        //    }
+
+        //    data << Bits<2>(FilterFlags);
+        //    data.FlushBits();
+        //}
 
         if (moveSpline.spell_effect_extra)
         {
@@ -643,8 +644,8 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
 WorldPacket const* MonsterMove::Write()
 {
     _worldPacket << MoverGUID;
-    _worldPacket << Pos;
     _worldPacket << SplineData;
+    _worldPacket << Pos;
 
     return &_worldPacket;
 }
@@ -785,11 +786,14 @@ WorldPacket const* MoveTeleport::Write()
     _worldPacket << uint32(SequenceIndex);
     _worldPacket << Pos;
     _worldPacket << float(Facing);
-    _worldPacket << uint8(PreloadWorld);
 
     _worldPacket << OptionalInit(TransportGUID);
     _worldPacket << OptionalInit(Vehicle);
+    _worldPacket << Bits<1>(PreloadWorld);
     _worldPacket.FlushBits();
+
+    if (TransportGUID)
+        _worldPacket << *TransportGUID;
 
     if (Vehicle)
     {
@@ -798,9 +802,6 @@ WorldPacket const* MoveTeleport::Write()
         _worldPacket << Bits<1>(Vehicle->VehicleExitTeleport);
         _worldPacket.FlushBits();
     }
-
-    if (TransportGUID)
-        _worldPacket << *TransportGUID;
 
     return &_worldPacket;
 }
@@ -826,6 +827,10 @@ WorldPacket const* MoveUpdateTeleport::Write()
     _worldPacket << *Status;
 
     _worldPacket << Size<uint32>(MovementForces);
+
+    for (MovementForce const& force : MovementForces)
+        _worldPacket << force;
+
     _worldPacket << OptionalInit(WalkSpeed);
     _worldPacket << OptionalInit(RunSpeed);
     _worldPacket << OptionalInit(RunBackSpeed);
@@ -836,9 +841,6 @@ WorldPacket const* MoveUpdateTeleport::Write()
     _worldPacket << OptionalInit(TurnRate);
     _worldPacket << OptionalInit(PitchRate);
     _worldPacket.FlushBits();
-
-    for (MovementForce const& force : MovementForces)
-        _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
@@ -1144,9 +1146,6 @@ ByteBuffer& operator<<(ByteBuffer& data, MoveStateChange const& stateChange)
     data << OptionalInit(stateChange.DriveCapabilityRecID);
     data.FlushBits();
 
-    if (stateChange.MovementForce_)
-        data << *stateChange.MovementForce_;
-
     if (stateChange.Speed)
         data << float(*stateChange.Speed);
 
@@ -1161,6 +1160,9 @@ ByteBuffer& operator<<(ByteBuffer& data, MoveStateChange const& stateChange)
 
     if (stateChange.CollisionHeight)
         data << *stateChange.CollisionHeight;
+
+    if (stateChange.MovementForce_)
+        data << *stateChange.MovementForce_;
 
     if (stateChange.MovementForceGUID)
         data << *stateChange.MovementForceGUID;

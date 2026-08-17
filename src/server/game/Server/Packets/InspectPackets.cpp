@@ -111,8 +111,8 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerModelDisplayInfo const& displayIn
 {
     data << displayInfo.GUID;
     data << int32(displayInfo.SpecializationID);
-    data << Size<uint32>(displayInfo.Items);
     data << displayInfo.DisplayInfo;
+    data << Size<uint32>(displayInfo.Items);
 
     for (InspectItemData const& item : displayInfo.Items)
         data << item;
@@ -219,12 +219,19 @@ WorldPacket const* InspectResult::Write()
     _worldPacket << Size<uint32>(Glyphs);
     _worldPacket << Size<uint32>(Talents);
     _worldPacket << Size<uint32>(PvpTalents);
+    _worldPacket << TalentInfo;
     _worldPacket << int32(ItemLevel);
+
+    for (PVPBracketData const& bracket : Bracket)
+        _worldPacket << bracket;
+
     _worldPacket << uint8(LifetimeMaxRank);
     _worldPacket << uint16(TodayHK);
     _worldPacket << uint16(YesterdayHK);
     _worldPacket << uint32(LifetimeHK);
     _worldPacket << uint32(HonorLevel);
+    _worldPacket << TraitsInfo;
+
     if (!Glyphs.empty())
         _worldPacket.append(Glyphs.data(), Glyphs.size());
     if (!Talents.empty())
@@ -232,22 +239,15 @@ WorldPacket const* InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
-    _worldPacket << TalentInfo;
-
     _worldPacket << OptionalInit(GuildData);
     _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();
-
-    for (PVPBracketData const& bracket : Bracket)
-        _worldPacket << bracket;
 
     if (GuildData)
         _worldPacket << *GuildData;
 
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
-
-    _worldPacket << TraitsInfo;
 
     return &_worldPacket;
 }

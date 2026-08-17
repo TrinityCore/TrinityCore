@@ -803,6 +803,9 @@ namespace WorldPackets
             bool ShowChoicesAsList = false;
             bool HasPowerChoice = false;
             bool RequiresSelection = false;
+            bool ShowChoicesAsGrid = false;
+            bool HideAnswerArt = false;
+            bool ShowChoicesAsColumns = false;
         };
 
         class ChoiceResponse final : public ClientPacket

@@ -220,6 +220,12 @@ namespace WorldPackets
             uint8 PlotID = 0;
         };
 
+        struct SupportTicketHousingBlueprint
+        {
+            std::string_view Id;
+            std::string_view ShareCode;
+        };
+
         class SupportTicketSubmitComplaint final : public ClientPacket
         {
         public:
@@ -245,6 +251,7 @@ namespace WorldPackets
             Optional<SupportTicketClubFinderInfo> ClubFinderInfo;
             Optional<SupportTicketArenaTeamInfo> ArenaTeamInfo;
             Optional<SupportTicketHouseInfo> HouseInfo;
+            Optional<SupportTicketHousingBlueprint> HousingBlueprint;
         };
 
         class Complaint final : public ClientPacket

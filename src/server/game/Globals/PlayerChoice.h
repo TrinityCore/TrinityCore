@@ -119,6 +119,9 @@ struct PlayerChoice
     bool KeepOpenAfterChoice = false;
     bool ShowChoicesAsList = false;
     bool RequiresSelection = false;
+    bool ShowChoicesAsGrid = false;
+    bool HideAnswerArt = false;
+    bool ShowChoicesAsColumns = false;
 
     Optional<uint32> MaxResponses;
 

@@ -74,10 +74,15 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
     data << uint32(craftingData.OperationID);
     data << craftingData.ItemGUID;
     data << int32(craftingData.Quantity);
+    data << craftingData.OldItem;
+    data << craftingData.NewItem;
     data << int32(craftingData.EnchantID);
     data << int32(craftingData.ConcentrationCurrencyID);
     data << int32(craftingData.ConcentrationSpent);
     data << int32(craftingData.IngenuityRefund);
+
+    for (SpellReducedReagent const& spellReducedReagent : craftingData.ResourcesReturned)
+        data << spellReducedReagent;
 
     data << Bits<1>(craftingData.IsCrit);
     data << Bits<1>(craftingData.IsRecraft);
@@ -86,12 +91,6 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
     data << Bits<1>(craftingData.HasIngenuityProc);
     data << Bits<1>(craftingData.ApplyConcentration);
     data.FlushBits();
-
-    data << craftingData.OldItem;
-    data << craftingData.NewItem;
-
-    for (SpellReducedReagent const& spellReducedReagent : craftingData.ResourcesReturned)
-        data << spellReducedReagent;
 
     return data;
 }

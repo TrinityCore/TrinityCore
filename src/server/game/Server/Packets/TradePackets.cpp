@@ -106,9 +106,9 @@ ByteBuffer& operator<<(ByteBuffer& buffer, UnwrappedTradeItem const& unwrappedTr
 ByteBuffer& operator<<(ByteBuffer& buffer, TradeItem const& tradeItem)
 {
     buffer << uint8(tradeItem.Slot);
+    buffer << tradeItem.Item;
     buffer << uint32(tradeItem.StackCount);
     buffer << tradeItem.GiftCreator;
-    buffer << tradeItem.Item;
     buffer << OptionalInit(tradeItem.Unwrapped);
     buffer.FlushBits();
     if (tradeItem.Unwrapped)

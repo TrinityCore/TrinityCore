@@ -54,20 +54,20 @@ WorldPacket const* ScenarioState::Write()
     _worldPacket << Size<uint32>(Spells);
     _worldPacket << PlayerGUID;
 
-    if (!PickedSteps.empty())
-        _worldPacket.append(PickedSteps.data(), PickedSteps.size());
-
-    _worldPacket << Bits<1>(ScenarioComplete);
-    _worldPacket.FlushBits();
-
     for (Achievement::CriteriaProgress const& progress : CriteriaProgress)
         _worldPacket << progress;
 
     for (BonusObjectiveData const& bonusObjective : BonusObjectives)
         _worldPacket << bonusObjective;
 
+    if (!PickedSteps.empty())
+        _worldPacket.append(PickedSteps.data(), PickedSteps.size());
+
     for (ScenarioSpellUpdate const& spell : Spells)
         _worldPacket << spell;
+
+    _worldPacket << Bits<1>(ScenarioComplete);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

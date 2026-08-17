@@ -151,10 +151,11 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
     for (TraitEntry& traitEntry : traitConfig.Entries)
         data >> traitEntry;
 
-    data >> SizedString::BitsSize<9>(traitConfig.Name);
-
     for (TraitSubTreeCache& traitSubTreeCache : traitConfig.SubTrees)
         data >> traitSubTreeCache;
+
+    data.ResetBitPos();
+    data >> SizedString::BitsSize<9>(traitConfig.Name);
 
     data >> SizedString::Data<Strings::DontValidateUtf8>(traitConfig.Name);
 
@@ -188,11 +189,10 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig)
     for (TraitEntry const& traitEntry : traitConfig.Entries)
         data << traitEntry;
 
-    data << SizedString::BitsSize<9>(traitConfig.Name);
-
     for (TraitSubTreeCache const& traitSubTreeCache : traitConfig.SubTrees)
         data << traitSubTreeCache;
 
+    data << SizedString::BitsSize<9>(traitConfig.Name);
     data.FlushBits();
 
     data << SizedString::Data(static_cast<std::string const&>(traitConfig.Name));

@@ -185,6 +185,7 @@ namespace WorldPackets
             bool AddonProfilingEnabled               = false;
             bool GlobalUserGeneratedContentMuteEnabled = false;
             bool AccountUserGeneratedContentIsRisky  = false;
+            bool FriendsDisabled                     = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;

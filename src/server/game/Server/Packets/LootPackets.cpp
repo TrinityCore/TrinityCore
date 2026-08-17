@@ -26,10 +26,10 @@ static ByteBuffer& operator<<(ByteBuffer& data, LootItemData const& lootItem)
     data << Bits<3>(lootItem.UIType);
     data << Bits<1>(lootItem.CanTradeToTapList);
     data.FlushBits();
-    data << lootItem.Loot; // WorldPackets::Item::ItemInstance
     data << uint32(lootItem.Quantity);
     data << uint8(lootItem.LootItemType);
     data << uint8(lootItem.LootListID);
+    data << lootItem.Loot; // WorldPackets::Item::ItemInstance
 
     return data;
 }
@@ -61,16 +61,17 @@ WorldPacket const* LootResponse::Write()
     _worldPacket << uint32(Coins);
     _worldPacket << Size<uint32>(Items);
     _worldPacket << Size<uint32>(Currencies);
-    _worldPacket << Bits<1>(Acquired);
-    _worldPacket << Bits<1>(AELooting);
-    _worldPacket << Bits<1>(SuppressError);
-    _worldPacket.FlushBits();
 
     for (LootItemData const& item : Items)
         _worldPacket << item;
 
     for (LootCurrency const& currency : Currencies)
         _worldPacket << currency;
+
+    _worldPacket << Bits<1>(Acquired);
+    _worldPacket << Bits<1>(AELooting);
+    _worldPacket << Bits<1>(SuppressError);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -179,12 +180,12 @@ WorldPacket const* StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << int32(MapID);
+    _worldPacket << Item;
     _worldPacket << RollTime;
     _worldPacket << uint8(ValidRolls);
     _worldPacket.append(LootRollIneligibleReason.data(), LootRollIneligibleReason.size());
     _worldPacket << uint8(Method);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
 
     return &_worldPacket;
 }
@@ -193,10 +194,10 @@ WorldPacket const* LootRollBroadcast::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << Player;
+    _worldPacket << Item;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
     _worldPacket << Bits<1>(Autopassed);
     _worldPacket << Bits<1>(OffSpec);
     _worldPacket.FlushBits();
@@ -207,11 +208,11 @@ WorldPacket const* LootRollBroadcast::Write()
 WorldPacket const* LootRollWon::Write()
 {
     _worldPacket << LootObj;
+    _worldPacket << Item;
     _worldPacket << Winner;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
     _worldPacket << int32(DungeonEncounterID);
-    _worldPacket << Item;
     _worldPacket << Bits<1>(MainSpec);
     _worldPacket.FlushBits();
 
@@ -221,8 +222,8 @@ WorldPacket const* LootRollWon::Write()
 WorldPacket const* LootAllPassed::Write()
 {
     _worldPacket << LootObj;
-    _worldPacket << int32(DungeonEncounterID);
     _worldPacket << Item;
+    _worldPacket << int32(DungeonEncounterID);
 
     return &_worldPacket;
 }

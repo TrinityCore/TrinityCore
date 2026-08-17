@@ -348,7 +348,7 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             Optional<ObjectGuid> TransportGUID;
             float Facing = 0.0f;
-            uint8 PreloadWorld = 0;
+            bool PreloadWorld = false;
         };
 
         class MoveUpdateTeleport final : public ServerPacket

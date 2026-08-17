@@ -62,21 +62,21 @@ ByteBuffer& operator<<(ByteBuffer& data, MailAttachedItem const& att)
 {
     data << uint8(att.Position);
     data << uint64(att.AttachID);
+    data << att.Item;
     data << int32(att.Count);
     data << int32(att.Charges);
     data << uint32(att.MaxDurability);
     data << int32(att.Durability);
-    data << att.Item;
     data << BitsSize<4>(att.Enchants);
     data << BitsSize<2>(att.Gems);
     data << Bits<1>(att.Unlocked);
     data.FlushBits();
 
-    for (Item::ItemGemData const& gem : att.Gems)
-        data << gem;
-
     for (Item::ItemEnchantData const& en : att.Enchants)
         data << en;
+
+    for (Item::ItemGemData const& gem : att.Gems)
+        data << gem;
 
     return data;
 }
@@ -150,12 +150,12 @@ ByteBuffer& operator<<(ByteBuffer& data, MailListEntry const& entry)
             break;
     }
 
+    for (MailAttachedItem const& att : entry.Attachments)
+        data << att;
+
     data << SizedString::BitsSize<8>(entry.Subject);
     data << SizedString::BitsSize<13>(entry.Body);
     data.FlushBits();
-
-    for (MailAttachedItem const& att : entry.Attachments)
-        data << att;
 
     data << SizedString::Data(entry.Subject);
     data << SizedString::Data(entry.Body);

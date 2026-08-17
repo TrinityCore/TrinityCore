@@ -35,31 +35,15 @@ ByteBuffer& operator<<(ByteBuffer& data, BlackMarketItem const& blackMarketItem)
 {
     data << int32(blackMarketItem.MarketID);
     data << int32(blackMarketItem.SellerNPC);
+    data << blackMarketItem.Item;
     data << int32(blackMarketItem.Quantity);
     data << uint64(blackMarketItem.MinBid);
     data << uint64(blackMarketItem.MinIncrement);
     data << uint64(blackMarketItem.CurrentBid);
     data << int32(blackMarketItem.SecondsRemaining);
     data << int32(blackMarketItem.NumBids);
-    data << blackMarketItem.Item;
     data << Bits<1>(blackMarketItem.HighBid);
     data.FlushBits();
-
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, BlackMarketItem& blackMarketItem)
-{
-    data >> blackMarketItem.MarketID;
-    data >> blackMarketItem.SellerNPC;
-    data >> blackMarketItem.Item;
-    data >> blackMarketItem.Quantity;
-    data >> blackMarketItem.MinBid;
-    data >> blackMarketItem.MinIncrement;
-    data >> blackMarketItem.CurrentBid;
-    data >> blackMarketItem.SecondsRemaining;
-    data >> blackMarketItem.NumBids;
-    data >> Bits<1>(blackMarketItem.HighBid);
 
     return data;
 }
@@ -79,15 +63,15 @@ void BlackMarketBidOnItem::Read()
 {
     _worldPacket >> Guid;
     _worldPacket >> MarketID;
-    _worldPacket >> BidAmount;
     _worldPacket >> Item;
+    _worldPacket >> BidAmount;
 }
 
 WorldPacket const* BlackMarketBidOnItemResult::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << int32(Result);
     _worldPacket << Item;
+    _worldPacket << int32(Result);
 
     return &_worldPacket;
 }
@@ -95,8 +79,8 @@ WorldPacket const* BlackMarketBidOnItemResult::Write()
 WorldPacket const* BlackMarketOutbid::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << int32(RandomPropertiesID);
     _worldPacket << Item;
+    _worldPacket << int32(RandomPropertiesID);
 
     return &_worldPacket;
 }
@@ -104,8 +88,8 @@ WorldPacket const* BlackMarketOutbid::Write()
 WorldPacket const* BlackMarketWon::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << int32(RandomPropertiesID);
     _worldPacket << Item;
+    _worldPacket << int32(RandomPropertiesID);
 
     return &_worldPacket;
 }
