@@ -474,7 +474,7 @@ ByteBuffer& operator<<(ByteBuffer& data, LeaverInfo const& leaverInfo)
     data << int32(leaverInfo.ConsecutiveSuccesses);
     data << leaverInfo.LastPenaltyTime;
     data << leaverInfo.LeaverExpirationTime;
-    data << int32(leaverInfo.Unknown_1120);
+    data << int32(leaverInfo.Flags);
     data << Bits<1>(leaverInfo.LeaverStatus);
     data.FlushBits();
 

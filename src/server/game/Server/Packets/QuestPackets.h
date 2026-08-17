@@ -461,6 +461,7 @@ namespace WorldPackets
             std::vector<ConditionalQuestText> ConditionalDescriptionText;
             bool AutoLaunched = false;
             bool FromContentPush = false;
+            bool ReplayQuest = false;
             bool ResetByScheduler = false;
             bool StartCheat = false;
             bool DisplayPopup = false;

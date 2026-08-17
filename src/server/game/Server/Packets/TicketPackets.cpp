@@ -256,10 +256,10 @@ ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHouseInfo& houseInfo)
 
     data >> SizedString::BitsSize<8>(houseInfo.NeighborhoodName);
 
-    data >> houseInfo.Unknown_1127_1;
-    data >> houseInfo.Unknown_1127_2;
-    data >> houseInfo.Unknown_1127_3;
-    data >> houseInfo.Unknown_1127_4;
+    data >> houseInfo.NeighborhoodGUID;
+    data >> houseInfo.NeighborhoodOwnerGUID;
+    data >> houseInfo.HouseGUID;
+    data >> houseInfo.PlotID;
 
     data >> SizedString::Data(houseInfo.NeighborhoodName);
 

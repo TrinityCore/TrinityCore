@@ -518,7 +518,7 @@ namespace WorldPackets
             int32 ConsecutiveSuccesses = 0;
             Timestamp<> LastPenaltyTime;
             Timestamp<> LeaverExpirationTime;
-            int32 Unknown_1120 = 0;
+            int32 Flags = 0;
             bool LeaverStatus = false;
         };
 
