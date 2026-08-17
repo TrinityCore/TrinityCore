@@ -359,7 +359,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
-            ::MovementForces::Container const* MovementForces = nullptr;
+            std::span<MovementForce const> MovementForces;
             Optional<float> SwimBackSpeed;
             Optional<float> FlightSpeed;
             Optional<float> SwimSpeed;

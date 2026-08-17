@@ -829,7 +829,7 @@ WorldPacket const* MoveUpdateTeleport::Write()
 {
     _worldPacket << *Status;
 
-    _worldPacket << uint32(MovementForces ? MovementForces->size() : 0);
+    _worldPacket << Size<uint32>(MovementForces);
     _worldPacket << OptionalInit(WalkSpeed);
     _worldPacket << OptionalInit(RunSpeed);
     _worldPacket << OptionalInit(RunBackSpeed);
@@ -841,9 +841,8 @@ WorldPacket const* MoveUpdateTeleport::Write()
     _worldPacket << OptionalInit(PitchRate);
     _worldPacket.FlushBits();
 
-    if (MovementForces)
-        for (MovementForce const& force : *MovementForces)
-            _worldPacket << force;
+    for (MovementForce const& force : MovementForces)
+        _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
