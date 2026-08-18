@@ -2757,7 +2757,7 @@ void WorldSession::SendUndeleteCharacterResponse(CharacterUndeleteResult result,
 
 void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAccountCharacterList& getAccountCharacterList)
 {
-    TC_LOG_INFO("network", "Received CMSG_GET_ACCOUNT_CHARACTER_LIST from account {}, Token: {} , ConsoleCommand {}", GetAccountId(), getAccountCharacterList.Token, getAccountCharacterList.ConsoleCommand);
+    TC_LOG_INFO("network", "Received CMSG_GET_ACCOUNT_CHARACTER_LIST from account {}, Token: {}, ConsoleCommand {}", GetAccountId(), getAccountCharacterList.Token, getAccountCharacterList.ConsoleCommand);
 
     WorldPackets::Character::SendAccountCharacterList response;
 

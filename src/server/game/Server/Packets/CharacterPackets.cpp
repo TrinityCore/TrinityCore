@@ -879,6 +879,5 @@ WorldPacket const* SendAccountCharacterList::Write()
     return &_worldPacket;
 }
 
-
 }
 }
