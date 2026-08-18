@@ -831,5 +831,54 @@ WorldPacket const* PlayerSavePersonalEmblem::Write()
 
     return &_worldPacket;
 }
+
+void GetAccountCharacterList::Read()
+{
+    _worldPacket >> Token;
+    ConsoleCommand = _worldPacket.ReadBit();
+}
+
+WorldPacket const* SendAccountCharacterList::Write()
+{
+    _worldPacket << uint32(Token);
+    _worldPacket << uint32(Characters.size());
+
+    _worldPacket.WriteBit(ConsoleCommand);
+
+    for (AccountCharacterData const& charInfo : Characters)
+    {
+        _worldPacket << charInfo.WowAccount;
+        _worldPacket << charInfo.Guid;
+
+        _worldPacket << charInfo.VirtualRealmAddress;
+
+        _worldPacket << uint8(charInfo.RaceID);
+        _worldPacket << uint8(charInfo.ClassID);
+        _worldPacket << uint8(charInfo.SexID);
+        _worldPacket << uint8(charInfo.ExperienceLevel);
+
+        _worldPacket << uint64(charInfo.LastActiveTime);
+        _worldPacket << uint32(charInfo.ContentSetID);
+
+        uint32 characterNameLength = charInfo.CharacterName.length();
+        uint32 realmNameLength = charInfo.RealmName.length();
+
+        ASSERT(characterNameLength <= 0x3F);  // 6 bit
+        ASSERT(realmNameLength <= 0x1FF);     // 9 bit
+
+        uint8 lengthByte1 = uint8((characterNameLength << 2) | ((realmNameLength >> 7) & 0x03));
+        uint8 lengthByte2 = uint8((realmNameLength & 0x7F) << 1);
+
+        _worldPacket << lengthByte1;
+        _worldPacket << lengthByte2;
+
+        _worldPacket.WriteString(charInfo.CharacterName);
+        _worldPacket.WriteString(charInfo.RealmName);
+    }
+
+    return &_worldPacket;
+}
+
+
 }
 }
