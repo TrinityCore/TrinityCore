@@ -89,6 +89,7 @@ ByteBuffer& operator<<(ByteBuffer& data, CharDisplayInfo const& displayInfo)
 
     return data;
 }
+
 void PlayerModelDisplayInfo::Initialize(Player const* player)
 {
     GUID = player->GetGUID();

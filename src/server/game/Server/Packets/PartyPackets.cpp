@@ -115,7 +115,7 @@ void PartyInviteResponse::Read()
 void PartyUninvite::Read()
 {
     _worldPacket >> OptionalInit(PartyIndex);
-    _worldPacket >> SizedString::BitsSize<8>(Reason);
+    _worldPacket >> SizedString::BitsSize<9>(Reason);
 
     _worldPacket >> TargetGUID;
     if (PartyIndex)
@@ -409,8 +409,8 @@ WorldPacket const* ReadyCheckStarted::Write()
 
 void ReadyCheckResponseClient::Read()
 {
-    _worldPacket >> Bits<1>(IsReady);
     _worldPacket >> OptionalInit(PartyIndex);
+    _worldPacket >> Bits<1>(IsReady);
     if (PartyIndex)
         _worldPacket >> *PartyIndex;
 }
