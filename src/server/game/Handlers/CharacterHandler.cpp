@@ -2768,7 +2768,20 @@ void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAcc
 
     stmt->setUInt32(0, GetAccountId());
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    GetQueryProcessor().AddCallback(
+        CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(
+            [this, token = getAccountCharacterList.Token, consoleCommand = getAccountCharacterList.ConsoleCommand](PreparedQueryResult result)
+            {
+                HandleSendAccountCharacterList(std::move(result), token, consoleCommand);
+            }));
+}
+
+void WorldSession::HandleSendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand)
+{
+    WorldPackets::Character::SendAccountCharacterList response;
+
+    response.Token = token;
+    response.ConsoleCommand = consoleCommand;
 
     std::string realmName;
 
@@ -2776,6 +2789,7 @@ void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAcc
         realmName = realm->Name;
 
     ObjectGuid wowAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId());
+    uint32 virtualRealmAddress = GetVirtualRealmAddress();
 
     if (result)
     {
@@ -2787,7 +2801,7 @@ void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAcc
 
             charInfo.WowAccount = wowAccountGuid;
             charInfo.Guid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-            charInfo.VirtualRealmAddress = GetVirtualRealmAddress();
+            charInfo.VirtualRealmAddress = virtualRealmAddress;
             charInfo.CharacterName = fields[1].GetString();
             charInfo.RaceID = fields[2].GetUInt8();
             charInfo.ClassID = fields[3].GetUInt8();

@@ -87,7 +87,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHAR_ZONE, "SELECT zone FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_POSITION_XYZ, "SELECT map, position_x, position_y, position_z FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_POSITION, "SELECT position_x, position_y, position_z, orientation, map, taxi_path FROM characters WHERE guid = ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_SEL_ACCOUNT_CHARACTER_LIST, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.level, c.logout_time FROM characters AS c WHERE c.account = ? AND c.deleteInfos_Name IS NULL", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_ACCOUNT_CHARACTER_LIST, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.level, c.logout_time FROM characters AS c WHERE c.account = ? AND c.deleteInfos_Name IS NULL", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_DEL_BATTLEGROUND_RANDOM_ALL, "DELETE FROM character_battleground_random", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_BATTLEGROUND_RANDOM, "DELETE FROM character_battleground_random WHERE guid = ?", CONNECTION_ASYNC);

@@ -1132,6 +1132,7 @@ class TC_GAME_API WorldSession
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleGetAccountCharacterList(WorldPackets::Character::GetAccountCharacterList& getAccountCharacterList);
+        void HandleSendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand);
 
         void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();
