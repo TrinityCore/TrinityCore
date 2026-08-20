@@ -863,9 +863,6 @@ WorldPacket const* SendAccountCharacterList::Write()
         uint32 characterNameLength = charInfo.CharacterName.length();
         uint32 realmNameLength = charInfo.RealmName.length();
 
-        ASSERT(characterNameLength <= 0x3F);  // 6 bit
-        ASSERT(realmNameLength <= 0x1FF);     // 9 bit
-
         uint8 lengthByte1 = uint8((characterNameLength << 2) | ((realmNameLength >> 7) & 0x03));
         uint8 lengthByte2 = uint8((realmNameLength & 0x7F) << 1);
 
