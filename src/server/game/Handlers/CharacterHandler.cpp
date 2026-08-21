@@ -2797,7 +2797,7 @@ void WorldSession::HandleSendAccountCharacterList(PreparedQueryResult result, ui
         {
             Field* fields = result->Fetch();
 
-            WorldPackets::Character::SendAccountCharacterList::AccountCharacterData& charInfo = response.Characters.emplace_back();
+            WorldPackets::Character::AccountCharacterData& charInfo = response.Characters.emplace_back();
 
             charInfo.WowAccount = wowAccountGuid;
             charInfo.Guid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
