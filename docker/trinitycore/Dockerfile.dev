@@ -1,0 +1,42 @@
+# TrinityCore development image — optimized for fast incremental builds.
+# Source tree is bind-mounted from the host into /workspace; this image is
+# never rebuilt just because source changed.
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    clang \
+    cmake \
+    ninja-build \
+    ccache \
+    git \
+    gdb \
+    pkg-config \
+    libboost-all-dev \
+    libssl-dev \
+    libmysqlclient-dev \
+    libreadline-dev \
+    libncurses-dev \
+    libbz2-dev \
+    zlib1g-dev \
+    ca-certificates \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root development user so the container doesn't need to run as root.
+ARG USERNAME=dev
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN groupadd --gid ${USER_GID} ${USERNAME} \
+    && useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} \
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+ENV CCACHE_DIR=/ccache
+ENV PATH="/usr/lib/ccache:${PATH}"
+
+WORKDIR /workspace
+USER ${USERNAME}
+
+CMD ["/bin/bash"]

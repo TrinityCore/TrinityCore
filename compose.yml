@@ -1,0 +1,84 @@
+# Base development stack (section 1.5). Services do not depend on manual
+# start order — dependencies are expressed via depends_on + healthchecks.
+# Combine with compose.dev.yml for the interactive build/dev shell:
+#   docker compose -f compose.yml -f compose.dev.yml up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./deploy/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "3306:3306"
+
+  authserver:
+    build:
+      context: .
+      dockerfile: docker/trinitycore/Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    working_dir: /build/bin
+    command: ["./authserver", "-c", "/etc/trinitycore/authserver.conf"]
+    volumes:
+      - build-data:/build
+      - ./deploy/authserver.conf:/etc/trinitycore/authserver.conf:ro
+      - ./runtime/logs:/runtime/logs
+    ports:
+      - "${AUTHSERVER_PORT:-3724}:3724"
+
+  worldserver:
+    build:
+      context: .
+      dockerfile: docker/trinitycore/Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    working_dir: /build/bin
+    command: ["./worldserver", "-c", "/etc/trinitycore/worldserver.conf"]
+    volumes:
+      - build-data:/build
+      - ./deploy/worldserver.conf:/etc/trinitycore/worldserver.conf:ro
+      - ${WOW_DATA_DIR:-./runtime/data}:/runtime/data
+      - ./runtime/logs:/runtime/logs
+    ports:
+      - "${WORLDSERVER_PORT:-8085}:8085"
+
+  ai-server:
+    build:
+      context: docker/ai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${AI_SERVER_PORT:-8000}:8000"
+
+  gpu-check:
+    image: nvidia/cuda:12.4.1-base-ubuntu22.04
+    profiles: ["gpu-check"]
+    command: ["nvidia-smi"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  mysql-data:
+  build-data:

@@ -1,0 +1,24 @@
+# Minimal TrinityCore runtime image.
+# Built from binaries already compiled into the persistent /build volume by
+# the tc-dev service. This is a second-priority concern versus Dockerfile.dev
+# and is not wired into compose.dev.yml's fast iteration loop.
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libboost-system1.74.0 \
+    libboost-filesystem1.74.0 \
+    libboost-program-options1.74.0 \
+    libboost-iostreams1.74.0 \
+    libmysqlclient21 \
+    libssl3 \
+    libreadline8 \
+    libncurses6 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /trinitycore
+
+# Populated at build time from the compiled /build volume, e.g.:
+#   COPY build/bin/ ./bin/

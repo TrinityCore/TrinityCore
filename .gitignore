@@ -23,3 +23,14 @@ nbproject/*
 cmake-build-*/
 .vs
 *.user
+
+# --- AI TrinityCore project additions ---
+# Build output, runtime data, DB volumes, secrets and AI models never go into Git.
+/runtime/
+.env
+*.env
+!.env.example
+docker/ai/models/
+*.gguf
+*.safetensors
+*.ckpt
