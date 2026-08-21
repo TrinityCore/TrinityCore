@@ -838,6 +838,31 @@ void GetAccountCharacterList::Read()
     ConsoleCommand = _worldPacket.ReadBit();
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, AccountCharacterData const& characterData)
+{
+    data << characterData.WowAccount;
+    data << characterData.Guid;
+
+    data << characterData.VirtualRealmAddress;
+
+    data << uint8(characterData.RaceID);
+    data << uint8(characterData.ClassID);
+    data << uint8(characterData.SexID);
+    data << uint8(characterData.ExperienceLevel);
+
+    data << uint64(characterData.LastActiveTime);
+    data << uint32(characterData.ContentSetID);
+
+    data << BitsSize<6>(characterData.CharacterName);
+    data << BitsSize<9>(characterData.RealmName);
+    data.FlushBits();
+
+    data.WriteString(characterData.CharacterName);
+    data.WriteString(characterData.RealmName);
+
+    return data;
+}
+
 WorldPacket const* SendAccountCharacterList::Write()
 {
     _worldPacket << uint32(Token);
@@ -846,32 +871,7 @@ WorldPacket const* SendAccountCharacterList::Write()
     _worldPacket.WriteBit(ConsoleCommand);
 
     for (AccountCharacterData const& charInfo : Characters)
-    {
-        _worldPacket << charInfo.WowAccount;
-        _worldPacket << charInfo.Guid;
-
-        _worldPacket << charInfo.VirtualRealmAddress;
-
-        _worldPacket << uint8(charInfo.RaceID);
-        _worldPacket << uint8(charInfo.ClassID);
-        _worldPacket << uint8(charInfo.SexID);
-        _worldPacket << uint8(charInfo.ExperienceLevel);
-
-        _worldPacket << uint64(charInfo.LastActiveTime);
-        _worldPacket << uint32(charInfo.ContentSetID);
-
-        uint32 characterNameLength = charInfo.CharacterName.length();
-        uint32 realmNameLength = charInfo.RealmName.length();
-
-        uint8 lengthByte1 = uint8((characterNameLength << 2) | ((realmNameLength >> 7) & 0x03));
-        uint8 lengthByte2 = uint8((realmNameLength & 0x7F) << 1);
-
-        _worldPacket << lengthByte1;
-        _worldPacket << lengthByte2;
-
-        _worldPacket.WriteString(charInfo.CharacterName);
-        _worldPacket.WriteString(charInfo.RealmName);
-    }
+      _worldPacket << charInfo;
 
     return &_worldPacket;
 }

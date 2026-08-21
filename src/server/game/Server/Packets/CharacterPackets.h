@@ -872,39 +872,39 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 Token;
-            bool ConsoleCommand;
+            uint32 Token = 0;
+            bool ConsoleCommand = false;
+        };
+
+        struct AccountCharacterData
+        {
+            ObjectGuid WowAccount;
+            ObjectGuid Guid;
+
+            uint32 VirtualRealmAddress = 0;
+
+            uint8 RaceID = 0;
+            uint8 ClassID = 0;
+            uint8 SexID = 2;
+            uint8 ExperienceLevel = 0;
+
+            uint64 LastActiveTime = 0;
+            uint32 ContentSetID = 0;
+
+            std::string CharacterName;
+            std::string RealmName;
         };
 
         class SendAccountCharacterList final : public ServerPacket
         {
         public:
-            SendAccountCharacterList() : ServerPacket(SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, 4 + 4 + 1) {}
+            SendAccountCharacterList() : ServerPacket(SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, 64) {}
 
-            WorldPacket const* Write() override;
+            WorldPacket const* Write() override;            
 
-            struct AccountCharacterData
-            {
-                ObjectGuid WowAccount;
-                ObjectGuid Guid;
-
-                uint32 VirtualRealmAddress = 0;
-
-                uint8 RaceID = 0;
-                uint8 ClassID = 0;
-                uint8 SexID = 2;
-                uint8 ExperienceLevel = 0;
-
-                uint64 LastActiveTime = 0;
-                uint32 ContentSetID = 0;
-
-                std::string CharacterName;
-                std::string RealmName;
-            };
-
-            uint32 Token;
+            uint32 Token = 0;
             std::vector<AccountCharacterData> Characters;
-            bool ConsoleCommand;
+            bool ConsoleCommand = false;
         };
     }
 }
