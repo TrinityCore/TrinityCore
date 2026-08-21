@@ -900,7 +900,7 @@ namespace WorldPackets
         public:
             SendAccountCharacterList() : ServerPacket(SMSG_GET_ACCOUNT_CHARACTER_LIST_RESULT, 64) {}
 
-            WorldPacket const* Write() override;            
+            WorldPacket const* Write() override;
 
             uint32 Token = 0;
             std::vector<AccountCharacterData> Characters;
