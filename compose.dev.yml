@@ -1,8 +1,9 @@
-# Development overlay: adds the interactive build container (tc-dev) and
-# wires the persistent build/ccache volumes into authserver/worldserver so
-# a rebuilt binary is picked up on container restart without a Docker rebuild.
+# Development overlay: adds the interactive build container (tc-dev).
 #   docker compose -f compose.yml -f compose.dev.yml up -d
 #   docker compose -f compose.yml -f compose.dev.yml exec tc-dev bash
+#
+# `make build`/`make shell` use `docker compose run --rm tc-dev ...` instead
+# of `exec`, so building never depends on tc-dev already being up via `start`.
 
 services:
   tc-dev:
@@ -20,13 +21,6 @@ services:
     tty: true
     command: ["sleep", "infinity"]
 
-  authserver:
-    volumes:
-      - ccache-data:/ccache
-
-  worldserver:
-    volumes:
-      - ccache-data:/ccache
-
 volumes:
   ccache-data:
+    name: aitc_ccache-data

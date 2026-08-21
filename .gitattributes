@@ -13,6 +13,9 @@
 
 # special files which must ignore whitespace
 *.patch  whitespace=-trailing-space eol=lf
+
+# shell scripts run inside Linux containers — never checked out as CRLF
+*.sh     text eol=lf
 *.diff   whitespace=-trailing-space eol=lf
 
 # Standard to msysgit

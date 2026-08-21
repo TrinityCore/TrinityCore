@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+      TC_DB_USER: ${TC_DB_USER:-trinity}
+      TC_DB_PASSWORD: ${TC_DB_PASSWORD:-trinity}
     volumes:
       - mysql-data:/var/lib/mysql
       - ./deploy/mysql:/docker-entrypoint-initdb.d:ro
@@ -17,8 +19,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-    ports:
-      - "3306:3306"
+    # Not published to the host — only authserver/worldserver need it, over
+    # the internal Compose network. Publish 3306 yourself if you need an
+    # external DB client against a dev box.
 
   authserver:
     build:
@@ -29,10 +32,14 @@ services:
       mysql:
         condition: service_healthy
     working_dir: /build/bin
-    command: ["./authserver", "-c", "/etc/trinitycore/authserver.conf"]
+    command: ["/scripts/render-conf-and-run.sh", "/etc/trinitycore/authserver.conf", "./authserver"]
+    environment:
+      TC_DB_USER: ${TC_DB_USER:-trinity}
+      TC_DB_PASSWORD: ${TC_DB_PASSWORD:-trinity}
     volumes:
       - build-data:/build
       - ./deploy/authserver.conf:/etc/trinitycore/authserver.conf:ro
+      - ./docker/scripts:/scripts:ro
       - ./runtime/logs:/runtime/logs
     ports:
       - "${AUTHSERVER_PORT:-3724}:3724"
@@ -46,10 +53,14 @@ services:
       mysql:
         condition: service_healthy
     working_dir: /build/bin
-    command: ["./worldserver", "-c", "/etc/trinitycore/worldserver.conf"]
+    command: ["/scripts/render-conf-and-run.sh", "/etc/trinitycore/worldserver.conf", "./worldserver"]
+    environment:
+      TC_DB_USER: ${TC_DB_USER:-trinity}
+      TC_DB_PASSWORD: ${TC_DB_PASSWORD:-trinity}
     volumes:
       - build-data:/build
       - ./deploy/worldserver.conf:/etc/trinitycore/worldserver.conf:ro
+      - ./docker/scripts:/scripts:ro
       - ${WOW_DATA_DIR:-./runtime/data}:/runtime/data
       - ./runtime/logs:/runtime/logs
     ports:
@@ -64,8 +75,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "${AI_SERVER_PORT:-8000}:8000"
+    # Internal only: worldserver reaches it at http://ai-server:8000 over the
+    # Compose network. Publish AI_SERVER_PORT yourself if you need to hit
+    # /health from the host while developing.
 
   gpu-check:
     image: nvidia/cuda:12.4.1-base-ubuntu22.04
@@ -81,4 +93,6 @@ services:
 
 volumes:
   mysql-data:
+    name: aitc_mysql-data
   build-data:
+    name: aitc_build-data
