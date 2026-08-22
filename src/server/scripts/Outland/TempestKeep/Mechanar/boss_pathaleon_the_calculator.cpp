@@ -15,42 +15,51 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ * Bridge event is NYI
+ */
+
 #include "ScriptMgr.h"
 #include "mechanar.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
-#include "TemporarySummon.h"
 
 enum PathaleonTexts
 {
-    SAY_AGGRO                          = 0,
-    SAY_DOMINATION                     = 1,
-    SAY_SUMMON                         = 2,
-    SAY_ENRAGE                         = 3,
-    SAY_SLAY                           = 4,
-    SAY_DEATH                          = 5
+    SAY_SPAWN                          = 0,
+    SAY_AGGRO                          = 1,
+    SAY_SLAY                           = 2,
+    SAY_SUMMON                         = 3,
+    SAY_DOMINATION                     = 4,
+    SAY_ENRAGE                         = 5,
+    SAY_DEATH                          = 6
 };
 
 enum PathaleonSpells
 {
+    // Pathaleon - Initial
+    SPELL_ETHEREAL_TELEPORT            = 34427,
+
+    // Pathaleon - Combat
     SPELL_SUMMON_NETHER_WRAITHS        = 35284,
     SPELL_MANA_TAP                     = 36021,
     SPELL_ARCANE_TORRENT               = 36022,
     SPELL_DOMINATION                   = 35280,
-    SPELL_ARCANE_EXPLOSION_H           = 15453,
+    SPELL_ARCANE_EXPLOSION             = 15453,
 
     SPELL_SUICIDE                      = 35301,
     SPELL_FRENZY                       = 36992,
 
-    SPELL_SUMMON_NETHER_WRAITH_LEFT    = 35285,
-    SPELL_SUMMON_NETHER_WRAITH_RIGHT   = 35286,    // Unused
-    SPELL_SUMMON_NETHER_WRAITH_FRONT   = 35287,
-    SPELL_SUMMON_NETHER_WRAITH_BACK    = 35288,
-
     // Nether Wraith
     SPELL_ARCANE_BOLT                  = 20720,
-    SPELL_NETHER_EXPLOSION             = 35058
+    SPELL_NETHER_EXPLOSION             = 35058,
+
+    // Scripts
+    SPELL_SUMMON_NETHER_WRAITH_LEFT    = 35285,
+    SPELL_SUMMON_NETHER_WRAITH_FRONT   = 35287,
+    SPELL_SUMMON_NETHER_WRAITH_BACK    = 35288
 };
 
 enum PathaleonEvents
@@ -67,23 +76,38 @@ enum PathaleonEvents
 // 19220 - Pathaleon the Calculator
 struct boss_pathaleon_the_calculator : public BossAI
 {
-    boss_pathaleon_the_calculator(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
+    boss_pathaleon_the_calculator(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR), _frenzied(false) { }
+
+    void JustAppeared() override
+    {
+        Talk(SAY_SPAWN);
+        DoCastSelf(SPELL_ETHEREAL_TELEPORT);
+        me->SetEmoteState(EMOTE_STATE_READY1H);
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        _frenzied = false;
+    }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_SUMMON, 30s);
-        events.ScheduleEvent(EVENT_MANA_TAP, 12s, 20s);
-        events.ScheduleEvent(EVENT_ARCANE_TORRENT, 16s, 25s);
-        events.ScheduleEvent(EVENT_DOMINATION, 25s, 40s);
-        if (IsHeroic())
-            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 13s);
+
         Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_SUMMON, 20s);
+        events.ScheduleEvent(EVENT_MANA_TAP, 10s, 20s);
+        events.ScheduleEvent(EVENT_ARCANE_TORRENT, 15s, 35s);
+        events.ScheduleEvent(EVENT_DOMINATION, 10s, 20s);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 20s, 30s);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        switch (spell->Id)
+        switch (spellInfo->Id)
         {
             case SPELL_SUMMON_NETHER_WRAITHS:
                 Talk(SAY_SUMMON);
@@ -101,8 +125,9 @@ struct boss_pathaleon_the_calculator : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
+        if (!_frenzied && me->HealthBelowPctDamaged(20, damage))
         {
+            _frenzied = true;
             events.ScheduleEvent(EVENT_SUICIDE, 0s);
             events.ScheduleEvent(EVENT_FRENZY, 0s);
         }
@@ -135,23 +160,25 @@ struct boss_pathaleon_the_calculator : public BossAI
             {
                 case EVENT_SUMMON:
                     DoCastSelf(SPELL_SUMMON_NETHER_WRAITHS);
-                    events.Repeat(30s, 45s);
+                    events.Repeat(50s);
                     break;
                 case EVENT_MANA_TAP:
-                    DoCastVictim(SPELL_MANA_TAP);
-                    events.Repeat(14s, 22s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [](Unit const* unit) { return unit && unit->GetPowerType() == POWER_MANA; }))
+                        DoCast(target, SPELL_MANA_TAP);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_ARCANE_TORRENT:
-                    DoCastVictim(SPELL_ARCANE_TORRENT);
-                    events.Repeat(12s, 18s);
+                    DoCastSelf(SPELL_ARCANE_TORRENT);
+                    events.Repeat(40s, 50s);
                     break;
                 case EVENT_DOMINATION:
-                    DoCastVictim(SPELL_DOMINATION);
-                    events.Repeat(25s, 30s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                        DoCast(target, SPELL_DOMINATION);
+                    events.Repeat(30s, 50s);
                     break;
                 case EVENT_ARCANE_EXPLOSION:
-                    DoCastSelf(SPELL_ARCANE_EXPLOSION_H);
-                    events.Repeat(10s, 14s);
+                    DoCastSelf(SPELL_ARCANE_EXPLOSION);
+                    events.Repeat(10s, 25s);
                     break;
                 case EVENT_SUICIDE:
                     DoCastSelf(SPELL_SUICIDE);
@@ -169,16 +196,24 @@ struct boss_pathaleon_the_calculator : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _frenzied;
 };
 
 // 21062 - Nether Wraith
 struct npc_nether_wraith : public ScriptedAI
 {
-    npc_nether_wraith(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
+
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(15, true);
+        ScriptedAI::InitializeAI();
+    }
 
     void Reset() override
     {
-        me->SetCorpseDelay(15, true);
         _scheduler.CancelAll();
     }
 
@@ -229,9 +264,9 @@ class spell_pathaleon_summon_nether_wraiths : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_LEFT);
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_FRONT);
-        caster->CastSpell(caster, SPELL_SUMMON_NETHER_WRAITH_BACK);
+        caster->CastSpell(nullptr, SPELL_SUMMON_NETHER_WRAITH_LEFT, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_NETHER_WRAITH_FRONT, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_NETHER_WRAITH_BACK, true);
     }
 
     void Register() override
