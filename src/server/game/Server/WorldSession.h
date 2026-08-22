@@ -245,6 +245,7 @@ namespace WorldPackets
         class SetFactionInactive;
         class SetWatchedFaction;
         class SetPlayerDeclinedNames;
+        class GetAccountCharacterList;
 
         enum class LoginFailureReason : uint8;
     }
@@ -1130,6 +1131,8 @@ class TC_GAME_API WorldSession
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
+        void HandleGetAccountCharacterList(WorldPackets::Character::GetAccountCharacterList& getAccountCharacterList);
+        void HandleSendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand);
 
         void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();

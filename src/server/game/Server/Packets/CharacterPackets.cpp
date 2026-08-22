@@ -831,5 +831,50 @@ WorldPacket const* PlayerSavePersonalEmblem::Write()
 
     return &_worldPacket;
 }
+
+void GetAccountCharacterList::Read()
+{
+    _worldPacket >> Token;
+    ConsoleCommand = _worldPacket.ReadBit();
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, AccountCharacterData const& characterData)
+{
+    data << characterData.WowAccount;
+    data << characterData.Guid;
+
+    data << characterData.VirtualRealmAddress;
+
+    data << uint8(characterData.RaceID);
+    data << uint8(characterData.ClassID);
+    data << uint8(characterData.SexID);
+    data << uint8(characterData.ExperienceLevel);
+
+    data << uint64(characterData.LastActiveTime);
+    data << uint32(characterData.ContentSetID);
+
+    data << BitsSize<6>(characterData.CharacterName);
+    data << BitsSize<9>(characterData.RealmName);
+    data.FlushBits();
+
+    data.WriteString(characterData.CharacterName);
+    data.WriteString(characterData.RealmName);
+
+    return data;
+}
+
+WorldPacket const* SendAccountCharacterList::Write()
+{
+    _worldPacket << uint32(Token);
+    _worldPacket << uint32(Characters.size());
+
+    _worldPacket.WriteBit(ConsoleCommand);
+
+    for (AccountCharacterData const& charInfo : Characters)
+      _worldPacket << charInfo;
+
+    return &_worldPacket;
+}
+
 }
 }

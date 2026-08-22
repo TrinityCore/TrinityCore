@@ -2754,3 +2754,65 @@ void WorldSession::SendUndeleteCharacterResponse(CharacterUndeleteResult result,
 
     SendPacket(response.Write());
 }
+
+void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAccountCharacterList& getAccountCharacterList)
+{
+    TC_LOG_INFO("network", "Received CMSG_GET_ACCOUNT_CHARACTER_LIST from account {}, Token: {}, ConsoleCommand {}", GetAccountId(), getAccountCharacterList.Token, getAccountCharacterList.ConsoleCommand);
+
+    WorldPackets::Character::SendAccountCharacterList response;
+
+    response.Token = getAccountCharacterList.Token;
+    response.ConsoleCommand = getAccountCharacterList.ConsoleCommand;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_CHARACTER_LIST);
+
+    stmt->setUInt32(0, GetAccountId());
+
+    GetQueryProcessor().AddCallback(
+        CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(
+            [this, token = getAccountCharacterList.Token, consoleCommand = getAccountCharacterList.ConsoleCommand](PreparedQueryResult result)
+            {
+                HandleSendAccountCharacterList(std::move(result), token, consoleCommand);
+            }));
+}
+
+void WorldSession::HandleSendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand)
+{
+    WorldPackets::Character::SendAccountCharacterList response;
+
+    response.Token = token;
+    response.ConsoleCommand = consoleCommand;
+
+    std::string realmName;
+
+    if (std::shared_ptr<Realm const> realm = sRealmList->GetCurrentRealm())
+        realmName = realm->Name;
+
+    ObjectGuid wowAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId());
+    uint32 virtualRealmAddress = GetVirtualRealmAddress();
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            WorldPackets::Character::AccountCharacterData& charInfo = response.Characters.emplace_back();
+
+            charInfo.WowAccount = wowAccountGuid;
+            charInfo.Guid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+            charInfo.VirtualRealmAddress = virtualRealmAddress;
+            charInfo.CharacterName = fields[1].GetString();
+            charInfo.RaceID = fields[2].GetUInt8();
+            charInfo.ClassID = fields[3].GetUInt8();
+            charInfo.SexID = fields[4].GetUInt8();
+            charInfo.ExperienceLevel = fields[5].GetUInt8();
+            charInfo.LastActiveTime = fields[6].GetUInt64();
+            charInfo.ContentSetID = 0;
+            charInfo.RealmName = realmName;
+
+        } while (result->NextRow());
+    }
+
+    SendPacket(response.Write());
+}
