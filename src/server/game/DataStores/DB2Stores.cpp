@@ -498,7 +498,7 @@ namespace
     std::array<ClassPowerData, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
     std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
-    std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
+    std::unordered_map<uint8 /*shapeshift form*/, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
@@ -1246,20 +1246,30 @@ void DB2Manager::IndexLoadedStores()
                     parentRaceOptions.insert(parentRaceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
                 }
             }
+        }
+    }
 
-            // link shapeshift displays to race/gender/form
-            for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByModel, model->ID))
-            {
-                ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[{ uint8(raceModel->ChrRacesID), uint8(raceModel->Sex), shapeshiftOptionsForModel.second.second }];
-                data.OptionID = shapeshiftOptionsForModel.second.first;
-                data.Choices = Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesByOption, shapeshiftOptionsForModel.second.first);
-                if (data.Choices)
-                {
-                    data.Displays.resize(data.Choices->size());
-                    for (std::size_t i = 0; i < data.Choices->size(); ++i)
-                        data.Displays[i] = Trinity::Containers::MapGetValuePtr(displayInfoByCustomizationChoice, (*data.Choices)[i]->ID);
-                }
-            }
+    // link shapeshift displays to form (form-specific ChrModelIDs are not in ChrRaceXChrModel)
+    std::unordered_set<uint8> processedForms;
+    for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftEntry : shapeshiftFormByModel)
+    {
+        uint8 formId = shapeshiftEntry.second.second;
+        if (formId == 0)
+            continue;
+
+        // each form has one OptionID; only process first occurrence
+        if (!processedForms.insert(formId).second)
+            continue;
+
+        uint32 optionId = shapeshiftEntry.second.first;
+        ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[formId];
+        data.OptionID = optionId;
+        data.Choices = Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesByOption, optionId);
+        if (data.Choices)
+        {
+            data.Displays.resize(data.Choices->size());
+            for (std::size_t i = 0; i < data.Choices->size(); ++i)
+                data.Displays[i] = Trinity::Containers::MapGetValuePtr(displayInfoByCustomizationChoice, (*data.Choices)[i]->ID);
         }
     }
 
@@ -3005,9 +3015,9 @@ std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsBy
     return Trinity::Containers::MapGetValuePtr(_rewardPackItems, rewardPackID);
 }
 
-ShapeshiftFormModelData const* DB2Manager::GetShapeshiftFormModelData(uint8 race, uint8 gender, uint8 form) const
+ShapeshiftFormModelData const* DB2Manager::GetShapeshiftFormModelData(uint8 form) const
 {
-    return Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesForShapeshifts, { race, gender, form });
+    return Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesForShapeshifts, form);
 }
 
 std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
