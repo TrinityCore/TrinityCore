@@ -106,7 +106,7 @@ namespace Scripts::Spells::Paladin
                 if (aurEff->GetEffIndex() != EFFECT_2 || !aurEff->GetSpellInfo()->SpellFamilyFlags.HasFlag(0, 0x800 | 0x20000000))
                     continue;
 
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(aurEff->GetAmount(), DIFFICULTY_NONE))
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(aurEff->GetAmountAsInt(), DIFFICULTY_NONE))
                     return spellInfo->Id;
             }
 
@@ -212,11 +212,11 @@ namespace Scripts::Spells::Paladin
     // 31804 - Judgement of Truth
     class spell_pal_judgement_of_truth : public SpellScript
     {
-        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& flatMod, float& /*pctMod*/)
+        void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod)
         {
             // Censure increases the damage of Judgement of Truth by 20% per stack
             if (AuraEffect const* censureEffect = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PALADIN, flag128(0x20000000), GetCaster()->GetGUID()))
-                AddPct(flatMod, 20.f * censureEffect->GetBase()->GetStackAmount());
+                AddPct(pctMod, 20.f * censureEffect->GetBase()->GetStackAmount());
         }
 
         void Register() override
