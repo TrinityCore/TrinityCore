@@ -266,7 +266,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_HomebindTimer = 0;
     m_InstanceValid = true;
     m_dungeonDifficulty = DIFFICULTY_NORMAL;
-    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_raidDifficulty = DIFFICULTY_10_N;
     m_legacyRaidDifficulty = DIFFICULTY_10_N;
 
     // Talents
