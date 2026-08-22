@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "mechanar.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
