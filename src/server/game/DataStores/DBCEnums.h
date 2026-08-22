@@ -1500,6 +1500,12 @@ enum class ItemContext : uint8
     Warbound_19                                     = 183,
     Warbound_20                                     = 184,
     Endeavors                                       = 185,
+    TimewalkerMaxLevel                              = 186,
+    BonusRoll_1                                     = 187,
+    BonusRoll_2                                     = 188,
+    BonusRoll_3                                     = 189,
+    BonusRoll_4                                     = 190,
+    BonusRoll_5                                     = 191,
 
     Max
 };
