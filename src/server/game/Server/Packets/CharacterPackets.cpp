@@ -342,8 +342,10 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const&
     data << Bits<1>(raceUnlock.HasUnlockedLicense);
     data << Bits<1>(raceUnlock.HasUnlockedAchievement);
     data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
+    data << Bits<1>(raceUnlock.HasEntitlement);
     data << Bits<1>(raceUnlock.HideRaceOnClient);
     data << Bits<1>(raceUnlock.FactionBalanceDisabled);
+    data << Bits<1>(raceUnlock.DoesNotHaveAvailableClasses);
     data.FlushBits();
 
     return data;

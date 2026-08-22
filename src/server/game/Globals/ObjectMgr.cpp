@@ -10529,55 +10529,10 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 {
     uint32 oldMSTime = getMSTime();
-    _raceUnlockRequirementStore.clear();
-
-    //                                               0       1          2
-    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint8 raceID = fields[0].GetUInt8();
-            uint8 expansion = fields[1].GetUInt8();
-            uint32 achievementId = fields[2].GetUInt32();
-
-            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
-            if (!raceEntry)
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
-                continue;
-            }
-
-            if (expansion >= MAX_ACCOUNT_EXPANSIONS)
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect expansion {}, skipped.", raceID, expansion);
-                continue;
-            }
-
-            if (achievementId && !sAchievementStore.LookupEntry(achievementId))
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect achievement {}, skipped.", raceID, achievementId);
-                continue;
-            }
-
-            RaceUnlockRequirement& raceUnlockRequirement = _raceUnlockRequirementStore[raceID];
-            raceUnlockRequirement.Expansion = expansion;
-            raceUnlockRequirement.AchievementId = achievementId;
-        }
-        while (result->NextRow());
-        TC_LOG_INFO("server.loading", ">> Loaded {} race expansion requirements in {} ms.", _raceUnlockRequirementStore.size(), GetMSTimeDiffToNow(oldMSTime));
-    }
-    else
-        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
-
-    oldMSTime = getMSTime();
-    _classExpansionRequirementStore.clear();
+    _raceClassRequirementStore.clear();
 
     //                                         0       1                     2                      3
-    result = WorldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
+    QueryResult result = WorldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
 
     if (result)
     {
@@ -10633,7 +10588,7 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 
         for (auto&& race : temp)
         {
-            RaceClassAvailability& raceClassAvailability = _classExpansionRequirementStore.emplace_back();
+            RaceClassAvailability& raceClassAvailability = _raceClassRequirementStore.emplace_back();
 
             raceClassAvailability.RaceID = race.first;
 
@@ -10652,21 +10607,77 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+
+    oldMSTime = getMSTime();
+
+    //                                               0       1          2
+    result = WorldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
+
+    if (result)
+    {
+        uint32 loadedRows = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 raceID = fields[0].GetUInt8();
+            uint8 expansion = fields[1].GetUInt8();
+            uint32 achievementId = fields[2].GetUInt32();
+
+            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
+            if (!raceEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
+                continue;
+            }
+
+            if (expansion >= MAX_ACCOUNT_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect expansion {}, skipped.", raceID, expansion);
+                continue;
+            }
+
+            if (achievementId && !sAchievementStore.LookupEntry(achievementId))
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect achievement {}, skipped.", raceID, achievementId);
+                continue;
+            }
+
+            auto itr = std::ranges::find(_raceClassRequirementStore, raceID, &RaceClassAvailability::RaceID);
+            if (itr == _raceClassRequirementStore.end())
+            {
+                itr = _raceClassRequirementStore.emplace(_raceClassRequirementStore.end());
+                itr->RaceID = raceID;
+            }
+
+            RaceUnlockRequirement& raceUnlockRequirement = itr->UnlockRequirement;
+            raceUnlockRequirement.Expansion = expansion;
+            raceUnlockRequirement.AchievementId = achievementId;
+            ++loadedRows;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded {} race expansion requirements in {} ms.", loadedRows, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+}
+
+RaceUnlockRequirement const* ObjectMgr::GetRaceUnlockRequirement(uint8 raceId) const
+{
+    auto raceItr = std::ranges::find(_raceClassRequirementStore, raceId, &RaceClassAvailability::RaceID);
+    if (raceItr == _raceClassRequirementStore.end())
+        return nullptr;
+
+    return &raceItr->UnlockRequirement;
 }
 
 ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, uint8 classId) const
 {
-    auto raceItr = std::find_if(_classExpansionRequirementStore.begin(), _classExpansionRequirementStore.end(), [raceId](RaceClassAvailability const& raceClass)
-    {
-        return raceClass.RaceID == raceId;
-    });
-    if (raceItr == _classExpansionRequirementStore.end())
+    auto raceItr = std::ranges::find(_raceClassRequirementStore, raceId, &RaceClassAvailability::RaceID);
+    if (raceItr == _raceClassRequirementStore.end())
         return nullptr;
 
-    auto classItr = std::find_if(raceItr->Classes.begin(), raceItr->Classes.end(), [classId](ClassAvailability const& classAvailability)
-    {
-        return classAvailability.ClassID == classId;
-    });
+    auto classItr = std::ranges::find(raceItr->Classes, classId, &ClassAvailability::ClassID);
     if (classItr == raceItr->Classes.end())
         return nullptr;
 
@@ -10675,7 +10686,7 @@ ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, u
 
 ClassAvailability const* ObjectMgr::GetClassExpansionRequirementFallback(uint8 classId) const
 {
-    for (RaceClassAvailability const& raceClassAvailability : _classExpansionRequirementStore)
+    for (RaceClassAvailability const& raceClassAvailability : _raceClassRequirementStore)
         for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
             if (classAvailability.ClassID == classId)
                 return &classAvailability;
