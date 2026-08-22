@@ -3999,7 +3999,7 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 
     {
         if (GetMiscValue() == i || GetMiscValue() == -1)
         {
-            target->HandleStatFlatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(GetAmount()), apply);
+            target->HandleStatFlatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT_EXCLUDE_BASE, float(GetAmount()), apply);
             target->UpdateStatBuffMod(Stats(i));
         }
     }
