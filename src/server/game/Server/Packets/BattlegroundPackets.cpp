@@ -135,13 +135,16 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchStatisticsMessage::Write(
 
 void WorldPackets::Battleground::BattlemasterJoin::Read()
 {
-    _worldPacket >> Size<uint32>(QueueIDs);
+    _worldPacket >> QueueID;
     _worldPacket >> Roles;
+
     for (int32& blacklistMap : BlacklistMap)
         _worldPacket >> blacklistMap;
 
-    for (uint64& queueId : QueueIDs)
-        _worldPacket >> queueId;
+    _worldPacket >> BattlemasterGuid;
+    _worldPacket >> UnkID;
+    _worldPacket >> BattlefieldIndexSpecific;
+    JoinAsGroup = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()

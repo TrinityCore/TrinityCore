@@ -67,13 +67,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& battlemasterJoin)
 {
     bool isPremade = false;
-    if (battlemasterJoin.QueueIDs.empty())
-    {
-        TC_LOG_ERROR("network", "Battleground: no bgtype received. possible cheater? {}", _player->GetGUID().ToString());
-        return;
-    }
-
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId::FromPacked(battlemasterJoin.QueueIDs[0]);
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId::FromPacked(battlemasterJoin.QueueID);
     if (!BattlegroundMgr::IsValidQueueId(bgQueueTypeId))
     {
         TC_LOG_ERROR("network", "Battleground: invalid bg queue {{ BattlemasterListId: {}, Type: {}, Rated: {}, TeamSize: {} }} received. possible cheater? {}",
@@ -125,7 +119,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
     };
 
     // check queue conditions
-    if (!grp)
+    if (!battlemasterJoin.JoinAsGroup)
     {
         if (GetPlayer()->isUsingLfg())
         {
@@ -205,7 +199,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
     }
     else
     {
-        if (grp->GetLeaderGUID() != _player->GetGUID())
+        if (!grp || grp->GetLeaderGUID() != _player->GetGUID())
             return;
 
         ObjectGuid errorGuid;

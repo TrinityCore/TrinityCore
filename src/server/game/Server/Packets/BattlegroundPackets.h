@@ -231,9 +231,13 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<uint64, 1> QueueIDs;
+            uint64 QueueID;
             uint8 Roles = 0;
             std::array<int32, 2> BlacklistMap = { };
+            ObjectGuid BattlemasterGuid;
+            int32 UnkID = 0;
+            int32 BattlefieldIndexSpecific = 0;
+            bool JoinAsGroup = false;
         };
 
         class BattlemasterJoinArena final : public ClientPacket
