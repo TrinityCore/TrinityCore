@@ -2759,11 +2759,6 @@ void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAcc
 {
     TC_LOG_INFO("network", "Received CMSG_GET_ACCOUNT_CHARACTER_LIST from account {}, Token: {}, ConsoleCommand {}", GetAccountId(), getAccountCharacterList.Token, getAccountCharacterList.ConsoleCommand);
 
-    WorldPackets::Character::SendAccountCharacterList response;
-
-    response.Token = getAccountCharacterList.Token;
-    response.ConsoleCommand = getAccountCharacterList.ConsoleCommand;
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_CHARACTER_LIST);
 
     stmt->setUInt32(0, GetAccountId());
@@ -2772,11 +2767,11 @@ void WorldSession::HandleGetAccountCharacterList(WorldPackets::Character::GetAcc
         CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(
             [this, token = getAccountCharacterList.Token, consoleCommand = getAccountCharacterList.ConsoleCommand](PreparedQueryResult result)
             {
-                HandleSendAccountCharacterList(std::move(result), token, consoleCommand);
+                SendAccountCharacterList(std::move(result), token, consoleCommand);
             }));
 }
 
-void WorldSession::HandleSendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand)
+void WorldSession::SendAccountCharacterList(PreparedQueryResult result, uint32 token, bool consoleCommand)
 {
     WorldPackets::Character::SendAccountCharacterList response;
 
