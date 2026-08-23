@@ -11230,11 +11230,10 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
 
             Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, group);
-            if (uint32 lootid = creature->GetLootId())
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode(), ItemBonusMgr::GetContextForPlayer(creature->GetMap()->GetMapDifficulty(), looter));
-
             if (creature->GetLootMode() > 0)
                 loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
+
+            loot->FillLoot(creature->GetLootId(), LootTemplates_Creature, looter, false, !creature->GetLootId(), creature->GetLootMode(), ItemBonusMgr::GetContextForPlayer(creature->GetMap()->GetMapDifficulty(), looter));
 
             if (group)
                 loot->NotifyLootList(creature->GetMap());

@@ -839,14 +839,18 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     {
         if (!noEmptyError)
             TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
-        return false;
+
+        if (!gold) // If there is no gold generated prior to items we expect this loot to be fully empty
+            return false;
     }
+    else
+    {
+        _itemContext = context;
 
-    _itemContext = context;
+        items.reserve(MAX_NR_LOOT_ITEMS);
 
-    items.reserve(MAX_NR_LOOT_ITEMS);
-
-    tab->Process(*this, store.IsRatesAllowed(), lootMode, 0);    // Processing is done there, callback via Loot::AddItem()
+        tab->Process(*this, store.IsRatesAllowed(), lootMode, 0);    // Processing is done there, callback via Loot::AddItem()
+    }
 
     // Setting access rights for group loot case
     Group const* group = lootOwner->GetGroup();
