@@ -73,12 +73,20 @@ enum MaulgarMisc
     ACTION_OGRE_DEATH           = 0
 };
 
-static constexpr std::array<uint32, 4> OgreData =
+enum MaulgarSpawnGroups
 {
-    DATA_KROSH_FIREHAND,
-    DATA_OLM_THE_SUMMONER,
-    DATA_KIGGLER_THE_CRAZED,
-    DATA_BLINDEYE_THE_SEER
+    SPAWN_GROUP_KROSH           = 419,
+    SPAWN_GROUP_OLM             = 420,
+    SPAWN_GROUP_KIGGLER         = 421,
+    SPAWN_GROUP_BLINDEYE        = 422
+};
+
+static constexpr std::array<uint32, 4> OgreSpawnGroupsData =
+{
+    SPAWN_GROUP_KROSH,
+    SPAWN_GROUP_OLM,
+    SPAWN_GROUP_KIGGLER,
+    SPAWN_GROUP_BLINDEYE
 };
 
 // 18831 - High King Maulgar
@@ -92,8 +100,8 @@ struct boss_high_king_maulgar : public BossAI
         _enraged = false;
         SetEquipmentSlots(true);
 
-        for (uint32 data : OgreData)
-            me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(data));
+        for (uint32 group : OgreSpawnGroupsData)
+            me->GetMap()->SpawnGroupSpawn(group, true);
     }
 
     void JustEngagedWith(Unit* who) override
