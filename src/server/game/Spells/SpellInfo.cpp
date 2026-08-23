@@ -495,6 +495,49 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
+bool SpellEffectInfo::ScalesWithCreatureLevel() const
+{
+    if (!_spellInfo->HasAttribute(SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL))
+        return false;
+
+    switch (Effect)
+    {
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_DUMMY:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_HEAL:
+        case SPELL_EFFECT_WEAPON_DAMAGE:
+        case SPELL_EFFECT_POWER_BURN:
+        case SPELL_EFFECT_SCRIPT_EFFECT:
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+        case SPELL_EFFECT_FORCE_CAST_WITH_VALUE:
+        case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+        case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+            return true;
+        default:
+            break;
+    }
+
+    switch (ApplyAuraName)
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_DUMMY:
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_DAMAGE_SHIELD:
+        case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+        case SPELL_AURA_PERIODIC_LEECH:
+        case SPELL_AURA_PERIODIC_MANA_LEECH:
+        case SPELL_AURA_SCHOOL_ABSORB:
+        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 uint32 SpellEffectInfo::GetPeriodicTickCount() const
 {
     if (!ApplyAuraPeriod)
@@ -627,6 +670,8 @@ SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit 
 {
     if (Scaling.Coefficient != 0.0f)
     {
+        float value = 0.0f;
+
         uint32 level = _spellInfo->SpellLevel;
         if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGETS_LEVEL_FOR_SPELL_SCALING))
             level = target->GetLevel();
@@ -641,8 +686,6 @@ SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit 
 
         if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel < level)
             level = _spellInfo->Scaling.MaxScalingLevel;
-
-        float value = 0.0f;
 
         if (level > 0)
         {
@@ -665,6 +708,23 @@ SpellEffectValue SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit 
     else
     {
         float value = BasePoints;
+
+        if (ScalesWithCreatureLevel())
+        {
+            // Some spells use the internal game table to calculate scaling coefficients for creatures
+            if (Creature const* creatureCaster = Object::ToCreature(caster))
+            {
+                uint8 casterClass = creatureCaster->GetClass();
+                uint8 expansion = creatureCaster->GetCreatureDifficulty()->GetHealthScalingExpansion();
+
+                float spellDamage = GetGameTableColumnForClass(sNpcDamageByClassGameTable[expansion].GetRow(_spellInfo->SpellLevel), casterClass);
+                float creatureDamage = GetGameTableColumnForClass(sNpcDamageByClassGameTable[expansion].GetRow(creatureCaster->GetLevel()), casterClass);
+
+                if (spellDamage != 0.0f)
+                    value *= creatureDamage / spellDamage;
+            }
+        }
+
         if (!_spellInfo->HasAttribute(SPELL_ATTR12_USE_FLOAT_VALUES_FOR_SCALING_AMOUNTS))
             value = round(value);
         return value;

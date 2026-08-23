@@ -261,6 +261,7 @@ public:
     bool IsTargetingArea() const;
     bool IsAreaAuraEffect() const;
     bool IsUnitOwnedAuraEffect() const;
+    bool ScalesWithCreatureLevel() const;
 
     uint32 GetPeriodicTickCount() const;
 
