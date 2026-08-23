@@ -50,6 +50,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AzeriteEssenceData const& azeriteEssenc
 ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
+    data << itemData.Item;
     data << uint8(itemData.Index);
     data << Size<uint32>(itemData.AzeritePowers);
     data << Size<uint32>(itemData.AzeriteEssences);
@@ -57,7 +58,6 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
 
-    data << itemData.Item;
     data << Bits<1>(itemData.Usable);
     data << BitsSize<4>(itemData.Enchants);
     data << BitsSize<2>(itemData.Gems);
