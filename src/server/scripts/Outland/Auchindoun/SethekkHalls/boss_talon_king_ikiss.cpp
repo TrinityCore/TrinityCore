@@ -212,13 +212,18 @@ class spell_talon_king_ikiss_blink : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // This is wrong, full list of targets is sent to client
-        Trinity::Containers::RandomResize(targets, 1);
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+        _selectedTargetGuid = target->GetGUID();
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
+        if (GetHitUnit()->GetGUID() == _selectedTargetGuid)
+            GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
     }
 
     void Register() override
@@ -226,6 +231,9 @@ class spell_talon_king_ikiss_blink : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    ObjectGuid _selectedTargetGuid;
 };
 
 void AddSC_boss_talon_king_ikiss()
