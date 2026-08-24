@@ -393,7 +393,7 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
         _OOCReached = true;
 }
 
-void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
+void SmartAI::EnterEvadeMode(EvadeReason why)
 {
     if (_evadeDisabled)
     {
@@ -415,6 +415,9 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE); // must be after _EnterEvadeMode (spells, auras, ...)
 
     SetRun(_run);
+
+    if (why == EVADE_REASON_VEHICLE_EVADE)
+        return;
 
     if (Unit* owner = me->GetCharmerOrOwner())
     {
