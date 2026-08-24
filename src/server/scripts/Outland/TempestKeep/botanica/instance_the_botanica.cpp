@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
 #include "InstanceScript.h"
 #include "the_botanica.h"
 
