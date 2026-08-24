@@ -1032,6 +1032,39 @@ private:
     ObjectGuid _eventInvokerGUID;
 };
 
+class HomelessCitizenSearcher
+{
+public:
+    HomelessCitizenSearcher(Unit* obj, float distance) : _unit(obj), _distance(distance)  { }
+
+    uint32 IsCitizenEntry(uint32 entry) const
+    {
+        switch (entry)
+        {
+            case Creatures::HomelessStormwindCitizen1:
+            case Creatures::HomelessStormwindCitizen2:
+            case Creatures::Transient:
+            case Creatures::WestPlainDrifter:
+            case Creatures::WestPlainDrifterFollower:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool operator()(Unit* u) const
+    {
+        if (_unit->GetDistance2d(u) < _distance && IsCitizenEntry(u->GetEntry()) && !u->HasAura(Spells::FullBelly))
+            return true;
+
+        return false;
+    }
+
+private:
+    Unit* _unit;
+    float _distance;
+};
+
 // 42617 - Westfall Stew
 struct npc_westfall_westfall_stew : public ScriptedAI
 {
@@ -1039,19 +1072,15 @@ struct npc_westfall_westfall_stew : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
+        if (summoner->IsPlayer())
         {
-            std::vector<Creature*> homelessCitizens;
-            me->GetCreatureListWithEntryInGrid(homelessCitizens, Creatures::HomelessStormwindCitizen1, 8.f);
-            me->GetCreatureListWithEntryInGrid(homelessCitizens, Creatures::HomelessStormwindCitizen2, 8.f);
-            me->GetCreatureListWithEntryInGrid(homelessCitizens, Creatures::Transient, 8.f);
-            me->GetCreatureListWithEntryInGrid(homelessCitizens, Creatures::WestPlainDrifter, 8.f);
-            me->GetCreatureListWithEntryInGrid(homelessCitizens, Creatures::WestPlainDrifterFollower, 8.f);
-            for (Creature* homelessCitizen : homelessCitizens)
+            std::list<Creature*> citizen;
+            HomelessCitizenSearcher check(me, 8.0f);
+            Trinity::CreatureListSearcher<HomelessCitizenSearcher> searcher(me, citizen, check);
+            Cell::VisitGridObjects(me, searcher, 8.0f);
+            
+            for (Creature* homelessCitizen : citizen)
             {
-                if (homelessCitizen->HasAura(Spells::FullBelly))
-                    continue;
-
                 homelessCitizen->AI()->SetGUID(me->GetGUID(), 0);
             }
         }
