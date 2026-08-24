@@ -29,7 +29,7 @@ enum YorSpells
 // 22930 - Yor
 struct npc_yor : public ScriptedAI
 {
-    npc_yor(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void JustAppeared() override
     {
@@ -39,6 +39,11 @@ struct npc_yor : public ScriptedAI
         });
     }
 
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _scheduler.Schedule(6s, 14s, [this](TaskContext task)
@@ -46,11 +51,6 @@ struct npc_yor : public ScriptedAI
             DoCastVictim(SPELL_DOUBLE_BREATH);
             task.Repeat(8s, 14s);
         });
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        _scheduler.CancelAll();
     }
 
     void UpdateAI(uint32 diff) override
@@ -90,8 +90,8 @@ class spell_mana_tombs_summon_arcane_fiends : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_1);
-        caster->CastSpell(caster, SPELL_SUMMON_ARCANE_FIEND_2);
+        caster->CastSpell(nullptr, SPELL_SUMMON_ARCANE_FIEND_1, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_ARCANE_FIEND_2, true);
     }
 
     void Register() override
