@@ -2677,6 +2677,10 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
                 break;
         }
 
+        // Grounding Totem (exception to the rule, it should also target himself)
+        if (ref && m_spellInfo->SpellIconID == 1677 && spellEffectInfo.ApplyAuraName == SPELL_AURA_SPELL_MAGNET)
+            units.push_back(ref);
+
         if (selectionType != TARGET_CHECK_DEFAULT)
         {
             Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList);
