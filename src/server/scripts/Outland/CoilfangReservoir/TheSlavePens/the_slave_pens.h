@@ -20,29 +20,27 @@
 
 #include "CreatureAIImpl.h"
 
-uint32 const EncounterCount               = 3;
+uint32 constexpr EncounterCount          = 3;
 
 #define SPScriptName "instance_the_slave_pens"
 #define DataHeader "SP"
 
 enum SPDataTypes
 {
-    DATA_MENNU_THE_BETRAYER               = 0,
-    DATA_ROKMAR_THE_CRACKLER              = 1,
-    DATA_QUAGMIRRAN                       = 2,
-    DATA_AHUNE                            = 3,
-    DATA_AHUNE_BUNNY                      = 4,
-    DATA_FROZEN_CORE                      = 5,
-    DATA_FLAMECALLER_000                  = 6,
-    DATA_FLAMECALLER_001                  = 7,
-    DATA_FLAMECALLER_002                  = 8,
-    DATA_BONFIRE_BUNNY_000                = 9,
-    DATA_BONFIRE_BUNNY_001                = 10,
-    DATA_BONFIRE_BUNNY_002                = 11,
-    DATA_BEAM_BUNNY_000                   = 12,
-    DATA_BEAM_BUNNY_001                   = 13,
-    DATA_BEAM_BUNNY_002                   = 14,
-    DATA_LUMA_SKYMOTHER                   = 15
+    DATA_MENNU_THE_BETRAYER              = 0,
+    DATA_ROKMAR_THE_CRACKLER             = 1,
+    DATA_QUAGMIRRAN                      = 2,
+
+    DATA_AHUNE,
+    DATA_FROZEN_CORE,
+    DATA_AHUNE_BUNNY,
+    DATA_LUMA_SKYMOTHER,
+    DATA_BONFIRE_BUNNY_000,
+    DATA_BONFIRE_BUNNY_001,
+    DATA_BONFIRE_BUNNY_002,
+    DATA_BEAM_BUNNY_000,
+    DATA_BEAM_BUNNY_001,
+    DATA_BEAM_BUNNY_002
 };
 
 enum SPCreaturesIds
@@ -52,6 +50,7 @@ enum SPCreaturesIds
     NPC_LUMA_SKYMOTHER                   = 25697,
     NPC_AHUNE_LOC_BUNNY                  = 25745,
     NPC_EARTHEN_RING_FLAMECALLER         = 25754,
+    NPC_GHOST_OF_AHUNE                   = 26239,
     NPC_SHAMAN_BONFIRE_BUNNY_000         = 25971,
     NPC_SHAMAN_BONFIRE_BUNNY_001         = 25972,
     NPC_SHAMAN_BONFIRE_BUNNY_002         = 25973,
@@ -62,7 +61,6 @@ enum SPCreaturesIds
 
 enum SPGameObjectIds
 {
-    GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882
 };
 
