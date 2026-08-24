@@ -85,6 +85,7 @@ EventMap::EventId EventMap::ExecuteEvent()
             auto eventId = itr->second._id;
             _lastEvent = itr->second;
             _eventMap.erase(itr);
+            ScheduleNextFromSeries(_lastEvent);
             return eventId;
         }
     }
@@ -160,6 +161,14 @@ void EventMap::CancelEvent(EventId eventId)
         else
             ++itr;
     }
+
+    for (EventSeriesStore::iterator itr = _timerSeries.begin(); itr != _timerSeries.end();)
+    {
+        if (eventId == itr->first._id)
+            _timerSeries.erase(itr++);
+        else
+            ++itr;
+    }
 }
 
 void EventMap::CancelEventGroup(GroupIndex group)
@@ -171,6 +180,14 @@ void EventMap::CancelEventGroup(GroupIndex group)
     {
         if (itr->second._groupMask & GroupMask(1u << (group - 1u)))
             _eventMap.erase(itr++);
+        else
+            ++itr;
+    }
+
+    for (auto itr = _timerSeries.begin(); itr != _timerSeries.end();)
+    {
+        if (itr->first._groupMask & GroupMask(1u << (group - 1u)))
+            _timerSeries.erase(itr++);
         else
             ++itr;
     }
@@ -188,4 +205,39 @@ Milliseconds EventMap::GetTimeUntilEvent(EventId eventId) const
 bool EventMap::HasEventScheduled(EventId eventId) const
 {
     return GetTimeUntilEvent(eventId) != Milliseconds::max();
+}
+
+void EventMap::ScheduleNextFromSeries(Event eventData)
+{
+    EventSeriesStore::iterator itr = _timerSeries.find(eventData);
+    if (itr == _timerSeries.end())
+        return;
+
+    if (itr->second.size() == 0)
+        return;
+
+    Milliseconds time = itr->second.front();
+    itr->second.pop();
+
+    _eventMap.insert(EventStore::value_type(_time + time, eventData));
+}
+
+void EventMap::ScheduleEventSeries(EventId eventId, GroupIndex group, PhaseIndex phase, std::initializer_list<Milliseconds> const& timeSeries)
+{
+    if (group > sizeof(GroupMask) * 8)
+        return;
+
+    if (phase > sizeof(PhaseMask) * 8)
+        return;
+
+    Event newEvent = Event(eventId, group, phase);
+    for (Milliseconds const& time : timeSeries)
+        _timerSeries[newEvent].push(time);
+
+    ScheduleNextFromSeries(newEvent);
+}
+
+void EventMap::ScheduleEventSeries(EventId eventId, std::initializer_list<Milliseconds> const& timeSeries)
+{
+    ScheduleEventSeries(eventId, 0, 0, timeSeries);
 }
