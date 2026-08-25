@@ -121,7 +121,7 @@ namespace Events
         static constexpr uint32 HustlerSay1 = 15;
         static constexpr uint32 HustlerEventReset = 16;
     }
- 
+
     namespace WestfallStew
     {
         static constexpr uint32 StewEventStart = 1;
@@ -1075,7 +1075,7 @@ struct npc_westfall_westfall_stew : public ScriptedAI
             HomelessCitizenSearcher check(me, 8.0f);
             Trinity::CreatureListSearcher<HomelessCitizenSearcher> searcher(me, citizen, check);
             Cell::VisitGridObjects(me, searcher, 8.0f);
-            
+
             for (Creature* homelessCitizen : citizen)
             {
                 homelessCitizen->AI()->SetGUID(me->GetGUID(), 0);
