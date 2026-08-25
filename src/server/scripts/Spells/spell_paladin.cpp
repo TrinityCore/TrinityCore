@@ -93,6 +93,8 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY         = 114871,
     SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY        = 114852,
     SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL  = 114862,
+    SPELL_PALADIN_HOLY_RITUAL_HEAL               = 199423,
+    SPELL_PALADIN_HOLY_RITUAL_TALENT             = 199422,
     SPELL_PALADIN_HOLY_SHOCK                     = 20473,
     SPELL_PALADIN_HOLY_SHOCK_DAMAGE              = 25912,
     SPELL_PALADIN_HOLY_SHOCK_HEALING             = 25914,
@@ -1172,6 +1174,38 @@ private:
     ObjectGuid _targetGUID;
 };
 
+// 199422 - Holy Ritual (attached to 6940 - Blessing of Sacrifice and 1022 - Blessing of Protection)
+class spell_pal_holy_ritual : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_HOLY_RITUAL_TALENT,
+            SPELL_PALADIN_HOLY_RITUAL_HEAL
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PALADIN_HOLY_RITUAL_TALENT);
+    }
+
+    void HandleHeal(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_PALADIN_HOLY_RITUAL_HEAL, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pal_holy_ritual::HandleHeal, EFFECT_1, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScript
 {
@@ -1869,6 +1903,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_justicars_vengeance);
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
+    RegisterSpellScript(spell_pal_holy_ritual);
     RegisterSpellScript(spell_pal_holy_shock);
     RegisterSpellScript(spell_pal_holy_shock_damage_visual);
     RegisterSpellScript(spell_pal_holy_shock_heal_visual);
