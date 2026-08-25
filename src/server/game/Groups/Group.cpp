@@ -494,25 +494,6 @@ bool Group::AddMember(Player* player)
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
-    if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
-    {
-        if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
-        {
-            player->SetDungeonDifficultyID(GetDungeonDifficultyID());
-            player->SendDungeonDifficulty();
-        }
-        if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
-        {
-            player->SetRaidDifficultyID(GetRaidDifficultyID());
-            player->SendRaidDifficulty(false);
-        }
-        if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
-        {
-            player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
-            player->SendRaidDifficulty(true);
-        }
-    }
-
     player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
     if (Pet* pet = player->GetPet())
         pet->SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
@@ -1299,12 +1280,7 @@ void Group::SetDungeonDifficultyID(Difficulty difficulty)
         CharacterDatabase.Execute(stmt);
     }
 
-    for (GroupReference const& itr : GetMembers())
-    {
-        Player* player = itr.GetSource();
-        player->SetDungeonDifficultyID(difficulty);
-        player->SendDungeonDifficulty();
-    }
+    SendUpdate();
 }
 
 void Group::SetRaidDifficultyID(Difficulty difficulty)
@@ -1320,12 +1296,7 @@ void Group::SetRaidDifficultyID(Difficulty difficulty)
         CharacterDatabase.Execute(stmt);
     }
 
-    for (GroupReference const& itr : GetMembers())
-    {
-        Player* player = itr.GetSource();
-        player->SetRaidDifficultyID(difficulty);
-        player->SendRaidDifficulty(false);
-    }
+    SendUpdate();
 }
 
 void Group::SetLegacyRaidDifficultyID(Difficulty difficulty)
@@ -1341,12 +1312,7 @@ void Group::SetLegacyRaidDifficultyID(Difficulty difficulty)
         CharacterDatabase.Execute(stmt);
     }
 
-    for (GroupReference const& itr : GetMembers())
-    {
-        Player* player = itr.GetSource();
-        player->SetLegacyRaidDifficultyID(difficulty);
-        player->SendRaidDifficulty(true);
-    }
+    SendUpdate();
 }
 
 Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const

@@ -67,6 +67,7 @@ enum InventorySlot
 struct AbstractFollower;
 struct AuraCreateInfo;
 struct CharmInfo;
+struct ClassPowerTypes;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -214,8 +215,6 @@ enum UnitMods
     UNIT_MOD_RESISTANCE_FROST,
     UNIT_MOD_RESISTANCE_SHADOW,
     UNIT_MOD_RESISTANCE_ARCANE,
-    UNIT_MOD_ATTACK_POWER,
-    UNIT_MOD_ATTACK_POWER_RANGED,
     UNIT_MOD_DAMAGE_MAINHAND,
     UNIT_MOD_DAMAGE_OFFHAND,
     UNIT_MOD_DAMAGE_RANGED,
@@ -246,6 +245,21 @@ enum BaseModType
     FLAT_MOD,
     PCT_MOD,
     MOD_END
+};
+
+enum class AttackPowerModIndex : uint8
+{
+    Melee,
+    Ranged,
+    End
+};
+
+enum class AttackPowerModType : uint8
+{
+    FlatPositive,
+    FlatNegative,
+    Pct,
+    End
 };
 
 enum DeathState
@@ -1176,6 +1190,9 @@ class TC_GAME_API Unit : public WorldObject
         bool SetIgnoreMovementForces(bool ignore);
         void UpdateMovementForcesModMagnitude();
 
+        void ApplyInertia(int32 id, Milliseconds duration);
+        void RemoveInertia(int32 id);
+
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
         void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
@@ -1318,7 +1335,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
         template <typename InterruptFlags>
         void RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source = nullptr);
-        void RemoveAurasWithAttribute(uint32 flags);
+        void RemoveAurasWithAttribute(SpellAttr0 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, uint32 exceptSpellId = 0, bool withEffectMechanics = false);
         void RemoveMovementImpairingAuras(bool withRoot);
@@ -1454,17 +1471,19 @@ class TC_GAME_API Unit : public WorldObject
             SpellCastResult result = SPELL_FAILED_INTERRUPTED, Optional<SpellCastResult> resultOther = {}, ObjectGuid const& interrupter = ObjectGuid::Empty);
         void FinishSpell(CurrentSpellTypes spellType, SpellCastResult result = SPELL_CAST_OK);
 
+        void CancelAutoRepeatSpell();
+
         // set withDelayed to true to account delayed spells as cast
         // delayed+channeled spells are always accounted as cast
         // we can skip channeled or delayed checks using flags
-        bool IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true) const;
+        bool IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false,
+            bool skipInstant = true, bool skipChanneledAllowingActions = false) const;
 
         // set withDelayed to true to interrupt delayed spells too
         // delayed+channeled spells are always interrupted
         void InterruptNonMeleeSpells(bool withDelayed, uint32 spellid = 0, bool withInstant = true);
 
         Spell* GetCurrentSpell(CurrentSpellTypes spellType) const { return m_currentSpells[spellType]; }
-        Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         struct GetCastSpellInfoContext
@@ -1532,6 +1551,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateUnitMod(UnitMods unitMod);
 
+        void HandleAttackPowerModifier(AttackPowerModIndex index, AttackPowerModType modifierType, float amount, bool apply);
+        float GetAttackPowerModifierValue(AttackPowerModIndex index, AttackPowerModType modifierType) const;
+
         // only players have item requirements
         virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType /*attackType*/, AuraEffect const* /*aurEff*/) const { return true; }
 
@@ -1555,6 +1577,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual uint32 GetPowerIndex(Powers power) const = 0;
+        virtual ClassPowerTypes GetPowerTypes() const = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
         void SetAttackPower(int32 attackPower) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPower), attackPower); }
         void SetAttackPowerModPos(int32 attackPowerMod) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AttackPowerModPos), attackPowerMod); }
@@ -1729,23 +1752,11 @@ class TC_GAME_API Unit : public WorldObject
         void PauseMovement(uint32 timer = 0, uint8 slot = 0, bool forced = true); // timer in ms
         void ResumeMovement(uint32 timer = 0, uint8 slot = 0); // timer in ms
 
-        void AddUnitMovementFlag(uint32 f) { m_movementInfo.AddMovementFlag(f); }
-        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.RemoveMovementFlag(f); }
-        bool HasUnitMovementFlag(uint32 f) const { return m_movementInfo.HasMovementFlag(f); }
-        uint32 GetUnitMovementFlags() const { return m_movementInfo.GetMovementFlags(); }
-        void SetUnitMovementFlags(uint32 f) { m_movementInfo.SetMovementFlags(f); }
-
-        void AddExtraUnitMovementFlag(uint32 f) { m_movementInfo.AddExtraMovementFlag(f); }
-        void RemoveExtraUnitMovementFlag(uint32 f) { m_movementInfo.RemoveExtraMovementFlag(f); }
-        bool HasExtraUnitMovementFlag(uint32 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
-        uint32 GetExtraUnitMovementFlags() const { return m_movementInfo.GetExtraMovementFlags(); }
-        void SetExtraUnitMovementFlags(uint32 f) { m_movementInfo.SetExtraMovementFlags(f); }
-
-        void AddExtraUnitMovementFlag2(uint32 f) { m_movementInfo.AddExtraMovementFlag2(f); }
-        void RemoveExtraUnitMovementFlag2(uint32 f) { m_movementInfo.RemoveExtraMovementFlag2(f); }
-        bool HasExtraUnitMovementFlag2(uint32 f) const { return m_movementInfo.HasExtraMovementFlag2(f); }
-        uint32 GetExtraUnitMovementFlags2() const { return m_movementInfo.GetExtraMovementFlags2(); }
-        void SetExtraUnitMovementFlags2(uint32 f) { m_movementInfo.SetExtraMovementFlags2(f); }
+        void AddUnitMovementFlag(MovementFlags f) { m_movementInfo.AddMovementFlag(f); }
+        void RemoveUnitMovementFlag(MovementFlags f) { m_movementInfo.RemoveMovementFlag(f); }
+        bool HasUnitMovementFlag(MovementFlags f) const { return m_movementInfo.HasMovementFlag(f); }
+        MovementFlags GetUnitMovementFlags() const { return m_movementInfo.GetMovementFlags(); }
+        void SetUnitMovementFlags(MovementFlags f) { m_movementInfo.SetMovementFlags(f); }
 
         bool IsSplineEnabled() const;
 
@@ -1937,6 +1948,7 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_auraFlatModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_FLAT_END];
         float m_auraPctModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_PCT_END];
+        float m_attackPowerMods[uint32(AttackPowerModIndex::End)][uint32(AttackPowerModType::End)];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
 

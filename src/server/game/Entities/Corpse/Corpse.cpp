@@ -88,8 +88,6 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     SetObjectScale(1.0f);
     SetOwnerGUID(owner->GetGUID());
 
-    _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
-
     PhasingHandler::InheritPhaseShift(this, owner);
 
     return true;
@@ -224,7 +222,6 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
         return false;
     }
 
-    _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
     return true;
 }
 

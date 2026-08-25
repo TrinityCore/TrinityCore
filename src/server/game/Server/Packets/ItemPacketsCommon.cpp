@@ -173,11 +173,9 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
 ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 {
     data << int32(itemInstance.ItemID);
-
+    data << itemInstance.Modifications;
     data << OptionalInit(itemInstance.ItemBonus);
     data.FlushBits();
-
-    data << itemInstance.Modifications;
 
     if (itemInstance.ItemBonus)
         data << *itemInstance.ItemBonus;
@@ -188,10 +186,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
 {
     data >> itemInstance.ItemID;
+    data >> itemInstance.Modifications;
     data >> OptionalInit(itemInstance.ItemBonus);
     data.ResetBitPos();
-
-    data >> itemInstance.Modifications;
 
     if (itemInstance.ItemBonus)
         data >> *itemInstance.ItemBonus;

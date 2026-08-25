@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "Duration.h"
+#include "Hash.h"
 #include "ObjectGuid.h"
 #include <span>
 #include <unordered_map>
@@ -61,7 +62,6 @@ struct Criteria
 };
 
 typedef std::vector<Criteria const*> CriteriaList;
-typedef std::unordered_map<uint32, CriteriaList> CriteriaListByAsset;
 
 struct CriteriaTree
 {
@@ -347,10 +347,8 @@ public:
 
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const;
 
-    std::unordered_map<int32, CriteriaList> const& GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const;
     CriteriaList const* GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const;
 
-    std::unordered_map<int32, CriteriaList> const& GetCriteriaByFailEvent(CriteriaFailEvent failEvent) const;
     CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const;
 
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* criteria) const;
@@ -394,22 +392,22 @@ public:
 private:
     std::unordered_map<uint32, CriteriaDataSet> _criteriaDataMap;
 
-    std::unordered_map<uint32, CriteriaTree*> _criteriaTrees;
-    std::unordered_map<uint32, Criteria*> _criteria;
-    std::unordered_map<uint32, ModifierTreeNode*> _criteriaModifiers;
+    std::unordered_map<uint32, CriteriaTree> _criteriaTrees;
+    std::unordered_map<uint32, Criteria> _criteria;
+    std::unordered_map<uint32, ModifierTreeNode> _criteriaModifiers;
 
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
     static CriteriaList const EmptyCriteriaList;
     CriteriaList _criteriasByType[size_t(CriteriaType::Count)];
-    CriteriaListByAsset _criteriasByAsset[size_t(CriteriaType::Count)];
+    std::unordered_map<std::pair<int32, int32>, CriteriaList> _criteriasByAsset;
     CriteriaList _guildCriteriasByType[size_t(CriteriaType::Count)];
-    CriteriaListByAsset _scenarioCriteriasByTypeAndScenarioId[size_t(CriteriaType::Count)];
+    std::unordered_map<std::pair<int32, int32>, CriteriaList> _scenarioCriteriasByTypeAndScenarioId;
     CriteriaList _questObjectiveCriteriasByType[size_t(CriteriaType::Count)];
 
-    std::unordered_map<int32, CriteriaList> _criteriasByStartEvent[size_t(CriteriaStartEvent::Count)];
-    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[size_t(CriteriaFailEvent::Count)];
+    std::unordered_map<std::pair<int32, int32>, CriteriaList> _criteriasByStartEvent;
+    std::unordered_map<std::pair<int32, int32>, CriteriaList> _criteriasByFailEvent;
 };
 
 #define sCriteriaMgr CriteriaMgr::Instance()

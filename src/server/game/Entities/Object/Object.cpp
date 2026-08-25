@@ -168,9 +168,7 @@ void MovementInfo::OutDebug()
 {
     TC_LOG_DEBUG("misc", "MOVEMENT INFO");
     TC_LOG_DEBUG("misc", "{}", guid.ToString());
-    TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(MovementFlags(flags)), flags);
-    TC_LOG_DEBUG("misc", "flags2 {} ({})", Movement::MovementFlags_ToString(MovementFlags2(flags2)), flags2);
-    TC_LOG_DEBUG("misc", "flags3 {} ({})", Movement::MovementFlags_ToString(MovementFlags3(flags3)), flags3);
+    TC_LOG_DEBUG("misc", "flags {} ({})", Movement::MovementFlags_ToString(flags), flags);
     TC_LOG_DEBUG("misc", "time {} current time {}", time, getMSTime());
     TC_LOG_DEBUG("misc", "position: `{}`", pos);
     if (!transport.guid.IsEmpty())
@@ -186,7 +184,7 @@ void MovementInfo::OutDebug()
             TC_LOG_DEBUG("misc", "vehicleId: {}", transport.vehicleId);
     }
 
-    if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    if (flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING))
         TC_LOG_DEBUG("misc", "pitch: {}", pitch);
 
     if (flags & MOVEMENTFLAG_FALLING || jump.fallTime)
@@ -2835,40 +2833,41 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle, float max
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle) const
 {
     angle += GetOrientation();
+    float cosAngle = std::cos(angle);
+    float sinAngle = std::sin(angle);
     float destx, desty, destz;
-    destx = pos.m_positionX + dist * std::cos(angle);
-    desty = pos.m_positionY + dist * std::sin(angle);
+    destx = pos.m_positionX + dist * cosAngle;
+    desty = pos.m_positionY + dist * sinAngle;
     destz = pos.m_positionZ;
 
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty))
     {
-        TC_LOG_FATAL("misc", "WorldObject::MovePositionToFirstCollision invalid coordinates X: {} and Y: {} were passed!", destx, desty);
+        TC_LOG_FATAL("misc", "WorldObject::MovePositionToFirstCollision invalid coordinates Src: {}, dist {}, angle {}, destX: {} destY: {} were passed!",
+            pos.ToString(), dist, angle, destx, desty);
         return;
     }
+
+    float halfHeight = GetCollisionHeight() * 0.5f;
+    bool col = false;
 
     // Use a detour raycast to get our first collision point
     PathGenerator path(this);
     path.SetUseRaycast(true);
-    path.CalculatePath(destx, desty, destz, false);
+    path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), destx, desty, destz, false);
 
     // Check for valid path types before we proceed
-    if (!(path.GetPathType() & PATHFIND_NOT_USING_PATH))
-        if (path.GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END))
-            return;
-
-    G3D::Vector3 result = path.GetPath().back();
-    destx = result.x;
-    desty = result.y;
-    destz = result.z;
-
-    // check static LOS
-    float halfHeight = GetCollisionHeight() * 0.5f;
-    bool col = false;
-
-    // Unit is flying, check for potential collision via vmaps
-    if (path.GetPathType() & PATHFIND_NOT_USING_PATH)
+    if (!(path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_NOT_USING_PATH | PATHFIND_FARFROMPOLY_START)))
     {
+        G3D::Vector3 const& result = path.GetPath().back();
+        destx = result.x;
+        desty = result.y;
+        destz = result.z;
+    }
+    else
+    {
+        // check static LOS
+        // Unit is flying, check for potential collision via vmaps
         col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMapId(), GetMap()->GetTerrain(), pos.m_positionX, pos.m_positionY),
             pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
             destx, desty, destz + halfHeight,
@@ -2879,9 +2878,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         // Collided with static LOS object, move back to collision point
         if (col)
         {
-            destx -= CONTACT_DISTANCE * std::cos(angle);
-            desty -= CONTACT_DISTANCE * std::sin(angle);
-            dist = std::sqrt((pos.m_positionX - destx) * (pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
+            destx -= CONTACT_DISTANCE * cosAngle;
+            desty -= CONTACT_DISTANCE * sinAngle;
         }
     }
 
@@ -2896,18 +2894,16 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Collided with a gameobject, move back to collision point
     if (col)
     {
-        destx -= CONTACT_DISTANCE * std::cos(angle);
-        desty -= CONTACT_DISTANCE * std::sin(angle);
-        dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty) * (pos.m_positionY - desty));
+        destx -= CONTACT_DISTANCE * cosAngle;
+        desty -= CONTACT_DISTANCE * sinAngle;
     }
 
     float groundZ = VMAP_INVALID_HEIGHT_VALUE;
-    Trinity::NormalizeMapCoord(pos.m_positionX);
-    Trinity::NormalizeMapCoord(pos.m_positionY);
+    Trinity::NormalizeMapCoord(destx);
+    Trinity::NormalizeMapCoord(desty);
     UpdateAllowedPositionZ(destx, desty, destz, &groundZ);
 
-    pos.SetOrientation(GetOrientation());
-    pos.Relocate(destx, desty, destz);
+    pos.Relocate(destx, desty, destz, GetOrientation());
 
     // position has no ground under it (or is too far away)
     if (groundZ <= INVALID_HEIGHT)

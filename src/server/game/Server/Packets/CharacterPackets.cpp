@@ -323,7 +323,9 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::ClassUnlock const
 {
     data << int8(classUnlock.ClassID);
     data << uint32(classUnlock.AchievementID);
+    data << Bits<1>(classUnlock.HasExpansion);
     data << Bits<1>(classUnlock.HasUnlockedAchievement);
+    data << Bits<1>(classUnlock.HasEntitlement);
     data.FlushBits();
 
     return data;
@@ -333,15 +335,18 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const&
 {
     data << int8(raceUnlock.RaceID);
     data << Size<uint32>(raceUnlock.ClassUnlocks);
-    data << Bits<1>(raceUnlock.HasUnlockedLicense);
-    data << Bits<1>(raceUnlock.HasUnlockedAchievement);
-    data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
-    data << Bits<1>(raceUnlock.HideRaceOnClient);
-    data << Bits<1>(raceUnlock.FactionBalanceDisabled);
-    data.FlushBits();
 
     for (EnumCharactersResult::ClassUnlock const& classUnlock : raceUnlock.ClassUnlocks)
         data << classUnlock;
+
+    data << Bits<1>(raceUnlock.HasUnlockedLicense);
+    data << Bits<1>(raceUnlock.HasUnlockedAchievement);
+    data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
+    data << Bits<1>(raceUnlock.HasEntitlement);
+    data << Bits<1>(raceUnlock.HideRaceOnClient);
+    data << Bits<1>(raceUnlock.FactionBalanceDisabled);
+    data << Bits<1>(raceUnlock.DoesNotHaveAvailableClasses);
+    data.FlushBits();
 
     return data;
 }
@@ -426,12 +431,6 @@ WorldPacket const* EnumCharactersResult::Write()
     if (ClassDisableMask)
         _worldPacket << uint32(*ClassDisableMask);
 
-    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
-        _worldPacket << unlockedConditionalAppearance;
-
-    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
-        _worldPacket << raceLimitDisableInfo;
-
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;
 
@@ -440,6 +439,12 @@ WorldPacket const* EnumCharactersResult::Write()
 
     for (RaceUnlock const& raceUnlock : RaceUnlockData)
         _worldPacket << raceUnlock;
+
+    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
+        _worldPacket << unlockedConditionalAppearance;
+
+    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
+        _worldPacket << raceLimitDisableInfo;
 
     for (WarbandGroup const& warbandGroup : WarbandGroups)
         _worldPacket << warbandGroup;

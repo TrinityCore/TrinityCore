@@ -256,12 +256,25 @@ ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHouseInfo& houseInfo)
 
     data >> SizedString::BitsSize<8>(houseInfo.NeighborhoodName);
 
-    data >> houseInfo.Unknown_1127_1;
-    data >> houseInfo.Unknown_1127_2;
-    data >> houseInfo.Unknown_1127_3;
-    data >> houseInfo.Unknown_1127_4;
+    data >> houseInfo.NeighborhoodGUID;
+    data >> houseInfo.NeighborhoodOwnerGUID;
+    data >> houseInfo.HouseGUID;
+    data >> houseInfo.PlotID;
 
     data >> SizedString::Data(houseInfo.NeighborhoodName);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHousingBlueprint& housingBlueprint)
+{
+    data.ResetBitPos();
+
+    data >> SizedCString::BitsSize<24>(housingBlueprint.Id);
+    data >> SizedCString::BitsSize<24>(housingBlueprint.ShareCode);
+
+    data >> SizedCString::Data(housingBlueprint.Id);
+    data >> SizedCString::Data(housingBlueprint.ShareCode);
 
     return data;
 }
@@ -269,11 +282,12 @@ ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHouseInfo& houseInfo)
 void SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
+    _worldPacket >> ChatLog;
+    _worldPacket >> HorusChatLog;
     _worldPacket >> TargetCharacterGUID;
     _worldPacket >> ReportType;
     _worldPacket >> MajorCategory;
     _worldPacket >> MinorCategoryFlags;
-    _worldPacket >> ChatLog;
 
     _worldPacket >> SizedString::BitsSize<10>(Note);
     _worldPacket >> OptionalInit(MailInfo);
@@ -286,14 +300,7 @@ void SupportTicketSubmitComplaint::Read()
     _worldPacket >> OptionalInit(ClubFinderInfo);
     _worldPacket >> OptionalInit(ArenaTeamInfo);
     _worldPacket >> OptionalInit(HouseInfo);
-
-    if (VoiceChatInfo)
-    {
-        _worldPacket.ResetBitPos();
-        _worldPacket >> Bits<1>(VoiceChatInfo->TargetIsCurrentlyInVoiceChatWithPlayer);
-    }
-
-    _worldPacket >> HorusChatLog;
+    _worldPacket >> OptionalInit(HousingBlueprint);
 
     _worldPacket >> SizedString::Data(Note);
 
@@ -323,6 +330,15 @@ void SupportTicketSubmitComplaint::Read()
 
     if (HouseInfo)
         _worldPacket >> *HouseInfo;
+
+    if (HousingBlueprint)
+        _worldPacket >> *HousingBlueprint;
+
+    if (VoiceChatInfo)
+    {
+        _worldPacket.ResetBitPos();
+        _worldPacket >> Bits<1>(VoiceChatInfo->TargetIsCurrentlyInVoiceChatWithPlayer);
+    }
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, Complaint::ComplaintOffender& complaintOffender)

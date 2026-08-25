@@ -22,6 +22,7 @@
 #include "ConditionMgr.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
+#include "FlatSet.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
@@ -467,15 +468,15 @@ struct AccessRequirement
     std::string questFailedText;
 };
 
-typedef std::set<ObjectGuid::LowType> CellGuidSet;
-struct CellObjectGuids
+typedef Trinity::Containers::FlatSet<ObjectGuid::LowType> GridGuidSet;
+struct GridObjectGuids
 {
-    CellGuidSet creatures;
-    CellGuidSet gameobjects;
+    GridGuidSet creatures;
+    GridGuidSet gameobjects;
 };
-typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, CellObjectGuidsMap> MapObjectGuids;
-typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
+typedef std::unordered_map<uint32/*grid_id*/, GridObjectGuids> GridObjectGuidsMap;
+typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, GridObjectGuidsMap> MapObjectGuids;
+typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, GridObjectGuidsMap> MapPersonalObjectGuids;
 
 struct TrinityString
 {
@@ -931,16 +932,17 @@ struct ClassAvailability
     uint8 MinActiveExpansionLevel = 0;
 };
 
-struct RaceClassAvailability
-{
-    uint8 RaceID = 0;
-    std::vector<ClassAvailability> Classes;
-};
-
 struct RaceUnlockRequirement
 {
     uint8 Expansion;
     uint32 AchievementId;
+};
+
+struct RaceClassAvailability
+{
+    uint8 RaceID = 0;
+    RaceUnlockRequirement UnlockRequirement;
+    std::vector<ClassAvailability> Classes;
 };
 
 enum QueryDataGroup
@@ -1383,12 +1385,12 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const* GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id);
+        GridObjectGuids const* GetGridObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 gridId);
 
-        CellObjectGuidsMap const* GetMapObjectGuids(uint32 mapid, Difficulty spawnMode);
+        GridObjectGuidsMap const* GetMapObjectGuids(uint32 mapid, Difficulty spawnMode);
 
         bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const;
-        CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const;
+        GridObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 gridId) const;
 
         /**
          * Gets temp summon data for all creatures of specified group.
@@ -1652,16 +1654,8 @@ class TC_GAME_API ObjectMgr
 
         std::string GetPhaseName(uint32 phaseId) const;
 
-        std::unordered_map<uint8, RaceUnlockRequirement> const& GetRaceUnlockRequirements() const { return _raceUnlockRequirementStore; }
-        RaceUnlockRequirement const* GetRaceUnlockRequirement(uint8 race) const
-        {
-            auto itr = _raceUnlockRequirementStore.find(race);
-            if (itr != _raceUnlockRequirementStore.end())
-                return &itr->second;
-            return nullptr;
-        }
-
-        std::vector<RaceClassAvailability> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
+        std::vector<RaceClassAvailability> const& GetRaceClassRequirements() const { return _raceClassRequirementStore; }
+        RaceUnlockRequirement const* GetRaceUnlockRequirement(uint8 raceId) const;
         ClassAvailability const* GetClassExpansionRequirement(uint8 raceId, uint8 classId) const;
         ClassAvailability const* GetClassExpansionRequirementFallback(uint8 classId) const;
 
@@ -1777,10 +1771,10 @@ class TC_GAME_API ObjectMgr
         QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
-        template<CellGuidSet CellObjectGuids::*guids>
+        template<GridGuidSet GridObjectGuids::*guids>
         void AddSpawnDataToGrid(SpawnData const* data);
 
-        template<CellGuidSet CellObjectGuids::*guids>
+        template<GridGuidSet GridObjectGuids::*guids>
         void RemoveSpawnDataFromGrid(SpawnData const* data);
 
         MailLevelRewardContainer _mailLevelRewardStore;
@@ -1860,8 +1854,7 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
         std::map<std::tuple<uint32, uint32, uint32>, uint32> _creatureDefaultTrainers;
 
-        std::unordered_map<uint8, RaceUnlockRequirement> _raceUnlockRequirementStore;
-        std::vector<RaceClassAvailability> _classExpansionRequirementStore;
+        std::vector<RaceClassAvailability> _raceClassRequirementStore;
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;

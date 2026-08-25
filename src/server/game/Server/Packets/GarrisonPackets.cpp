@@ -255,17 +255,40 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     data << uint32(garrison.NumMissionsStartedToday);
     data << int32(garrison.MinAutoTroopLevel);
 
+    for (GarrisonBuildingInfo const* building : garrison.Buildings)
+        data << *building;
+
     for (GarrisonPlotInfo const* plot : garrison.Plots)
         data << *plot;
 
+    for (GarrisonFollower const* follower : garrison.Followers)
+        data << *follower;
+
+    for (GarrisonFollower const* follower : garrison.AutoTroops)
+        data << *follower;
+
+    for (GarrisonMission const* mission : garrison.Missions)
+        data << *mission;
+
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
+    {
         data << Size<uint32>(missionReward);
+        for (GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
+    }
 
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
+    {
         data << Size<uint32>(missionReward);
+        for (GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
+    }
 
     for (GarrisonMissionBonusAbility const* areaBonus : garrison.MissionAreaBonuses)
         data << *areaBonus;
+
+    for (GarrisonTalent const& talent : garrison.Talents)
+        data << talent;
 
     for (GarrisonCollection const& collection : garrison.Collections)
         data << collection;
@@ -279,33 +302,10 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     if (!garrison.ArchivedMissions.empty())
         data.append(garrison.ArchivedMissions.data(), garrison.ArchivedMissions.size());
 
-    for (GarrisonBuildingInfo const* building : garrison.Buildings)
-        data << *building;
-
     for (bool canStartMission : garrison.CanStartMission)
         data << Bits<1>(canStartMission);
 
     data.FlushBits();
-
-    for (GarrisonFollower const* follower : garrison.Followers)
-        data << *follower;
-
-    for (GarrisonFollower const* follower : garrison.AutoTroops)
-        data << *follower;
-
-    for (GarrisonMission const* mission : garrison.Missions)
-        data << *mission;
-
-    for (GarrisonTalent const& talent : garrison.Talents)
-        data << talent;
-
-    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
-        for (GarrisonMissionReward const& missionRewardItem : missionReward)
-            data << missionRewardItem;
-
-    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
-        for (GarrisonMissionReward const& missionRewardItem : missionReward)
-            data << missionRewardItem;
 
     return data;
 }
@@ -322,11 +322,12 @@ WorldPacket const* GetGarrisonInfoResult::Write()
     _worldPacket << int8(FactionIndex);
     _worldPacket << Size<uint32>(Garrisons);
     _worldPacket << Size<uint32>(FollowerSoftCaps);
-    for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
-        _worldPacket << followerSoftCapInfo;
 
     for (GarrisonInfo const& garrison : Garrisons)
         _worldPacket << garrison;
+
+    for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
+        _worldPacket << followerSoftCapInfo;
 
     return &_worldPacket;
 }

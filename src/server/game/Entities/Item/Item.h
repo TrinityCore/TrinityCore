@@ -271,7 +271,7 @@ class TC_GAME_API Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-        uint64 CalculateDurabilityRepairCost(float discount) const;
+        uint64 CalculateDurabilityRepairCost(float discount, bool useRateConfig = true) const;
 
         bool HasEnchantRequiredSkill(Player const* player) const;
         uint32 GetEnchantRequiredLevel() const;
@@ -416,7 +416,7 @@ class TC_GAME_API Item : public Object
         static bool CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
         uint32 GetBuyPrice(Player const* owner, bool& standardPrice) const;
         static uint32 GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel, bool& standardPrice);
-        uint32 GetSellPrice(Player const* owner) const;
+        uint32 GetSellPrice(Player const* owner, bool forVendor = false) const;
         static uint32 GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel);
 
         uint32 GetVisibleEntry(Player const* owner) const;

@@ -292,7 +292,7 @@ DEFINE_ENUM_FLAG(CreatureStaticFlags8);
 class CreatureStaticFlagsHolder
 {
 public:
-    explicit CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
+    explicit constexpr CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
         CreatureStaticFlags3 flags3 = CreatureStaticFlags3(), CreatureStaticFlags4 flags4 = CreatureStaticFlags4(),
         CreatureStaticFlags5 flags5 = CreatureStaticFlags5(), CreatureStaticFlags6 flags6 = CreatureStaticFlags6(),
         CreatureStaticFlags7 flags7 = CreatureStaticFlags7(), CreatureStaticFlags8 flags8 = CreatureStaticFlags8())
@@ -608,7 +608,7 @@ struct CreatureData : public SpawnData
     int8 equipmentId = 0;
     float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;
-    uint32 curHealthPct = 0;
+    Optional<uint32> curHealthPct;
     uint8 movementType = 0;
     Optional<uint64> npcflag;
     Optional<uint32> unit_flags;                                  // enum UnitFlags mask values

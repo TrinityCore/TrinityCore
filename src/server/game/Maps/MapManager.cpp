@@ -83,7 +83,7 @@ Map* MapManager::CreateWorldMap(uint32 mapId, uint32 instanceId)
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -98,9 +98,6 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
         TC_LOG_ERROR("maps", "CreateInstance: no entry for map {}", mapId);
         ABORT();
     }
-
-    // some instances only have one difficulty
-    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {}map instance {} for {} created with difficulty {}",
         instanceLock && instanceLock->IsNew() ? "" : "new ", instanceId, mapId, DB2Manager::GetDifficultyName(difficulty));
@@ -118,7 +115,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -136,7 +133,7 @@ BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId,
     map->GetBattlegroundScript()->OnInit();
 
     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUNDMAP_LOAD_GRIDS))
-        map->LoadAllCells();
+        map->LoadAllGrids();
 
     return map;
 }
@@ -201,7 +198,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
 
             // Reset difficulty to the one used in instance lock
             if (!entries.Map->IsFlexLocking())
-                difficulty = instanceLock->GetDifficultyId();
+                entries.MapDifficulty = sDB2Manager.GetDownscaledMapDifficultyData(mapId, instanceLock->GetDifficultyId());
         }
         else
         {
@@ -229,7 +226,7 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, Optional<uint32> lfgDun
 
         if (!map)
         {
-            map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, GetTeamIdForTeam(sCharacterCache->GetCharacterTeamByGuid(instanceOwnerGuid)), group,
+            map = CreateInstance(mapId, newInstanceId, instanceLock, Difficulty(entries.MapDifficulty->DifficultyID), GetTeamIdForTeam(sCharacterCache->GetCharacterTeamByGuid(instanceOwnerGuid)), group,
                 lfgDungeonsId);
             if (group)
                 group->SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);

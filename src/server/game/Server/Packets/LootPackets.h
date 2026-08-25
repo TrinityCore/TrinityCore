@@ -142,7 +142,7 @@ namespace WorldPackets
         class LootMoneyNotify final : public ServerPacket
         {
         public:
-            explicit LootMoneyNotify() : ServerPacket(SMSG_LOOT_MONEY_NOTIFY, 5) { }
+            explicit LootMoneyNotify() : ServerPacket(SMSG_LOOT_MONEY_NOTIFY, 8 + 8 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -154,7 +154,7 @@ namespace WorldPackets
         class CoinRemoved final : public ServerPacket
         {
         public:
-            explicit CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 9) { }
+            explicit CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 16) { }
 
             WorldPacket const* Write() override;
 

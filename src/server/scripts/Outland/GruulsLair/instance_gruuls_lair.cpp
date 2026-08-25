@@ -95,6 +95,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 return InstanceScript::GetData64(type);
             }
 
+        protected:
             ObjectGuid::LowType MaulgarOgreSpawnId[4] = { };
         };
 

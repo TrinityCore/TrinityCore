@@ -18,31 +18,29 @@
 #ifndef TRINITY_OBJECT_GRID_LOADER_H
 #define TRINITY_OBJECT_GRID_LOADER_H
 
-#include "Cell.h"
 #include "Define.h"
 #include "GridDefines.h"
 #include "ObjectGuid.h"
 
-class MapObject;
+class Map;
 class ObjectGuid;
-class ObjectWorldLoader;
 
 class TC_GAME_API ObjectGridLoaderBase
 {
     public:
-        ObjectGridLoaderBase(NGridType& grid, Map* map, Cell const& cell)
-            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
+        ObjectGridLoaderBase(NGridType& grid, Map* map)
+            : i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
             { }
-
-        static void SetObjectCell(MapObject* obj, CellCoord const& cellCoord);
 
         uint32 GetLoadedCreatures() const { return i_creatures; }
         uint32 GetLoadedGameObjects() const { return i_gameObjects; }
         uint32 GetLoadedCorpses() const { return i_corpses; }
         uint32 GetLoadedAreaTriggers() const { return i_areaTriggers; }
 
+        template <typename T>
+        static void AddToMap(T* obj, Map* map, uint32& objectCount);
+
     protected:
-        Cell i_cell;
         NGridType &i_grid;
         Map* i_map;
         uint32 i_gameObjects;
@@ -53,20 +51,10 @@ class TC_GAME_API ObjectGridLoaderBase
 
 class TC_GAME_API ObjectGridLoader : public ObjectGridLoaderBase
 {
-    friend class ObjectWorldLoader;
-
     public:
-        ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
-            : ObjectGridLoaderBase(grid, map, cell)
+        ObjectGridLoader(NGridType& grid, Map* map)
+            : ObjectGridLoaderBase(grid, map)
             { }
-
-        void Visit(GameObjectMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(AreaTriggerMapType &m);
-        void Visit(CorpseMapType &) const { }
-        void Visit(DynamicObjectMapType&) const { }
-        void Visit(SceneObjectMapType&) const { }
-        void Visit(ConversationMapType&) const { }
 
         void LoadN();
 };
@@ -74,22 +62,13 @@ class TC_GAME_API ObjectGridLoader : public ObjectGridLoaderBase
 class TC_GAME_API PersonalPhaseGridLoader : public ObjectGridLoaderBase
 {
     public:
-        PersonalPhaseGridLoader(NGridType& grid, Map* map, Cell const& cell, ObjectGuid const& phaseOwner)
-            : ObjectGridLoaderBase(grid, map, cell), _phaseId(0), _phaseOwner(phaseOwner)
+        PersonalPhaseGridLoader(NGridType& grid, Map* map, ObjectGuid const& phaseOwner)
+            : ObjectGridLoaderBase(grid, map), _phaseOwner(phaseOwner)
             { }
-
-        void Visit(GameObjectMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(AreaTriggerMapType&) const { }
-        void Visit(CorpseMapType&) const { }
-        void Visit(DynamicObjectMapType&) const { }
-        void Visit(SceneObjectMapType&) const { }
-        void Visit(ConversationMapType&) const { }
 
         void Load(uint32 phaseId);
 
     private:
-        uint32 _phaseId;
         ObjectGuid _phaseOwner;
 };
 

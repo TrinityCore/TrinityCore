@@ -27,8 +27,8 @@
 
 namespace VMAP
 {
+    class GroupModel;
     class WorldModel;
-    struct AreaInfo;
     struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
@@ -75,7 +75,7 @@ namespace VMAP
             void setUnloaded() { iModel = nullptr; }
             bool intersectRay(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
             bool GetLocationInfo(G3D::Vector3 const& p, LocationInfo& info) const;
-            bool GetLiquidLevel(G3D::Vector3 const& p, LocationInfo& info, float& liqHeight) const;
+            bool GetLiquidLevel(G3D::Vector3 const& p, GroupModel const* model, float& liqHeight) const;
             G3D::Matrix3 const& GetInvRot() const { return iInvRot; }
             WorldModel const* getWorldModel() const { return iModel.get(); }
             void AddTileReference() { ++referencingTiles; }

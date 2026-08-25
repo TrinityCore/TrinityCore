@@ -445,6 +445,10 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectCreateAreaTrigger,                        //353 SPELL_EFFECT_CREATE_AREATRIGGER_2
     &Spell::EffectNULL,                                     //354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
     &Spell::EffectNULL,                                     //355 SPELL_EFFECT_LEARN_HOUSE_TYPE
+    &Spell::EffectNULL,                                     //356 SPELL_EFFECT_356
+    &Spell::EffectNULL,                                     //357 SPELL_EFFECT_357
+    &Spell::EffectNULL,                                     //358 SPELL_EFFECT_358
+    &Spell::EffectNULL,                                     //359 SPELL_EFFECT_359
 };
 
 void Spell::EffectNULL()
@@ -2326,10 +2330,11 @@ void Spell::EffectUntrainTalents()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!unitTarget->IsPlayer())
         return;
 
-    unitTarget->ToPlayer()->SendRespecWipeConfirm(m_caster->GetGUID(), unitTarget->ToPlayer()->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
+    Player* playerTarget = unitTarget->ToPlayer();
+    playerTarget->SendRespecWipeConfirm(m_caster->GetGUID(), playerTarget->GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
 }
 
 void Spell::EffectTeleUnitsFaceCaster()
@@ -2632,16 +2637,11 @@ void Spell::EffectTameCreature()
     // "kill" original creature
     creatureTarget->DespawnOrUnsummon();
 
-    uint8 level = (creatureTarget->GetLevelForTarget(m_caster) < (m_caster->GetLevelForTarget(creatureTarget) - 5)) ? (m_caster->GetLevelForTarget(creatureTarget) - 5) : creatureTarget->GetLevelForTarget(m_caster);
-
-    // prepare visual effect for levelup
-    pet->SetLevel(level - 1);
-
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
-    pet->SetLevel(level);
+    pet->SendNewlyTamed();
 
     // caster have pet now
     unitCaster->SetMinion(pet, true);
@@ -4928,6 +4928,8 @@ void Spell::EffectCreateTamedPet()
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
+
+    pet->SendNewlyTamed();
 
     // unitTarget has pet now
     unitTarget->SetMinion(pet, true);

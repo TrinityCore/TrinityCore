@@ -243,7 +243,14 @@ void TempSummon::InitStats(WorldObject* summoner, Milliseconds duration)
             int32 minLevel = m_unitData->ScalingLevelMin + m_unitData->ScalingLevelDelta;
             int32 maxLevel = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
             uint8 level = std::clamp<int32>(unitSummoner->GetLevel(), minLevel, maxLevel);
+            ApplyLevelScaling(unitSummoner->m_unitData->ContentTuningID, unitSummoner->m_unitData->ScalingLevelDelta);
             SetLevel(level);
+            if (!IsGuardian())
+            {
+                UpdateLevelDependantStats();
+                UpdateAttackPowerAndDamage(false);
+                UpdateAttackPowerAndDamage(true);
+            }
         }
     }
 

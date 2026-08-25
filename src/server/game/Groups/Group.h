@@ -181,12 +181,16 @@ enum class CountdownTimerType : int32
 
 enum class PingSubjectType : uint8
 {
-    Attack          = 0,
-    Warning         = 1,
-    Assist          = 2,
-    OnMyWay         = 3,
-    AlertThreat     = 4,
-    AlertNotThreat  = 5,
+    Attack              = 0,
+    Warning             = 1,
+    Assist              = 2,
+    OnMyWay             = 3,
+    AlertThreat         = 4,
+    AlertNotThreat      = 5,
+    ActionReady         = 6,
+    ActionOnCooldown    = 7,
+    ActionUnavailable   = 8,
+    ActionNotReady      = 9,
 
     Max
 };

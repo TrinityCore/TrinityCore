@@ -746,6 +746,9 @@ enum AuraType : uint32
     SPELL_AURA_659                                          = 659,
     SPELL_AURA_660                                          = 660,
     SPELL_AURA_ALTERED_FORM_IN_COMBAT                       = 661,
+    SPELL_AURA_662                                          = 662,
+    SPELL_AURA_663                                          = 663,
+    SPELL_AURA_664                                          = 664,
 
     TOTAL_AURAS
 };

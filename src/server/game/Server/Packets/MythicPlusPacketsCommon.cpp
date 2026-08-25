@@ -85,8 +85,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusRun const& mythicPlusRun)
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreBestRunForAffix const& dungeonScoreBestRunForAffix)
 {
     data << int32(dungeonScoreBestRunForAffix.KeystoneAffixID);
-    data << float(dungeonScoreBestRunForAffix.Score);
     data << dungeonScoreBestRunForAffix.Run;
+    data << float(dungeonScoreBestRunForAffix.Score);
 
     return data;
 }

@@ -22,7 +22,7 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
-namespace Scripts::EasternKingdoms::AbyssalDepths
+namespace Scripts::EasternKingdoms::Vashjir::AbyssalDepths
 {
 namespace Spells
 {
@@ -93,12 +93,11 @@ struct npc_abyssal_depths_whirlpool_vehicle : public ScriptedAI
 private:
     TaskScheduler _scheduler;
 };
-
 }
 
 void AddSC_abyssal_depths()
 {
-    using namespace Scripts::EasternKingdoms::AbyssalDepths;
+    using namespace Scripts::EasternKingdoms::Vashjir::AbyssalDepths;
 
     new at_abyssal_depths_whirlpool_entrance();
 

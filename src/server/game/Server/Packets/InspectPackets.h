@@ -75,16 +75,21 @@ namespace WorldPackets
             std::vector<AzeriteEssenceData> AzeriteEssences;
         };
 
-        struct PlayerModelDisplayInfo
+        struct CharDisplayInfo
         {
-            ObjectGuid GUID;
-            std::vector<InspectItemData> Items;
             std::string Name;
-            int32 SpecializationID = 0;
             uint8 GenderID = GENDER_NONE;
             uint8 Race = RACE_NONE;
             uint8 ClassID = CLASS_NONE;
             std::vector<Character::ChrCustomizationChoice> Customizations;
+        };
+
+        struct PlayerModelDisplayInfo
+        {
+            ObjectGuid GUID;
+            int32 SpecializationID = 0;
+            CharDisplayInfo DisplayInfo;
+            std::vector<InspectItemData> Items;
 
             void Initialize(Player const* player);
         };

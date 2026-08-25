@@ -495,6 +495,33 @@ namespace WorldPackets
 
         inline DataReaderWriter Data(std::span<uint8>& value) { return { value }; }
     }
+
+    template <typename T>
+    struct IgnoredReaderWriter
+    {
+        friend inline ByteBuffer& operator<<(ByteBuffer& data, IgnoredReaderWriter const& /*unused*/)
+        {
+            data << T();
+            return data;
+        }
+
+        friend inline ByteBuffer& operator>>(ByteBuffer& data, IgnoredReaderWriter const& /*unused*/)
+        {
+            if constexpr (ByteBufferNumeric<T>)
+            {
+                data.read_skip<T>();
+            }
+            else
+            {
+                T dummy;
+                data >> dummy;
+            }
+            return data;
+        }
+    };
+
+    template <typename T>
+    inline constexpr IgnoredReaderWriter<T> Ignored;
 }
 
 #endif // TRINITYCORE_PACKET_OPERATORS_H

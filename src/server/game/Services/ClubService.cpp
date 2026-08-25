@@ -17,6 +17,7 @@
 
 #include "ClubService.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "ClientBuildInfo.h"
 #include "ClubMembershipService.h"
 #include "GameTime.h"
 #include "Guild.h"
@@ -374,7 +375,7 @@ uint32 ClubService::HandleCreateMessage(club::v1::client::CreateMessageRequest c
 std::unique_ptr<club::v1::UniqueClubType> ClubService::CreateGuildClubType()
 {
     std::unique_ptr<club::v1::UniqueClubType> type = std::make_unique<club::v1::UniqueClubType>();
-    type->set_program(5730135);
+    type->set_program(ClientBuild::Program::WoW);
     type->set_name("guild");
     return type;
 }

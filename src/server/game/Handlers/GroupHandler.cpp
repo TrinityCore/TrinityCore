@@ -716,6 +716,9 @@ void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& p
     broadcastPingUnit.Type = pingUnit.Type;
     broadcastPingUnit.PinFrameID = pingUnit.PinFrameID;
     broadcastPingUnit.PingDuration = pingUnit.PingDuration;
+    broadcastPingUnit.Health = pingUnit.Health;
+    broadcastPingUnit.Mana = pingUnit.Mana;
+    broadcastPingUnit.IsUnitFrameStatusTextPing = pingUnit.IsUnitFrameStatusTextPing;
     broadcastPingUnit.CreatureID = pingUnit.CreatureID;
     broadcastPingUnit.SpellOverrideNameID = pingUnit.SpellOverrideNameID;
     broadcastPingUnit.Write();
@@ -756,5 +759,32 @@ void WorldSession::HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPo
             continue;
 
         member->SendDirectMessage(broadcastPingWorldPoint.GetRawPacket());
+    }
+}
+
+void WorldSession::HandleSendPingCooldown(WorldPackets::Party::SendPingCooldown const& pingCooldown)
+{
+    Group const* group = nullptr;
+    if (!CanSendPing(*_player, pingCooldown.Type, group))
+        return;
+
+    WorldPackets::Party::ReceivePingCooldown broadcastPingCooldown;
+    broadcastPingCooldown.SenderGUID = _player->GetGUID();
+    broadcastPingCooldown.PinFrameID = pingCooldown.PinFrameID;
+    broadcastPingCooldown.SpellID = pingCooldown.SpellID;
+    broadcastPingCooldown.ItemID = pingCooldown.ItemID;
+    broadcastPingCooldown.Duration = pingCooldown.Duration;
+    broadcastPingCooldown.Remaining = pingCooldown.Remaining;
+    broadcastPingCooldown.Type = pingCooldown.Type;
+    broadcastPingCooldown.SpellCategoryID = pingCooldown.SpellCategoryID;
+    broadcastPingCooldown.Write();
+
+    for (GroupReference const& itr : group->GetMembers())
+    {
+        Player const* member = itr.GetSource();
+        if (_player == member || !_player->IsInMap(member))
+            continue;
+
+        member->SendDirectMessage(broadcastPingCooldown.GetRawPacket());
     }
 }

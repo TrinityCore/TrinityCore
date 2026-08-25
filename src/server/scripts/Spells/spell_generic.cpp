@@ -850,36 +850,6 @@ class spell_gen_chains_of_ice : public AuraScript
     }
 };
 
-enum ChaosBlast
-{
-    SPELL_CHAOS_BLAST   = 37675
-};
-
-class spell_gen_chaos_blast : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_CHAOS_BLAST });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        int32 basepoints0 = 100;
-        Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
-        {
-            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.AddSpellBP0(basepoints0);
-            caster->CastSpell(target, SPELL_CHAOS_BLAST, args);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_chaos_blast::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // 28471 - ClearAll
 class spell_clear_all : public SpellScript
 {
@@ -5778,7 +5748,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_cast_target_to_target);
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_chains_of_ice);
-    RegisterSpellScript(spell_gen_chaos_blast);
     RegisterSpellScript(spell_clear_all);
     RegisterSpellScript(spell_gen_clone);
     RegisterSpellScript(spell_gen_clone_weapon);

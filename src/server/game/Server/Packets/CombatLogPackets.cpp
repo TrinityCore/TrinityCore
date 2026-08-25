@@ -57,6 +57,9 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
     *this << Size<uint32>(WorldTextViewers);
     *this << Size<uint32>(Supporters);
 
+    for (CombatWorldTextViewerInfo const& worldTextViewer : WorldTextViewers)
+        *this << worldTextViewer;
+
     for (Spells::SpellSupportInfo const& supportInfo : Supporters)
         *this << supportInfo;
 
@@ -65,9 +68,6 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
     WriteLogDataBit();
     *this << OptionalInit(ContentTuning);
     FlushBits();
-
-    for (CombatWorldTextViewerInfo const& worldTextViewer : WorldTextViewers)
-        *this << worldTextViewer;
 
     WriteLogData();
     if (ContentTuning)
@@ -178,13 +178,13 @@ WorldPacket const* SpellHealLog::Write()
     *this << OptionalInit(ContentTuning);
     FlushBits();
 
-    WriteLogData();
-
     if (CritRollMade)
         *this << *CritRollMade;
 
     if (CritRollNeeded)
         *this << *CritRollNeeded;
+
+    WriteLogData();
 
     if (ContentTuning)
         *this << *ContentTuning;
@@ -219,11 +219,11 @@ ByteBuffer& operator<<(ByteBuffer& data, PeriodicAuraLogEffect const& effect)
     data << OptionalInit(effect.ContentTuning);
     data.FlushBits();
 
-    if (effect.ContentTuning)
-        data << *effect.ContentTuning;
-
     if (effect.DebugInfo)
         data << *effect.DebugInfo;
+
+    if (effect.ContentTuning)
+        data << *effect.ContentTuning;
 
     return data;
 }
@@ -234,11 +234,12 @@ WorldPacket const* SpellPeriodicAuraLog::Write()
     *this << CasterGUID;
     *this << int32(SpellID);
     *this << Size<uint32>(Effects);
-    WriteLogDataBit();
-    FlushBits();
 
     for (PeriodicAuraLogEffect const& effect : Effects)
         *this << effect;
+
+    WriteLogDataBit();
+    FlushBits();
 
     WriteLogData();
 
@@ -309,9 +310,11 @@ WorldPacket const* SpellMissLog::Write()
     _worldPacket << int32(SpellID);
     _worldPacket << Caster;
     _worldPacket << Size<uint32>(Entries);
-    _worldPacket << Bits<1>(HideFromCombatLog);
     for (SpellLogMissEntry const& missEntry : Entries)
         _worldPacket << missEntry;
+
+    _worldPacket << Bits<1>(HideFromCombatLog);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

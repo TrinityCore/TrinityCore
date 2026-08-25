@@ -810,6 +810,7 @@ namespace WorldPackets
             int32 SpellVisualKitID = 0;
             WorldPackets::Duration<Milliseconds, int32> Duration;
             int32 Delay = 0;
+            bool Unknown_1210 = false;
         };
 
         class CancelCast final : public ClientPacket

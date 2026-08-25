@@ -731,6 +731,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //659
     &AuraEffect::HandleNULL,                                      //660
     &AuraEffect::HandleNULL,                                      //661 SPELL_AURA_ALTERED_FORM_IN_COMBAT
+    &AuraEffect::HandleNULL,                                      //662
+    &AuraEffect::HandleNULL,                                      //663
+    &AuraEffect::HandleNULL,                                      //664
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, SpellEffectValue const* baseAmount, Unit* caster) :
@@ -1765,10 +1768,11 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->m_stealth.AddValue(type, -GetAmountAsInt());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
-        {
+        if (!target->HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_STEALTH, type))
             target->m_stealth.DelFlag(type);
 
+        if (!target->m_stealth.GetFlags())
+        {
             target->RemoveVisFlag(UNIT_VIS_FLAGS_STEALTHED);
             if (Player * playerTarget = target->ToPlayer())
                 playerTarget->RemoveAuraVision(PLAYER_FIELD_BYTE2_STEALTH);
@@ -2366,14 +2370,10 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             if (!isAffectedByFeignDeath(unit))
                 continue;
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
-            {
-                if (unit->GetCurrentSpell(i)
-                && unit->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
-                {
-                    unit->InterruptSpell(CurrentSpellTypes(i), false);
-                }
-            }
+            for (CurrentSpellTypes i = CURRENT_GENERIC_SPELL; i < CURRENT_MAX_SPELL; i = CurrentSpellTypes(i + 1))
+                if (Spell* currentSpell = unit->GetCurrentSpell(i))
+                    if (currentSpell->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                        unit->InterruptSpell(i, false);
         }
 
         for (auto const& [guid, ref] : target->GetThreatManager().GetThreatenedByMeList())
@@ -4281,7 +4281,7 @@ void AuraEffect::HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) == MAX_POWERS)
+    if (target->GetPowerIndex(Powers(powerDisplay->ActualType)) >= MAX_POWERS_PER_CLASS)
         return;
 
     if (apply)
@@ -4649,7 +4649,7 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4662,7 +4662,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, GetAmount() >= 0 ? AttackPowerModType::FlatPositive : AttackPowerModType::FlatNegative, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4672,14 +4672,7 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
 
     Unit* target = aurApp->GetTarget();
 
-    //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Melee, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4692,14 +4685,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
     if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
-    if (apply)
-        target->ApplyStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()));
-    else
-    {
-        float amount = target->GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT);
-        target->SetStatPctModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, amount);
-    }
+    target->HandleAttackPowerModifier(AttackPowerModIndex::Ranged, AttackPowerModType::Pct, float(GetAmount()), apply);
 }
 
 /********************************/
@@ -5507,9 +5493,9 @@ void AuraEffect::HandleAuraPreventRegeneratePower(AuraApplication const* aurApp,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int32 i = 0; i < MAX_POWERS; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ToPlayer()->UpdatePowerRegen(static_cast<Powers>(i));
+    for (Powers power : target->GetPowerTypes())
+        if (GetMiscValue() & (1 << power))
+            target->ToPlayer()->UpdatePowerRegen(power);
 }
 
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6009,11 +5995,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
 void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
 {
-    Powers powerType;
-    if (GetMiscValue() == POWER_ALL)
-        powerType = target->GetPowerType();
-    else
-        powerType = Powers(GetMiscValue());
+    Powers powerType = Powers(GetMiscValue());
 
     if (!target->IsAlive() || !target->GetMaxPower(powerType))
         return;

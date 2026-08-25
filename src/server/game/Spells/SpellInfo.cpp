@@ -1315,6 +1315,10 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 353 SPELL_EFFECT_CREATE_AREATRIGGER_2
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 355 SPELL_EFFECT_LEARN_HOUSE_TYPE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 356 SPELL_EFFECT_356
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 357 SPELL_EFFECT_357
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 358 SPELL_EFFECT_358
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 359 SPELL_EFFECT_359
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -1905,7 +1909,7 @@ bool SpellInfo::IsRangedWeaponSpell() const
 {
     return (SpellFamilyName == SPELLFAMILY_HUNTER && !(SpellFamilyFlags[1] & 0x10000000)) // for 53352, cannot find better way
         || (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
-        || (Attributes & SPELL_ATTR0_USES_RANGED_SLOT);
+        || (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT));
 }
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
@@ -2416,9 +2420,8 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
             if (unitTarget->GetSpellOtherImmunityMask().HasFlag(SpellOtherImmunity::AoETarget))
                 return SPELL_FAILED_BAD_TARGETS;
 
-        if (HasAttribute(SPELL_ATTR9_TARGET_MUST_BE_GROUNDED) &&
-            (unitTarget->HasUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING | MOVEMENTFLAG_HOVER) ||
-                unitTarget->HasExtraUnitMovementFlag2(MOVEMENTFLAG3_ADV_FLYING)))
+        if (HasAttribute(SPELL_ATTR9_TARGET_MUST_BE_GROUNDED)
+            && unitTarget->HasUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_ADV_FLYING))
             return SPELL_FAILED_TARGET_NOT_GROUNDED;
     }
     // corpse specific target checks

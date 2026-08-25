@@ -39,6 +39,6 @@ inline std::ostream& operator<<(std::ostream& os, std::nullopt_t)
     return os;
 }
 
-#include "catch2/catch.hpp"
+#include <catch2/catch_all.hpp>
 
 #endif

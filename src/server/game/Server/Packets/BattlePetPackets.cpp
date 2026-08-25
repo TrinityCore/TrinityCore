@@ -73,14 +73,15 @@ WorldPacket const* BattlePetJournal::Write()
     _worldPacket << uint16(Trap);
     _worldPacket << Size<uint32>(Slots);
     _worldPacket << Size<uint32>(Pets);
-    _worldPacket << Bits<1>(HasJournalLock);
-    _worldPacket.FlushBits();
 
     for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
     for (BattlePet const& pet : Pets)
         _worldPacket << pet;
+
+    _worldPacket << Bits<1>(HasJournalLock);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -88,11 +89,12 @@ WorldPacket const* BattlePetJournal::Write()
 WorldPacket const* BattlePetUpdates::Write()
 {
     _worldPacket << Size<uint32>(Pets);
-    _worldPacket << Bits<1>(PetAdded);
-    _worldPacket.FlushBits();
 
     for (BattlePet const& pet : Pets)
         _worldPacket << pet;
+
+    _worldPacket << Bits<1>(PetAdded);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -100,12 +102,13 @@ WorldPacket const* BattlePetUpdates::Write()
 WorldPacket const* PetBattleSlotUpdates::Write()
 {
     _worldPacket << Size<uint32>(Slots);
-    _worldPacket << Bits<1>(NewSlot);
-    _worldPacket << Bits<1>(AutoSlotted);
-    _worldPacket.FlushBits();
 
     for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
+
+    _worldPacket << Bits<1>(NewSlot);
+    _worldPacket << Bits<1>(AutoSlotted);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -122,6 +125,8 @@ void BattlePetModifyName::Read()
     _worldPacket >> SizedString::BitsSize<7>(Name);
     _worldPacket >> OptionalInit(DeclinedNames);
 
+    _worldPacket >> SizedString::Data(Name);
+
     if (DeclinedNames)
     {
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
@@ -130,8 +135,6 @@ void BattlePetModifyName::Read()
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             _worldPacket >> SizedString::Data(DeclinedNames->name[i]);
     }
-
-    _worldPacket >> SizedString::Data(Name);
 }
 
 void QueryBattlePetName::Read()

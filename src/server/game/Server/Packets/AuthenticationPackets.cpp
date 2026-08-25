@@ -127,7 +127,11 @@ ByteBuffer& operator<<(ByteBuffer& data, AuthSuccessInfo const& successInfo)
     data << Size<uint32>(*successInfo.AvailableClasses);
     data << Size<uint32>(successInfo.Templates);
     data << uint32(successInfo.CurrencyID);
+    data << successInfo.GameTimeInfo;
     data << successInfo.Time;
+
+    for (VirtualRealmInfo const& virtualRealm : successInfo.VirtualRealms)
+        data << virtualRealm;
 
     for (RaceClassAvailability const& raceClassAvailability : *successInfo.AvailableClasses)
     {
@@ -142,31 +146,6 @@ ByteBuffer& operator<<(ByteBuffer& data, AuthSuccessInfo const& successInfo)
             data << uint8(classAvailability.MinActiveExpansionLevel);
         }
     }
-
-    data << Bits<1>(successInfo.IsExpansionTrial);
-    data << Bits<1>(successInfo.ForceCharacterTemplate);
-    data << OptionalInit(successInfo.NumPlayersHorde);
-    data << OptionalInit(successInfo.NumPlayersAlliance);
-    data << OptionalInit(successInfo.ExpansionTrialExpiration);
-    data << OptionalInit(successInfo.CurrentBuild);
-    data.FlushBits();
-
-    data << successInfo.GameTimeInfo;
-
-    if (successInfo.NumPlayersHorde)
-        data << uint16(*successInfo.NumPlayersHorde);
-
-    if (successInfo.NumPlayersAlliance)
-        data << uint16(*successInfo.NumPlayersAlliance);
-
-    if (successInfo.ExpansionTrialExpiration)
-        data << *successInfo.ExpansionTrialExpiration;
-
-    if (successInfo.CurrentBuild)
-        data << *successInfo.CurrentBuild;
-
-    for (VirtualRealmInfo const& virtualRealm : successInfo.VirtualRealms)
-        data << virtualRealm;
 
     for (CharacterTemplate const* characterTemplate : successInfo.Templates)
     {
@@ -185,6 +164,26 @@ ByteBuffer& operator<<(ByteBuffer& data, AuthSuccessInfo const& successInfo)
         data << SizedString::Data(characterTemplate->Name);
         data << SizedString::Data(characterTemplate->Description);
     }
+
+    data << Bits<1>(successInfo.IsExpansionTrial);
+    data << Bits<1>(successInfo.ForceCharacterTemplate);
+    data << OptionalInit(successInfo.NumPlayersHorde);
+    data << OptionalInit(successInfo.NumPlayersAlliance);
+    data << OptionalInit(successInfo.ExpansionTrialExpiration);
+    data << OptionalInit(successInfo.CurrentBuild);
+    data.FlushBits();
+
+    if (successInfo.NumPlayersHorde)
+        data << uint16(*successInfo.NumPlayersHorde);
+
+    if (successInfo.NumPlayersAlliance)
+        data << uint16(*successInfo.NumPlayersAlliance);
+
+    if (successInfo.ExpansionTrialExpiration)
+        data << *successInfo.ExpansionTrialExpiration;
+
+    if (successInfo.CurrentBuild)
+        data << *successInfo.CurrentBuild;
 
     return data;
 }
