@@ -2930,7 +2930,7 @@ void Creature::InitializeMovementCapabilities()
     SetDisableGravity(IsFloating());
     SetControlled(IsSessile(), UNIT_STATE_ROOT);
 
-    if (IsSwimPrevented())
+    if (CanOnlySwimIfTargetSwims())
     {
         SetUnitFlag2(UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS);
         SetSwim(false);
