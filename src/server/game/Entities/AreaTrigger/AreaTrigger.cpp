@@ -837,8 +837,8 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
         progress = sDB2Manager.GetCurveValueAt(m_areaTriggerData->MorphCurveId, progress);
 
     float scale = CalcCurrentScale();
-    float extentsX = G3D::lerp(boundedPlane.Extents->Pos.GetPositionX(), boundedPlane.ExtentsTarget->Pos.GetPositionX(), progress) * scale;
-    float extentsY = G3D::lerp(boundedPlane.Extents->Pos.GetPositionY(), boundedPlane.ExtentsTarget->Pos.GetPositionY(), progress) * scale;
+    float extentsX = G3D::lerp(boundedPlane.ExtentsX, boundedPlane.ExtentsTargetX, progress) * scale;
+    float extentsY = G3D::lerp(boundedPlane.ExtentsY, boundedPlane.ExtentsTargetY, progress) * scale;
     float radius = std::sqrt(extentsX * extentsX + extentsY * extentsY);
 
     SearchUnits(targetList, radius, false);
@@ -1039,8 +1039,10 @@ void AreaTrigger::SetShape(AreaTriggerShapeInfo const& shape)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 8);
             auto boundedPlane = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerBoundedPlane>);
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::Extents), shapeData.Extents);
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTarget), shapeData.ExtentsTarget);
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsX), shapeData.Extents.Pos.GetPositionX());
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsY), shapeData.Extents.Pos.GetPositionY());
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTargetX), shapeData.ExtentsTarget.Pos.GetPositionX());
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTargetY), shapeData.ExtentsTarget.Pos.GetPositionY());
         }
         else
             static_assert(Trinity::dependant_false_v<ShapeType>, "Unsupported shape type");

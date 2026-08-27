@@ -52,8 +52,8 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingReagentBase const& reagent)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellReducedReagent const& spellReducedReagent)
 {
-    data << int32(spellReducedReagent.Quantity);
     data << spellReducedReagent.Reagent;
+    data << int32(spellReducedReagent.Quantity);
 
     return data;
 }

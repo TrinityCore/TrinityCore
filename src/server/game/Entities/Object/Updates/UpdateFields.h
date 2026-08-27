@@ -1749,10 +1749,12 @@ struct AreaTriggerDisk : public IsUpdateFieldStructureTag, public HasChangesMask
     void ClearChangesMask();
 };
 
-struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<TaggedPosition<Position::XY>, 0, 1> Extents;
-    UpdateField<TaggedPosition<Position::XY>, 0, 2> ExtentsTarget;
+    UpdateField<float, 0, 1> ExtentsX;
+    UpdateField<float, 0, 2> ExtentsY;
+    UpdateField<float, 0, 3> ExtentsTargetX;
+    UpdateField<float, 0, 4> ExtentsTargetY;
 
     using OwnerObject = AreaTrigger;
     void WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const;

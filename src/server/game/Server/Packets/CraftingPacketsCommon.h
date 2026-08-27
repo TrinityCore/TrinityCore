@@ -67,7 +67,6 @@ struct CraftingData
 
 ByteBuffer& operator>>(ByteBuffer& data, CraftingReagentBase& reagent);
 ByteBuffer& operator<<(ByteBuffer& data, CraftingReagentBase const& reagent);
-ByteBuffer& operator<<(ByteBuffer& data, SpellReducedReagent const& spellReducedReagent);
 ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData);
 }
 #endif // TRINITYCORE_CRAFTING_PACKETS_COMMON_H

@@ -217,8 +217,8 @@ WorldPacket const* LFGUpdateStatus::Write()
     for (ObjectGuid const& suspendedPlayer : SuspendedPlayers)
         _worldPacket << suspendedPlayer;
 
-    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(NotifyUI);
+    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(Joined);
     _worldPacket << Bits<1>(LfgJoined);
     _worldPacket << Bits<1>(Queued);

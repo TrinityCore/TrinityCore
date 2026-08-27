@@ -7713,10 +7713,6 @@ void VisualAnim::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player co
         {
             data.WriteBit(IsDecay);
         }
-    }
-    data.FlushBits();
-    if (changesMask[0])
-    {
         data.WriteBit(AnimationDataID.has_value());
     }
     data.FlushBits();
@@ -7730,6 +7726,10 @@ void VisualAnim::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player co
         {
             data << uint32(AnimProgress);
         }
+    }
+    data.FlushBits();
+    if (changesMask[0])
+    {
         if (changesMask[2])
         {
             if (AnimationDataID.has_value())
@@ -8248,8 +8248,10 @@ void AreaTriggerDisk::ClearChangesMask()
 
 void AreaTriggerBoundedPlane::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
 {
-    data << *Extents;
-    data << *ExtentsTarget;
+    data << float(ExtentsX);
+    data << float(ExtentsY);
+    data << float(ExtentsTargetX);
+    data << float(ExtentsTargetY);
 }
 
 void AreaTriggerBoundedPlane::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
@@ -8258,26 +8260,36 @@ void AreaTriggerBoundedPlane::WriteUpdate(bool ignoreChangesMask, ByteBuffer& da
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 3);
+    data.WriteBits(changesMask.GetBlock(0), 5);
 
     data.FlushBits();
     if (changesMask[0])
     {
         if (changesMask[1])
         {
-            data << *Extents;
+            data << float(ExtentsX);
         }
         if (changesMask[2])
         {
-            data << *ExtentsTarget;
+            data << float(ExtentsY);
+        }
+        if (changesMask[3])
+        {
+            data << float(ExtentsTargetX);
+        }
+        if (changesMask[4])
+        {
+            data << float(ExtentsTargetY);
         }
     }
 }
 
 void AreaTriggerBoundedPlane::ClearChangesMask()
 {
-    Base::ClearChangesMask(Extents);
-    Base::ClearChangesMask(ExtentsTarget);
+    Base::ClearChangesMask(ExtentsX);
+    Base::ClearChangesMask(ExtentsY);
+    Base::ClearChangesMask(ExtentsTargetX);
+    Base::ClearChangesMask(ExtentsTargetY);
     _changesMask.ResetAll();
 }
 
