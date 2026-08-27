@@ -158,8 +158,8 @@ WorldPacket const* LFGUpdateStatus::Write()
     for (ObjectGuid const& suspendedPlayer : SuspendedPlayers)
         _worldPacket << suspendedPlayer;
 
-    _worldPacket.WriteBit(IsParty);
     _worldPacket.WriteBit(NotifyUI);
+    _worldPacket.WriteBit(IsParty);
     _worldPacket.WriteBit(Joined);
     _worldPacket.WriteBit(LfgJoined);
     _worldPacket.WriteBit(Queued);
