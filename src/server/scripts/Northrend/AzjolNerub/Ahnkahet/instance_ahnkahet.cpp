@@ -47,11 +47,11 @@ BossBoundaryData const boundaries =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_ELDER_NADOX, {{ 1969 }} },
-    { DATA_PRINCE_TALDARAM, {{ 1966 }} },
-    { DATA_JEDOGA_SHADOWSEEKER, {{ 1967 }} },
+    { DATA_ELDER_NADOX, {{ 212 }} },
+    { DATA_PRINCE_TALDARAM, {{ 213 }} },
+    { DATA_JEDOGA_SHADOWSEEKER, {{ 214 }} },
     { DATA_AMANITAR, {{ 1989 }} },
-    { DATA_HERALD_VOLAZJ, {{ 1968 }} }
+    { DATA_HERALD_VOLAZJ, {{ 215 }} }
 };
 
 class instance_ahnkahet : public InstanceMapScript

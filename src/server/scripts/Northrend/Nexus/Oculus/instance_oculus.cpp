@@ -34,10 +34,10 @@ static constexpr DoorData doorData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_DRAKOS, {{ 528, 529, 2016 }} },
-    { DATA_VAROS, {{ 530, 531, 2015 }} },
-    { DATA_UROM, {{ 532, 533, 2014 }} },
-    { DATA_EREGOS, {{ 534, 535, 2013 }} }
+    { DATA_DRAKOS, {{ 528 }} },
+    { DATA_VAROS, {{ 530 }} },
+    { DATA_UROM, {{ 532 }} },
+    { DATA_EREGOS, {{ 534 }} }
 };
 
 static constexpr Position VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };

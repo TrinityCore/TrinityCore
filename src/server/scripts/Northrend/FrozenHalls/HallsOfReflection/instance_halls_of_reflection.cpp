@@ -27,9 +27,9 @@
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_FALRIC, {{ 1992 }} },
-    { DATA_MARWYN, {{ 1993 }} },
-    { DATA_THE_LICH_KING_ESCAPE, {{ 1990 }} }
+    { DATA_FALRIC, {{ 841 }} },
+    { DATA_MARWYN, {{ 839 }} },
+    { DATA_THE_LICH_KING_ESCAPE, {{ 843 }} }
 };
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position

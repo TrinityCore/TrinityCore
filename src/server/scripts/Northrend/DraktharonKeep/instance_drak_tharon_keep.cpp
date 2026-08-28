@@ -24,10 +24,10 @@
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_TROLLGORE, {{ 1974 }} },
-    { DATA_NOVOS, {{ 1976 }} },
-    { DATA_KING_DRED, {{ 1977 }} },
-    { DATA_THARON_JA, {{ 1975 }} }
+    { DATA_TROLLGORE, {{ 369 }} },
+    { DATA_NOVOS, {{ 371 }} },
+    { DATA_KING_DRED, {{ 373 }} },
+    { DATA_THARON_JA, {{ 375 }} }
 };
 
 class instance_drak_tharon_keep : public InstanceMapScript

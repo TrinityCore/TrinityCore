@@ -35,6 +35,13 @@ static Position const PortalPosition2 = { -1961.734f, 7029.528f, 21.8114f,  2.12
 static Position const PortalPosition3 = { -1887.695f, 7106.557f, 22.0495f,  4.956735f };
 static Position const PortalPosition4 = { -1930.911f, 7183.597f, 23.00764f, 3.595378f };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DEJA, {{ 1919 }} },
+    { DATA_TEMPORUS, {{ 1920 }} },
+    { DATA_AEONUS, {{ 1921 }} }
+};
+
 class instance_the_black_morass : public InstanceMapScript
 {
 public:
@@ -52,6 +59,7 @@ public:
             SetHeaders(DataHeader);
             LoadObjectData(creatureData, {});
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(encounters);
             DoResetEvent();
         }
 

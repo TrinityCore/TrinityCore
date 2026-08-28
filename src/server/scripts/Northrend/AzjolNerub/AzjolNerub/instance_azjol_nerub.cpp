@@ -55,9 +55,9 @@ BossBoundaryData const boundaries =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_KRIKTHIR, {{ 1971 }} },
-    { DATA_HADRONOX, {{ 1972 }} },
-    { DATA_ANUBARAK, {{ 1973 }} }
+    { DATA_KRIKTHIR, {{ 216 }} },
+    { DATA_HADRONOX, {{ 217 }} },
+    { DATA_ANUBARAK, {{ 218 }} }
 };
 
 class instance_azjol_nerub : public InstanceMapScript

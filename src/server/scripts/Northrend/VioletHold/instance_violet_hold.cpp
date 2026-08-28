@@ -210,9 +210,9 @@ static constexpr MinionData minionData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_1ST_BOSS, {{ 2019 }} },
-    { DATA_2ND_BOSS, {{ 2018 }} },
-    { DATA_CYANIGOSA, {{ 2020 }} }
+    { DATA_1ST_BOSS, {{ 541 }} },
+    { DATA_2ND_BOSS, {{ 543 }} },
+    { DATA_CYANIGOSA, {{ 545 }} }
 };
 
 class instance_violet_hold : public InstanceMapScript

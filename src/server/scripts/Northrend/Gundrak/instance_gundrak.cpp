@@ -53,10 +53,10 @@ static constexpr ObjectData gameObjectData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_SLAD_RAN, {{ 1978 }} },
-    { DATA_DRAKKARI_COLOSSUS, {{ 1983 }} },
-    { DATA_MOORABI, {{ 1980 }} },
-    { DATA_GAL_DARAH, {{ 1981 }} },
+    { DATA_SLAD_RAN, {{ 383 }} },
+    { DATA_DRAKKARI_COLOSSUS, {{ 385 }} },
+    { DATA_MOORABI, {{ 387 }} },
+    { DATA_GAL_DARAH, {{ 390 }} },
     { DATA_ECK_THE_FEROCIOUS, {{ 1988 }} }
 };
 

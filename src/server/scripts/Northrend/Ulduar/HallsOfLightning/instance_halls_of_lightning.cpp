@@ -47,10 +47,10 @@ static constexpr ObjectData gameObjectData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { BOSS_GENERAL_BJARNGRIM, {{ 1987 }} },
-    { BOSS_VOLKHAN, {{ 1985 }} },
-    { BOSS_IONAR, {{ 1984 }} },
-    { BOSS_LOKEN, {{ 1986 }} }
+    { BOSS_GENERAL_BJARNGRIM, {{ 555 }} },
+    { BOSS_VOLKHAN, {{ 557 }} },
+    { BOSS_IONAR, {{ 559 }} },
+    { BOSS_LOKEN, {{ 561 }} }
 };
 
 class instance_halls_of_lightning : public InstanceMapScript

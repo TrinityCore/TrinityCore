@@ -29,9 +29,9 @@ static constexpr DoorData doorData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_PRINCE_KELESETH, {{ 2026 }} },
-    { DATA_SKARVALD_DALRONN, {{ 2024 }} },
-    { DATA_INGVAR, {{ 2025 }} }
+    { DATA_PRINCE_KELESETH, {{ 571 }} },
+    { DATA_SKARVALD_DALRONN, {{ 573 }} },
+    { DATA_INGVAR, {{ 575 }} }
 };
 
 class instance_utgarde_keep : public InstanceMapScript

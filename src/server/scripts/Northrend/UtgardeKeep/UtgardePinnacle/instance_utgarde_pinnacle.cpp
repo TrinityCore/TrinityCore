@@ -55,10 +55,10 @@ static constexpr ObjectData gameObjectData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_SVALA_SORROWGRAVE, {{ 2030 }} },
-    { DATA_GORTOK_PALEHOOF, {{ 2027 }} },
-    { DATA_SKADI_THE_RUTHLESS, {{ 2029 }} },
-    { DATA_KING_YMIRON, {{ 2028 }} }
+    { DATA_SVALA_SORROWGRAVE, {{ 577 }} },
+    { DATA_GORTOK_PALEHOOF, {{ 579 }} },
+    { DATA_SKADI_THE_RUTHLESS, {{ 581 }} },
+    { DATA_KING_YMIRON, {{ 583 }} }
 };
 
 class instance_utgarde_pinnacle : public InstanceMapScript

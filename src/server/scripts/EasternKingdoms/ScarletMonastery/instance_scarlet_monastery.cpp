@@ -52,7 +52,7 @@ static constexpr ObjectData gameObjectData[] =
 static constexpr DungeonEncounterData Encounters[] =
 {
     { DATA_INTERROGATOR_VISHAS, { { 444 } } },
-    { DATA_BLOODMAGE_THALNOS, { { 2818 } } },
+    { DATA_BLOODMAGE_THALNOS, { { 445 } } },
     { DATA_HOUNDMASTER_LOKSEY, { { 446 } } },
     { DATA_ARCANIST_DOAN, { { 447 } } },
     { DATA_HEROD, { { 448 } } },

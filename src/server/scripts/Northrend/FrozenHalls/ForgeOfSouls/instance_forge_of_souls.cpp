@@ -30,8 +30,8 @@ BossBoundaryData const boundaries =
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_BRONJAHM, {{ 2006 }} },
-    { DATA_DEVOURER_OF_SOULS, {{ 2007 }} }
+    { DATA_BRONJAHM, {{ 829 }} },
+    { DATA_DEVOURER_OF_SOULS, {{ 831 }} }
 };
 
 class instance_forge_of_souls : public InstanceMapScript

@@ -128,10 +128,10 @@ static constexpr DoorData doorData[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_MEATHOOK, {{ 2002 }} },
-    { DATA_SALRAMM, {{ 2004 }} },
-    { DATA_EPOCH, {{ 2003 }} },
-    { DATA_MAL_GANIS, {{ 2005 }} }
+    { DATA_MEATHOOK, {{ 293 }} },
+    { DATA_SALRAMM, {{ 294 }} },
+    { DATA_EPOCH, {{ 295 }} },
+    { DATA_MAL_GANIS, {{ 296 }} }
 };
 
 COSProgressStates GetStableStateFor(COSProgressStates const state)

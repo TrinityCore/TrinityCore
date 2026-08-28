@@ -36,9 +36,9 @@ static constexpr DoorData Doors[] =
 
 static constexpr DungeonEncounterData encounters[] =
 {
-    { DATA_GARFROST, {{ 1999 }} },
-    { DATA_ICK, {{ 2001 }} },
-    { DATA_TYRANNUS, {{ 2000 }} }
+    { DATA_GARFROST, {{ 833 }} },
+    { DATA_ICK, {{ 835 }} },
+    { DATA_TYRANNUS, {{ 837 }} }
 };
 
 class instance_pit_of_saron : public InstanceMapScript
