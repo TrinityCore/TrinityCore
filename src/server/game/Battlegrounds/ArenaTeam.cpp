@@ -16,6 +16,7 @@
  */
 
 #include "ArenaTeam.h"
+#include "ArenaPackets.h"
 #include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
@@ -415,6 +416,56 @@ void ArenaTeam::NotifyStatsChanged()
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             SendStats(player->GetSession());
+}
+
+void ArenaTeam::Roster(WorldSession* session)
+{
+    WorldPackets::Arena::SArenaTeamRoster packet;
+    packet.TeamID = GetId();
+    packet.TeamSize = GetType();
+
+    ArenaTeamStats const& stats = GetStats();
+    packet.MatchesPlayed = stats.WeekGames;
+    packet.MatchesWon = stats.WeekWins;
+    packet.SeasonMatchesPlayed = stats.SeasonGames;
+    packet.SeasonMatchesWon = stats.SeasonWins;
+    packet.Rating = stats.Rating;
+    packet.Rating = stats.Rank;
+
+    for (ArenaTeamMember const& member : Members)
+    {
+        WorldPackets::Arena::ArenaTeamMember& arenaTeamMember = packet.Members.emplace_back();
+
+        Player const* player = ObjectAccessor::FindConnectedPlayer(member.Guid);
+        arenaTeamMember.Online = player != nullptr;
+        arenaTeamMember.Rank = GetCaptain() == member.Guid ? 1 : 0;
+        arenaTeamMember.Name = member.Name;
+        arenaTeamMember.ClassID = member.Class;
+        arenaTeamMember.Level = player ? player->GetLevel() : 0;
+        arenaTeamMember.WeekMatches = member.WeekGames;
+        arenaTeamMember.WeekWins = member.WeekWins;
+        arenaTeamMember.SeasonMatches = member.SeasonGames;
+        arenaTeamMember.SeasonWins = member.SeasonWins;
+        arenaTeamMember.ContributionRating = member.PersonalRating;
+    }
+
+    session->SendPacket(packet.Write());
+}
+
+void ArenaTeam::Query(WorldSession* session)
+{
+    WorldPackets::Arena::QueryArenaTeamResponse packet;
+    packet.Allow = true;
+    packet.TeamID = GetId();
+    packet.TeamSize = GetType();
+    packet.Name = GetName();
+    packet.EmblemBackground = BackgroundColor;
+    packet.EmblemIconStyle = EmblemStyle;
+    packet.EmblemIconColor = EmblemColor;
+    packet.EmblemBorderStyle = BorderStyle;
+    packet.EmblemBorderColor = BorderColor;
+
+    session->SendPacket(packet.Write());
 }
 
 void ArenaTeam::Inspect(WorldSession* /*session*/, ObjectGuid guid)

@@ -19,6 +19,8 @@
 #define ArenaPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {
@@ -42,6 +44,74 @@ namespace WorldPackets
             bool Unk8 = 0;
             bool Unk9 = 0;
         };
+
+        class CArenaTeamRoster final : public ClientPacket
+        {
+        public:
+            CArenaTeamRoster(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_ROSTER, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TeamID = 0;
+
+        };
+
+        struct ArenaTeamMember
+        {
+            ObjectGuid MemberGUID;
+            bool Online = false;
+            uint32 Rank = 0;
+            uint8 Level = 0;
+            uint8 ClassID = 0;
+            int32 WeekMatches = 0;
+            int32 WeekWins = 0;
+            int32 SeasonMatches = 0;
+            int32 SeasonWins = 0;
+            int32 ContributionRating = 0;
+            std::string Name;
+            Optional<float> GDFRating = 0.0f;
+            Optional<float> GDFVariance = 0.0f;
+        };
+
+        class SArenaTeamRoster final : public ServerPacket
+        {
+        public:
+            SArenaTeamRoster() : ServerPacket(SMSG_ARENA_TEAM_ROSTER, 100) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TeamID = 0;
+            int32 TeamSize = 0;
+            int32 MatchesPlayed = 0;
+            int32 MatchesWon = 0;
+            int32 SeasonMatchesPlayed = 0;
+            int32 SeasonMatchesWon = 0;
+            int32 Rating = 0;
+            int32 Ranking = 0;
+            bool Disqualified = false;
+
+            std::vector<ArenaTeamMember> Members;
+        };
+
+        class QueryArenaTeamResponse final : public ServerPacket
+        {
+        public:
+            QueryArenaTeamResponse() : ServerPacket(SMSG_QUERY_ARENA_TEAM_RESPONSE, 50) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TeamID = 0;
+            bool Allow = false;
+            int32 TeamSize = 0;
+            int32 EmblemBackground = 0;
+            int32 EmblemIconStyle = 0;
+            int32 EmblemIconColor = 0;
+            int32 EmblemBorderStyle = 0;
+            int32 EmblemBorderColor = 0;
+            std::string Name;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ArenaTeamMember const& member);
     }
 }
 

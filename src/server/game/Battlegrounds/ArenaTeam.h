@@ -160,6 +160,8 @@ class TC_GAME_API ArenaTeam
         void BroadcastPacket(WorldPacket* packet);
         void NotifyStatsChanged();
 
+        void Roster(WorldSession* session);
+        void Query(WorldSession* session);
         void SendStats(WorldSession* session);
         void Inspect(WorldSession* session, ObjectGuid guid);
 

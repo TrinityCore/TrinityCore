@@ -116,6 +116,11 @@ namespace WorldPackets
         class AreaTrigger;
     }
 
+    namespace Arena
+    {
+        class CArenaTeamRoster;
+    }
+
     namespace AuctionHouse
     {
         class AuctionBrowseQuery;
@@ -1550,6 +1555,9 @@ class TC_GAME_API WorldSession
         void HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue);
         void HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& hearthAndResurrect);
         void HandleRequestBattlefieldStatusOpcode(WorldPackets::Battleground::RequestBattlefieldStatus& requestBattlefieldStatus);
+
+        // Arena
+        void HandleArenaTeamRosterOpcode(WorldPackets::Arena::CArenaTeamRoster& arenaTeamRoster);
 
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
