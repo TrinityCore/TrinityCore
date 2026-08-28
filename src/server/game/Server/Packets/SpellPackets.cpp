@@ -1037,7 +1037,7 @@ WorldPacket const* MirrorImageComponentedData::Write()
     _worldPacket << GuildGUID;
     _worldPacket << Size<uint32>(ItemDisplayID);
     _worldPacket << int32(SpellVisualKitID);
-    _worldPacket << int32(Unused_1115);
+    _worldPacket << float(DisplayScale);
 
     for (Character::ChrCustomizationChoice const& customization : Customizations)
         _worldPacket << customization;
