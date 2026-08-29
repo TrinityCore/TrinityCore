@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "CharacterCache.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "GossipDef.h"
 #include "Guild.h"
@@ -33,7 +34,14 @@
 #include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161
-#define GUILD_CHARTER_ITEM_ID 5863
+
+enum class CharterItemId : uint32
+{
+    GuidCharter          = 5863,
+    ArenaTeamCharter2v2  = 23560,
+    ArenaTeamCharter3v3  = 23561,
+    ArenaTeamCharter5v5  = 23562
+};
 
 void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet)
 {
@@ -51,7 +59,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    uint32 charterItemID = GUILD_CHARTER_ITEM_ID;
+    uint32 charterItemID = AsUnderlyingType(CharterItemId::GuidCharter);
     uint32 cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD);
 
     // do not let if already in guild.
@@ -460,6 +468,42 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
 
     WorldPackets::Petition::ServerPetitionShowList packet;
     packet.Unit = guid;
-    packet.Price = uint32(sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD));
+
+    if (creature->IsTabardDesigner())
+    {
+        WorldPackets::Petition::JamPetitionList& listEntry = packet.Petitions.emplace_back();
+        listEntry.Index = 1;
+        listEntry.CharterEntry = AsUnderlyingType(CharterItemId::GuidCharter);
+        listEntry.CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD);
+        listEntry.RequiredSigns = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+        packet.Petitions[0].Unk440 = 0;
+    }
+    else
+    {
+        packet.Petitions.resize(3);
+
+        // Arena Team Charters
+        // 2v2
+        packet.Petitions[0].Index = 1;
+        packet.Petitions[0].CharterEntry = AsUnderlyingType(CharterItemId::ArenaTeamCharter2v2);
+        packet.Petitions[0].CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_2v2);
+        packet.Petitions[0].Unk440 = 2;
+        packet.Petitions[0].RequiredSigns = 2;
+
+        // 3v3
+        packet.Petitions[1].Index = 2;
+        packet.Petitions[1].CharterEntry = AsUnderlyingType(CharterItemId::ArenaTeamCharter3v3);
+        packet.Petitions[1].CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_3v3);
+        packet.Petitions[1].Unk440 = 3;
+        packet.Petitions[1].RequiredSigns = 3;
+
+        // 5v5
+        packet.Petitions[2].Index = 3;
+        packet.Petitions[2].CharterEntry = AsUnderlyingType(CharterItemId::ArenaTeamCharter5v5);
+        packet.Petitions[2].CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_5v5);
+        packet.Petitions[2].Unk440 = 5;
+        packet.Petitions[2].RequiredSigns = 5;
+    }
+
     SendPacket(packet.Write());
 }

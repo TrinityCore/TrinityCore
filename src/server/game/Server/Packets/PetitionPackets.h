@@ -80,6 +80,15 @@ namespace WorldPackets
             ObjectGuid PetitionUnit;
         };
 
+        struct JamPetitionList
+        {
+            uint32 Index = 0;
+            uint32 CharterCost = 0;
+            uint32 CharterEntry = 0;
+            uint32 Unk440 = 0;
+            uint32 RequiredSigns = 0;
+        };
+
         class ServerPetitionShowList final : public ServerPacket
         {
         public:
@@ -88,7 +97,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Unit;
-            uint32 Price = 0;
+            std::vector<JamPetitionList> Petitions;
         };
 
         class PetitionBuy final : public ClientPacket

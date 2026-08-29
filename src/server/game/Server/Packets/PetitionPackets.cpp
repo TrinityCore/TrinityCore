@@ -78,10 +78,24 @@ void PetitionShowList::Read()
     _worldPacket >> PetitionUnit;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, JamPetitionList const& petitionList)
+{
+    data << uint32(petitionList.Index);
+    data << uint32(petitionList.CharterCost);
+    data << uint32(petitionList.CharterEntry);
+    data << uint32(petitionList.Unk440);
+    data << uint32(petitionList.RequiredSigns);
+
+    return data;
+}
+
 WorldPacket const* ServerPetitionShowList::Write()
 {
     _worldPacket << Unit;
-    _worldPacket << Price;
+    _worldPacket << Size<uint32>(Petitions);
+
+    for (JamPetitionList const& entry : Petitions)
+        _worldPacket << entry;
 
     return &_worldPacket;
 }
