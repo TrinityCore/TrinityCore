@@ -503,7 +503,9 @@ WorldPacket const* QuestGiverQuestDetails::Write()
     _worldPacket << BitsSize<10>(PortraitTurnInText);
     _worldPacket << BitsSize<8>(PortraitTurnInName);
     _worldPacket << Bits<1>(AutoLaunched);
-    _worldPacket << Bits<1>(false);   // unused in client
+    _worldPacket << Bits<1>(FromContentPush);
+    _worldPacket << Bits<1>(ReplayQuest); // unused in client
+    _worldPacket << Bits<1>(ResetByScheduler);
     _worldPacket << Bits<1>(StartCheat);
     _worldPacket << Bits<1>(DisplayPopup);
     _worldPacket.FlushBits();

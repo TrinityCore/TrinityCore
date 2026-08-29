@@ -446,6 +446,9 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
+            bool FromContentPush = false;
+            bool ReplayQuest = false;
+            bool ResetByScheduler = false;
         };
 
         struct QuestObjectiveCollect
