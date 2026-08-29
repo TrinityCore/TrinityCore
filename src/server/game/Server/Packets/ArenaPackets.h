@@ -111,6 +111,68 @@ namespace WorldPackets
             std::string Name;
         };
 
+        class ArenaTeamAccept final : public ClientPacket
+        {
+        public:
+            ArenaTeamAccept(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_ACCEPT, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ArenaTeamDecline final : public ClientPacket
+        {
+        public:
+            ArenaTeamDecline(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_DECLINE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class ArenaTeamCommandResult final : public ServerPacket
+        {
+        public:
+            ArenaTeamCommandResult() : ServerPacket(SMSG_ARENA_TEAM_COMMAND_RESULT, 50) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Action = 0;
+            uint8 ErrorID = 0;
+            std::string TeamName;
+            std::string PlayerName;
+        };
+
+        class ArenaTeamEvent final : public ServerPacket
+        {
+        public:
+            ArenaTeamEvent() : ServerPacket(SMSG_ARENA_TEAM_EVENT, 1 + 2 + 2 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Event = 0;
+            std::array<std::string, 3> Params = { };
+        };
+
+        class ArenaTeamDisband final : public ClientPacket
+        {
+        public:
+            ArenaTeamDisband(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_DISBAND, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TeamID = 0;
+
+        };
+
+        class ArenaTeamLeave final : public ClientPacket
+        {
+        public:
+            ArenaTeamLeave(WorldPacket&& packet) : ClientPacket(CMSG_ARENA_TEAM_LEAVE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TeamID = 0;
+
+        };
+
         ByteBuffer& operator<<(ByteBuffer& data, ArenaTeamMember const& member);
     }
 }

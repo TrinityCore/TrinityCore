@@ -17,6 +17,7 @@
 
 #include "ArenaPackets.h"
 #include "PacketUtilities.h"
+#include "Player.h"
 #include "SharedDefines.h"
 
 WorldPacket const* WorldPackets::Arena::PvpSeason::Write()
@@ -84,6 +85,46 @@ WorldPacket const* WorldPackets::Arena::QueryArenaTeamResponse::Write()
     }
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Arena::ArenaTeamCommandResult::Write()
+{
+    _worldPacket << uint8(Action);
+    _worldPacket << uint8(ErrorID);
+
+    _worldPacket << BitsSize<7>(TeamName);
+    _worldPacket << BitsSize<6>(PlayerName);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(TeamName);
+    _worldPacket.WriteString(PlayerName);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Arena::ArenaTeamEvent::Write()
+{
+    _worldPacket << uint8(Event);
+
+    for (std::string const& param : Params)
+        _worldPacket << BitsSize<9>(param);
+
+    _worldPacket.FlushBits();
+
+    for (std::string const& param : Params)
+        _worldPacket.WriteString(param);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Arena::ArenaTeamDisband::Read()
+{
+    _worldPacket >> TeamID;
+}
+
+void WorldPackets::Arena::ArenaTeamLeave::Read()
+{
+    _worldPacket >> TeamID;
 }
 
 ByteBuffer& WorldPackets::Arena::operator<<(ByteBuffer& data, ArenaTeamMember const& member)

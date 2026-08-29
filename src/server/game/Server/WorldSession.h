@@ -118,6 +118,10 @@ namespace WorldPackets
 
     namespace Arena
     {
+        class ArenaTeamAccept;
+        class ArenaTeamDecline;
+        class ArenaTeamDisband;
+        class ArenaTeamLeave;
         class CArenaTeamRoster;
     }
 
@@ -1558,6 +1562,11 @@ class TC_GAME_API WorldSession
 
         // Arena
         void HandleArenaTeamRosterOpcode(WorldPackets::Arena::CArenaTeamRoster& arenaTeamRoster);
+        void HandleArenaTeamAcceptOpcode(WorldPackets::Arena::ArenaTeamAccept& arenaTeamAccept);
+        void HandleArenaTeamDeclineOpcode(WorldPackets::Arena::ArenaTeamDecline& arenaTeamAccept);
+        void HandleArenaTeamDisbandOpcode(WorldPackets::Arena::ArenaTeamDisband& arenaTeamDisband);
+        void HandleArenaTeamLeaveOpcode(WorldPackets::Arena::ArenaTeamLeave& arenaTeamLeave);
+        void SendArenaTeamCommandResult(uint32 teamAction, std::string const& team, std::string const& player, uint32 errorId);
 
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
