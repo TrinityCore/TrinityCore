@@ -430,7 +430,7 @@ void ArenaTeam::Roster(WorldSession* session)
     packet.SeasonMatchesPlayed = stats.SeasonGames;
     packet.SeasonMatchesWon = stats.SeasonWins;
     packet.Rating = stats.Rating;
-    packet.Rating = stats.Rank;
+    packet.Ranking = stats.Rank;
 
     for (ArenaTeamMember const& member : Members)
     {

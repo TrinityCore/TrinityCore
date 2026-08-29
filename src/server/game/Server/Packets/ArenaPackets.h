@@ -170,7 +170,30 @@ namespace WorldPackets
             void Read() override;
 
             int32 TeamID = 0;
+        };
 
+        class QueryArenaTeam final : public ClientPacket
+        {
+        public:
+            QueryArenaTeam(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_ARENA_TEAM, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TeamID = 0;
+        };
+
+        class ArenaTeamInvite final : public ServerPacket
+        {
+        public:
+            ArenaTeamInvite() : ServerPacket(SMSG_ARENA_TEAM_INVITE, 16 + 16 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            ObjectGuid TeamGUID;
+            uint32 PlayerVirtualAddress = 0;
+            std::string PlayerName;
+            std::string TeamName;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, ArenaTeamMember const& member);

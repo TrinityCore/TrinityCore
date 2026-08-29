@@ -145,6 +145,21 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPackets::Arena::ArenaTeamLeav
     SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, arenaTeam->GetName(), "", 0);
 }
 
+void WorldSession::HandleQueryArenaTeamOpcode(WorldPackets::Arena::QueryArenaTeam& queryArenaTeam)
+{
+    if (ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(queryArenaTeam.TeamID))
+    {
+        arenaTeam->Query(this);
+        arenaTeam->SendStats(this);
+    }
+    else
+    {
+        WorldPackets::Arena::QueryArenaTeamResponse packet;
+        packet.TeamID = queryArenaTeam.TeamID;
+        packet.Allow = false;
+    }
+}
+
 void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, std::string const& team, std::string const& player,uint32 errorId)
 {
     WorldPackets::Arena::ArenaTeamCommandResult packet;

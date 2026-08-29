@@ -127,6 +127,27 @@ void WorldPackets::Arena::ArenaTeamLeave::Read()
     _worldPacket >> TeamID;
 }
 
+void WorldPackets::Arena::QueryArenaTeam::Read()
+{
+    _worldPacket >> TeamID;
+}
+
+WorldPacket const* WorldPackets::Arena::ArenaTeamInvite::Write()
+{
+    _worldPacket << PlayerGUID;
+    _worldPacket << uint32(PlayerVirtualAddress);
+    _worldPacket << TeamGUID;
+
+    _worldPacket << BitsSize<6>(PlayerName);
+    _worldPacket << BitsSize<7>(TeamName);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(PlayerName);
+    _worldPacket.WriteString(TeamName);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& WorldPackets::Arena::operator<<(ByteBuffer& data, ArenaTeamMember const& member)
 {
     data << member.MemberGUID;

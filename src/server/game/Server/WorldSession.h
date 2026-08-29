@@ -123,6 +123,7 @@ namespace WorldPackets
         class ArenaTeamDisband;
         class ArenaTeamLeave;
         class CArenaTeamRoster;
+        class QueryArenaTeam;
     }
 
     namespace AuctionHouse
@@ -1566,6 +1567,7 @@ class TC_GAME_API WorldSession
         void HandleArenaTeamDeclineOpcode(WorldPackets::Arena::ArenaTeamDecline& arenaTeamAccept);
         void HandleArenaTeamDisbandOpcode(WorldPackets::Arena::ArenaTeamDisband& arenaTeamDisband);
         void HandleArenaTeamLeaveOpcode(WorldPackets::Arena::ArenaTeamLeave& arenaTeamLeave);
+        void HandleQueryArenaTeamOpcode(WorldPackets::Arena::QueryArenaTeam& queryArenaTeam);
         void SendArenaTeamCommandResult(uint32 teamAction, std::string const& team, std::string const& player, uint32 errorId);
 
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
