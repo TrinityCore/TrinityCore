@@ -15151,14 +15151,20 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             {
                 for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
                 {
-                    if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemType[i] == LootItemType::Item && quest->RewardChoiceItemId[i] == rewardId)
+                    if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemType[i] == LootItemType::Item)
                     {
-                        ItemPosCountVec dest;
-                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, rewardId, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
+                        if (quest->RewardChoiceItemId[i] == rewardId)
                         {
-                            Item* item = StoreNewItem(dest, rewardId, true, GenerateItemRandomBonusListId(rewardId), {}, ItemContext::Quest_Reward);
-                            SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
+                            ItemPosCountVec dest;
+                            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, rewardId, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
+                            {
+                                Item* item = StoreNewItem(dest, rewardId, true, GenerateItemRandomBonusListId(rewardId), {}, ItemContext::Quest_Reward);
+                                SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
+                            }
                         }
+
+                        // Add the remaining item appearances for the quest if possible
+                        GetSession()->GetCollectionMgr()->AddItemAppearance(quest->RewardChoiceItemId[i]);
                     }
                 }
             }
