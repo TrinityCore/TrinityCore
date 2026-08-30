@@ -130,6 +130,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY, "DELETE FROM character_queststatus_monthly", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT, "DELETE FROM character_queststatus_seasonal WHERE event = ? AND completedTime < ?", CONNECTION_ASYNC);
 
+    PrepareStatement(CHAR_SEL_CHARACTER_REWARDSTATUS_LFG, "SELECT dungeonId, rewardCount, dailyReset FROM character_rewardstatus_lfg WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_REWARDSTATUS_LFG, "DELETE FROM character_rewardstatus_lfg WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG, "INSERT INTO character_rewardstatus_lfg (guid, dungeonId, rewardCount, dailyReset) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_WEEKLY, "DELETE FROM character_rewardstatus_lfg WHERE dailyReset = 0", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_DAILY, "DELETE FROM character_rewardstatus_lfg WHERE dailyReset = 1", CONNECTION_ASYNC);
+
     PrepareStatement(CHAR_SEL_CHARACTER_REPUTATION, "SELECT faction, standing, flags FROM character_reputation WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_INVENTORY, "SELECT " SelectItemInstanceContent ", bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid LEFT JOIN item_instance_gems ig ON ii.guid = ig.itemGuid LEFT JOIN item_instance_transmog iit ON ii.guid = iit.itemGuid LEFT JOIN item_instance_modifiers im ON ii.guid = im.itemGuid WHERE ci.guid = ? ORDER BY (ii.flags & 0x80000) ASC, bag ASC, slot ASC", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_MAIL_COUNT, "SELECT COUNT(*) FROM mail WHERE receiver = ?", CONNECTION_ASYNC);

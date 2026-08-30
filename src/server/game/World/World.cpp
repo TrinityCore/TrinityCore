@@ -3463,10 +3463,19 @@ void World::DailyReset()
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
     CharacterDatabase.Execute(stmt);
 
+    // reset all saved lfg reward status
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_DAILY);
+    CharacterDatabase.Execute(stmt);
+
     // reset all quest status in memory
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
         if (Player* player = itr->second->GetPlayer())
+        {
             player->DailyReset();
+            player->ResetDailyLfgRewardStatus();
+        }
+    }
 
     // reselect pools
     sQuestPoolMgr->ChangeDailyQuests();
@@ -3499,10 +3508,20 @@ void World::ResetWeeklyQuests()
     // reset all saved quest status
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
+
+    // reset all saved lfg reward status
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_REWARDSTATUS_LFG_WEEKLY);
+    CharacterDatabase.Execute(stmt);
+
     // reset all quest status in memory
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
         if (Player* player = itr->second->GetPlayer())
+        {
             player->ResetWeeklyQuestStatus();
+            player->ResetWeeklyLfgRewardStatus();
+        }
+    }
 
     // reselect pools
     sQuestPoolMgr->ChangeWeeklyQuests();

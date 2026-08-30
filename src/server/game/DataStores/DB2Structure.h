@@ -2209,6 +2209,7 @@ struct LFGDungeonsEntry
     std::array<int32, 2> Flags;
 
     uint32 Entry() const { return ID + (TypeID << 24); }
+    EnumFlag<LFGDungeonsFlags> GetFlags() const { return static_cast<LFGDungeonsFlags>(Flags[0]); }
 };
 
 // structure for Light.db2

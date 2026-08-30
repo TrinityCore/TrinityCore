@@ -161,21 +161,13 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     for (uint32 slot : randomDungeons)
     {
+        lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(slot & 0x00FFFFFF);
+        if (!dungeon)
+            continue;
+
         lfgPlayerInfo.Dungeon.emplace_back();
         WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo = lfgPlayerInfo.Dungeon.back();
         playerDungeonInfo.Slot = slot;
-        playerDungeonInfo.CompletionQuantity = 1;
-        playerDungeonInfo.CompletionLimit = 1;
-        playerDungeonInfo.CompletionCurrencyID = 0;
-        playerDungeonInfo.SpecificQuantity = 0;
-        playerDungeonInfo.SpecificLimit = 1;
-        playerDungeonInfo.OverallQuantity = 0;
-        playerDungeonInfo.OverallLimit = 1;
-        playerDungeonInfo.PurseWeeklyQuantity = 0;
-        playerDungeonInfo.PurseWeeklyLimit = 0;
-        playerDungeonInfo.PurseQuantity = 0;
-        playerDungeonInfo.PurseLimit = 0;
-        playerDungeonInfo.Quantity = 1;
         playerDungeonInfo.CompletedMask = 0;
         playerDungeonInfo.EncounterMask = 0;
 
@@ -183,14 +175,38 @@ void WorldSession::SendLfgPlayerLockInfo()
         {
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(reward->firstQuest))
             {
-                playerDungeonInfo.FirstReward = GetPlayer()->CanRewardQuest(quest, false);
+                if (_player->CanRewardQuest(quest, false))
+                {
+                    playerDungeonInfo.FirstReward = true;
+
+                    // The player can reward the lfg reward quest - now check if we are allowed to reward the quest
+                    uint8 rewardCount = dungeon->weeklyRewards ?
+                        _player->GetWeeklyLfgRewardCount(slot & 0x00FFFFFF) :
+                        _player->GetDailyLfgRewardCount(slot & 0x00FFFFFF);
+
+                    if (rewardCount < reward->rewardsPerPeriod)
+                    {
+                        playerDungeonInfo.CompletionQuantity = 1;
+                        playerDungeonInfo.CompletionLimit = reward->rewardsPerPeriod;
+                        playerDungeonInfo.SpecificLimit = reward->rewardsPerPeriod;
+                        playerDungeonInfo.OverallLimit = reward->rewardsPerPeriod;
+                        playerDungeonInfo.OverallQuantity = rewardCount;
+                        playerDungeonInfo.Quantity = 1;
+                    }
+                    else
+                        playerDungeonInfo.FirstReward = false;
+                }
+
                 if (!playerDungeonInfo.FirstReward)
                     quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
 
                 if (quest)
                 {
                     playerDungeonInfo.Rewards.RewardMoney = _player->GetQuestMoneyReward(quest);
-                    playerDungeonInfo.Rewards.RewardXP = _player->GetQuestXPReward(quest);
+
+                    if (!_player->IsMaxLevel())
+                        playerDungeonInfo.Rewards.RewardXP = _player->GetQuestXPReward(quest);
+
                     for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
                         if (uint32 itemId = quest->RewardItemId[i])
                             playerDungeonInfo.Rewards.Item.emplace_back(itemId, quest->RewardItemCount[i]);
@@ -203,7 +219,7 @@ void WorldSession::SendLfgPlayerLockInfo()
         }
     }
 
-    SendPacket(lfgPlayerInfo.Write());;
+    SendPacket(lfgPlayerInfo.Write());
 }
 
 void WorldSession::SendLfgPartyLockInfo()

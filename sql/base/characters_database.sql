@@ -1343,6 +1343,31 @@ LOCK TABLES `character_reputation` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_rewardstatus_lfg`
+--
+
+DROP TABLE IF EXISTS `character_rewardstatus_lfg`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_rewardstatus_lfg` (
+  `guid` int(10) NOT NULL DEFAULT 0 COMMENT 'Global Unique Identifier',
+  `dungeonId` smallint(3) NOT NULL DEFAULT 0 COMMENT 'Dungeon ID Identifier',
+  `rewardCount` tinyint(3) unsigned DEFAULT 0 COMMENT 'Dungeon First Reward Count Identifier',
+  `dailyReset` tinyint(1) unsigned DEFAULT 0 COMMENT 'Reward Count Daily Reset Identifier',
+  PRIMARY KEY (`guid`,`dungeonId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_rewardstatus_lfg`
+--
+
+LOCK TABLES `character_rewardstatus_lfg` WRITE;
+/*!40000 ALTER TABLE `character_rewardstatus_lfg` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_rewardstatus_lfg` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_skills`
 --
 
@@ -3393,7 +3418,8 @@ INSERT INTO `updates` VALUES
 ('2026_08_09_01_characters_2026_05_26_01_characters_2024_02_05_00_characters.sql','1777CBCA822AD85777DA4A390DF7AAF41AF68EBD','ARCHIVED','2024-02-05 12:17:19',0),
 ('2026_08_14_00_characters.sql','4AED1971B0E60E196122CC24C794AB22F83C3CF3','ARCHIVED','2026-08-14 06:53:01',0),
 ('2026_08_15_00_characters.sql','2136AF5F5DF926BB350BD14BEFB26C56FCCF4253','RELEASED','2026-08-15 14:48:00',0),
-('2026_08_22_00_characters.sql','62FF99C88CAABFDEC933B0EF15F0787C0DBE1190','RELEASED','2026-08-15 16:03:00',0);
+('2026_08_22_00_characters.sql','62FF99C88CAABFDEC933B0EF15F0787C0DBE1190','RELEASED','2026-08-15 16:03:00',0),
+('2026_08_29_00_characters.sql','3E13A0BE53FF679F92F8222B5F3897B740340237','RELEASED','2026-08-29 23:01:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

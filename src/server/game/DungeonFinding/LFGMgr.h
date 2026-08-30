@@ -63,14 +63,6 @@ enum LFGMgrEnum
     LFG_GROUP_KICK_VOTES_NEEDED                  = 3
 };
 
-enum LfgFlags
-{
-    LFG_FLAG_UNK1                                = 0x1,
-    LFG_FLAG_UNK2                                = 0x2,
-    LFG_FLAG_SEASONAL                            = 0x4,
-    LFG_FLAG_UNK3                                = 0x8
-};
-
 /// Determines the type of instance
 enum LfgType
 {
@@ -233,12 +225,13 @@ struct LfgPlayerRewardData
 /// Reward info
 struct LfgReward
 {
-    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0):
-        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest) { }
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint8 _rewardsPerPeriod = 1):
+        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), rewardsPerPeriod(_rewardsPerPeriod) { }
 
     uint32 maxLevel;
     uint32 firstQuest;
     uint32 otherQuest;
+    uint8 rewardsPerPeriod;
 };
 
 /// Stores player data related to proposal to join
@@ -306,6 +299,7 @@ struct LFGDungeonData
     uint8 maxLevel;
     Difficulty difficulty;
     bool seasonal;
+    bool weeklyRewards;
     float x, y, z, o;
     uint16 requiredItemLevel;
     uint32 finalDungeonEncounterId;
@@ -450,6 +444,8 @@ class TC_GAME_API LFGMgr
         static bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2);
         /// Sends queue status to player
         static void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data);
+        // Returns the cached dungeon data for the specified dungeonId
+        LFGDungeonData const* GetLFGDungeon(uint32 id);
 
     private:
         uint8 GetTeam(ObjectGuid guid);
@@ -465,7 +461,6 @@ class TC_GAME_API LFGMgr
         void RemovePlayerData(ObjectGuid guid);
         void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
-        LFGDungeonData const* GetLFGDungeon(uint32 id);
 
         // Proposals
         void RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdateType type);

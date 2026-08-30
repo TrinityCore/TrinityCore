@@ -14261,7 +14261,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     uint32 quest_id = quest->GetQuestId();
     QuestStatus oldStatus = GetQuestStatus(quest_id);
 
-    if (quest->IsDaily() || quest->IsDFQuest())
+    if (quest->IsDaily())
     {
         SetDailyQuestStatus(quest_id);
         if (quest->IsDaily())
@@ -15018,16 +15018,8 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestDay(Quest const* qInfo, bool /*msg*/) const
 {
-    if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
+    if (!qInfo->IsDaily())
         return true;
-
-    if (qInfo->IsDFQuest())
-    {
-        if (m_DFQuests.find(qInfo->GetQuestId()) != m_DFQuests.end())
-            return false;
-
-        return true;
-    }
 
     return m_activePlayerData->DailyQuestsCompleted.FindIndex(qInfo->GetQuestId()) == -1;
 }
@@ -17449,6 +17441,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     _LoadMonthlyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
     _LoadRandomBGStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG));
 
+    _LoadLFGRewardStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_LFG_REWARD_STATUS));
+
     // after spell and quest load
     InitGlyphsForLevel();
     UpdateAvailableTalentPoints();
@@ -17659,6 +17653,28 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
         }
 
         _CUFProfiles[id] = std::make_unique<CUFProfile>(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
+    }
+    while (result->NextRow());
+}
+
+void Player::_LoadLFGRewardStatus(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        // SELECT dungeonId, rewardCount, dailyReset FROM character_rewardstatus_lfg WHERE guid = ?
+        Field* fields = result->Fetch();
+
+        uint32 dungeonId = fields[0].GetUInt32();
+        uint8 rewardCount = fields[1].GetUInt8();
+        bool dailyReset = fields[2].GetBool();
+
+        if (dailyReset)
+            _dailyLfgRewardCounts.try_emplace(dungeonId, rewardCount);
+        else
+            _weeklyLfgRewardCounts.try_emplace(dungeonId, rewardCount);
     }
     while (result->NextRow());
 }
@@ -18528,8 +18544,6 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 {
-    m_DFQuests.clear();
-
     //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, time FROM character_queststatus_daily WHERE guid = '{}'", GetGUIDLow());
 
     if (result)
@@ -18538,16 +18552,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint32 quest_id = fields[0].GetUInt32();
-            if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
-            {
-                if (qQuest->IsDFQuest())
-                {
-                    m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = fields[1].GetInt64();
-                    continue;
-                }
-            }
-
             // save _any_ from daily quest times (it must be after last reset anyway)
             m_lastDailyQuestTime = fields[1].GetInt64();
 
@@ -19377,6 +19381,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     GetSession()->SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
+    _SaveLFGRewardStatus(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -19770,6 +19775,33 @@ void Player::_SaveCUFProfiles(CharacterDatabaseTransaction trans)
     }
 }
 
+void Player::_SaveLFGRewardStatus(CharacterDatabaseTransaction trans)
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_REWARDSTATUS_LFG);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+
+    for (std::pair<uint32, uint8> pair : _dailyLfgRewardCounts)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, pair.first);
+        stmt->setUInt8(2, pair.second);
+        stmt->setBool(3, true);
+        trans->Append(stmt);
+    }
+
+    for (std::pair<uint32, uint8> pair : _weeklyLfgRewardCounts)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_REWARDSTATUS_LFG);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, pair.first);
+        stmt->setUInt8(2, pair.second);
+        stmt->setBool(3, false);
+        trans->Append(stmt);
+    }
+}
+
 void Player::_SaveMail(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt;
@@ -19951,18 +19983,6 @@ void Player::_SaveDailyQuestStatus(CharacterDatabaseTransaction trans)
         stmt->setUInt32(1, questId);
         stmt->setInt64(2, m_lastDailyQuestTime);
         trans->Append(stmt);
-    }
-
-    if (!m_DFQuests.empty())
-    {
-        for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_DAILY);
-            stmt->setUInt64(0, GetGUID().GetCounter());
-            stmt->setUInt32(1, (*itr));
-            stmt->setInt64(2, m_lastDailyQuestTime);
-            trans->Append(stmt);
-        }
     }
 }
 
@@ -23912,21 +23932,9 @@ void Player::SendAurasForTarget(Unit* target) const
 
 void Player::SetDailyQuestStatus(uint32 quest_id)
 {
-    if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
-    {
-        if (!qQuest->IsDFQuest())
-        {
-            AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted)) = quest_id;
-            m_lastDailyQuestTime = GameTime::GetGameTime();              // last daily quest time
-            m_DailyQuestChanged = true;
-        }
-        else
-        {
-            m_DFQuests.insert(quest_id);
-            m_lastDailyQuestTime = GameTime::GetGameTime();
-            m_DailyQuestChanged = true;
-        }
-    }
+    AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted)) = quest_id;
+    m_lastDailyQuestTime = GameTime::GetGameTime();              // last daily quest time
+    m_DailyQuestChanged = true;
 }
 
 bool Player::IsDailyQuestDone(uint32 quest_id) const
@@ -23965,8 +23973,6 @@ void Player::DailyReset()
     SendDirectMessage(dailyQuestsReset.Write());
 
     ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted));
-
-    m_DFQuests.clear(); // Dungeon Finder Quests.
 
     for (uint16 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
@@ -28431,6 +28437,42 @@ void Player::SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 
     areaSpiritHealerTime.HealerGuid = spiritHealerGUID;
     areaSpiritHealerTime.TimeLeft = timeLeft;
     SendDirectMessage(areaSpiritHealerTime.Write());
+}
+
+void Player::ResetDailyLfgRewardStatus()
+{
+    _dailyLfgRewardCounts.clear();
+}
+
+void Player::ResetWeeklyLfgRewardStatus()
+{
+    _weeklyLfgRewardCounts.clear();
+}
+
+uint8 Player::GetDailyLfgRewardCount(uint32 lfgDungeonId) const
+{
+    if (uint8 const* count = Trinity::Containers::MapGetValuePtr(_dailyLfgRewardCounts, lfgDungeonId))
+        return *count;
+
+    return 0;
+}
+
+uint8 Player::GetWeeklyLfgRewardCount(uint32 lfgDungeonId) const
+{
+    if (uint8 const* count = Trinity::Containers::MapGetValuePtr(_weeklyLfgRewardCounts, lfgDungeonId))
+        return *count;
+
+    return 0;
+}
+
+void Player::IncrementDailyLfgRewardCount(uint32 lfgDungeonId)
+{
+    _dailyLfgRewardCounts[lfgDungeonId] += 1;
+}
+
+void Player::IncrementWeeklyLfgRewardCount(uint32 lfgDungeonId)
+{
+    _weeklyLfgRewardCounts[lfgDungeonId] += 1;
 }
 
 void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const

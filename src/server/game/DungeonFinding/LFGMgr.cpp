@@ -43,15 +43,15 @@ namespace lfg
 {
 
 LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minLevel(0), maxLevel(0),
-    difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
+    difficulty(DIFFICULTY_NONE), seasonal(false), weeklyRewards(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
 {
 }
 
 LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
     type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
     minLevel(dbc->MinLevel), maxLevel(dbc->MaxLevel), difficulty(Difficulty(dbc->DifficultyID)),
-    seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(dbc->MinGear), finalDungeonEncounterId(0)
+    seasonal(dbc->GetFlags().HasFlag(LFGDungeonsFlags::Holiday)), weeklyRewards(dbc->GetFlags().HasFlag(LFGDungeonsFlags::Weekly)),
+    x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(dbc->MinGear), finalDungeonEncounterId(0)
 {
     if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
         finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
@@ -127,7 +127,7 @@ void LFGMgr::LoadRewards()
     RewardMapStore.clear();
 
     // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId, rewardsPerPeriod FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
     if (!result)
     {
@@ -145,6 +145,7 @@ void LFGMgr::LoadRewards()
         uint32 maxLevel = fields[1].GetUInt8();
         uint32 firstQuestId = fields[2].GetUInt32();
         uint32 otherQuestId = fields[3].GetUInt32();
+        uint8 rewardsPerPeriod = fields[4].GetUInt8();
 
         if (!GetLFGDungeonEntry(dungeonId))
         {
@@ -170,7 +171,13 @@ void LFGMgr::LoadRewards()
             otherQuestId = 0;
         }
 
-        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId)));
+        if (!rewardsPerPeriod)
+        {
+            TC_LOG_ERROR("sql.sql", "Other rewardsPerPeriod specified for dungeon {} in table `lfg_dungeon_rewards` cannot be 0! Set to 1.", dungeonId);
+            rewardsPerPeriod = 1;
+        }
+
+        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, rewardsPerPeriod)));
         ++count;
     }
     while (result->NextRow());
@@ -1556,17 +1563,33 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (!reward)
             continue;
 
-        bool done = false;
+        bool firstReward = true;
         Quest const* quest = sObjectMgr->GetQuestTemplate(reward->firstQuest);
         if (!quest)
             continue;
 
-        // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
+        // Reward the lfg reward quest if the completion limit has not been hit yet
+
         if (player->CanRewardQuest(quest, false))
-            player->RewardQuest(quest, LootItemType::Item, 0, nullptr, false);
-        else
         {
-            done = true;
+            uint8 rewardCount = dungeon->weeklyRewards ?
+                player->GetWeeklyLfgRewardCount(dungeon->id) :
+                player->GetDailyLfgRewardCount(dungeon->id);
+
+            if (rewardCount < reward->rewardsPerPeriod)
+            {
+                player->RewardQuest(quest, LootItemType::Item, 0, nullptr, false);
+                if (dungeon->weeklyRewards)
+                    player->IncrementWeeklyLfgRewardCount(dungeon->id);
+                else
+                    player->IncrementDailyLfgRewardCount(dungeon->id);
+            }
+            else
+                firstReward = false;
+        }
+
+        if (!firstReward)
+        {
             quest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
             if (!quest)
                 continue;
@@ -1575,8 +1598,8 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         }
 
         // Give rewards
-        TC_LOG_DEBUG("lfg.dungeon.finish", "Group: {}, Player: {} done dungeon {}, {} previously done.", gguid.ToString(), guid.ToString(), GetDungeon(gguid), done ? " " : " not");
-        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), done, quest);
+        TC_LOG_DEBUG("lfg.dungeon.finish", "Group: {}, Player: {} done dungeon {}, {} previously done.", gguid.ToString(), guid.ToString(), GetDungeon(gguid), firstReward ? " " : " not");
+        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), firstReward, quest);
         player->GetSession()->SendLfgPlayerReward(data);
     }
 }

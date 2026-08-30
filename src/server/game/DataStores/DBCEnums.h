@@ -2560,4 +2560,41 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_MAX,
 };
 
+enum class LFGDungeonsFlags : uint32
+{
+    CrossRealm                                          = 0x00000001,
+    ShareLFGObjectWithOtherDungeons                     = 0x00000002,
+    Holiday                                             = 0x00000004,
+    DeliverThisRecordsRewardNoMatterHowYouQueue         = 0x00000008,
+    Weekly                                              = 0x00000010,
+    IgnoreRaidLock                                      = 0x00000020,
+    ScalingDungeon                                      = 0x00000040,
+    AutoSwitchSpecToEnforceRole                         = 0x00000080,
+    DisplayThisDungeonInCharacterLevelUpNotifications   = 0x00000100,
+    DeliverTheRandomRewardWhenQueuedForRandom           = 0x00000200,
+    OnlyServerInitiatedQueue                            = 0x00000400,
+    DoNotAllowUserTeleport                              = 0x00000800,
+    RequiresAPremadeGroup                               = 0x00001000,
+    ForceThisReward                                     = 0x00002000,
+    UseLootMethod_Personal                              = 0x00004000,
+    HideIfRequirementsNotMet                            = 0x00008000,
+    Multifaction                                        = 0x00010000,
+    AllowEmptyTeams                                     = 0x00020000,
+    SkipProposal                                        = 0x00040000,
+    FactionBalance                                      = 0x00080000,
+    AutoSummonParty                                     = 0x00100000,
+    AllowSameFaction                                    = 0x00200000,
+    ServerControlledBackfill                            = 0x00400000,
+    SeamlessEntranceQueue                               = 0x00800000,
+    NoIgnores                                           = 0x01000000,
+    BackfillLargeFirst                                  = 0x02000000,
+    LeaveRideTicketOnTransfer                           = 0x04000000,
+    AllowDeserters                                      = 0x08000000,
+    LeaveRideTicketOnLogout                             = 0x10000000,
+    DisableBackfill                                     = 0x20000000,
+    DisableSocialQueuing                                = 0x40000000
+};
+
+DEFINE_ENUM_FLAG(LFGDungeonsFlags);
+
 #endif

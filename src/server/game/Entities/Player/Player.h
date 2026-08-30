@@ -954,6 +954,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
     PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS,
+    PLAYER_LOGIN_QUERY_LOAD_LFG_REWARD_STATUS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2552,9 +2553,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool isUsingLfg() const;
         bool inRandomLfgDungeon() const;
 
-        typedef std::set<uint32> DFQuestsDoneList;
-        DFQuestsDoneList m_DFQuests;
-
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
@@ -2882,6 +2880,13 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
+        void ResetDailyLfgRewardStatus();
+        void ResetWeeklyLfgRewardStatus();
+        uint8 GetDailyLfgRewardCount(uint32 lfgDungeonId) const;
+        uint8 GetWeeklyLfgRewardCount(uint32 lfgDungeonId) const;
+        void IncrementDailyLfgRewardCount(uint32 lfgDungeonId);
+        void IncrementWeeklyLfgRewardCount(uint32 lfgDungeonId);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2927,6 +2932,12 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_ingametime;
 
         /*********************************************************/
+        /***                   LFG REWARD SYSTEM               ***/
+        /*********************************************************/
+        std::unordered_map<uint32 /*lfgDungeonId*/, uint8 /*completionsThisPeriod*/> _dailyLfgRewardCounts;
+        std::unordered_map<uint32 /*lfgDungeonId*/, uint8 /*completionsThisPeriod*/> _weeklyLfgRewardCounts;
+
+        /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
@@ -2959,6 +2970,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
+        void _LoadLFGRewardStatus(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2985,6 +2997,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveStats(CharacterDatabaseTransaction trans) const;
         void _SaveCurrency(CharacterDatabaseTransaction trans);
         void _SaveCUFProfiles(CharacterDatabaseTransaction trans);
+        void _SaveLFGRewardStatus(CharacterDatabaseTransaction trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
