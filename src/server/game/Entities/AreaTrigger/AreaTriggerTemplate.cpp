@@ -24,11 +24,21 @@ float AreaTriggerShapeInfo::Sphere::GetMaxSearchRadius() const
     return std::max(Radius, RadiusTarget);
 }
 
+bool AreaTriggerShapeInfo::Sphere::IsDynamic() const
+{
+    return Radius != RadiusTarget;
+}
+
 float AreaTriggerShapeInfo::Box::GetMaxSearchRadius() const
 {
     return std::sqrt(std::max(
         Extents.Pos.GetPositionX() * Extents.Pos.GetPositionX() + Extents.Pos.GetPositionY() * Extents.Pos.GetPositionY(),
         ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY()));
+}
+
+bool AreaTriggerShapeInfo::Box::IsDynamic() const
+{
+    return Extents != ExtentsTarget;
 }
 
 float AreaTriggerShapeInfo::Polygon::GetMaxSearchRadius() const
@@ -45,14 +55,29 @@ float AreaTriggerShapeInfo::Polygon::GetMaxSearchRadius() const
     return maxSearchRadius;
 }
 
+bool AreaTriggerShapeInfo::Polygon::IsDynamic() const
+{
+    return Height != HeightTarget || PolygonVertices != PolygonVerticesTarget;
+}
+
 float AreaTriggerShapeInfo::Cylinder::GetMaxSearchRadius() const
 {
     return std::max(Radius, RadiusTarget);
 }
 
+bool AreaTriggerShapeInfo::Cylinder::IsDynamic() const
+{
+    return Radius != RadiusTarget || Height != HeightTarget || LocationZOffset != LocationZOffsetTarget;
+}
+
 float AreaTriggerShapeInfo::Disk::GetMaxSearchRadius() const
 {
     return std::max(OuterRadius, OuterRadiusTarget);
+}
+
+bool AreaTriggerShapeInfo::Disk::IsDynamic() const
+{
+    return InnerRadius != InnerRadiusTarget || OuterRadius != OuterRadiusTarget || Height != HeightTarget || LocationZOffset != LocationZOffsetTarget;
 }
 
 float AreaTriggerShapeInfo::BoundedPlane::GetMaxSearchRadius() const
@@ -62,9 +87,19 @@ float AreaTriggerShapeInfo::BoundedPlane::GetMaxSearchRadius() const
         ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() / 4 + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY() / 4));
 }
 
+bool AreaTriggerShapeInfo::BoundedPlane::IsDynamic() const
+{
+    return Extents != ExtentsTarget;
+}
+
 float AreaTriggerShapeInfo::GetMaxSearchRadius() const
 {
     return std::visit([&](auto const& data) { return data.GetMaxSearchRadius(); }, Data);
+}
+
+bool AreaTriggerShapeInfo::IsDynamic() const
+{
+    return std::visit([&](auto const& data) { return data.IsDynamic(); }, Data);
 }
 
 AreaTriggerTemplate::AreaTriggerTemplate() = default;

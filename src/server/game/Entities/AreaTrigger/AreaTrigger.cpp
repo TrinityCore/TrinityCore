@@ -208,8 +208,6 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         AreaTriggerFieldFlags fieldFlags = AreaTriggerFieldFlags::None;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation))
             fieldFlags |= AreaTriggerFieldFlags::AbsoluteOrientation;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape))
-            fieldFlags |= AreaTriggerFieldFlags::DynamicShape;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
             fieldFlags |= AreaTriggerFieldFlags::FaceMovementDir;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain))
@@ -283,6 +281,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     }
 
     AI_Initialize();
+
+    UpdateDynamicShapeFlag();
 
     // Relocate areatriggers with circular movement again
     if (HasOrbit())
@@ -422,31 +422,37 @@ uint32 AreaTrigger::GetTimeSinceCreated() const
 void AreaTrigger::SetOverrideScaleCurve(float overrideScale)
 {
     SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), overrideScale);
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetOverrideScaleCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
 {
     SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), points, startTimeOffset, interpolation);
+    SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
 }
 
 void AreaTrigger::ClearOverrideScaleCurve()
 {
     ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve));
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetExtraScaleCurve(float extraScale)
 {
     SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), extraScale);
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetExtraScaleCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
 {
     SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), points, startTimeOffset, interpolation);
+    SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
 }
 
 void AreaTrigger::ClearExtraScaleCurve()
 {
     ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve));
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetOverrideMoveCurve(float x, float y, float z)
@@ -455,6 +461,7 @@ void AreaTrigger::SetOverrideMoveCurve(float x, float y, float z)
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), x);
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), y);
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), z);
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetOverrideMoveCurve(std::array<DBCPosition2D, 2> const& xCurvePoints, std::array<DBCPosition2D, 2> const& yCurvePoints,
@@ -464,6 +471,7 @@ void AreaTrigger::SetOverrideMoveCurve(std::array<DBCPosition2D, 2> const& xCurv
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), xCurvePoints, startTimeOffset, interpolation);
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), yCurvePoints, startTimeOffset, interpolation);
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), zCurvePoints, startTimeOffset, interpolation);
+    SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
 }
 
 void AreaTrigger::ClearOverrideMoveCurve()
@@ -472,6 +480,7 @@ void AreaTrigger::ClearOverrideMoveCurve()
     ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX));
     ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY));
     ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ));
+    UpdateDynamicShapeFlag();
 }
 
 void AreaTrigger::SetSpellVisual(SpellCastVisual const& visual)
@@ -1051,6 +1060,9 @@ void AreaTrigger::SetShape(AreaTriggerShapeInfo const& shape)
         else
             static_assert(Trinity::dependant_false_v<ShapeType>, "Unsupported shape type");
     }, shape.Data);
+
+    if (IsInWorld())
+        UpdateDynamicShapeFlag();
 }
 
 float AreaTrigger::GetMaxSearchRadius() const
@@ -1260,6 +1272,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::MovementStartTime), GameTime::GetGameTimeMS());
 
+    SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::Spline));
     auto pathData = areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathData, UF::VariantCase<UF::AreaTriggerSplineCalculator>);
     SetUpdateFieldValue(pathData.ModifyValue(&UF::AreaTriggerSplineCalculator::Catmullrom), spline->getPointCount() >= 4);
@@ -1303,6 +1316,7 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     else
         RemoveAreaTriggerFlag(AreaTriggerFieldFlags::CanLoop);
 
+    SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::Orbit));
     auto pathData = areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathData, UF::VariantCase<UF::AreaTriggerOrbit>);
     SetUpdateFieldValue(pathData.ModifyValue(&UF::AreaTriggerOrbit::CounterClockwise), orbit.CounterClockwise);
@@ -1438,6 +1452,7 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
             _ai->OnDestinationReached();
             _spline = nullptr;
             SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+            UpdateDynamicShapeFlag();
         }
     }
 }
@@ -1459,6 +1474,24 @@ void AreaTrigger::UpdateOverridePosition()
     }
 
     GetMap()->AreaTriggerRelocation(this, x, y, z, orientation);
+}
+
+void AreaTrigger::UpdateDynamicShapeFlag()
+{
+    if (AreaTriggerPathType(*m_areaTriggerData->PathType) != AreaTriggerPathType::None
+        || HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached)
+        || (*m_areaTriggerData->OverrideScaleCurve->OverrideActive && !(*m_areaTriggerData->OverrideScaleCurve->ParameterCurve & 1))
+        || *m_areaTriggerData->ScaleCurveId
+        || (*m_areaTriggerData->ExtraScaleCurve->OverrideActive && !(*m_areaTriggerData->ExtraScaleCurve->ParameterCurve & 1))
+        || (HasOverridePosition()
+            && (!(*m_areaTriggerData->OverrideMoveCurveX->ParameterCurve & 1)
+                || !(*m_areaTriggerData->OverrideMoveCurveY->ParameterCurve & 1)
+                || !(*m_areaTriggerData->OverrideMoveCurveZ->ParameterCurve & 1)))
+        || (m_areaTriggerData->TargetRollPitchYaw.has_value() && *m_areaTriggerData->RollPitchYaw != *m_areaTriggerData->TargetRollPitchYaw)
+        || GetCreateProperties()->Shape.IsDynamic())
+        SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
+    else
+        RemoveAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
 }
 
 void AreaTrigger::UpdateHasPlayersFlag()

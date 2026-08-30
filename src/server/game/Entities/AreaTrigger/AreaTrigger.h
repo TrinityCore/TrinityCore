@@ -252,6 +252,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         Position const* GetOrbitCenterPosition() const;
         Position CalculateOrbitPosition() const;
 
+        void UpdateDynamicShapeFlag();
         void UpdateHasPlayersFlag();
 
         void DebugVisualizePosition(); // Debug purpose only
