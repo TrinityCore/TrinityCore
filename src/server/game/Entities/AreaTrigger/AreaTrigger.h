@@ -48,7 +48,7 @@ enum class AreaTriggerFieldFlags : uint32
     AbsoluteOrientation = 0x0008,
     DynamicShape        = 0x0010,
     Attached            = 0x0020,
-    FaceMovementDir     = 0x0040,
+    FaceMovementDir     = 0x0040,   // applies when attached to unit (refers to movement direction of the unit)
     FollowsTerrain      = 0x0080,
     Unknown1025         = 0x0100,
     AlwaysExterior      = 0x0200,

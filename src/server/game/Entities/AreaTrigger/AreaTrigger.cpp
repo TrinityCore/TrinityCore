@@ -1430,7 +1430,7 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
     if (m_areaTriggerData->FacingCurveId)
         orientation += sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
 
-    if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation) && HasAreaTriggerFlag(AreaTriggerFieldFlags::FaceMovementDir))
+    if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
     {
         G3D::Vector3 derivative;
         spline.evaluate_derivative(lastPositionIndex, percentFromLastPoint, derivative);
