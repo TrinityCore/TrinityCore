@@ -15,11 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "arcatraz.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "arcatraz.h"
 
 enum ZerekethTexts
 {
@@ -51,15 +55,17 @@ struct boss_zereketh_the_unbound : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_VOID_ZONE, 10s, 15s);
         events.ScheduleEvent(EVENT_SHADOW_NOVA, 15s, 20s);
         events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 5s, 10s);
-        Talk(SAY_AGGRO);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHADOW_NOVA, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHADOW_NOVA, me))
             if (roll_chance_i(50))
                 Talk(SAY_SHADOW_NOVA);
     }
