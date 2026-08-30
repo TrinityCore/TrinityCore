@@ -196,11 +196,12 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         }
     }
 
+    auto visualAnim = areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim);
     if (GetCreateProperties()->AnimId != -1)
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID, 0), GetCreateProperties()->AnimId);
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
+        SetUpdateFieldValue(visualAnim.ModifyValue(&UF::VisualAnim::AnimationDataID, 0), GetCreateProperties()->AnimId);
+    SetUpdateFieldValue(visualAnim.ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
     if (GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::IsDecay), true);
+        SetUpdateFieldValue(visualAnim.ModifyValue(&UF::VisualAnim::IsDecay), true);
 
     AreaTriggerFieldFlags fieldFlags = [flags = GetCreateProperties()->Flags]()
     {
@@ -450,24 +451,27 @@ void AreaTrigger::ClearExtraScaleCurve()
 
 void AreaTrigger::SetOverrideMoveCurve(float x, float y, float z)
 {
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), x);
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), y);
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), z);
+    auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), x);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), y);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), z);
 }
 
 void AreaTrigger::SetOverrideMoveCurve(std::array<DBCPosition2D, 2> const& xCurvePoints, std::array<DBCPosition2D, 2> const& yCurvePoints,
     std::array<DBCPosition2D, 2> const& zCurvePoints, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
 {
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), xCurvePoints, startTimeOffset, interpolation);
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), yCurvePoints, startTimeOffset, interpolation);
-    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), zCurvePoints, startTimeOffset, interpolation);
+    auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX), xCurvePoints, startTimeOffset, interpolation);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY), yCurvePoints, startTimeOffset, interpolation);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ), zCurvePoints, startTimeOffset, interpolation);
 }
 
 void AreaTrigger::ClearOverrideMoveCurve()
 {
-    ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX));
-    ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY));
-    ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ));
+    auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+    ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX));
+    ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY));
+    ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ));
 }
 
 void AreaTrigger::SetSpellVisual(SpellCastVisual const& visual)
@@ -1200,7 +1204,7 @@ void AreaTrigger::UndoActions(Unit* unit)
                 case AREATRIGGER_ACTION_CAST:
                     [[fallthrough]];
                 case AREATRIGGER_ACTION_ADDAURA:
-                unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+                    unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
                     break;
                 case AREATRIGGER_ACTION_TAVERN:
                     if (Player* player = unit->ToPlayer())
@@ -1208,7 +1212,7 @@ void AreaTrigger::UndoActions(Unit* unit)
                     break;
                 default:
                     break;
-}
+            }
         }
     }
 }
