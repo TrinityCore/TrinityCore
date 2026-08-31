@@ -7626,7 +7626,7 @@ void CorpseData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void ScaleCurve::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
+void OverrideCurve::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
 {
     data << uint32(StartTimeOffset);
     for (uint32 i = 0; i < 2; ++i)
@@ -7638,7 +7638,7 @@ void ScaleCurve::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigg
     data.FlushBits();
 }
 
-void ScaleCurve::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
+void OverrideCurve::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
 {
     Mask changesMask = _changesMask;
     if (ignoreChangesMask)
@@ -7677,7 +7677,7 @@ void ScaleCurve::WriteUpdate(bool ignoreChangesMask, ByteBuffer& data, Player co
     }
 }
 
-void ScaleCurve::ClearChangesMask()
+void OverrideCurve::ClearChangesMask()
 {
     Base::ClearChangesMask(OverrideActive);
     Base::ClearChangesMask(StartTimeOffset);

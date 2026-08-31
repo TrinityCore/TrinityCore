@@ -1594,7 +1594,7 @@ struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<33>
     void ClearChangesMask();
 };
 
-struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+struct OverrideCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 {
     UpdateField<bool, 0, 1> OverrideActive;
     UpdateField<uint32, 0, 2> StartTimeOffset;
@@ -1764,12 +1764,12 @@ struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasCha
 
 struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask<39>
 {
-    UpdateField<UF::ScaleCurve, 0, 1> OverrideScaleCurve;
-    UpdateField<UF::ScaleCurve, 0, 2> ExtraScaleCurve;
-    UpdateField<UF::ScaleCurve, 0, 3> OverrideMoveCurveX;
-    UpdateField<UF::ScaleCurve, 0, 4> OverrideMoveCurveY;
-    UpdateField<UF::ScaleCurve, 0, 5> OverrideMoveCurveZ;
-    UpdateField<UF::ScaleCurve, 0, 6> OverrideFacingCurve;
+    UpdateField<UF::OverrideCurve, 0, 1> OverrideScaleCurve;
+    UpdateField<UF::OverrideCurve, 0, 2> ExtraScaleCurve;
+    UpdateField<UF::OverrideCurve, 0, 3> OverrideMoveCurveX;
+    UpdateField<UF::OverrideCurve, 0, 4> OverrideMoveCurveY;
+    UpdateField<UF::OverrideCurve, 0, 5> OverrideMoveCurveZ;
+    UpdateField<UF::OverrideCurve, 0, 6> OverrideFacingCurve;
     UpdateField<ObjectGuid, 0, 7> Caster;
     UpdateField<uint32, 0, 8> Duration;
     UpdateField<uint32, 0, 9> TimeToTarget;
