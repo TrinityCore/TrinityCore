@@ -57,7 +57,7 @@ class instance_scholomance : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-                LoadDungeonEncounterData(Encounters);
+                //LoadDungeonEncounterData(Encounters);
             }
 
             void OnUnitDeath(Unit* unit) override
