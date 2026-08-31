@@ -22,6 +22,7 @@
 #include "Unit.h"
 #include "scholomance.h"
 
+/*
 static constexpr DungeonEncounterData Encounters[] =
 {
     { DATA_DOCTOR_THEOLEN_KRASTINOV, {{ 458 }} },
@@ -38,6 +39,7 @@ static constexpr DungeonEncounterData Encounters[] =
     { DATA_VECTUS, {{ 455 }} },
     { DATA_RAS_FROSTWHISPER, {{ 456 }} },
 };
+*/
 
 Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };
 
