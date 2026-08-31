@@ -293,6 +293,7 @@ struct LFGDungeonData
     std::string name;
     int16 map;
     uint8 type;
+    uint8 subType;
     uint8 expansion;
     uint8 group;
     uint8 minLevel;
@@ -402,8 +403,8 @@ class TC_GAME_API LFGMgr
         bool IsSeasonActive(uint32 dungeonId);
         /// Gets the random dungeon reward corresponding to given dungeon and player level
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
-        /// Returns all random and seasonal dungeons for given level and expansion
-        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion);
+        /// Returns all dungeons which will display rewards in the LFG tab matching the current level and expansion
+        LfgDungeonSet GetRewardDisplayingDungeons(uint8 level, uint8 expansion);
         /// Teleport a player to/from selected dungeon
         void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
         /// Inits new proposal to boot a player

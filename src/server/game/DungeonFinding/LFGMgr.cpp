@@ -42,13 +42,13 @@
 namespace lfg
 {
 
-LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minLevel(0), maxLevel(0),
+LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), subType(0), expansion(0), group(0), minLevel(0), maxLevel(0),
     difficulty(DIFFICULTY_NONE), seasonal(false), weeklyRewards(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
 {
 }
 
 LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->Name[sWorld->GetDefaultDbcLocale()]), map(dbc->MapID),
-    type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
+    type(uint8(dbc->TypeID)), subType(dbc->Subtype), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
     minLevel(dbc->MinLevel), maxLevel(dbc->MaxLevel), difficulty(Difficulty(dbc->DifficultyID)),
     seasonal(dbc->GetFlags().HasFlag(LFGDungeonsFlags::Holiday)), weeklyRewards(dbc->GetFlags().HasFlag(LFGDungeonsFlags::Weekly)),
     x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(dbc->MinGear), finalDungeonEncounterId(0)
@@ -2249,14 +2249,12 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
     return 0;
 }
 
-LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
+LfgDungeonSet LFGMgr::GetRewardDisplayingDungeons(uint8 level, uint8 expansion)
 {
     LfgDungeonSet randomDungeons;
-    for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    for (LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
-        lfg::LFGDungeonData const& dungeon = itr->second;
-        if (!(dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id))))
-            continue;
+        LFGDungeonData const& dungeon = itr->second;
 
         if (dungeon.expansion > expansion)
             continue;
@@ -2264,7 +2262,10 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
         if (dungeon.minLevel > level || level > dungeon.maxLevel)
             continue;
 
-        randomDungeons.insert(dungeon.Entry());
+        if (dungeon.type == LFG_TYPE_RANDOM ||
+            (dungeon.type == LFG_TYPE_DUNGEON && dungeon.subType == LFG_TYPE_RAID) ||
+            (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
+            randomDungeons.insert(dungeon.Entry());
     }
     return randomDungeons;
 }
