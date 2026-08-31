@@ -152,6 +152,10 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
             Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideMoveCurve();
 
+        void SetOverrideFacingCurve(float overrideFacing);
+        void SetOverrideFacingCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
+        void ClearOverrideFacingCurve();
+
         uint32 GetTimeToTarget() const { return m_areaTriggerData->TimeToTarget; }
         void SetTimeToTarget(uint32 timeToTarget) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget); }
 
@@ -163,6 +167,9 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         uint32 GetTimeToTargetPos() const { return m_areaTriggerData->TimeToTargetPos; }
         void SetTimeToTargetPos(uint32 timeToTargetPos) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), timeToTargetPos); }
+
+        uint32 GetTimeToTargetFacing() const { return m_areaTriggerData->TimeToTargetFacing; }
+        void SetTimeToTargetFacing(uint32 timeToTargetFacing) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetFacing), timeToTargetFacing); }
 
         void SetSpellVisual(SpellCastVisual const& visual);
 

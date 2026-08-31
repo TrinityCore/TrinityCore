@@ -172,6 +172,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     {
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), GetCreateProperties()->TimeToTargetScale != 0 ? GetCreateProperties()->TimeToTargetScale : *m_areaTriggerData->Duration);
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), *m_areaTriggerData->Duration);
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetFacing), *m_areaTriggerData->Duration);
     }
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetCreateProperties()->Shape.GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetCreateProperties()->DecalPropertiesId);
@@ -360,7 +361,8 @@ void AreaTrigger::Update(uint32 diff)
             {
                 float orientation = 0.0f;
                 if (m_areaTriggerData->FacingCurveId)
-                    orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
+                    orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId,
+                        GetScaleCurveProgress(m_areaTriggerData->OverrideFacingCurve, m_areaTriggerData->TimeToTargetFacing));
 
                 if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
                     orientation += target->GetOrientation();
@@ -376,7 +378,8 @@ void AreaTrigger::Update(uint32 diff)
         {
             if (m_areaTriggerData->FacingCurveId)
             {
-                float orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
+                float orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId,
+                    GetScaleCurveProgress(m_areaTriggerData->OverrideFacingCurve, m_areaTriggerData->TimeToTargetFacing));
                 if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
                     orientation += m_areaTriggerData->Facing;
 
@@ -481,6 +484,21 @@ void AreaTrigger::ClearOverrideMoveCurve()
     ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY));
     ClearScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ));
     UpdateDynamicShapeFlag();
+}
+
+void AreaTrigger::SetOverrideFacingCurve(float overrideFacing)
+{
+    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideFacingCurve), overrideFacing);
+}
+
+void AreaTrigger::SetOverrideFacingCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
+{
+    SetScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideFacingCurve), points, startTimeOffset, interpolation);
+}
+
+void AreaTrigger::ClearOverrideFacingCurve()
+{
+    ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideFacingCurve));
 }
 
 void AreaTrigger::SetSpellVisual(SpellCastVisual const& visual)
@@ -1377,7 +1395,8 @@ Position AreaTrigger::CalculateOrbitPosition() const
 
     float orientation = 0.0f;
     if (m_areaTriggerData->FacingCurveId)
-        orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
+        orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId,
+            GetScaleCurveProgress(m_areaTriggerData->OverrideFacingCurve, m_areaTriggerData->TimeToTargetFacing));
 
     if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
     {
@@ -1428,7 +1447,8 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
 
     float orientation = _stationaryPosition.GetOrientation();
     if (m_areaTriggerData->FacingCurveId)
-        orientation += sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
+        orientation += sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId,
+            GetScaleCurveProgress(m_areaTriggerData->OverrideFacingCurve, m_areaTriggerData->TimeToTargetFacing));
 
     if (!HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
     {
@@ -1468,7 +1488,8 @@ void AreaTrigger::UpdateOverridePosition()
 
     if (m_areaTriggerData->FacingCurveId)
     {
-        orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId, GetProgress());
+        orientation = sDB2Manager.GetCurveValueAt(m_areaTriggerData->FacingCurveId,
+            GetScaleCurveProgress(m_areaTriggerData->OverrideFacingCurve, m_areaTriggerData->TimeToTargetFacing));
         if (HasAreaTriggerFlag(AreaTriggerFieldFlags::AbsoluteOrientation))
             orientation += m_areaTriggerData->Facing;
     }

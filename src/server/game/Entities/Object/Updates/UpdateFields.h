@@ -1612,7 +1612,7 @@ struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
     UpdateField<bool, 0, 1> IsDecay;
     OptionalUpdateField<int16, 0, 2> AnimationDataID;
     UpdateField<uint32, 0, 3> AnimKitID;
-    UpdateField<uint32, 0, 4> AnimProgress;
+    UpdateField<uint32, 0, 4> ServerTime;
 
     using OwnerObject = AreaTrigger;
     void WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const;
@@ -1769,14 +1769,14 @@ struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask
     UpdateField<UF::ScaleCurve, 0, 3> OverrideMoveCurveX;
     UpdateField<UF::ScaleCurve, 0, 4> OverrideMoveCurveY;
     UpdateField<UF::ScaleCurve, 0, 5> OverrideMoveCurveZ;
-    UpdateField<UF::ScaleCurve, 0, 6> Unk1205Curve;
+    UpdateField<UF::ScaleCurve, 0, 6> OverrideFacingCurve;
     UpdateField<ObjectGuid, 0, 7> Caster;
     UpdateField<uint32, 0, 8> Duration;
     UpdateField<uint32, 0, 9> TimeToTarget;
     UpdateField<uint32, 0, 10> TimeToTargetScale;
     UpdateField<uint32, 0, 11> TimeToTargetExtraScale;
     UpdateField<uint32, 0, 12> TimeToTargetPos;                                 // Linked to m_overrideMoveCurve
-    UpdateField<uint32, 0, 13> TimeToTargetUnk1205Curve;                        // Linked to m_unk1205Curve
+    UpdateField<uint32, 0, 13> TimeToTargetFacing;                              // Linked to m_overrideFacingCurve
     UpdateField<int32, 0, 14> SpellID;
     UpdateField<int32, 0, 15> SpellForVisuals;
     UpdateField<UF::SpellCastVisual, 0, 16> SpellVisual;
