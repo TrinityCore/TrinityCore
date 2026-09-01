@@ -7804,7 +7804,7 @@ void AreaTriggerActionSetPeriodModifier::ClearChangesMask()
 void AreaTriggerSplineCalculator::WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const
 {
     data.WriteBits(Points.size(), 16);
-    data.WriteBit(Catmullrom);
+    data.WriteBit(Linear);
     data.FlushBits();
     for (uint32 i = 0; i < Points.size(); ++i)
     {
@@ -7825,7 +7825,7 @@ void AreaTriggerSplineCalculator::WriteUpdate(bool ignoreChangesMask, ByteBuffer
     {
         if (changesMask[1])
         {
-            data.WriteBit(Catmullrom);
+            data.WriteBit(Linear);
         }
         if (changesMask[2])
         {
@@ -7853,7 +7853,7 @@ void AreaTriggerSplineCalculator::WriteUpdate(bool ignoreChangesMask, ByteBuffer
 
 void AreaTriggerSplineCalculator::ClearChangesMask()
 {
-    Base::ClearChangesMask(Catmullrom);
+    Base::ClearChangesMask(Linear);
     Base::ClearChangesMask(Points);
     _changesMask.ResetAll();
 }

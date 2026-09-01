@@ -1275,7 +1275,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
         return;
 
     std::unique_ptr<Movement::Spline<float>> spline = std::make_unique<::Movement::Spline<float>>();
-    spline->init_spline(splinePoints.data(), splinePoints.size(), ::Movement::SplineBase::ModeLinear, _stationaryPosition.GetOrientation());
+    spline->init_spline(splinePoints.data(), splinePoints.size(), splinePoints.size() > 2 ? ::Movement::SplineBase::ModeCatmullrom : ::Movement::SplineBase::ModeLinear, _stationaryPosition.GetOrientation());
     spline->initLengths();
 
     float speed = overrideSpeed.value_or(GetCreateProperties()->Speed);
@@ -1293,7 +1293,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::Spline));
     auto pathData = areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathData, UF::VariantCase<UF::AreaTriggerSplineCalculator>);
-    SetUpdateFieldValue(pathData.ModifyValue(&UF::AreaTriggerSplineCalculator::Catmullrom), spline->getPointCount() >= 4);
+    SetUpdateFieldValue(pathData.ModifyValue(&UF::AreaTriggerSplineCalculator::Linear), spline->mode() == ::Movement::SplineBase::ModeLinear);
     auto points = pathData.ModifyValue(&UF::AreaTriggerSplineCalculator::Points);
     ClearDynamicUpdateFieldValues(points);
     for (G3D::Vector3 const& point : spline->getPoints())

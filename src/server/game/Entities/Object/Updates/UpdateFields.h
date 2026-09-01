@@ -1646,7 +1646,7 @@ struct AreaTriggerActionSetPeriodModifier : public IsUpdateFieldStructureTag, pu
 
 struct AreaTriggerSplineCalculator : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
-    UpdateField<bool, 0, 1> Catmullrom;
+    UpdateField<bool, 0, 1> Linear;
     DynamicUpdateField<TaggedPosition<Position::XYZ>, 0, 2> Points;
 
     using OwnerObject = AreaTrigger;
