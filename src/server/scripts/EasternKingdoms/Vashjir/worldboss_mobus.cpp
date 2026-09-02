@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -38,7 +39,7 @@ namespace Events
 // 50009 - Mobus
 struct worldboss_mobus : public WorldBossAI
 {
-    worldboss_mobus(Creature* creature) : WorldBossAI(creature) {}
+    using WorldBossAI::WorldBossAI;
 
     void JustEngagedWith(Unit* who) override
     {
