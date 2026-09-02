@@ -50,11 +50,6 @@ struct worldboss_mobus : public WorldBossAI
         events.ScheduleEvent(Events::EventWake, 30s);
     }
 
-    void Reset() override
-    {
-        WorldBossAI::Reset();
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
