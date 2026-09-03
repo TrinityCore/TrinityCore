@@ -104,6 +104,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << BitsSize<6>(auraData.Points);
     data << BitsSize<6>(auraData.EstimatedPoints);
     data << OptionalInit(auraData.ContentTuning);
+    data.FlushBits();
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
