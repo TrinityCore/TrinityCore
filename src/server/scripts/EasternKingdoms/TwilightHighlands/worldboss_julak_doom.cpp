@@ -59,7 +59,7 @@ namespace Scripts::EasternKingdoms::TwilightHighlands::JulakDoom
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-            
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
