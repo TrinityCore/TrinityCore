@@ -14297,6 +14297,18 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
     SendMessageToSet(data.Write(), true);
 }
 
+void Unit::SetGravity(float gravityModifier)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+        setGravityModifier.MoverGUID = GetGUID();
+        setGravityModifier.SequenceIndex = m_movementCounter++;
+        setGravityModifier.GravityModifier = gravityModifier;
+        movingPlayer->SendDirectMessage(setGravityModifier.Write());
+    }
+}
+
 void Unit::CalculateHoverHeight()
 {
     float hoverHeight = DEFAULT_PLAYER_HOVER_HEIGHT;

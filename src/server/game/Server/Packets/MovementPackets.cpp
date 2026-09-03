@@ -1242,4 +1242,13 @@ WorldPacket const* MoveUpdateRemoveInertia::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* MoveSetGravityModifier::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << float(GravityModifier);
+
+    return &_worldPacket;
+}
 }

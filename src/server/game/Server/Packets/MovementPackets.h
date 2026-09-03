@@ -829,6 +829,18 @@ namespace WorldPackets
             int32 InertiaID = 0;
         };
 
+        class MoveSetGravityModifier final : public ServerPacket
+        {
+        public:
+            explicit MoveSetGravityModifier() : ServerPacket(SMSG_MOVE_SET_GRAVITY_MODIFIER, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float GravityModifier = 0.0f;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);
     }
 }
