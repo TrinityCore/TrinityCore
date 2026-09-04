@@ -14299,14 +14299,13 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
 
 void Unit::SetGravity(float gravityModifier)
 {
-    if (Player const* movingPlayer = GetPlayerMovingMe())
-    {
-        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
-        setGravityModifier.MoverGUID = GetGUID();
-        setGravityModifier.SequenceIndex = m_movementCounter++;
-        setGravityModifier.GravityModifier = gravityModifier;
-        movingPlayer->SendDirectMessage(setGravityModifier.Write());
-    }
+    m_movementInfo.gravityModifier = gravityModifier;
+
+    WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+    setGravityModifier.MoverGUID = GetGUID();
+    setGravityModifier.SequenceIndex = m_movementCounter++;
+    setGravityModifier.GravityModifier = gravityModifier;
+    SendMessageToSet(setGravityModifier.Write(), true);
 }
 
 void Unit::CalculateHoverHeight()
