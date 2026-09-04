@@ -844,7 +844,7 @@ namespace WorldPackets
         class MoveUpdateSetGravityModifier final : public ServerPacket
         {
         public:
-            explicit MoveUpdateSetGravityModifier() : ServerPacket(SMSG_MOVE_UPDATE_SET_GRAVITY_MODIFIER, sizeof(MovementInfo)) { }
+            explicit MoveUpdateSetGravityModifier() : ServerPacket(SMSG_MOVE_UPDATE_SET_GRAVITY_MODIFIER, sizeof(MovementInfo) + 4) { }
 
             WorldPacket const* Write() override;
 
