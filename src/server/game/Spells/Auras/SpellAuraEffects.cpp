@@ -6245,6 +6245,10 @@ void AuraEffect::HandleModGravity(AuraApplication const* aurApp, uint8 mode, boo
 
     Unit* target = aurApp->GetTarget();
     float amount = target->GetTotalAuraModifier(SPELL_AURA_MOD_GRAVITY);
+
+    if (amount <= 0.0f)
+        amount = 1.0f;
+
     target->SetGravity(amount);
 }
 
