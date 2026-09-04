@@ -822,6 +822,18 @@ SkipCinematics = 0
 MaxPlayerLevel = 80
 
 #
+#    Stats.NoLevelDifference
+#        Description: Removes all attacker vs defender level-difference penalties
+#                     in combat rolls (glancing blows, crushing blows, crit
+#                     suppression, level-based miss/hit, level-based spell resist,
+#                     and level-based aggro range). Useful for normalized / twink
+#                     servers. Character stat, skill and rating scaling is unchanged.
+#        Default:     0 - (Disabled - stock behavior)
+#                     1 - (Enabled - level differences no longer affect combat)
+
+Stats.NoLevelDifference = 0
+
+#
 #    MinDualSpecLevel
 #        Description: Level requirement for Dual Talent Specialization.
 #        Default:     40
