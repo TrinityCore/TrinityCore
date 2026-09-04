@@ -1507,7 +1507,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         uint32 const victimDefense = victim->GetDefenseSkillValue();
         uint32 const attackerMeleeSkill = GetMaxSkillValueForLevel();
 
-        chance *= attackerMeleeSkill / float(victimDefense) * 0.16f;
+        if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
+            chance *= attackerMeleeSkill / float(victimDefense) * 0.16f;
 
         // -probability is between 0% and 40%
         RoundToInterval(chance, 0.0f, 40.0f);
@@ -1757,7 +1758,8 @@ void Unit::HandleEmoteCommand(Emote emoteId)
 
     // level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
     // gameobject caster -- should it have level based resistance?
-    if (caster && caster->GetTypeId() != TYPEID_GAMEOBJECT && (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL)))
+    if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) &&
+        caster && caster->GetTypeId() != TYPEID_GAMEOBJECT && (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL)))
         victimResistance += std::max((float(victim->GetLevelForTarget(caster)) - float(caster->GetLevelForTarget(victim))) * 5.0f, 0.0f);
 
     static uint32 const BOSS_LEVEL = 83;
@@ -2229,7 +2231,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
 
     // 4. GLANCING
     // Max 40% chance to score a glancing blow against mobs of the same or higher level (only players and pets, not for ranged weapons).
-    if ((GetTypeId() == TYPEID_PLAYER || IsPet()) &&
+    if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) &&
+        (GetTypeId() == TYPEID_PLAYER || IsPet()) &&
         victim->GetTypeId() != TYPEID_PLAYER && !victim->IsPet() &&
         GetLevel() <= victim->GetLevelForTarget(this))
     {
@@ -2262,7 +2265,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
 
     // 7. CRUSHING
     // mobs can score crushing blows if they're 4 or more levels above victim
-    if (GetLevelForTarget(victim) >= victim->GetLevelForTarget(this) + 4 &&
+    if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) &&
+        GetLevelForTarget(victim) >= victim->GetLevelForTarget(this) + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
         !IsControlledByPlayer() &&
         !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS))
@@ -2615,7 +2619,7 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
         }
     }
 
-    chance += skillBonus;
+    chance += sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) ? 0.0f : skillBonus;
 
     // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
     chance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
@@ -2667,7 +2671,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
         }
     }
 
-    chance += skillBonus;
+    chance += sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) ? 0.0f : skillBonus;
 
     // Reduce parry chance by attacker expertise rating
     if (GetTypeId() == TYPEID_PLAYER)
@@ -2721,7 +2725,7 @@ float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) con
         }
     }
 
-    chance += skillBonus;
+    chance += sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) ? 0.0f : skillBonus;
     return std::max(chance, 0.0f);
 }
 
@@ -2792,7 +2796,7 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
             skillBonus -= 3.0f;
     }
 
-    chance += skillBonus;
+    chance += sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) ? 0.0f : skillBonus;
     return std::max(chance, 0.f);
 }
 
@@ -7137,7 +7141,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                 }
 
                 // Spell crit suppression
-                if (GetTypeId() == TYPEID_UNIT)
+                if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) && GetTypeId() == TYPEID_UNIT)
                 {
                     int32 const levelDiff = static_cast<int32>(GetLevelForTarget(caster)) - caster->GetLevel();
                     crit_chance -= levelDiff * 0.7f;
@@ -12091,15 +12095,18 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
 
     // bonus from skills is 0.04%
     //miss_chance -= skillDiff * 0.04f;
-    int32 diff = -skillDiff;
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        missChance += diff > 0 ? diff * 0.04f : diff * 0.02f;
-    else
+    if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
     {
-        missChance += diff > 10 ? 1 + (diff - 10) * 0.4f : diff * 0.1f;
-        float levelFactor = victim->GetLevelForTarget(this);
-        if (levelFactor < 10.f)
-            missChance *= (levelFactor / 10.f);
+        int32 diff = -skillDiff;
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            missChance += diff > 0 ? diff * 0.04f : diff * 0.02f;
+        else
+        {
+            missChance += diff > 10 ? 1 + (diff - 10) * 0.4f : diff * 0.1f;
+            float levelFactor = victim->GetLevelForTarget(this);
+            if (levelFactor < 10.f)
+                missChance *= (levelFactor / 10.f);
+        }
     }
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
