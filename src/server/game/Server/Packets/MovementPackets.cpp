@@ -1255,6 +1255,7 @@ WorldPacket const* MoveSetGravityModifier::Write()
 WorldPacket const* MoveUpdateSetGravityModifier::Write()
 {
     _worldPacket << *Status;
+    _worldPacket << float(GravityModifier);
 
     return &_worldPacket;
 }

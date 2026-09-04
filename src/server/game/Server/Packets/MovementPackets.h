@@ -849,6 +849,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
+            float GravityModifier = 0.0f;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);
