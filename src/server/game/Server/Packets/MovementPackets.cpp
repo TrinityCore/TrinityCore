@@ -1243,6 +1243,12 @@ WorldPacket const* MoveUpdateRemoveInertia::Write()
     return &_worldPacket;
 }
 
+void MoveForceGravityModifierChangeAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> GravityModifier;
+}
+
 WorldPacket const* MoveSetGravityModifier::Write()
 {
     _worldPacket << MoverGUID;

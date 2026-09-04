@@ -14309,13 +14309,6 @@ void Unit::SetGravity(float gravityModifier)
         setGravityModifier.GravityModifier = gravityModifier;
         movingPlayer->SendDirectMessage(setGravityModifier.Write());
     }
-    else
-    {
-        WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
-        updateSetGravityModifier.Status = &m_movementInfo;
-        updateSetGravityModifier.GravityModifier = gravityModifier;
-        SendMessageToSet(updateSetGravityModifier.Write(), true);
-    }
 }
 
 void Unit::CalculateHoverHeight()

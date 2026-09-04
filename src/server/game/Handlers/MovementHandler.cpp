@@ -890,6 +890,24 @@ void WorldSession::HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemove
     mover->SendMessageToSet(updateRemoveInertia.Write(), false);
 }
 
+void WorldSession::HandleMoveForceGravityModifierChangeAck(WorldPackets::Movement::MoveForceGravityModifierChangeAck& moveForceGravityModifierChangeAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveForceGravityModifierChangeAck.Ack.Status.guid, moveForceGravityModifierChangeAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    if (!ValidateMovementInfo(mover, &moveForceGravityModifierChangeAck.Ack.Status))
+        return;
+
+    moveForceGravityModifierChangeAck.Ack.Status.time = AdjustClientMovementTime(moveForceGravityModifierChangeAck.Ack.Status.time);
+    mover->m_movementInfo = moveForceGravityModifierChangeAck.Ack.Status;
+
+    WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+    updateSetGravityModifier.Status = &mover->m_movementInfo;
+    updateSetGravityModifier.GravityModifier = moveForceGravityModifierChangeAck.GravityModifier;
+    mover->SendMessageToSet(updateSetGravityModifier.Write(), false);
+}
+
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
     Unit* mover = ValidateAndGetUnitBeingMoved(moveSplineDone.Status.guid, moveSplineDone.GetOpcode(), false);

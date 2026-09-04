@@ -729,7 +729,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementAckMessage);
     DEFINE_HANDLER(CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK,            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck);
     DEFINE_HANDLER(CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK,                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck);
-    DEFINE_HANDLER(CMSG_MOVE_FORCE_GRAVITY_MODIFIER_CHANGE_ACK,             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementAckMessage);
+    DEFINE_HANDLER(CMSG_MOVE_FORCE_GRAVITY_MODIFIER_CHANGE_ACK,             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveForceGravityModifierChangeAck);
     DEFINE_HANDLER(CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK,                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck);
     DEFINE_HANDLER(CMSG_MOVE_FORCE_ROOT_ACK,                                STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementAckMessage);
     DEFINE_HANDLER(CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK,               STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck);
