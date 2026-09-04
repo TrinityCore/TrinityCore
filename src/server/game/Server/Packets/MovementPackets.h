@@ -841,6 +841,16 @@ namespace WorldPackets
             float GravityModifier = 0.0f;
         };
 
+        class MoveUpdateSetGravityModifier final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateSetGravityModifier() : ServerPacket(SMSG_MOVE_UPDATE_SET_GRAVITY_MODIFIER, sizeof(MovementInfo)) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);
     }
 }

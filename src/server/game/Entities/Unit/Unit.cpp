@@ -14301,11 +14301,20 @@ void Unit::SetGravity(float gravityModifier)
 {
     m_movementInfo.gravityModifier = gravityModifier;
 
-    WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
-    setGravityModifier.MoverGUID = GetGUID();
-    setGravityModifier.SequenceIndex = m_movementCounter++;
-    setGravityModifier.GravityModifier = gravityModifier;
-    SendMessageToSet(setGravityModifier.Write(), true);
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+        setGravityModifier.MoverGUID = GetGUID();
+        setGravityModifier.SequenceIndex = m_movementCounter++;
+        setGravityModifier.GravityModifier = gravityModifier;
+        movingPlayer->SendDirectMessage(setGravityModifier.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+        updateSetGravityModifier.Status = &m_movementInfo;
+        SendMessageToSet(updateSetGravityModifier.Write(), true);
+    }
 }
 
 void Unit::CalculateHoverHeight()

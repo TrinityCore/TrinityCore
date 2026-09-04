@@ -1251,4 +1251,11 @@ WorldPacket const* MoveSetGravityModifier::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* MoveUpdateSetGravityModifier::Write()
+{
+    _worldPacket << *Status;
+
+    return &_worldPacket;
+}
 }
