@@ -14299,8 +14299,6 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
 
 void Unit::SetGravity(float gravityModifier)
 {
-    m_movementInfo.gravityModifier = gravityModifier;
-
     if (Player const* movingPlayer = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;

@@ -901,6 +901,7 @@ void WorldSession::HandleMoveForceGravityModifierChangeAck(WorldPackets::Movemen
 
     moveForceGravityModifierChangeAck.Ack.Status.time = AdjustClientMovementTime(moveForceGravityModifierChangeAck.Ack.Status.time);
     mover->m_movementInfo = moveForceGravityModifierChangeAck.Ack.Status;
+    mover->m_movementInfo.gravityModifier = moveForceGravityModifierChangeAck.Ack.Status.gravityModifier;
 
     WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
     updateSetGravityModifier.Status = &mover->m_movementInfo;
