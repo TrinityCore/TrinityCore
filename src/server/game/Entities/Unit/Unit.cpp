@@ -13506,7 +13506,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/, bool 
         SendMessageToSet(packet.Write(), true);
     }
 
-    if (playHoverAnim && !GetVehicle())
+    if (updatePlayHoverAnim && !GetVehicle())
     {
         if (IsAlive())
         {
