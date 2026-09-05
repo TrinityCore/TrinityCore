@@ -216,8 +216,9 @@ void AddSC_boss_shade_of_medivh();
 
 // Vashjir
 void AddSC_vashjir();
-void AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
 void AddSC_abyssal_depths();
+void AddSC_worldboss_mobus();
+void AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -423,6 +424,7 @@ void AddEasternKingdomsScripts()
 
     // Vashjir
     AddSC_vashjir();
-    AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
     AddSC_abyssal_depths();
+    AddSC_worldboss_mobus();
+    AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
 }
