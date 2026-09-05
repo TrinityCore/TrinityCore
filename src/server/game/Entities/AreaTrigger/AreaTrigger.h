@@ -61,7 +61,7 @@ enum class AreaTriggerPathType : int32
 {
     Spline          = 0,
     Orbit           = 1,
-    None            = 2,
+    Stationary      = 2,
     MovementScript  = 3
 };
 
@@ -251,13 +251,20 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
 
-        void UpdatePolygonVertices();
-        void UpdateOrbitPosition();
-        void UpdateSplinePosition(Movement::Spline<float>& spline);
-        void UpdateOverridePosition();
+        void UpdatePositionAndRotation();
 
-        Position const* GetOrbitCenterPosition() const;
-        Position CalculateOrbitPosition() const;
+        struct MovementUpdateResult;
+
+        MovementUpdateResult CalculateLocalPositionAndRotation() const;
+
+        friend struct AreaTriggerPositionAndRotationCalcVisitor;
+        MovementUpdateResult CalculateLocalSplinePositionAndRotation() const;
+        MovementUpdateResult CalculateLocalOrbitPositionAndRotation(UF::AreaTriggerOrbit const& orbit) const;
+        MovementUpdateResult CalculateLocalStationaryPositionAndRotation() const;
+
+        Position const& GetMovementOrigin() const;
+
+        void UpdatePolygonVertices();
 
         void UpdateDynamicShapeFlag();
         void UpdateHasPlayersFlag();
@@ -280,7 +287,6 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         std::unique_ptr<::Movement::Spline<float>> _spline;
 
         bool _reachedDestination;
-        int32 _lastSplineIndex;
 
         AreaTriggerCreateProperties const* _areaTriggerCreateProperties;
         AreaTriggerTemplate const* _areaTriggerTemplate;
