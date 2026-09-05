@@ -2852,10 +2852,10 @@ void Creature::InitializeMovementCapabilities()
     SetHover(GetMovementTemplate().IsHoverInitiallyEnabled());
 
     // CREATURE_STATIC_FLAG_FLOATING disables gravity and plays hover anim
-    SetFloating(IsFloating());
+    UpdateFloatingMovementFlags();
 
     // CREATURE_STATIC_FLAG_SESSILE disables gravity and applies root
-    SetSessile(IsSessile());
+    UpdateSessileMovementFlags();
 
     if (CanOnlySwimIfTargetSwims())
     {
@@ -2893,8 +2893,12 @@ void Creature::UpdateMovementCapabilities()
 void Creature::SetFloating(bool floating)
 {
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_FLOATING, floating);
+    UpdateFloatingMovementFlags();
+}
 
-    if (floating)
+void Creature::UpdateFloatingMovementFlags()
+{
+    if (IsFloating())
         SetDisableGravity(true, false);
     else
     {
@@ -2911,8 +2915,12 @@ void Creature::SetFloating(bool floating)
 void Creature::SetSessile(bool sessile)
 {
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_SESSILE, sessile);
+    UpdateSessileMovementFlags();
+}
 
-    if (sessile)
+void Creature::UpdateSessileMovementFlags()
+{
+    if (IsSessile())
     {
         SetControlled(true, UNIT_STATE_ROOT);
         SetDisableGravity(true, false, false);

@@ -142,9 +142,15 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsFloating() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_FLOATING); }
         void SetFloating(bool floating);
 
+        // Enables or disables gravity and starts playing hover animations depending on wether CREATURE_STATIC_FLAG_FLOATING is set or not
+        void UpdateFloatingMovementFlags();
+
         // Returns true if CREATURE_STATIC_FLAG_SESSILE is set which permanently roots the creature in place
         bool IsSessile() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
         void SetSessile(bool sessile);
+
+        // Enables or disables gravity and root movement flags depending on wether CREATURE_STATIC_FLAG_SESSILE is set or not
+        void UpdateSessileMovementFlags();
 
         // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER is set which does not allow the creature to go below liquid surfaces
         bool CannotPenetrateWater() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER); }
