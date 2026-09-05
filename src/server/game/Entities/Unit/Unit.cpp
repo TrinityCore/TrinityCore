@@ -12639,7 +12639,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     if (ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID) == form)
                         return artifactAppearance->OverrideShapeshiftDisplayID;
 
-        if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), player->GetNativeGender(), form))
+        ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(form);
+        if (formModelData)
         {
             bool useRandom = false;
             switch (form)
@@ -12676,7 +12677,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             }
             else
             {
-                if (uint32 formChoice = player->GetCustomizationChoice(formModelData->OptionID))
+                uint32 formChoice = player->GetCustomizationChoice(formModelData->OptionID);
+
+                if (formChoice)
                 {
                     auto choiceItr = std::find_if(formModelData->Choices->begin(), formModelData->Choices->end(), [formChoice](ChrCustomizationChoiceEntry const* choice)
                     {
@@ -12684,8 +12687,24 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     });
 
                     if (choiceItr != formModelData->Choices->end())
-                        if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[std::distance(formModelData->Choices->begin(), choiceItr)])
+                    {
+                        auto idx = std::distance(formModelData->Choices->begin(), choiceItr);
+                        if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[idx])
                             return displayInfo->DisplayID;
+                    }
+                }
+                else
+                {
+                    for (std::size_t i = 0; i < formModelData->Choices->size(); ++i)
+                    {
+                        ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
+                        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Races(GetRace()), Classes(GetClass()), false,
+                            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
+                        {
+                            if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
+                                return displayInfo->DisplayID;
+                        }
+                    }
                 }
             }
         }
