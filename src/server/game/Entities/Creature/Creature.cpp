@@ -2850,8 +2850,16 @@ Position Creature::GetRespawnPosition(float* dist) const
 void Creature::InitializeMovementCapabilities()
 {
     SetHover(GetMovementTemplate().IsHoverInitiallyEnabled());
-    SetDisableGravity(IsFloating());
-    SetControlled(IsSessile(), UNIT_STATE_ROOT);
+
+    // CREATURE_STATIC_FLAG_FLOATING disables gravity and plays hover anim
+    SetDisableGravity(IsFloating(), false);
+
+    if (IsSessile())
+    {
+        // CREATURE_STATIC_FLAG_SESSILE disables gravity and applies root
+        SetControlled(IsSessile(), UNIT_STATE_ROOT);
+        SetDisableGravity(IsFloating(), false, false);
+    }
 
     if (CanOnlySwimIfTargetSwims())
     {
