@@ -214,6 +214,9 @@ void AddSC_boss_the_curator_rtk();
 void AddSC_boss_mana_devourer();
 void AddSC_boss_shade_of_medivh();
 
+// Twilight Highlands
+void AddSC_worldboss_julak_doom();
+
 // Vashjir
 void AddSC_vashjir();
 void AddSC_abyssal_depths();
@@ -421,6 +424,9 @@ void AddEasternKingdomsScripts()
     AddSC_boss_the_curator_rtk();
     AddSC_boss_mana_devourer();
     AddSC_boss_shade_of_medivh();
+
+    // Twilight Highlands
+    AddSC_worldboss_julak_doom();
 
     // Vashjir
     AddSC_vashjir();
