@@ -96,12 +96,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (433079,1,0,0,'',60,0,100,0x100,2000,2000,0,0,0,'',128,29214,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,''),
 (433079,1,1,0,'',60,0,100,0x100,3000,3000,0,0,0,'',41,0,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'');
 
-DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (32286, 33276);
+DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (32286, 33276) AND `IsCustom`= 0;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreaTriggerCustom`, `Shape`, `ShapeData0`, `ShapeData1`, `ScriptName`) VALUES
 (32286, 0, 1, 1, 0, 10, 10, 'areatrigger_goblin_town_in_a_box_1'),
 (33276, 0, 2, 1, 0, 10, 10, 'areatrigger_goblin_town_in_a_box_2');
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (1, 2);
+DELETE FROM `areatrigger_template` WHERE `Id` IN (1, 2) AND `IsCustom`= 1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetFlags`) VALUES
 (1, 1, 0x1, 0x400),
 (2, 1, 0x1, 0x400);

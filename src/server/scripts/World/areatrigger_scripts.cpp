@@ -486,7 +486,7 @@ struct areatrigger_goblin_town_in_a_box_1 : AreaTriggerAI
 
         if (Unit* caster = at->GetCaster())
             if (activeToys >= 5)
-                caster->AddAura(SPELL_OVERCHARGED_TOWN, caster); // no cast packets have been seen in sniffs
+                caster->CastSpell(nullptr, SPELL_OVERCHARGED_TOWN);
     }
 
     void OnUnitExit(Unit *unit) override
