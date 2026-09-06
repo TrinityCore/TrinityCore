@@ -33,3 +33,4 @@ G3D-v9.0 hotfix20.diff - 2026-05-07 - gcc build fix on windows
 G3D-v9.0 hotfix21.diff - 2026-05-07 - gcc 16 warning fix
 G3D-v9.0 hotfix22.diff - 2026-09-06 - Remove unused data members from G3D::Ray
 G3D-v9.0 hotfix23.diff - 2026-09-06 - Make G3D::Plane destructor not virtual
+G3D-v9.0 hotfix24.diff - 2026-09-06 - Add direct yaw/pitch/roll conversions to G3D::Quat
