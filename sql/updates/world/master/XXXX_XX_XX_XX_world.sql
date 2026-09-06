@@ -33,8 +33,9 @@ INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyM
 (93621,0x00,0,0x00000000,0x00000000,0x00000000,0x00000000,0x0,0x0,0x1,0x2,0x403,0x0,0x0,0,0,0,0); -- Dark Whispers
 
 -- ScriptName
-DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_julak_doom_dark_whisper';
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_julak_doom_dark_whisper', 'spell_julak_doom_black_breath');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(93612, 'spell_julak_doom_black_breath'),
 (93621, 'spell_julak_doom_dark_whisper');
 
 -- Vehicles
@@ -45,6 +46,13 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 DELETE FROM `vehicle_template_accessory` WHERE (`seat_id`=0 AND `entry`=50089);
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
 (50089, 50091, 0, 1, 'Julak-Doom - Julak-Doom', 8, 0); -- Julak-Doom - Julak-Doom
+
+-- Julak-Doom smart ai
+SET @ENTRY := 51247;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 0, 85, 94639, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just summoned - Self: Cast spell 94639 on self', '');
 
 -- Path for Julak-Doom
 SET @ENTRY := 50089;

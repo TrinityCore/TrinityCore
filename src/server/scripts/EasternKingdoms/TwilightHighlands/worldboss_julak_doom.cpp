@@ -64,30 +64,44 @@ namespace Scripts::EasternKingdoms::TwilightHighlands::JulakDoom
             {
                 switch (eventId)
                 {
-                case Events::EventBlackBreath:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
-                        DoCast(target, Spells::SpellBlackBreath);
-                    events.ScheduleEvent(Events::EventBlackBreath, 15s);
-                    break;
-                }
-                case Events::EventMassiveShockwave:
-                {
-                    DoCast(Spells::SpellMassiveShockwave);
-                    events.ScheduleEvent(Events::EventMassiveShockwave, 29s);
-                    break;
-                }
-                case Events::EventDarkWhisper:
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
-                        DoCast(target, Spells::SpellDarkWhisper);
-                    events.ScheduleEvent(Events::EventDarkWhisper, 40s);
-                    break;
-                }
-                default:
-                    break;
+                    case Events::EventBlackBreath:
+                    {
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
+                            DoCast(target, Spells::SpellBlackBreath);
+                        events.ScheduleEvent(Events::EventBlackBreath, 15s);
+                        break;
+                    }
+                    case Events::EventMassiveShockwave:
+                    {
+                        DoCast(Spells::SpellMassiveShockwave);
+                        events.ScheduleEvent(Events::EventMassiveShockwave, 29s);
+                        break;
+                    }
+                    case Events::EventDarkWhisper:
+                    {
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
+                            DoCast(target, Spells::SpellDarkWhisper);
+                        events.ScheduleEvent(Events::EventDarkWhisper, 40s);
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
+        }
+    };
+
+    // 93612 - Black Breath
+    class spell_julak_doom_black_breath : public SpellScript
+    {
+        void HandleHit(SpellEffIndex /*effIndex*/)
+        {
+            SetHitDamage(int32(GetHitDamage() * GetCaster()->GetObjectScale()));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_julak_doom_black_breath::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
@@ -122,5 +136,6 @@ void AddSC_worldboss_julak_doom()
     RegisterCreatureAI(worldboss_julak_doom);
 
     // Spells
+    RegisterSpellScript(spell_julak_doom_black_breath);
     RegisterSpellScript(spell_julak_doom_dark_whisper);
 }
