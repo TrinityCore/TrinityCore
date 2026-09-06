@@ -31,3 +31,4 @@ G3D-v9.0 hotfix18.diff - 2024-02-17 - ARM64 support on MSVC
 G3D-v9.0 hotfix19.diff - 2024-06-09 - clang build fix on windows
 G3D-v9.0 hotfix20.diff - 2026-05-07 - gcc build fix on windows
 G3D-v9.0 hotfix21.diff - 2026-05-07 - gcc 16 warning fix
+G3D-v9.0 hotfix22.diff - 2026-09-06 - Remove unused data members from G3D::Ray

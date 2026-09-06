@@ -22,6 +22,7 @@ void Ray::set(const Vector3& origin, const Vector3& direction) {
     
     m_invDirection = Vector3::one() / direction;
     
+#if 0
     // ray slope
     ibyj = m_direction.x * m_invDirection.y;
     jbyi = m_direction.y * m_invDirection.x;
@@ -120,6 +121,7 @@ void Ray::set(const Vector3& origin, const Vector3& direction) {
             }            
         }
     }
+#endif
 }
 
 

@@ -1,0 +1,40 @@
+diff --git a/dep/g3dlite/include/G3D/Ray.h b/dep/g3dlite/include/G3D/Ray.h
+index 79afc7616e..0a2f321245 100644
+--- a/dep/g3dlite/include/G3D/Ray.h
++++ b/dep/g3dlite/include/G3D/Ray.h
+@@ -34,6 +34,7 @@ private:
+     Vector3 m_invDirection;
+ 
+     
++#if 0
+     /** The following are for the "ray slope" optimization from
+       "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
+       by Martin Eisemann, Thorsten Grosch, Stefan Müller and Marcus Magnor
+@@ -48,6 +49,7 @@ private:
+ 
+     /** Precomputed components */
+     float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
++#endif
+ 
+ public:
+     /** \param direction Assumed to have unit length */
+diff --git a/dep/g3dlite/source/Ray.cpp b/dep/g3dlite/source/Ray.cpp
+index 8a8cf77c5b..c9a0e185db 100644
+--- a/dep/g3dlite/source/Ray.cpp
++++ b/dep/g3dlite/source/Ray.cpp
+@@ -22,6 +22,7 @@ void Ray::set(const Vector3& origin, const Vector3& direction) {
+     
+     m_invDirection = Vector3::one() / direction;
+     
++#if 0
+     // ray slope
+     ibyj = m_direction.x * m_invDirection.y;
+     jbyi = m_direction.y * m_invDirection.x;
+@@ -120,6 +121,7 @@ void Ray::set(const Vector3& origin, const Vector3& direction) {
+             }            
+         }
+     }
++#endif
+ }
+ 
+ 
