@@ -4240,6 +4240,55 @@ class spell_item_disco_ball_listening_to_music_parent : public SpellScript
     }
 };
 
+// 437831 - Open Goblin Town-in-a-Box
+class spell_item_open_goblin_town_in_a_box : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        // The toy can only be used in the open world
+        if (Map const* map = GetCaster()->GetMap())
+            if (!map->IsWorldMap())
+                return SPELL_FAILED_NOT_HERE;
+
+        // Also it cannot be used in capital cities
+        AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetCaster()->GetAreaId());
+        if (!area || area->GetFlags().HasFlag(AreaFlags::LinkedChat))
+            return SPELL_FAILED_NOT_HERE;
+
+       return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_item_open_goblin_town_in_a_box::CheckCast);
+    }
+};
+
+static std::array<uint32, 7> _goblinTownInABoxSummonSpells =
+{
+    440597, 438046, 440602, 440408, 440599, 440601, 440596
+};
+
+// 440489 - Open Goblin Town-in-a-Box
+class spell_item_open_goblin_town_in_a_box_forcecast : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(_goblinTownInABoxSummonSpells);
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        uint32 summonSpell = Trinity::Containers::SelectRandomContainerElement(_goblinTownInABoxSummonSpells);
+        GetCaster()->CastSpell(nullptr, summonSpell, CastSpellExtraArgsInit { .TriggeringSpell = GetSpell() });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_open_goblin_town_in_a_box_forcecast::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4380,4 +4429,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_disco_ball_listening_to_music_periodic);
     RegisterSpellScript(spell_item_disco_ball_listening_to_music_check);
     RegisterSpellScript(spell_item_disco_ball_listening_to_music_parent);
+    RegisterSpellScript(spell_item_open_goblin_town_in_a_box_forcecast);
+    RegisterSpellScript(spell_item_open_goblin_town_in_a_box);
 }

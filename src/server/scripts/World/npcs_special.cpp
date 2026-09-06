@@ -2107,6 +2107,49 @@ private:
     TaskScheduler _scheduler;
 };
 
+static std::array<uint32, 4> _goblinTownInABoxObjectSummonSpells =
+{
+    437850,440583,440584,440585
+};
+
+enum GoblinTownInABoxSpells
+{
+    SPELL_TOY_STABILITY         = 440366,
+    SPELL_SUMMON_TOWN_TRIGGER   = 448790,
+    SPELL_TOWN_CONSTRUCTION     = 438021
+};
+
+// 218747 - Elle Arcspark
+// 219976 - Clink Coppernozzle
+// 219980 - Razik Chumpchanger
+// 218794 - Blitz Skuzzweaver
+// 219985 - Kazz Fizzledink
+// 219977 - Clank Coppernozzle
+// 219981 - Moxie Woolpuller
+struct npc_goblin_town_in_a_box_vendor : public PassiveAI
+{
+    npc_goblin_town_in_a_box_vendor(Creature* creature) : PassiveAI(creature) { }
+
+    void InitializeAI() override
+    {
+        uint32 summonSpellId = Trinity::Containers::SelectRandomContainerElement(_goblinTownInABoxObjectSummonSpells);
+        DoCast(nullptr, summonSpellId);
+        DoCastSelf(SPELL_TOY_STABILITY);
+
+        // The npc changes its orientation before it gets sent out via update_object - which we can do by abusing InitializeAI
+        // Sniffs imply that the summon destination does not get altered so this must happen post summon, not before
+        me->SetOrientation(me->GetOrientation() + static_cast<float>(M_PI));
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        PassiveAI::JustSummoned(summon);
+        summon->CastSpell(nullptr, SPELL_TOY_STABILITY);
+        summon->CastSpell(nullptr, SPELL_TOWN_CONSTRUCTION);
+        summon->CastSpell(nullptr, SPELL_SUMMON_TOWN_TRIGGER);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2129,4 +2172,5 @@ void AddSC_npcs_special()
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
     RegisterCreatureAI(npc_gen_void_zone);
+    RegisterCreatureAI(npc_goblin_town_in_a_box_vendor);
 }

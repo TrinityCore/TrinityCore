@@ -459,6 +459,83 @@ struct areatrigger_action_capture_flag : AreaTriggerAI
     }
 };
 
+enum GoblinTownInABoxSpells
+{
+    SPELL_TOWN_CONSTRUCTION         = 438021,
+    SPELL_OVERCHARGED_TOWN          = 448591,
+    SPELL_CRAZY_GADGETS_CALCULATION = 440395,
+    SPELL_CRAZY_GADGETS_TRIGGERED   = 437918
+};
+
+struct areatrigger_goblin_town_in_a_box_1 : AreaTriggerAI
+{
+    areatrigger_goblin_town_in_a_box_1(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsCreature())
+            return;
+
+        uint32 activeToys = 0;
+        for (ObjectGuid guid : at->GetInsideUnits())
+        {
+            if (Creature* creature = ObjectAccessor::GetCreature(*at, guid))
+                if (creature->HasAura(SPELL_TOWN_CONSTRUCTION))
+                    ++activeToys;
+        }
+
+        if (Unit* caster = at->GetCaster())
+            if (activeToys >= 5)
+                caster->AddAura(SPELL_OVERCHARGED_TOWN, caster); // no cast packets have been seen in sniffs
+    }
+
+    void OnUnitExit(Unit *unit) override
+    {
+        if (!unit->IsCreature())
+            return;
+
+        uint32 activeToys = 0;
+        for (ObjectGuid guid : at->GetInsideUnits())
+        {
+            if (Creature* creature = ObjectAccessor::GetCreature(*at, guid))
+                if (creature->HasAura(SPELL_TOWN_CONSTRUCTION))
+                    ++activeToys;
+        }
+
+        if (Unit* caster = at->GetCaster())
+        {
+            if (activeToys < 5)
+                caster->RemoveAurasDueToSpell(SPELL_OVERCHARGED_TOWN);
+        }
+    }
+};
+
+struct areatrigger_goblin_town_in_a_box_2 : AreaTriggerAI
+{
+    areatrigger_goblin_town_in_a_box_2(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer() || unit->HasAura(SPELL_CRAZY_GADGETS_TRIGGERED))
+            return;
+
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(unit, SPELL_CRAZY_GADGETS_CALCULATION);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        if (!std::ranges::any_of(unit->GetInsideAreaTriggers(), [&](AreaTrigger const* trigger)
+        {
+            return at != trigger && at->GetSpellId() == trigger->GetSpellId();
+        }))
+            unit->RemoveAurasDueToSpell(SPELL_CRAZY_GADGETS_TRIGGERED);
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -473,4 +550,6 @@ void AddSC_areatrigger_scripts()
     RegisterAreaTriggerAI(areatrigger_battleground_buffs);
     new AreaTrigger_at_battleground_buffs();
     RegisterAreaTriggerAI(areatrigger_action_capture_flag);
+    RegisterAreaTriggerAI(areatrigger_goblin_town_in_a_box_1);
+    RegisterAreaTriggerAI(areatrigger_goblin_town_in_a_box_2);
 }

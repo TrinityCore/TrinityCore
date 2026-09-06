@@ -5511,6 +5511,75 @@ class spell_gen_force_phase_update : public AuraScript
     }
 };
 
+enum GoblinTownInABoxSpells
+{
+    SPELL_TOY_STABILITY             = 440366,
+    SPELL_CRAZY_GADGETS_TRIGGERED   = 437918,
+    SPELL_OVERCHARGED_TOWN          = 448591,
+    SPELL_SUMMON_TOWN_TRIGGER       = 440366
+};
+
+// 440395 - Crazy Gadget Calculations
+class spell_gen_crazy_gadgets_calculations : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_CRAZY_GADGETS_TRIGGERED,
+            SPELL_TOY_STABILITY
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Aura const* aura = GetCaster()->GetAura(SPELL_TOY_STABILITY))
+        {
+            GetHitUnit()->CastSpell(nullptr, SPELL_CRAZY_GADGETS_TRIGGERED, CastSpellExtraArgsInit
+            {
+                .TriggeringSpell = GetSpell(),
+                .SpellValueOverrides = { {SPELLVALUE_DURATION, aura->GetDuration()} }
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_crazy_gadgets_calculations::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 448366 - Overcharged Town!
+class spell_gen_overcharged_town : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_OVERCHARGED_TOWN,
+            SPELL_SUMMON_TOWN_TRIGGER
+        });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (GetCaster()->HasAura(GetSpellInfo()->Id))
+            return SPELL_FAILED_DONT_REPORT;
+
+        for (AreaTrigger const* at : GetCaster()->GetInsideAreaTriggers())
+            if (Unit* caster = at->GetCaster())
+                if (caster->HasAura(SPELL_OVERCHARGED_TOWN))
+                    return SPELL_CAST_OK;
+
+        return SPELL_FAILED_DONT_REPORT;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_gen_overcharged_town::CheckCast);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5700,4 +5769,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_100", 100);
     RegisterSpellScriptWithArgs(spell_gen_set_health, "spell_gen_set_health_500", 500);
     RegisterSpellScript(spell_gen_force_phase_update);
+    RegisterSpellScript(spell_gen_crazy_gadgets_calculations);
+    RegisterSpellScript(spell_gen_overcharged_town);
 }
