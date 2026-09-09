@@ -170,13 +170,15 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
         "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, SpeedIsTime, "
-        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger_create_properties`"))
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, "
+        "Roll, Pitch, Yaw, TargetRoll, TargetPitch, TargetYaw, ScriptName FROM `areatrigger_create_properties`"))
     {
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (Id)(IsCustom)(AreaTriggerId)(IsAreatriggerCustom)(Flags)
                 (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)(TimeToTargetScale)(Speed)(SpeedIsTime)
-                (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)(ScriptName)
+                (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)
+                (Roll)(Pitch)(Yaw)(TargetRoll)(TargetPitch)(TargetYaw)(ScriptName)
             ) fields { *areatriggerCreateProperties };
 
             AreaTriggerCreatePropertiesId createPropertiesId = { fields.Id().GetUInt32(), fields.IsCustom().GetBool() };
@@ -286,6 +288,31 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                     break;
                 default:
                     break;
+            }
+
+            createProperties.RollPitchYaw.Pos.Relocate(
+                Position::NormalizeOrientation(fields.Roll().GetFloat()),
+                Position::NormalizeOrientation(fields.Pitch().GetFloat()),
+                Position::NormalizeOrientation(fields.Yaw().GetFloat()));
+
+            std::array<Optional<float>, 3> targetRollPitchYaw =
+            {
+                fields.TargetRoll().GetFloatOrNull(),
+                fields.TargetPitch().GetFloatOrNull(),
+                fields.TargetYaw().GetFloatOrNull()
+            };
+
+            if (std::ptrdiff_t trpyFields = std::ranges::count_if(targetRollPitchYaw, [](Optional<float> const& angle) { return angle.has_value(); }); trpyFields == 3)
+            {
+                createProperties.TargetRollPitchYaw.emplace(
+                    Position::NormalizeOrientation(*targetRollPitchYaw[0]),
+                    Position::NormalizeOrientation(*targetRollPitchYaw[1]),
+                    Position::NormalizeOrientation(*targetRollPitchYaw[2]));
+            }
+            else if (trpyFields)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid TargetRoll {}, TargetPitch {}, TargetYaw {} combination, they must either all be NULL or all have value, ignored.",
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), targetRollPitchYaw[0], targetRollPitchYaw[1], targetRollPitchYaw[2]);
             }
 
             createProperties.ScriptId = sObjectMgr->GetScriptId(fields.ScriptName().GetStringView());

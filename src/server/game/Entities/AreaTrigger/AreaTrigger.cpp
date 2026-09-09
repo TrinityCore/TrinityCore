@@ -233,14 +233,16 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     AreaTriggerFieldFlags fieldFlags = [flags = GetCreateProperties()->Flags]()
     {
         AreaTriggerFieldFlags fieldFlags = AreaTriggerFieldFlags::None;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation))
+        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::AbsoluteOrientation))
             fieldFlags |= AreaTriggerFieldFlags::AbsoluteOrientation;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
+        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::FaceMovementDir))
             fieldFlags |= AreaTriggerFieldFlags::FaceMovementDir;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain))
+        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::FollowsTerrain))
             fieldFlags |= AreaTriggerFieldFlags::FollowsTerrain;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::AlwaysExterior))
             fieldFlags |= AreaTriggerFieldFlags::AlwaysExterior;
+        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::UsesUnitRawFacing))
+            fieldFlags |= AreaTriggerFieldFlags::UsesUnitRawFacing;
         return fieldFlags;
     }();
     ReplaceAllAreaTriggerFlags(fieldFlags);
@@ -304,6 +306,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     }, GetCreateProperties()->Movement);
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::Facing), _stationaryPosition.GetOrientation());
+
+    SetRollPitchYaw(GetCreateProperties()->RollPitchYaw, GetCreateProperties()->TargetRollPitchYaw);
 
     AI_Initialize();
 
@@ -472,9 +476,9 @@ void AreaTrigger::ClearOverrideMoveCurve()
     UpdateDynamicShapeFlag();
 }
 
-void AreaTrigger::SetOverrideShapeCurve(float overrideFacing)
+void AreaTrigger::SetOverrideShapeCurve(float overrideShape)
 {
-    SetOverrideCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideShapeCurve), overrideFacing);
+    SetOverrideCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideShapeCurve), overrideShape);
 }
 
 void AreaTrigger::SetOverrideShapeCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
@@ -498,12 +502,23 @@ void AreaTrigger::SetSpellVisual(SpellCastVisual const& visual)
 void AreaTrigger::SetRollPitchYaw(float roll, float pitch, float yaw,
     Optional<float> targetRoll, Optional<float> targetPitch, Optional<float> targetYaw)
 {
+    TaggedPosition<Position::XYZ> rollPitchYaw = { roll, pitch, yaw };
+    Optional<TaggedPosition<Position::XYZ>> targetRollPitchYaw;
+
+    if (targetRoll && targetPitch && targetYaw)
+        targetRollPitchYaw.emplace(*targetRoll, *targetPitch, *targetYaw);
+
+    SetRollPitchYaw(rollPitchYaw, targetRollPitchYaw);
+}
+
+void AreaTrigger::SetRollPitchYaw(TaggedPosition<Position::XYZ> const& rollPitchYaw, Optional<TaggedPosition<Position::XYZ>> const& targetRollPitchYaw)
+{
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
 
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::RollPitchYaw), { roll, pitch, yaw });
-    if (targetRoll && targetPitch && targetYaw)
+    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::RollPitchYaw), rollPitchYaw);
+    if (targetRollPitchYaw)
     {
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TargetRollPitchYaw, 0), { *targetRoll, *targetPitch, *targetYaw });
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TargetRollPitchYaw, 0), *targetRollPitchYaw);
         SetAreaTriggerFlag(AreaTriggerFieldFlags::DynamicShape);
     }
     else

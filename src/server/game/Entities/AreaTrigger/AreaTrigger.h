@@ -51,7 +51,7 @@ enum class AreaTriggerFieldFlags : uint32
     Attached            = 0x0020,
     FaceMovementDir     = 0x0040,   // applies when attached to unit (refers to movement direction of the unit)
     FollowsTerrain      = 0x0080,
-    Unknown1025         = 0x0100,
+    UsesUnitRawFacing   = 0x0100,   // uses GetTransOffsetO instead of GetOrientation when attached to unit on a transport/vehicle
     AlwaysExterior      = 0x0200,
     HasPlayers          = 0x0400,
 };
@@ -153,7 +153,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
             Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideMoveCurve();
 
-        void SetOverrideShapeCurve(float overrideFacing);
+        void SetOverrideShapeCurve(float overrideShape);
         void SetOverrideShapeCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideShapeCurve();
 
@@ -169,13 +169,15 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         uint32 GetTimeToTargetPos() const { return m_areaTriggerData->TimeToTargetPos; }
         void SetTimeToTargetPos(uint32 timeToTargetPos) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), timeToTargetPos); }
 
-        uint32 GetTimeToTargetFacing() const { return m_areaTriggerData->TimeToTargetShape; }
-        void SetTimeToTargetFacing(uint32 timeToTargetShape) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetShape), timeToTargetShape); }
+        uint32 GetTimeToTargetShape() const { return m_areaTriggerData->TimeToTargetShape; }
+        void SetTimeToTargetShape(uint32 timeToTargetShape) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetShape), timeToTargetShape); }
 
         void SetSpellVisual(SpellCastVisual const& visual);
 
         void SetRollPitchYaw(float roll, float pitch, float yaw,
             Optional<float> targetRoll = {}, Optional<float> targetPitch = {}, Optional<float> targetYaw = {});
+        void SetRollPitchYaw(TaggedPosition<Position::XYZ> const& rollPitchYaw,
+            Optional<TaggedPosition<Position::XYZ>> const& targetRollPitchYaw = {});
 
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
