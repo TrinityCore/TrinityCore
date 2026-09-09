@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.44, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.44-0ubuntu0.22.04.2
+-- Server version	8.0.46-0ubuntu0.22.04.4
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -611,7 +611,7 @@ CREATE TABLE `creature` (
   `spawntimesecs` int unsigned NOT NULL DEFAULT '120',
   `wander_distance` float NOT NULL DEFAULT '0',
   `currentwaypoint` int unsigned NOT NULL DEFAULT '0',
-  `curHealthPct` int unsigned NOT NULL DEFAULT '100',
+  `curHealthPct` int unsigned DEFAULT NULL,
   `MovementType` tinyint unsigned NOT NULL DEFAULT '0',
   `npcflag` bigint unsigned DEFAULT NULL,
   `unit_flags` int unsigned DEFAULT NULL,
@@ -1633,7 +1633,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2308 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2314 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2668,7 +2668,10 @@ CREATE TABLE `playerchoice` (
   `HideWarboardHeader` tinyint unsigned NOT NULL DEFAULT '0',
   `KeepOpenAfterChoice` tinyint unsigned NOT NULL DEFAULT '0',
   `ShowChoicesAsList` tinyint unsigned NOT NULL DEFAULT '0',
-  `ForceDontShowChoicesAsList` tinyint unsigned NOT NULL DEFAULT '0',
+  `RequiresSelection` tinyint(1) NOT NULL DEFAULT '0',
+  `ShowChoicesAsGrid` tinyint(1) NOT NULL DEFAULT '0',
+  `HideAnswerArt` tinyint(1) NOT NULL DEFAULT '0',
+  `ShowChoicesAsColumns` tinyint(1) NOT NULL DEFAULT '0',
   `MaxResponses` int unsigned DEFAULT NULL,
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `InfiniteRange` tinyint unsigned NOT NULL DEFAULT '0',
@@ -4511,29 +4514,6 @@ CREATE TABLE `spell_script_names` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `spell_scripts`
---
-
-DROP TABLE IF EXISTS `spell_scripts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `spell_scripts` (
-  `id` int unsigned NOT NULL DEFAULT '0',
-  `effIndex` tinyint unsigned NOT NULL DEFAULT '0',
-  `delay` int unsigned NOT NULL DEFAULT '0',
-  `command` int unsigned NOT NULL DEFAULT '0',
-  `datalong` int unsigned NOT NULL DEFAULT '0',
-  `datalong2` int unsigned NOT NULL DEFAULT '0',
-  `dataint` int NOT NULL DEFAULT '0',
-  `x` float NOT NULL DEFAULT '0',
-  `y` float NOT NULL DEFAULT '0',
-  `z` float NOT NULL DEFAULT '0',
-  `o` float NOT NULL DEFAULT '0',
-  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `spell_target_position`
 --
 
@@ -5088,4 +5068,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-06 12:45:52
+-- Dump completed on 2026-09-09  8:23:11
