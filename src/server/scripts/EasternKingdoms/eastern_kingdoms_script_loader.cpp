@@ -182,7 +182,6 @@ void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
 void AddSC_zulgurub();
 void AddSC_eastern_kingdoms();
-void AddSC_abyssal_depths();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
@@ -205,6 +204,9 @@ void AddSC_tol_barad();
 void AddSC_undercity();
 //void AddSC_western_plaguelands();
 void AddSC_westfall();
+
+// Twilight Highlands
+void AddSC_worldboss_julak_doom();
 
 // Vashjir
 void AddSC_vashjir();
@@ -404,6 +406,9 @@ void AddEasternKingdomsScripts()
     AddSC_undercity();
     //AddSC_western_plaguelands();
     AddSC_westfall();
+
+    // Twilight Highlands
+    AddSC_worldboss_julak_doom();
 
     // Vashjir
     AddSC_vashjir();
