@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_slave_pens.h"
@@ -49,14 +53,15 @@ struct boss_rokmar_the_crackler : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10s);
-        events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20s);
-        events.ScheduleEvent(EVENT_WATER_SPIT, 14s);
+
+        events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10s, 25s);
+        events.ScheduleEvent(EVENT_ENSNARING_MOSS, 10s, 25s);
+        events.ScheduleEvent(EVENT_WATER_SPIT, 5s, 20s);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_frenzied && me->HealthBelowPctDamaged(10, damage))
+        if (!_frenzied && me->HealthBelowPctDamaged(20, damage))
         {
             _frenzied = true;
             events.ScheduleEvent(EVENT_FRENZY, 0s);
@@ -82,12 +87,13 @@ struct boss_rokmar_the_crackler : public BossAI
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_ENSNARING_MOSS:
-                    DoCastAOE(SPELL_ENSNARING_MOSS);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
+                        DoCast(target, SPELL_ENSNARING_MOSS);
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_WATER_SPIT:
                     DoCastAOE(SPELL_WATER_SPIT);
-                    events.Repeat(14s, 18s);
+                    events.Repeat(10s, 25s);
                     break;
                 case EVENT_FRENZY:
                     DoCastSelf(SPELL_FRENZY);
