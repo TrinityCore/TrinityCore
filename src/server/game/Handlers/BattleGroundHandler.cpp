@@ -417,20 +417,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     }
     else // leave queue
     {
+        // leaving arena queue is not allowed if you have already been called to enter (it was presumably a hotfix before Cataclysm expansion)
         if (bg->isArena() && bg->GetStatus() > STATUS_WAIT_QUEUE)
             return;
-
-        // if player leaves rated arena match before match start, it is counted as he played but he lost
-        if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
-        {
-            ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ginfo.Team);
-            if (at)
-            {
-                TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for {} by opponents rating: {}, because he has left queue!", _player->GetGUID().ToString(), ginfo.OpponentsTeamRating);
-                at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
-                at->SaveToDB();
-            }
-        }
 
         WorldPackets::Battleground::BattlefieldStatusNone battlefieldStatus;
         BattlegroundMgr::BuildBattlegroundStatusNone(&battlefieldStatus, queueSlot);
