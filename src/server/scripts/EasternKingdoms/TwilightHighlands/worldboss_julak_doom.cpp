@@ -94,14 +94,18 @@ namespace Scripts::EasternKingdoms::TwilightHighlands::JulakDoom
     // 93612 - Black Breath
     class spell_julak_doom_black_breath : public SpellScript
     {
-        void HandleHit(SpellEffIndex /*effIndex*/)
+        void FilterTargets(std::list<WorldObject*>& targets)
         {
-            SetHitDamage(int32(GetHitDamage() * GetCaster()->GetObjectScale()));
+            float maxRadius = 5.0f * GetCaster()->GetObjectScale();
+            targets.remove_if([this, maxRadius](WorldObject* target) -> bool
+            {
+                return target->GetExactDist(GetCaster()) > maxRadius;
+            });
         }
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_julak_doom_black_breath::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_julak_doom_black_breath::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 
