@@ -1054,6 +1054,13 @@ void DB2Manager::IndexLoadedStores()
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
 
+    // The Deeprun Tram has incorrect difficulty data set in DB2, so we have to add a little hack here unfortunately
+    if (MapDifficultyEntry const* diff = sMapDifficultyStore.LookupEntry(32))
+    {
+        MapDifficultyEntry* tramDiff = const_cast<MapDifficultyEntry*>(diff);
+        tramDiff->DifficultyID = 0;
+    }
+
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         if (sMapStore.HasRecord(entry->MapID) && (!entry->DifficultyID || sDifficultyStore.HasRecord(entry->DifficultyID)))
             _mapDifficulties.push_back(entry);
