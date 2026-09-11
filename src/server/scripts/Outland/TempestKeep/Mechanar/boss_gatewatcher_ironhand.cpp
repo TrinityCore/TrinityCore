@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires update
+ */
+
 #include "ScriptMgr.h"
 #include "mechanar.h"
 #include "ScriptedCreature.h"
@@ -55,23 +59,25 @@ struct boss_gatewatcher_iron_hand : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 15s, 25s);
         events.ScheduleEvent(EVENT_HAMMER_PUNCH, 15s, 25s);
         events.ScheduleEvent(EVENT_JACKHAMMER, 10s, 30s);
-        events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
-        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_SHADOW_POWER, 20s, 25s);
     }
 
-    void OnSpellStart(SpellInfo const* spell) override
+    void OnSpellStart(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_JACKHAMMER, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_JACKHAMMER, me))
             Talk(EMOTE_HAMMER);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
         // Only in normal mode
-        if (spell->Id == SPELL_JACKHAMMER)
+        if (spellInfo->Id == SPELL_JACKHAMMER)
             Talk(SAY_HAMMER);
     }
 

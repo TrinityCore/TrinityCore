@@ -15,10 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires update
+ */
+
 #include "ScriptMgr.h"
-#include "SpellInfo.h"
 #include "mechanar.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 
 enum GyroKillTexts
 {
@@ -51,15 +55,18 @@ struct boss_gatewatcher_gyrokill : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 15s, 25s);
-        events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
-        events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
+
         Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 15s, 25s);
+        events.ScheduleEvent(EVENT_SAW_BLADE, 20s, 30s);
+        events.ScheduleEvent(EVENT_SHADOW_POWER, 20s, 25s);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SAW_BLADE)
+        // Only in normal mode
+        if (spellInfo->Id == SPELL_SAW_BLADE)
             Talk(SAY_SAW_BLADES);
     }
 
@@ -94,7 +101,8 @@ struct boss_gatewatcher_gyrokill : public BossAI
                     events.Repeat(35s, 50s);
                     break;
                 case EVENT_SAW_BLADE:
-                    DoCastVictim(SPELL_SAW_BLADE);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f))
+                        DoCast(target, SPELL_SAW_BLADE);
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_SHADOW_POWER:
