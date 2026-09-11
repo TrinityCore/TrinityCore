@@ -15,41 +15,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Containers.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "the_underbog.h"
 
 /*
-How levitation sequence works: boss casts Levitate and it triggers a chain of spells, target(any target, player or pet, any position in
-threat list) eventually gets pulled towards by randomly selected trigger. Then target becomes protected from Pull Towards by Suspension
-aura which is triggered every 1 sec up to 4 times. Since it has stun mechanic, diminishing returns cuts off its duration every cast in
-half (20 > 10 > 5 > 0). Eventually player becomes immune to Suspension and vulnerable to another pull towards.
-Whole levitate sequence is designed to pull player towards up to 3 times. Usually it works like this: player gets pulled towards,
-gets protected by Suspension from Pull Towards next 2 times. If player is unlucky, boss can cast Levitate on same player again, in that case
-player can be pulled towards 2 times in a row without any protection from fall damage by Suspension(case from sniffs).
-
-However currently diminishing returns affects Suspension after first cast, its duration is 10 instead of 20 seconds and player will be
-immune to 4th cast. That allows to pull player towards when levitation sequence ends. Levitation sequence has sensetive design and looks
-like lack of delays between packets makes it work differently too.
-Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
-*/
+ * How levitation sequence works: boss casts Levitate and it triggers a chain of spells, target(any target, player or pet, any position in
+   threat list) eventually gets pulled towards by randomly selected trigger. Then target becomes protected from Pull Towards by Suspension
+   aura which is triggered every 1 sec up to 4 times. Since it has stun mechanic, diminishing returns cuts off its duration every cast in
+   half (20 > 10 > 5 > 0). Eventually player becomes immune to Suspension and vulnerable to another pull towards.
+   Whole levitate sequence is designed to pull player towards up to 3 times. Usually it works like this: player gets pulled towards,
+   gets protected by Suspension from Pull Towards next 2 times. If player is unlucky, boss can cast Levitate on same player again, in that case
+   player can be pulled towards 2 times in a row without any protection from fall damage by Suspension(case from sniffs).
+   However currently diminishing returns affects Suspension after first cast, its duration is 10 instead of 20 seconds and player will be
+   immune to 4th cast. That allows to pull player towards when levitation sequence ends. Levitation sequence has sensetive design and looks
+   like lack of delays between packets makes it work differently too.
+   Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
+ * Timers requires to be revisited
+ */
 
 enum BlackStalkerSpells
 {
+    // Combat
     SPELL_LEVITATE                      = 31704,
     SPELL_CHAIN_LIGHTNING               = 31717,
     SPELL_STATIC_CHARGE                 = 31715,   // Never seen any cast on retail, probably because of shared cooldown with Chain Lightning
-    SPELL_SUMMON_PLAYER                 = 20279,   // NYI, may be 20311 or any other
-    SPELL_SUMMON_SPORE_STRIDER_SCRIPT   = 38756,
+    SPELL_SUMMON_SPORE_STRIDER          = 38756,
 
+    // Scripts
     SPELL_LEVITATION_PULSE              = 31701,
     SPELL_SOMEONE_GRAB_ME               = 31702,
     SPELL_MAGNETIC_PULL                 = 31703,
     SPELL_SUSPENSION_PRIMER             = 31720,
     SPELL_SUSPENSION                    = 31719,
-
-    SPELL_SUMMON_SPORE_STRIDER          = 38755
+    SPELL_SUMMON_SPORE_STRIDER_EFFECT   = 38755
 };
 
 enum BlackStalkerEvents
@@ -69,7 +70,8 @@ struct boss_the_black_stalker : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
+
+        events.ScheduleEvent(EVENT_LEASH_CHECK, 1s);
         events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
         events.ScheduleEvent(EVENT_STATIC_CHARGE, 10s);
@@ -92,17 +94,10 @@ struct boss_the_black_stalker : public BossAI
             switch (eventId)
             {
                 case EVENT_LEASH_CHECK:
-                {
-                    float x, y, z, o;
-                    me->GetHomePosition(x, y, z, o);
-                    if (!me->IsWithinDist3d(x, y, z, 60))
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
+                    if (me->GetPositionX() < 100.0f || me->GetPositionY() < -30.0f)
+                        EnterEvadeMode(EVADE_REASON_BOUNDARY);
                     events.Repeat(1s);
                     break;
-                }
                 case EVENT_LEVITATE:
                     DoCastSelf(SPELL_LEVITATE);
                     events.Repeat(18s, 24s);
@@ -117,7 +112,7 @@ struct boss_the_black_stalker : public BossAI
                     events.Repeat(10s);
                     break;
                 case EVENT_SUMMON_SPORE_STRIDER:
-                    DoCastSelf(SPELL_SUMMON_SPORE_STRIDER_SCRIPT);
+                    DoCastSelf(SPELL_SUMMON_SPORE_STRIDER);
                     events.Repeat(15s, 25s);
                     break;
                 default:
@@ -144,7 +139,7 @@ class spell_the_black_stalker_levitate : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_LEVITATION_PULSE, true);
+        GetHitUnit()->CastSpell(nullptr, SPELL_LEVITATION_PULSE, true);
     }
 
     void Register() override
@@ -165,7 +160,7 @@ class spell_the_black_stalker_levitation_pulse : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_SOMEONE_GRAB_ME, true);
+        GetCaster()->CastSpell(nullptr, SPELL_SOMEONE_GRAB_ME, true);
     }
 
     void Register() override
@@ -184,6 +179,11 @@ class spell_the_black_stalker_someone_grab_me : public SpellScript
         return ValidateSpellInfo({ SPELL_MAGNETIC_PULL, SPELL_SUSPENSION });
     }
 
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (!GetCaster()->HasAura(SPELL_SUSPENSION))
@@ -192,6 +192,7 @@ class spell_the_black_stalker_someone_grab_me : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_black_stalker_someone_grab_me::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_the_black_stalker_someone_grab_me::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
@@ -208,7 +209,7 @@ class spell_the_black_stalker_magnetic_pull : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUSPENSION_PRIMER, true);
+        GetHitUnit()->CastSpell(nullptr, SPELL_SUSPENSION_PRIMER, true);
     }
 
     void Register() override
@@ -224,13 +225,14 @@ class spell_the_black_stalker_summon_spore_strider : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SUMMON_SPORE_STRIDER });
+        return ValidateSpellInfo({ SPELL_SUMMON_SPORE_STRIDER_EFFECT });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
         for (uint8 i = 0; i < 3; i++)
-            GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_SPORE_STRIDER, true);
+            caster->CastSpell(nullptr, SPELL_SUMMON_SPORE_STRIDER_EFFECT, true);
     }
 
     void Register() override
