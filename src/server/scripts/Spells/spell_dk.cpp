@@ -108,6 +108,8 @@ enum DeathKnightSpells
     SPELL_DK_SUBDUING_GRASP_TALENT              = 454822,
     SPELL_DK_UNHOLY                             = 137007,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
+    SPELL_DK_VESTIGIAL_SHELL_TALENT             = 454851,
+    SPELL_DK_VESTIGIAL_SHELL                    = 454863,
     SPELL_DH_VORACIOUS_LEECH                    = 274009,
     SPELL_DH_VORACIOUS_TALENT                   = 273953
 };
@@ -1432,6 +1434,34 @@ class spell_dk_vampiric_blood : public AuraScript
     }
 };
 
+// 454851 - Vestigial Shell (attached to 48707 - Anti-Magic Shell)
+class spell_dk_vestigial_shell : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_VESTIGIAL_SHELL_TALENT, SPELL_DK_VESTIGIAL_SHELL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_VESTIGIAL_SHELL_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DK_VESTIGIAL_SHELL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dk_vestigial_shell::HandleAfterCast);
+    }
+};
+
 // 273953 - Voracious (attached to 49998 - Death Strike)
 class spell_dk_voracious : public SpellScript
 {
@@ -1542,6 +1572,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_suppression);
     RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
+    RegisterSpellScript(spell_dk_vestigial_shell);
     RegisterSpellScript(spell_dk_voracious);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
