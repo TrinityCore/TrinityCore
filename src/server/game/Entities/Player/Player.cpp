@@ -19551,7 +19551,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
             m->deliver_time   = fields[7].GetInt64();
             m->money          = fields[8].GetUInt64();
             m->COD            = fields[9].GetUInt64();
-            m->checked        = fields[10].GetUInt8();
+            m->checked        = fields[10].GetUInt32();
             m->stationery     = fields[11].GetUInt8();
             m->mailTemplateId = fields[12].GetInt16();
 
@@ -21163,7 +21163,7 @@ void Player::_SaveMail(CharacterDatabaseTransaction trans)
             stmt->setInt64(2, m->deliver_time);
             stmt->setUInt64(3, m->money);
             stmt->setUInt64(4, m->COD);
-            stmt->setUInt8(5, uint8(m->checked));
+            stmt->setUInt32(5, uint8(m->checked));
             stmt->setUInt64(6, m->messageID);
 
             trans->Append(stmt);
