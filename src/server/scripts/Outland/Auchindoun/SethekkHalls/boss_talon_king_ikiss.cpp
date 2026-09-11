@@ -15,10 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ * Looks like SPELL_ARCANE_BUBBLE and SPELL_MANA_SHIELD were removed in Cata
+ */
+
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "sethekk_halls.h"
 
 enum IkissTexts
@@ -32,34 +39,52 @@ enum IkissTexts
 
 enum IkissSpells
 {
-    SPELL_BLINK                 = 38194,
-    SPELL_BLINK_TELEPORT        = 38203,
-    SPELL_MANA_SHIELD           = 38151,
-    SPELL_ARCANE_BUBBLE         = 9438,
-    SPELL_SLOW                  = 35032,
+    // Combat
     SPELL_POLYMORPH             = 38245,
     SPELL_ARCANE_VOLLEY         = 35059,
+    SPELL_SLOW                  = 35032,
+    SPELL_MANA_SHIELD           = 38151,
+
+    // Combat - Sequence
+    SPELL_BLINK                 = 38194,
+    SPELL_ARCANE_BUBBLE         = 9438,
     SPELL_ARCANE_EXPLOSION      = 38197,
+
+    // Scripts
+    SPELL_BLINK_TELEPORT        = 38203
 };
 
 enum IkissEvents
 {
-    EVENT_POLYMORPH = 1,
-    EVENT_BLINK,
-    EVENT_SLOW,
+    EVENT_POLYMORPH             = 1,
     EVENT_ARCANE_VOLLEY,
-    EVENT_ARCANE_EXPLOSION
+    EVENT_SLOW,
+    EVENT_MANA_SHIELD,
+
+    EVENT_SEQUENCE_1,
+    EVENT_SEQUENCE_2,
+    EVENT_SEQUENCE_3
+};
+
+enum IkissPhases : uint8
+{
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_80,
+    PHASE_HEALTH_50,
+    PHASE_HEALTH_25,
+    PHASE_HEALTH_15
 };
 
 // 18473 - Talon King Ikiss
 struct boss_talon_king_ikiss : public BossAI
 {
-    boss_talon_king_ikiss(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS), _introDone(false), _manaShieldTriggered(false) { }
+    boss_talon_king_ikiss(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS), _introDone(false), _phase(PHASE_NONE) { }
 
     void Reset() override
     {
         _Reset();
-        _manaShieldTriggered = false;
+        _phase = PHASE_NONE;
+        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     /// @todo: Handle this with GameObject 184118 (Auchindoun Arakkoa - Talon King Ikiss Intro Event - Trigger 000)
@@ -77,27 +102,51 @@ struct boss_talon_king_ikiss : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s);
-        events.ScheduleEvent(EVENT_POLYMORPH, 8s);
-        events.ScheduleEvent(EVENT_BLINK, 35s);
+
+        events.ScheduleEvent(EVENT_POLYMORPH, 5s, 15s);
+        events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s, 10s);
         if (IsHeroic())
-            events.ScheduleEvent(EVENT_SLOW, 15s, 30s);
+            events.ScheduleEvent(EVENT_SLOW, 10s, 20s);
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_ARCANE_EXPLOSION, me))
+            me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_manaShieldTriggered && me->HealthBelowPctDamaged(20, damage))
+        if (_phase < PHASE_HEALTH_80 && me->HealthBelowPctDamaged(80, damage))
         {
-            DoCastSelf(SPELL_MANA_SHIELD);
-            _manaShieldTriggered = true;
+            _phase++;
+            events.ScheduleEvent(EVENT_SEQUENCE_1, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_50 && me->HealthBelowPctDamaged(50, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SEQUENCE_1, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_25 && me->HealthBelowPctDamaged(25, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SEQUENCE_1, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_15 && me->HealthBelowPctDamaged(15, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_MANA_SHIELD, 0s);
         }
     }
 
-    void KilledUnit(Unit* who) override
+    void KilledUnit(Unit* /*who*/) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -111,30 +160,35 @@ struct boss_talon_king_ikiss : public BossAI
         switch (eventId)
         {
             case EVENT_POLYMORPH:
-                // Second top aggro in normal, random target in heroic.
-                if (IsHeroic())
-                    DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_POLYMORPH);
-                else
-                    DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 1), SPELL_POLYMORPH);
-                events.Repeat(15s, 17500ms);
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 30.0f))
+                    DoCast(target, SPELL_POLYMORPH);
+                events.Repeat(10s, 20s);
                 break;
             case EVENT_ARCANE_VOLLEY:
                 DoCastSelf(SPELL_ARCANE_VOLLEY);
-                events.Repeat(7s, 12s);
+                events.Repeat(10s);
                 break;
             case EVENT_SLOW:
                 DoCastSelf(SPELL_SLOW);
-                events.Repeat(15s, 40s);
+                events.Repeat(15s, 20s);
                 break;
-            case EVENT_BLINK:
+            case EVENT_MANA_SHIELD:
+                DoCastSelf(SPELL_MANA_SHIELD);
+                break;
+
+            case EVENT_SEQUENCE_1:
+                DoCastSelf(SPELL_BLINK);
+                ResetThreatList();
+                me->SetReactState(REACT_PASSIVE);
+                events.ScheduleEvent(EVENT_SEQUENCE_2, 1200ms);
+                break;
+            case EVENT_SEQUENCE_2:
+                DoCastSelf(SPELL_ARCANE_BUBBLE);
                 Talk(EMOTE_ARCANE_EXPLOSION);
-                DoCastAOE(SPELL_BLINK);
-                events.ScheduleEvent(EVENT_BLINK, 35s, 40s);
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 1s);
+                events.ScheduleEvent(EVENT_SEQUENCE_3, 1200ms);
                 break;
-            case EVENT_ARCANE_EXPLOSION:
+            case EVENT_SEQUENCE_3:
                 DoCastSelf(SPELL_ARCANE_EXPLOSION);
-                DoCastSelf(SPELL_ARCANE_BUBBLE, true);
                 break;
             default:
                 break;
@@ -143,7 +197,7 @@ struct boss_talon_king_ikiss : public BossAI
 
 private:
     bool _introDone;
-    bool _manaShieldTriggered;
+    uint8 _phase;
 };
 
 // 38194 - Blink
@@ -162,21 +216,24 @@ class spell_talon_king_ikiss_blink : public SpellScript
             return;
 
         WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
+
+        _selectedTargetGuid = target->GetGUID();
     }
 
-    void HandleDummyHitTarget(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
+        if (GetHitUnit()->GetGUID() == _selectedTargetGuid)
+            GetHitUnit()->CastSpell(GetCaster(), SPELL_BLINK_TELEPORT, true);
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_talon_king_ikiss_blink::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    ObjectGuid _selectedTargetGuid;
 };
 
 void AddSC_boss_talon_king_ikiss()
