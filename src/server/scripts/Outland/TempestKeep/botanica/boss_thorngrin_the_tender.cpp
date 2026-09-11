@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -81,24 +85,26 @@ struct boss_thorngrin_the_tender : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_SACRIFICE, 30s, 40s);
         events.ScheduleEvent(EVENT_HELLFIRE, 5s, 15s);
         events.ScheduleEvent(EVENT_ENRAGE, 30s, 40s);
     }
 
-    void OnSpellStart(SpellInfo const* spell) override
+    void OnSpellStart(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SACRIFICE)
+        if (spellInfo->Id == SPELL_SACRIFICE)
             Talk(SAY_CAST_SACRIFICE);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_HELLFIRE, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_HELLFIRE, me))
             Talk(SAY_CAST_HELLFIRE);
 
-        if (spell->Id == SPELL_ENRAGE)
+        if (spellInfo->Id == SPELL_ENRAGE)
             Talk(EMOTE_ENRAGE);
     }
 
@@ -109,6 +115,7 @@ struct boss_thorngrin_the_tender : public BossAI
             _phase++;
             Talk(SAY_50_PERCENT_HP);
         }
+
         if (_phase < PHASE_HEALTH_20 && me->HealthBelowPctDamaged(20, damage))
         {
             _phase++;

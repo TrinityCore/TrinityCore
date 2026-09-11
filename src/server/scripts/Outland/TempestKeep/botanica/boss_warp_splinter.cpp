@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -30,10 +34,12 @@ enum WarpSplinterTexts
 
 enum WarpSplinterSpells
 {
+    // Warp Splinter - Combat
     SPELL_SUMMON_SAPLINGS     = 34741,
     SPELL_STOMP               = 34716,
     SPELL_ARCANE_VOLLEY       = 36705,
 
+    // Warp Splinter - Combat - Misc
     SPELL_SUMMON_SAPLING_1    = 34727,
     SPELL_SUMMON_SAPLING_2    = 34731,
     SPELL_SUMMON_SAPLING_3    = 34733,
@@ -41,6 +47,7 @@ enum WarpSplinterSpells
     SPELL_SUMMON_SAPLING_5    = 34736,
     SPELL_SUMMON_SAPLING_6    = 34739,
 
+    // Sapling
     SPELL_ANCESTRAL_LIFE      = 34742,
     SPELL_MOONFIRE_VISUAL     = 36704
 };
@@ -52,7 +59,7 @@ enum WarpSplinterEvents
     EVENT_ARCANE_VOLLEY
 };
 
-uint32 const SummonSaplingsSpells[] =
+static constexpr std::array<uint32, 6> SummonSaplingsSpells =
 {
     SPELL_SUMMON_SAPLING_1, SPELL_SUMMON_SAPLING_2, SPELL_SUMMON_SAPLING_3,
     SPELL_SUMMON_SAPLING_4, SPELL_SUMMON_SAPLING_5, SPELL_SUMMON_SAPLING_6
@@ -66,18 +73,20 @@ struct boss_warp_splinter : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_SUMMON, 25s, 30s);
         events.ScheduleEvent(EVENT_STOMP, 10s, 15s);
         events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 15s, 20s);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SUMMON_SAPLINGS)
+        if (spellInfo->Id == SPELL_SUMMON_SAPLINGS)
         {
-            for (uint32 summonSpells : SummonSaplingsSpells)
-                DoCastSelf(summonSpells, true);
+            for (uint32 spell : SummonSaplingsSpells)
+                DoCastSelf(spell, true);
             Talk(SAY_SUMMON);
         }
     }
@@ -147,7 +156,7 @@ struct boss_warp_splinter : public BossAI
 // 19949 - Sapling
 struct npc_warp_splinter_sapling : public ScriptedAI
 {
-    npc_warp_splinter_sapling(Creature* creature) : ScriptedAI(creature) { }
+    using ScriptedAI::ScriptedAI;
 
     void InitializeAI() override
     {
