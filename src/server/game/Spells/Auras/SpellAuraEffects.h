@@ -322,6 +322,7 @@ class TC_GAME_API AuraEffect
         void HandleMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModGravity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRecoveryRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRecoveryRateBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;

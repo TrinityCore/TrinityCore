@@ -829,6 +829,40 @@ namespace WorldPackets
             int32 InertiaID = 0;
         };
 
+        class MoveForceGravityModifierChangeAck final : public ClientPacket
+        {
+        public:
+            explicit MoveForceGravityModifierChangeAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_FORCE_GRAVITY_MODIFIER_CHANGE_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            float GravityModifier = 0.0f;
+        };
+
+        class MoveSetGravityModifier final : public ServerPacket
+        {
+        public:
+            explicit MoveSetGravityModifier() : ServerPacket(SMSG_MOVE_SET_GRAVITY_MODIFIER, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float GravityModifier = 0.0f;
+        };
+
+        class MoveUpdateSetGravityModifier final : public ServerPacket
+        {
+        public:
+            explicit MoveUpdateSetGravityModifier() : ServerPacket(SMSG_MOVE_UPDATE_SET_GRAVITY_MODIFIER, sizeof(MovementInfo) + 4) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* Status = nullptr;
+            float GravityModifier = 0.0f;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);
     }
 }
