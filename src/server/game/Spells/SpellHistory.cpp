@@ -188,16 +188,23 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Sp
     StartCooldown(spellInfo, itemID, spell);
 }
 
-bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
+SpellHistory::ReadyStatus SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
+    // check cooldowns first so an on hold cooldown takes priority over school locks
+    if (HasCooldown(spellInfo->Id, itemId, ignoreCategoryCooldown))
+    {
+        auto itr = _spellCooldowns.find(spellInfo->Id);
+        if (itr != _spellCooldowns.end() && itr->second.OnHold)
+            return ReadyStatus::NotReadyOnHold;
+
+        return ReadyStatus::NotReady;
+    }
+
     if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
         if (IsSchoolLocked(spellInfo->GetSchoolMask()))
-            return false;
+            return ReadyStatus::SchoolLocked;
 
-    if (HasCooldown(spellInfo->Id, itemId, ignoreCategoryCooldown))
-        return false;
-
-    return true;
+    return ReadyStatus::Ready;
 }
 
 template<>
@@ -477,13 +484,6 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
 bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
     return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
-}
-
-bool SpellHistory::HasCooldownOnHold(uint32 spellId) const
-{
-    // TODO: Delete this function and make SpellHistory::IsReady return enum with reason instead of bool
-    auto itr = _spellCooldowns.find(spellId);
-    return itr != _spellCooldowns.end() && itr->second.OnHold;
 }
 
 uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const

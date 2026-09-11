@@ -129,7 +129,7 @@ void PetAI::UpdateAI(uint32 diff)
                 continue;
 
             // check spell cooldown
-            if (!me->GetSpellHistory()->IsReady(spellInfo))
+            if (me->GetSpellHistory()->IsReady(spellInfo) != SpellHistory::ReadyStatus::Ready)
                 continue;
 
             if (spellInfo->IsPositive())

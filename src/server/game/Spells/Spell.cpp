@@ -5169,12 +5169,16 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_NOT_READY;
         }
 
-        if (m_caster->ToUnit() && !m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry, IsIgnoringCooldowns()))
+        if (Unit* unitCaster = m_caster->ToUnit())
         {
-            if (m_triggeredByAuraSpell || (m_spellInfo->IsCooldownStartedOnEvent() && !m_caster->ToUnit()->GetSpellHistory()->HasCooldownOnHold(m_spellInfo->Id)))
-                return SPELL_FAILED_DONT_REPORT;
+            SpellHistory::ReadyStatus readyStatus = unitCaster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry, IsIgnoringCooldowns());
+            if (readyStatus != SpellHistory::ReadyStatus::Ready)
+            {
+                if (m_triggeredByAuraSpell || (m_spellInfo->IsCooldownStartedOnEvent() && readyStatus != SpellHistory::ReadyStatus::NotReadyOnHold))
+                    return SPELL_FAILED_DONT_REPORT;
 
-            return SPELL_FAILED_NOT_READY;
+                return SPELL_FAILED_NOT_READY;
+            }
         }
     }
 
@@ -6190,7 +6194,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 
     // check cooldown
     if (Creature* creatureCaster = m_caster->ToCreature())
-        if (!creatureCaster->GetSpellHistory()->IsReady(m_spellInfo))
+        if (creatureCaster->GetSpellHistory()->IsReady(m_spellInfo) != SpellHistory::ReadyStatus::Ready)
             return SPELL_FAILED_NOT_READY;
 
     // Check if spell is affected by GCD
