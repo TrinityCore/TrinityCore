@@ -382,15 +382,15 @@ struct boss_volazj : public BossAI
         {
             case 0:
                 Talk(SAY_SLAY_1);
-                DoCastSelf(SPELL_WHISPER_SLAY_1);
+                DoCastSelf(SPELL_WHISPER_SLAY_1, true);
                 break;
             case 1:
                 Talk(SAY_SLAY_2);
-                DoCastSelf(SPELL_WHISPER_SLAY_2);
+                DoCastSelf(SPELL_WHISPER_SLAY_2, true);
                 break;
             case 2:
                 Talk(SAY_SLAY_3);
-                DoCastSelf(SPELL_WHISPER_SLAY_3);
+                DoCastSelf(SPELL_WHISPER_SLAY_3, true);
                 break;
         }
     }

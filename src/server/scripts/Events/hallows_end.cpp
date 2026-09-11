@@ -112,7 +112,7 @@ class spell_hallow_end_trick_initial : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRICK_INITIAL);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TRICK_INITIAL, true);
     }
 
     void Register() override
@@ -347,8 +347,8 @@ class spell_hallow_end_create_water_bucket : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->CastSpell(target, SPELL_CREATE_WATER_BUCKET_BARREL_SPLASH);
-        target->CastSpell(target, SPELL_JUST_LOOTED_WATER_BARREL);
+        target->CastSpell(target, SPELL_CREATE_WATER_BUCKET_BARREL_SPLASH, true);
+        target->CastSpell(target, SPELL_JUST_LOOTED_WATER_BARREL, true);
     }
 
     void Register() override

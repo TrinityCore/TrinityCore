@@ -170,7 +170,7 @@ class spell_love_is_in_the_air_heavily_perfumed : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), uint32(GetEffectInfo(EFFECT_0).CalcValue()));
+        GetTarget()->CastSpell(GetTarget(), uint32(GetEffectInfo(EFFECT_0).CalcValue()), true);
     }
 
     void Register() override
@@ -192,7 +192,7 @@ class spell_love_is_in_the_air_recently_analyzed : public AuraScript
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-            GetTarget()->CastSpell(GetTarget(), SPELL_HEAVILY_PERFUMED);
+            GetTarget()->CastSpell(GetTarget(), SPELL_HEAVILY_PERFUMED, true);
     }
 
     void Register() override

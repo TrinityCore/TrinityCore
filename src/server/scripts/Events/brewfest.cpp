@@ -461,7 +461,7 @@ class spell_brewfest_botm_the_beast_within : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_UNLEASH_THE_BEAST);
+        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_UNLEASH_THE_BEAST, true);
     }
 
     void Register() override
@@ -735,7 +735,7 @@ class spell_brewfest_mole_machine_portal_schedule : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PORT_TO_GRIM_GUZZLER);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PORT_TO_GRIM_GUZZLER, true);
     }
 
     void Register() override

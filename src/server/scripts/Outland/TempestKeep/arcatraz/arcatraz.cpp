@@ -714,7 +714,7 @@ class spell_arcatraz_chaos_breath : public SpellScript
         Trinity::Containers::RandomShuffle(spellsToCast);
 
         for (uint32 i = 0; i < 3; ++i)
-            caster->CastSpell(caster, spellsToCast[i]);
+            caster->CastSpell(caster, spellsToCast[i], true);
     }
 
     void Register() override
