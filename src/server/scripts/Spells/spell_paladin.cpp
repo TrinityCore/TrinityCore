@@ -75,6 +75,7 @@ enum PaladinSpells
     SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
     SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
     SPELL_PALADIN_EXECUTIONERS_WILL              = 406940,
+    SPELL_PALADIN_EXPURGATION                    = 383346,
     SPELL_PALADIN_EYE_FOR_AN_EYE_TRIGGERED       = 205202,
     SPELL_PALADIN_FINAL_STAND                    = 204077,
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
@@ -795,6 +796,25 @@ class spell_pal_execution_sentence_aura : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pal_execution_sentence_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_pal_execution_sentence_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 383344 - Expurgation
+class spell_pal_expurgation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_EXPURGATION });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_EXPURGATION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_expurgation::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1856,6 +1876,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_storm);
     RegisterSpellAndAuraScriptPair(spell_pal_eternal_flame, spell_pal_eternal_flame_aura);
     RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
+    RegisterSpellScript(spell_pal_expurgation);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_final_verdict);
     RegisterSpellScript(spell_pal_fist_of_justice);
