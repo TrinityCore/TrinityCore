@@ -23,11 +23,17 @@
 #include "Map.h"
 #include "shadow_labyrinth.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_REFECTORY_DOOR,        DATA_BLACKHEART_THE_INCITER,    DOOR_TYPE_PASSAGE },
     { GO_SCREAMING_HALL_DOOR,   DATA_GRANDMASTER_VORPIL,        DOOR_TYPE_PASSAGE },
-    { 0,                        0,                              DOOR_TYPE_ROOM } // END
+    { 0,                        0,                              DOOR_TYPE_ROOM    } // END
+};
+
+static constexpr ObjectData creatureData[] =
+{
+    { NPC_BLACKHEART,          DATA_BLACKHEART_THE_INCITER },
+    { 0,                       0                           } // END
 };
 
 class instance_shadow_labyrinth : public InstanceMapScript
@@ -42,26 +48,19 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, nullptr);
 
                 FelOverseerCount      = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_AMBASSADOR_HELLMAW:
                         AmbassadorHellmawGUID = creature->GetGUID();
-                        break;
-                    case NPC_BLACKHEART:
-                        BlackheartGUID = creature->GetGUID();
-                        break;
-                    case NPC_BLACKHEART_DUMMY1:
-                    case NPC_BLACKHEART_DUMMY2:
-                    case NPC_BLACKHEART_DUMMY3:
-                    case NPC_BLACKHEART_DUMMY4:
-                    case NPC_BLACKHEART_DUMMY5:
-                        BlackheartDummyGUIDs.insert(creature->GetGUID());
                         break;
                     case NPC_GRANDMASTER_VORPIL:
                         GrandmasterVorpilGUID = creature->GetGUID();
@@ -73,22 +72,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
                             if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
                                 hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
                         }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnCreatureRemove(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_BLACKHEART_DUMMY1:
-                    case NPC_BLACKHEART_DUMMY2:
-                    case NPC_BLACKHEART_DUMMY3:
-                    case NPC_BLACKHEART_DUMMY4:
-                    case NPC_BLACKHEART_DUMMY5:
-                        BlackheartDummyGUIDs.erase(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -154,8 +137,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_BLACKHEART_THE_INCITER:
-                        return BlackheartGUID;
                     case DATA_GRANDMASTER_VORPIL:
                         return GrandmasterVorpilGUID;
                     default:
@@ -164,12 +145,8 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            GuidUnorderedSet const& GetBlackheartDummies() const { return BlackheartDummyGUIDs; }
-
         protected:
             ObjectGuid AmbassadorHellmawGUID;
-            ObjectGuid BlackheartGUID;
-            GuidUnorderedSet BlackheartDummyGUIDs;
             ObjectGuid GrandmasterVorpilGUID;
             uint32 FelOverseerCount;
         };
@@ -179,14 +156,6 @@ class instance_shadow_labyrinth : public InstanceMapScript
             return new instance_shadow_labyrinth_InstanceMapScript(map);
         }
 };
-
-GuidUnorderedSet const* GetBlackheartDummies(InstanceScript const* s)
-{
-    if (auto* script = dynamic_cast<instance_shadow_labyrinth::instance_shadow_labyrinth_InstanceMapScript const*>(s))
-        return &script->GetBlackheartDummies();
-    return nullptr;
-
-}
 
 void AddSC_instance_shadow_labyrinth()
 {
