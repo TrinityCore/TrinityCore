@@ -169,14 +169,16 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     }
 
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
-        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, SpeedIsTime, "
+        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, "
+        "PositionalSoundKitId, TimeToTargetScale, Speed, SpeedIsTime, "
         "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, "
         "Roll, Pitch, Yaw, TargetRoll, TargetPitch, TargetYaw, ScriptName FROM `areatrigger_create_properties`"))
     {
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (Id)(IsCustom)(AreaTriggerId)(IsAreatriggerCustom)(Flags)
-                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)(TimeToTargetScale)(Speed)(SpeedIsTime)
+                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)
+                (PositionalSoundKitId)(TimeToTargetScale)(Speed)(SpeedIsTime)
                 (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)
                 (Roll)(Pitch)(Yaw)(TargetRoll)(TargetPitch)(TargetYaw)(ScriptName)
             ) fields { *areatriggerCreateProperties };
@@ -235,6 +237,23 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 {
                     TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid SpellForVisual {}, set to none.", createPropertiesId.Id, uint32(createPropertiesId.IsCustom), *createProperties.SpellForVisuals);
                     createProperties.SpellForVisuals.reset();
+                }
+            }
+
+            createProperties.PositionalSoundKitId  = fields.PositionalSoundKitId().GetInt32();
+            if (createProperties.PositionalSoundKitId)
+            {
+                if (!sSoundKitStore.HasRecord(createProperties.PositionalSoundKitId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid PositionalSoundKitId {}, set to 0.",
+                        createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties.PositionalSoundKitId);
+                    createProperties.PositionalSoundKitId = 0;
+                }
+                else if (shape != AreaTriggerShapeType::Sphere && shape != AreaTriggerShapeType::Cylinder)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with PositionalSoundKitId {} on unsupported shape {}, set to 0.",
+                        createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties.PositionalSoundKitId, uint32(shape));
+                    createProperties.PositionalSoundKitId = 0;
                 }
             }
 

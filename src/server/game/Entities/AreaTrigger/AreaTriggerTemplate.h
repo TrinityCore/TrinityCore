@@ -249,6 +249,8 @@ public:
 
     Optional<int32> SpellForVisuals;
 
+    int32 PositionalSoundKitId = 0;
+
     uint32 TimeToTargetScale = 0;
 
     AreaTriggerShapeInfo Shape;

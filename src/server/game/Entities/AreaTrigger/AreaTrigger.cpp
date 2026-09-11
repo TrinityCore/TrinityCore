@@ -230,6 +230,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
         SetUpdateFieldValue(visualAnim.ModifyValue(&UF::VisualAnim::IsDecay), true);
 
+    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PositionalSoundKitID), GetCreateProperties()->PositionalSoundKitId);
+
     AreaTriggerFieldFlags fieldFlags = [flags = GetCreateProperties()->Flags]()
     {
         AreaTriggerFieldFlags fieldFlags = AreaTriggerFieldFlags::None;
