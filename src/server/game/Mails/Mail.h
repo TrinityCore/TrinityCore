@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <map>
 
@@ -56,6 +57,8 @@ enum MailCheckMask : uint32
     MAIL_CHECK_MASK_NOT_RETURNABLE  = 0x0200,               ///< This mail cannot be returned even if mail was not returned before.
     MAIL_CHECK_MASK_AUCTION         = 0x0400,               ///< This mail came from auction house.
 };
+
+DEFINE_ENUM_FLAG(MailCheckMask);
 
 // gathered from Stationery.dbc
 enum MailStationery
