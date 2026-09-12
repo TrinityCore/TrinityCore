@@ -1023,17 +1023,14 @@ public:
         if (!ve)
             return false;
 
-        Creature* v = new Creature();
-
         Map* map = handler->GetPlayer()->GetMap();
+        Position pos = { x, y, z, o };
 
-        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetPlayer()->GetPhaseMask(), entry, { x, y, z, o }, nullptr, *id))
-        {
-            delete v;
+        Creature* v = Creature::CreateCreature(entry, map, handler->GetPlayer()->GetPhaseMask(), pos, *id);
+        if (!v)
             return false;
-        }
 
-        map->AddToMap(v->ToCreature());
+        map->AddToMap(v);
 
         return true;
     }

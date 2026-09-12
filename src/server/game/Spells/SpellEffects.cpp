@@ -3371,10 +3371,6 @@ void Spell::EffectSummonObjectWild()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    uint32 gameobject_id = effectInfo->MiscValue;
-
-    GameObject* pGameObj = new GameObject();
-
     WorldObject* target = focusObject;
     if (!target)
         target = m_caster;
@@ -3387,29 +3383,29 @@ void Spell::EffectSummonObjectWild()
 
     Map* map = target->GetMap();
 
+    Position pos = Position(x, y, z, target->GetOrientation());
+
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
-    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
-    {
-        delete pGameObj;
+    GameObject* go = GameObject::CreateGameObject(effectInfo->MiscValue, map, m_caster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY);
+    if (!go)
         return;
-    }
 
     int32 duration = m_spellInfo->GetDuration();
 
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-    pGameObj->SetSpellId(m_spellInfo->Id);
+    go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+    go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, pGameObj);
+    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, go);
 
     // Wild object not have owner and check clickable by players
-    map->AddToMap(pGameObj);
+    map->AddToMap(go);
 
-    if (pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP)
+    if (go->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP)
         if (Player* player = m_caster->ToPlayer())
             if (Battleground* bg = player->GetBattleground())
-                bg->SetDroppedFlagGUID(pGameObj->GetGUID(), player->GetTeam() == ALLIANCE ? TEAM_HORDE: TEAM_ALLIANCE);
+                bg->SetDroppedFlagGUID(go->GetGUID(), player->GetTeam() == ALLIANCE ? TEAM_HORDE: TEAM_ALLIANCE);
 
-    if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
+    if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         linkedTrap->SetSpellId(m_spellInfo->Id);
@@ -3632,10 +3628,7 @@ void Spell::EffectDuel()
     }
 
     //CREATE DUEL FLAG OBJECT
-    GameObject* pGameObj = new GameObject;
-
-    uint32 gameobject_id = effectInfo->MiscValue;
-
+    Map* map = m_caster->GetMap();
     Position const pos =
     {
         caster->GetPositionX() + (unitTarget->GetPositionX() - caster->GetPositionX()) / 2,
@@ -3644,29 +3637,26 @@ void Spell::EffectDuel()
         caster->GetOrientation()
     };
 
-    Map* map = caster->GetMap();
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
-    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map, caster->GetPhaseMask(), pos, rot, 0, GO_STATE_READY))
-    {
-        delete pGameObj;
+    GameObject* go = GameObject::CreateGameObject(effectInfo->MiscValue, map, caster->GetPhaseMask(), pos, rot, 0, GO_STATE_READY);
+    if (!go)
         return;
-    }
 
-    pGameObj->SetFaction(caster->GetFaction());
-    pGameObj->SetLevel(caster->GetLevel() + 1);
+    go->SetFaction(caster->GetFaction());
+    go->SetLevel(caster->GetLevel() + 1);
     int32 duration = m_spellInfo->GetDuration();
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-    pGameObj->SetSpellId(m_spellInfo->Id);
+    go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+    go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, pGameObj);
+    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, go);
 
-    caster->AddGameObject(pGameObj);
-    map->AddToMap(pGameObj);
+    caster->AddGameObject(go);
+    map->AddToMap(go);
     //END
 
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
-    data << pGameObj->GetGUID();
+    data << go->GetGUID();
     data << caster->GetGUID();
     caster->SendDirectMessage(&data);
     target->SendDirectMessage(&data);
@@ -3676,8 +3666,8 @@ void Spell::EffectDuel()
     caster->duel = std::make_unique<DuelInfo>(target, caster, isMounted);
     target->duel = std::make_unique<DuelInfo>(caster, caster, isMounted);
 
-    caster->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetGuidValue(PLAYER_DUEL_ARBITER, go->GetGUID());
+    target->SetGuidValue(PLAYER_DUEL_ARBITER, go->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);
 }
@@ -3971,7 +3961,6 @@ void Spell::EffectSummonObject()
     if (!unitCaster)
         return;
 
-    uint32 go_id = effectInfo->MiscValue;
     uint8 slot = effectInfo->Effect - SPELL_EFFECT_SUMMON_OBJECT_SLOT1;
 
     ObjectGuid guid = unitCaster->m_ObjectSlot[slot];
@@ -3987,7 +3976,6 @@ void Spell::EffectSummonObject()
         unitCaster->m_ObjectSlot[slot].Clear();
     }
 
-    GameObject* go = new GameObject();
     float x, y, z;
     // If dest location if present
     if (m_targets.HasDst())
@@ -3997,12 +3985,12 @@ void Spell::EffectSummonObject()
         unitCaster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
 
     Map* map = unitCaster->GetMap();
-    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(unitCaster->GetOrientation(), 0.f, 0.f);
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), go_id, map, unitCaster->GetPhaseMask(), Position(x, y, z, unitCaster->GetOrientation()), rot, 255, GO_STATE_READY))
-    {
-        delete go;
+    Position pos = Position(x, y, z, m_caster->GetOrientation());
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+
+    GameObject* go = GameObject::CreateGameObject(effectInfo->MiscValue, map, unitCaster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY);
+    if (!go)
         return;
-    }
 
     go->SetFaction(unitCaster->GetFaction());
     go->SetLevel(unitCaster->GetLevel());
@@ -4710,23 +4698,19 @@ void Spell::EffectTransmitted()
     if (goinfo->type == GAMEOBJECT_TYPE_RITUAL)
         unitCaster->GetPosition(fx, fy, fz);
 
-    GameObject* pGameObj = new GameObject;
-
     Position pos = { fx, fy, fz, unitCaster->GetOrientation() };
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(unitCaster->GetOrientation(), 0.f, 0.f);
-    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, unitCaster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
-    {
-        delete pGameObj;
+    GameObject* go = GameObject::CreateGameObject(name_id, cMap, unitCaster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY);
+    if (!go)
         return;
-    }
 
     int32 duration = m_spellInfo->GetDuration();
     switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            unitCaster->SetChannelObjectGuid(pGameObj->GetGUID());
-            unitCaster->AddGameObject(pGameObj);              // will removed at spell cancel
+            unitCaster->SetChannelObjectGuid(go->GetGUID());
+            unitCaster->AddGameObject(go);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
@@ -4746,13 +4730,13 @@ void Spell::EffectTransmitted()
         {
             if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                pGameObj->AddUniqueUse(unitCaster->ToPlayer());
-                unitCaster->AddGameObject(pGameObj);      // will be removed at spell cancel
+                go->AddUniqueUse(unitCaster->ToPlayer());
+                unitCaster->AddGameObject(go);      // will be removed at spell cancel
             }
             break;
         }
         case GAMEOBJECT_TYPE_DUEL_ARBITER: // 52991
-            unitCaster->AddGameObject(pGameObj);
+            unitCaster->AddGameObject(go);
             break;
         case GAMEOBJECT_TYPE_FISHINGHOLE:
         case GAMEOBJECT_TYPE_CHEST:
@@ -4760,22 +4744,22 @@ void Spell::EffectTransmitted()
             break;
     }
 
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+    go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
 
-    pGameObj->SetOwnerGUID(unitCaster->GetGUID());
+    go->SetOwnerGUID(unitCaster->GetGUID());
 
-    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
-    pGameObj->SetSpellId(m_spellInfo->Id);
+    //go->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
+    go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, pGameObj);
+    ExecuteLogEffectSummonObject(effectInfo->EffectIndex, go);
 
     TC_LOG_DEBUG("spells", "AddObject at SpellEfects.cpp EffectTransmitted");
-    //unitCaster->AddGameObject(pGameObj);
-    //m_ObjToDel.push_back(pGameObj);
+    //unitCaster->AddGameObject(go);
+    //m_ObjToDel.push_back(go);
 
-    cMap->AddToMap(pGameObj);
+    cMap->AddToMap(go);
 
-    if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
+    if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
         linkedTrap->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
         //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());

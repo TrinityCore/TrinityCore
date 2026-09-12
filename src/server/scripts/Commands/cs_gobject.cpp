@@ -127,39 +127,29 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = new GameObject();
-        ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
-
-        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), *player, rot, 255, GO_STATE_READY))
-        {
-            delete object;
+        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, player->GetPhaseMaskForSpawn(), *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY);
+        if (!object)
             return false;
-        }
 
         if (spawnTimeSecs)
             object->SetRespawnTime(*spawnTimeSecs);
 
         // fill the gameobject data and save to the db
         object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMaskForSpawn());
-        guidLow = object->GetSpawnId();
+        ObjectGuid::LowType spawnId = object->GetSpawnId();
 
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.
         // this is required to avoid weird behavior and memory leaks
         delete object;
 
-        object = new GameObject();
-        // this will generate a new guid if the object is in an instance
-        if (!object->LoadFromDB(guidLow, map, true))
-        {
-            delete object;
+        object = GameObject::CreateGameObjectFromDB(spawnId, map);
+        if (!object)
             return false;
-        }
 
         /// @todo is it really necessary to add both the real and DB table guid here ?
-        sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGameObjectData(guidLow));
+        sObjectMgr->AddGameobjectToGrid(spawnId, sObjectMgr->GetGameObjectData(spawnId));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), spawnId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 

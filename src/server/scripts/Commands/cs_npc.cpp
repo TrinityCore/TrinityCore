@@ -139,12 +139,9 @@ public:
             return true;
         }
 
-        Creature* creature = new Creature();
-        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMaskForSpawn(), id, *chr))
-        {
-            delete creature;
+        Creature* creature = Creature::CreateCreature(id, map, chr->GetPhaseMaskForSpawn(), chr->GetPosition());
+        if (!creature)
             return false;
-        }
 
         creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
@@ -154,12 +151,9 @@ public:
         // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
         creature->CleanupsBeforeDelete();
         delete creature;
-        creature = new Creature();
-        if (!creature->LoadFromDB(db_guid, map, true, true))
-        {
-            delete creature;
+        creature = Creature::CreateCreatureFromDB(db_guid, map);
+        if (!creature)
             return false;
-        }
 
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
