@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <map>
 
@@ -68,6 +69,8 @@ enum MailCheckMask : uint32
     MAIL_CHECK_MASK_NOT_COPYABLE                    = 0x08000,  ///< This mail cannot be copied.
     MAIL_CHECK_MASK_COMMERCE                        = 0x10000,  ///< WoW Token mail.
 };
+
+DEFINE_ENUM_FLAG(MailCheckMask);
 
 // gathered from Stationery.dbc
 enum MailStationery
