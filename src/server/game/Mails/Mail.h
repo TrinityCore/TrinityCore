@@ -41,14 +41,20 @@ enum MailMessageType
     MAIL_CALENDAR       = 5
 };
 
-enum MailCheckMask
+enum MailCheckMask : uint32
 {
-    MAIL_CHECK_MASK_NONE        = 0x00,
-    MAIL_CHECK_MASK_READ        = 0x01,
-    MAIL_CHECK_MASK_RETURNED    = 0x02,                     /// This mail was returned. Do not allow returning mail back again.
-    MAIL_CHECK_MASK_COPIED      = 0x04,                     /// This mail was copied. Do not allow making a copy of items in mail.
-    MAIL_CHECK_MASK_COD_PAYMENT = 0x08,
-    MAIL_CHECK_MASK_HAS_BODY    = 0x10                      /// This mail has body text.
+    MAIL_CHECK_MASK_NONE            = 0x0000,
+    MAIL_CHECK_MASK_READ            = 0x0001,               ///< This mail was read.
+    MAIL_CHECK_MASK_RETURNED        = 0x0002,               ///< This mail was returned. Do not allow returning mail back again.
+    MAIL_CHECK_MASK_COPIED          = 0x0004,               ///< This mail was copied. Do not allow making a copy of items in mail.
+    MAIL_CHECK_MASK_COD_PAYMENT     = 0x0008,               ///< This mail is payable on delivery
+    MAIL_CHECK_MASK_HAS_BODY        = 0x0010,               ///< This mail has body text.
+    MAIL_CHECK_MASK_UNK_5           = 0x0020,
+    MAIL_CHECK_MASK_AUCTION_WON     = 0x0040,               ///< This mail is delivering won auction items.
+    MAIL_CHECK_MASK_UNK_7           = 0x0080,
+    MAIL_CHECK_MASK_CALENDAR_INVITE = 0x0100,               ///< This mail is related to calendar invite.
+    MAIL_CHECK_MASK_NOT_RETURNABLE  = 0x0200,               ///< This mail cannot be returned even if mail was not returned before.
+    MAIL_CHECK_MASK_AUCTION         = 0x0400,               ///< This mail came from auction house.
 };
 
 // gathered from Stationery.dbc
@@ -68,15 +74,6 @@ enum MailState
     MAIL_STATE_UNCHANGED = 1,
     MAIL_STATE_CHANGED   = 2,
     MAIL_STATE_DELETED   = 3
-};
-
-enum MailShowFlags
-{
-    MAIL_SHOW_UNK0    = 0x0001,
-    MAIL_SHOW_DELETE  = 0x0002,                             // forced show delete button instead return button
-    MAIL_SHOW_AUCTION = 0x0004,                             // from old comment
-    MAIL_SHOW_UNK2    = 0x0008,                             // unknown, COD will be shown even without that flag
-    MAIL_SHOW_RETURN  = 0x0010
 };
 
 class TC_GAME_API MailSender
