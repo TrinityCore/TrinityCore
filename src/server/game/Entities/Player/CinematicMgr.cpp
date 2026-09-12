@@ -47,6 +47,13 @@ void CinematicMgr::BeginCinematic()
     if (m_activeCinematicCameraId == 0)
         return;
 
+    uint32 const activeCamera = m_activeCinematicCameraId;
+
+    if (!m_CinematicObjectGUID.IsEmpty())
+        EndCinematic();
+
+    m_activeCinematicCameraId = activeCamera;
+
     if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(m_activeCinematicCameraId))
     {
         // Initialize diff, and set camera
@@ -90,6 +97,8 @@ void CinematicMgr::EndCinematic()
 
         if (WorldObject* cinematicObject = ObjectAccessor::GetWorldObject(*player, m_CinematicObjectGUID))
             cinematicObject->AddObjectToRemoveList();
+
+        m_CinematicObjectGUID.Clear();
     }
 }
 
