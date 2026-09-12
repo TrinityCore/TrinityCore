@@ -1371,6 +1371,14 @@ void WorldSession::SendFeatureSystemStatus()
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
     features.AddonChatThrottle.UsedTriesPerMessage = 1;
 
+    WorldPackets::System::GameRuleValuePair& premadeGroupFinderStyle = features.GameRules.emplace_back();
+    premadeGroupFinderStyle.Rule = 93;
+    premadeGroupFinderStyle.Value = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP) ? 0 : 1; // 0 = Disabled, 1 = MainLine, 2 = Vanilla
+
+    WorldPackets::System::GameRuleValuePair& groupFinderCapabilities = features.GameRules.emplace_back();
+    groupFinderCapabilities.Rule = 98;
+    groupFinderCapabilities.Value = 1;
+
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
