@@ -1655,6 +1655,12 @@ void World::LoadConfigSettings(bool reload)
     // Loading of Locales
     m_bool_configs[CONFIG_LOAD_LOCALES] = sConfigMgr->GetBoolDefault("Load.Locales", true);
 
+    _gameRules =
+    {
+        { .Rule = ::GameRule::GroupFinderCapabilities, .Value = 1 },
+        { .Rule = ::GameRule::PremadeGroupFinderStyle, .Value = 1 }
+    };
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

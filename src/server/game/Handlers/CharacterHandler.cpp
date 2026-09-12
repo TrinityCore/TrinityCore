@@ -1371,14 +1371,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.AddonChatThrottle.TriesRestoredPerSecond = 1;
     features.AddonChatThrottle.UsedTriesPerMessage = 1;
 
-    WorldPackets::System::GameRuleValuePair& premadeGroupFinderStyle = features.GameRules.emplace_back();
-    premadeGroupFinderStyle.Rule = 93;
-    premadeGroupFinderStyle.Value = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP) ? 0 : 1; // 0 = Disabled, 1 = MainLine, 2 = Vanilla
-
-    WorldPackets::System::GameRuleValuePair& groupFinderCapabilities = features.GameRules.emplace_back();
-    groupFinderCapabilities.Rule = 98;
-    groupFinderCapabilities.Value = 1;
-
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
@@ -1396,6 +1388,19 @@ void WorldSession::SendFeatureSystemStatus()
     features.LFREnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_RAID_FINDER);
     features.PremadeGroupEnabled = sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_PREMADE_GROUP);
     features.GroupFinderEnabled = features.LFDEnabled || features.LFREnabled || features.PremadeGroupEnabled;
+
+    for (World::GameRule const& gameRule : sWorld->GetGameRules())
+    {
+        WorldPackets::System::GameRuleValuePair& rule = features.GameRules.emplace_back();
+        rule.Rule = AsUnderlyingType(gameRule.Rule);
+        std::visit([&]<typename T>(T value)
+        {
+            if constexpr (std::is_same_v<T, float>)
+                rule.ValueF = value;
+            else
+                rule.Value = value;
+        }, gameRule.Value);
+    }
 
     SendPacket(features.Write());
 }
