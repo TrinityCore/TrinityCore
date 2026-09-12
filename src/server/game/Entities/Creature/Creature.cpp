@@ -1913,6 +1913,9 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
 
 bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const
 {
+    if (sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
+        return false;
+
     if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)
         return false;
 
@@ -1944,7 +1947,7 @@ float Creature::GetAttackDistance(Unit const* player) const
     float baseAggroDistance = 20.0f - GetCombatReach();
 
     // + - 1 yard for each level difference between player and creature
-    float aggroRadius = baseAggroDistance + float(levelDifference);
+    float aggroRadius = sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) ? baseAggroDistance : baseAggroDistance + float(levelDifference);
 
     // detect range auras
     if (float(GetLevel() + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -1956,7 +1959,7 @@ float Creature::GetAttackDistance(Unit const* player) const
     // The aggro range of creatures with higher levels than the total player level for the expansion should get the maxlevel treatment
     // This makes sure that creatures such as bosses wont have a bigger aggro range than the rest of the npc's
     // The following code is used for blizzlike behaivior such as skippable bosses
-    if (GetLevel() > expansionMaxLevel)
+    if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF) && GetLevel() > expansionMaxLevel)
         aggroRadius = baseAggroDistance + float(expansionMaxLevel - player->GetLevel());
 
     // Make sure that we wont go over the total range limits
@@ -2751,6 +2754,9 @@ void Creature::AllLootRemovedFromCorpse()
 
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
+    if (sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
+        return Unit::GetLevelForTarget(target);
+
     if (!isWorldBoss() || !target->ToUnit())
         return Unit::GetLevelForTarget(target);
 
@@ -2965,7 +2971,8 @@ float Creature::GetAggroRange(Unit const* target) const
         float aggroRadius = 20;
 
         // Aggro Radius varies with level difference at a rate of roughly 1 yard/level
-        aggroRadius -= (float)levelDiff;
+        if (!sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
+            aggroRadius -= (float)levelDiff;
 
         // detect range auras
         aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);

@@ -2485,7 +2485,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
 
     // Base hit chance from attacker and victim levels
     int32 modHitChance;
-    if (leveldif < 3)
+    if (sWorld->getBoolConfig(CONFIG_STATS_NO_LEVEL_DIFF))
+        modHitChance = 96;
+    else if (leveldif < 3)
         modHitChance = 96 - leveldif;
     else
         modHitChance = 94 - (leveldif - 2) * lchance;
