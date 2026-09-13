@@ -284,6 +284,10 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_REFORGE                                   = 58,
     ITEM_MODIFIER_DBID_HIGH                                 = 59,
     ITEM_MODIFIER_DBID_LOW                                  = 60,
+    ITEM_MODIFIER_CURRENCY_WALLET_ID                        = 61,
+    ITEM_MODIFIER_CURRENCY_WALLET_QUANTITY                  = 62,
+    ITEM_MODIFIER_CURRENCY_WALLET_VERSION                   = 63,
+    ITEM_MODIFIER_REDIRECTED_BASE_STATS                     = 64,
 
     MAX_ITEM_MODIFIERS
 };
