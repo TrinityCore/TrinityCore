@@ -32,15 +32,12 @@
 #include "Player.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     ObjectGuid lguid = player->GetLootGUID();
     Loot* loot = nullptr;
-    uint8 lootSlot = 0;
-
-    recvData >> lootSlot;
 
     if (lguid.IsGameObject())
     {
@@ -92,14 +89,14 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
         loot = &creature->loot;
     }
 
-    player->StoreLootItem(lootSlot, loot);
+    player->StoreLootItem(packet.LootListID, loot);
 
     // If player is removing the last LootItem, delete the empty container.
     if (loot->isLooted() && lguid.IsItem())
         player->GetSession()->DoLootRelease(lguid);
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_MONEY");
 
@@ -188,10 +185,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 (*i)->ModifyMoney(goldPerPlayer);
                 (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
 
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
-                data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
-                (*i)->SendDirectMessage(&data);
+                WorldPackets::Loot::LootMoneyNotify packet;
+                packet.Money = goldPerPlayer;
+                packet.SoleLooter = playersNear.size() <= 1;
+                (*i)->SendDirectMessage(packet.Write());
             }
         }
         else
@@ -199,10 +196,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             player->ModifyMoney(loot->gold);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
-            WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-            data << uint32(loot->gold);
-            data << uint8(1);   // "You loot..."
-            SendPacket(&data);
+            WorldPackets::Loot::LootMoneyNotify packet;
+            packet.Money = loot->gold;
+            packet.SoleLooter = true; // "You loot..."
+            SendPacket(packet.Write());
         }
 
         loot->gold = 0;
@@ -234,18 +231,15 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     GetPlayer()->SendLoot(packet.Unit, LOOT_CORPSE);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
-    ObjectGuid guid;
-    recvData >> guid;
-
     ObjectGuid lguid = GetPlayer()->GetLootGUID();
     if (!lguid.IsEmpty())
-        if (lguid == guid)
+        if (lguid == packet.Unit)
             DoLootRelease(lguid);
 }
 
@@ -476,7 +470,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, item.GetAllowedLooters());
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
-    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
+    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, GetLootTypeForClient(loot->loot_type), item.count);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
 
     // mark as looted

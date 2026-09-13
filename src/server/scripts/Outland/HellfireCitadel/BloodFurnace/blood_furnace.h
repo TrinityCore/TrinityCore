@@ -23,14 +23,14 @@
 #define BFScriptName "instance_blood_furnace"
 #define DataHeader   "BF"
 
-uint32 const EncounterCount = 3;
+uint32 constexpr EncounterCount = 3;
 
 enum BFDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_THE_MAKER              = 0,
     DATA_BROGGOK                = 1,
-    DATA_KELIDAN_THE_BREAKER    = 2,
+    DATA_KELIDAN                = 2,
 
     // Additional Data
     DATA_DOOR_4                 = 3,
@@ -49,7 +49,7 @@ enum BFCreatureIds
 {
     NPC_THE_MAKER               = 17381,
     NPC_BROGGOK                 = 17380,
-    NPC_KELIDAN_THE_BREAKER     = 17377,
+    NPC_KELIDAN                 = 17377,
     NPC_PRISONER1               = 17398,
     NPC_PRISONER2               = 17429
 };

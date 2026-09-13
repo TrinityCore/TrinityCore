@@ -707,8 +707,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 }
                 case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
                 {
-                    WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
                     TC_LOG_DEBUG("maps", "MAP: Player '{}' does not have a corpse in instance map {} and cannot enter", player->GetName(), at->target_mapId);
                     break;
                 }
@@ -937,7 +936,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 
     if (!player)
     {
-        TC_LOG_DEBUG("network", "MSG_INSPECT_HONOR_STATS: No player found from {}", guid.ToString());
+        TC_LOG_DEBUG("network", "CMSG_REQUEST_HONOR_STATS: No player found from {}", guid.ToString());
         return;
     }
 

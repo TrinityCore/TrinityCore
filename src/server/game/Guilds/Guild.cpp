@@ -121,7 +121,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
     saveResponse.Error = int32(errCode);
     session->SendPacket(saveResponse.Write());
 
-    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [{}] Code: {}", session->GetPlayerInfo(), errCode);
+    TC_LOG_DEBUG("guild", "SMSG_SAVE_GUILD_EMBLEM [{}] Code: {}", session->GetPlayerInfo(), errCode);
 }
 
 // LogHolder

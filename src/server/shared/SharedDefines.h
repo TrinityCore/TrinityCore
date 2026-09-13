@@ -308,8 +308,7 @@ enum Powers : int8
     POWER_HAPPINESS                     = 4,  // TITLE Happiness
     POWER_RUNE                          = 5,  // TITLE Runes
     POWER_RUNIC_POWER                   = 6,  // TITLE Runic Power
-    MAX_POWERS                          = 7,  // SKIP
-    POWER_ALL                           = 127 // SKIP
+    MAX_POWERS                          = 7   // SKIP
 };
 
 #define MAX_RUNES 6
@@ -3346,7 +3345,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };

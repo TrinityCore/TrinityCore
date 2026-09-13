@@ -20,14 +20,14 @@
 #include "gruuls_lair.h"
 #include "InstanceScript.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_MAULGAR_DOOR,  DATA_MAULGAR,   DOOR_TYPE_PASSAGE },
     { GO_GRUUL_DOOR,    DATA_GRUUL,     DOOR_TYPE_ROOM },
     { 0,                0,              DOOR_TYPE_ROOM } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_MAULGAR,              DATA_MAULGAR },
     { 0,                        0            } // END
@@ -90,6 +90,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 return InstanceScript::GetData64(type);
             }
 
+        protected:
             ObjectGuid::LowType MaulgarOgreSpawnId[4] = { };
         };
 

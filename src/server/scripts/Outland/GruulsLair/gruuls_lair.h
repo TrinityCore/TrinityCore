@@ -23,7 +23,7 @@
 #define GLScriptName "instance_gruuls_lair"
 #define DataHeader   "GL"
 
-uint32 const EncounterCount = 2;
+constexpr uint32 EncounterCount = 2;
 
 enum GLEncounters
 {

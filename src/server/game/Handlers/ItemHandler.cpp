@@ -419,9 +419,10 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            if (pProto->GetSellPrice() > 0)
+            if (uint32 sellPrice = pItem->GetSellPrice(true); sellPrice > 0)
             {
-                uint32 money = pProto->GetSellPrice() * packet.Amount;
+                uint32 money = sellPrice * packet.Amount;
+
                 if (_player->GetMoney() >= MAX_MONEY_AMOUNT - money)               // prevent exceeding gold limit
                 {
                     _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);

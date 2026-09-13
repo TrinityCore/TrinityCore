@@ -111,7 +111,7 @@ class TC_GAME_API Pet : public Guardian
         void CastPetAura(PetAura const* aura);
         bool IsPetAura(Aura const* aura);
 
-        void _LoadAuras(PreparedQueryResult result, uint32 timediff);
+        void _LoadAuras(PreparedQueryResult auraResult, uint32 timediff);
         void _SaveAuras(CharacterDatabaseTransaction trans);
         void _LoadSpells(PreparedQueryResult result);
         void _SaveSpells(CharacterDatabaseTransaction trans);

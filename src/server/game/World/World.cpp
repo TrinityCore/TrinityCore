@@ -508,7 +508,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
-    SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
+    SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a TrinityCore Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetBoolDefault("AllowTickets", true);
@@ -2695,7 +2695,10 @@ namespace Trinity
                     va_end(ap);
                 }
                 else
-                    std::strcpy(strBuffer, text);
+                {
+                    std::strncpy(strBuffer, text, BufferSize);
+                    strBuffer[BufferSize - 1] = '\0';
+                }
 
                 do_helper(dataList, strBuffer);
             }

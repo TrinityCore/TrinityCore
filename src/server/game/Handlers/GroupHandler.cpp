@@ -670,7 +670,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_RAID_READY_CHECK");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_DO_READY_CHECK");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)

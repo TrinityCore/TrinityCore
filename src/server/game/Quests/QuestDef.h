@@ -268,7 +268,7 @@ class TC_GAME_API Quest
         uint32 GetRewHonor() const { return _rewardHonor; }
         uint32 GetRewKillHonor() const { return _rewardKillHonor; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
-        uint32 GetRewDisplaySpell() const { return _rewardSpell; }
+        uint32 GetRewDisplaySpell() const { return _rewardDisplaySpell; }
         int32 GetRewSpell() const { return _rewardSpell; }
         uint32 GetRewMailTemplateId() const { return _rewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return _rewardMailDelay; }

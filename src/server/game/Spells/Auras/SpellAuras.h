@@ -95,6 +95,23 @@ class TC_GAME_API AuraApplication
         std::string GetDebugInfo() const;
 };
 
+// Structure representing database aura primary key fields
+struct AuraKey
+{
+    ObjectGuid Caster;
+    ObjectGuid Item;
+    uint32 SpellId;
+    uint8 EffectMask;
+
+    friend std::strong_ordering operator<=>(AuraKey const& left, AuraKey const& right) = default;
+};
+
+struct AuraLoadEffectInfo
+{
+    std::array<int32, MAX_SPELL_EFFECTS> Amounts;
+    std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
+};
+
 // Caches some information about caster (because it may no longer exist)
 struct CasterInfo
 {
@@ -198,7 +215,7 @@ class TC_GAME_API Aura
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
-        void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
 
         // helpers for aura effects
         bool CanPeriodicTickCrit(Unit const* caster) const;
@@ -370,4 +387,5 @@ class TC_GAME_API ChargeDropEvent : public BasicEvent
         Aura* _base;
         AuraRemoveMode _mode;
 };
+
 #endif

@@ -4417,7 +4417,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (uint8 i = 0; i < MAX_STATS; ++i)
-                    levelInfo.stats[i] = fields[i + 3].GetUInt8();
+                    levelInfo.stats[i] = fields[i + 3].GetUInt16();
             }
 
             ++count;
@@ -4480,8 +4480,8 @@ void ObjectMgr::LoadPlayerInfo()
         for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             _playerXPperLevel[level] = 0;
 
-        //                                                  0         1
-        QueryResult result  = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
+        //                                               0      1
+        QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
         if (!result)
         {
@@ -4525,7 +4525,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        TC_LOG_INFO("server.loading", ">> Loaded {} xp for level definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} xp for level definition(s) from database in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 
@@ -6351,7 +6351,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->expire_time    = time_t(fields[5].GetUInt32());
         m->deliver_time   = 0;
         m->COD            = fields[6].GetUInt32();
-        m->checked        = fields[7].GetUInt8();
+        m->checked        = fields[7].GetUInt32();
         m->mailTemplateId = fields[8].GetInt16();
 
         // Delete or return mail
@@ -6361,7 +6361,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             m->items.swap(itemsCache[m->messageID]);
 
             // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
-            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
+            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED | MAIL_CHECK_MASK_NOT_RETURNABLE)))
             {
                 // mail open and then not returned
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)

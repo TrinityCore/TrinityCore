@@ -461,7 +461,7 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
-        if (effMask & (uint8(1) << spellEffectInfo.EffectIndex))
+        if (effMask & (1 << spellEffectInfo.EffectIndex))
             m_effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
 }
 
@@ -1189,13 +1189,13 @@ int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
     return 100 - resistChance;
 }
 
-void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
+void Aura::SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount)
 {
-    m_maxDuration = maxduration;
+    m_maxDuration = maxDuration;
     m_duration = duration;
     m_procCharges = charges;
     m_isUsingCharges = m_procCharges != 0;
-    m_stackAmount = stackamount;
+    m_stackAmount = stackAmount;
     SetCritChance(critChance);
     SetCanApplyResilience(applyResilience);
     Unit* caster = GetCaster();

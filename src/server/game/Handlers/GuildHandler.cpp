@@ -48,7 +48,7 @@ void WorldSession::HandleGuildInviteOpcode(WorldPackets::Guild::GuildInviteByNam
             guild->HandleInviteMember(this, packet.Name);
 }
 
-void WorldSession::HandleGuildRemoveOpcode(WorldPackets::Guild::GuildOfficerRemoveMember& packet)
+void WorldSession::HandleGuildOfficerRemoveMember(WorldPackets::Guild::GuildOfficerRemoveMember& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [{}]: Target: {}", GetPlayerInfo(), packet.Removee);
 
@@ -180,7 +180,7 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPackets::Guild::GuildAddRank& p
 
 void WorldSession::HandleGuildDeleteRank(WorldPackets::Guild::GuildDeleteRank& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [{}]", GetPlayerInfo());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_DELETE_RANK [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveLowestRank(this);
@@ -199,7 +199,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPackets::Guild::SaveGuildEmb
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(packet);
 
-    TC_LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [{}]: Guid: [{}] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}"
+    TC_LOG_DEBUG("guild", "CMSG_SAVE_GUILD_EMBLEM [{}]: Guid: [{}] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}"
         , GetPlayerInfo(), packet.Vendor.ToString(), emblemInfo.GetStyle()
         , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
         , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());

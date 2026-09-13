@@ -1124,7 +1124,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanUseAmmo(uint32 item) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId = 0, GuidSet const& allowedLooters = GuidSet());
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId = 0, GuidSet const& allowedLooters = GuidSet());
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
@@ -1375,7 +1375,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid) const;
-        void SendTalentWipeConfirm(ObjectGuid trainerGuid) const;
+        void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const;
         void ResetPetTalents();
         void RegenerateAll();
         void Regenerate(Powers power);
@@ -1477,7 +1477,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
 
         bool ResetTalents(bool involuntarily = false);
-        uint32 ResetTalentsCost() const;
+        uint32 GetNextResetTalentsCost() const;
         void IncreaseResetTalentsCostAndCounters(uint32 lastResetTalentsCost);
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPackets::Talent::TalentInfoUpdate& talentInfo);
@@ -1950,9 +1950,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(ObjectGuid guid, LootType loot_type);
-        void SendLootError(ObjectGuid guid, LootError error) const;
+        void SendLootError(ObjectGuid const& owner, LootError error) const;
         void SendLootRelease(ObjectGuid guid) const;
-        void SendNotifyLootItemRemoved(uint8 lootSlot) const;
+        void SendNotifyLootItemRemoved(uint8 lootListId) const;
         void SendNotifyLootMoneyRemoved() const;
 
         /*********************************************************/
@@ -2040,7 +2040,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
         WorldObject* m_seer;
         void SetFallInformation(uint32 time, float z);
-        void HandleFall(MovementInfo const& movementInfo);
+        void HandleFall();
 
         bool CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const;
 
@@ -2246,6 +2246,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         GuidList WhisperList;
         uint32 m_regenTimerCount;
         uint32 m_foodEmoteTimerCount;
+        float m_healthFraction;
         float m_powerFraction[MAX_POWERS];
         uint32 m_contestedPvPTimer;
 
@@ -2289,7 +2290,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void _LoadActions(PreparedQueryResult result);
-        void _LoadAuras(PreparedQueryResult result, uint32 timediff);
+        void _LoadAuras(PreparedQueryResult auraResult, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);

@@ -63,8 +63,9 @@ enum Misc
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ },
-    { 0,                       0               } // END
+    { NPC_LEOTHERAS_THE_BLIND, BOSS_LEOTHERAS_THE_BLIND },
+    { NPC_LADY_VASHJ,          BOSS_LADY_VASHJ          },
+    { 0,                       0                        } // END
 };
 
 static constexpr ObjectData gameObjectData[] =
@@ -182,8 +183,20 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 21964:
                         Caribdis = creature->GetGUID();
                         break;
-                    case 21215:
-                        LeotherasTheBlind = creature->GetGUID();
+                    default:
+                        break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                switch (unit->GetEntry())
+                {
+                    case NPC_COILFANG_PRIESTESS:
+                    case NPC_COILFANG_SHATTERER:
+                        if (TrashCount < MIN_KILLS)
+                            ++TrashCount;//+1 died
+                        SaveToDB();
                         break;
                     default:
                         break;
@@ -208,12 +221,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 return true;
             }
 
-            void SetGuidData(uint32 type, ObjectGuid data) override
-            {
-                if (type == DATA_LEOTHERAS_EVENT_STARTER)
-                    LeotherasEventStarter = data;
-            }
-
             ObjectGuid GetGuidData(uint32 identifier) const override
             {
                 switch (identifier)
@@ -226,10 +233,6 @@ class instance_serpent_shrine : public InstanceMapScript
                         return Caribdis;
                     case DATA_KARATHRESS:
                         return Karathress;
-                    case DATA_LEOTHERAS:
-                        return LeotherasTheBlind;
-                    case DATA_LEOTHERAS_EVENT_STARTER:
-                        return LeotherasEventStarter;
                     default:
                         break;
                 }
@@ -240,11 +243,6 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_TRASH:
-                        if (data == 1 && TrashCount < MIN_KILLS)
-                            ++TrashCount;//+1 died
-                        SaveToDB();
-                        break;
                     case DATA_WATER:
                         Water = data;
                         break;
@@ -281,8 +279,6 @@ class instance_serpent_shrine : public InstanceMapScript
             ObjectGuid Tidalvess;
             ObjectGuid Caribdis;
             ObjectGuid Karathress;
-            ObjectGuid LeotherasTheBlind;
-            ObjectGuid LeotherasEventStarter;
 
             uint32 WaterCheckTimer;
             uint32 FrenzySpawnTimer;

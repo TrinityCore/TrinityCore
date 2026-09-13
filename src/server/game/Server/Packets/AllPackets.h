@@ -20,6 +20,7 @@
 
 #include "AchievementPackets.h"
 #include "AreaTriggerPackets.h"
+#include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
 #include "BattlegroundPackets.h"

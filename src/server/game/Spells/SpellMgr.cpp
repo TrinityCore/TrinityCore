@@ -3646,6 +3646,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
+    // Dispersion
+    ApplySpellFix({ 60069 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_0).MiscValue = POWER_MANA;
+    });
+
     // Improved Devouring Plague
     ApplySpellFix({ 63675 }, [](SpellInfo* spellInfo)
     {

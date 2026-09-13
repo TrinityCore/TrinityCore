@@ -320,8 +320,8 @@ public:
                     {
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
-                            float base_attPower = pet->GetFlatModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetPctModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
-                            amount += CalculatePct(amount+base_attPower, /* aurEff */ect->GetAmount());
+                            float base_attPower = float(pet->GetInt32Value(UNIT_FIELD_ATTACK_POWER));
+                            amount += CalculatePct(amount + base_attPower, /* aurEff */ect->GetAmount());
                         }
                     }
                 }

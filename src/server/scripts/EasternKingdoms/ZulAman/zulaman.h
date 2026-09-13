@@ -79,10 +79,10 @@ enum ZAGameObjectIds
 
 enum ZAActionIds
 {
-    ACTION_WAVE_DONE_1                  = 0,
-    ACTION_WAVE_DONE_2                  = 1,
-    ACTION_WAVE_DONE_3                  = 2,
-    ACTION_WAVE_DONE_4                  = 3
+    ACTION_WAVE_DONE_1                  = 2357600,
+    ACTION_WAVE_DONE_2                  = 2357601,
+    ACTION_WAVE_DONE_3                  = 2357602,
+    ACTION_WAVE_DONE_4                  = 2357603
 };
 
 template <class AI, class T>
