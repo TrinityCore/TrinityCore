@@ -593,6 +593,13 @@ GameType = 0
 RealmZone = 1
 
 #
+#    ExtendedAccountNameLengthLimit
+#        Description: Extends account name limit from 16 (retail-like) to 64 characters
+#        Default      0
+
+ExtendedAccountNameLengthLimit = 0
+
+#
 #    StrictPlayerNames
 #        Description: Limit player name to language specific symbol set. Prevents character
 #                     creation and forces rename request if not allowed symbols are used
