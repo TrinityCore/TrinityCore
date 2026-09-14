@@ -163,6 +163,7 @@ public:
     void LoadAccountItemAppearances(PreparedQueryResult knownAppearances, PreparedQueryResult favoriteAppearances);
     void SaveAccountItemAppearances(LoginDatabaseTransaction trans);
     void AddItemAppearance(Item* item);
+    void AddItemAppearanceOnDisposal(Item* item, bool bindForBuyback);
     void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
     void AddTransmogSet(uint32 transmogSetId);
     bool IsSetCompleted(uint32 transmogSetId) const;

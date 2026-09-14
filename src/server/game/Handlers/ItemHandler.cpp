@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "BattlePetMgr.h"
 #include "Common.h"
+#include "CollectionMgr.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -340,6 +341,10 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
         _player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, nullptr, nullptr);
         return;
     }
+
+    // Only explicit player destruction grants BoE appearances here.
+    // Generic destruction is also used by refunds and other item consumption.
+    GetCollectionMgr()->AddItemAppearanceOnDisposal(item, false);
 
     if (destroyItem.Count)
         _player->DestroyItemCount(item, destroyItem.Count, true);

@@ -626,6 +626,33 @@ void CollectionMgr::AddItemAppearance(Item* item)
     AddItemAppearance(itemModifiedAppearance);
 }
 
+void CollectionMgr::AddItemAppearanceOnDisposal(Item* item, bool bindForBuyback)
+{
+    Player* owner = _owner->GetPlayer();
+    if (!owner || !item || item->GetOwnerGUID() != owner->GetGUID()
+        || item->GetBonding() != BIND_ON_EQUIP || item->IsWrapped())
+        return;
+
+    ItemModifiedAppearanceEntry const* appearance = item->GetItemModifiedAppearance();
+    if (!CanAddAppearance(appearance))
+        return;
+
+    // Selling grants a permanent appearance. Bind the sold copy so buyback
+    // cannot turn the same item into an unlock for another account.
+    // Destruction consumes the item; do not bind any remaining stack.
+    if (bindForBuyback)
+    {
+        item->SetBinding(true);
+        item->SetNotRefundable(owner);
+        item->ClearSoulboundTradeable(owner);
+        item->SetState(ITEM_CHANGED, owner);
+    }
+
+    // Clearing refund/trade flags may already have promoted the appearance.
+    if (CanAddAppearance(appearance))
+        AddItemAppearance(appearance);
+}
+
 void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 0*/)
 {
     ItemModifiedAppearanceEntry const* itemModifiedAppearance = TransmogMgr::GetItemModifiedAppearance(itemId, appearanceModId);

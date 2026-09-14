@@ -142,6 +142,7 @@
 #include "VignettePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "CollectionMgr.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
@@ -23949,6 +23950,8 @@ Optional<SellResult> Player::SellItemToVendor(Item* item, uint32 amount)
             return SELL_ERR_CANT_SELL_ITEM;
         }
 
+        GetSession()->GetCollectionMgr()->AddItemAppearanceOnDisposal(pNewItem, true);
+
         item->SetCount(item->GetCount() - amount);
         ItemRemovedQuestCheck(item->GetEntry(), amount);
         if (IsInWorld())
@@ -23961,6 +23964,8 @@ Optional<SellResult> Player::SellItemToVendor(Item* item, uint32 amount)
     }
     else
     {
+        GetSession()->GetCollectionMgr()->AddItemAppearanceOnDisposal(item, true);
+
         RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
         ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
         RemoveItemFromUpdateQueueOf(item, this);
