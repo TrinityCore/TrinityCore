@@ -11838,15 +11838,11 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
             {
                 if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogOutfitItem.ItemModifiedAppearanceID))
                 {
-                    TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                    if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                    {
-                        itemId = itemModifiedAppearance->ItemID;
-                        itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
-                        itemModifiedAppearanceId = itemModifiedAppearance->ID;
-                        sheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(*transmogOutfitItem.SheatheCategory);
-                        hasTransmog = true;
-                    }
+                    itemId = itemModifiedAppearance->ItemID;
+                    itemAppearanceModId = itemModifiedAppearance->ItemAppearanceModifierID;
+                    itemModifiedAppearanceId = itemModifiedAppearance->ID;
+                    sheatheCategory = static_cast<TransmogOutfitSlotOptionSheatheCategory>(*transmogOutfitItem.SheatheCategory);
+                    hasTransmog = true;
                 }
             }
 
@@ -11855,12 +11851,8 @@ void Player::SetVisibleItemSlot(uint8 slot, Item const* item)
                 if (isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType))
                     || static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitItem.AppearanceDisplayType) == TransmogOutfitDisplayType::Equipped)
                 {
-                    if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
-                    {
-                        TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                        if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                            return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
-                    }
+                    if (sItemModifiedAppearanceStore.LookupEntry(secondaryTransmogOutfitItem.ItemModifiedAppearanceID))
+                        return secondaryTransmogOutfitItem.ItemModifiedAppearanceID;
                 }
                 return 0;
             };
@@ -31344,19 +31336,15 @@ void Player::_SaveCharacterSelectOutfit(CharacterDatabaseTransaction trans) cons
 
                 if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId))
                 {
-                    TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID);
-                    if (!transmogHoliday || IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
+                    if (ItemEntry const* itemEntry = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
                     {
-                        if (ItemEntry const* itemEntry = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
-                        {
-                            visibleItemId = itemEntry->ID;
-                            subClass = itemEntry->SubclassID;
-                            inventoryType = static_cast<InventoryType>(itemEntry->InventoryType);
-                        }
-
-                        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(itemModifiedAppearance->ItemAppearanceID))
-                            displayId = itemAppearance->ItemDisplayInfoID;
+                        visibleItemId = itemEntry->ID;
+                        subClass = itemEntry->SubclassID;
+                        inventoryType = static_cast<InventoryType>(itemEntry->InventoryType);
                     }
+
+                    if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(itemModifiedAppearance->ItemAppearanceID))
+                        displayId = itemAppearance->ItemDisplayInfoID;
                 }
 
                 if (SpellItemEnchantmentEntry const* spellItemEnchantment = sSpellItemEnchantmentStore.LookupEntry(transmogOutfitSlot.SpellItemEnchantmentID))
@@ -31375,10 +31363,8 @@ void Player::_SaveCharacterSelectOutfit(CharacterDatabaseTransaction trans) cons
                         if (!isTransmogDisplayed(static_cast<TransmogOutfitDisplayType>(*secondaryTransmogOutfitSlot.AppearanceDisplayType)))
                             secondaryItemModifiedAppearanceId = m_playerData->VisibleItems[i].SecondaryItemModifiedAppearanceID;
 
-                        if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(secondaryItemModifiedAppearanceId))
-                            if (TransmogHolidayEntry const* transmogHoliday = sTransmogHolidayStore.LookupEntry(itemModifiedAppearance->ItemID))
-                                if (!IsHolidayActive(static_cast<HolidayIds>(transmogHoliday->RequiredTransmogHoliday)))
-                                    secondaryItemModifiedAppearanceId = 0;
+                        if (!sItemModifiedAppearanceStore.LookupEntry(secondaryItemModifiedAppearanceId))
+                            secondaryItemModifiedAppearanceId = 0;
                     }
                 }
 
@@ -31776,3 +31762,4 @@ bool Player::CanExecutePendingSpellCastRequest()
 
     return true;
 }
+

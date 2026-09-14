@@ -79,22 +79,8 @@ constexpr ItemSheatheType TransmogSheatheMappingByCategoryAndSheatheType[AsUnder
     { ItemSheatheType::InvertedDualWieldInvis, ItemSheatheType::InvertedDualWield, ItemSheatheType::None, ItemSheatheType::InvertedDualWieldInvis }
 };
 
-constexpr bool IsArtifactTransmogOutfitSlotOption(TransmogOutfitSlotOption option)
+bool IsValidTransmogOutfitSlotForItem(ItemTemplate const* item, TransmogOutfitSlot slot)
 {
-    return option == TransmogOutfitSlotOption::ArtifactSpecOne
-        || option == TransmogOutfitSlotOption::ArtifactSpecTwo
-        || option == TransmogOutfitSlotOption::ArtifactSpecThree
-        || option == TransmogOutfitSlotOption::ArtifactSpecFour;
-}
-
-bool IsValidTransmogOutfitSlotForItem(ItemTemplate const* item, TransmogOutfitSlot slot, TransmogOutfitSlotOption option)
-{
-    if (IsArtifactTransmogOutfitSlotOption(option))
-        if (ArtifactEntry const* artifact = sArtifactStore.LookupEntry(item->GetArtifactID()))
-            if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(artifact->ChrSpecializationID))
-                if ((int8(option) - int8(TransmogOutfitSlotOption::ArtifactSpecOne)) != specialization->OrderIndex)
-                    return false;
-
     switch (item->GetInventoryType())
     {
         case INVTYPE_HEAD:
@@ -119,20 +105,18 @@ bool IsValidTransmogOutfitSlotForItem(ItemTemplate const* item, TransmogOutfitSl
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            return slot == TransmogOutfitSlot::WeaponMainHand || slot == TransmogOutfitSlot::WeaponOffHand || IsArtifactTransmogOutfitSlotOption(option);
         case INVTYPE_SHIELD:
         case INVTYPE_HOLDABLE:
-            return slot == TransmogOutfitSlot::WeaponOffHand || IsArtifactTransmogOutfitSlotOption(option);
         case INVTYPE_RANGED:
-            return (slot == TransmogOutfitSlot::WeaponMainHand && option == TransmogOutfitSlotOption::RangedWeapon) || IsArtifactTransmogOutfitSlotOption(option);
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_RANGEDRIGHT:
+            return slot == TransmogOutfitSlot::WeaponMainHand
+                || slot == TransmogOutfitSlot::WeaponOffHand
+                || slot == TransmogOutfitSlot::WeaponRanged;
         case INVTYPE_CLOAK:
             return slot == TransmogOutfitSlot::Back;
-        case INVTYPE_2HWEAPON:
-            return slot == TransmogOutfitSlot::WeaponMainHand || (slot == TransmogOutfitSlot::WeaponOffHand && option == TransmogOutfitSlotOption::FuryTwoHandedWeapon) || IsArtifactTransmogOutfitSlotOption(option);
         case INVTYPE_TABARD:
             return slot == TransmogOutfitSlot::Tabard;
-        case INVTYPE_RANGEDRIGHT:
-            return slot == (item->GetSubClass() == ITEM_SUBCLASS_WEAPON_WAND ? TransmogOutfitSlot::WeaponMainHand : TransmogOutfitSlot::WeaponRanged) || IsArtifactTransmogOutfitSlotOption(option);
         default:
             break;
     }
@@ -418,14 +402,11 @@ bool TransmogMgr::ValidateSlots(std::span<WorldPackets::Transmogrification::Tran
             if (!itemTemplate)
                 return false;
 
-            if (!IsValidTransmogOutfitSlotForItem(itemTemplate, slot.Slot, slot.SlotOption))
+            if (!IsValidTransmogOutfitSlotForItem(itemTemplate, slot.Slot))
                 return false;
 
-            TransmogOutfitSlotOption appearanceSlotOption = itemTemplate->GetWeaponTransmogOutfitSlotOption();
-            if (appearanceSlotOption != slot.SlotOption
-                && (slot.SlotOption != TransmogOutfitSlotOption::FuryTwoHandedWeapon
-                    || appearanceSlotOption != TransmogOutfitSlotOption::TwoHandedWeapon))
-                return false;
+            // The outfit option selects the equipped weapon context, not the
+            // category or specialization of the collected source appearance.
 
             if (slot.SheatheCategory != TransmogOutfitSlotOptionSheatheCategory::Default &&
                 (itemTemplate->GetSheatheType() >= ItemSheatheType::Max ||
@@ -439,3 +420,4 @@ bool TransmogMgr::ValidateSlots(std::span<WorldPackets::Transmogrification::Tran
 
     return true;
 }
+

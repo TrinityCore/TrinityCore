@@ -2002,12 +2002,6 @@ bool Item::IsValidTransmogrificationTarget() const
         proto->GetClass() != ITEM_CLASS_WEAPON)
         return false;
 
-    if (proto->GetClass() == ITEM_CLASS_WEAPON && proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->HasFlag(ITEM_FLAG2_NO_ALTER_ITEM_VISUAL))
-        return false;
-
     return true;
 }
 
@@ -2052,50 +2046,31 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
 
 bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
 {
-    ItemTemplate const* source = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID); // source
-    ItemTemplate const* target = item->GetTemplate(); // dest
-
-    if (!source || !target)
+    if (!item || !itemModifiedAppearance)
         return false;
 
-    if (itemModifiedAppearance == item->GetItemModifiedAppearance())
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID);
+    ItemTemplate const* target = item->GetTemplate();
+    if (!source || !target || !item->IsValidTransmogrificationTarget())
         return false;
 
-    if (!item->IsValidTransmogrificationTarget())
+    uint32 sourceInventoryType = source->GetInventoryType();
+    uint32 targetInventoryType = target->GetInventoryType();
+    if (sourceInventoryType >= MAX_INVTYPE || targetInventoryType >= MAX_INVTYPE)
         return false;
 
-    if (source->GetClass() != target->GetClass())
+    int32 sourceSlot = ItemTransmogrificationSlots[sourceInventoryType];
+    int32 targetSlot = ItemTransmogrificationSlots[targetInventoryType];
+    if (sourceSlot < 0 || targetSlot < 0)
         return false;
 
-    if (source->GetInventoryType() == INVTYPE_BAG ||
-        source->GetInventoryType() == INVTYPE_RELIC ||
-        source->GetInventoryType() == INVTYPE_FINGER ||
-        source->GetInventoryType() == INVTYPE_TRINKET ||
-        source->GetInventoryType() == INVTYPE_AMMO ||
-        source->GetInventoryType() == INVTYPE_QUIVER)
-        return false;
-
-    if (source->GetSubClass() != target->GetSubClass())
+    // Collected appearances may cross armor classes and weapon categories.
+    // Keep body slots compatible; all hand-held appearances share one group.
+    auto isHandSlot = [](int32 slot)
     {
-        switch (source->GetClass())
-        {
-            case ITEM_CLASS_WEAPON:
-                if (source->GetWeaponTransmogOutfitSlotOption() != target->GetWeaponTransmogOutfitSlotOption())
-                    return false;
-                break;
-            case ITEM_CLASS_ARMOR:
-                if (source->GetSubClass() != ITEM_SUBCLASS_ARMOR_COSMETIC)
-                    return false;
-                if (source->GetInventoryType() != target->GetInventoryType())
-                    if (ItemTransmogrificationSlots[source->GetInventoryType()] != ItemTransmogrificationSlots[target->GetInventoryType()])
-                        return false;
-                break;
-            default:
-                return false;
-        }
-    }
-
-    return true;
+        return slot == EQUIPMENT_SLOT_MAINHAND || slot == EQUIPMENT_SLOT_OFFHAND;
+    };
+    return sourceSlot == targetSlot || (isHandSlot(sourceSlot) && isHandSlot(targetSlot));
 }
 
 uint32 Item::GetBuyPrice(Player const* owner, bool& standardPrice) const
@@ -3205,3 +3180,4 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             break;
     }
 }
+
