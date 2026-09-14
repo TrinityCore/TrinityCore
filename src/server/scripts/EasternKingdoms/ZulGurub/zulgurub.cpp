@@ -93,7 +93,7 @@ class spell_zulgurub_poisonous_blood : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_POISONOUS_BLOOD);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_POISONOUS_BLOOD, true);
     }
 
     void Register() override
