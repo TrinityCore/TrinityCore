@@ -309,9 +309,9 @@ void WorldSession::HandleMoveWorldportAck()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = newMap->GetDifficultyID();
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
+        if (MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->RaidDuration)
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {

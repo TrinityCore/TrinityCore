@@ -62,7 +62,7 @@ class instance_steam_vault : public InstanceMapScript
                     if (GetBossState(DATA_HYDROMANCER_THESPIA) == DONE && GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE)
                     {
                         HandleGameObject(ObjectGuid::Empty, true, go);
-                        go->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+                        go->ActivateObject(GameObjectActions::MakeInert);
                     }
                 }
             }
@@ -77,12 +77,12 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_HYDROMANCER_THESPIA:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_THESPIA))
-                                panel->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
+                                panel->ActivateObject(GameObjectActions::MakeActive);
                         break;
                     case DATA_MEKGINEER_STEAMRIGGER:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_STEAMRIGGER))
-                                panel->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
+                                panel->ActivateObject(GameObjectActions::MakeActive);
                         break;
                     default:
                         break;

@@ -504,17 +504,13 @@ void AchievementMgr::Reset()
 {
     for (std::pair<uint32 const, CompletedAchievementData> const& completedAchievement : m_completedAchievements)
     {
-        WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
-        data << uint32(completedAchievement.first);
-        m_player->SendDirectMessage(&data);
+        WorldPackets::Achievement::AchievementDeleted achievementDeleted;
+        achievementDeleted.AchievementID = completedAchievement.first;
+        m_player->SendDirectMessage(achievementDeleted.Write());
     }
 
     for (std::pair<uint32 const, CriteriaProgress> const& criteriaprogress : m_criteriaProgress)
-    {
-        WorldPacket data(SMSG_CRITERIA_DELETED, 4);
-        data << uint32(criteriaprogress.first);
-        m_player->SendDirectMessage(&data);
-    }
+        SendCriteriaProgressRemoved(criteriaprogress.first);
 
     m_completedAchievements.clear();
     m_achievementPoints = 0;
@@ -704,17 +700,16 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
         uint32 team = GetPlayer()->GetTeam();
 
         // broadcast realm first reached
-        WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, GetPlayer()->GetName().size() + 1 + 8 + 4 + 4);
-        data << GetPlayer()->GetName();
-        data << GetPlayer()->GetGUID();
-        data << uint32(achievement->ID);
+        WorldPackets::Achievement::BroadcastAchievement serverFirstAchievement;
+        serverFirstAchievement.Name = m_player->GetName();
+        serverFirstAchievement.PlayerGUID = m_player->GetGUID();
+        serverFirstAchievement.AchievementID = achievement->ID;
+        serverFirstAchievement.DisplayLink = true;          // display name as clickable link in chat
+        sWorld->SendGlobalMessage(serverFirstAchievement.Write(), nullptr, team);
 
-        std::size_t linkTypePos = data.wpos();
-        data << uint32(1);                                  // display name as clickable link in chat
-        sWorld->SendGlobalMessage(&data, nullptr, team);
-
-        data.put<uint32>(linkTypePos, 0);                   // display name as plain string in chat
-        sWorld->SendGlobalMessage(&data, nullptr, team == ALLIANCE ? HORDE : ALLIANCE);
+        serverFirstAchievement.Clear();
+        serverFirstAchievement.DisplayLink = false;         // display name as plain string in chat
+        sWorld->SendGlobalMessage(serverFirstAchievement.Write(), nullptr, team == ALLIANCE ? HORDE : ALLIANCE);
     }
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
@@ -757,6 +752,13 @@ void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, C
     criteriaUpdate.CreationTime = 0;
 
     GetPlayer()->SendDirectMessage(criteriaUpdate.Write());
+}
+
+void AchievementMgr::SendCriteriaProgressRemoved(uint32 criteriaId) const
+{
+    WorldPackets::Achievement::CriteriaDeleted criteriaDeleted;
+    criteriaDeleted.CriteriaID = criteriaId;
+    GetPlayer()->SendDirectMessage(criteriaDeleted.Write());
 }
 
 /**
@@ -1434,18 +1436,16 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     SendCriteriaUpdate(entry, progress, timeElapsed, timedCompleted);
 }
 
-void AchievementMgr::RemoveCriteriaProgress(AchievementCriteriaEntry const* entry)
+void AchievementMgr::RemoveCriteriaProgress(AchievementCriteriaEntry const* criteria)
 {
-    if (!entry)
+    if (!criteria)
         return;
 
-    CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find(entry->ID);
+    auto criteriaProgress = m_criteriaProgress.find(criteria->ID);
     if (criteriaProgress == m_criteriaProgress.end())
         return;
 
-    WorldPacket data(SMSG_CRITERIA_DELETED, 4);
-    data << uint32(entry->ID);
-    m_player->SendDirectMessage(&data);
+    SendCriteriaProgressRemoved(criteria->ID);
 
     m_criteriaProgress.erase(criteriaProgress);
 }
