@@ -3339,7 +3339,14 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
     {
         m_originalCaster->RemoveDynObject(m_spellInfo->Id);
         if (m_spellInfo->IsChanneled()) // if not channeled then the object for the current cast wasn't summoned yet
-            m_originalCaster->RemoveGameObject(m_spellInfo->Id, true);
+        {
+            if (GameObject* gameObject = m_originalCaster->GetGameObject(m_spellInfo->Id))
+            {
+                m_originalCaster->RemoveGameObject(gameObject, true);
+                if (gameObject->GetGoType() == GAMEOBJECT_TYPE_RITUAL)
+                    m_originalCaster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
+            }
+        }
     }
 
     //set state back so finish will be processed
