@@ -31,13 +31,13 @@ enum FreywinnTexts
 
 enum FreywinnSpells
 {
-    SPELL_TRANQUILITY          = 34550,
-    SPELL_TREE_FORM            = 34551,
-    SPELL_SUMMON_FRAYER        = 34557,
     SPELL_PLANT_WHITE          = 34759,
     SPELL_PLANT_GREEN          = 34761,
     SPELL_PLANT_BLUE           = 34762,
     SPELL_PLANT_RED            = 34763,
+    SPELL_TREE_FORM            = 34551,
+    SPELL_SUMMON_FRAYER        = 34557,
+    SPELL_TRANQUILITY          = 34550,
     SPELL_CANCEL_TRANQUILITY   = 34777
 };
 
@@ -62,7 +62,9 @@ struct boss_high_botanist_freywinn : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_PLANT_SEEDLING, 6s);
         events.ScheduleEvent(EVENT_TREE_FORM, 30s);
     }
@@ -72,6 +74,17 @@ struct boss_high_botanist_freywinn : public BossAI
     {
         if (me->IsEngaged())
             DoZoneInCombat(summon);
+    }
+
+    void OnSpellCast(SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_TREE_FORM)
+        {
+            _frayersKilled = 0;
+            Talk(SAY_TREE);
+            DoCastSelf(SPELL_SUMMON_FRAYER);
+            events.ScheduleEvent(EVENT_TRANQUILITY, 1s);
+        }
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -120,14 +133,8 @@ struct boss_high_botanist_freywinn : public BossAI
                     events.Repeat(6s);
                     break;
                 case EVENT_TREE_FORM:
-                    // Reset counter in case not all frayers were killed and tree phase was ended, otherwise next time it will be enough to
-                    // kill only 1 or 2 to stop phase. It's an edge case, quite possible it was not even supported
-                    _frayersKilled = 0;
-                    Talk(SAY_TREE);
-                    DoCastSelf(SPELL_SUMMON_FRAYER);
                     DoCastSelf(SPELL_TREE_FORM);
                     events.Repeat(60s);
-                    events.ScheduleEvent(EVENT_TRANQUILITY, 1s);
                     break;
                 case EVENT_TRANQUILITY:
                     DoCastSelf(SPELL_TRANQUILITY);

@@ -23,7 +23,7 @@
 #define BotanicaScriptName "instance_the_botanica"
 #define DataHeader "BC"
 
-uint32 const EncounterCount = 5;
+uint32 constexpr EncounterCount         = 5;
 
 enum BCDataTypes
 {
