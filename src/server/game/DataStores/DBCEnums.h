@@ -196,11 +196,13 @@ enum class AreaTriggerShapeType : int8
 {
     Sphere                         = 0,
     Box                            = 1,
-    Unk                            = 2,
+    Quad2D                         = 2,
     Polygon                        = 3,
     Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
+    Script                         = 5,
+    FromUnit                       = 6,
+    Disk                           = 7,
+    BoundedPlane                   = 8,
     Max
 };
 
