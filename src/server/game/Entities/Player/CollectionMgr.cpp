@@ -719,7 +719,13 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (!itemTemplate)
         return false;
 
-    if (itemTemplate->HasFlag(ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL) || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
+    // Legendary items may supply collected appearances even when their data
+    // disables them as a normal transmog source. Artifact collection is separate.
+    if (itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
+        return false;
+
+    if (itemTemplate->HasFlag(ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL)
+        && itemTemplate->GetQuality() != ITEM_QUALITY_LEGENDARY)
         return false;
 
     switch (itemTemplate->GetClass())
