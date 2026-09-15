@@ -45,6 +45,16 @@ services:
       - ./docker/scripts:/scripts:ro
       - ./sql:/workspace/sql:ro
       - ./runtime/logs:/runtime/logs
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - "exec 3<>/dev/tcp/127.0.0.1/3724"
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
     ports:
       - "${AUTHSERVER_PORT:-3724}:3724"
 
@@ -73,6 +83,16 @@ services:
       - ./sql:/workspace/sql:ro
       - ${WOW_DATA_DIR:-./runtime/data}:/runtime/data
       - ./runtime/logs:/runtime/logs
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - "exec 3<>/dev/tcp/127.0.0.1/8085"
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 30s
     ports:
       - "${WORLDSERVER_PORT:-8085}:8085"
 

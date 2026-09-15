@@ -167,3 +167,54 @@ jobs:
           # restart so authserver/worldserver actually reload the binary
           # make build just installed into build-data.
           docker compose restart authserver worldserver
+
+      - name: Verify deployment health
+        run: |
+          cd /home/voslik/WoWBehaviorAI
+
+          set -euo pipefail
+
+          wait_healthy() {
+            service="$1"
+            attempts="${2:-60}"
+
+            echo "Waiting for $service..."
+
+            for i in $(seq 1 "$attempts"); do
+              cid="$(docker compose ps -q "$service")"
+
+              if [ -z "$cid" ]; then
+                echo "$service container does not exist"
+                exit 1
+              fi
+
+              status="$(docker inspect \
+                --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{if .State.Running}}running{{else}}stopped{{end}}{{end}}' \
+                "$cid")"
+
+              echo "$service: $status ($i/$attempts)"
+
+              if [ "$status" = "healthy" ]; then
+                return 0
+              fi
+
+              if [ "$status" = "unhealthy" ] || [ "$status" = "stopped" ]; then
+                echo "=== $service logs ==="
+                docker compose logs --tail=100 "$service"
+                exit 1
+              fi
+
+              sleep 5
+            done
+
+            echo "$service did not become healthy in time"
+            docker compose logs --tail=100 "$service"
+            exit 1
+          }
+
+          wait_healthy mysql 30
+          wait_healthy ai-server 30
+          wait_healthy authserver 40
+          wait_healthy worldserver 60
+
+          echo "All services are healthy."
