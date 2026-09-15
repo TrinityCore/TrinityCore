@@ -8,11 +8,11 @@ The goal is not to replace TrinityCore AI with a language model. Deterministic s
 
 > Development branch: `ai-world`
 >
-> Current milestone: **Etapa 2 / 2.12E1 AgentGroup lifecycle — CLOSED / static + runtime PASS**
+> Current milestone: **Etapa 2 — CLOSED / POC COMPLETE, including 2.13 and the final 2.14 integration gate**
 >
-> Current next gate: **async-safe dynamic AgentGroup lifecycle before automatic coalition formation**
+> Current next gate: **Etapa 3 — Elwynn Forest scope and complete spawn census (3.0–3.1)**
 
-For detailed milestone history and the current implementation plan see [AI_TrinityCore_Roadmap_Etapa_1_2.md](AI_TrinityCore_Roadmap_Etapa_1_2.md).
+The single source for milestone status, implementation history and the next plan is [AIWorld_Current_Roadmap.md](AIWorld_Current_Roadmap.md).
 
 ---
 
@@ -52,7 +52,7 @@ Core invariants:
 - loaded individual agent = materialized TrinityCore `Creature`; unloaded persistent agent = `AgentRecord` without a live pointer;
 - `AgentWorldState` (world binding) is separate from `SimulationTier` (simulation policy);
 - `AgentGroup` is a social/coordination entity over individual `AgentId`s, never a 1:1 replacement for a mob and never bound to a `Creature`;
-- group intent may coordinate members, but any future physical action must decompose into per-member `ActionRequest`s and pass normal validation;
+- group intent coordinates members through per-member `ActionRequest`s that pass normal validation;
 - remote decisions are untrusted intent, never permission to mutate world state;
 - deterministic behavior is preferred where sufficient.
 
@@ -84,7 +84,7 @@ Implemented and runtime exercised:
 - deterministic relevant-memory Top-N retrieval;
 - Needs System with health/hunger/fatigue/safety/resource pressure;
 - deterministic Goal System including `GET_FOOD`, `FLEE_DANGER`, farmer routing and interruption semantics;
-- safe Action API primitives/vertical slices `FLEE`, `MOVE_TO`, `EAT`, `WORK`, `REST`;
+- safe Action API primitives/vertical slices `FLEE`, `MOVE_TO`, `EAT`, `WORK`, `REST`, `ATTACK`;
 - full `GET_FOOD → MOVE_TO → ARRIVED → EAT → CONSUMED → NEED_SATISFIED` feedback loop;
 - persistent farmer routine and economy state;
 - bounded multi-agent decision scheduling and coarse simulation scheduling;
@@ -104,7 +104,7 @@ Safeguards include:
 - world-thread authoritative `ActionRequest` translation;
 - `ActionSystem::Validate()` before any execution ownership could be transferred.
 
-Remote decision execution is still intentionally dry-run. The deterministic Goal→Action pipeline remains the real action owner until execution ownership is transferred explicitly and safely.
+Remote `/decision` execution is still intentionally dry-run; the separate `/dynamic-task` path is live and produces server-validated player quests. The deterministic Goal→Action pipeline remains the real action owner until execution ownership is transferred explicitly and safely.
 
 ### Scheduler and simulation policy — 2.10 CLOSED
 
@@ -170,7 +170,7 @@ The group owns social/coordination state only:
 - `AgentGroupKind { Loose, Stable }`;
 - membership edges to individual `AgentId`s;
 - territory/shared environmental resources;
-- future cohesion, roles, leader/shared-intent state.
+- shared REGROUP/ROAM/HUNT intent; roles/leadership remain conditional on a demonstrated need.
 
 Population is derived from membership count; it is not an aggregate mutable mob count.
 
@@ -215,7 +215,7 @@ Properties:
 - sequence reservation is read-back-confirmed before group creation;
 - dissolved `GroupId`s are not reused after restart.
 
-Runtime acceptance evidence:
+Historical 2.12E1 runtime acceptance evidence (individual AgentIds precede the 2.12F4A2 spawn-aligned migration):
 
 ```text
 sequence = 2
@@ -242,58 +242,20 @@ This proves persistent GroupId provenance and non-reuse while the individual wol
 
 ## Current next gate
 
-The current 2.12E1 lifecycle persistence uses synchronous DB round-trips. That is acceptable for the existing startup/admin/manual lifecycle path, but it is **not acceptable for automatic policy-driven group formation on the world update thread**.
+Etapa 2 is **CLOSED / POC COMPLETE**. Its later gates added async-safe group lifecycle, Loose/Stable policy, generic automatic formation/maintenance, Elwynn population activation (`3540 / 3540 AIWorldControlled`), a second real coalition profile, REGROUP/ROAM/HUNT, and a local LLM dynamic quest lifecycle with outcome feedback. The final 2.14 gate confirmed real coalition HUNT through per-member ActionSystem validation and TrinityCore movement/combat.
 
-Before automatic `Loose` coalition formation/dissolution is added, the lifecycle boundary must become non-blocking:
+The next planned work is **Etapa 3, starting with 3.0–3.1**: define the authoritative Elwynn scope, export the complete creature/NPC census, classify every spawn and produce a coverage report. Semantic locations, factions, coalition constraints and world DB corrections follow. See the [roadmap acceptance gate](AIWorld_Current_Roadmap.md#nejbližší-acceptance-gate--3031).
 
-```text
-world-thread lifecycle request
-        ↓ value command
-async persistence
-        ↓ confirmed result
-world-thread completion
-        ↓
-AgentGroupRegistry mutation
-```
+## What remains beyond the POC
 
-Required properties:
+- Elwynn semantic/faction/data-quality preparation (Etapa 3), followed by Living World composition (Etapa 4).
+- World-scale indexing/bounded-work hardening and global rollout (2.12F4C/F4D), required before expanding beyond one location.
+- Roles/leadership (2.12G4) only when actual behavior demonstrates a need.
+- Richer persistent relationships, active goals and explicitly designed persistence for dynamic quests; current dynamic quests survive reconnect but are discarded on worldserver restart.
+- Safe transfer of NPC action ownership from deterministic behavior to selected remote `/decision` results; its parser/privacy hardening remains separate from the validated `/dynamic-task` path.
+- `PROTECT_HOME`/`REQUEST_HELP`, richer economy and the original wolves/farmer story remain future world-behavior examples, not prerequisites for the already closed aggregate POC.
 
-- no blocking DB wait on the world update thread;
-- no live TrinityCore pointer crosses the async boundary;
-- GroupId/AgentId provenance is retained through completion;
-- stale/invalid completions fail closed;
-- runtime membership changes only after confirmed persistence;
-- no direct world-state mutation is introduced.
-
-After that gate, the planned order is:
-
-1. `Loose` vs `Stable` membership policy;
-2. deterministic automatic wolf coalition formation/dissolution;
-3. shared group intent/coordination;
-4. decomposition into per-member validated actions;
-5. wolf coalition → farm → farmer memory → protect/request-help end-to-end scenario.
-
-Known non-blocking 2.12E1 hardening remains: GroupId `uint64` overflow guard, failed smoke-test cleanup, stale group-scheduler entry cleanup on dissolve, and production hardening of older dev-oriented migrations.
-
----
-
-## What is not implemented yet
-
-Major open areas include:
-
-- automatic dynamic `Loose`/`Stable` coalition policy;
-- non-blocking persistence path for automatic group lifecycle;
-- group shared intent and per-member action decomposition;
-- actual GPU/LLM decision inference;
-- safe transfer of execution ownership from deterministic behavior to selected remote decisions;
-- richer social relationships outside current group membership;
-- persistent active goals;
-- `PROTECT_HOME`, `REQUEST_HELP`, trade/economy expansion;
-- the emergent wolf-coalition → farm → farmer-memory → protect/request-help loop.
-
-Before a real external/LLM provider becomes execution-relevant, the hand-written C++ V2 response parser and external DecisionContext privacy boundary should be hardened.
-
-Known non-blocking scheduler scaling work: the fast scheduler still probes the registered population for live materialization, and coarse selection sorts the whole due set before taking the bounded admitted prefix.
+Detailed open items and their conditions are maintained in the [roadmap backlog](AIWorld_Current_Roadmap.md#další-postup-a-otevřený-hardening).
 
 ---
 
@@ -311,7 +273,7 @@ WoWBehaviorAI/
 ├── .env.example
 ├── Makefile
 ├── README_DEV.md
-└── AI_TrinityCore_Roadmap_Etapa_1_2.md
+└── AIWorld_Current_Roadmap.md
 ```
 
 The repository is a real fork of TrinityCore and keeps upstream history. Active development happens on `ai-world`.
@@ -434,26 +396,9 @@ Decision metrics use TrinityCore's existing `Metric.h` infrastructure. Dedicated
 
 ## Roadmap handoff
 
-```text
-2.8    Safe Action API                            DONE
-2.9A-E Async Decision Protocol                    DONE
-2.10A  Bounded multi-agent admission              DONE
-2.10B  Proximity-aware decision cadence           DONE
-2.10C  Explicit individual simulation policy      DONE
-2.10D  Bounded/staggered coarse scheduling        DONE
-2.11A  Persistent Home/Work                       DONE
-2.11B  Deterministic farmer routine               DONE
-2.11C  Routine movement via Action layer          DONE
-2.11D  WORK/REST activity                         DONE
-2.11E1 WORK/REST ActionType                       DONE
-2.11E2 Persistent economy                         DONE
-2.12D  Separate AgentGroup identity + scheduler   DONE
-2.12E1 Create/Join/Leave/Dissolve lifecycle       DONE
-NEXT    Async-safe dynamic group lifecycle        IN PROGRESS/NEXT
-THEN    Loose/Stable policy + auto formation
-```
+Use [AIWorld_Current_Roadmap.md](AIWorld_Current_Roadmap.md) for the complete roadmap: Etapa 1 infrastructure, the closed Etapa 2 POC and its runtime evidence, the detailed Etapa 3 plan and the Etapa 4 outlook. Update milestone status there so implementation history and the current plan remain together.
 
-See [README_DEV.md](README_DEV.md) for environment details and [AI_TrinityCore_Roadmap_Etapa_1_2.md](AI_TrinityCore_Roadmap_Etapa_1_2.md) for milestone history and acceptance gates.
+See [README_DEV.md](README_DEV.md) for environment details and the standard build/test workflow.
 
 ## License
 

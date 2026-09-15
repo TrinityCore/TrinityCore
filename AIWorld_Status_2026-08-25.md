@@ -1,10 +1,10 @@
-# AIWorld — current milestone status
+# AIWorld — historical milestone snapshot (2026-08-25)
 
 > Date: 2026-08-25  
 > Branch: `ai-world`  
 > Code baseline before this documentation commit: `f71f1dca8333a7cfb7c99c7c89fc84872933fb01`
 
-This file records the current accepted implementation state after the 2.11 farmer vertical slice and its persistence hardening. It exists because the older roadmap text still contains historical `2.10D pending / 2.11 NEXT` wording that no longer reflects the code and runtime work completed afterward.
+This file preserves the accepted implementation state as of 2026-08-25, after the 2.11 farmer vertical slice and its persistence hardening. It is a historical snapshot, not the current project plan. For current milestone status, implementation history and next gates, use the single [AIWorld roadmap](AIWorld_Current_Roadmap.md).
 
 ## Architectural invariant
 

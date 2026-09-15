@@ -1,14 +1,69 @@
-# AIWorld — Current Roadmap
+# AIWorld — Roadmap
 
-> **Aktualizováno:** 2026-09-09  
-> **Aktivní větev:** `ai-world`  
-> **Účel:** krátký aktuální execution roadmap nad detailním historickým dokumentem `AI_TrinityCore_Roadmap_Etapa_1_2.md`.  
-> **Aktuální code baseline před tímto docs commitem:** `4d58bd0906`  
-> **Detailní roadmap sync před tímto commitem:** `fe5672f48c42314497afd01dac26abe4cfb5c629`
->
-> Pokud mezi tímto docs commitem a jeho skutečným pushem přibude další code commit na `ai-world`, baseline výše je nutné před merge znovu načíst.
+| Kontext | Hodnota |
+|---|---|
+| Výchozí stav | TrinityCore `3.3.5` + Ubuntu Server + NVIDIA GPU |
+| Rozsah | Etapy 1–3 + výhled Etapy 4 |
+| Aktivní větev | `ai-world` |
+| Stav po uzavření Etapy 2 | [`a0bd5a8834`](https://github.com/LoubekJan/WoWBehaviorAI/commit/a0bd5a8834929da95d27388f47cd9c7b71ee3253) |
+
+Tento dokument je jediná projektová roadmapa: obsahuje aktuální stav, implementační historii, ověřovací důkazy a navazující plán. Další změny milníků se zapisují přímo sem. Starší datované statusy jsou historické snapshoty.
+
+## Stav projektu
+
+**Etapa 1 má splněný runtime gate. Etapa 2 je CLOSED / POC COMPLETE včetně 2.13 a finálního integračního gate 2.14. Další plánovaná práce je Etapa 3 — příprava Elwynn Forest, počínaje scope a census (3.0–3.1).**
+
+| Etapa | Stav | Hlavní cíl | Gate pro pokračování |
+|---|---|---|---|
+| **1 — Development Infrastructure** | ✅ **GATE SPLNĚN** | Reprodukovatelný Docker development stack | build, DB/TDB, klient a restart/persistence |
+| **2 — AI World Foundation** | ✅ **CLOSED / POC COMPLETE** | Ověřené AI subsystémy, coalition model a LLM/player vertical slices | runtime důkazy 2.12–2.13 + agregátní POC 2.14 |
+| **3 — Elwynn Forest World Preparation** | ⚪ **PLANNED** | Census, sémantické lokace, frakce a opravená world data | úplné pokrytí, faction invarianty a reprodukovatelný runtime baseline |
+| **4 — Living World** | ⚪ **PLANNED** | Populace, zdroje, ekonomika, vztahy, konflikty a AI questy | dlouhodobě běžící oblast s kauzálními problémy a změnami |
+
+`2.12F4C`/`2.12F4D` zůstávají odložené do rozšíření mimo jednu lokaci; `2.12G4` se otevírá pouze při prokázané potřebě leadership/roles. Tyto položky a průběžný hardening neruší uzavření Etapy 2 jako POC.
+
+Podrobné výsledky jednotlivých gate jsou uvedené u příslušných milníků. Historické logy a revize zachycují konkrétní ověřovací běh; například původní malá `AgentId` předcházejí migraci na `AgentId == SpawnId` v 2.12F4A2. Rozsah důkazu zůstává rozlišený na STATIC, BUILD, UNIT/SMOKE a RUNTIME.
+
+## Obsah
+
+- [Stav projektu](#stav-projektu)
+- [Základní invariant](#základní-invariant)
+- [Etapa 1 — Development Infrastructure](#etapa-1--development-infrastructure)
+- [Etapa 2 — AI World Foundation](#etapa-2--ai-world-foundation)
+  - [2.0 Cílová architektura](#20-cílová-architektura)
+  - [2.1 Persistentní agent](#21-persistentní-agent)
+  - [2.2 Persistence](#22-persistence)
+  - [2.3 World Event System](#23-world-event-system)
+  - [2.4 Perception System](#24-perception-system)
+  - [2.5 Memory System](#25-memory-system)
+  - [2.6 Needs System](#26-needs-system)
+  - [2.7 Goal System](#27-goal-system)
+  - [2.8 Bezpečné Action API](#28-bezpečné-action-api)
+  - [2.9 AI server — decision protocol](#29-ai-server--decision-protocol)
+  - [2.10 Scheduler a úrovně simulace](#210-scheduler-a-úrovně-simulace)
+  - [2.11 První experiment — persistentní farmář](#211-první-experiment--persistentní-farmář)
+  - [2.12 — AgentGroup / coalition](#212--agentgroup--coalition)
+  - [2.13 — local LLM dynamic task / player interaction vertical slice](#213--local-llm-dynamic-task--player-interaction-vertical-slice)
+  - [2.14 — final Etapa 2 POC / aggregate integration gate](#214--final-etapa-2-poc--aggregate-integration-gate)
+  - [2.15 — testy, diagnostika a scale hardening](#215--testy-diagnostika-a-scale-hardening)
+  - [Etapa 2 — Definition of Done](#etapa-2--definition-of-done)
+- [Etapa 3 — Elwynn Forest World Preparation](#etapa-3--elwynn-forest-world-preparation)
+  - [3.0 Scope a source of truth](#30-scope-a-source-of-truth)
+  - [3.1 Kompletní census NPC a creature spawnů](#31-kompletní-census-npc-a-creature-spawnů)
+  - [3.2 Sémantická mapa lokací](#32-sémantická-mapa-lokací)
+  - [3.3 Faction audit a oprava](#33-faction-audit-a-oprava)
+  - [3.4 Coalition pravidla uvnitř frakcí](#34-coalition-pravidla-uvnitř-frakcí)
+  - [3.5 Faction presence a pohyb po mapě](#35-faction-presence-a-pohyb-po-mapě)
+  - [3.6 World DB cleanup a verifikace](#36-world-db-cleanup-a-verifikace)
+  - [Etapa 3 — Definition of Done](#etapa-3--definition-of-done)
+- [Etapa 4 — Living World](#etapa-4--living-world)
+- [Další postup a otevřený hardening](#další-postup-a-otevřený-hardening)
+  - [Nejbližší acceptance gate — 3.0–3.1](#nejbližší-acceptance-gate--3031)
+- [Development / verification workflow](#development--verification-workflow)
 
 ## Základní invariant
+
+**AI přemýšlí a navrhuje záměr. ActionSystem validuje a TrinityCore rozhoduje, co je fyzicky a pravidlově možné, a provádí změnu světa.**
 
 ```text
 WORLD STATE
@@ -40,6 +95,7 @@ Platí pro všechny další milníky:
 - Žádný live `Creature*`, `Player*`, `Map*` ani `Unit*` nesmí uniknout přes async hranici nebo být uložen pro pozdější použití.
 - Async inference/network dostává pouze pure/value DTO a výsledky se aplikují zpět na world threadu.
 - AIWorld nikdy force-loaduje grid kvůli simulaci nebo testu.
+- World binding a simulation policy jsou dvě oddělené osy.
 - Materialized individual agent odpovídá reálnému TrinityCore `Creature`; unloaded agent zůstává persistentní `AgentRecord`.
 - Každý individual `AgentRecord` musí odpovídat skutečnému TrinityCore creature spawnu; testy nevyrábějí ghost physical agenty.
 - `RuntimeGuid` je provenance pouze aktuální materialized incarnation a nesmí být zaměněn za persistentní identity.
@@ -51,11 +107,42 @@ Platí pro všechny další milníky:
 
 ---
 
-# Stav projektu
+## Etapa 1 — Development Infrastructure
+
+**Stav: runtime gate SPLNĚN.**
+
+Hotovo:
+
+- Docker development image na Ubuntu 22.04, Ninja, `ccache`, `RelWithDebInfo`.
+- persistentní `/build` + `/ccache`.
+- Compose služby MySQL, authserver, worldserver, ai-server a GPU check.
+- automatizovaný import TDB `TDB335.25101` a TrinityCore DB updater.
+- versionovaný `auth.realmlist` bootstrap přes `make configure-realm`.
+- runtime mount `dbc/maps/vmaps/mmaps`.
+- LAN client login runtime PASS.
+- NVIDIA Container Toolkit / `nvidia-smi` runtime PASS; Docker vidí dvě RTX 3090.
+- restart `worldserver` přes `make restart-world` zachová DB/herní stav.
+- `make build`, `make restart-world`, `make world-logs` a další základní dev workflow.
+
+Neblokující hardening:
+
+- [ ] přesný extraction návod `dbc/maps/vmaps/mmaps`;
+- [ ] samostatný Debug target;
+- [ ] měřený no-op/incremental rebuild smoke;
+- [ ] `gdb` attach/breakpoint + core dump workflow;
+- [ ] CUDA/PyTorch compute smoke v inference image;
+- [ ] metrics backend/dashboard runtime evidence.
+
+---
+
+## Etapa 2 — AI World Foundation
+
+**Stav: CLOSED — POC COMPLETE.** Foundation a vertical slices níže mají splněné popsané gate. Nezaškrtnuté rozšiřující/hardening položky v dílčích sekcích nejsou novým požadavkem na již uzavřený POC.
+
+### Přehled milníků Etapy 2
 
 | Oblast | Stav |
 |---|---|
-| Etapa 1 — development infrastructure | **GATE SPLNĚN** |
 | 2.1–2.9 — identity, persistence, event/perception/memory/needs/goals/actions/decision protocol | **CLOSED / runtime foundation PASS** |
 | 2.10 — scheduler + simulation tiers | **CLOSED** |
 | 2.11 — persistent farmer vertical slice | **CLOSED** |
@@ -71,18 +158,409 @@ Platí pro všechny další milníky:
 | 2.12F4C/F4D — world-scale hardening (O(1) index, bounded recurring work) + full-world bootstrap | **DEFERRED — not required for single-location work; required before any eventual full-world rollout, see 2.12F4C's own Priorita** |
 | 2.12G1 — druhý coalition profile (genericity proof) | **CLOSED / STATIC + BUILD + RUNTIME PASS** |
 | 2.12G2 — generic ROAM/territory movement intent | **CLOSED / STATIC + BUILD + RUNTIME PASS** |
-| 2.12G3 — generic HUNT/coordinated combat contract | **CLOSED — G3A/G3B/G3C1/G3C2/G3D CLOSED (G3D real group combat/melee damage/TARGET_DEFEATED/post-kill reacquisition/stale chase cleanup all live-confirmed PASS); G3 lifecycle closure STATIC repaired (P1=0/P2=0/P3=0) and cumulatively BUILD-verified by every subsequent full 2.13 build, not independently re-verified in isolation** |
+| 2.12G3 — generic HUNT/coordinated combat contract | **CLOSED — combat runtime PASS; lifecycle STATIC + kumulativní BUILD** ([rozsah důkazu](#212g3-lifecycle-closure)) |
 | 2.12G4 — roles/leadership | **NOT NEEDED YET — viz 2.12G4's own Priorita** |
-| 2.13 — local LLM dynamic task vertical slice | **CLOSED — A1/A2/A3A/A3B/B + C1/C2/C3/C4/C5/C6/D all CLOSED (STATIC + BUILD + UNIT 253/253 + RUNTIME PASS; 2.13D restart/reconnect semantics and negative failure-mode aggregation runtime-tested and confirmed); next milestone is 2.14** |
+| 2.13 — local LLM dynamic task vertical slice | **CLOSED — STATIC + BUILD + UNIT 253/253 + RUNTIME PASS**, včetně restart/reconnect a negative failure-mode gate |
 | 2.14 — final Etapa 2 POC / aggregate integration gate | **CLOSED — RUNTIME POC PASS. Etapa 2 CLOSED / POC COMPLETE.** |
-| Etapa 3 — Elwynn world preparation | **PLANNED** |
-| Etapa 4 — Living World | **PLANNED** |
+| 2.15 — testy, diagnostika a scale hardening | **PRŮBĚŽNĚ — neblokuje uzavřený POC** |
 
----
+### 2.0 Cílová architektura
 
-# 2.12 — AgentGroup / coalition
+```text
+TrinityCore
+│
+├── Player / Creature / GameObject
+│
+└── AIWorldMgr
+    ├── AgentRegistry
+    ├── AgentGroupRegistry
+    ├── AgentGroupLifecycleSystem
+    ├── PerceptionSystem
+    ├── MemorySystem
+    ├── NeedsSystem
+    ├── GoalSystem
+    ├── ActionSystem
+    ├── EventSystem
+    ├── DecisionScheduler
+    ├── CoarseSimulationScheduler
+    ├── GroupCoarseSimulationScheduler
+    └── AIClient  -------------------->  ai-server  ---> GPU
+```
 
-## Architektonický model
+- [x] subsystem `src/server/game/AIWorld/`;
+- [x] lifecycle integrace do `worldserver`;
+- [x] AIWorld lze vypnout;
+- [x] network/inference async vůči world update loopu;
+- [x] response freshness/provenance validation;
+- [x] group identity oddělená od physical Agent identity;
+- [x] group coarse simulation má vlastní GroupId-keyed scheduler.
+
+### 2.1 Persistentní agent
+
+**Stav: core registry/binding DONE / runtime PASS**
+
+- [x] stabilní `AgentId`;
+- [x] `AgentRegistry`;
+- [x] `AgentId ↔ Creature/ObjectGuid` binding;
+- [x] unload → agent zůstává persistentní bez live `Creature`;
+- [x] rematerializace bez ztráty identity/state;
+- [x] `RuntimeGuid` provenance platí pouze pro aktuální materialized incarnation;
+- [x] group/coalition už není `AgentType` a nevytváří fake physical agent.
+
+`SpawnId` je persistentní spawn identity individuálního creature agenta. Od 2.12F4A2 pro persistentní non-instance/base-world Creature agenty platí také `AgentId.Value == SpawnId`; původní generovaná ID byla migrována. `RuntimeGuid` je platný pouze pro aktuální materialized runtime object. `GroupId` je samostatná sociální identity doména a nesmí být odvozována z `AgentId`, `SpawnId` ani `RuntimeGuid`.
+
+### 2.2 Persistence
+
+Aktuálně `characters` DB zahrnuje mimo jiné:
+
+```text
+ai_agents
+ai_long_term_memories
+ai_agent_groups
+ai_agent_group_members
+ai_agent_group_id_sequence
+```
+
+- [x] individual agent identity persistence;
+- [x] long-term memory persistence + restart/load;
+- [x] persistent Home/Work location;
+- [x] persistent economy state + monotonic economy version;
+- [x] oddělená group identity/state persistence;
+- [x] persistent AgentId membership edges;
+- [x] persistent monotonic GroupId high-water sequence;
+- [ ] obecné relationships mimo group membership;
+- [ ] active goals persistence;
+- [ ] historical events/audit persistence.
+
+### 2.3 World Event System
+
+**Stav: první producer + EventBus DONE / runtime PASS**
+
+- [x] `WorldEvent` s typem/časem/lokací/actor/target/payload;
+- [x] interní `EventBus`;
+- [x] TrinityCore producer hook;
+- [x] correlation/cause id;
+- [x] debug logging;
+- [ ] oddělená persistentní historical event vrstva.
+
+### 2.4 Perception System
+
+**Stav: core sight perception DONE / runtime PASS**
+
+- [x] nearby entity perception;
+- [x] range + relevantní LoS checks;
+- [x] witnessed event perception;
+- [x] `Observation` DTO;
+- [ ] skutečná obecná rumor/hearing propagation; directed/Rumor fallback pro quest outcome již existuje v 2.13C6C, ale není obecnou propagací zvěstí.
+
+### 2.5 Memory System
+
+**Stav: core memory pipeline DONE / runtime PASS**
+
+```text
+Observation
+    ↓
+ShortTermMemory (dedupe + TTL)
+    ↓ importance threshold
+LongTermMemory
+    ↓ async persistence
+restart/load
+    ↓
+deterministic relevance retrieval
+    ↓
+Top-N DecisionMemory
+```
+
+- [x] short-term dedupe/TTL/expiry;
+- [x] deterministic importance;
+- [x] persistent long-term memory;
+- [x] restart/load;
+- [x] relevance retrieval + semantic dedupe + deterministic Top-N;
+- [x] wire-safe memory DTO před async inference hranicí.
+
+### 2.6 Needs System
+
+**Stav: 2.6A–2.6C DONE / runtime PASS**
+
+`NeedsState`:
+
+- `HealthPressure`
+- `Hunger`
+- `Fatigue`
+- `SafetyPressure`
+- `ResourcePressure`
+
+- [x] deterministic drift;
+- [x] clamp `0.0–1.0`;
+- [x] live HP/combat coupling;
+- [x] recent-memory-driven safety decay;
+- [x] edge-triggered `HUNGER_CRITICAL`/`DANGER_HIGH` s hysteresis;
+- [x] Needs → deterministic Goal candidates bez LLM.
+
+### 2.7 Goal System
+
+**Stav: core goals + farmer routine vertical slice DONE / runtime PASS**
+
+Runtime implementované goal/routine koncepty:
+
+- `GET_FOOD`
+- `FLEE_DANGER`
+- `GO_TO_WORK`
+- `GO_HOME`
+
+- [x] deterministic candidate generation;
+- [x] utility/priority selection;
+- [x] retention;
+- [x] emergency interruption;
+- [x] success/failure/timeout;
+- [x] dead agent bez candidate/ActiveGoal;
+- [x] routine goal je pod ActiveGoal a emergency goal jej preemptuje.
+
+Poznámka k historii roadmapy: původní 2.11 návrh mluvil o `WORK/REST` goals. Implementovaný vertical slice odděluje routing (`GO_TO_WORK` / `GO_HOME`) od activity/action vrstvy (`WORK` / `REST`). Historie se tím nepřepisuje; aktuální model je přesnější a je runtime ověřený.
+
+### 2.8 Bezpečné Action API
+
+**Stav: deterministic action path DONE / runtime PASS**
+
+Runtime ověřené action primitives / vertical slices:
+
+- `FLEE`
+- `MOVE_TO`
+- `EAT`
+- `WORK`
+- `REST`
+- `ATTACK` — doplněno a runtime ověřeno v 2.12G3D.
+
+```text
+GET_FOOD
+    ↓
+MOVE_TO validate/execute
+    ↓
+TrinityCore movement
+    ↓
+ARRIVED hard validation
+    ↓
+PendingEat provenance
+    ↓
+EAT validate/execute
+    ↓
+CONSUMED
+    ↓
+NeedsSystem::SatisfyHunger
+    ↓
+GET_FOOD SUCCEEDED
+```
+
+Farmer routine používá stejný ownership princip: AIWorld/routine navrhne akci, `ActionSystem` ji validuje a TrinityCore provede movement/emote. Group coordination v 2.12F/2.12G používá stejnou per-member validační cestu pro REGROUP, ROAM a HUNT; group sama fyzickou akci neprovádí.
+
+**Pravidlo:** AI navrhuje. `ActionSystem` validuje. TrinityCore provádí.
+
+Remote `/decision` execution zůstává dry-run, aby deterministic Goal→Action pipeline a remote AI nebyly dva vlastníci stejné akce. Samostatný `/dynamic-task` vertical slice 2.13 již vytváří serverem validované player-facing questy; nejde o převzetí ownership nad NPC akcemi.
+
+### 2.9 AI server — decision protocol
+
+**Stav: 2.9A–2.9E DONE.**
+
+- [x] Protocol V2 + full `AgentContext`;
+- [x] sanitizované Top-N memories;
+- [x] structured `DecisionIntent`;
+- [x] async transport, timeout/fallback;
+- [x] request/agent/snapshot correlation;
+- [x] goal-attempt + RuntimeGuid provenance;
+- [x] world-thread authoritative ActionRequest translation/validation;
+- [x] low-cardinality decision metrics;
+- [x] multi-agent batch-shaped submit API.
+
+Otevřené hardening:
+
+- [ ] zúžit external DecisionContext privacy boundary (`spawn_id`);
+- [ ] nahradit/hardenovat ruční C++ V2 response parser před external/LLM execution;
+- [ ] metrics backend/dashboard runtime evidence;
+- [ ] bezpečný transfer execution ownership na remote decision path.
+
+### 2.10 Scheduler a úrovně simulace
+
+#### Celkový stav
+
+| Milník | Stav |
+|---|---|
+| 2.10A | DONE / PASS |
+| 2.10B | DONE / PASS |
+| 2.10C | DONE / PASS |
+| 2.10D | DONE / static + runtime PASS |
+| **2.10 celkem** | **CLOSED** |
+
+World binding a simulation policy jsou oddělené osy. Aktuální model po group identity refactoru:
+
+```text
+AgentWorldState:
+  MATERIALIZED / ABSTRACT
+
+SimulationTier (individual AgentRecord):
+  NEARBY / ACTIVE / BACKGROUND
+
+AgentGroup:
+  samostatný GroupId-keyed coarse scheduler
+  není SimulationTier::ABSTRACT
+```
+
+Historicky 2.10C/2.10D zavedly i `SimulationTier::ABSTRACT` pro tehdejší aggregate-group model. 2.12D tuto část odstranila, protože group už není physical `AgentRecord`; coarse group scheduling nyní běží přes `GroupCoarseSimulationScheduler`.
+
+#### 2.10A — bounded multi-agent decision scheduler
+
+Implementation: `d074bc26` feat(ai-world): add bounded multi-agent decision scheduler (2.10A)
+
+- [x] odstraněn single-test-agent decision bottleneck;
+- [x] `DecisionScheduler` je pure-value selection;
+- [x] per-agent scheduling state;
+- [x] hard global `AIWorld.DecisionMaxInFlight`;
+- [x] capacity-skipped agent zůstává due, žádná persistentní request queue;
+- [x] více agentů může mít `/decision` současně in-flight;
+- [x] response drain uvolňuje per-agent duplicate guard;
+- [x] stale/provenance/action ownership pravidla 2.9 beze změny.
+
+Runtime ověřeno se třemi guardy a bounded in-flight admission.
+
+#### 2.10B — proximity-aware decision cadence + fairness
+
+Implementation: `ed0f3408` feat(ai-world): add proximity-aware decision cadence (2.10B)
+
+Hardening: `b6271eac` fix(ai-world): recompute cadence deadlines from live class (2.10B P2)
+
+Defaults:
+
+```ini
+AIWorld.DecisionSchedulerIntervalMs = 250
+AIWorld.DecisionNearbyIntervalMs = 1000
+AIWorld.DecisionActiveIntervalMs = 5000
+AIWorld.DecisionNearbyPlayerRange = 60.0
+```
+
+- [x] scheduler poll je rychlejší než per-agent cadence;
+- [x] `NEARBY` ~1 s;
+- [x] `ACTIVE` ~5 s;
+- [x] current class recomputuje effective due time, žádný stale absolute deadline;
+- [x] effective-due-first ordering zabrání permanentní starvation ACTIVE agentů;
+- [x] bounded admission z 2.10A zachována;
+- [x] žádné live pointery v scheduler state.
+
+Runtime fairness ověřena i s `DecisionMaxInFlight=1`.
+
+#### 2.10C — explicit simulation policy
+
+Implementation: `5639c9ec` feat(ai-world): add explicit simulation tier transitions (2.10C)
+
+Current individual derivation:
+
+```text
+live Creature + player near → NEARBY
+live Creature + no player   → ACTIVE
+no live Creature            → BACKGROUND
+```
+
+- [x] `AgentWorldState` nebyl nahrazen ani conflated se `SimulationTier`;
+- [x] `NEARBY/ACTIVE` jsou decision-eligible;
+- [x] `BACKGROUND` neposílá `/decision`;
+- [x] žádný force-load;
+- [x] transition logging pouze při změně;
+- [x] AgentId/Needs/memory/goals se transitionem nemění;
+- [x] RuntimeGuid semantics beze změny.
+
+#### 2.10D — bounded/staggered coarse scheduling seam
+
+Implementation: `55304729` feat(ai-world): add coarse simulation tier scheduling (2.10D)
+
+Hardening: `3c2122a9` fix(ai-world): bound and desync coarse simulation ticks (2.10D P2)
+
+Runtime hardening: `2cda5756` fix(ai-world): stagger coarse simulation tick phase (2.10D P2 runtime)
+
+Default individual background cadence:
+
+```ini
+AIWorld.BackgroundSimulationIntervalMs = 60000
+AIWorld.CoarseSimulationMaxPerPass = 50
+```
+
+- [x] bounded per-pass admission;
+- [x] deterministic ordering podle authoritative `NextTickAtMs`, tie-break AgentId;
+- [x] capacity-skipped agent zůstává due;
+- [x] žádný catch-up loop;
+- [x] coarse epoch reset při vstupu/re-entry do Background;
+- [x] deterministic one-time phase offset přes stable AgentId hash;
+- [x] po ticku pokračuje scheduling přes plain `now + interval`;
+- [x] pure-value state (`LastTickAtMs`, `NextTickAtMs`), žádné live pointery;
+- [x] runtime potvrzen deterministic staggering i steady-state cadence.
+
+Historické vstupní Background tick samples (před migrací AgentId v 2.12F4A2):
+
+```text
+agent=3 tier=BACKGROUND dt=14253ms
+agent=2 tier=BACKGROUND dt=21504ms
+agent=1 tier=BACKGROUND dt=46762ms
+```
+
+Tyto rozdílné první fáze dokládají entry staggering; steady-state cadence pak pokračuje přibližně po `60000 ms`. Původně otevřený cadence gate je již uzavřený.
+
+#### Známé neblokující scheduler P3
+
+- fast scheduler poll stále prochází registry a live-probuje materializaci každého agenta; před velkou background populací bude potřeba efektivnější materialization/indexing signal;
+- coarse selection vytváří/sortuje celý due set před bounded prefix admission; pro velkou populaci může později přijít heap/bucket/deadline index.
+
+### 2.11 První experiment — persistentní farmář
+
+**Stav: 2.11A–2.11E2 CLOSED / static + runtime PASS.**
+
+Referenční NPC: **Pa Maclure** (`SpawnID 80683`, `Entry 250`, Elwynn / Maclure Vineyards). Zůstává `AgentType::Civilian`; profession/routine je samostatná doména, ne nový physical agent type.
+
+#### 2.11A — persistent Home / Work
+
+- [x] pure-value `AgentLocation`;
+- [x] nullable persistent HomeLocation / WorkLocation;
+- [x] restart/load;
+- [x] Pa Maclure seed/runtime identity zachována přes stabilní `AgentId`.
+
+#### 2.11B — deterministic routine
+
+- [x] Home/Work + synthetic day → `GO_TO_WORK` / `GO_HOME`;
+- [x] emergency `FLEE_DANGER` routine potlačí;
+- [x] routine runtime state je oddělený od persistent AgentRecord identity;
+- [x] runtime `NONE → GO_HOME → GO_TO_WORK → GO_HOME`.
+
+#### 2.11C — routine movement přes Action layer
+
+- [x] routine MOVE_TO jen bez aktivního vyššího goal/action ownership;
+- [x] target change zastaví starý movement;
+- [x] arrival range validation;
+- [x] žádné opakované MOVE_TO po dosažení targetu;
+- [x] TrinityCore movement zůstává executor.
+
+#### 2.11D — WORK / REST activity state
+
+- [x] transient `RoutineActivity` WORK/REST;
+- [x] pouze materialized + alive + at target + bez aktivního goal/action + ne engine-moving;
+- [x] `GET_FOOD` / `FLEE_DANGER`, unload a death activity správně preempt/clear.
+
+#### 2.11E1 — WORK / REST ActionType
+
+- [x] `ActionType::Work` / `ActionType::Rest`;
+- [x] provenance + completion flow;
+- [x] one-shot emote pouze přes ActionExecutor;
+- [x] runtime WORK/REST PASS.
+
+#### 2.11E2 — economy persistence
+
+- [x] work-window replay suppression;
+- [x] persistent Money/Food/Resource state;
+- [x] Money `uint64`;
+- [x] monotonic economy version;
+- [x] mutation/version bump centralizovaný v persistence API;
+- [x] static PASS/CLOSED.
+
+Neblokující caveat: fire-and-forget state snapshot persistence není absolutní crash-durability transakce; pro současný economy vertical slice je to přijaté.
+
+### 2.12 — AgentGroup / coalition
+
+#### Architektonický model
 
 ```text
 AgentGroup
@@ -104,35 +582,87 @@ TrinityCore
 
 Wolf/WolfLoose je první runtime fixture/profile. Není to produktová architektura. Přidání druhého typu nesmí vést k `RunBandit...()`, `RunGuard...()`, `WolfPackIntentSystem`, `BanditMovementCoordinator` ani jiné species-specific orchestration větvi.
 
-## 2.12A–2.12D — identity a social-domain pivot
+Každý člen má vlastní `AgentId`/spawn binding, memory, needs, goals, decisions/actions a materialized/unloaded lifecycle. `AgentGroup` vlastní pouze `GroupId`, `AgentGroupKind { Loose, Stable }`, persistent membership edges `GroupId ↔ AgentId`, territory/shared environmental resources a coordination state. Population je odvozena z membership count; není samostatnou mutable aggregate population.
+
+#### 2.12A–2.12C — původní group experiment a pivot
 
 **Stav: CLOSED.**
 
-Hotovo:
+- [x] první persistent group state a coarse simulation seam;
+- [x] real wolf membership/presence runtime evidence;
+- [x] potvrzeno, že přirozené materialization členů nepoužívá force-load;
+- [x] architecture review odmítl pseudo-group jako fake `AgentRecord`/SpawnId identity;
+- [x] group-level Hunger odstraněn, protože needs patří jednotlivým členům.
 
-- group není fake `AgentRecord` a nemá fake SpawnId;
-- každý člen zůstává samostatný persistentní Agent;
-- vlastní `GroupId`, `AgentGroupRecord`, registry a persistence;
-- persistent membership edges `GroupId ↔ AgentId`;
-- monotónní persistentní GroupId high-water sequence;
-- bounded GroupId-keyed coarse group simulation;
-- group presence je odvozena z member materialization, bez force-load;
-- group-level Hunger/population pseudo-agent model byl odstraněn.
+#### 2.12D — oddělená AgentGroup identity
 
-## 2.12E1 — runtime lifecycle
+**Stav: CLOSED.**
 
-**Stav: CLOSED / STATIC + RUNTIME PASS.**
+- [x] samostatný `GroupId`;
+- [x] `AgentGroupRecord` / `AgentGroupRegistry` / `AgentGroupPersistence`;
+- [x] `ai_agent_groups` oddělená od `ai_agents`;
+- [x] `AgentType::AgentGroup` odstraněn;
+- [x] `SimulationTier::Abstract` odstraněn z individual simulation policy;
+- [x] group coarse tick má `GroupCoarseSimulationScheduler` s `AIWorld.GroupSimulationMaxPerPass`;
+- [x] membership loader vyžaduje existující `AgentId`;
+- [x] `AgentGroupKind` load je fail-closed (`Loose`/`Stable` pouze);
+- [x] group simulation běží nezávisle na tom, zda jsou členové materialized;
+- [x] saturated `Resources` no-op už nezvyšuje Version ani nevydává DB write.
+
+Historický natural presence runtime gate byl ověřen se třemi individuálními agenty (`AgentId 1,2,3` před migrací F4A2):
 
 ```text
-CreateGroup
-JoinGroup
-LeaveGroup
-DissolveGroup
+loadedMembers=0
+→ každý wolf se přirozeně materializuje jako vlastní Creature
+→ loadedMembers=3
+→ group coarse simulation pokračuje
 ```
 
-Lifecycle pracuje nad existujícími individual Agents a nikdy nevytváří physical group entity. Persistence confirmation předchází authoritative registry mutation a GroupId se po dissolve nerecykluje.
+Group se nikdy neváže 1:1 na žádný `Creature`.
 
-## 2.12E2 — async-safe lifecycle boundary
+#### 2.12E1 — runtime group lifecycle
+
+**Stav: CLOSED / STATIC PASS + RUNTIME PASS.**
+
+Implementované API:
+
+```text
+CreateGroup(...)
+JoinGroup(GroupId, AgentId)
+LeaveGroup(GroupId, AgentId)
+DissolveGroup(GroupId)
+```
+
+- [x] `AgentGroupLifecycleSystem` je jediný owner create/join/leave/dissolve orchestrace;
+- [x] join vyžaduje existující group i existující individual `AgentRecord`;
+- [x] duplicate membership je odmítnut;
+- [x] lifecycle nemutuje individual AgentRecord/Creature world state;
+- [x] žádné fake SpawnId / pseudo physical agents;
+- [x] membership add/remove DB write je potvrzen read-backem před runtime mutation;
+- [x] dissolve maže memberships + group jako jednu DB transakci a runtime registry mění až po potvrzení;
+- [x] `GroupId` používá persistentní monotónní `ai_agent_group_id_sequence`;
+- [x] sequence load je fail-closed;
+- [x] sequence musí být nonzero a `next_group_id > MAX(ai_agent_groups.group_id)` nad fyzickou DB tabulkou;
+- [x] sequence reservation je potvrzená read-backem před group INSERT;
+- [x] runtime smoke používá pouze existující AgentIds, nevyrábí ghost agenty;
+- [x] restart/non-reuse runtime gate PASS.
+
+Historická runtime evidence před migrací individuálních AgentId v 2.12F4A2:
+
+```text
+sequence = 2
+Create GroupId 2 → Join 1,2,3 → Leave 3 → Dissolve 2 → PASS
+DB: GroupId 2/memberships gone, sequence = 3
+restart
+load sequence = 3
+Create GroupId 3 → Join 1,2,3 → Leave 3 → Dissolve 3 → PASS
+```
+
+Tím je potvrzeno, že dissolved `GroupId` se po restartu nerecykluje a individual AgentIds zůstávají nedotčené.
+
+Persistence confirmation předchází authoritative registry mutation. Původní synchronní DB boundary 2.12E1 byla následně nahrazena async cestou v 2.12E2 níže.
+
+#### 2.12E2 — async-safe lifecycle boundary
 
 **Stav: CLOSED.**
 
@@ -145,7 +675,9 @@ Hotovo:
 - registry se mění až po confirmed persistence result;
 - žádné TC live pointery přes async boundary.
 
-## 2.12E3 — Loose / Stable policy
+Implementační detail: `TransactionCallback`/`TransactionCallbackProcessor` zpracovává completion při `Update()`; `_pendingGroupOperations` serializuje operace stejné group a zavírá orphan-membership race mezi Join a Dissolve. `AgentGroupLifecycleSystem` zůstává jediným ownerem této orchestrace.
+
+#### 2.12E3 — Loose / Stable policy
 
 **Stav: CLOSED.**
 
@@ -157,7 +689,9 @@ Hotovo:
 - Stable je chráněná proti automatickému leave/dissolve;
 - automatic caller neobchází policy gate.
 
-## 2.12E4 — generic formation + maintenance
+`CanJoin`/`CanLeave`/`ShouldDissolve` používají kind a member bounds (`LooseGroupMinMembers`/`LooseGroupMaxMembers`). Ochrana Stable proti automatické změně neblokuje explicitní Manual lifecycle operaci.
+
+#### 2.12E4 — generic formation + maintenance
 
 **Stav: CLOSED / STATIC + RUNTIME PASS.**
 
@@ -176,7 +710,9 @@ Hotovo:
 - restart neobnoví confirmed-dissolved group;
 - automatic formation regression vytvořila nový real AgentGroup nad skutečnými Agents.
 
-## 2.12F1 — generic AgentGroup intent layer
+Implementační členění: `CoalitionFormationSystem` v 2.12E4A/B, pure `CoalitionMaintenanceSystem` v 2.12E4C1, bounded orchestrace 2.12E4C2 a generalizace 2.12E4R. `CoalitionFormationProfileId` selektuje policy data; `AgentGroupRecord::ProfileId` nese persistentní provenance. `AIWorldMgr::RunCoalitionMaintenance()` používá `AgentGroupRegistry::GetGroupsAfterUntil()`, jeden globální cursor/high-water scan s per-group profile resolution. `AIWorld.TestDissolveGroupId` je startup-only hook pro fresh-formation regression. STATIC review uzavřelo cross-profile reservation race, profile provenance, confirmed profile adoption a cursor/high-water starvation.
+
+#### 2.12F1 — generic AgentGroup intent layer
 
 **Stav: CLOSED / STATIC + smoke PASS.**
 
@@ -197,7 +733,9 @@ Runtime/pure smoke pokryl:
 - different map → NONE;
 - disabled/invalid/mismatched profile → NONE.
 
-## 2.12F2 — group intent → individual ActionSystem dispatch
+Kontrakt tvoří `AgentGroupIntentType`, `AgentGroupIntent`, `AgentGroupCoordinationProfile` a `AgentGroupIntentSystem`; Kind/ProfileId/profile validation je fail-closed stejně jako u maintenance.
+
+#### 2.12F2 — group intent → individual ActionSystem dispatch
 
 **Stav: CLOSED / STATIC + RUNTIME PASS.**
 
@@ -247,18 +785,27 @@ Runtime bylo potvrzeno:
 - agent dorazil k group territory;
 - po arrival nevznikal duplicate REGROUP spam.
 
-## 2.12F3 — lifecycle / preemption integration proof
+Implementační a review detaily:
+
+- `AgentGroupIntentProjector` je pure per-member decomposition, bez TC pointerů a bez opakované derivace validací intent systému.
+- `RunCoalitionCoordination()` má vlastní bounded discovery cursor, oddělený od maintenance; `DispatchGroupMemberActionProposal()` provádí dispatch-time revalidaci.
+- `AgentGroupRegistry::GetGroupsOfMember()` poskytuje reverse membership index; overlap arbitration nepotřebuje per-proposal O(all groups) scan.
+- Confirmed Leave/Dissolve zastavuje coordination přes `StopGroupCoordinationForMember`/`StopInFlightGroupCoordination`; confirmed Join řeší novou ambiguity přes `ReconcileGroupCoordinationForMember`.
+- Formation/Leave radii zůstávají nezávislé na ActionSystem execution limitu; unreachable member se řeší až při dispatch-time reachability kontrole.
+- Šest STATIC review kol uzavřelo lifecycle/pending-operation race, batch-scoped arbitration, policy/execution coupling regresi, recurring scan, confirmed-Join ambiguity a diagnostiku. Group vrstva nevolá přímo `MovePoint()` ani species-specific `RunWolfRegroup()`.
+
+#### 2.12F3 — lifecycle / preemption integration proof
 
 **Stav: CLOSED.**
 
-### Static/build gate
+##### Static/build gate
 
 - finální hardened hook commit: `57c656d1f9c963c22b9b15a73b6da52b5c8f9bed`;
 - poslední static review: **P1=0, P2=0, P3=0**;
 - build/runtime použitý pro finální proof: **PASS**;
 - hook je defaultně vypnutý a není produkční behavior path.
 
-### Emergency preemption proof
+##### Emergency preemption proof
 
 Skutečný běh potvrdil:
 
@@ -280,7 +827,7 @@ individual FLEE request owns action
 
 Tím je runtime potvrzeno, že group coordination nikdy nepřebíjí individual Emergency ownership.
 
-### Dissolve-during-active-REGROUP proof
+##### Dissolve-during-active-REGROUP proof
 
 `AIWorld.TestDissolveOnActiveRegroupGroupId` je one-shot proof hook. Hardened verze:
 
@@ -297,6 +844,8 @@ Tím je runtime potvrzeno, že group coordination nikdy nepřebíjí individual 
   - transientně resolved live Creature;
   - skutečně běžící AIWorld-owned MoveTo generator;
 - hook pouze zavolá authoritative `RequestDissolveGroupWithPolicy(..., Manual)`; sám nezastavuje movement, nemutuje registry a nedělá raw SQL.
+
+Startup-only `AIWorld.TestDissolveGroupId` tento active-REGROUP race neprokazuje, protože běží před prvním coordination passem. Active hook loguje `CONFIRMED` až po committed dissolve a má self-disable latch také pro group zaniklou produkční lifecycle cestou po startupu; nezůstává pollovat mrtvý target.
 
 Finální runtime proof na nové group potvrdil sled:
 
@@ -320,7 +869,7 @@ dissolve CONFIRMED
 
 To dokazuje, že pohyb zastavila existující produkční lifecycle cesta, nikoli test hook.
 
-### Restart / no-resurrection proof
+##### Restart / no-resurrection proof
 
 Po confirmed dissolve, vypnutí hooku a restartu:
 
@@ -329,7 +878,7 @@ Po confirmed dissolve, vypnutí hooku a restartu:
 - žádné FAILED/ERROR související s tímto lifecycle proof;
 - žádná duplicate group/action resurrection.
 
-### F3 closure
+##### F3 closure
 
 ```text
 2.12F3 STATIC                    PASS
@@ -355,11 +904,13 @@ AIWorld.TestGroupIntentProjector = 0
 
 ---
 
-# NEXT — 2.12F4 Global Agent Population
+#### 2.12F4 — Global Agent Population
 
-**Priorita: foundation gate před 2.12G1.** Vloženo před druhý coalition profil, protože 2.12G1 vyžaduje reálné, ne synteticky vyrobené spawny druhého profilu, a ty by dnes narazily na přesně ty problémy, které 2.12F4 řeší.
+**Stav: 2.12F4A–F4B3 CLOSED pro Elwynn; 2.12F4C/F4D DEFERRED před rozšířením mimo jednu lokaci.**
 
-## Proč je to samostatný gate, ne jednoduchý INSERT
+Tento foundation gate předcházel 2.12G1: druhý coalition profil potřeboval reálné, reconciled spawny a explicitní control/identity boundary. Následující návrhové zdůvodnění popisuje problémy původní implementace před F4A/F4A2; aktuální výsledek a runtime evidence jsou u jednotlivých podmilníků.
+
+##### Proč je to samostatný gate, ne jednoduchý INSERT
 
 Dnes je „AI agent" prakticky každý řádek v `characters.ai_agents`; `LoadAgents()` při startu všechny načte a `CreateCreatureAgent()` vytváří vazbu `(map_id, spawn_id) → AgentId`. Současně ale `OwnsSpawn()` rozhoduje, jestli `Creature` dostane `AIWorldCreatureAI` místo normálního TrinityCore AI, a `AIWorldCreatureAI` při převzetí nastaví `REACT_PASSIVE` a `MoveIdle()`. Prostá registrace všech spawnů by tedy dnes převzala i guardy, vendory, quest NPC, bossy a scripted NPC a rozbila jejich vanilla/script chování.
 
@@ -367,7 +918,7 @@ Současná runtime vrstva navíc ještě není připravená na desetitisíce age
 
 **Varianta „INSERT všechny spawny do `ai_agents` a hotovo" je zamítnutá** — v současném kódu by byla funkčně (přebití vanilla/scripted AI) i výkonnostně (recurring O(all agents) scany) nebezpečná.
 
-## Cílový model
+##### Cílový model
 
 ```text
 REAL TRINITYCORE CREATURE SPAWN (non-instance / base-world)
@@ -404,7 +955,7 @@ AND MapEntry::Instanceable() == false
 
 `FindBaseNonInstanceMap()` zůstává tím, čím je dnes — runtime resolver pro live/materializovaný svět (perception, event enrichment, dispatch) — jen se nesmí použít jako scope filtr při `2.12F4B` census/reconciliation.
 
-## 2.12F4A — ControlMode foundation
+##### 2.12F4A — ControlMode foundation
 
 **Stav: CLOSED / STATIC PASS (`967282a543`, `543a235fc8`, `416016164b`).** Build/runtime nebyly pro F4A samostatně verifikovány odděleně od navazujících F4A2–F4B3 komitů, ale ControlMode gate je od té doby beze změny součástí každého dalšího runtime-ověřeného kroku (viz F4B3 níže).
 
@@ -464,7 +1015,7 @@ Kroky:
 
 Runtime gate: `ObserveOnly` agent nikdy neprojde decision schedulerem, nikdy nedostane routine/group action proposal a `ActionSystem::Validate()` odmítne jakýkoli `ActionRequest` pro `ObserveOnly` agenta i v případě, že by performance-gate výše selhal — `ActionExecutor` se pro `ObserveOnly` nikdy nezavolá, protože `Validate()` mu to nedovolí, ne protože to sám kontroluje.
 
-## 2.12F4A2 — TrinityCore-aligned Agent identity (`AgentId == SpawnId`)
+##### 2.12F4A2 — TrinityCore-aligned Agent identity (`AgentId == SpawnId`)
 
 **Stav: CLOSED / STATIC PASS (`3c910a4e2a`, `f6211fbeab`).** Invariant `AgentId == SpawnId` je od tohoto bodu vynucený fail-closed v `CreateCreatureAgent()`/`LoadAgents()`/reconciliation a runtime-ověřený navazujícími F4B/F4B2/F4B3 běhy nad reálnou populací (128849 full-world, 3540 Elwynn) beze zjištěného mismatch.
 
@@ -505,7 +1056,7 @@ Kroky:
 
 Runtime gate: pro každý persistentní non-instance Creature platí `AgentId.Value == TrinityCore Creature SpawnId`; `agent=<id>` v logu je přímo `SELECT * FROM creature WHERE guid = <id>` bez zpětné lookup přes `ai_agents`; existující 4 test agenti fungují po migraci identicky (`ControlMode`, group membership, long-term memory beze ztráty dat); jakýkoli řádek porušující invariant je fail-closed odmítnut/quarantined (nikdy tiše nefunguje dál jako platný agent) a `ai_agents.agent_id` už nikdy nepřidělí hodnotu mimo `spawn_id`-derived namespace.
 
-## 2.12F4B — Global spawn reconciliation
+##### 2.12F4B — Global spawn reconciliation
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS (`ad80db5949`, `149e400927`, `326e7a7b19`) — engine runtime-ověřen jak nad plnou světovou populací (128849, viz Runtime evidence níže), tak scoped nad Elwynn (2.12F4B2/F4B3).**
 
@@ -550,7 +1101,7 @@ Runtime gate: opakovaný restart nad stejným `world.creature` datasetem nikdy n
 
 **Runtime evidence (už naměřeno, ne odhad):** engine byl reálně spuštěn nad celým světem (`AIWorld.EnableSpawnReconciliation = 1`, bez zone scope) a naměřil `census=128849 valid=128849 identity mismatch=0 ObserveOnly=128845 Controlled=4` — identitní invarianty (`AgentId == SpawnId`, no ghosts, no duplicates) tedy drží i při plné světové populaci. Zároveň ale způsobil viditelné runtime zpomalení worldserveru/NPC processing. `2.12F4B2` proto NENÍ "first population proof" — ten už proběhl a byl to global stress experiment, který skončil performance FAIL před `2.12F4C`. `2.12F4B2` je navazující, bounded locality proof nad Elwynn: zjistit, jestli current dev scope (menší, ale reálná populace) funguje bez `2.12F4C`. I kdyby Elwynn proof prošel čistě, `2.12F4C` zůstává povinný krok před jakýmkoli eventual full-world rolloutem — Elwynn úspěch neznamená přeskočit scale hardening, jen dává informaci o tom, jak naléhavý/velký musí být.
 
-## 2.12F4B2 — Scoped rollout proof (Elwynn, zoneId 12)
+##### 2.12F4B2 — Scoped rollout proof (Elwynn, zoneId 12)
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS (`e5f5043463`, `fb11e29b18`).** Finální F4B2 eligible census = `3540`, přesně odpovídá raw `zoneId = 12` počtu — rozdíl je `0`, žádná dodatečná non-instance/eligibility filtrace ho nezmenšila. `3540` nových `AgentRecord`ů vytvořeno jako `ObserveOnly`, identity invarianty (`AgentId == SpawnId`, no duplicates) drží, restart/idempotence ověřeno (druhý běh: `missing=0 created=0`), mimo-Elwynn populace nedotčena (`OutOfScopeCount` mechanismus).
 
@@ -613,7 +1164,7 @@ Prakticky: uložit baseline `ai_agents` (nebo alespoň jeho identity set) před 
 
 Runtime gate: se `AIWorld.EnableSpawnReconciliation = 1` a `AIWorld.SpawnReconciliationZoneId = 12` vytvoří reconciliation právě množinu `A` (viz acceptance výše) jako nové `AgentRecord`y, žádný mimo-Elwynn spawn se nedotkne, vanilla/scripted AI beze změny, a naměřený per-tick world-thread dopad nad touto menší, ale reálnou populací je vstup pro rozhodnutí o skutečném rozsahu/prioritě `2.12F4C` - `2.12F4C` samo zůstává povinné před jakýmkoli budoucím full-world rolloutem bez ohledu na výsledek Elwynn testu.
 
-## 2.12F4B3 — Scoped Control activation (Elwynn, zoneId 12)
+##### 2.12F4B3 — Scoped Control activation (Elwynn, zoneId 12)
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS (`32e5df3793`, `a4b093afb2`, `c1fc0792b9`).** `2.12F4B2` samo o sobě je bootstrap/identity/scope proof, ne cílový stav — nové agenty vznikají bez `ControlMode`, tedy schema default `ObserveOnly`. Cílový stav pro jednu lokaci je celá scoped populace `AIWorldControlled`, dosažená bezpečnou/opakovatelnou aktivační cestou v AIWorld kódu, ne jednorázovým ručním `UPDATE ai_agents SET control_mode=1`.
 
@@ -658,7 +1209,7 @@ no ownership outside Elwynn
 
 Runtime gate: `3540 / 3540 AIWorldControlled` pro Elwynn, scope správný (žádný mimo-Elwynn agent), identita správná (`AgentId == SpawnId`), restart/idempotence `PASS`, runtime přijatelný — toto je výrazně náročnější performance test než samotné `2.12F4B2` (tam šlo primárně o velikost registry/persistence u `ObserveOnly` populace; zde se poprvé zatíží decision/needs/perception/action cesty pro celou lokaci).
 
-## 2.12F4C — bounded/indexed runtime at world scale
+##### 2.12F4C — bounded/indexed runtime at world scale
 
 **Stav: NOT STARTED. Priorita přehodnocena (STATIC review nad `c1fc0792b9`): `2.12F4C` je world-scale hardening (O(1) index, odstranění recurring full-registry scanů) motivovaný eventual populací kolem `128849` agentů, ne blocker pro jednu lokaci. `2.12F4B3`'s runtime gate (`3540 / 3540 AIWorldControlled`, decision/needs/perception/action cesty pod skutečnou zátěží) prakticky ověřil, že pro rozsah jedné lokace (Elwynn, `3540` agentů) `2.12F4C` blocker není. `2.12F4C` proto NENÍ další povinný krok před pokračováním práce nad Elwynn populací (např. `2.12G1` druhý coalition profil) — zůstává povinný teprve před jakýmkoli budoucím rozšířením na další lokace/eventual full-world rollout (`2.12F4D`), kde už `2.12F4B`'s vlastní full-world experiment (`census=128849`, `PERFORMANCE FAIL`) ukázal, že current architecture bez `2.12F4C` neobstojí.**
 
@@ -668,7 +1219,7 @@ Runtime gate: `3540 / 3540 AIWorldControlled` pro Elwynn, scope správný (žád
 
 Runtime gate: recurring world-thread práce musí zůstat bounded a nesmí růst úměrně s celkovou `AgentRegistry` populací - `2.12F4B3` už ověřil Elwynn scoped populaci (`3540`, `PASS`); zbývá ověřit eventual full-world dataset (aktuálně ~`128849` persistentních non-instance agentů v tomto TDB, kde `2.12F4B`'s vlastní experiment už ukázal `PERFORMANCE FAIL` bez tohoto hardeningu) - ne jedno číslo předem odhadnuté.
 
-## 2.12F4D — Global bootstrap/runtime proof
+##### 2.12F4D — Global bootstrap/runtime proof
 
 **Priorita: až po scale gate (2.12F4C).**
 
@@ -681,13 +1232,67 @@ Runtime gate: globální reconciliation proběhla, `ObserveOnly` populace neovli
 
 ---
 
-# AFTER 2.12F4 — 2.12G Genericity proof a další group behavior
+##### Souhrn population a genericity proof
 
-## 2.12G1 — druhý skutečný coalition profile přes stejnou pipeline
+**2.12F4A–F4B3 je CLOSED pro jednu lokaci (Elwynn) — STATIC + BUILD + RUNTIME PASS, `3540 / 3540 AIWorldControlled`.** Cesta, kterou tento gate prošel:
+
+```text
+ControlMode schema + ActionSystem::Validate() as mandatory authoritative gate (2.12F4A)
+    ↓
+existing 4 test mobs → AIWorldControlled, default → ObserveOnly
+    ↓
+AgentId == TrinityCore Creature SpawnId for persistent non-instance agents (2.12F4A2)
+    ↓
+existing 4 test mobs migrated to spawn-aligned AgentId (incl. group/memory FKs)
+    ↓
+ALL non-instance world.creature SPAWNS reconciled ↔ ai_agents (2.12F4B)
+    ↓
+missing spawn → CREATE (ObserveOnly); deleted spawn → fail-closed/quarantine, no ghosts
+    ↓
+existing vanilla/scripted AI unaffected for ObserveOnly
+    ↓
+measured global run: 128849 agents, identity invariants hold, but world-thread performance FAIL
+    ↓
+scoped reconciliation over real Elwynn (zoneId=12) population only - 3540 AgentRecords, ObserveOnly (2.12F4B2)
+    ↓
+scoped Control activation over the same Elwynn population - 3540 / 3540 AIWorldControlled (2.12F4B3)
+    ↓
+decision/needs/perception/action runtime PASS over the real Elwynn location
+```
+
+`2.12F4C`/`2.12F4D` (O(1) spawn index + bounded recurring work, then global bootstrap/selective rollout) zůstávají **DEFERRED** — `2.12F4B3`'s vlastní runtime gate prakticky ověřil, že pro rozsah jedné lokace nejsou blocker; zůstávají povinné teprve před rozšířením na další lokace nebo eventual full-world rollout (kde `2.12F4B`'s vlastní `128849`-agent experiment už ukázal `PERFORMANCE FAIL` bez nich).
+
+Na této foundation byl v `2.12G1` ověřen druhý coalition profil nad skutečnými `AIWorldControlled` spawny:
+
+```text
+REAL SECOND PROFILE (nad 2.12F4 reconciled spawny)
+    ↓
+SAME GENERIC FORMATION
+    ↓
+SAME GENERIC MAINTENANCE
+    ↓
+SAME GENERIC GROUP INTENT
+    ↓
+SAME PROJECTOR
+    ↓
+INDIVIDUAL ACTION
+    ↓
+ACTION SYSTEM
+    ↓
+TRINITYCORE
+```
+
+Tento genericity proof je CLOSED v 2.12G1. Následující ROAM a HUNT/combat v 2.12G2/G3 jsou také uzavřené; jejich konkrétní runtime evidence je uvedena níže.
+
+---
+
+#### 2.12G — Genericity proof a další group behavior
+
+##### 2.12G1 — druhý skutečný coalition profile přes stejnou pipeline
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS.**
 
-**Priorita: NEXT po 2.12F4.**
+**Návaznost: provedeno po 2.12F4A–F4B3 nad reálnou Elwynn populací.**
 
 Než přidáme složitější chování, musí být prakticky dokázáno, že současná architektura není WolfPack systém převlečený za generic API.
 
@@ -752,7 +1357,7 @@ WolfLoose + second profile
 2.12G1 = CLOSED
 ```
 
-## 2.12G2 — generic ROAM / territory movement intent
+##### 2.12G2 — generic ROAM / territory movement intent
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS.**
 
@@ -796,13 +1401,13 @@ Runtime gate:
 2.12G2 = CLOSED
 ```
 
-## 2.12G2R — ROAM lifecycle runtime closure
+##### 2.12G2R — ROAM lifecycle runtime closure
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME PASS.**
 
 Tři defaultně vypnuté one-shot hooky ověřily lifecycle a ownership během skutečně aktivního ROAM:
 
-### Higher-priority individual preemption
+###### Higher-priority individual preemption
 
 - agent `80237`, group `36`;
 - hook počkal na skutečně aktivní ROAM;
@@ -811,7 +1416,7 @@ Tři defaultně vypnuté one-shot hooky ověřily lifecycle a ownership během s
 - zaznamenaný preemptor byl skutečný individual `GET_FOOD`;
 - coordination state i engine movement generator byly úplně vyčištěny.
 
-### Manual leave during active ROAM
+###### Manual leave during active ROAM
 
 - agent `80209`, group `32`;
 - hook počkal na skutečně aktivní ROAM;
@@ -821,7 +1426,7 @@ Tři defaultně vypnuté one-shot hooky ověřily lifecycle a ownership během s
 - persistence potvrdila odstranění membership;
 - group `32` zůstala konzistentní se členy `80210, 80224, 80226`.
 
-### Manual dissolve during active ROAM
+###### Manual dissolve during active ROAM
 
 - group `36`, členové `80237, 80256, 80257`;
 - hook počkal, až všichni tři členové měli skutečně aktivní ROAM;
@@ -830,7 +1435,7 @@ Tři defaultně vypnuté one-shot hooky ověřily lifecycle a ownership během s
 - coordination state i engine movement generátory byly vyčištěny;
 - persistence potvrdila úplné odstranění group `36` i jejích membership edges.
 
-### Safety a databázová postcondition
+###### Safety a databázová postcondition
 
 - žádný fatal, assert, segmentation fault, DB failure ani unknown config;
 - group `36` po dissolve neexistuje;
@@ -857,7 +1462,7 @@ AIWorld.TestLeaveOnActiveRoamAgentId = 0
 AIWorld.TestDissolveOnActiveRoamGroupId = 0
 ```
 
-## 2.12G3 — generic HUNT / coordinated combat preparation
+##### 2.12G3 — generic HUNT / coordinated combat preparation
 
 **Stav: CLOSED — G3A, G3B, G3C1 a G3C2 CLOSED. G3D (real group combat) je live-confirmed PASS: skuteční group members dokončili HUNT approach → ATTACK → melee damage (`DoMeleeAttackIfReady()`) → prchající target skutečně pronásledovaný (`MoveChase()`) → `TARGET_DEFEATED` pro oba členy skupiny, phantom-FLEE_DANGER se u HUNT membera neaktivoval, žádný `NO_FLEE_SOURCE`/`COORDINATION_PREEMPTED_BY_GOAL`/fatal/pád. `G3 lifecycle closure` (Approaching/AtTarget/Engaging bezpečně obsloužené přes PREEMPTED_BY_GOAL, STOPPED_BY_LIFECYCLE, STOPPED_BY_MEMBERSHIP_AMBIGUITY, STOPPED_BY_TARGET_INVALID, PREEMPTED_BY_REGROUP a TARGET_DEFEATED) je STATIC repaired a cumulatively BUILD-verified všemi navazujícími plnými 2.13 buildy, viz `2.12G3 lifecycle closure` níže pro přesný rozsah tohoto tvrzení.**
 
@@ -903,11 +1508,11 @@ Runtime gate má nejdřív dokazovat correctness a ownership, ne „chytré sme�
   - **G3D1** — neinvazivní live approach proof: skutečná `CreatureSeen` memory → produkční `HuntIntent`/`HuntProposal` → live revalidace → `ActionSystem` `ALLOWED` → skutečný HUNT `MoveTo` generator → přesně potvrzená ownership identity, přes read-only `AIWorld.TestObserveActiveHuntAgentId` hook — **POSITIVE LIVE APPROACH PROOF: PASS, viz `2.12G3D1` níže**;
   - **fix(ai-world): retain HUNT ownership after approach arrival** — post-ARRIVED redispatch smyčka odhalená G3D1 opravena, `HuntPhase::AtTarget` retention zavedena — **CLOSED**;
   - **G3D — produkční skupinový HUNT combat** (`ActionType::Attack`, `ValidateAttack()`, `ExecuteAttack()`/`StopAttack()`, `HuntPhase::Engaging`, `AIWorldCreatureAI::UpdateAI()` volá `DoMeleeAttackIfReady()`) — po několika STATIC review kolech (damage execution, targeted combat/threat reference cleanup, live range/LOS gate na první ATTACK, phantom-FLEE_DANGER root cause i atomic-transition fix, stale chase generator po smrti cíle) — **live-confirmed PASS: oba group members ATTACK STARTED → skutečné melee poškození → prchající target skutečně pronásledovaný → `TARGET_DEFEATED` pro oba (`durationMs=9999`), žádný `NO_FLEE_SOURCE`, žádná fantomová preempce**;
-  - **G3 lifecycle closure** — bezpečné chování pro Approaching/AtTarget/Engaging napříč všemi šesti ukončujícími událostmi (`PREEMPTED_BY_GOAL` teď zahrnuje i `HuntPhase::AtTarget`, dříve mezera protože blok vyžadoval `ActiveActionState`; `STOPPED_BY_LIFECYCLE`, `STOPPED_BY_MEMBERSHIP_AMBIGUITY`, `STOPPED_BY_TARGET_INVALID` a `PREEMPTED_BY_REGROUP` už byly generic přes `StopInFlightGroupCoordination()`/`ReconcileActiveHuntTargetsForGroup()`; `TARGET_DEFEATED` - jen během `Engaging`, jinak `STOPPED_BY_TARGET_INVALID` - přes `HandleActionCompletion()`) — **IN PROGRESS**.
+  - **G3 lifecycle closure** — bezpečné chování pro Approaching/AtTarget/Engaging napříč všemi šesti ukončujícími událostmi (`PREEMPTED_BY_GOAL` teď zahrnuje i `HuntPhase::AtTarget`, dříve mezera protože blok vyžadoval `ActiveActionState`; `STOPPED_BY_LIFECYCLE`, `STOPPED_BY_MEMBERSHIP_AMBIGUITY`, `STOPPED_BY_TARGET_INVALID` a `PREEMPTED_BY_REGROUP` už byly generic přes `StopInFlightGroupCoordination()`/`ReconcileActiveHuntTargetsForGroup()`; `TARGET_DEFEATED` - jen během `Engaging`, jinak `STOPPED_BY_TARGET_INVALID` - přes `HandleActionCompletion()`) — **CLOSED / STATIC repaired + cumulatively BUILD-verified; rozsah evidence viz 2.12G3 lifecycle closure níže**.
 
 Původní G3D2/G3D3/G3D4 dělení (`GET_FOOD` preemption zvlášť/`StoppedByTargetInvalid` zvlášť/`PreemptedByRegroup` zvlášť) bylo nahrazeno jedním `G3 lifecycle closure` commitem, protože produkční combat implementace mezitím tyto lifecycle cesty už sdílela s `StopInFlightGroupCoordination()` - žádný z nich nepotřeboval samostatný milník.
 
-## 2.12G3A — HUNT DTO/provenance contract
+##### 2.12G3A — HUNT DTO/provenance contract
 
 **Stav: CLOSED / STATIC + BUILD PASS.**
 
@@ -921,7 +1526,7 @@ Kontrakt explicitně říká: `G3A`-`G3D` HUNT je omezen na persistent non-insta
 
 Žádný system/projector/orchestrace, žádné ActionSystem, žádný combat, žádná species-specific větev.
 
-## 2.12G3B — pure HUNT intent/projector
+##### 2.12G3B — pure HUNT intent/projector
 
 **Stav: CLOSED / STATIC + BUILD + PURE SMOKE PASS.**
 
@@ -949,9 +1554,9 @@ Po proofu musí zůstat:
 AIWorld.TestHuntIntent = 0
 ```
 
-Další krok je `2.12G3C1`: autoritativní validační kontrakt pro HUNT approach. Combat execution ani `AttackStart` se zatím stále nepřidávají.
+Na tento pure intent/projector krok navázal uzavřený `2.12G3C1` validační kontrakt pro HUNT approach. Samotný G3B combat execution ani `AttackStart` nepřidával; reálný combat je doložen v 2.12G3D.
 
-## 2.12G3C1 — HUNT approach validation contract
+##### 2.12G3C1 — HUNT approach validation contract
 
 **Stav: CLOSED / STATIC + BUILD + RUNTIME GATE PASS.**
 
@@ -996,7 +1601,7 @@ AIWorld.TestHuntActionValidation = 0
 
 Další krok je `2.12G3C2`: produkční sběr live target facts (ze `_shortTermMemory`), dispatch HUNT `MOVE_TO`, ownership/preemption a lifecycle zastavení při zneplatnění cíle. Stále bez `ActionType::Attack`, `AttackStart`, `CombatStart`, threat mutation, spell cast, damage nebo species-specific `RunWolfHunt()`/`RunDefiasHunt()`.
 
-## 2.12G3C2 — production HUNT observation, dispatch, ownership, preemption
+##### 2.12G3C2 — production HUNT observation, dispatch, ownership, preemption
 
 **Stav: CLOSED / STATIC + BUILD + START PASS.**
 
@@ -1037,7 +1642,7 @@ AIWorld.DefiasGroupHuntTargetCreatureEntry = 0
 
 Další krok byl `2.12G3D1`: neinvazivní live approach proof - target-aware ownership identity nad skutečně běžícím HUNT `MoveTo`, přes read-only `AIWorld.TestObserveActiveHuntAgentId` hook. Bez útoku ani `AttackStart()` - to přišlo až v `2.12G3D`'s vlastní produkční combat implementaci níže.
 
-## 2.12G3D1 — live approach runtime proof
+##### 2.12G3D1 — live approach runtime proof
 
 **Stav: POSITIVE LIVE APPROACH PROOF: PASS.**
 
@@ -1073,7 +1678,7 @@ AIWorld.DefiasGroupHuntTargetCreatureEntry = 0
 
 Další krok byl `fix(ai-world): retain HUNT ownership after approach arrival` (opravil opakovaný nulový dispatch po ARRIVED), teprve potom skutečná produkční combat implementace níže - ne přesně podle původního `G3D2`/`G3D3`/`G3D4` dělení, které ještě počítalo s tím, že žádný G3D krok nepřidá útok.
 
-## 2.12G3D — produkční skupinový HUNT combat
+##### 2.12G3D — produkční skupinový HUNT combat
 
 **Stav: live-confirmed PASS.**
 
@@ -1087,7 +1692,7 @@ Reálný skupinový boj (produkční log, ne syntetický): oba group members pok
 
 Poslední otevřený kus je `G3 lifecycle closure` níže.
 
-## 2.12G3 lifecycle closure
+##### 2.12G3 lifecycle closure
 
 **Stav: CLOSED — STATIC review PASS (P1=0/P2=0/P3=2, oba P3 opravené níže), cumulatively BUILD-verified: tento lifecycle repair commit (`b5bda315...`) předchází všechny 2.13 commity a každý pozdější plný 2.13 build (A1 přes C5) tedy kompiloval i tento kód beze změny. Není to samostatné, izolované re-verifikování všech šesti terminačních variant zvlášť — pokud je potřeba přísnější milestone-specific evidence, je nutné je znovu runtime přehrát samostatně.**
 
@@ -1109,7 +1714,7 @@ STATIC review (P3 x2, oba opravené): logika byla extrahována do vlastní `AIWo
 
 Žádné nové attack typy, spelly, threat manipulace, role/leadership ani další target-selection logika.
 
-## 2.12G4 — roles / leader pouze pokud je skutečně potřeba
+##### 2.12G4 — roles / leader pouze pokud je skutečně potřeba
 
 **Stav: NOT NEEDED YET.** `2.12G2`'s dosavadní ROAM runtime evidence neprokázala žádnou potřebu leadera/role — shared deterministic target + generic per-member proposal stačí. G4 se nezačíná preventivně jen proto, že G2/G3 existují.
 
@@ -1127,7 +1732,7 @@ Pokud vznikne:
 
 ---
 
-# 2.13 — local LLM dynamic task / player interaction vertical slice
+### 2.13 — local LLM dynamic task / player interaction vertical slice
 
 **Stav: CLOSED — A1/A2/A3A/A3B/B/C1/C2/C3/C4/C5/C6/D všechny CLOSED. Restart/reconnect semantics a negative failure-mode agregace (2.13D) runtime otestovány a potvrzeny.**
 
@@ -1155,7 +1760,7 @@ WorldEvent
 NPC memory/goal/world-state feedback
 ```
 
-### 2.13A — skutečný local-model request
+#### 2.13A — skutečný local-model request
 
 - skutečný lokální model/backend za existujícím `ai-server` boundary;
 - async timeout/fallback;
@@ -1164,7 +1769,7 @@ NPC memory/goal/world-state feedback
 - sanitizovaný minimální kontext;
 - žádný live pointer nebo arbitrary world serialization.
 
-#### 2.13A1 — dynamic-task protocol / DTO contract
+##### 2.13A1 — dynamic-task protocol / DTO contract
 
 **Stav: CLOSED — STATIC + BUILD + UNIT PASS (`4bd35df3c6`, `e168ea1814`).**
 
@@ -1188,9 +1793,9 @@ Pure value-only kontrakt pro budoucí `/dynamic-task` boundary:
 - `QuestContractLimits` bounduje wire contract explicitně: pevné maximum pro `RelevantEvents`/`CandidateTargets`/text délky a request-scoped `QuestProposalLimits` (max count/range/expiry/reward), které `QuestContext` předává modelu; 2.13B tato pole i tak autoritativně znovu validuje;
 - žádný HTTP transport, local model, player-facing quest ani world mutation v A1.
 
-Další krok je `2.13A2`: local-model provider za existujícím `ai-server` boundary a strict schema parsing pro tento kontrakt.
+Na A1 navázal uzavřený `2.13A2`: local-model provider za existujícím `ai-server` boundary a strict schema parsing pro tento kontrakt.
 
-#### 2.13A2 — local-model provider v `ai-server`
+##### 2.13A2 — local-model provider v `ai-server`
 
 **Stav: CLOSED — STATIC + DOCKER UNIT + HEALTH + WORLD REGRESSION PASS (`6cfa20ad9b`, `b9070b72e0`, `7252a24c10`).**
 
@@ -1217,9 +1822,9 @@ Python zrcadlo A1 kontraktu a jeden best-effort call na OpenAI-compatible backen
 
 Co ověřeno a jak: implementace nejdřív ověřena `python -m unittest discover` proti stejným (nepinovaným) balíčkům, jaké instaluje `Dockerfile`, v izolovaném virtualenv mimo Docker (58/58), poté oficiální `docker compose -f compose.yml -f compose.dev.yml run --rm ai-server python -m unittest discover -s tests -p 'test_*.py' -v` gate z `README_DEV.md` — **AI_SERVER_DOCKER_UNIT=PASS (58/58)**. `AI_SERVER_HEALTH=PASS` (`GET /health` vrací `task_model_enabled`/`task_model_configured`, default `false`/`false`, žádné `model_ready`). `WORLD_REGRESSION=PASS` — `/decision` beze změny chování, worldserver C++ nedotčen.
 
-Runtime pro A2 nepotřebuje worldserver `/dynamic-task` call — `AIClient` jej zatím neumí odeslat (`2.13A3`). A2 runtime proof je samotný `ai-server`: fake/mock provider testy PASS, disabled-by-default PASS, `/health` PASS; malformed/timeout/outage PASS; worldserver chování nezměněné.
+Runtime gate samotného A2 nevyžadoval worldserver `/dynamic-task` call — jeho odesílání doplnilo až navazující `2.13A3`. A2 runtime proof je samotný `ai-server`: fake/mock provider testy PASS, disabled-by-default PASS, `/health` PASS; malformed/timeout/outage PASS; worldserver chování nezměněné.
 
-#### 2.13A3A — dynamic task async transport
+##### 2.13A3A — dynamic task async transport
 
 **Stav: CLOSED — STATIC + BUILD + UNIT + STARTUP PASS (`2ebd749a42`, `c8a82b130b`, `b885a523c9`).**
 
@@ -1246,7 +1851,7 @@ Shrnutí implementace (přes tři review kola):
 
 Review prošel třemi statickými kontrolami: P2=2/P3=1 → P2=1/P3=1 → P1=0/P2=0/P3=0 STATIC PASS. První review odhalilo permissive hand-written JSON parsing, `double→float` finite overflow a chybějící permanentní codec testy. Druhé review odhalilo, že validní JSON ještě nebyl validován jako přesný direct-member `DynamicTaskResponse` schema (substring search field lookup byl obejitelný zanořením pod cizí klíč) a že JSON whitespace nebyl RFC-strict (`std::isspace()` přijímal i vertical tab/form feed). Finální follow-up (`b885a523c9`) oba nálezy uzavřel.
 
-#### 2.13A3B — world-thread provenance wiring
+##### 2.13A3B — world-thread provenance wiring
 
 **Stav: CLOSED — kumulativně znovu ověřeno v 2.13B gate na revision `866e8b296c`.**
 
@@ -1254,7 +1859,16 @@ Produkční cesta nyní vede od skutečného `WorldEvent` přes `PerceptionSyste
 
 Implementační/review commity: `a7b1b88e`, `a877dd2d`, `37a609b3`, `f3633005`.
 
-### 2.13B — `QuestProposal` validator
+#### 2.13B — `QuestProposal` validator
+
+Trvalé meze návrhového kontraktu z původní roadmapy:
+
+- LLM odděluje narativ (title/summary/dialogue) od mechanického objective/target/count/range/expiry/reward návrhu; server určuje skutečnou podobu úkolu.
+- Objective musí být v serverovém allowlistu, target existující a známý/povolený pro NPC; amount/range/expiry mají server-side bounds.
+- Reward je server-owned policy; LLM nesmí libovolně mintovat gold/item/spell/reputation.
+- Žádné generované SQL, Lua/C++, arbitrary script, spell cast, spawn/delete ani jiná direct world mutation; hallucinated IDs se odmítají.
+- Source-event/cause a snapshot provenance váže návrh na skutečný problém; stale, retry a replay nesmí vytvořit neplatný nebo duplicitní offer.
+- Aktuální wire contract 2.13A1 používá request-local target tokeny, nikoli model-visible trusted server identity z původního schematického návrhu. Konkrétní validátor a runtime evidence jsou v této sekci.
 
 **Stav: CLOSED — STATIC + BUILD + UNIT + RUNTIME PASS (`2bb6841c`, `d150b6e6`, `3a314917`, `866e8b296c`).**
 
@@ -1281,11 +1895,11 @@ Po testu byly `AIWorld.DynamicTaskEnable`, `AIWorld.TestDynamicTaskAgentId` a do
 
 **2.13B samo o sobě zůstává gameplay-inertní:** validace sama o sobě neprovádí žádnou player/world mutaci — `ValidateDynamicTaskCandidate()` pouze produkuje typed reject reason nebo `QuestProposal`, nikdy sama nezapisuje quest marker, DB řádek, `ActionRequest` ani jinou fyzickou akci. Downstream `2.13C` tento validovaný `QuestProposal` skutečně konzumuje přes své vlastní, nezávislé live re-validation hranice (`DynamicQuestCreation`/`DynamicQuestPlayerAcceptance`/`DynamicQuestPlayerCompletion`) — tvrzení "candidate/proposal je inertní" platí jen pro tuto B hranici samotnou, ne globálně přes celou branch od `2.13C1` dál.
 
-### 2.13C — player-facing dynamic quest lifecycle
+#### 2.13C — player-facing dynamic quest lifecycle
 
 **Stav: CLOSED — C1/C2/C3/C4/C5/C6 (A/B1/B2/B3/C/D) všechny CLOSED (viz níže).**
 
-#### 2.13C1 — pure lifecycle domain
+##### 2.13C1 — pure lifecycle domain
 
 **Stav: CLOSED.**
 
@@ -1295,7 +1909,7 @@ Po testu byly `AIWorld.DynamicTaskEnable`, `AIWorld.TestDynamicTaskAgentId` a do
 - idempotentní konzumace progress eventů (`ConsumedProgressEventIds`), saturující na `RequiredCount`;
 - čistě pure value-object doména — žádný live `Creature*`/`Player*`/`Map*`.
 
-#### 2.13C2 — registry ownership / validated offer handoff
+##### 2.13C2 — registry ownership / validated offer handoff
 
 **Stav: CLOSED.**
 
@@ -1304,7 +1918,7 @@ Po testu byly `AIWorld.DynamicTaskEnable`, `AIWorld.TestDynamicTaskAgentId` a do
 - `Offer()` je jediná cesta, jak nová instance vznikne — vždy fresh re-validace givera/targetu před vznikem;
 - bounded registry (`AIWorld.DynamicQuestMaxLive`) + bounded/cursor-resumable maintenance reclaim expirovaných záznamů.
 
-#### 2.13C3 — player accept boundary
+##### 2.13C3 — player accept boundary
 
 **Stav: CLOSED.**
 
@@ -1314,7 +1928,7 @@ Po testu byly `AIWorld.DynamicTaskEnable`, `AIWorld.TestDynamicTaskAgentId` a do
 - registry-owned `Offered → Active` přechod přes `DynamicQuestRegistry::Accept()`;
 - žádná závislost na standardním TrinityCore quest logu/`QuestTemplate`.
 
-#### 2.13C4 — visible player-facing offer + progress
+##### 2.13C4 — visible player-facing offer + progress
 
 **Stav: CLOSED — STATIC + BUILD + RUNTIME PASS.**
 
@@ -1351,7 +1965,7 @@ Runtime navíc potvrzeno:
 
 Tento milník nevyžaduje standardní quest log ani `QuestTemplate` — to je vědomě mimo scope, viz `2.13C6`/`2.13D` níže pro navazující práci.
 
-#### 2.13C5 — turn-in / completion / money reward
+##### 2.13C5 — turn-in / completion / money reward
 
 **Stav: CLOSED — STATIC + BUILD + UNIT + RUNTIME PASS.**
 
@@ -1377,11 +1991,11 @@ Closure gate potvrzen:
 
 `2.13C5` je tímto CLOSED. Runtime happy path (offer → accept → 1/3 → 2/3 → 3/3 → turn-in → reálný `Player::ModifyMoney()` payout) i replay/double-payout ochrana jsou provlečené a potvrzené proti C5 code baseline `9f429f9f93`.
 
-#### 2.13C6 — quest outcome → WorldEvent / issuer feedback
+##### 2.13C6 — quest outcome → WorldEvent / issuer feedback
 
-**Stav: CLOSED — C6A/C6B1/C6B2/C6B3/C6C/C6D všechny CLOSED. Finální gate (aktuální HEAD `1e5da22e29`): STATIC PASS, BUILD PASS, UNIT PASS 253/253, RUNTIME PASS.**
+**Stav: CLOSED — C6A/C6B1/C6B2/C6B3/C6C/C6D všechny CLOSED. Finální gate na ověřované revizi `1e5da22e29`: STATIC PASS, BUILD PASS, UNIT PASS 253/253, RUNTIME PASS.**
 
-Detailní historická roadmap (`AI_TrinityCore_Roadmap_Etapa_1_2.md`) požaduje, aby completion/failure/expiry vydal typed `WorldEvent` použitelný `Perception`/`Memory`/`Goal` pipeline, a aby výsledek uměl změnit skutečný problém světa nebo stav/goal/memory issuer NPC. `2.13C5` toto zatím nedělá — dokončuje player quest lifecycle + reward, ale výsledek se nevrací zpět do kauzálního AI světa.
+Požadavek 2.13 zahrnuje typed `WorldEvent` po completion/failure/expiry, použitelný `Perception`/`Memory`/`Goal` pipeline, a dopad na skutečný problém světa nebo stav/goal/memory issuer NPC. Samotné `2.13C5` uzavíralo player quest lifecycle + reward; `2.13C6` doplnilo návrat výsledku do AI světa přes issuer memory a viditelnou gossip reakci. Autonomní změna Goal/Action zůstává mimo tento scope.
 
 ```text
 Completed / Failed / Expired
@@ -1397,7 +2011,7 @@ issuer NPC / problem state
 
 Vědomě vyčleněno jako vlastní produkční feature (ne testovací gate), protože jde o rozšíření, ne jen o closure existujícího scope. Rozděleno na čtyři sub-milníky:
 
-##### 2.13C6A — pure outcome/event contract
+###### 2.13C6A — pure outcome/event contract
 
 **Stav: CLOSED — STATIC + BUILD + UNIT 236/236 PASS.**
 
@@ -1411,7 +2025,7 @@ Implementováno:
 
 Žádná změna `AIWorldMgr`, `EventBus`, `Perception`, `Memory`, `Goal`, reward, completion ordering ani DB persistence — čistě kontrakt + provenance plumbing + testy.
 
-##### 2.13C6B — authoritative publication (CLOSED)
+###### 2.13C6B — authoritative publication (CLOSED)
 
 Publikace `BuildDynamicQuestOutcomeWorldEvent()`u přes `EventBus`, výhradně z reálného úspěšného registry transitionu (`DynamicQuestRegistry::Complete()`/`Fail()`/`Expire()`), nikdy z preflight/non-committing výsledku. Tři oddělené terminal cesty s různými podmínkami:
 
@@ -1421,17 +2035,17 @@ Publikace `BuildDynamicQuestOutcomeWorldEvent()`u přes `EventBus`, výhradně z
 
 Registry zůstává EventBus-unaware po celou dobu — publikuje výhradně `AIWorldMgr`.
 
-##### 2.13C6C — issuer Perception/Memory feedback (CLOSED)
+###### 2.13C6C — issuer Perception/Memory feedback (CLOSED)
 
 Doručení outcome eventu konkrétnímu issuer NPC přes normální `Perception`/`Memory` pipeline. Generic `PerceptionSystem::ObserveEvent()` už uměl libovolný `WorldEvent` převést na `Observation` a zachovat `EventId`/`CorrelationId`/`WorldEventType`, ale ta cesta je sight/range/LOS-based. Doplněno o `PerceptionSystem::ObserveDirectedEvent(observerId, event)` — pure value-only, žádný `Creature*`, žádný map/range/LOS gate, vyžaduje `event.Target.Agent == observerId`, `Channel = PerceptionChannel::Rumor`. `AIWorldMgr::ProcessWorldEvent()` v normální Sight smyčce sleduje, zda issuer outcome eventu (`IsDynamicQuestOutcomeEvent()`) už dostal Sight observation; pokud ne a issuer je stále registrovaný agent, dostane přesně jednu directed/Rumor fallback observation — nikdy force-load Creature/grid. Obě cesty končí ve stejném `ProcessObservation()` → `ShortTermMemory::Remember()`, takže Completed/Failed/Expired se dostane do issuer memory i když issuer není fyzicky poblíž.
 
-##### 2.13C6D — runtime causal-loop proof (CLOSED)
+###### 2.13C6D — runtime causal-loop proof (CLOSED)
 
 Runtime důkaz celého řetězce Completed/Failed/Expired → `WorldEvent` → `Perception` (Sight nebo Rumor) → `Memory` → viditelný dopad na issuer NPC. Implementováno přes nový čistý selector `Quest/DynamicQuestOutcomeReaction.h/.cpp` — `SelectDynamicQuestOutcomeReaction(issuer, memories)` vybírá nejnovější (deterministicky tie-breaknutou přes vyšší `SourceEventId`) eligible outcome memory pro daného issuera. `AIWorldMgr::DynamicQuestGossipContent` dostal `ContentKind::RecentOutcome`, `GetDynamicQuestGossipContent()` na něj spadne, pokud pro daného givera neexistuje žádný live Active/Offered quest (nikdy čtení z `DynamicQuestRegistry` — terminal instance je už odstraněná). Nová `HasDynamicQuestGossipContentForGiver()` drží gossip flag nahoře i po dobu, kdy existuje jen recent-outcome memory (ShortTermMemory TTL, ~60s default). `AIWorldCreatureAI::OnGossipHello()` zobrazí jeden informational řádek (`FormatDynamicQuestOutcomeReaction()`) a loguje `DYNAMIC_QUEST_OUTCOME_REACTION_SHOWN`; reakce se nekonzumuje, může se zobrazit opakovaně dokud memory přirozeně neexpiruje. Runtime ověřeno end-to-end (Expired i Failed cesta, včetně unloaded/dead issuer fallbacku přes Rumor).
 
 Žádný nový `GoalType`/`ActionType` — gossip je existující player-facing seam, čistě čte Memory-derived stav, nikdy nemutuje svět. Autonomní NPC reakce (Goal/Action) na vlastní quest outcome je vědomě mimo scope, patří do budoucího world-problem milestone.
 
-### Restart / persistence semantics (rozhodnuto explicitně, ne odloženo mlčky)
+#### Restart / persistence semantics (rozhodnuto explicitně, ne odloženo mlčky)
 
 `DynamicQuestRegistry` je dnes čistě process-local in-memory registr — žádná DB tabulka, žádný persistence boundary. To je vědomé, ne přehlédnuté rozhodnutí pro `2.13C1`–`C5`:
 
@@ -1442,7 +2056,7 @@ Runtime důkaz celého řetězce Completed/Failed/Expired → `WorldEvent` → `
 
 Runtime otestováno a potvrzeno jako `2.13D` closure gate: worldserver restart zahazuje `Offered`/`Active` dynamic quests beze stopy, žádný orphaned stav; reconnect bez restartu quest zachovává přes `ObjectGuid`/`AgentId`.
 
-### 2.13D — final end-to-end closure gate
+#### 2.13D — final end-to-end closure gate
 
 **Stav: CLOSED.**
 
@@ -1467,7 +2081,7 @@ Poslední dva gate items pro `2.13D` samotné jsou nyní také runtime otestová
 
 ---
 
-# 2.14 — final Etapa 2 POC / aggregate integration gate
+### 2.14 — final Etapa 2 POC / aggregate integration gate
 
 **Stav: CLOSED — RUNTIME POC PASS.**
 
@@ -1524,14 +2138,25 @@ Společně s výše uvedeným HUNT-coalition runtime důkazem toto uzavírá Eta
 
 ---
 
-# 2.15 — testy, diagnostika a scale hardening
+### 2.15 — testy, diagnostika a scale hardening
+
+**Stav: průběžný neblokující hardening.** Runtime/verification gate potřebné pro POC jsou uzavřené v 2.12–2.14; následující seznam eviduje další pokrytí a diagnostiku.
+
+Již ověřeno:
+
+- [x] restart → reload memory;
+- [x] structured decision/action audit logs;
+- [x] simulation tier transition/tick DEBUG observability;
+- [x] AgentGroup presence/coarse simulation DEBUG observability;
+- [x] AgentGroup lifecycle smoke + restart/non-reuse runtime evidence;
+- [x] local LLM protocol/validation, player task lifecycle, outcome feedback a negative failure-mode gate — konkrétní výsledky viz 2.13.
 
 Průběžně doplnit:
 
-- unit testy Goal/Action/group policy/intent/projector;
+- unit testy Goal utility selection, ActionRequest validation, persistence/serialization a group policy/intent/projector;
 - integration lifecycle/coordination tests;
 - debug snapshot podle `AgentId` a `GroupId`;
-- metrics pro scheduler, stale responses/actions a lifecycle failures;
+- metrics pro scheduler, stale responses/actions a lifecycle failures; backend/dashboard runtime verification včetně tier counts, scheduler depth a stale breakdown;
 - bounded-work assertions/profiling pro registry scans a group scans;
 - LLM proposal validation + malformed/stale/outage tests;
 - restart/replay/duplicate suppression tests;
@@ -1541,7 +2166,7 @@ Scale hardening není důvod předčasně přidávat složitou infrastrukturu. O
 
 ---
 
-# Etapa 2 — Definition of Done
+### Etapa 2 — Definition of Done
 
 **Stav: CLOSED — POC COMPLETE.**
 
@@ -1565,7 +2190,7 @@ Hotovo:
 - [x] leave/dissolve lifecycle cancellation of active group coordination;
 - [x] restart/no-resurrection proof.
 
-Zbývá před uzavřením Etapy 2:
+Závěrečné podmínky — splněno:
 
 - [x] global agent population foundation gate pro jednu lokaci (2.12F4A–F4B3: `ControlMode` split, TrinityCore-aligned `AgentId == SpawnId` identity, bidirectional spawn reconciliation, scoped Elwynn population + full Control activation — `3540 / 3540 AIWorldControlled`, STATIC + BUILD + RUNTIME PASS) — `2.12F4C`/`2.12F4D` (world-scale hardening, eventual full-world bootstrap) zůstávají otevřené, ale nejsou blocker pro second-profile proof nad již reálnou, reconciled Elwynn populací;
 - [x] second-profile genericity proof;
@@ -1580,50 +2205,293 @@ Etapa 2 je tímto CLOSED — viz `2.14` výše pro finální agregátní POC run
 
 ---
 
-# Etapa 3 — Elwynn Forest World Preparation
+## Etapa 3 — Elwynn Forest World Preparation
 
-**Stav: PLANNED.**
+**Stav: PLANNED — další etapa po uzavřeném POC.** Nejbližší gate je 3.0–3.1: přesný scope, reprodukovatelný census export a klasifikace všech spawnů.
 
-Cíl: před komplexním Living World během mít jednu oblast přesně zmapovanou a datově opravenou.
+2.12F4B2/F4B3 již ověřilo technickou registraci a control activation Elwynn populace (`3540` agentů, `zoneId=12`). To samo neuzavírá sémantický/faction/data-quality audit této etapy. `FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND` a `VANILLA_ONLY` níže jsou plánované participation klasifikace; nejsou novými hodnotami existujícího dvouhodnotového `ControlMode`.
 
-Pořadí:
+**Cíl:** před spuštěním komplexního živého světa vzít jednu konkrétní oblast — **Elwynn Forest** — a udělat z ní přesně zmapovaný, sémanticky popsaný a datově opravený základ. Etapa 3 není ještě simulace celé společnosti. Je to příprava herního prostoru, aby Etapa 4 nestavěla emergentní chování nad špatnými spawny, nejasnými lokacemi a nesmyslnými faction assignments.
 
-1. kompletní creature/NPC spawn census pro přesně definovaný Elwynn scope;
-2. classification každého relevantního spawnu (`FULL_AGENT`, background/lightweight, vanilla-only apod.);
-3. semantic locations/anchors/routes/resources/danger regions;
-4. TrinityCore faction/faction-template audit;
-5. explicitní AI `WorldFactionId` oddělená od raw TC faction a od AgentGroup;
-6. invariant coalition membership pouze uvnitř kompatibilní WorldFaction;
-7. faction presence/holdings nad semantic locations;
-8. controlled same-faction movement/presence mezi locations bez identity loss a bez force-load;
-9. versionované world DB opravy + before/after audit;
-10. clean bootstrap/runtime data-quality gate.
+Zásadní pravidlo Etapy 3:
 
-Etapa 3 připravuje data a mechanismy. Neimplementuje ještě plnou dynamickou geopolitiku.
+> **Nejdřív musí být jasné kdo je kdo, kde žije/pracuje/působí, ke které frakci patří a jaké části mapy mají význam. Teprve potom má smysl nechat AI svět dlouhodobě měnit.**
+
+### 3.0 Scope a source of truth
+
+- [ ] cílová oblast je Elwynn Forest v používaném TrinityCore 3.3.5/TDB datasetu;
+- [ ] přesně definovat hranici census výběru podle authoritative map/zone/area dat, ne podle ručně odhadnutého obdélníku;
+- [ ] vytvořit reprodukovatelný export z world DB pro creature spawny, templates, movement/pathing, faction/faction-template, NPC flags a relevantní vazby;
+- [ ] uložit odvozený audit/manifest do repozitáře v reviewovatelném formátu (např. CSV/JSON/Markdown generated report); samotný TDB dump se necommitne;
+- [ ] každý ruční override musí mít důvod a být verzovaný;
+- [ ] z census nesmí mizet spawn jen proto, že zatím není AI-enabled.
+
+Minimální spawn evidence:
+
+```text
+SpawnId
+Entry
+Name/template
+Map / Zone / Area
+X/Y/Z/O
+movement type / path
+respawn
+NPC flags / role hints
+TrinityCore faction/faction-template
+AI participation mode
+WorldFactionId
+SemanticLocationId
+Home / Work / Roam anchors
+notes / correction status
+```
+
+### 3.1 Kompletní census NPC a creature spawnů
+
+Cílem je **zmapovat všechny creature/NPC spawny v Elwynn Forest**, ne jen několik testovacích agentů.
+
+- [ ] vyexportovat 100 % spawnů v definovaném scope;
+- [ ] odlišit unikátní named NPC od generických spawnů stejného template;
+- [ ] klasifikovat minimálně civilians, guards, merchants/vendors, trainers, quest-related NPC, workers/farmers, travelers, hostile humanoids, predators, prey/fauna a special/scripted entities;
+- [ ] u každého relevantního spawnu rozhodnout `FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND`, `VANILLA_ONLY` nebo jiný explicitní participation režim;
+- [ ] u AI-enabled NPC připravit role/profession metadata odděleně od physical `AgentType`;
+- [ ] připravit Home/Work/Roam/Guard/Resource anchors tam, kde dávají smysl;
+- [ ] identifikovat duplicity, nesmyslné spawny, chybné souřadnice, chybné movement types a entity, které se nesmí automaticky převést na persistent AI agenta;
+- [ ] vytvořit coverage report, který failne gate, pokud zůstane spawn bez klasifikace nebo explicitního důvodu `VANILLA_ONLY`.
+
+**Gate 3.1:** každý spawn v Elwynn census má explicitní klasifikaci a auditovatelný stav.
+
+### 3.2 Sémantická mapa lokací
+
+AI nesmí chápat svět jen jako surové `x/y/z`. Etapa 3 zavede konkrétní pojmenované lokace a jejich vztahy.
+
+Minimálně zmapovat a runtime ověřit relevantní oblasti jako například:
+
+- Northshire / Northshire Valley;
+- Goldshire;
+- Stonefield Farm;
+- Maclure Vineyards;
+- Eastvale Logging Camp;
+- Fargodeep Mine;
+- Jasperlode Mine;
+- Tower of Azora;
+- Mirror Lake a okolní body;
+- hlavní cesty, křižovatky, mosty, lesní koridory, farmy, kempy, resource sites a danger zones, které mají význam pro simulaci.
+
+Konkrétní seznam a hranice musí vzniknout z map/world dat a runtime kontroly; výše uvedené názvy nejsou náhradou za úplný map audit.
+
+Pro každou semantic location připravit například:
+
+```text
+SemanticLocationId
+name
+type
+map/zone/area
+center + radius / polygon / bounded region
+parent location
+adjacent locations
+travel connectors / routes
+resource tags
+danger tags
+settlement/farm/mine/road/etc.
+faction presence / holding capability
+population capacity / role hints
+```
+
+- [ ] `HomeLocation`/`WorkLocation` postupně odkazovat na semantic locations/anchors místo náhodných magic coordinates, kde je to vhodné;
+- [ ] definovat adjacency a použitelné přesuny mezi lokalitami;
+- [ ] rozlišit fyzickou lokaci od politického vlastnictví — jedna location může změnit faction presence bez změny identity;
+- [ ] ověřit reprezentativní pathing mezi sousedními semantic locations přes TrinityCore movement/nav data;
+- [ ] vytvořit debug výpis/map report, ze kterého lze zjistit, která NPC a frakce jsou přiřazeny k dané lokaci.
+
+### 3.3 Faction audit a oprava
+
+Současné TrinityCore `faction`/`faction_template` hodnoty nejsou samy o sobě dostatečný sociální model AI světa a v cílové oblasti mohou být pro zamýšlenou simulaci nekonzistentní nebo věcně špatné.
+
+Etapa 3 proto oddělí dvě věci:
+
+```text
+TrinityCore faction/faction_template
+    = combat/reaction/gameplay compatibility
+
+AI WorldFactionId
+    = sociální/politická příslušnost pro vztahy,
+      coalition eligibility, holdings a budoucí dynamiku světa
+```
+
+- [ ] auditovat faction/faction-template u všech Elwynn census spawnů;
+- [ ] identifikovat a verzovaně opravit zjevně chybné/inconsistent TrinityCore faction assignments tam, kde ovlivňují gameplay/reaction;
+- [ ] zavést explicitní persistentní `WorldFactionId` nebo ekvivalentní sociální identity layer nezávislou na `AgentGroup`;
+- [ ] každý AI-enabled agent musí mít explicitní WorldFaction affiliation nebo explicitní `Neutral/Unaffiliated` stav;
+- [ ] definovat první konkrétní seznam WorldFaction entit pro Elwynn podle skutečného census, nikoli podle několika předem vymyšlených typů;
+- [ ] fauna/predators/humanoids nesmí být automaticky sloučeni do jedné frakce jen proto, že sdílejí combat reaction;
+- [ ] faction změna nesmí implicitně přepsat `AgentId`, memory ani individual identity;
+- [ ] faction relation/diplomacy matrix pro Etapu 3 může být minimální/static; komplexní změny vztahů patří do Etapy 4.
+
+### 3.4 Coalition pravidla uvnitř frakcí
+
+`AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
+
+```text
+WorldFaction
+├── Agent A ┐
+├── Agent B ├── AgentGroup / Coalition #1
+├── Agent C ┘
+├── Agent D ┐
+└── Agent E ┴── AgentGroup / Coalition #2
+```
+
+Základní invariant:
+
+> **Jedna coalition může obsahovat pouze členy stejné `WorldFactionId`.**
+
+- [ ] `CreateGroup`/`JoinGroup` policy musí znát WorldFaction membership;
+- [ ] cross-faction `JoinGroup` failuje před persistence mutation;
+- [ ] mixed-faction group se nesmí načíst z DB; invalid persistent state fail-closed / quarantine podle zvolené recovery policy;
+- [ ] `Loose`/`Stable` je charakter coalition, nikoli frakce;
+- [ ] jedna frakce může mít mnoho současných coalitions a mnoho agentů bez coalition;
+- [ ] faction membership sama automaticky nevytváří group;
+- [ ] pokud agent někdy v budoucnu změní frakci, jeho nekompatibilní group membership musí být nejprve bezpečně ukončeno/reconciled;
+- [ ] runtime test musí potvrdit same-faction join PASS a cross-faction join REJECT bez side effects.
+
+Komplexní diplomacie, přeběhnutí mezi frakcemi a hráčovy faction transitions jsou explicitně **mimo Etapu 3**.
+
+### 3.5 Faction presence a pohyb po mapě
+
+Frakce nesmí být modelována jako statická značka přibitá k jedné souřadnici. Etapa 3 připraví datový/runtime základ pro to, že se **přítomnost frakce může po Elwynn Forest měnit a přesouvat**.
+
+Důležité rozlišení:
+
+```text
+WorldFaction identity
+    ≠
+current faction presence / holdings / occupied locations
+```
+
+- [ ] zavést nebo navrhnout `FactionPresence`/`FactionHolding` state nad `SemanticLocationId`;
+- [ ] frakce může mít současně přítomnost ve více lokalitách;
+- [ ] presence může mít minimálně strength/population/priority nebo jiný malý deterministic state potřebný pro budoucí simulaci;
+- [ ] movement znamená přesun/redeployment konkrétních agentů/coalitions mezi semantic locations přes existující movement/action pravidla, ne teleport celé abstraktní frakce;
+- [ ] unloaded/background pohyb musí mít později reconciliation na physical spawny bez force-load; Etapa 3 má připravit seam a kontrolovaný smoke, ne kompletní strategickou AI;
+- [ ] faction holdings/presence změna nesmí automaticky měnit faction identity NPC, která se v lokaci právě nacházejí;
+- [ ] připravit controlled runtime scenario, kde same-faction coalition/presence opustí location A a přesune se do location B se zachováním AgentIds, GroupId a WorldFactionId;
+- [ ] všechny změny presence musí být auditovatelné a mít jasný source/cause pro budoucí Event System integraci.
+
+**Etapa 3 připravuje pohyb frakcí jako mechanismus. Proč frakce expanduje, ustupuje, bojuje nebo mění vztahy, bude až dynamika Etapy 4.**
+
+### 3.6 World DB cleanup a verifikace
+
+Mapování není pouze dokumentace. Pokud census odhalí špatná data, musí být cílový Elwynn baseline skutečně opraven.
+
+- [ ] opravy spawn position/orientation tam, kde jsou prokazatelně chybné;
+- [ ] opravy movement/pathing/home/wander parametrů;
+- [ ] odstranění nebo zdokumentování chybných/duplicitních spawnů;
+- [ ] opravy faction/faction-template a dalších flags, pokud neodpovídají zamýšlenému authoritative gameplay;
+- [ ] validace vendor/trainer/questgiver/special NPC flags proti skutečné roli;
+- [ ] AI metadata a WorldFaction mapování držet ve vlastní versionované vrstvě, pokud není důvod měnit upstream world schema;
+- [ ] všechny world DB změny dodat jako versionované TrinityCore SQL updates/migrations, nikdy jako ruční zásah do běžící DB;
+- [ ] vytvořit before/after audit report a smoke checklist pro reprezentativní lokace;
+- [ ] ověřit, že opravy nerozbily vanilla login, quest/NPC interaction a základní hostile/friendly reaction.
+
+### Etapa 3 — Definition of Done
+
+- [ ] 100 % creature/NPC spawnů v definovaném Elwynn Forest scope je v census manifestu;
+- [ ] každý spawn má explicitní classification/participation status;
+- [ ] každý AI-enabled agent má semantic location context a explicitní WorldFaction affiliation nebo `Neutral/Unaffiliated`;
+- [ ] klíčové lokace, sublokace, cesty a resource/danger anchors jsou verzovaně zmapované;
+- [ ] TrinityCore faction/faction-template audit je dokončen a nalezené chyby jsou opravené nebo explicitně zdokumentované;
+- [ ] `WorldFactionId` je oddělený od `AgentGroup` i od raw TrinityCore faction template;
+- [ ] same-faction coalition membership funguje a cross-faction coalition membership je fail-closed;
+- [ ] existuje minimální faction presence/holding model nad semantic locations;
+- [ ] controlled same-faction movement/presence test mezi dvěma Elwynn locations projde bez ztráty identity a bez force-load shortcutu;
+- [ ] všechny změny world DB jsou reprodukovatelné z Git historie;
+- [ ] coverage/audit report neobsahuje nevyřešené „unknown“ položky, které by blokovaly dlouhodobou simulaci;
+- [ ] po clean DB bootstrapu a aplikaci updates odpovídá Elwynn runtime připravenému baseline.
+
+> **Gate:** Etapa 3 končí ve chvíli, kdy Elwynn Forest není pro AI jen sada TrinityCore spawnů a souřadnic, ale explicitně popsaný světový prostor s NPC identitami, rolemi, lokacemi, frakcemi a bezpečnými coalition pravidly. Teprve nad tímto baseline se zapíná komplexní dynamika Etapy 4.
 
 ---
 
-# Etapa 4 — Living World
+## Etapa 4 — Living World
 
-**Stav: PLANNED.**
+**Stav: PLANNED — po data-quality/runtime gate Etapy 3.**
 
-Teprve zde skládat ověřené mechanismy do dlouhodobého světa:
+**Cíl:** z technologií ověřených v Etapě 2 a z datově připraveného Elwynn Forest z Etapy 3 vytvořit první skutečně komplexní dlouhodobě žijící oblast.
 
-- population pressures;
-- resources a jejich obnova/spotřeba;
-- economy/trade/work relations;
-- persistent relationships;
-- faction relations, conflict, cooperation, expansion/retreat;
-- movement populations/coalitions mezi semantic locations;
-- problems vznikající z world state místo z pevné quest sequence;
-- server-validated LLM narrative/tasks nad skutečnými problémy;
-- důsledky hráčových akcí zpět do economy/faction/population/memory/world state.
+Etapa 4 bude rozvíjet zejména:
 
-Etapa 4 nemá znovu objevovat základní identity, threading, lifecycle, action ownership nebo LLM safety boundary. Tyto fundamenty musí být uzavřené dříve.
+- populace a dlouhodobé population pressures;
+- zdroje a jejich spotřebu/obnovu;
+- ekonomiku a pracovní/obchodní vztahy;
+- persistentní relationships mezi agenty;
+- dynamické faction relations, konflikty, spolupráci, expanzi a ústup;
+- přesuny faction populations/coalitions mezi semantic locations podle skutečných potřeb, hrozeb a příležitostí;
+- problémy vznikající z world state místo z pevně napsané quest sequence;
+- LLM-generované, serverem validované dynamické questy navázané na tyto skutečné problémy;
+- důsledky hráčových akcí, které se vrací do economy/faction/population/memory/world state.
 
----
+### Hráč a frakce — Etapa 4
 
-# Doporučené pořadí od aktuálního stavu
+Právě zde se může rozvinout myšlenka, že hráč není navždy uzamčený do jedné statické sociální vazby jen kvůli původní quest linii.
+
+- AI questy a dlouhodobé akce hráče mohou měnit vztahy/standing k WorldFaction entitám;
+- hráč se může postupně dostat od jedné frakce k jiné, pokud to dovolí serverová pravidla a kauzální historie světa;
+- přechod nesmí být jednorázový LLM textový trik — musí vycházet z validovaných činů, vztahů, reputation/standing policy a world events;
+- cross-faction diplomacie, defection/allegiance change a přijetí hráče jinou frakcí se řeší jako explicitní systémy;
+- coalition invariant zůstává zachovaný: jedna coalition obsahuje členy jedné aktuální WorldFaction; změna faction affiliation nejprve reconciliuje starou coalition membership;
+- LLM může navrhovat narativ a sociální možnosti, ale samotná faction transition je vždy server-owned a deterministicky validovaná.
+
+**Etapa 4 už nemá být další infrastrukturní projekt. Má skládat existující technologie a opravená data do komplexního světa a nové technické změny přidávat jen tehdy, když je vyžaduje skutečné emergentní chování Elwynn Forest.**
+
+### Původní scénář vlci → farmář
+
+Původní návrh 2.14 používal jako ilustraci `individual wolf needs → coalition approach → per-member MOVE_TO/combat → livestock attack → LIVESTOCK_KILLED → farmer Perception/Memory → PROTECT_HOME / REQUEST_HELP → validated action/player task`. Tento konkrétní propojený příběh ani nový event/Goal/Action nejsou podmínkou uzavření Etapy 2: 2.14 byl uzavřen jako agregátní POC. Scénář zůstává návrhovým příkladem pro budoucí Living World, ne tvrzením o již implementovaném chování.
+
+Etapa 4 má využít již ověřené identity, threading, lifecycle, action ownership a LLM safety boundary a skládat je s daty připravenými v Etapě 3.
+
+
+## Další postup a otevřený hardening
+
+### Nejbližší acceptance gate — 3.0–3.1
+
+1. Definovat authoritative Elwynn scope a reprodukovatelný world DB export podle [3.0](#30-scope-a-source-of-truth).
+2. Verzovat census manifest, klasifikaci a coverage report podle [3.1](#31-kompletní-census-npc-a-creature-spawnů); žádný spawn nezmizí jen proto, že není AI-enabled.
+3. Pokračovat 3.2 sémantické lokace → 3.3 frakce → 3.4 same-faction coalition rules → 3.5 presence/movement → 3.6 DB cleanup a [Definition of Done Etapy 3](#etapa-3--definition-of-done).
+4. Po uzavření Etapy 3 skládat Living World v Etapě 4.
+
+### Odložené a podmíněné milníky
+
+- [ ] 2.12F4C — bounded/indexed runtime at world scale (O(1) spawn index, remove recurring full-registry scans) - **DEFERRED, ne blocker pro pokračování nad Elwynn**; povinné před rozšířením na další lokace/eventual full-world (2.12F4D).
+- [ ] 2.12F4D — global bootstrap/runtime proof (plná `ObserveOnly` populace, vanilla/script chování beze změny, bounded work) - až po 2.12F4C.
+- [ ] 2.12G4 — roles/leadership pouze pokud G2/G3 prokáže potřebu.
+- [ ] 2.15 — remaining diagnostics/scale hardening needed by measured runtime behavior.
+
+### Průběžný vývojářský hardening
+
+- [ ] Debugger/core dump workflow.
+- [ ] Přesný extraction dokument.
+- [ ] CUDA compute smoke test.
+- [ ] Metrics backend/dashboard runtime evidence pro 2.9D.
+- [ ] Nahradit/hardenovat ruční V2 JSON parser před external/LLM execution.
+- [ ] Zúžit external DecisionContext privacy boundary (`spawn_id`).
+- [ ] Centralizovat semantic identity helper pro širší multi-agent memory scénáře.
+- [ ] Sjednotit starší action cancellation paths přes strukturovaný `ActionCompletion`.
+- [ ] Optimalizovat fast registry/materialization scan před velkou background populací.
+- [ ] Optimalizovat full-sort coarse selection před velkou populací.
+- [ ] Produkční hardening historických AIWorld SQL migrací.
+
+### Dříve evidované neblokující group P3
+
+Převzaté otevřené body z implementační historie; před realizací ověřit jejich relevanci vůči aktuálnímu kódu:
+
+- [ ] guard proti `uint64` overflow při `_nextGroupId + 1`;
+- [ ] failed smoke-test path má udělat best-effort cleanup částečně vytvořené test group;
+- [ ] stale group-scheduler entry cleanup po dissolve (dříve evidováno v README);
+- [ ] historická dev-specific/destructive migration cesta před produkčním schema upgrade hardeningem.
+
+### Historie dokončeného pořadí 2.12–2.14
+
+<details>
+<summary>Rozbalit dokončené kroky a jejich návaznost</summary>
 
 1. [x] 2.12F3 static/build/runtime closure.
 2. [x] **2.12F4A — ControlMode foundation (`ObserveOnly` vs `AIWorldControlled`, hard-gated na decision/routine/group/action cestách, existing 4 → `AIWorldControlled`, default = `ObserveOnly`).**
@@ -1631,36 +2499,31 @@ Etapa 4 nemá znovu objevovat základní identity, threading, lifecycle, action 
 4. [x] **2.12F4B — global spawn reconciliation (non-instance `world.creature` ↔ `ai_agents` bidirectional, fail-closed na smazané spawny, deterministická `AgentType` provenance, no ghosts). Runtime-ověřeno nad plnou světovou populací (`128849`, `PERFORMANCE FAIL` bez scale hardeningu) i scoped nad Elwynn.**
 5. [x] **2.12F4B2 — scoped rollout proof (Elwynn, `zoneId=12`) - `3540` eligible `AgentRecord`ů, `ObserveOnly`, identity/scope/idempotence `PASS`.**
 6. [x] **2.12F4B3 — scoped Control activation (Elwynn) - `3540 / 3540 AIWorldControlled`, fail-closed whole-zone + atomická DB promotion, decision/needs/perception/action runtime `PASS`.**
-7. [ ] 2.12F4C — bounded/indexed runtime at world scale (O(1) spawn index, remove recurring full-registry scans) - **DEFERRED, ne blocker pro pokračování nad Elwynn**; povinné před rozšířením na další lokace/eventual full-world (2.12F4D).
-8. [ ] 2.12F4D — global bootstrap/runtime proof (plná `ObserveOnly` populace, vanilla/script chování beze změny, bounded work) - až po 2.12F4C.
-9. [x] 2.12G1 — second real coalition profile přes stejnou generic pipeline (nad reálnou reconciled Elwynn populací z 2.12F4B2/F4B3).
-10. [x] 2.12G2/G2R — generic ROAM včetně preemption/leave/dissolve lifecycle closure.
-11. [x] 2.12G3A — pure HUNT DTO a explicitní target provenance contract.
-12. [x] 2.12G3B — pure HUNT intent/projector a pure smoke testy.
-13. [x] 2.12G3C1 — autoritativní HUNT approach validation contract.
-14. [x] 2.12G3C2 — produkční observation/dispatch wiring, ownership/preemption, lifecycle stop na invalid target (CLOSED / STATIC + BUILD + START PASS).
-15. [x] 2.12G3D1 — neinvazivní live approach runtime proof (target-aware ownership identity, `AIWorld.TestObserveActiveHuntAgentId`) - POSITIVE LIVE APPROACH PROOF: PASS.
-16. [x] fix(ai-world): retain HUNT ownership after approach arrival - post-ARRIVED redispatch loop found by G3D1's own live proof, CLOSED.
-17. [x] 2.12G3D — produkční skupinový HUNT combat (`ActionType::Attack`, melee damage, chase, `TARGET_DEFEATED`, phantom-FLEE_DANGER fix, stale chase cleanup) - live-confirmed PASS v reálném skupinovém boji.
-18. [x] 2.12G3 lifecycle closure — Approaching/AtTarget/Engaging bezpečně obsloužené přes všech šest ukončujících událostí (PREEMPTED_BY_GOAL/STOPPED_BY_LIFECYCLE/STOPPED_BY_MEMBERSHIP_AMBIGUITY/STOPPED_BY_TARGET_INVALID/PREEMPTED_BY_REGROUP/TARGET_DEFEATED) - STATIC repaired, cumulatively BUILD-verified.
-19. [ ] 2.12G4 — roles/leadership pouze pokud G2/G3 prokáže potřebu.
-20. [x] 2.13A — actual local LLM inference path.
-21. [x] 2.13B — structured `QuestProposal` + authoritative validation.
-22. [x] 2.13C1 — pure dynamic quest lifecycle domain.
-23. [x] 2.13C2 — registry ownership / validated offer handoff.
-24. [x] 2.13C3 — authoritative player accept boundary.
-25. [x] 2.13C4 — visible player-facing offer + progress (STATIC + BUILD + RUNTIME PASS).
-26. [x] 2.13C5 — turn-in / completion / money reward (STATIC + BUILD + UNIT + RUNTIME PASS).
-27. [x] 2.13C6 — quest outcome → WorldEvent / NPC memory/problem feedback (A/B1/B2/B3/C/D all CLOSED — STATIC + BUILD + UNIT 253/253 + RUNTIME PASS).
-28. [x] 2.13D — `WORLD → NPC → LLM → PLAYER → WORLD` final end-to-end closure gate (restart/reconnect semantics + negative failure-mode aggregation runtime-tested and confirmed; 2.13 CLOSED).
-29. [x] 2.14 — final Etapa 2 POC / aggregate integration gate (real WolfLoose coalition HUNT → per-member ActionSystem validation → real TrinityCore movement/combat → TARGET_DEFEATED, RUNTIME PASS; Etapa 2 CLOSED / POC COMPLETE).
-30. [ ] 2.15 — remaining diagnostics/scale hardening needed by measured runtime behavior.
-31. [ ] Etapa 3 — Elwynn census + semantic locations + faction/world-data preparation.
-32. [ ] Etapa 4 — Living World composition.
+7. [x] 2.12G1 — second real coalition profile přes stejnou generic pipeline (nad reálnou reconciled Elwynn populací z 2.12F4B2/F4B3).
+8. [x] 2.12G2/G2R — generic ROAM včetně preemption/leave/dissolve lifecycle closure.
+9. [x] 2.12G3A — pure HUNT DTO a explicitní target provenance contract.
+10. [x] 2.12G3B — pure HUNT intent/projector a pure smoke testy.
+11. [x] 2.12G3C1 — autoritativní HUNT approach validation contract.
+12. [x] 2.12G3C2 — produkční observation/dispatch wiring, ownership/preemption, lifecycle stop na invalid target (CLOSED / STATIC + BUILD + START PASS).
+13. [x] 2.12G3D1 — neinvazivní live approach runtime proof (target-aware ownership identity, `AIWorld.TestObserveActiveHuntAgentId`) - POSITIVE LIVE APPROACH PROOF: PASS.
+14. [x] fix(ai-world): retain HUNT ownership after approach arrival - post-ARRIVED redispatch loop found by G3D1's own live proof, CLOSED.
+15. [x] 2.12G3D — produkční skupinový HUNT combat (`ActionType::Attack`, melee damage, chase, `TARGET_DEFEATED`, phantom-FLEE_DANGER fix, stale chase cleanup) - live-confirmed PASS v reálném skupinovém boji.
+16. [x] 2.12G3 lifecycle closure — Approaching/AtTarget/Engaging bezpečně obsloužené přes všech šest ukončujících událostí (PREEMPTED_BY_GOAL/STOPPED_BY_LIFECYCLE/STOPPED_BY_MEMBERSHIP_AMBIGUITY/STOPPED_BY_TARGET_INVALID/PREEMPTED_BY_REGROUP/TARGET_DEFEATED) - STATIC repaired, cumulatively BUILD-verified.
+17. [x] 2.13A — actual local LLM inference path.
+18. [x] 2.13B — structured `QuestProposal` + authoritative validation.
+19. [x] 2.13C1 — pure dynamic quest lifecycle domain.
+20. [x] 2.13C2 — registry ownership / validated offer handoff.
+21. [x] 2.13C3 — authoritative player accept boundary.
+22. [x] 2.13C4 — visible player-facing offer + progress (STATIC + BUILD + RUNTIME PASS).
+23. [x] 2.13C5 — turn-in / completion / money reward (STATIC + BUILD + UNIT + RUNTIME PASS).
+24. [x] 2.13C6 — quest outcome → WorldEvent / NPC memory/problem feedback (A/B1/B2/B3/C/D all CLOSED — STATIC + BUILD + UNIT 253/253 + RUNTIME PASS).
+25. [x] 2.13D — `WORLD → NPC → LLM → PLAYER → WORLD` final end-to-end closure gate (restart/reconnect semantics + negative failure-mode aggregation runtime-tested and confirmed; 2.13 CLOSED).
+26. [x] 2.14 — final Etapa 2 POC / aggregate integration gate (real WolfLoose coalition HUNT → per-member ActionSystem validation → real TrinityCore movement/combat → TARGET_DEFEATED, RUNTIME PASS; Etapa 2 CLOSED / POC COMPLETE).
 
----
+</details>
 
-# Development / verification workflow
+
+## Development / verification workflow
 
 Pro C++ AIWorld změny:
 
@@ -1689,54 +2552,4 @@ Po runtime proof vracet one-shot/test flags na default `0`/disabled. Destruktivn
 
 ---
 
-# Nejbližší acceptance gate
-
-**2.12F4A–F4B3 je CLOSED pro jednu lokaci (Elwynn) — STATIC + BUILD + RUNTIME PASS, `3540 / 3540 AIWorldControlled`.** Cesta, kterou tento gate prošel:
-
-```text
-ControlMode schema + ActionSystem::Validate() as mandatory authoritative gate (2.12F4A)
-    ↓
-existing 4 test mobs → AIWorldControlled, default → ObserveOnly
-    ↓
-AgentId == TrinityCore Creature SpawnId for persistent non-instance agents (2.12F4A2)
-    ↓
-existing 4 test mobs migrated to spawn-aligned AgentId (incl. group/memory FKs)
-    ↓
-ALL non-instance world.creature SPAWNS reconciled ↔ ai_agents (2.12F4B)
-    ↓
-missing spawn → CREATE (ObserveOnly); deleted spawn → fail-closed/quarantine, no ghosts
-    ↓
-existing vanilla/scripted AI unaffected for ObserveOnly
-    ↓
-measured global run: 128849 agents, identity invariants hold, but world-thread performance FAIL
-    ↓
-scoped reconciliation over real Elwynn (zoneId=12) population only - 3540 AgentRecords, ObserveOnly (2.12F4B2)
-    ↓
-scoped Control activation over the same Elwynn population - 3540 / 3540 AIWorldControlled (2.12F4B3)
-    ↓
-decision/needs/perception/action runtime PASS over the real Elwynn location
-```
-
-`2.12F4C`/`2.12F4D` (O(1) spawn index + bounded recurring work, then global bootstrap/selective rollout) zůstávají **DEFERRED** — `2.12F4B3`'s vlastní runtime gate prakticky ověřil, že pro rozsah jedné lokace nejsou blocker; zůstávají povinné teprve před rozšířením na další lokace nebo eventual full-world rollout (kde `2.12F4B`'s vlastní `128849`-agent experiment už ukázal `PERFORMANCE FAIL` bez nich).
-
-S touto foundation lze bezpečně stavět druhý coalition profil nad skutečnými, už `AIWorldControlled` spawny (`2.12G1`), ne synteticky vyrobenými:
-
-```text
-REAL SECOND PROFILE (nad 2.12F4 reconciled spawny)
-    ↓
-SAME GENERIC FORMATION
-    ↓
-SAME GENERIC MAINTENANCE
-    ↓
-SAME GENERIC GROUP INTENT
-    ↓
-SAME PROJECTOR
-    ↓
-INDIVIDUAL ACTION
-    ↓
-ACTION SYSTEM
-    ↓
-TRINITYCORE
-```
-
-Jakmile i tohle projde bez druhé orchestration větve, máme prakticky potvrzené, že `AgentGroup` je skutečně obecná coalition vrstva a můžeme bezpečně stavět další behavior (`ROAM`, následně hunt/combat) nad touto základnou.
+Kompletní standardní build/test gate a vývojové prostředí: [README_DEV.md](README_DEV.md).

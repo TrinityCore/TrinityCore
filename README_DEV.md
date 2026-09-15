@@ -2,7 +2,7 @@
 
 Development guide for the WoWBehaviorAI fork of TrinityCore `3.3.5`.
 
-For architecture and milestone history see [AI_TrinityCore_Roadmap_Etapa_1_2.md](AI_TrinityCore_Roadmap_Etapa_1_2.md).
+For architecture and milestone history see [AIWorld_Current_Roadmap.md](AIWorld_Current_Roadmap.md).
 
 ## Current status
 
@@ -19,7 +19,7 @@ Runtime-verified infrastructure includes:
 - worldserver restart without losing DB state;
 - NVIDIA Container Toolkit visibility from Docker.
 
-AIWorld development has progressed through the scheduler/tier foundation. 2.10A–2.10C are closed; 2.10D implementation/static review and deterministic phase staggering are verified, with one final steady-state coarse cadence sample still pending before formal 2.10 closure.
+Etapa 2 is CLOSED / POC COMPLETE, including the scheduler/tier foundation, farmer, group coordination and local LLM dynamic quest vertical slices. The next planned work is Etapa 3 — Elwynn scope and complete spawn census. The roadmap above owns detailed milestone status and evidence.
 
 ## Origin
 
@@ -347,23 +347,9 @@ grep "AI simulation tick" runtime/logs/Server.log
 
 The console appender may filter DEBUG messages even when the `ai.world` logger itself is configured at DEBUG level, so `Server.log` is the preferred source for detailed tier/scheduler evidence.
 
-## Current scheduler runtime handoff
+## Scheduler runtime evidence
 
-2.10D deterministic entry staggering is runtime verified. For the three current test guards the first Background ticks were observed at different phases:
-
-```text
-agent=3 tier=BACKGROUND dt=14253ms
-agent=2 tier=BACKGROUND dt=21504ms
-agent=1 tier=BACKGROUND dt=46762ms
-```
-
-The remaining final gate is to observe the next tick for each agent with approximately:
-
-```text
-dt≈60000ms
-```
-
-After that, 2.10 can be marked CLOSED/PASS and development moves to 2.11 persistent farmer.
+2.10A–2.10D are CLOSED. Deterministic Background entry staggering and steady-state cadence were runtime verified; this is no longer a pending handoff. Historical samples and known scaling work are retained in [roadmap 2.10](AIWorld_Current_Roadmap.md#210-scheduler-a-úrovně-simulace).
 
 ## Debugging and metrics hardening
 
