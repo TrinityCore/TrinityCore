@@ -171,12 +171,11 @@ jobs:
       - name: Verify deployment health
         run: |
           cd /home/voslik/WoWBehaviorAI
-
           set -euo pipefail
 
           wait_healthy() {
             service="$1"
-            attempts="${2:-60}"
+            attempts="$2"
 
             echo "Waiting for $service..."
 
@@ -184,7 +183,7 @@ jobs:
               cid="$(docker compose ps -q "$service")"
 
               if [ -z "$cid" ]; then
-                echo "$service container does not exist"
+                echo "::error::$service container does not exist"
                 exit 1
               fi
 
@@ -199,16 +198,16 @@ jobs:
               fi
 
               if [ "$status" = "unhealthy" ] || [ "$status" = "stopped" ]; then
-                echo "=== $service logs ==="
-                docker compose logs --tail=100 "$service"
+                echo "::error::$service failed to start"
+                docker compose logs --tail=150 "$service"
                 exit 1
               fi
 
               sleep 5
             done
 
-            echo "$service did not become healthy in time"
-            docker compose logs --tail=100 "$service"
+            echo "::error::$service did not become healthy in time"
+            docker compose logs --tail=150 "$service"
             exit 1
           }
 
@@ -217,4 +216,53 @@ jobs:
           wait_healthy authserver 40
           wait_healthy worldserver 60
 
-          echo "All services are healthy."
+          docker compose ps
+
+      - name: AI smoke test
+        run: |
+          cd /home/voslik/WoWBehaviorAI
+          set -euo pipefail
+
+          echo "=== ai-server /health ==="
+
+          docker compose exec -T ai-server \
+            python -c "
+          import urllib.request
+          r = urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)
+          body = r.read().decode()
+          print(body)
+          assert r.status == 200
+          "
+
+          echo
+          echo "=== AIWorld startup ==="
+
+          if ! docker compose logs --since=5m worldserver | grep -Fq "AIWorld enabled"; then
+            echo "::error::AIWorld did not report successful startup"
+            docker compose logs --since=5m worldserver | tail -200
+            exit 1
+          fi
+
+          echo "AIWorld enabled: OK"
+
+          echo
+          echo "=== AI controlled agents ==="
+
+          AI_AGENT_COUNT="$(
+            docker compose exec -T mysql sh -lc '
+              mysql -N -s \
+                -u"$TC_DB_USER" \
+                -p"$TC_DB_PASSWORD" \
+                -e "SELECT COUNT(*) FROM characters.ai_agents WHERE control_mode = 1;"
+            '
+          )"
+
+          echo "AI_WORLD_CONTROLLED agents: $AI_AGENT_COUNT"
+
+          if [ "$AI_AGENT_COUNT" -le 0 ]; then
+            echo "::error::No AI_WORLD_CONTROLLED agents found"
+            exit 1
+          fi
+
+          echo
+          echo "AI smoke test passed."
