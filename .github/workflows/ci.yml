@@ -78,10 +78,25 @@ jobs:
       CCACHE_VOLUME_NAME: aitc_ci_ccache-data
     steps:
       - uses: actions/checkout@v5
+        with:
+          # Full history: TrinityCore's genrev.cmake needs it to resolve the
+          # build revision (a shallow clone leaves it "unknown 1970...").
+          fetch-depth: 0
+
+      - name: Prepare TrinityCore source workspace
+        # CMake 3.22 (inside tc-dev) writes CMakeOutput.log under
+        # /workspace/CMakeFiles while resolving revision_data.h in script
+        # mode, but a fresh checkout has no CMakeFiles/ yet — create it so
+        # that first write doesn't fail the whole configure step.
+        run: |
+          mkdir -p CMakeFiles
+          chmod 0777 CMakeFiles
 
       - name: Build and test TrinityCore
         run: |
           docker compose -f compose.yml -f compose.dev.yml run --rm tc-dev bash -lc '
+            set -euo pipefail
+
             cmake -GNinja \
               -S /workspace \
               -B /build \
