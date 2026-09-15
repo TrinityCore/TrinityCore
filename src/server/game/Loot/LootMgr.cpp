@@ -518,6 +518,20 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode, Player const* personalLooter /*= nullptr*/) const
 {
+    if (loot.IsFullCreatureLoot())
+    {
+        auto addAll = [&](auto const& entries)
+        {
+            for (auto const& item : entries)
+                if ((item->lootmode & lootMode)
+                    && (!personalLooter || LootItem::AllowedForPlayer(personalLooter, *item, true)))
+                    loot.AddItem(*item);
+        };
+        addAll(ExplicitlyChanced);
+        addAll(EqualChanced);
+        return;
+    }
+
     if (LootStoreItem const* item = Roll(lootMode, personalLooter))
         loot.AddItem(*item);
 }
@@ -658,7 +672,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
             continue;
 
-        if (!item->Roll(rate))
+        if (!loot.IsFullCreatureLoot() && !item->Roll(rate))
             continue;                                           // Bad luck for the entry
 
         switch (item->type)
@@ -678,7 +692,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
                 if (!Referenced)
                     continue;                                   // Error message already printed at loading stage
 
-                uint32 maxcount = uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
+                uint32 maxcount = loot.IsFullCreatureLoot() ? 1 : uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
                 for (uint32 loop = 0; loop < maxcount; ++loop)  // Ref multiplicator
                     Referenced->Process(loot, rate, lootMode, item->groupid, personalLooter);
 
@@ -697,6 +711,16 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 
 void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const
 {
+    // Each eligible personal looter receives the complete eligible table.
+    // The caller has already removed encounter-locked players.
+    if (!personalLoot.empty() && std::ranges::all_of(personalLoot,
+        [](auto const& entry) { return entry.second->IsFullCreatureLoot(); }))
+    {
+        for (auto& [looter, loot] : personalLoot)
+            Process(*loot, rate, lootMode, 0, looter);
+        return;
+    }
+
     auto getLootersForItem = [&personalLoot](auto&& predicate) -> std::vector<Player*>
     {
         std::vector<Player*> lootersForItem;

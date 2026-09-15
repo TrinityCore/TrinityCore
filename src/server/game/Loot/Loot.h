@@ -288,7 +288,7 @@ struct TC_GAME_API Loot
 
     std::vector<LootItem> items;
     uint32 gold;
-    uint8 unlootedCount;
+    uint32 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
@@ -302,6 +302,10 @@ struct TC_GAME_API Loot
 
     ObjectGuid const& GetGUID() const { return _guid; }
     ObjectGuid const& GetOwnerGUID() const { return _owner; }
+    bool IsFullCreatureLoot() const
+    {
+        return _owner.IsCreatureOrVehicle() && (loot_type == LOOT_CORPSE || loot_type == LOOT_CORPSE_PERSONAL);
+    }
     ItemContext GetItemContext() const { return _itemContext; }
     void SetItemContext(ItemContext context) { _itemContext = context; }
     LootMethod GetLootMethod() const { return _lootMethod; }

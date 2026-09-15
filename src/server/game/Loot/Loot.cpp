@@ -928,6 +928,15 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const& item)
 {
+    // LootListId is a byte; do not wrap indices or silently discard oversized
+    // creature tables at the old 18-item cap.
+    std::size_t itemLimit = IsFullCreatureLoot() ? 255 : MAX_NR_LOOT_ITEMS;
+    if (IsFullCreatureLoot() && items.size() >= itemLimit)
+    {
+        TC_LOG_ERROR("loot", "Creature {} exceeds the 255-slot loot limit; cannot add entry {}.", GetOwnerGUID().ToString(), item.itemid);
+        return;
+    }
+
     switch (item.type)
     {
         case LootStoreItem::Type::Item:
@@ -939,7 +948,7 @@ void Loot::AddItem(LootStoreItem const& item)
             uint32 count = urand(item.mincount, item.maxcount);
             uint32 stacks = count / proto->GetMaxStackSize() + ((count % proto->GetMaxStackSize()) ? 1 : 0);
 
-            for (uint32 i = 0; i < stacks && items.size() < MAX_NR_LOOT_ITEMS; ++i)
+            for (uint32 i = 0; i < stacks && items.size() < itemLimit; ++i)
             {
                 LootItem generatedLoot(item);
                 generatedLoot.context = _itemContext;
@@ -948,8 +957,10 @@ void Loot::AddItem(LootStoreItem const& item)
                 generatedLoot.BonusListIDs = ItemBonusMgr::GetBonusListsForItem(generatedLoot.itemid, _itemContext);
 
                 items.push_back(generatedLoot);
-                count -= proto->GetMaxStackSize();
+                count -= generatedLoot.count;
             }
+            if (IsFullCreatureLoot() && count > 0 && items.size() >= itemLimit)
+                TC_LOG_ERROR("loot", "Creature {} exceeds the 255-slot loot limit while adding stacks of {}.", GetOwnerGUID().ToString(), item.itemid);
             break;
         }
         case LootStoreItem::Type::Currency:
