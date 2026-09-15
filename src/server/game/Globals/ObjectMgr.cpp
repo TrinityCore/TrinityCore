@@ -2409,15 +2409,15 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded {} creatures in {} ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-CellObjectGuids const* ObjectMgr::GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id)
+GridObjectGuids const* ObjectMgr::GetGridObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 gridId)
 {
-    if (CellObjectGuidsMap const* mapGuids = Trinity::Containers::MapGetValuePtr(_mapObjectGuidsStore, { mapid, spawnMode }))
-        return Trinity::Containers::MapGetValuePtr(*mapGuids, cell_id);
+    if (GridObjectGuidsMap const* mapGuids = Trinity::Containers::MapGetValuePtr(_mapObjectGuidsStore, { mapid, spawnMode }))
+        return Trinity::Containers::MapGetValuePtr(*mapGuids, gridId);
 
     return nullptr;
 }
 
-CellObjectGuidsMap const* ObjectMgr::GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
+GridObjectGuidsMap const* ObjectMgr::GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
 {
     return Trinity::Containers::MapGetValuePtr(_mapObjectGuidsStore, { mapid, spawnMode });
 }
@@ -2427,56 +2427,54 @@ bool ObjectMgr::HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 pha
     return Trinity::Containers::MapGetValuePtr(_mapPersonalObjectGuidsStore, { mapid, spawnMode, phaseId }) != nullptr;
 }
 
-CellObjectGuids const* ObjectMgr::GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const
+GridObjectGuids const* ObjectMgr::GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 gridId) const
 {
-    if (CellObjectGuidsMap const* guids = Trinity::Containers::MapGetValuePtr(_mapPersonalObjectGuidsStore, { mapid, spawnMode, phaseId }))
-        return Trinity::Containers::MapGetValuePtr(*guids, cell_id);
+    if (GridObjectGuidsMap const* guids = Trinity::Containers::MapGetValuePtr(_mapPersonalObjectGuidsStore, { mapid, spawnMode, phaseId }))
+        return Trinity::Containers::MapGetValuePtr(*guids, gridId);
 
     return nullptr;
 }
 
-template<CellGuidSet CellObjectGuids::*guids>
+template<GridGuidSet GridObjectGuids::*guids>
 void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
 {
-    uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
-    bool isPersonalPhase = PhasingHandler::IsPersonalPhase(data->phaseId);
-    if (!isPersonalPhase)
+    uint32 gridId = Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
+    if (!PhasingHandler::IsPersonalPhase(data->phaseId))
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapObjectGuidsStore[{ data->mapId, difficulty }][cellId].*guids).insert(data->spawnId);
+            (_mapObjectGuidsStore[{ data->mapId, difficulty }][gridId].*guids).insert(data->spawnId);
     }
     else
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][cellId].*guids).insert(data->spawnId);
+            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][gridId].*guids).insert(data->spawnId);
     }
 }
 
-template<CellGuidSet CellObjectGuids::*guids>
+template<GridGuidSet GridObjectGuids::*guids>
 void ObjectMgr::RemoveSpawnDataFromGrid(SpawnData const* data)
 {
-    uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
-    bool isPersonalPhase = PhasingHandler::IsPersonalPhase(data->phaseId);
-    if (!isPersonalPhase)
+    uint32 gridId = Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
+    if (!PhasingHandler::IsPersonalPhase(data->phaseId))
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapObjectGuidsStore[{ data->mapId, difficulty }][cellId].*guids).erase(data->spawnId);
+            (_mapObjectGuidsStore[{ data->mapId, difficulty }][gridId].*guids).erase(data->spawnId);
     }
     else
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][cellId].*guids).erase(data->spawnId);
+            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][gridId].*guids).erase(data->spawnId);
     }
 }
 
 void ObjectMgr::AddCreatureToGrid(CreatureData const* data)
 {
-    AddSpawnDataToGrid<&CellObjectGuids::creatures>(data);
+    AddSpawnDataToGrid<&GridObjectGuids::creatures>(data);
 }
 
 void ObjectMgr::RemoveCreatureFromGrid(CreatureData const* data)
 {
-    RemoveSpawnDataFromGrid<&CellObjectGuids::creatures>(data);
+    RemoveSpawnDataFromGrid<&GridObjectGuids::creatures>(data);
 }
 
 void ObjectMgr::LoadGameObjects()
@@ -2976,12 +2974,12 @@ void ObjectMgr::OnDeleteSpawnData(SpawnData const* data)
 
 void ObjectMgr::AddGameobjectToGrid(GameObjectData const* data)
 {
-    AddSpawnDataToGrid<&CellObjectGuids::gameobjects>(data);
+    AddSpawnDataToGrid<&GridObjectGuids::gameobjects>(data);
 }
 
 void ObjectMgr::RemoveGameobjectFromGrid(GameObjectData const* data)
 {
-    RemoveSpawnDataFromGrid<&CellObjectGuids::gameobjects>(data);
+    RemoveSpawnDataFromGrid<&GridObjectGuids::gameobjects>(data);
 }
 
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
@@ -10531,55 +10529,10 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 {
     uint32 oldMSTime = getMSTime();
-    _raceUnlockRequirementStore.clear();
-
-    //                                               0       1          2
-    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint8 raceID = fields[0].GetUInt8();
-            uint8 expansion = fields[1].GetUInt8();
-            uint32 achievementId = fields[2].GetUInt32();
-
-            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
-            if (!raceEntry)
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
-                continue;
-            }
-
-            if (expansion >= MAX_ACCOUNT_EXPANSIONS)
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect expansion {}, skipped.", raceID, expansion);
-                continue;
-            }
-
-            if (achievementId && !sAchievementStore.LookupEntry(achievementId))
-            {
-                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect achievement {}, skipped.", raceID, achievementId);
-                continue;
-            }
-
-            RaceUnlockRequirement& raceUnlockRequirement = _raceUnlockRequirementStore[raceID];
-            raceUnlockRequirement.Expansion = expansion;
-            raceUnlockRequirement.AchievementId = achievementId;
-        }
-        while (result->NextRow());
-        TC_LOG_INFO("server.loading", ">> Loaded {} race expansion requirements in {} ms.", _raceUnlockRequirementStore.size(), GetMSTimeDiffToNow(oldMSTime));
-    }
-    else
-        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
-
-    oldMSTime = getMSTime();
-    _classExpansionRequirementStore.clear();
+    _raceClassRequirementStore.clear();
 
     //                                         0       1                     2                      3
-    result = WorldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
+    QueryResult result = WorldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
 
     if (result)
     {
@@ -10635,7 +10588,7 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 
         for (auto&& race : temp)
         {
-            RaceClassAvailability& raceClassAvailability = _classExpansionRequirementStore.emplace_back();
+            RaceClassAvailability& raceClassAvailability = _raceClassRequirementStore.emplace_back();
 
             raceClassAvailability.RaceID = race.first;
 
@@ -10654,21 +10607,77 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+
+    oldMSTime = getMSTime();
+
+    //                                               0       1          2
+    result = WorldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
+
+    if (result)
+    {
+        uint32 loadedRows = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 raceID = fields[0].GetUInt8();
+            uint8 expansion = fields[1].GetUInt8();
+            uint32 achievementId = fields[2].GetUInt32();
+
+            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
+            if (!raceEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
+                continue;
+            }
+
+            if (expansion >= MAX_ACCOUNT_EXPANSIONS)
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect expansion {}, skipped.", raceID, expansion);
+                continue;
+            }
+
+            if (achievementId && !sAchievementStore.LookupEntry(achievementId))
+            {
+                TC_LOG_ERROR("sql.sql", "Race {} defined in `race_unlock_requirement` has incorrect achievement {}, skipped.", raceID, achievementId);
+                continue;
+            }
+
+            auto itr = std::ranges::find(_raceClassRequirementStore, raceID, &RaceClassAvailability::RaceID);
+            if (itr == _raceClassRequirementStore.end())
+            {
+                itr = _raceClassRequirementStore.emplace(_raceClassRequirementStore.end());
+                itr->RaceID = raceID;
+            }
+
+            RaceUnlockRequirement& raceUnlockRequirement = itr->UnlockRequirement;
+            raceUnlockRequirement.Expansion = expansion;
+            raceUnlockRequirement.AchievementId = achievementId;
+            ++loadedRows;
+        }
+        while (result->NextRow());
+        TC_LOG_INFO("server.loading", ">> Loaded {} race expansion requirements in {} ms.", loadedRows, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+}
+
+RaceUnlockRequirement const* ObjectMgr::GetRaceUnlockRequirement(uint8 raceId) const
+{
+    auto raceItr = std::ranges::find(_raceClassRequirementStore, raceId, &RaceClassAvailability::RaceID);
+    if (raceItr == _raceClassRequirementStore.end())
+        return nullptr;
+
+    return &raceItr->UnlockRequirement;
 }
 
 ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, uint8 classId) const
 {
-    auto raceItr = std::find_if(_classExpansionRequirementStore.begin(), _classExpansionRequirementStore.end(), [raceId](RaceClassAvailability const& raceClass)
-    {
-        return raceClass.RaceID == raceId;
-    });
-    if (raceItr == _classExpansionRequirementStore.end())
+    auto raceItr = std::ranges::find(_raceClassRequirementStore, raceId, &RaceClassAvailability::RaceID);
+    if (raceItr == _raceClassRequirementStore.end())
         return nullptr;
 
-    auto classItr = std::find_if(raceItr->Classes.begin(), raceItr->Classes.end(), [classId](ClassAvailability const& classAvailability)
-    {
-        return classAvailability.ClassID == classId;
-    });
+    auto classItr = std::ranges::find(raceItr->Classes, classId, &ClassAvailability::ClassID);
     if (classItr == raceItr->Classes.end())
         return nullptr;
 
@@ -10677,7 +10686,7 @@ ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, u
 
 ClassAvailability const* ObjectMgr::GetClassExpansionRequirementFallback(uint8 classId) const
 {
-    for (RaceClassAvailability const& raceClassAvailability : _classExpansionRequirementStore)
+    for (RaceClassAvailability const& raceClassAvailability : _raceClassRequirementStore)
         for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
             if (classAvailability.ClassID == classId)
                 return &classAvailability;
@@ -10990,7 +10999,8 @@ void ObjectMgr::LoadPlayerChoices()
     _playerChoices.clear();
 
     QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, "
-        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, ForceDontShowChoicesAsList, RequiresSelection, MaxResponses, ScriptName FROM playerchoice");
+        "InfiniteRange, HideWarboardHeader, KeepOpenAfterChoice, ShowChoicesAsList, RequiresSelection, ShowChoicesAsGrid, HideAnswerArt, "
+        "ShowChoicesAsColumns, MaxResponses, ScriptName FROM playerchoice");
     if (!choices)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 player choices. DB table `playerchoice` is empty.");
@@ -11009,7 +11019,8 @@ void ObjectMgr::LoadPlayerChoices()
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(UiTextureKitId)(SoundKitId)(CloseSoundKitId)(Duration)(Question)(PendingChoiceText)
-                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(RequiresSelection)(MaxResponses)(ScriptName)) fields { *choices };
+                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(RequiresSelection)(ShowChoicesAsGrid)(HideAnswerArt)
+                (ShowChoicesAsColumns)(MaxResponses)(ScriptName)) fields { *choices };
 
             int32 choiceId = fields.ChoiceId().GetInt32();
 
@@ -11026,8 +11037,10 @@ void ObjectMgr::LoadPlayerChoices()
             choice.HideWarboardHeader = fields.HideWarboardHeader().GetBool();
             choice.KeepOpenAfterChoice = fields.KeepOpenAfterChoice().GetBool();
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
-            choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
             choice.RequiresSelection = fields.RequiresSelection().GetBool();
+            choice.ShowChoicesAsGrid = fields.ShowChoicesAsGrid().GetBool();
+            choice.HideAnswerArt = fields.HideAnswerArt().GetBool();
+            choice.ShowChoicesAsColumns = fields.ShowChoicesAsColumns().GetBool();
             choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
             choice.ScriptId = GetScriptId(fields.ScriptName().GetStringView());
 

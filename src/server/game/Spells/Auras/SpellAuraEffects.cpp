@@ -731,6 +731,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //659
     &AuraEffect::HandleNULL,                                      //660
     &AuraEffect::HandleNULL,                                      //661 SPELL_AURA_ALTERED_FORM_IN_COMBAT
+    &AuraEffect::HandleNULL,                                      //662
+    &AuraEffect::HandleNULL,                                      //663
+    &AuraEffect::HandleNULL,                                      //664
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, SpellEffectValue const* baseAmount, Unit* caster) :
@@ -2367,14 +2370,10 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             if (!isAffectedByFeignDeath(unit))
                 continue;
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
-            {
-                if (unit->GetCurrentSpell(i)
-                && unit->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
-                {
-                    unit->InterruptSpell(CurrentSpellTypes(i), false);
-                }
-            }
+            for (CurrentSpellTypes i = CURRENT_GENERIC_SPELL; i < CURRENT_MAX_SPELL; i = CurrentSpellTypes(i + 1))
+                if (Spell* currentSpell = unit->GetCurrentSpell(i))
+                    if (currentSpell->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                        unit->InterruptSpell(i, false);
         }
 
         for (auto const& [guid, ref] : target->GetThreatManager().GetThreatenedByMeList())
@@ -5996,11 +5995,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
 void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
 {
-    Powers powerType;
-    if (GetMiscValue() == POWER_ALL)
-        powerType = target->GetPowerType();
-    else
-        powerType = Powers(GetMiscValue());
+    Powers powerType = Powers(GetMiscValue());
 
     if (!target->IsAlive() || !target->GetMaxPower(powerType))
         return;

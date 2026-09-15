@@ -84,7 +84,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = target->GetAverageItemLevel();
     TargetItemLevel = 0;
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(attacker->m_unitData->ContentTuningID))
     {
         ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
         ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
@@ -106,7 +106,7 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
     PlayerItemLevel = attacker->GetAverageItemLevel();
     TargetItemLevel = 0;
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creatureDifficulty->ContentTuningID))
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(target->m_unitData->ContentTuningID))
     {
         ScalingHealthItemLevelCurveID = contentTuning->HealthItemLevelCurveID;
         ScalingHealthPrimaryStatCurveID = contentTuning->HealthPrimaryStatCurveID;
@@ -131,7 +131,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
     TargetLevel = target->GetLevel();
     Expansion = creatureDifficulty->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
-    TargetContentTuningID = creatureDifficulty->ContentTuningID;
+    TargetContentTuningID = accessor->m_unitData->ContentTuningID;
     return true;
 }
 
