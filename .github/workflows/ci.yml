@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: Sync deploy checkout
         run: |
-          cd /deploy/WoWBehaviorAI
+          cd /home/voslik/WoWBehaviorAI
           git fetch origin ai-world
           git reset --hard origin/ai-world
 
@@ -91,12 +91,12 @@ jobs:
         # installing authserver/worldserver into the persistent build-data
         # volume that the app containers run from.
         run: |
-          cd /deploy/WoWBehaviorAI
+          cd /home/voslik/WoWBehaviorAI
           make build
 
       - name: Restart stack
         run: |
-          cd /deploy/WoWBehaviorAI
+          cd /home/voslik/WoWBehaviorAI
           docker compose build
           docker compose up -d
           # up -d only recreates containers whose config changed — force a

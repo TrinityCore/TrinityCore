@@ -26,4 +26,4 @@ services:
       # this container, against the host daemon) resolves the app
       # compose.yml's relative bind mounts (./deploy/*.conf, ./runtime/...)
       # against the host filesystem, so the path must match exactly here.
-      - /deploy/WoWBehaviorAI:/deploy/WoWBehaviorAI
+      - /home/voslik/WoWBehaviorAI:/home/voslik/WoWBehaviorAI

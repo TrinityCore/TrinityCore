@@ -16,7 +16,7 @@ container is started for the first time.
    path, so it can't move without editing that file too):
 
    ```
-   sudo git clone https://github.com/LoubekJan/WoWBehaviorAI.git /deploy/WoWBehaviorAI
+   sudo git clone https://github.com/LoubekJan/WoWBehaviorAI.git /home/voslik/WoWBehaviorAI
    ```
 
    This checkout is what the `deploy` job builds and restarts — it is kept in
@@ -24,12 +24,12 @@ container is started for the first time.
    never with `actions/checkout` (which would wipe the untracked `.env` and
    `runtime/` state below on every run).
 
-2. Inside `/deploy/WoWBehaviorAI`, set up the app stack's own secrets and
+2. Inside `/home/voslik/WoWBehaviorAI`, set up the app stack's own secrets and
    persistent data, same as any other deployment of this repo's
    [compose.yml](../../compose.yml):
 
    ```
-   cd /deploy/WoWBehaviorAI
+   cd /home/voslik/WoWBehaviorAI
    cp .env.example .env
    # edit .env: MYSQL_ROOT_PASSWORD, TC_DB_USER/PASSWORD, ports, etc.
    mkdir -p runtime/logs runtime/data
@@ -39,7 +39,7 @@ container is started for the first time.
    write) and set up the runner's own env file:
 
    ```
-   cd /deploy/WoWBehaviorAI/deploy/runner
+   cd /home/voslik/WoWBehaviorAI/deploy/runner
    cp .env.example .env
    # edit .env: GH_RUNNER_REPO_URL, GH_RUNNER_PAT
    ```
@@ -49,7 +49,7 @@ container is started for the first time.
    substitution):
 
    ```
-   cd /deploy/WoWBehaviorAI/deploy/runner
+   cd /home/voslik/WoWBehaviorAI/deploy/runner
    docker compose up -d --build
    ```
 
@@ -59,12 +59,12 @@ container is started for the first time.
 
 From this point on, every push to `ai-world` that passes CI will
 `docker compose build && docker compose up -d` the app stack in
-`/deploy/WoWBehaviorAI` automatically.
+`/home/voslik/WoWBehaviorAI` automatically.
 
 ## Updating the runner itself
 
 ```
-cd /deploy/WoWBehaviorAI/deploy/runner
+cd /home/voslik/WoWBehaviorAI/deploy/runner
 git pull
 docker compose up -d --build
 ```
