@@ -5,7 +5,7 @@
 #
 # Verify current tags at https://github.com/myoung34/docker-github-actions-runner
 # before building — ubuntu-jammy (22.04) is used here as the stable baseline.
-FROM ghcr.io/myoung34/github-runner:ubuntu-jammy
+FROM myoung34/github-runner:ubuntu-jammy
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl gnupg make \

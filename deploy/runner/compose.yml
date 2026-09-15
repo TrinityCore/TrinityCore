@@ -27,4 +27,3 @@ services:
       # compose.yml's relative bind mounts (./deploy/*.conf, ./runtime/...)
       # against the host filesystem, so the path must match exactly here.
       - /deploy/WoWBehaviorAI:/deploy/WoWBehaviorAI
-    working_dir: /deploy/WoWBehaviorAI
