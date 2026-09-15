@@ -268,6 +268,17 @@ TEST_FLAGS_RESTORED=YES
 
 `NOT APPLICABLE` must be justified by the change scope; it does not mean that a required test was skipped.
 
+## CI/CD pipeline
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) automates the build-and-test gate above on every push/PR to `ai-world` (also runnable manually via `workflow_dispatch`):
+
+- `build-and-test` — GitHub-hosted `ubuntu-24.04`, GCC 13. Fresh VM each run: apt dependencies, `ccache`-backed CMake configure (`-DBUILD_TESTING=1`), Ninja build, `cmake --build --target test`, then a version check of the installed `authserver`/`worldserver` binaries.
+- `deploy` — runs only after `build-and-test` passes on a `push` to `ai-world` (never on `pull_request`, since this repo is public — see the job's own `if:`). Executes on a self-hosted Docker runner registered against this repo (labels `self-hosted, linux, docker, wow`): syncs `/home/voslik/WoWBehaviorAI` to the pushed commit (`git fetch` + `git reset --hard`, not `actions/checkout`, to keep the deploy checkout's untracked `.env`/`runtime/` state intact), runs `make build` — the same incremental build described above, installing into the persistent `build-data` volume — then `docker compose up -d` and `docker compose restart authserver worldserver` so the running stack picks up the freshly compiled binaries.
+
+The runner itself lives in [deploy/runner/](deploy/runner/) (`Dockerfile`, `compose.yml`, `.env.example`); see [deploy/runner/README.md](deploy/runner/README.md) for the one-time host bootstrap and how to update the runner.
+
+The original per-platform workflows (`linux-build.yml` GCC/Clang/PCH matrix, `win-x64-build.yml`, `macos-arm-build.yml`) are kept unchanged and still run on every push/PR, independent of `ci.yml`.
+
 ## Python ai-server workflow
 
 When Python decision-service code changes, rebuild that service:
