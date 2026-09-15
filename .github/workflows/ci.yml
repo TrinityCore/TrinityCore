@@ -227,23 +227,40 @@ jobs:
 
           docker compose exec -T ai-server \
             python -c "
+          import json
           import urllib.request
+
           r = urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)
           body = r.read().decode()
           print(body)
+
           assert r.status == 200
+
+          data = json.loads(body)
+          assert data['status'] == 'ok'
+          assert data['task_model_enabled'] is True
+          assert data['task_model_configured'] is True
           "
 
           echo
           echo "=== AIWorld startup ==="
 
-          if ! docker compose logs --since=5m worldserver | grep -Fq "AIWorld enabled"; then
-            echo "::error::AIWorld did not report successful startup"
-            docker compose logs --since=5m worldserver | tail -200
+          WORLD_LOGS="$(docker compose logs --since=5m worldserver 2>&1)"
+
+          if ! grep -Fq "AI bridge target ai-server:8000" <<< "$WORLD_LOGS"; then
+            echo "::error::AIWorld bridge was not initialized"
+            echo "$WORLD_LOGS" | tail -200
             exit 1
           fi
 
-          echo "AIWorld enabled: OK"
+          if ! grep -Eq 'AI persistence loaded [1-9][0-9]* agents' <<< "$WORLD_LOGS"; then
+            echo "::error::AIWorld did not load persistent agents"
+            echo "$WORLD_LOGS" | tail -200
+            exit 1
+          fi
+
+          echo "AIWorld bridge: OK"
+          echo "AIWorld persistence: OK"
 
           echo
           echo "=== AI controlled agents ==="
