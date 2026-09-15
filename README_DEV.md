@@ -278,6 +278,8 @@ TEST_FLAGS_RESTORED=YES
 
 Both self-hosted runners live in [deploy/runner/](deploy/runner/) (`Dockerfile`, `compose.yml`, `.env.example`); see [deploy/runner/README.md](deploy/runner/README.md) for the one-time host bootstrap and how to update them.
 
+Note: `build-server`/`deploy` compile the full checkout on every push regardless of what changed, so even a docs-only commit like this one exercises the whole pipeline.
+
 The original per-platform workflows (`linux-build.yml` GCC/Clang/PCH matrix, `win-x64-build.yml`, `macos-arm-build.yml`) are disabled (manual `workflow_dispatch` only) — they don't currently pass, and `ci.yml` is the maintained gate for `ai-world`.
 
 ## Python ai-server workflow
