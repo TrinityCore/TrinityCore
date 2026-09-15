@@ -33,4 +33,4 @@ services:
 
 volumes:
   ccache-data:
-    name: aitc_ccache-data
+    name: ${CCACHE_VOLUME_NAME:-aitc_ccache-data}

@@ -134,6 +134,6 @@ services:
 
 volumes:
   mysql-data:
-    name: aitc_mysql-data
+    name: ${MYSQL_VOLUME_NAME:-aitc_mysql-data}
   build-data:
-    name: aitc_build-data
+    name: ${BUILD_VOLUME_NAME:-aitc_build-data}
