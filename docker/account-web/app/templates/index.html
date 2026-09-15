@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <title>WoW Account Creator</title>
+  <style>
+    body { font-family: sans-serif; max-width: 32rem; margin: 3rem auto; color: #222; }
+    fieldset { border: 1px solid #ccc; border-radius: 6px; padding: 1.25rem 1.5rem; }
+    label { display: block; margin-top: 0.9rem; font-weight: bold; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 0.4rem; box-sizing: border-box; }
+    .checkbox-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.9rem; font-weight: normal; }
+    .checkbox-row label { display: inline; margin: 0; font-weight: normal; }
+    button { margin-top: 1.5rem; padding: 0.6rem 1.4rem; font-size: 1rem; }
+    .message { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+    .error { background: #fde2e2; color: #7a1c1c; }
+    .success { background: #e2fde5; color: #1c7a2c; }
+  </style>
+</head>
+<body>
+  <h1>WoW Account Creator</h1>
+
+  {% if error %}
+  <div class="message error">{{ error }}</div>
+  {% endif %}
+
+  {% if success %}
+  <div class="message success">
+    Účet <strong>{{ success.username }}</strong> vytvořen
+    ({{ "administrátor" if success.admin else "hráč" }},
+    {{ "s Northrendem" if success.northrend else "bez Northrendu" }}).
+  </div>
+  {% endif %}
+
+  <form method="post" action="/accounts">
+    <fieldset>
+      <label for="username">Jméno</label>
+      <input type="text" id="username" name="username" maxlength="16" required autofocus>
+
+      <label for="password">Heslo</label>
+      <input type="password" id="password" name="password" maxlength="16" required>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="admin" name="admin">
+        <label for="admin">Administrator</label>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="northrend" name="northrend">
+        <label for="northrend">Přístup do Northrendu</label>
+      </div>
+
+      <button type="submit">Vytvořit účet</button>
+    </fieldset>
+  </form>
+</body>
+</html>

@@ -88,6 +88,23 @@ make configure-realm
 
 For a client on another machine, `REALM_ADDRESS` must be a reachable server address, not `127.0.0.1`.
 
+## Account creation web UI
+
+`account-web` (docker/account-web) is a small form at `http://127.0.0.1:${ACCOUNT_WEB_PORT:-8088}` for creating player/GM accounts without a manual `docker compose attach worldserver` session. It never touches the `auth` database itself — every submission runs TrinityCore's own `account create` / `account set addon` / `account set gmlevel` console commands over worldserver's SOAP interface (`SOAP.*` in `deploy/worldserver.conf`), which is only reachable over the internal Compose network, never published to the host.
+
+TrinityCore's SOAP handler requires the *calling* account to already have `SEC_ADMINISTRATOR` on the realm — including for account-web's own account-creation calls — so a one-time bootstrap admin account is required before the form can be used at all:
+
+```bash
+make start
+docker compose attach worldserver
+# at the worldserver console:
+account create svc-account-web <a-strong-password>
+account set gmlevel svc-account-web 3 -1
+# detach without stopping the server: Ctrl+P, Ctrl+Q
+```
+
+Put those same credentials in `.env` as `TC_SOAP_USER` / `TC_SOAP_PASSWORD`, then `make start` (or `docker compose restart account-web`) to pick them up. This bootstrap account is a service credential for account-web itself, separate from the accounts the form creates.
+
 ## Day-to-day workflow
 
 Typical C++ workflow:

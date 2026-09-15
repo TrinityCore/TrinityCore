@@ -140,6 +140,38 @@ services:
     # Compose network. Publish AI_SERVER_PORT yourself if you need to hit
     # /health from the host while developing.
 
+  account-web:
+    build:
+      context: docker/account-web
+    restart: unless-stopped
+    depends_on:
+      worldserver:
+        condition: service_healthy
+    environment:
+      # worldserver's SOAP console (deploy/worldserver.conf SOAP.*) is only
+      # bound inside the Compose network (port 7878 is not published to the
+      # host below), so this URL is only ever reachable from other
+      # containers. TC_SOAP_USER must already be an existing account with
+      # SEC_ADMINISTRATOR on this realm — TrinityCore's own SOAP handler
+      # requires that (src/server/worldserver/TCSoap/TCSoap.cpp) for every
+      # command, account-web included. See README_DEV.md "Account creation
+      # web UI" for the one-time bootstrap of that account. Defaults to
+      # empty (not required) so an unrelated deploy that hasn't set these
+      # in .env yet still comes up — the form just fails at submit time
+      # until they're set, same failure mode as a wrong password.
+      TC_SOAP_URL: http://worldserver:7878
+      TC_SOAP_USER: ${TC_SOAP_USER:-}
+      TC_SOAP_PASSWORD: ${TC_SOAP_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      # 127.0.0.1 only: a single unchecked checkbox on this form grants
+      # SEC_ADMINISTRATOR, so this must never be reachable outside the host.
+      - "127.0.0.1:${ACCOUNT_WEB_PORT:-8088}:8000"
+
   gpu-check:
     image: nvidia/cuda:12.4.1-base-ubuntu22.04
     profiles: ["gpu-check"]
