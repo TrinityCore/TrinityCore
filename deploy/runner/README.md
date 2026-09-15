@@ -1,14 +1,19 @@
 # Deploy runner
 
-Self-hosted GitHub Actions runner that executes the `deploy` job in
-[.github/workflows/ci.yml](../../.github/workflows/ci.yml). It only ever
-runs on `push` to `ai-world` after `build-and-test` passes on a GitHub-hosted
-runner — pull requests (including from forks, since this repo is public)
-never reach it. See `compose.yml` in this directory for why.
+Self-hosted GitHub Actions runners on the deploy server. `compose.yml` in
+this directory defines two:
+
+- `runner` (labels `self-hosted, linux, docker, wow, deploy`) — executes the
+  `deploy` job in [.github/workflows/ci.yml](../../.github/workflows/ci.yml).
+  It only ever runs on `push` to `ai-world` after `build-and-test` passes on
+  a GitHub-hosted runner — pull requests (including from forks, since this
+  repo is public) never reach it. See `compose.yml` for why.
+- `ci-runner` (labels `self-hosted, linux, docker, wow, ci`) — reserved for
+  future CI use on this host; not wired into any workflow job yet.
 
 ## One-time host bootstrap
 
-Do this once on the dedicated Linux deploy server, before the runner
+Do this once on the dedicated Linux deploy server, before either runner
 container is started for the first time.
 
 1. Clone the persistent deploy checkout at the exact path the runner
@@ -35,8 +40,17 @@ container is started for the first time.
    mkdir -p runtime/logs runtime/data
    ```
 
-3. Create a fine-grained GitHub PAT for this repo (Administration: read &
-   write) and set up the runner's own env file:
+3. Create `ci-runner`'s own workdir (bind-mounted 1:1 into the container for
+   the same reason as the deploy checkout above — a future CI job running
+   `docker compose` from inside it needs the build context on the same
+   absolute path the host daemon resolves bind mounts against):
+
+   ```
+   mkdir -p /home/voslik/ci-runner-work
+   ```
+
+4. Create a fine-grained GitHub PAT for this repo (Administration: read &
+   write) and set up both runners' env file:
 
    ```
    cd /home/voslik/WoWBehaviorAI/deploy/runner
@@ -44,7 +58,7 @@ container is started for the first time.
    # edit .env: GH_RUNNER_REPO_URL, GH_RUNNER_PAT
    ```
 
-4. Build and start the runner (run from this directory, not with `-f` from
+5. Build and start both runners (run from this directory, not with `-f` from
    elsewhere, so Compose picks up the `.env` here for `GH_RUNNER_*`
    substitution):
 
@@ -53,15 +67,16 @@ container is started for the first time.
    docker compose up -d --build
    ```
 
-   Confirm it registered: GitHub → repo → Settings → Actions → Runners
-   should show `wow-deploy-runner` as idle, with labels
-   `self-hosted, linux, docker, wow`.
+   Confirm they registered: GitHub → repo → Settings → Actions → Runners
+   should show `wow-deploy-runner` and `wow-ci-runner` as idle, with labels
+   `self-hosted, linux, docker, wow, deploy` and
+   `self-hosted, linux, docker, wow, ci` respectively.
 
 From this point on, every push to `ai-world` that passes CI will
 `docker compose build && docker compose up -d` the app stack in
 `/home/voslik/WoWBehaviorAI` automatically.
 
-## Updating the runner itself
+## Updating the runners
 
 ```
 cd /home/voslik/WoWBehaviorAI/deploy/runner

@@ -1,14 +1,15 @@
-# Self-hosted GitHub Actions runner used only by the `deploy` job in
-# .github/workflows/ci.yml (push to ai-world). Lives on the deploy server,
-# separate from the app stack in the repo root's compose.yml.
+# Self-hosted GitHub Actions runners on the deploy server, separate from the
+# app stack in the repo root's compose.yml.
 #
 # One-time host bootstrap (see README.md in this directory), then:
 #   docker compose -f deploy/runner/compose.yml up -d --build
 #
-# The docker.sock mount gives this container root-equivalent control over
-# the whole host's Docker daemon. That is why the deploy job it serves is
-# gated to `push` on ai-world only — never pull_request — in ci.yml.
+# The docker.sock mount gives each container root-equivalent control over
+# the whole host's Docker daemon. That is why the `deploy` job served by
+# `runner` is gated to `push` on ai-world only — never pull_request — in
+# ci.yml.
 services:
+  # Used by the `deploy` job (push to ai-world) in .github/workflows/ci.yml.
   runner:
     build:
       context: .
@@ -18,7 +19,7 @@ services:
       REPO_URL: ${GH_RUNNER_REPO_URL}
       ACCESS_TOKEN: ${GH_RUNNER_PAT}
       RUNNER_NAME: ${GH_RUNNER_NAME:-wow-deploy-runner}
-      LABELS: self-hosted,linux,docker,wow
+      LABELS: self-hosted,linux,docker,wow,deploy
       DISABLE_AUTO_UPDATE: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -27,3 +28,25 @@ services:
       # compose.yml's relative bind mounts (./deploy/*.conf, ./runtime/...)
       # against the host filesystem, so the path must match exactly here.
       - /home/voslik/WoWBehaviorAI:/home/voslik/WoWBehaviorAI
+
+  # Reserved for future CI (build-and-test) use on this host. Own workdir,
+  # kept separate from the deploy checkout above — same reasoning as
+  # `runner`'s bind mount: whatever runs `docker compose` from inside this
+  # container (e.g. a future tc-dev-based CI job) needs the build context on
+  # its own filesystem at the exact path the host daemon will resolve
+  # relative bind mounts against.
+  ci-runner:
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      RUNNER_SCOPE: repo
+      REPO_URL: ${GH_RUNNER_REPO_URL}
+      ACCESS_TOKEN: ${GH_RUNNER_PAT}
+      RUNNER_NAME: ${GH_CI_RUNNER_NAME:-wow-ci-runner}
+      RUNNER_WORKDIR: /home/voslik/ci-runner-work
+      LABELS: self-hosted,linux,docker,wow,ci
+      DISABLE_AUTO_UPDATE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/voslik/ci-runner-work:/home/voslik/ci-runner-work
