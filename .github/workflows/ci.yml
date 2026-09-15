@@ -83,8 +83,23 @@ jobs:
           git fetch origin ai-world
           git reset --hard origin/ai-world
 
-      - name: Build and restart stack
+      - name: Compile TrinityCore
+        # docker compose build below only (re)builds the dev image (apt
+        # packages) — it does NOT compile source. Actual compilation happens
+        # here, the same way `make build` does it locally: a throwaway
+        # tc-dev container with the fresh checkout mounted at /workspace,
+        # installing authserver/worldserver into the persistent build-data
+        # volume that the app containers run from.
+        run: |
+          cd /deploy/WoWBehaviorAI
+          make build
+
+      - name: Restart stack
         run: |
           cd /deploy/WoWBehaviorAI
           docker compose build
           docker compose up -d
+          # up -d only recreates containers whose config changed — force a
+          # restart so authserver/worldserver actually reload the binary
+          # make build just installed into build-data.
+          docker compose restart authserver worldserver
