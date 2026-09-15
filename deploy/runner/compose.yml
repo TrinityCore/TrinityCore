@@ -1,0 +1,30 @@
+# Self-hosted GitHub Actions runner used only by the `deploy` job in
+# .github/workflows/ci.yml (push to ai-world). Lives on the deploy server,
+# separate from the app stack in the repo root's compose.yml.
+#
+# One-time host bootstrap (see README.md in this directory), then:
+#   docker compose -f deploy/runner/compose.yml up -d --build
+#
+# The docker.sock mount gives this container root-equivalent control over
+# the whole host's Docker daemon. That is why the deploy job it serves is
+# gated to `push` on ai-world only — never pull_request — in ci.yml.
+services:
+  runner:
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      RUNNER_SCOPE: repo
+      REPO_URL: ${GH_RUNNER_REPO_URL}
+      ACCESS_TOKEN: ${GH_RUNNER_PAT}
+      RUNNER_NAME: ${GH_RUNNER_NAME:-wow-deploy-runner}
+      LABELS: self-hosted,linux,docker,wow
+      DISABLE_AUTO_UPDATE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Same absolute path on both sides: docker compose (run from inside
+      # this container, against the host daemon) resolves the app
+      # compose.yml's relative bind mounts (./deploy/*.conf, ./runtime/...)
+      # against the host filesystem, so the path must match exactly here.
+      - /deploy/WoWBehaviorAI:/deploy/WoWBehaviorAI
+    working_dir: /deploy/WoWBehaviorAI
