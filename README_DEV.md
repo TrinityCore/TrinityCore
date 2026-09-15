@@ -270,14 +270,15 @@ TEST_FLAGS_RESTORED=YES
 
 ## CI/CD pipeline
 
-[.github/workflows/ci.yml](.github/workflows/ci.yml) automates the build-and-test gate above on every push/PR to `ai-world` (also runnable manually via `workflow_dispatch`):
+[.github/workflows/ci.yml](.github/workflows/ci.yml) automates the build-and-test gate above, split across three jobs:
 
-- `build-and-test` — GitHub-hosted `ubuntu-24.04`, GCC 13. Fresh VM each run: apt dependencies, `ccache`-backed CMake configure (`-DBUILD_TESTING=1`), Ninja build, `cmake --build --target test`, then a version check of the installed `authserver`/`worldserver` binaries.
-- `deploy` — runs only after `build-and-test` passes on a `push` to `ai-world` (never on `pull_request`, since this repo is public — see the job's own `if:`). Executes on a self-hosted Docker runner registered against this repo (labels `self-hosted, linux, docker, wow`): syncs `/home/voslik/WoWBehaviorAI` to the pushed commit (`git fetch` + `git reset --hard`, not `actions/checkout`, to keep the deploy checkout's untracked `.env`/`runtime/` state intact), runs `make build` — the same incremental build described above, installing into the persistent `build-data` volume — then `docker compose up -d` and `docker compose restart authserver worldserver` so the running stack picks up the freshly compiled binaries.
+- `build-pr` — runs on `pull_request` only. GitHub-hosted `ubuntu-24.04`, GCC 13, fresh VM every run: apt dependencies, `ccache`-backed CMake configure (`-DBUILD_TESTING=1`), Ninja build, `cmake --build --target test`. `ccache` is restored from `actions/cache`, but the CMake/Ninja build directory itself is not persisted, so this job always reconfigures/relinks from scratch.
+- `build-server` — runs on `push` to `ai-world` or `workflow_dispatch`. Self-hosted Docker runner (labels `self-hosted, linux, docker, wow, ci`): builds/tests inside the same `tc-dev` container `make build` uses, but against its own persistent `aitc_ci_build-data`/`aitc_ci_ccache-data` volumes (`BUILD_VOLUME_NAME`/`CCACHE_VOLUME_NAME` env — see `compose.yml`'s parametrized volume names) — kept separate from the running server's own `aitc_build-data`/`aitc_ccache-data` so a CI build can never touch production binaries. First run per volume is a full build; later runs are incremental.
+- `deploy` — runs only after `build-server` passes on a `push` to `ai-world` (never on `pull_request`, since this repo is public — see the job's own `if:`). Self-hosted Docker runner (labels `self-hosted, linux, docker, wow, deploy`): syncs `/home/voslik/WoWBehaviorAI` to the pushed commit (`git fetch` + `git reset --hard`, not `actions/checkout`, to keep the deploy checkout's untracked `.env`/`runtime/` state intact), runs `make build` — the same incremental build, but into the production `build-data` volume — then `docker compose up -d` and `docker compose restart authserver worldserver` so the running stack picks up the freshly compiled binaries.
 
-The runner itself lives in [deploy/runner/](deploy/runner/) (`Dockerfile`, `compose.yml`, `.env.example`); see [deploy/runner/README.md](deploy/runner/README.md) for the one-time host bootstrap and how to update the runner.
+Both self-hosted runners live in [deploy/runner/](deploy/runner/) (`Dockerfile`, `compose.yml`, `.env.example`); see [deploy/runner/README.md](deploy/runner/README.md) for the one-time host bootstrap and how to update them.
 
-The original per-platform workflows (`linux-build.yml` GCC/Clang/PCH matrix, `win-x64-build.yml`, `macos-arm-build.yml`) are kept unchanged and still run on every push/PR, independent of `ci.yml`.
+The original per-platform workflows (`linux-build.yml` GCC/Clang/PCH matrix, `win-x64-build.yml`, `macos-arm-build.yml`) are disabled (manual `workflow_dispatch` only) — they don't currently pass, and `ci.yml` is the maintained gate for `ai-world`.
 
 ## Python ai-server workflow
 

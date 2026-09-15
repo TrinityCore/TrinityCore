@@ -5,11 +5,13 @@ this directory defines two:
 
 - `runner` (labels `self-hosted, linux, docker, wow, deploy`) — executes the
   `deploy` job in [.github/workflows/ci.yml](../../.github/workflows/ci.yml).
-  It only ever runs on `push` to `ai-world` after `build-and-test` passes on
-  a GitHub-hosted runner — pull requests (including from forks, since this
-  repo is public) never reach it. See `compose.yml` for why.
-- `ci-runner` (labels `self-hosted, linux, docker, wow, ci`) — reserved for
-  future CI use on this host; not wired into any workflow job yet.
+  It only ever runs on `push` to `ai-world` after `build-server` passes —
+  pull requests (including from forks, since this repo is public) never
+  reach it. See `compose.yml` for why.
+- `ci-runner` (labels `self-hosted, linux, docker, wow, ci`) — executes the
+  `build-server` job on `push`/`workflow_dispatch`, against its own
+  persistent `aitc_ci_build-data`/`aitc_ci_ccache-data` volumes (kept
+  separate from the production volumes `runner`/`deploy` use).
 
 ## One-time host bootstrap
 
@@ -41,9 +43,10 @@ container is started for the first time.
    ```
 
 3. Create `ci-runner`'s own workdir (bind-mounted 1:1 into the container for
-   the same reason as the deploy checkout above — a future CI job running
-   `docker compose` from inside it needs the build context on the same
-   absolute path the host daemon resolves bind mounts against):
+   the same reason as the deploy checkout above — the `build-server` job's
+   `docker compose run tc-dev`, run from inside this container, needs the
+   build context on the same absolute path the host daemon resolves bind
+   mounts against):
 
    ```
    mkdir -p /home/voslik/ci-runner-work
