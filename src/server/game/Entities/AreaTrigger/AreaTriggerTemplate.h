@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_AREATRIGGER_TEMPLATE_H
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
@@ -121,14 +122,15 @@ struct AreaTriggerShapeInfo
     struct Polygon
     {
         Polygon()
-            : PolygonVertices(), PolygonVerticesTarget(), Height(0.0f), HeightTarget(0.0f) { }
-        explicit Polygon(std::array<float, MAX_AREATRIGGER_ENTITY_DATA> const& raw)
-            : PolygonVertices(), PolygonVerticesTarget(), Height(raw[0]), HeightTarget(raw[1]) { }
+            : PolygonVertices(), PolygonVerticesTarget(), Height(0.0f), HeightTarget(0.0f), Type(AreaTriggerShapeType::Polygon) { }
+        explicit Polygon(AreaTriggerShapeType type, std::array<float, MAX_AREATRIGGER_ENTITY_DATA> const& raw)
+            : PolygonVertices(), PolygonVerticesTarget(), Height(raw[0]), HeightTarget(raw[1]), Type(type) { }
 
         std::vector<TaggedPosition<Position::XY>> PolygonVertices;
         std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
         float Height;
         float HeightTarget;
+        AreaTriggerShapeType Type;
 
         float GetMaxSearchRadius() const;
         bool IsDynamic() const;

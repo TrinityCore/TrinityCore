@@ -197,7 +197,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            if (shape == AreaTriggerShapeType::Unk || shape >= AreaTriggerShapeType::Max)
+            if (shape == AreaTriggerShapeType::Script || shape == AreaTriggerShapeType::FromUnit || shape >= AreaTriggerShapeType::Max)
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid shape {}.",
                     createPropertiesId.Id, uint32(createPropertiesId.IsCustom), uint32(shape));
@@ -275,9 +275,10 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 case AreaTriggerShapeType::Box:
                     createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Box>(shapeData);
                     break;
+                case AreaTriggerShapeType::Quad2D:
                 case AreaTriggerShapeType::Polygon:
                 {
-                    AreaTriggerShapeInfo::Polygon& polygon = createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Polygon>(shapeData);
+                    AreaTriggerShapeInfo::Polygon& polygon = createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Polygon>(shape, shapeData);
                     if (polygon.Height <= 0.0f)
                     {
                         polygon.Height = 1.0f;
