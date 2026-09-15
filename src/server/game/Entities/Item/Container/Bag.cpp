@@ -93,7 +93,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context
     SetContext(context);
 
     // Setting the number of Slots the Container has
-    SetBagSize(itemProto->GetContainerSlots());
+    SetBagSize(MAX_BAG_SIZE);
 
     // Cleaning 20 slots
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
@@ -115,8 +115,7 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fie
     if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
         return false;
 
-    ItemTemplate const* itemProto = GetTemplate(); // checked in Item::LoadFromDB
-    SetBagSize(itemProto->GetContainerSlots());
+    SetBagSize(MAX_BAG_SIZE);
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {

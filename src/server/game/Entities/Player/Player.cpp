@@ -9834,14 +9834,9 @@ void Player::SetInventorySlotCount(uint8 slots)
 
 void Player::UpdateInventorySlotCount()
 {
-    uint8 slotCount = INVENTORY_DEFAULT_SIZE;
-    if (HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_ACCOUNT_SECURED))
-        slotCount += INVENTORY_ACCOUNT_SECURED_BONUS_SIZE;
-
-    if (AuraEffect const* alpacaSaddlebags = GetAuraEffect(SPELL_ALPACA_SADDLEBAGS, EFFECT_0))
-        slotCount += alpacaSaddlebags->GetAmountAsInt();
-
-    SetInventorySlotCount(slotCount);
+    // Use the complete backpack range reserved by the current client layout.
+    // Account security and temporary auras must not shrink or exceed it.
+    SetInventorySlotCount(INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START);
 }
 
 bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
@@ -10086,7 +10081,7 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
             if (!pBagProto)
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
-            if (slot >= pBagProto->GetContainerSlots())
+            if (slot >= pBag->GetBagSize())
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
             if (!ItemCanGoIntoBag(pProto, pBagProto))
