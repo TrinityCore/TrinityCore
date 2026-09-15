@@ -168,9 +168,13 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      # 127.0.0.1 only: a single unchecked checkbox on this form grants
-      # SEC_ADMINISTRATOR, so this must never be reachable outside the host.
-      - "127.0.0.1:${ACCOUNT_WEB_PORT:-8088}:8000"
+      # Published on all interfaces at the user's request — the form has
+      # no login of its own and a single unchecked checkbox grants
+      # SEC_ADMINISTRATOR, so anyone who can reach ACCOUNT_WEB_PORT can
+      # create a full admin account. Restrict at the network layer
+      # (firewall/VPN) instead, or scope this back to 127.0.0.1 if that
+      # isn't in place.
+      - "${ACCOUNT_WEB_PORT:-8088}:8000"
 
   gpu-check:
     image: nvidia/cuda:12.4.1-base-ubuntu22.04

@@ -90,7 +90,9 @@ For a client on another machine, `REALM_ADDRESS` must be a reachable server addr
 
 ## Account creation web UI
 
-`account-web` (docker/account-web) is a small form at `http://127.0.0.1:${ACCOUNT_WEB_PORT:-8088}` for creating player/GM accounts without a manual `docker compose attach worldserver` session. It never touches the `auth` database itself — every submission runs TrinityCore's own `account create` / `account set addon` / `account set gmlevel` console commands over worldserver's SOAP interface (`SOAP.*` in `deploy/worldserver.conf`), which is only reachable over the internal Compose network, never published to the host.
+`account-web` (docker/account-web) is a small form at `http://<host>:${ACCOUNT_WEB_PORT:-8088}` — published on all interfaces, reachable from outside the host — for creating player/GM accounts without a manual `docker compose attach worldserver` session. It never touches the `auth` database itself — every submission runs TrinityCore's own `account create` / `account set addon` / `account set gmlevel` console commands over worldserver's SOAP interface (`SOAP.*` in `deploy/worldserver.conf`), which is only reachable over the internal Compose network, never published to the host.
+
+The form itself has no login, and a single unchecked checkbox grants `SEC_ADMINISTRATOR` — anyone who can reach `ACCOUNT_WEB_PORT` can create a full admin account. Restrict access at the network layer (firewall/VPN) if this box is reachable from anywhere untrusted.
 
 TrinityCore's SOAP handler requires the *calling* account to already have `SEC_ADMINISTRATOR` on the realm — including for account-web's own account-creation calls — so a one-time bootstrap admin account is required before the form can be used at all:
 
