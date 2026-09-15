@@ -1,0 +1,6 @@
+# DRAFT — likely empty for the initial Elwynn pivot.
+# Only needed if a faction_templates.csv row requires a bitmask group
+# that vanilla FactionGroup.dbc does not already provide
+# (Player/Alliance/Horde/Monster/Friendly/...). Leave empty until a
+# concrete need is identified.
+id,mask_bit,name

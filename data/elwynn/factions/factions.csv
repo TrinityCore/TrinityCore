@@ -1,0 +1,11 @@
+# DRAFT — placeholder rows pending Elwynn census export (roadmap 3.2).
+# id: custom Faction.dbc ID; must be verified against actual vanilla
+#     Faction.dbc max ID by the generator before use, not assumed here.
+# reputation_index: -1 if the faction has no player-visible reputation bar.
+# parent_id: 0 = no parent.
+id,reputation_index,parent_id,name
+1200,-1,0,Elwynn Forest
+1201,-1,1200,Defias Brotherhood
+1202,-1,1200,Riverpaw Gnolls
+1203,-1,1200,Elwynn Kobolds
+1204,-1,1200,Elwynn Murlocs

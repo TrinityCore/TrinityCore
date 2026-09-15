@@ -1,0 +1,17 @@
+# DRAFT — placeholder rows pending Elwynn census export (roadmap 3.2)
+# and a designed relation matrix. Values below are TBD, not final.
+#
+# id: custom FactionTemplate.dbc ID. This is the ID used by
+#     creature_template.faction / creature_faction_override.faction —
+#     NOT the Faction.dbc id.
+# faction_id: references factions.csv id.
+# faction_group/friend_group/enemy_group: FactionTemplate.dbc group
+#     bitmasks (Player/Alliance/Horde/Monster/...). TBD until the
+#     relation matrix is designed.
+# enemies/friends: explicit FactionTemplate id lists (semicolon-separated),
+#     for relations that don't fit the group bitmask. TBD.
+id,faction_id,faction_group,friend_group,enemy_group,enemies,friends,description
+2300,1201,TBD,TBD,TBD,TBD,TBD,Defias Brotherhood default
+2301,1202,TBD,TBD,TBD,TBD,TBD,Riverpaw Gnolls default
+2302,1203,TBD,TBD,TBD,TBD,TBD,Elwynn Kobolds default
+2303,1204,TBD,TBD,TBD,TBD,TBD,Elwynn Murlocs default
