@@ -1,8 +1,11 @@
 name: Windows x64
 
+# Disabled: this build currently doesn't pass and ci.yml is the maintained
+# gate for ai-world. Kept as a manual-only check.
 on:
-  push:
-  pull_request:
+  # push:
+  # pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
