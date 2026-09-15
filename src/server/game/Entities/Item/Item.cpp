@@ -300,7 +300,8 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                         return false;
                     return true;
                 case ITEM_SUBCLASS_REAGENT_CONTAINER:
-                    return pProto->IsCraftingReagent();
+                    // Reagent bags are general-purpose storage on this realm.
+                    return true;
                 default:
                     return false;
             }

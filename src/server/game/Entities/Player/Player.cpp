@@ -10418,7 +10418,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
             }
         }
 
-        for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        for (uint32 i = INVENTORY_SLOT_BAG_START; i < REAGENT_BAG_SLOT_END; i++)
         {
             res = CanStoreItem_InBag(i, dest, pProto, count, true, true, pItem, bag, slot);
             if (Optional<InventoryResult> res2 = tryHandleBagStoreResult(res))
@@ -10483,7 +10483,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     if (Optional<InventoryResult> res2 = tryHandleInvStoreResult(res))
         return *res2;
 
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < REAGENT_BAG_SLOT_END; i++)
     {
         res = CanStoreItem_InBag(i, dest, pProto, count, false, true, pItem, bag, slot);
         if (Optional<InventoryResult> res2 = tryHandleBagStoreResult(res))
