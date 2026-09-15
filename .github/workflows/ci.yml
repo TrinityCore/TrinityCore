@@ -77,6 +77,10 @@ jobs:
     if: github.ref == 'refs/heads/ai-world' && github.event_name == 'push'
     runs-on: [self-hosted, linux, docker, wow]
     steps:
+      - name: Trust deploy repository
+        run: |
+          git config --global --add safe.directory /home/voslik/WoWBehaviorAI
+
       - name: Sync deploy checkout
         run: |
           cd /home/voslik/WoWBehaviorAI
