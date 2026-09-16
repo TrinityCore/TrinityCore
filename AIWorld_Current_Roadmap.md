@@ -2329,7 +2329,7 @@ AI WorldFactionId
 
 **Runtime evidence (potvrzeno, 2026-09-16) — AI WorldFactionId sociální vrstva:** `data/elwynn/factions/{world_factions.csv,world_faction_assignments.csv,world_faction_relations.csv}` definují 6 WorldFaction entit (`STORMWIND_ALLIANCE`, `DEFIAS_BROTHERHOOD`, `RIVERPAW_GNOLLS`, `ELWYNN_KOBOLDS`, `ELWYNN_MURLOCS`, `ELWYNN_WOLVES`) a explicitní přiřazení pro všech 182 permanentních creature templates (žádný `TBD`). `WorldFactionId` (`src/server/game/AIWorld/Faction/WorldFactionId.h`) je persistentní pole na `AgentRecord` (`ai_agents.world_faction_id`), naplněné startup-only `WorldFactionCatalog` z world DB tabulky `ai_world_faction_entry_defaults` (generované z výše uvedených CSV). `AIWorldMgr::RunSpawnReconciliation()` přiřadí WorldFaction novým i existujícím agentům (batch reconcile-mismatch UPDATE) - žádná ruční `UPDATE ai_agents` mimo tento generický mechanismus. Fail-closed default `NEUTRAL_UNAFFILIATED` pro cokoliv katalog nezná.
 
-Zbývající otevřená polovina 3.3 je čistě TrinityCore `FactionTemplate` combat/reaction audit (creature_template.faction, `FactionTemplate.dbc`) - viz `data/elwynn/factions/faction_templates.csv`'s vlastní DEFERRED status a jeho odůvodnění (jedna WorldFaction dnes pokrývá mechanicky odlišné `FactionTemplate` reakce, např. `ELWYNN_KOBOLDS` = FT 25 `enemy_group=0` i FT 26 `enemy_group=PLAYER`).
+Zbývající otevřená polovina 3.3 je TrinityCore `FactionTemplate` combat/reaction audit - tedy zjistit, zda jsou SOUČASNÉ vanilla reaction hodnoty pro Elwynn NPC vůbec správné/zamýšlené, ne jen je zpřístupnit reputaci (viz FactionTemplate klony níže, které je záměrně beze změny KOPÍRUJÍ, ne auditují).
 
 **Runtime evidence (potvrzeno, 2026-09-16) — V1 custom player-reputation `Faction.dbc`:** `tools/dbc/build_elwynn_factions.py` deterministicky generuje `runtime/data/dbc/Faction.dbc` (`1201-1204`, `ReputationIndex 105-108`, `ParentFactionID=0`, žádný spillover) z `data/elwynn/factions/factions.csv`, fail-closed ověřeno proti vanilla `Faction.dbc` (max ID `1160`, volný `ReputationIndex 105-127`). Toto je odlišná, samostatná vrstva od AI WorldFactionId výše (`creature_template.faction`/`FactionTemplate.dbc` beze změny) - viz `data/elwynn/factions/README.md`.
 
@@ -2344,6 +2344,16 @@ DB persistence                     PASS  (character_reputation: faction=1201, st
 ```
 
 Ověřeno pro všechny čtyři player-visible WorldFaction (Defias Brotherhood/Riverpaw Gnolls/Elwynn Kobolds/Elwynn Murlocs); `ELWYNN_WOLVES` zůstává podle designu ecological/social bez player reputation.
+
+**Stav (2026-09-16) — `FactionTemplate.dbc` klony (plumbing, ne reaction audit):** audit potvrdil, že jedna WorldFaction dnes reálně pokrývá víc než jeden vanilla `FactionTemplate` (`DEFIAS_BROTHERHOOD` = FT 7/17/27, `ELWYNN_KOBOLDS` = FT 25/26, `RIVERPAW_GNOLLS` = FT 20, `ELWYNN_MURLOCS` = FT 18 - 7 distinct FT, ne 4), a FT 7 je navíc SDÍLENÝ s `NEUTRAL_UNAFFILIATED` faunou (Porcine Entourage/Princess). `data/elwynn/factions/faction_templates.csv` proto definuje 7 custom `FactionTemplate.dbc` klonů (2300-2306) - každý byte-for-byte kopie svého vanilla zdroje (Flags/FactionGroup/FriendGroup/EnemyGroup/Enemies/Friend čtené live z DBC, ne přepsané ručně), jen `Faction` ukazuje na `factions.csv`'s 1201-1204. `sql/updates/world/3.3.5/2026_09_16_01_world.sql` repointuje `creature_template.faction` jen pro těch 32 konkrétních entries, které `world_faction_assignments.csv` řadí do jedné ze 4 player-visible WorldFaction (`tc_faction_action = CLONED`) - Porcine Entourage/Princess zůstávají na vanilla FT 7 beze změny.
+
+```text
+FactionTemplate clone generation    STATIC PASS  (7 klonů, byte-for-byte proti vanilla, cross-checked skriptem proti CSV)
+creature_template.faction SQL       STATIC PASS  (32 entries, cross-checked proti world_faction_assignments.csv)
+runtime player reaction test        PENDING      (Neutral/Friendly/Hostile proti repointovaným NPC ještě neproběhlo)
+```
+
+Tohle NENÍ auditovaná oprava (žádná vanilla reaction hodnota se nezkoumala/neměnila - jen se zkopírovala) - je to infrastruktura, která teprve umožní budoucí `creature_onkill_reputation` (zabití NPC → změna reputation na 1201-1204). Samotný `FactionTemplate` reaction audit (jsou tyhle vanilla hodnoty vůbec správné?) zůstává jako checklist položka výše otevřený.
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 
