@@ -317,14 +317,12 @@ void Player::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina(), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetMaxHealth((uint32)baseValue + (uint32)totalValue);
+    SetMaxHealth((uint32)value);
 }
 
 uint32 Player::GetPowerIndex(Powers power) const
@@ -345,14 +343,12 @@ void Player::UpdateMaxPower(Powers power)
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetMaxPower(power, (int32)std::lroundf(baseValue + totalValue));
+    SetMaxPower(power, (int32)std::lroundf(value));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
@@ -455,9 +451,10 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 
     float attackPowerMod = std::max(GetAPMultiplier(attType, normalized), 0.25f);
+
     float baseValue  = GetFlatModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType, false) / 3.5f * attackPowerMod;
     float basePct    = GetPctModifierValue(unitMod, BASE_PCT);
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float totalPct   = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
@@ -486,8 +483,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weaponMaxDamage = BASE_MAXDAMAGE;
     }
 
-    minDamage = ((weaponMinDamage + baseValue) * basePct * totalPct) + (totalValue * totalPct) * versaDmgMod;
-    maxDamage = ((weaponMaxDamage + baseValue) * basePct * totalPct) + (totalValue * totalPct) * versaDmgMod;
+    minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
+    maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct * versaDmgMod;
 }
 
 void Player::UpdateBlockPercentage()
@@ -1059,14 +1056,12 @@ void Creature::UpdateMaxPower(Powers power)
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetMaxPower(power, (int32)std::lroundf(baseValue + totalValue));
+    SetMaxPower(power, (int32)std::lroundf(value));
 }
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
@@ -1144,12 +1139,12 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float attackSpeedMulti = GetAPMultiplier(attType, normalized);
     float baseValue        = GetFlatModifierValue(unitMod, BASE_VALUE) + (attackPower / 3.5f) * variance;
     float basePct          = GetPctModifierValue(unitMod, BASE_PCT) * attackSpeedMulti;
-    float totalValue       = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    float totalValue       = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float totalPct         = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
     float dmgMultiplier    = GetCreatureDifficulty()->DamageModifier; // = DamageModifier * GetDamageMod(rank);
 
-    minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct * totalPct) + (totalValue * totalPct);
-    maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct * totalPct) + (totalValue * totalPct);
+    minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
+    maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
 }
 
 /*#######################################
@@ -1171,7 +1166,7 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 
 bool Guardian::UpdateStats(Stats stat)
 {
-    // value = (base_value * base_pct) * total_pct + total_value * total_pct
+    // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
     UpdateStatBuffMod(stat);
     float ownersBonus = 0.0f;
@@ -1266,6 +1261,8 @@ void Guardian::UpdateResistances(uint32 school)
 
 void Guardian::UpdateArmor()
 {
+    float baseValue = 0.0f;
+    float value = 0.0f;
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
@@ -1275,15 +1272,13 @@ void Guardian::UpdateArmor()
     else if (IsPet())
         bonus_armor = m_owner->GetArmor();
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
-    float originalBaseValue = baseValue;
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    value = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue = value;
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + bonus_armor;
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE) + bonus_armor, std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetArmor(int32(originalBaseValue), int32(baseValue + totalValue - originalBaseValue));
+    SetArmor(int32(baseValue), int32(value - baseValue));
 }
 
 void Guardian::UpdateMaxHealth()
@@ -1303,14 +1298,12 @@ void Guardian::UpdateMaxHealth()
         default:                multiplicator = 10.0f;  break;
     }
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator, std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetMaxHealth((uint32)baseValue + (uint32)totalValue);
+    SetMaxHealth((uint32)value);
 }
 
 void Guardian::UpdateMaxPower(Powers power)
@@ -1320,14 +1313,12 @@ void Guardian::UpdateMaxPower(Powers power)
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    SetMaxPower(power, int32(baseValue + int32(totalValue)));
+    SetMaxPower(power, int32(value));
 }
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
@@ -1429,14 +1420,14 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     float base_value  = GetFlatModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType, false) / 3.5f * att_speed + bonusDamage;
     float base_pct    = GetPctModifierValue(unitMod, BASE_PCT);
-    float total_value = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    float total_value = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetPctModifierValue(unitMod, TOTAL_PCT);
 
     float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
 
-    float mindamage = ((base_value + weapon_mindamage) * base_pct * total_pct) + (total_value * total_pct);
-    float maxdamage = ((base_value + weapon_maxdamage) * base_pct * total_pct) + (total_value * total_pct);
+    float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
+    float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
     SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MinDamage), mindamage);
     SetUpdateFieldStatValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::MaxDamage), maxdamage);

@@ -342,7 +342,6 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraFlatModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraFlatModifiersGroup[i][TOTAL_PCT_EXCLUDE_BASE] = 100.0f;
         m_auraFlatModifiersGroup[i][TOTAL_VALUE] = 0.0f;
         m_auraPctModifiersGroup[i][BASE_PCT] = 1.0f;
         m_auraPctModifiersGroup[i][TOTAL_PCT] = 1.0f;
@@ -5266,28 +5265,29 @@ void Unit::UpdateStatBuffMod(Stats stat)
     float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
     baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
     baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-    float baseMod = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
+    float baseModFromPct = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    float totalValueMod = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
-    float totalMod = baseMod + totalValueMod;
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    float totalModFromPct = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
+    float modsFromPct = baseModFromPct + totalModFromPct;
 
-    // recalculate item stat bonuses
-    float itemMod = totalValue;
-    itemMod -= modPos; // remove positive auras
-    itemMod += modNeg; // remove negative auras
+    // recalculate stat bonuses not applied by auras
+    float nonAuraMod = totalValue;
+    nonAuraMod -= modPos; // remove positive auras
+    nonAuraMod -= modNeg; // remove negative auras
 
     // add item stat bonuses to positive
-    if (itemMod > 0.f)
-        modPos += itemMod;
+    if (nonAuraMod > 0.f)
+        modPos += nonAuraMod;
     else
-        modNeg += itemMod;
+        modNeg += nonAuraMod;
 
     // add pct mods
-    if (totalMod > 0.f)
-        modPos += totalMod;
+    if (modsFromPct > 0.f)
+        modPos += modsFromPct;
     else
-        modNeg += totalMod;
+        modNeg += modsFromPct;
 
     m_floatStatPosBuff[stat] = std::round(modPos);
     m_floatStatNegBuff[stat] = std::round(modNeg);
@@ -9636,7 +9636,6 @@ void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifie
     switch (modifierType)
     {
         case BASE_VALUE:
-        case TOTAL_PCT_EXCLUDE_BASE:
         case TOTAL_VALUE:
             m_auraFlatModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -9898,7 +9897,8 @@ float Unit::GetTotalStatValue(Stats stat) const
     baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
     baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
     totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
     return baseValue + totalValue;
@@ -9912,14 +9912,12 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
         return 0.0f;
     }
 
-    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
-    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
-    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    float totalValue = CalculatePct(GetFlatModifierValue(unitMod, TOTAL_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
-    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
-    return baseValue + totalValue;
+    return value;
 }
 
 SpellSchools Unit::GetSpellSchoolByAuraGroup(UnitMods unitMod) const
@@ -9966,7 +9964,7 @@ void Unit::UpdateResistances(uint32 school)
     {
         UnitMods unitMod = UnitMods(UNIT_MOD_RESISTANCE_START + school);
 
-        float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, TOTAL_PCT_EXCLUDE_BASE), -100.0f));
+        float value = GetFlatModifierValue(unitMod, BASE_VALUE);
         value *= GetPctModifierValue(unitMod, BASE_PCT);
 
         float baseValue = value;

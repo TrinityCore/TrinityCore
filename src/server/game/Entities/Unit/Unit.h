@@ -156,16 +156,15 @@ typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmune
 enum UnitModifierFlatType
 {
     BASE_VALUE = 0,                // flat value containing only fixed create stats, e.g. player_classlevelstats
-    TOTAL_PCT_EXCLUDE_BASE = 1,    // percent modifier as flat value affecting only TOTAL_VALUE, not affecting BASE_VALUE
-    TOTAL_VALUE = 2,               // flat value containing flat modfiers from gear and auras
-    MODIFIER_TYPE_FLAT_END = 3
+    TOTAL_VALUE = 1,               // flat value containing flat modfiers from gear and auras
+    MODIFIER_TYPE_FLAT_END
 };
 
 enum UnitModifierPctType
 {
     BASE_PCT = 0,                  // percent modifier affecting only BASE_VALUE
     TOTAL_PCT = 1,                 // percent modifier affecting BASE_VALUE and TOTAL_VALUE
-    MODIFIER_TYPE_PCT_END = 2
+    MODIFIER_TYPE_PCT_END
 };
 
 enum WeaponDamageRange
