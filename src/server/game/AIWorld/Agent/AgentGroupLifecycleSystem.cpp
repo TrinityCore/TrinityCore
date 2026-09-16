@@ -125,7 +125,8 @@ void AgentGroupLifecycleSystem::RequestJoinGroup(GroupId groupId, AgentId member
 
     // Read-only - RequestJoinGroup() never mutates an individual
     // AgentRecord, only confirms one already exists.
-    if (!agentRegistry.Find(memberId))
+    AgentRecord const* joiningMember = agentRegistry.Find(memberId);
+    if (!joiningMember)
     {
         TC_LOG_ERROR("ai.world", "AgentGroupLifecycleSystem::RequestJoinGroup: agent id={} does not exist, refusing to add it to group id={}",
             memberId.Value, groupId.Value);
@@ -142,6 +143,36 @@ void AgentGroupLifecycleSystem::RequestJoinGroup(GroupId groupId, AgentId member
             memberId.Value, groupId.Value);
         onComplete(false);
         return;
+    }
+
+    // AI WorldFactionId invariant (data/elwynn/factions/README.md): a group
+    // has no WorldFaction field of its own (see AgentGroupRecord.h) -
+    // deliberately derived from its own current Members instead, the same
+    // "no separate, potentially-drifting source of truth" reasoning that
+    // struct's own comment already applies to Hunger/member count. An empty
+    // group has nothing to compare against yet, so its first joiner
+    // implicitly sets the group's own affiliation; every joiner after that
+    // must match whichever WorldFaction any existing member already
+    // carries (they are all guaranteed consistent, since every past join
+    // already passed this same check) - a cross-faction join is refused
+    // synchronously here, before any DB write, the same "validate before
+    // touching the DB" discipline this method already applies to every
+    // other precondition above.
+    for (AgentGroupMembership const& membership : group->Members)
+    {
+        AgentRecord const* existingMember = agentRegistry.Find(membership.Member);
+        if (!existingMember)
+            continue;
+
+        if (existingMember->WorldFaction != joiningMember->WorldFaction)
+        {
+            TC_LOG_ERROR("ai.world", "AgentGroupLifecycleSystem::RequestJoinGroup: agent id={} worldFactionId={} cannot join group id={} - conflicts with existing member id={} worldFactionId={}",
+                memberId.Value, joiningMember->WorldFaction.Value, groupId.Value, existingMember->Id.Value, existingMember->WorldFaction.Value);
+            onComplete(false);
+            return;
+        }
+
+        break;
     }
 
     _pendingGroupOperations.insert(groupId.Value);

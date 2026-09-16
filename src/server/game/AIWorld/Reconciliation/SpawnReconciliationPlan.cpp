@@ -22,7 +22,8 @@
 SpawnReconciliationPlan BuildReconciliationPlan(
     std::vector<CreatureSpawnIdentity> const& census,
     std::unordered_set<uint64> const& allKnownSpawnIds,
-    std::vector<AgentSpawnBinding> const& physicalBindings)
+    std::vector<AgentSpawnBinding> const& physicalBindings,
+    WorldFactionCatalog const& worldFactionCatalog)
 {
     SpawnReconciliationPlan plan;
 
@@ -110,6 +111,7 @@ SpawnReconciliationPlan BuildReconciliationPlan(
         pending.Type = DeriveCreatureAgentType(identity.NpcFlags);
         pending.MapId = identity.MapId;
         pending.SpawnId = identity.SpawnId;
+        pending.WorldFaction = worldFactionCatalog.Resolve(identity.Entry);
         plan.Missing.push_back(pending);
     }
 

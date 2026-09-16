@@ -445,7 +445,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // second, independently-tunable pair.
     _wolfGroupAutoFormation = sConfigMgr->GetBoolDefault("AIWorld.WolfGroupAutoFormation", false);
 
-    _wolfGroupCreatureEntry = uint32(sConfigMgr->GetIntDefault("AIWorld.WolfGroupCreatureEntry", 1423));
+    _wolfGroupCreatureEntry = uint32(sConfigMgr->GetIntDefault("AIWorld.WolfGroupCreatureEntry", 69));
 
     int32 wolfGroupFormationIntervalMs = sConfigMgr->GetIntDefault("AIWorld.WolfGroupFormationIntervalMs", 5000);
     if (wolfGroupFormationIntervalMs < 1000)
@@ -471,6 +471,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     _wolfLooseFormationProfile.Id = CoalitionFormationProfileId::WolfLoose;
     _wolfLooseFormationProfile.Kind = AgentGroupKind::Loose;
     _wolfLooseFormationProfile.CreatureEntry = _wolfGroupCreatureEntry;
+    _wolfLooseFormationProfile.RequiredWorldFaction = WorldFactions::ElwynnWolves;
     _wolfLooseFormationProfile.MinMembers = _groupPolicyConfig.LooseMinMembers;
     _wolfLooseFormationProfile.MaxMembers = _groupPolicyConfig.LooseMaxMembers;
     _wolfLooseFormationProfile.FormationRadius = _wolfGroupFormationRadius;
@@ -504,6 +505,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     _defiasLooseFormationProfile.Id = CoalitionFormationProfileId::DefiasLoose;
     _defiasLooseFormationProfile.Kind = AgentGroupKind::Loose;
     _defiasLooseFormationProfile.CreatureEntry = _defiasGroupCreatureEntry;
+    _defiasLooseFormationProfile.RequiredWorldFaction = WorldFactions::DefiasBrotherhood;
     _defiasLooseFormationProfile.MinMembers = _groupPolicyConfig.LooseMinMembers;
     _defiasLooseFormationProfile.MaxMembers = _groupPolicyConfig.LooseMaxMembers;
     _defiasLooseFormationProfile.FormationRadius = _defiasGroupFormationRadius;
@@ -1363,6 +1365,15 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // spawn-specific below - every agent this produces is Abstract with an
     // empty RuntimeGuid regardless of what it was before shutdown.
     _persistence.LoadAgents(_registry);
+
+    // AI WorldFactionId catalog: one world DB read, before
+    // RunSpawnReconciliation() below can need it - see _worldFactionCatalog's
+    // own declaration comment. Unconditional (unlike RunSpawnReconciliation()
+    // itself below): cheap, and CoalitionFormationProfile's own
+    // RequiredWorldFaction gate compares against AgentRecord::WorldFaction
+    // values this catalog is the only thing that ever assigns, regardless of
+    // whether reconciliation is enabled this run.
+    _worldFactionCatalog.Load();
 
     // Milestone 2.12F4B2 (STATIC review): gated behind
     // AIWorld.EnableSpawnReconciliation (default false = disabled), unlike
@@ -3165,6 +3176,7 @@ std::vector<CoalitionCandidate> AIWorldMgr::CollectCoalitionCandidates()
         candidate.Y = creature->GetPositionY();
         candidate.Z = creature->GetPositionZ();
         candidate.CreatureEntry = creature->GetEntry();
+        candidate.WorldFaction = record->WorldFaction;
         candidates.push_back(candidate);
     }
 
@@ -5807,7 +5819,7 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // own UNIQUE (map_id, spawn_id) key. See SpawnReconciliationPlan.h's
     // own comment for the full reasoning.
     std::vector<AgentSpawnBinding> physicalBindings = _persistence.LoadAllBindings();
-    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings);
+    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings, _worldFactionCatalog);
 
     // ORPHANED: the world.creature spawn no longer exists or is no longer
     // eligible. CONFLICTED: the spawn is still eligible, but the row's own
@@ -5864,9 +5876,42 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
         record.SpawnId = pending.SpawnId;
         record.WorldState = AgentWorldState::Abstract;
         record.ControlMode = AgentControlMode::ObserveOnly;
+        record.WorldFaction = pending.WorldFaction;
 
         if (_registry.Add(record))
             ++addedCount;
+    }
+
+    // AI WorldFactionId refresh pass: a spawn already VALID (real
+    // ai_agents row, correct MapId) may still carry a stale/never-set
+    // world_faction_id - it either predates the 2026_09_16 migration, or
+    // _worldFactionCatalog's own source data changed since it was last
+    // reconciled. Scans the same zone-scoped `census` this run already
+    // built (including the just-created Missing entries above, which
+    // never mismatch here since they were already assigned the catalog's
+    // current answer) rather than a separate query. Fail-closed like every
+    // other batch persistence method in this subsystem: AgentRecord::
+    // WorldFaction is only updated in memory for entries
+    // ReconcileWorldFactionsBatch() itself confirms landed - never
+    // optimistically, before the DB write is confirmed.
+    std::vector<std::pair<AgentId, WorldFactionId>> worldFactionMismatches;
+    for (CreatureSpawnIdentity const& identity : census)
+    {
+        AgentRecord* record = _registry.Find(AgentId{ identity.SpawnId });
+        if (!record || record->MapId != identity.MapId)
+            continue;
+
+        WorldFactionId resolved = _worldFactionCatalog.Resolve(identity.Entry);
+        if (record->WorldFaction != resolved)
+            worldFactionMismatches.emplace_back(record->Id, resolved);
+    }
+
+    std::vector<std::pair<AgentId, WorldFactionId>> worldFactionConfirmed = _persistence.ReconcileWorldFactionsBatch(worldFactionMismatches);
+    for (auto const& confirmedMismatch : worldFactionConfirmed)
+    {
+        AgentRecord* record = _registry.Find(confirmedMismatch.first);
+        if (record)
+            record->WorldFaction = confirmedMismatch.second;
     }
 
     // Milestone 2.12F4B2: zoneScope/rawZoneSpawns logged alongside the
@@ -5876,9 +5921,9 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // Roadmap.md's own "2.12F4B2" section), and both numbers together are
     // what makes that difference auditable instead of a single opaque
     // figure.
-    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={}",
+    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={} worldFactionUpdated={}",
         zoneId, zoneSpawnIds.size(), census.size(), plan.ValidCount, plan.Missing.size(), addedCount, plan.Orphaned.size(), plan.Conflicted.size(),
-        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size());
+        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size(), worldFactionConfirmed.size());
 }
 
 void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)

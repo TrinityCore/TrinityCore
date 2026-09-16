@@ -24,7 +24,9 @@
 #include "Agent/AgentType.h"
 #include "Agent/PendingCreatureAgent.h"
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 class AgentRegistry;
@@ -182,6 +184,25 @@ class TC_GAME_API AgentPersistence
         // its own batch UPDATE with exactly one query, regardless of
         // batch size.
         std::unordered_map<uint64, AgentControlMode> LoadAllControlModes();
+
+        // AI WorldFactionId: bulk reconcile-mismatch update for AIWorldMgr::
+        // RunSpawnReconciliation()'s own WorldFactionCatalog refresh pass -
+        // mirrors PromoteControlModeBatch()'s own chunked-transaction/bulk-
+        // readback shape, generalized to more than one target value (see
+        // the .cpp for why). Confirmed afterward with exactly one bulk
+        // LoadAllWorldFactions() read; returns only the subset of
+        // `mismatches` whose read-back world_faction_id actually matches
+        // the intended target - the caller must only update
+        // AgentRecord::WorldFaction in memory for those, fail closed like
+        // every other batch method here. No-op if mismatches is empty.
+        std::vector<std::pair<AgentId, WorldFactionId>> ReconcileWorldFactionsBatch(std::vector<std::pair<AgentId, WorldFactionId>> const& mismatches);
+
+        // AI WorldFactionId: lightweight bulk read of every agent_id's
+        // current world_faction_id - none of LoadAgents()'s other columns.
+        // Used internally by ReconcileWorldFactionsBatch() above to confirm
+        // its own batch UPDATE with exactly one query, regardless of batch
+        // size.
+        std::unordered_map<uint64, WorldFactionId> LoadAllWorldFactions();
 
         // Milestone 2.12F4A P2 fix (STATIC review): explicit, synchronous
         // ControlMode upgrade for a single already-created agent - startup-

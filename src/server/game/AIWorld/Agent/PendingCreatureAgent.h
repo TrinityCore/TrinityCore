@@ -20,6 +20,7 @@
 
 #include "AgentType.h"
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
 
 // Milestone 2.12F4B: a not-yet-persisted creature agent identity, pure
 // value - AgentPersistence::CreateCreatureAgentsBatch()'s own input and
@@ -31,6 +32,13 @@ struct PendingCreatureAgent
     AgentType Type = AgentType::Unclassified;
     uint32 MapId = 0;
     uint64 SpawnId = 0;
+
+    // AI WorldFactionId - resolved once by BuildReconciliationPlan() from
+    // CreatureSpawnIdentity::Entry via WorldFactionCatalog::Resolve(),
+    // carried here so CreateCreatureAgentsBatch() can insert it directly
+    // instead of re-resolving per row. Defaults to Unaffiliated, the same
+    // fail-closed default AgentRecord::WorldFaction itself uses.
+    WorldFactionId WorldFaction = WorldFactions::Unaffiliated;
 };
 
 #endif // AIWORLD_PENDINGCREATUREAGENT_H

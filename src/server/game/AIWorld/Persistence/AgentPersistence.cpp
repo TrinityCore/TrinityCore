@@ -95,6 +95,16 @@ uint32 AgentPersistence::LoadAgents(AgentRegistry& registry)
             ? AgentControlMode::AIWorldControlled
             : AgentControlMode::ObserveOnly;
 
+        // AI WorldFactionId: appended at the end of CHAR_SEL_AI_AGENTS' own
+        // column list one place after control_mode (fields[20]) - see
+        // AgentRecord::WorldFaction's own comment. No fail-closed range
+        // check needed the way ControlMode's own uint8 does: every uint32
+        // value is a structurally valid WorldFactionId (an unrecognized one
+        // just resolves to nothing meaningful yet, the same way an unknown
+        // CreatureEntry resolves to Unaffiliated in WorldFactionCatalog::
+        // Resolve()).
+        record.WorldFaction = WorldFactionId{ fields[20].GetUInt32() };
+
         // Milestone 2.12F4A2 P2 fix (STATIC review): AgentId == SpawnId is
         // a hard identity invariant for a persistent non-instance
         // Creature agent, not an advisory one - a row violating it (e.g.
@@ -115,8 +125,8 @@ uint32 AgentPersistence::LoadAgents(AgentRegistry& registry)
         if (!registry.Add(record))
             continue;
 
-        TC_LOG_INFO("ai.world", "AI agent loaded id={} type={} map={} spawn={} state=ABSTRACT controlMode={} home={} work={} money={} food={} resource={} lastRewardedWorkWindowId={} economyVersion={}",
-            record.Id.Value, ToString(record.Type), record.MapId, record.SpawnId, ToString(record.ControlMode),
+        TC_LOG_INFO("ai.world", "AI agent loaded id={} type={} map={} spawn={} state=ABSTRACT controlMode={} worldFactionId={} home={} work={} money={} food={} resource={} lastRewardedWorkWindowId={} economyVersion={}",
+            record.Id.Value, ToString(record.Type), record.MapId, record.SpawnId, ToString(record.ControlMode), record.WorldFaction.Value,
             record.HomeLocation.has_value(), record.WorkLocation.has_value(),
             record.EconomyState.Money, record.EconomyState.Food, record.EconomyState.Resource,
             record.EconomyState.LastRewardedWorkWindowId, record.EconomyState.Version);
@@ -240,7 +250,12 @@ std::vector<PendingCreatureAgent> AgentPersistence::CreateCreatureAgentsBatch(st
         if (chunkEnd > pending.size())
             chunkEnd = pending.size();
 
-        std::string sql = "INSERT INTO ai_agents (agent_id, agent_type, map_id, spawn_id) VALUES ";
+        // AI WorldFactionId: agent.WorldFaction is resolved once already,
+        // by BuildReconciliationPlan() against WorldFactionCatalog when this
+        // PendingCreatureAgent was built - inserted here, not looked up
+        // again, the same "resolve once, carry the value" shape SpawnId/
+        // Type already have.
+        std::string sql = "INSERT INTO ai_agents (agent_id, agent_type, map_id, spawn_id, world_faction_id) VALUES ";
         for (std::size_t i = offset; i < chunkEnd; ++i)
         {
             PendingCreatureAgent const& agent = pending[i];
@@ -255,6 +270,8 @@ std::vector<PendingCreatureAgent> AgentPersistence::CreateCreatureAgentsBatch(st
             sql += std::to_string(agent.MapId);
             sql += ',';
             sql += std::to_string(agent.SpawnId);
+            sql += ',';
+            sql += std::to_string(agent.WorldFaction.Value);
             sql += ')';
         }
 
@@ -439,6 +456,94 @@ bool AgentPersistence::SetControlMode(AgentId id, AgentControlMode mode)
         TC_LOG_ERROR("ai.world", "AgentPersistence: ControlMode UPDATE for agent id={} to {} was not confirmed by read-back", id.Value, ToString(mode));
 
     return confirmed;
+}
+
+std::vector<std::pair<AgentId, WorldFactionId>> AgentPersistence::ReconcileWorldFactionsBatch(std::vector<std::pair<AgentId, WorldFactionId>> const& mismatches)
+{
+    std::vector<std::pair<AgentId, WorldFactionId>> confirmed;
+    if (mismatches.empty())
+        return confirmed;
+
+    // Unlike PromoteControlModeBatch()'s single target value
+    // (AIWorldControlled), a WorldFactionCatalog refresh pass can produce
+    // several different target WorldFactionId values in one pass (e.g. one
+    // zone's census resolves to a mix of DEFIAS_BROTHERHOOD/ELWYNN_WOLVES/
+    // Unaffiliated) - grouped here so each distinct target value becomes
+    // its own chunked `UPDATE ... WHERE agent_id IN (...)`, all still
+    // appended to ONE CharacterDatabaseTransaction/DirectCommitTransaction()
+    // for the same atomicity reason PromoteControlModeBatch() already
+    // documents. Every interpolated value is a plain unsigned integer
+    // (AgentId::Value/WorldFactionId::Value), never an untrusted string.
+    std::unordered_map<uint32, std::vector<uint64>> idsByTargetFaction;
+    for (auto const& mismatch : mismatches)
+        idsByTargetFaction[mismatch.second.Value].push_back(mismatch.first.Value);
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    for (auto const& targetGroup : idsByTargetFaction)
+    {
+        std::vector<uint64> const& ids = targetGroup.second;
+        for (std::size_t offset = 0; offset < ids.size(); offset += AgentPersistenceBatchChunkSize)
+        {
+            std::size_t chunkEnd = offset + AgentPersistenceBatchChunkSize;
+            if (chunkEnd > ids.size())
+                chunkEnd = ids.size();
+
+            std::string sql = "UPDATE ai_agents SET world_faction_id = ";
+            sql += std::to_string(targetGroup.first);
+            sql += " WHERE agent_id IN (";
+            for (std::size_t i = offset; i < chunkEnd; ++i)
+            {
+                if (i != offset)
+                    sql += ',';
+                sql += std::to_string(ids[i]);
+            }
+            sql += ')';
+
+            trans->Append(sql.c_str());
+        }
+    }
+    CharacterDatabase.DirectCommitTransaction(trans);
+
+    // DirectCommitTransaction() reports no success/failure - confirm with
+    // exactly one bulk LoadAllWorldFactions() read (not one per id/chunk/
+    // target group), then only report back the subset actually confirmed
+    // at its own intended target value. Fail closed: anything not
+    // confirmed is simply not in the returned list, so the caller must not
+    // update AgentRecord::WorldFaction in memory for it - it keeps
+    // whatever WorldFaction it already had, the same discipline
+    // PromoteControlModeBatch() already applies to ControlMode.
+    std::unordered_map<uint64, WorldFactionId> current = LoadAllWorldFactions();
+    confirmed.reserve(mismatches.size());
+    for (auto const& mismatch : mismatches)
+    {
+        auto it = current.find(mismatch.first.Value);
+        if (it != current.end() && it->second == mismatch.second)
+            confirmed.push_back(mismatch);
+        else
+            TC_LOG_ERROR("ai.world", "AgentPersistence: batch WorldFaction reconcile for agent id={} to worldFactionId={} was not confirmed by read-back",
+                mismatch.first.Value, mismatch.second.Value);
+    }
+
+    return confirmed;
+}
+
+std::unordered_map<uint64, WorldFactionId> AgentPersistence::LoadAllWorldFactions()
+{
+    std::unordered_map<uint64, WorldFactionId> factions;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_AGENT_WORLD_FACTIONS);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return factions;
+
+    factions.reserve(result->GetRowCount());
+    do
+    {
+        Field* fields = result->Fetch();
+        factions.emplace(fields[0].GetUInt64(), WorldFactionId{ fields[1].GetUInt32() });
+    } while (result->NextRow());
+
+    return factions;
 }
 
 void AgentPersistence::SaveEconomyState(AgentId id, AgentEconomyState& state)

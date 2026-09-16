@@ -20,6 +20,7 @@
 
 #include "AgentId.h"
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
 
 // Milestone 2.12E4R (generalized from 2.12E4A's WolfCoalitionCandidate):
 // one currently-observable agent's position and creature identity, as a
@@ -41,6 +42,16 @@ struct CoalitionCandidate
     float Y = 0.0f;
     float Z = 0.0f;
     uint32 CreatureEntry = 0;
+
+    // AI WorldFactionId (data/elwynn/factions/README.md) - copied from
+    // AgentRecord::WorldFaction by AIWorldMgr::CollectCoalitionCandidates(),
+    // the same "resolve once, carry the value" shape CreatureEntry already
+    // has here. CoalitionFormationSystem::Propose() matches this against
+    // CoalitionFormationProfile::RequiredWorldFaction as a second,
+    // independent compatibility gate alongside CreatureEntry - see that
+    // profile field's own comment for why CreatureEntry alone is not
+    // considered sufficient any more.
+    WorldFactionId WorldFaction = WorldFactions::Unaffiliated;
 };
 
 #endif // AIWORLD_COALITIONCANDIDATE_H

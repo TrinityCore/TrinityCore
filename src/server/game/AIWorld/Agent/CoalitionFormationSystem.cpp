@@ -25,9 +25,18 @@ std::optional<CoalitionProposal> CoalitionFormationSystem::Propose(std::vector<C
     // FORMATION PROFILE split this preserves (the caller's own candidate
     // collection has no idea which CreatureEntry values matter to any
     // particular profile).
+    // AI WorldFactionId gate (data/elwynn/factions/README.md): a second,
+    // independent check alongside CreatureEntry - see CoalitionFormationProfile::
+    // RequiredWorldFaction's own comment for why CreatureEntry alone is no
+    // longer treated as sufficient. In practice a CreatureEntry's own
+    // WorldFactionId is already fixed by WorldFactionCatalog, so this is
+    // defense-in-depth rather than a filter expected to reject anything
+    // CreatureEntry didn't already - but it is the check that makes "one
+    // coalition = one WorldFactionId" an enforced invariant here, not just
+    // an assumption.
     std::vector<CoalitionCandidate> compatible;
     for (CoalitionCandidate const& candidate : candidates)
-        if (candidate.CreatureEntry == profile.CreatureEntry)
+        if (candidate.CreatureEntry == profile.CreatureEntry && candidate.WorldFaction == profile.RequiredWorldFaction)
             compatible.push_back(candidate);
 
     if (uint32(compatible.size()) < profile.MinMembers)

@@ -23,6 +23,7 @@
 #include "Agent/PendingCreatureAgent.h"
 #include "CreatureSpawnIdentity.h"
 #include "Define.h"
+#include "Faction/WorldFactionCatalog.h"
 #include <unordered_set>
 #include <vector>
 
@@ -125,9 +126,16 @@ struct SpawnReconciliationPlan
 // on. MapId is still cross-checked once a SpawnId match is found (see
 // Conflicted above) - SpawnId uniqueness does not excuse a stored row
 // disagreeing with world.creature about which map that spawn is on.
+// `worldFactionCatalog` resolves each Missing entry's own CreatureSpawnIdentity::
+// Entry into PendingCreatureAgent::WorldFaction (data/elwynn/factions/
+// README.md) - Valid/Orphaned/Conflicted/AgentIdCollisions entries don't
+// need it here: an already-valid agent's own WorldFaction is refreshed
+// separately by AIWorldMgr::RunSpawnReconciliation()'s own catalog refresh
+// pass, not by this diff.
 TC_GAME_API SpawnReconciliationPlan BuildReconciliationPlan(
     std::vector<CreatureSpawnIdentity> const& census,
     std::unordered_set<uint64> const& allKnownSpawnIds,
-    std::vector<AgentSpawnBinding> const& physicalBindings);
+    std::vector<AgentSpawnBinding> const& physicalBindings,
+    WorldFactionCatalog const& worldFactionCatalog);
 
 #endif // AIWORLD_SPAWNRECONCILIATIONPLAN_H

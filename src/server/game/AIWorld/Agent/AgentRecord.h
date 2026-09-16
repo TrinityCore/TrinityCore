@@ -25,6 +25,7 @@
 #include "AgentLocation.h"
 #include "AgentType.h"
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
 #include "Goal/ActiveGoal.h"
 #include "Goal/CoordinationStopEvent.h"
 #include "Goal/GroupCoordinationGoal.h"
@@ -66,6 +67,20 @@ struct AgentRecord
 
     uint32 MapId = 0;
     uint64 SpawnId = 0;
+
+    // AI WorldFactionId (data/elwynn/factions/README.md) - social/political
+    // affiliation, separate from Faction.dbc/FactionTemplate.dbc. Defaults
+    // to Unaffiliated, the same fail-closed shape ControlMode above uses:
+    // an agent this catalog never classifies (or one loaded before the
+    // catalog existed) stays NEUTRAL_UNAFFILIATED, never an arbitrary/
+    // guessed affiliation. For a Creature agent, resolved from
+    // CreatureSpawnIdentity::Entry via WorldFactionCatalog - see
+    // AIWorldMgr::RunSpawnReconciliation()'s own WorldFactionCatalog
+    // refresh pass and AgentPersistence::LoadAgents() for where this is
+    // set. Persistent (ai_agents.world_faction_id), appended at the end of
+    // CHAR_SEL_AI_AGENTS' own column list the same way ControlMode's own
+    // control_mode column was (2.12F4A) - see that statement's comment.
+    WorldFactionId WorldFaction = WorldFactions::Unaffiliated;
 
     // Milestone 2.11A: persistent, optional - most agents (e.g. GUARD) have
     // neither. Behavior/capability layer (profession, daily cycle, ...) is

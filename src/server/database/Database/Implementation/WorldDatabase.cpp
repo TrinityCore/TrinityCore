@@ -105,6 +105,12 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // creature table state is the actual precondition, not just "zoneId
     // is populated".
     PrepareStatement(WORLD_SEL_CREATURE_GUIDS_BY_ZONE, "SELECT guid FROM creature WHERE zoneId = ?", CONNECTION_SYNCH);
+
+    // AI WorldFactionCatalog's own startup-only bulk read of the whole
+    // creature_entry -> WorldFactionId default table (data/elwynn/factions/
+    // README.md's own generated output) - one query, not one per
+    // CreatureEntry.
+    PrepareStatement(WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS, "SELECT creature_entry, world_faction_id FROM ai_world_faction_entry_defaults", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
 }

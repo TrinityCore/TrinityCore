@@ -47,6 +47,7 @@
 #include "Define.h"
 #include "Event/EventBus.h"
 #include "Event/WorldEvent.h"
+#include "Faction/WorldFactionCatalog.h"
 #include "Goal/FoodTargetResolver.h"
 #include "Goal/GoalSystem.h"
 #include "Goal/RoutineActivitySystem.h"
@@ -2960,6 +2961,16 @@ class TC_GAME_API AIWorldMgr
         // by this. Used exclusively during Initialize(), never per-tick.
         AgentPersistence _persistence;
 
+        // AI WorldFactionId catalog (data/elwynn/factions/README.md) - one
+        // world DB read at Initialize(), before RunSpawnReconciliation()
+        // first needs it, then read-only for the rest of this process's
+        // lifetime. RunSpawnReconciliation() is the only caller: it resolves
+        // each Missing entry's own WorldFaction through this when building
+        // PendingCreatureAgent, and separately refreshes any already-valid
+        // agent whose stored world_faction_id has drifted from what this
+        // catalog now says.
+        WorldFactionCatalog _worldFactionCatalog;
+
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity
         // space, not part of _registry/AgentId any more (see GroupId.h for
@@ -3153,8 +3164,16 @@ class TC_GAME_API AIWorldMgr
         // with. A single fixed entry, not a list/category - deliberately
         // narrow for this milestone's own vertical slice, the same "prove
         // it for one concrete case first" scoping the manual group
-        // lifecycle/policy smoke tests already followed.
-        uint32 _wolfGroupCreatureEntry = 1423;
+        // lifecycle/policy smoke tests already followed. AI WorldFactionId
+        // P1 fix: was 1423 ("Stormwind Guard", STORMWIND_ALLIANCE) - a
+        // latent species/config mismatch invisible before
+        // _wolfLooseFormationProfile.RequiredWorldFaction (ElwynnWolves)
+        // existed to catch it. Now 69 ("Diseased Timber Wolf",
+        // ELWYNN_WOLVES per data/elwynn/factions/world_faction_assignments.csv) -
+        // any value here that doesn't resolve to ElwynnWolves in
+        // WorldFactionCatalog can never form a coalition any more,
+        // regardless of this config.
+        uint32 _wolfGroupCreatureEntry = 69;
 
         // Milestone 2.12E4A: AIWorld.WolfGroupFormationIntervalMs -
         // Update()'s own cadence for RunCoalitionFormation(_wolfLooseFormationProfile),

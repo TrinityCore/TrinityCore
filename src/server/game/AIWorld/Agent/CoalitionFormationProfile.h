@@ -21,6 +21,7 @@
 #include "AgentGroupKind.h"
 #include "CoalitionFormationProfileId.h"
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
 
 // Milestone 2.12E4R (generalized from 2.12E4A's WolfCoalitionFormationConfig):
 // everything CoalitionFormationSystem::Propose() needs beyond the candidate
@@ -42,11 +43,12 @@
 // CoalitionFormationSystem/CoalitionCandidate/CoalitionProposal. STATIC
 // review (2.12E4R): that claim does NOT extend to a
 // MIXED-entry coalition (e.g. a caravan of a merchant + guards + pack
-// animals) - CreatureEntry is still the only compatibility signal
-// CoalitionFormationSystem::Propose() checks (see its own class comment),
-// so a profile can only ever gather one CreatureEntry at a time. Widening
-// compatibility to something like a species/faction/social-archetype tag
-// is explicitly deferred, not attempted here.
+// animals) - CreatureEntry is still the only SPECIES compatibility signal
+// CoalitionFormationSystem::Propose() checks, so a profile can only ever
+// gather one CreatureEntry at a time. AI WorldFactionId (see
+// RequiredWorldFaction below) adds a second, independent gate on top of
+// that - social/political affiliation, not species - so a mixed-entry
+// coalition is still not possible; that remains explicitly deferred.
 struct CoalitionFormationProfile
 {
     // Milestone 2.12E4R P3 fix (STATIC review): defaults to Invalid, not
@@ -63,6 +65,18 @@ struct CoalitionFormationProfile
     // entry, not a list/category - deliberately narrow, matching this
     // milestone's own one-profile scope.
     uint32 CreatureEntry = 0;
+
+    // AI WorldFactionId (data/elwynn/factions/README.md) - a second,
+    // independent compatibility gate CoalitionFormationSystem::Propose()
+    // checks alongside CreatureEntry above, closing the gap this struct's
+    // own header comment flagged as explicitly deferred: CreatureEntry
+    // alone cannot tell "same species, but socially/politically distinct
+    // populations" apart. Every real profile (WolfLoose/DefiasLoose) sets
+    // this explicitly at construction time, the same discipline Id already
+    // requires - defaults to Unaffiliated, which is only ever correct for
+    // a profile whose CreatureEntry itself resolves to Unaffiliated in
+    // WorldFactionCatalog.
+    WorldFactionId RequiredWorldFaction = WorldFactions::Unaffiliated;
 
     // Deliberately NOT independently-tunable values of their own for the
     // WolfLoose profile - AIWorldMgr copies them straight from

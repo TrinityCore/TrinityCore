@@ -611,9 +611,14 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // LoadAgents() stays unchanged - the same "append, don't reindex"
     // convention CHAR_SEL_AI_AGENT_GROUPS's own profile_id column already
     // follows.
+    // AI WorldFactionId (see AgentRecord.h's own field comment): world_faction_id
+    // appended after control_mode - fields[20], not reindexed among the
+    // identity columns above, the exact same "append, don't reindex"
+    // convention control_mode itself established one column earlier - see
+    // the 2026_09_16_00 migration's own comment.
     PrepareStatement(CHAR_SEL_AI_AGENTS, "SELECT agent_id, agent_type, map_id, spawn_id, "
         "home_map_id, home_x, home_y, home_z, home_o, work_map_id, work_x, work_y, work_z, work_o, "
-        "money, food, resource, last_rewarded_work_window_id, economy_version, control_mode FROM ai_agents", CONNECTION_SYNCH);
+        "money, food, resource, last_rewarded_work_window_id, economy_version, control_mode, world_faction_id FROM ai_agents", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_AI_AGENT_BY_BINDING, "SELECT agent_id, agent_type, map_id, spawn_id FROM ai_agents WHERE map_id = ? AND spawn_id = ?", CONNECTION_SYNCH);
     // Milestone 2.12F4A: control_mode is deliberately never set here -
     // every newly created agent must get the column's own ObserveOnly
@@ -677,6 +682,14 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // per id, the same discipline CHAR_SEL_AI_AGENT_BINDINGS above
     // already applies to CreateCreatureAgentsBatch()'s own INSERT.
     PrepareStatement(CHAR_SEL_AI_AGENT_CONTROL_MODES, "SELECT agent_id, control_mode FROM ai_agents", CONNECTION_SYNCH);
+
+    // AI WorldFactionId: lightweight bulk read of every agent_id's current
+    // world_faction_id - none of CHAR_SEL_AI_AGENTS' other columns. Used by
+    // AgentPersistence::ReconcileWorldFactionsBatch() to confirm its own
+    // batch UPDATE with exactly one query, the same shape
+    // CHAR_SEL_AI_AGENT_CONTROL_MODES above already provides for
+    // PromoteControlModeBatch().
+    PrepareStatement(CHAR_SEL_AI_AGENT_WORLD_FACTIONS, "SELECT agent_id, world_faction_id FROM ai_agents", CONNECTION_SYNCH);
 
     // Milestone 2.11E2: unlike CHAR_SEL_AI_AGENTS/CHAR_INS_AI_AGENT above
     // (startup-only), this is used from the world update thread every time
