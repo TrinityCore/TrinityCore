@@ -1272,7 +1272,7 @@ void Guardian::UpdateArmor()
     else if (IsPet())
         bonus_armor = m_owner->GetArmor();
 
-    value = GetFlatModifierValue(unitMod, BASE_VALUE);
+    value  = GetFlatModifierValue(unitMod, BASE_VALUE);
     baseValue = value;
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + bonus_armor;

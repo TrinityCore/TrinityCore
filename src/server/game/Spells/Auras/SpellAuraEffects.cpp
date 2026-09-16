@@ -3985,7 +3985,7 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 
 
     Unit* target = aurApp->GetTarget();
 
-    if (GetMiscValue() < 0 || GetMiscValue() > MAX_STATS)
+    if (GetMiscValue() < 0 || GetMiscValue() >= MAX_STATS)
     {
         TC_LOG_ERROR("spells", "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
         return;
