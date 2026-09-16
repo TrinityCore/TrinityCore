@@ -1,54 +1,54 @@
-# Elwynn Census Classification Coverage
+# Elwynn Census Coverage — permanent baseline
 
-## Status
+## Census disposition
 
-DRAFT automatic proposal for Etapa 3.1. This report does not close 3.1.
+- Raw `zoneId = 12` census: **3533** spawns
+- Permanent `INCLUDED`: **1863** spawns
+- `EXCLUDED_EVENT`: **1670** spawns
+- `REVIEW_EVENT`: **0** spawns
+- Permanent CreatureEntry templates: **182**
 
-## Input coverage
+Positive `game_event_creature.eventEntry` rows are excluded.
+Negative-only event relations remain in the permanent baseline.
+Quest-giver status does not affect category or participation.
 
-- CreatureEntry rows: 276
-- Spawn rows represented by those entries: 3533
-- Classified CreatureEntry rows: 276 / 276 (100%)
-- High-confidence automatic proposals: 245
-- Manual-review rows: 31
-
-## Template categories
+## Permanent population categories
 
 | Category | Templates | Spawns |
 |---|---:|---:|
-| CIVILIAN | 26 | 35 |
-| GUARD | 10 | 55 |
-| HOSTILE_HUMANOID | 31 | 657 |
-| MERCHANT_VENDOR | 29 | 29 |
-| PREDATOR | 9 | 375 |
-| PREY_FAUNA | 26 | 2093 |
-| QUEST_RELATED | 22 | 22 |
-| SPECIAL_SCRIPTED | 88 | 216 |
-| TRAINER | 29 | 35 |
+| CIVILIAN | 46 | 55 |
+| GUARD | 11 | 56 |
+| HOSTILE_HUMANOID | 32 | 658 |
+| MERCHANT_VENDOR | 26 | 26 |
+| PREDATOR | 10 | 378 |
+| PREY_FAUNA | 26 | 646 |
+| SPECIAL_SCRIPTED | 1 | 4 |
+| TRAINER | 23 | 23 |
 | TRAVELER | 2 | 2 |
-| WORKER_FARMER | 4 | 14 |
+| WORKER_FARMER | 5 | 15 |
 
-## Participation proposal
+## Participation modes
 
-| Mode | Templates | Spawns |
-|---|---:|---:|
-| FULL_AGENT | 161 | 1223 |
-| LIGHTWEIGHT_BACKGROUND | 24 | 2090 |
-| REVIEW_REQUIRED | 4 | 7 |
-| VANILLA_ONLY | 87 | 213 |
+| Mode | Permanent spawns |
+|---|---:|
+| FULL_AGENT | 1213 |
+| LIGHTWEIGHT_BACKGROUND | 646 |
+| VANILLA_ONLY | 4 |
 
-## Important limitations
+## Manual review
 
-- Classification is derived from the exported template census plus deterministic rules.
-- `QUEST_RELATED` currently detects questgiver NPC flags; the current CSV does not contain quest-target/reference tables, so quest targets cannot be proven from this file alone.
-- `faction_candidate` is only a 3.1 working hint. It is not the final 3.3 custom faction assignment.
-- `participation_mode` is a design proposal, not a runtime-verified setting.
-- Rows marked `MANUAL_REVIEW` need explicit human review before the census classification can be treated as accepted.
-- Spawn-specific exceptions belong in a later `spawn_overrides.csv`; this file only provides template defaults.
+Templates requiring explicit semantic review: **5**.
 
-## Next acceptance work
+- `1949` Servant of Azora: Servant of Azora: permanent humanoid but likely special-purpose population; confirm role.
+- `6172` Henze Faulk: Henze Faulk: permanent humanoid with faction template 123; confirm semantic role.
+- `6774` Falkhaan Isenstrider: Falkhaan Isenstrider: permanent humanoid; confirm semantic role.
+- `10616` Supervisor Raelen: Supervisor Raelen: classified worker supervisor; confirm Eastvale work role.
+- `14388` Rogue Black Drake: Rogue Black Drake: permanent dragonkin; confirm whether FULL_AGENT predator is desired.
 
-1. Review every `MANUAL_REVIEW` row.
-2. Add quest-relation evidence from world DB tables before claiming complete quest-related coverage.
-3. Create spawn-specific overrides where one CreatureEntry is not semantically uniform.
-4. Generate final spawn-level coverage and require every raw spawn to resolve to exactly one accepted classification.
+## Coverage invariant
+
+- Final spawn-level rows: **3533 / 3533**
+- Explicitly excluded event rows: **1670**
+- Permanent rows with explicit participation mode: **1863 / 1863**
+
+This is a DRAFT 3.1 classification baseline. It is not runtime verification.
