@@ -11,7 +11,7 @@ Tento dokument je jediná projektová roadmapa: obsahuje aktuální stav, implem
 
 ## Stav projektu
 
-**Etapa 1 má splněný runtime gate. Etapa 2 je CLOSED / POC COMPLETE včetně 2.13 a finálního integračního gate 2.14. Další plánovaná práce je Etapa 3 — příprava Elwynn Forest, počínaje scope a census (3.0–3.1).**
+**Etapa 1 má splněný runtime gate. Etapa 2 je CLOSED / POC COMPLETE včetně 2.13 a finálního integračního gate 2.14. Etapa 3 — příprava Elwynn Forest — je IN PROGRESS: 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené, ale 3.3 má nově RUNTIME PASS pro AI WorldFactionId sociální vrstvu (persistence + population + coalition gating) a pro V1 custom player-reputation `Faction.dbc` (Defias Brotherhood/Riverpaw Gnolls/Elwynn Kobolds/Elwynn Murlocs). TrinityCore `FactionTemplate` reaction audit (druhá polovina 3.3) je další konkrétní krok.**
 
 | Etapa | Stav | Hlavní cíl | Gate pro pokračování |
 |---|---|---|---|
@@ -2207,7 +2207,7 @@ Etapa 2 je tímto CLOSED — viz `2.14` výše pro finální agregátní POC run
 
 ## Etapa 3 — Elwynn Forest World Preparation
 
-**Stav: PLANNED — další etapa po uzavřeném POC.** Nejbližší gate je 3.0–3.1: přesný scope, reprodukovatelný census export a klasifikace všech spawnů.
+**Stav: IN PROGRESS.** 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené beze změny. 3.3 má RUNTIME PASS pro AI WorldFactionId sociální vrstvu a pro V1 custom player-reputation `Faction.dbc` - viz 3.3's own runtime evidence níže. TrinityCore `FactionTemplate` reaction audit (3.3's druhá, dosud neotevřená polovina) zůstává dalším krokem.
 
 2.12F4B2/F4B3 již ověřilo technickou registraci a control activation Elwynn populace (`3540` agentů, `zoneId=12`). To samo neuzavírá sémantický/faction/data-quality audit této etapy. `FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND` a `VANILLA_ONLY` níže jsou plánované participation klasifikace; nejsou novými hodnotami existujícího dvouhodnotového `ControlMode`.
 
@@ -2320,12 +2320,30 @@ AI WorldFactionId
 
 - [ ] auditovat faction/faction-template u všech Elwynn census spawnů;
 - [ ] identifikovat a verzovaně opravit zjevně chybné/inconsistent TrinityCore faction assignments tam, kde ovlivňují gameplay/reaction;
-- [ ] zavést explicitní persistentní `WorldFactionId` nebo ekvivalentní sociální identity layer nezávislou na `AgentGroup`;
-- [ ] každý AI-enabled agent musí mít explicitní WorldFaction affiliation nebo explicitní `Neutral/Unaffiliated` stav;
-- [ ] definovat první konkrétní seznam WorldFaction entit pro Elwynn podle skutečného census, nikoli podle několika předem vymyšlených typů;
-- [ ] fauna/predators/humanoids nesmí být automaticky sloučeni do jedné frakce jen proto, že sdílejí combat reaction;
-- [ ] faction změna nesmí implicitně přepsat `AgentId`, memory ani individual identity;
-- [ ] faction relation/diplomacy matrix pro Etapu 3 může být minimální/static; komplexní změny vztahů patří do Etapy 4.
+- [x] zavést explicitní persistentní `WorldFactionId` nebo ekvivalentní sociální identity layer nezávislou na `AgentGroup`;
+- [x] každý AI-enabled agent musí mít explicitní WorldFaction affiliation nebo explicitní `Neutral/Unaffiliated` stav;
+- [x] definovat první konkrétní seznam WorldFaction entit pro Elwynn podle skutečného census, nikoli podle několika předem vymyšlených typů;
+- [x] fauna/predators/humanoids nesmí být automaticky sloučeni do jedné frakce jen proto, že sdílejí combat reaction;
+- [x] faction změna nesmí implicitně přepsat `AgentId`, memory ani individual identity;
+- [x] faction relation/diplomacy matrix pro Etapu 3 může být minimální/static; komplexní změny vztahů patří do Etapy 4.
+
+**Runtime evidence (potvrzeno, 2026-09-16) — AI WorldFactionId sociální vrstva:** `data/elwynn/factions/{world_factions.csv,world_faction_assignments.csv,world_faction_relations.csv}` definují 6 WorldFaction entit (`STORMWIND_ALLIANCE`, `DEFIAS_BROTHERHOOD`, `RIVERPAW_GNOLLS`, `ELWYNN_KOBOLDS`, `ELWYNN_MURLOCS`, `ELWYNN_WOLVES`) a explicitní přiřazení pro všech 182 permanentních creature templates (žádný `TBD`). `WorldFactionId` (`src/server/game/AIWorld/Faction/WorldFactionId.h`) je persistentní pole na `AgentRecord` (`ai_agents.world_faction_id`), naplněné startup-only `WorldFactionCatalog` z world DB tabulky `ai_world_faction_entry_defaults` (generované z výše uvedených CSV). `AIWorldMgr::RunSpawnReconciliation()` přiřadí WorldFaction novým i existujícím agentům (batch reconcile-mismatch UPDATE) - žádná ruční `UPDATE ai_agents` mimo tento generický mechanismus. Fail-closed default `NEUTRAL_UNAFFILIATED` pro cokoliv katalog nezná.
+
+Zbývající otevřená polovina 3.3 je čistě TrinityCore `FactionTemplate` combat/reaction audit (creature_template.faction, `FactionTemplate.dbc`) - viz `data/elwynn/factions/faction_templates.csv`'s vlastní DEFERRED status a jeho odůvodnění (jedna WorldFaction dnes pokrývá mechanicky odlišné `FactionTemplate` reakce, např. `ELWYNN_KOBOLDS` = FT 25 `enemy_group=0` i FT 26 `enemy_group=PLAYER`).
+
+**Runtime evidence (potvrzeno, 2026-09-16) — V1 custom player-reputation `Faction.dbc`:** `tools/dbc/build_elwynn_factions.py` deterministicky generuje `runtime/data/dbc/Faction.dbc` (`1201-1204`, `ReputationIndex 105-108`, `ParentFactionID=0`, žádný spillover) z `data/elwynn/factions/factions.csv`, fail-closed ověřeno proti vanilla `Faction.dbc` (max ID `1160`, volný `ReputationIndex 105-127`). Toto je odlišná, samostatná vrstva od AI WorldFactionId výše (`creature_template.faction`/`FactionTemplate.dbc` beze změny) - viz `data/elwynn/factions/README.md`.
+
+```text
+custom Faction.dbc generation      PASS
+worldserver DBC load               PASS
+client MPQ load                    PASS
+4 custom reputation bary           PASS
+initial Neutral state              PASS
+server-side reputation change      PASS
+DB persistence                     PASS  (character_reputation: faction=1201, standing=3000, flags=1)
+```
+
+Ověřeno pro všechny čtyři player-visible WorldFaction (Defias Brotherhood/Riverpaw Gnolls/Elwynn Kobolds/Elwynn Murlocs); `ELWYNN_WOLVES` zůstává podle designu ecological/social bez player reputation.
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 
@@ -2344,14 +2362,16 @@ Základní invariant:
 
 > **Jedna coalition může obsahovat pouze členy stejné `WorldFactionId`.**
 
-- [ ] `CreateGroup`/`JoinGroup` policy musí znát WorldFaction membership;
-- [ ] cross-faction `JoinGroup` failuje před persistence mutation;
-- [ ] mixed-faction group se nesmí načíst z DB; invalid persistent state fail-closed / quarantine podle zvolené recovery policy;
+- [x] `CreateGroup`/`JoinGroup` policy musí znát WorldFaction membership;
+- [x] cross-faction `JoinGroup` failuje před persistence mutation;
+- [x] mixed-faction group se nesmí načíst z DB; invalid persistent state fail-closed / quarantine podle zvolené recovery policy;
 - [ ] `Loose`/`Stable` je charakter coalition, nikoli frakce;
 - [ ] jedna frakce může mít mnoho současných coalitions a mnoho agentů bez coalition;
 - [ ] faction membership sama automaticky nevytváří group;
 - [ ] pokud agent někdy v budoucnu změní frakci, jeho nekompatibilní group membership musí být nejprve bezpečně ukončeno/reconciled;
 - [ ] runtime test musí potvrdit same-faction join PASS a cross-faction join REJECT bez side effects.
+
+**Stav (2026-09-16):** `CoalitionFormationProfile::RequiredWorldFaction` (centrálně `RequiredWorldFactionFor(CoalitionFormationProfileId)` - `WolfLoose` → `ELWYNN_WOLVES`, `DefiasLoose` → `DEFIAS_BROTHERHOOD`) je zapojené do `CoalitionFormationSystem::Propose()`, `AgentGroupLifecycleSystem::RequestJoinGroup()` (kontrola i pro prázdnou group, ne jen proti existujícím members) a `AgentGroupPersistence::LoadGroupMembers()` (fail-closed skip při reloadu). STATIC/BUILD-level hotové; dedikovaný runtime test (same-faction join PASS / cross-faction join REJECT na živém serveru) ještě neproběhl - poslední položka checklistu zůstává otevřená, dokud ten test neproběhne.
 
 Komplexní diplomacie, přeběhnutí mezi frakcemi a hráčovy faction transitions jsou explicitně **mimo Etapu 3**.
 
