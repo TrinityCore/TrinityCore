@@ -19,6 +19,8 @@
 #define AIWORLD_COALITIONFORMATIONPROFILEID_H
 
 #include "Define.h"
+#include "Faction/WorldFactionId.h"
+#include <optional>
 
 // Milestone 2.12E4R: which CoalitionFormationProfile a formation
 // pass/attempt belongs to - identity only, never itself carried across the
@@ -82,6 +84,39 @@ inline char const* ToString(CoalitionFormationProfileId id)
         case CoalitionFormationProfileId::WolfLoose:   return "WOLF_LOOSE";
         case CoalitionFormationProfileId::DefiasLoose: return "DEFIAS_LOOSE";
         default:                                       return "UNKNOWN";
+    }
+}
+
+// AI WorldFactionId (data/elwynn/factions/README.md) coalition/faction
+// hardening: the one WorldFactionId every member of a group created by this
+// profile must belong to - a fixed property of the profile's own identity,
+// never a per-deployment config value (unlike CreatureEntry, which
+// AIWorld.WolfGroupCreatureEntry/AIWorld.DefiasGroupCreatureEntry may point
+// at any real creature_template - that creature_template's own
+// WorldFactionCatalog affiliation is not itself configurable). The single
+// source of truth for "WolfLoose means ELWYNN_WOLVES, DefiasLoose means
+// DEFIAS_BROTHERHOOD" - read by AIWorldMgr::Initialize() when building
+// CoalitionFormationProfile::RequiredWorldFaction,
+// AgentGroupLifecycleSystem::RequestJoinGroup() when a joiner would become
+// an empty group's first member (nothing yet to compare against), and
+// AgentGroupPersistence::LoadGroupMembers() when validating a persisted
+// group's every member on load - never three independently-maintained
+// copies of the same fact.
+//
+// std::nullopt for Invalid (and any future/unknown value): Invalid means no
+// automatic profile owns this group at all (see AgentGroupRecord::ProfileId's
+// own comment) - a manual/admin-created group has no fixed WorldFaction
+// requirement to check here, which is a different thing from "requires
+// Unaffiliated" (WorldFactionId{0}). Callers must treat nullopt as "skip
+// this check", never as a WorldFactionId{0} requirement.
+inline std::optional<WorldFactionId> RequiredWorldFactionFor(CoalitionFormationProfileId id)
+{
+    switch (id)
+    {
+        case CoalitionFormationProfileId::WolfLoose:   return WorldFactions::ElwynnWolves;
+        case CoalitionFormationProfileId::DefiasLoose: return WorldFactions::DefiasBrotherhood;
+        case CoalitionFormationProfileId::Invalid:     return std::nullopt;
+        default:                                       return std::nullopt;
     }
 }
 

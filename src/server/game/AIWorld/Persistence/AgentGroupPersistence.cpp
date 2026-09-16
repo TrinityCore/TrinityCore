@@ -198,10 +198,34 @@ uint32 AgentGroupPersistence::LoadGroupMembers(AgentGroupRegistry& groupRegistry
         // AgentRecord by the time its group's membership loads (create/
         // register the individual agent first, then the membership edge
         // that names it, never the other way around).
-        if (!agentRegistry.Find(memberId))
+        AgentRecord const* member = agentRegistry.Find(memberId);
+        if (!member)
         {
             TC_LOG_ERROR("ai.world", "AgentGroupPersistence: ai_agent_group_members row for group_id={} member_agent_id={} references an unregistered agent, skipping",
                 groupId.Value, memberId.Value);
+            continue;
+        }
+
+        // AI WorldFactionId invariant (data/elwynn/factions/README.md):
+        // fail-closed against a corrupted/stale DB, the same "never trust
+        // a persisted row to still describe a valid coalition" discipline
+        // AgentPersistence::LoadAgents()' own AgentId == SpawnId check
+        // already applies. group->ProfileId names a fixed, non-configurable
+        // WorldFaction requirement (RequiredWorldFactionFor(),
+        // CoalitionFormationProfileId.h) - a row whose own member's
+        // AgentRecord::WorldFaction disagrees with it (e.g. a stale row
+        // left over from before AIWorld.WolfGroupCreatureEntry was
+        // corrected, or hand-edited DB content) never re-enters the
+        // runtime as if it were still a valid coalition. A manual/admin
+        // group (ProfileId == Invalid) has no such requirement -
+        // RequiredWorldFactionFor() returns nullopt for it, and every
+        // membership loads unconditionally, same as before this check
+        // existed.
+        std::optional<WorldFactionId> requiredWorldFaction = RequiredWorldFactionFor(group->ProfileId);
+        if (requiredWorldFaction && member->WorldFaction != *requiredWorldFaction)
+        {
+            TC_LOG_ERROR("ai.world", "AgentGroupPersistence: ai_agent_group_members row for group_id={} member_agent_id={} worldFactionId={} violates its group's profile={} (requires worldFactionId={}), skipping - not re-added to the runtime coalition",
+                groupId.Value, memberId.Value, member->WorldFaction.Value, ToString(group->ProfileId), requiredWorldFaction->Value);
             continue;
         }
 

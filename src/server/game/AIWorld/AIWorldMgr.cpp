@@ -471,7 +471,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     _wolfLooseFormationProfile.Id = CoalitionFormationProfileId::WolfLoose;
     _wolfLooseFormationProfile.Kind = AgentGroupKind::Loose;
     _wolfLooseFormationProfile.CreatureEntry = _wolfGroupCreatureEntry;
-    _wolfLooseFormationProfile.RequiredWorldFaction = WorldFactions::ElwynnWolves;
+    _wolfLooseFormationProfile.RequiredWorldFaction = RequiredWorldFactionFor(CoalitionFormationProfileId::WolfLoose).value_or(WorldFactions::Unaffiliated);
     _wolfLooseFormationProfile.MinMembers = _groupPolicyConfig.LooseMinMembers;
     _wolfLooseFormationProfile.MaxMembers = _groupPolicyConfig.LooseMaxMembers;
     _wolfLooseFormationProfile.FormationRadius = _wolfGroupFormationRadius;
@@ -505,7 +505,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     _defiasLooseFormationProfile.Id = CoalitionFormationProfileId::DefiasLoose;
     _defiasLooseFormationProfile.Kind = AgentGroupKind::Loose;
     _defiasLooseFormationProfile.CreatureEntry = _defiasGroupCreatureEntry;
-    _defiasLooseFormationProfile.RequiredWorldFaction = WorldFactions::DefiasBrotherhood;
+    _defiasLooseFormationProfile.RequiredWorldFaction = RequiredWorldFactionFor(CoalitionFormationProfileId::DefiasLoose).value_or(WorldFactions::Unaffiliated);
     _defiasLooseFormationProfile.MinMembers = _groupPolicyConfig.LooseMinMembers;
     _defiasLooseFormationProfile.MaxMembers = _groupPolicyConfig.LooseMaxMembers;
     _defiasLooseFormationProfile.FormationRadius = _defiasGroupFormationRadius;

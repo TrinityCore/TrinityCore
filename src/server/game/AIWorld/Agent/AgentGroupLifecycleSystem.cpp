@@ -147,32 +147,59 @@ void AgentGroupLifecycleSystem::RequestJoinGroup(GroupId groupId, AgentId member
 
     // AI WorldFactionId invariant (data/elwynn/factions/README.md): a group
     // has no WorldFaction field of its own (see AgentGroupRecord.h) -
-    // deliberately derived from its own current Members instead, the same
-    // "no separate, potentially-drifting source of truth" reasoning that
-    // struct's own comment already applies to Hunger/member count. An empty
-    // group has nothing to compare against yet, so its first joiner
-    // implicitly sets the group's own affiliation; every joiner after that
-    // must match whichever WorldFaction any existing member already
-    // carries (they are all guaranteed consistent, since every past join
-    // already passed this same check) - a cross-faction join is refused
-    // synchronously here, before any DB write, the same "validate before
-    // touching the DB" discipline this method already applies to every
-    // other precondition above.
-    for (AgentGroupMembership const& membership : group->Members)
+    // derived instead from either its own current Members, or - for an
+    // EMPTY group - from RequiredWorldFactionFor(group->ProfileId)
+    // (CoalitionFormationProfileId.h), the same central WolfLoose ->
+    // ELWYNN_WOLVES / DefiasLoose -> DEFIAS_BROTHERHOOD mapping
+    // AIWorldMgr::Initialize() itself builds CoalitionFormationProfile::
+    // RequiredWorldFaction from. Without this, a would-be-first joiner
+    // whose own WorldFaction disagreed with its group's own automatic
+    // profile (e.g. a Stormwind agent becoming a WolfLoose group's first
+    // member) had nothing to compare against and would have been let
+    // through - a real gap the "compare against existing Members" check
+    // below cannot close by itself, since it never fires on an empty
+    // group. A manual/admin-created group (ProfileId == Invalid) has no
+    // fixed requirement - RequiredWorldFactionFor() returns nullopt for
+    // it, deliberately distinct from "requires Unaffiliated" (see that
+    // function's own comment) - so its first joiner may carry any
+    // WorldFaction, same as before this check existed.
+    if (group->Members.empty())
     {
-        AgentRecord const* existingMember = agentRegistry.Find(membership.Member);
-        if (!existingMember)
-            continue;
-
-        if (existingMember->WorldFaction != joiningMember->WorldFaction)
+        std::optional<WorldFactionId> requiredWorldFaction = RequiredWorldFactionFor(group->ProfileId);
+        if (requiredWorldFaction && joiningMember->WorldFaction != *requiredWorldFaction)
         {
-            TC_LOG_ERROR("ai.world", "AgentGroupLifecycleSystem::RequestJoinGroup: agent id={} worldFactionId={} cannot join group id={} - conflicts with existing member id={} worldFactionId={}",
-                memberId.Value, joiningMember->WorldFaction.Value, groupId.Value, existingMember->Id.Value, existingMember->WorldFaction.Value);
+            TC_LOG_ERROR("ai.world", "AgentGroupLifecycleSystem::RequestJoinGroup: agent id={} worldFactionId={} cannot become the first member of group id={} (profile={}) - requires worldFactionId={}",
+                memberId.Value, joiningMember->WorldFaction.Value, groupId.Value, ToString(group->ProfileId), requiredWorldFaction->Value);
             onComplete(false);
             return;
         }
+    }
+    else
+    {
+        // Every joiner after the first must match whichever WorldFaction
+        // any existing member already carries (they are all guaranteed
+        // consistent, since every past join already passed this same
+        // check, including the empty-group case above for whichever
+        // member joined first) - a cross-faction join is refused
+        // synchronously here, before any DB write, the same "validate
+        // before touching the DB" discipline this method already applies
+        // to every other precondition above.
+        for (AgentGroupMembership const& membership : group->Members)
+        {
+            AgentRecord const* existingMember = agentRegistry.Find(membership.Member);
+            if (!existingMember)
+                continue;
 
-        break;
+            if (existingMember->WorldFaction != joiningMember->WorldFaction)
+            {
+                TC_LOG_ERROR("ai.world", "AgentGroupLifecycleSystem::RequestJoinGroup: agent id={} worldFactionId={} cannot join group id={} - conflicts with existing member id={} worldFactionId={}",
+                    memberId.Value, joiningMember->WorldFaction.Value, groupId.Value, existingMember->Id.Value, existingMember->WorldFaction.Value);
+                onComplete(false);
+                return;
+            }
+
+            break;
+        }
     }
 
     _pendingGroupOperations.insert(groupId.Value);
