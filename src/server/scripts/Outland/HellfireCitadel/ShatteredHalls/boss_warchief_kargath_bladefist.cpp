@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Blade Dance implementation requires recheck. Apparently SPELL_BLADE_DANCE_CHARGE can miss, as result handling half of Blade Dance sequence
- in SpellHitTarget will stop sequence */
+/*
+ * Blade Dance implementation requires additional research
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
@@ -25,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "shattered_halls.h"
 
 enum KargathTexts
@@ -43,14 +46,16 @@ enum KargathSpells
 {
     // Kargath
     SPELL_BLADE_DANCE_TARGETING    = 30738,
-    SPELL_BLADE_DANCE              = 30739,
-    SPELL_BLADE_DANCE_CHARGE       = 30751,
     SPELL_CHARGE_H                 = 25821,
 
     // Warchief's Portal
     SPELL_SUMMON_HEATHEN           = 30737,
     SPELL_SUMMON_REAVER            = 30785,
-    SPELL_SUMMON_SHARPSHOOTER      = 30786
+    SPELL_SUMMON_SHARPSHOOTER      = 30786,
+
+    // Scripts
+    SPELL_BLADE_DANCE              = 30739,
+    SPELL_BLADE_DANCE_CHARGE       = 30751
 };
 
 enum KargathEvents
@@ -78,15 +83,15 @@ struct boss_warchief_kargath_bladefist : public BossAI
     void Reset() override
     {
         _Reset();
-        _bladeDanceTargets.clear();
-        _bladeDanceTargetGUID.Clear();
         _bladeDanceCount = 0;
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         events.ScheduleEvent(EVENT_BLADE_DANCE, 30s, 35s);
         events.ScheduleEvent(EVENT_SUMMON_PORTAL, 1s);
         events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 3s);
@@ -111,12 +116,6 @@ struct boss_warchief_kargath_bladefist : public BossAI
         }
     }
 
-    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id == SPELL_BLADE_DANCE_TARGETING)
-            _bladeDanceTargets.push_back(target->GetGUID());
-    }
-
     void JustSummoned(Creature* summon) override
     {
         if (summon->GetEntry() == NPC_SHATTERED_ASSASSIN)
@@ -126,10 +125,9 @@ struct boss_warchief_kargath_bladefist : public BossAI
         summons.Summon(summon);
     }
 
-    void KilledUnit(Unit* victim) override
+    void KilledUnit(Unit* /*victim*/) override
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -150,26 +148,9 @@ struct boss_warchief_kargath_bladefist : public BossAI
             switch (eventId)
             {
                 case EVENT_BLADE_DANCE:
-                {
                     if (_bladeDanceCount < MAX_BLADE_DANCE_COUNT)
                     {
-                        _bladeDanceTargets.clear();
-
                         DoCastSelf(SPELL_BLADE_DANCE_TARGETING);
-
-                        if (!_bladeDanceTargets.empty())
-                        {
-                            _bladeDanceTargetGUID.Clear();
-
-                            _bladeDanceTargetGUID = Trinity::Containers::SelectRandomContainerElement(_bladeDanceTargets);
-
-                            Creature* target = ObjectAccessor::GetCreature(*me, _bladeDanceTargetGUID);
-                            if (target)
-                                DoCast(target, SPELL_BLADE_DANCE_CHARGE);
-
-                            DoCastSelf(SPELL_BLADE_DANCE);
-                        }
-
                         events.ScheduleEvent(EVENT_BLADE_DANCE, 500ms);
                         ++_bladeDanceCount;
                     }
@@ -181,7 +162,6 @@ struct boss_warchief_kargath_bladefist : public BossAI
                         _bladeDanceCount = 0;
                     }
                     break;
-                }
                 case EVENT_CHARGE_H:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CHARGE_H);
@@ -210,38 +190,32 @@ struct boss_warchief_kargath_bladefist : public BossAI
     }
 
 private:
-    GuidList _bladeDanceTargets;
-    ObjectGuid _bladeDanceTargetGUID;
     uint8 _bladeDanceCount;
 };
 
 // 17611 - Warchief's Portal
 struct npc_warchiefs_portal : public ScriptedAI
 {
-    npc_warchiefs_portal(Creature* creature) : ScriptedAI(creature), _summonCount(0), _instance(creature->GetInstanceScript()) { }
+    npc_warchiefs_portal(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void JustAppeared() override
     {
-        _summonCount = 1;
-
-        _scheduler.Schedule(20s, [this](TaskContext task)
-        {
-            switch (_summonCount)
+        _scheduler
+            .Schedule(20s, [this](TaskContext task)
             {
-                // In this exact order and repeat again
-                case 1: DoCastSelf(SPELL_SUMMON_HEATHEN); break;
-                case 2: DoCastSelf(SPELL_SUMMON_REAVER); break;
-                case 3: DoCastSelf(SPELL_SUMMON_SHARPSHOOTER); break;
-                default: break;
-            }
-
-            if (_summonCount >= 3)
-                _summonCount = 1;
-            else
-                ++_summonCount;
-
-            task.Repeat(20s);
-        });
+                DoCastSelf(SPELL_SUMMON_HEATHEN);
+                task.Repeat(60s);
+            })
+            .Schedule(40s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_SUMMON_REAVER);
+                task.Repeat(60s);
+            })
+            .Schedule(60s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_SUMMON_SHARPSHOOTER);
+                task.Repeat(60s);
+            });
     }
 
     void JustSummoned(Creature* summon) override
@@ -257,13 +231,55 @@ struct npc_warchiefs_portal : public ScriptedAI
     }
 
 private:
-    uint8 _summonCount;
     TaskScheduler _scheduler;
     InstanceScript* _instance;
+};
+
+// 30738 - Blade Dance Targeting
+class spell_kargath_blade_dance_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_kargath_blade_dance_targeting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BLADE_DANCE_CHARGE, SPELL_BLADE_DANCE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+        _selectedTargetGuid = target->GetGUID();
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (target->GetGUID() == _selectedTargetGuid)
+        {
+            caster->CastSpell(target, SPELL_BLADE_DANCE_CHARGE);
+            caster->CastSpell(nullptr, SPELL_BLADE_DANCE);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kargath_blade_dance_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_kargath_blade_dance_targeting::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    ObjectGuid _selectedTargetGuid;
 };
 
 void AddSC_boss_warchief_kargath_bladefist()
 {
     RegisterShatteredHallsCreatureAI(boss_warchief_kargath_bladefist);
     RegisterShatteredHallsCreatureAI(npc_warchiefs_portal);
+    RegisterSpellScript(spell_kargath_blade_dance_targeting);
 }
