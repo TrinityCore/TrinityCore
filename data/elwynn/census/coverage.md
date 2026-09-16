@@ -37,13 +37,18 @@ Quest-giver status does not affect category or participation.
 
 ## Manual review
 
-Templates requiring explicit semantic review: **5**.
+Templates requiring explicit semantic review: **0**.
 
-- `1949` Servant of Azora: Servant of Azora: permanent humanoid but likely special-purpose population; confirm role.
-- `6172` Henze Faulk: Henze Faulk: permanent humanoid with faction template 123; confirm semantic role.
-- `6774` Falkhaan Isenstrider: Falkhaan Isenstrider: permanent humanoid; confirm semantic role.
-- `10616` Supervisor Raelen: Supervisor Raelen: classified worker supervisor; confirm Eastvale work role.
-- `14388` Rogue Black Drake: Rogue Black Drake: permanent dragonkin; confirm whether FULL_AGENT predator is desired.
+
+## Resolved manual decisions
+
+Templates explicitly accepted after manual review: **5**.
+
+- `1949` Servant of Azora: Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.
+- `6172` Henze Faulk: Dead quest NPC accepted as normal Alliance-aligned civilian for 3.1; quest role is ignored and final faction assignment belongs to 3.3.
+- `6774` Falkhaan Isenstrider: Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.
+- `10616` Supervisor Raelen: Accepted as Alliance-aligned worker/supervisor for 3.1; final faction assignment belongs to 3.3.
+- `14388` Rogue Black Drake: Accepted as PREDATOR/beast for 3.1; underlying placement anomaly is deferred.
 
 ## Coverage invariant
 

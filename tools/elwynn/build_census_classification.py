@@ -40,12 +40,14 @@ TRAVELER_WORDS = ("expeditionary", "traveler", "travelling", "traveling")
 PREDATOR_WORDS = ("wolf", "prowler", "bear", "spider", "drake")
 HORSE_WORDS = ("horse", "mare", "stallion", "steed", "palomino", "pinto")
 
-MANUAL_REVIEW = {
-    14388: "Rogue Black Drake: permanent dragonkin; confirm whether FULL_AGENT predator is desired.",
-    1949: "Servant of Azora: permanent humanoid but likely special-purpose population; confirm role.",
-    6172: "Henze Faulk: permanent humanoid with faction template 123; confirm semantic role.",
-    6774: "Falkhaan Isenstrider: permanent humanoid; confirm semantic role.",
-    10616: "Supervisor Raelen: classified worker supervisor; confirm Eastvale work role.",
+MANUAL_REVIEW = {}
+
+MANUAL_ACCEPTED = {
+    1949: "Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.",
+    6172: "Dead quest NPC accepted as normal Alliance-aligned civilian for 3.1; quest role is ignored and final faction assignment belongs to 3.3.",
+    6774: "Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.",
+    10616: "Accepted as Alliance-aligned worker/supervisor for 3.1; final faction assignment belongs to 3.3.",
+    14388: "Accepted as PREDATOR/beast for 3.1; underlying placement anomaly is deferred.",
 }
 
 TEMPLATE_FIELDS = [
@@ -183,9 +185,13 @@ def classify(t):
         "participation_mode": mode,
         "role_or_profession": role,
         "unique_named": unique_named,
-        "review_status": "MANUAL_REVIEW" if entry in MANUAL_REVIEW else "ACCEPTED_DEFAULT",
+        "review_status": (
+            "MANUAL_REVIEW" if entry in MANUAL_REVIEW
+            else "ACCEPTED_MANUAL" if entry in MANUAL_ACCEPTED
+            else "ACCEPTED_DEFAULT"
+        ),
         "classification_basis": basis,
-        "notes": MANUAL_REVIEW.get(entry, ""),
+        "notes": MANUAL_REVIEW.get(entry, MANUAL_ACCEPTED.get(entry, "")),
     }
 
 def write_csv(path, rows):
@@ -276,6 +282,7 @@ def main():
         mode_spawns[r["participation_mode"]] += n
 
     manual = [r for r in classification if r["review_status"] == "MANUAL_REVIEW"]
+    manual_accepted = [r for r in classification if r["review_status"] == "ACCEPTED_MANUAL"]
 
     lines = [
         "# Elwynn Census Coverage — permanent baseline",
@@ -318,6 +325,16 @@ def main():
         "",
     ]
     for r in manual:
+        lines.append(f"- `{r['entry']}` {r['name']}: {r['notes']}")
+
+    lines += [
+        "",
+        "## Resolved manual decisions",
+        "",
+        f"Templates explicitly accepted after manual review: **{len(manual_accepted)}**.",
+        "",
+    ]
+    for r in manual_accepted:
         lines.append(f"- `{r['entry']}` {r['name']}: {r['notes']}")
 
     lines += [

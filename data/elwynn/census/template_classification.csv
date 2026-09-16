@@ -130,7 +130,7 @@ entry,name,subname,included_spawn_count,primary_category,participation_mode,role
 1651,Lee Brown,Fishing Trainer,1,TRAINER,FULL_AGENT,Fishing Trainer,YES,ACCEPTED_DEFAULT,TrinityCore trainer NPC flag/subname,
 1922,Gray Forest Wolf,,55,PREDATOR,FULL_AGENT,predator,NO,ACCEPTED_DEFAULT,predatory creature name/current faction evidence,
 1933,Sheep,,17,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,fauna,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
-1949,Servant of Azora,,10,CIVILIAN,FULL_AGENT,civilian,NO,MANUAL_REVIEW,remaining permanent humanoid,Servant of Azora: permanent humanoid but likely special-purpose population; confirm role.
+1949,Servant of Azora,,10,CIVILIAN,FULL_AGENT,civilian,NO,ACCEPTED_MANUAL,remaining permanent humanoid,Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.
 1975,Eastvale Lumberjack,,3,WORKER_FARMER,FULL_AGENT,worker,NO,ACCEPTED_DEFAULT,worker/farmer role in name,
 2046,Andrew Krighton,Armorer & Shieldcrafter,1,MERCHANT_VENDOR,FULL_AGENT,Armorer & Shieldcrafter,YES,ACCEPTED_DEFAULT,TrinityCore vendor/repair NPC flag,
 2329,Michelle Belle,Physician,1,TRAINER,FULL_AGENT,Physician,YES,ACCEPTED_DEFAULT,TrinityCore trainer NPC flag/subname,
@@ -144,7 +144,7 @@ entry,name,subname,included_spawn_count,primary_category,participation_mode,role
 5917,Clara Charles,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
 6093,Dead-Tooth Jack,,1,HOSTILE_HUMANOID,FULL_AGENT,hostile_humanoid,YES,ACCEPTED_DEFAULT,humanoid + current hostile faction/name evidence,
 6121,Remen Marcot,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
-6172,Henze Faulk,,1,CIVILIAN,FULL_AGENT,civilian,YES,MANUAL_REVIEW,remaining permanent humanoid,Henze Faulk: permanent humanoid with faction template 123; confirm semantic role.
+6172,Henze Faulk,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_MANUAL,remaining permanent humanoid,Dead quest NPC accepted as normal Alliance-aligned civilian for 3.1; quest role is ignored and final faction assignment belongs to 3.3.
 6306,Helene Peltskinner,Skinning Trainer,1,TRAINER,FULL_AGENT,Skinning Trainer,YES,ACCEPTED_DEFAULT,TrinityCore trainer NPC flag/subname,
 6367,Donni Anthania,Crazy Cat Lady,1,MERCHANT_VENDOR,FULL_AGENT,Crazy Cat Lady,YES,ACCEPTED_DEFAULT,TrinityCore vendor/repair NPC flag,
 6368,Cat,,9,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,fauna,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
@@ -152,7 +152,7 @@ entry,name,subname,included_spawn_count,primary_category,participation_mode,role
 6374,Cylina Darkheart,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
 6491,Spirit Healer,,4,SPECIAL_SCRIPTED,VANILLA_ONLY,spirit_healer,NO,ACCEPTED_DEFAULT,TrinityCore spirit healer/guide NPC flag,
 6749,Erma,Stable Master,1,CIVILIAN,FULL_AGENT,Stable Master,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
-6774,Falkhaan Isenstrider,,1,CIVILIAN,FULL_AGENT,civilian,YES,MANUAL_REVIEW,remaining permanent humanoid,Falkhaan Isenstrider: permanent humanoid; confirm semantic role.
+6774,Falkhaan Isenstrider,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_MANUAL,remaining permanent humanoid,Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.
 6778,Melika Isenstrider,Assistant Innkeeper,1,CIVILIAN,FULL_AGENT,Assistant Innkeeper,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
 6846,Defias Dockmaster,,1,HOSTILE_HUMANOID,FULL_AGENT,hostile_humanoid,YES,ACCEPTED_DEFAULT,humanoid + current hostile faction/name evidence,
 6927,Defias Dockworker,,3,HOSTILE_HUMANOID,FULL_AGENT,hostile_humanoid,NO,ACCEPTED_DEFAULT,humanoid + current hostile faction/name evidence,
@@ -161,7 +161,7 @@ entry,name,subname,included_spawn_count,primary_category,participation_mode,role
 7384,Cornish Rex Cat,,1,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,fauna,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
 7385,Bombay Cat,,1,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,fauna,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
 9296,Milly Osworth,,1,CIVILIAN,FULL_AGENT,civilian,YES,ACCEPTED_DEFAULT,remaining permanent humanoid,
-10616,Supervisor Raelen,,1,WORKER_FARMER,FULL_AGENT,supervisor,YES,MANUAL_REVIEW,worker/farmer role in name,Supervisor Raelen: classified worker supervisor; confirm Eastvale work role.
+10616,Supervisor Raelen,,1,WORKER_FARMER,FULL_AGENT,supervisor,YES,ACCEPTED_MANUAL,worker/farmer role in name,Accepted as Alliance-aligned worker/supervisor for 3.1; final faction assignment belongs to 3.3.
 11072,Kitta Firewind,Enchanting Trainer,1,TRAINER,FULL_AGENT,Enchanting Trainer,YES,ACCEPTED_DEFAULT,TrinityCore trainer NPC flag/subname,
 11260,Northshire Peasant,,5,WORKER_FARMER,FULL_AGENT,worker,NO,ACCEPTED_DEFAULT,worker/farmer role in name,
 11328,Eastvale Peasant,,5,WORKER_FARMER,FULL_AGENT,worker,NO,ACCEPTED_DEFAULT,worker/farmer role in name,
@@ -174,7 +174,7 @@ entry,name,subname,included_spawn_count,primary_category,participation_mode,role
 12423,Guard Roberts,,1,GUARD,FULL_AGENT,guard,YES,ACCEPTED_DEFAULT,guard/marshal/deputy/sergeant role in name,
 13159,James Clark,,1,HOSTILE_HUMANOID,FULL_AGENT,hostile_humanoid,YES,ACCEPTED_DEFAULT,humanoid + current hostile faction/name evidence,
 13321,Frog,,234,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,fauna,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
-14388,Rogue Black Drake,,3,PREDATOR,FULL_AGENT,predator,NO,MANUAL_REVIEW,predatory creature name/current faction evidence,Rogue Black Drake: permanent dragonkin; confirm whether FULL_AGENT predator is desired.
+14388,Rogue Black Drake,,3,PREDATOR,FULL_AGENT,predator,NO,ACCEPTED_MANUAL,predatory creature name/current faction evidence,Accepted as PREDATOR/beast for 3.1; underlying placement anomaly is deferred.
 14390,Expeditionary Mountaineer,,1,TRAVELER,FULL_AGENT,traveler,YES,ACCEPTED_DEFAULT,travel/expedition role in name,
 14393,Expeditionary Priest,,1,TRAVELER,FULL_AGENT,traveler,YES,ACCEPTED_DEFAULT,travel/expedition role in name,
 14559,Swift Palomino,,1,PREY_FAUNA,LIGHTWEIGHT_BACKGROUND,domestic_mount,NO,ACCEPTED_DEFAULT,beast/critter/non-combat-pet permanent population,
