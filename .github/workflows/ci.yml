@@ -147,6 +147,23 @@ jobs:
           git fetch origin ai-world
           git reset --hard origin/ai-world
 
+      - name: Regenerate custom DBC
+        # runtime/ (including runtime/dbc-base/ and runtime/data/dbc/) is
+        # entirely gitignored, so `git reset --hard` above never touches it -
+        # a genuinely fresh deploy host would otherwise keep serving whatever
+        # (if anything) previously happened to be in runtime/data/dbc/,
+        # silently ignoring every commit to data/elwynn/factions/*.csv. Runs
+        # directly on this self-hosted runner via python3, same as `make
+        # dbc-factions` locally (see Makefile's own comment for why this is
+        # the one target that doesn't go through tc-dev/docker compose).
+        # Depends only on runtime/dbc-base/{Faction,FactionTemplate}.dbc
+        # already existing on this host (vanilla client DBCs, provisioned
+        # once outside of git/CI - not build output that needs regenerating
+        # per push).
+        run: |
+          cd /home/voslik/WoWBehaviorAI
+          make dbc-factions
+
       - name: Compile TrinityCore
         # docker compose build below only (re)builds the dev image (apt
         # packages) — it does NOT compile source. Actual compilation happens
