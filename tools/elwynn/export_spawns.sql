@@ -36,7 +36,22 @@ SELECT
     ct.AIName AS ai_name,
     ct.ScriptName AS script_name,
 
-    ca.path_id,
+    COALESCE(ca.path_id, 0) AS path_id,
+
+    COALESCE(ge.event_entries, '') AS game_event_entries,
+    COALESCE(ge.has_positive_event, 0) AS has_positive_event,
+    COALESCE(ge.has_negative_event, 0) AS has_negative_event,
+
+    CASE
+        WHEN COALESCE(ge.has_positive_event, 0) = 1
+         AND COALESCE(ge.has_negative_event, 0) = 1
+            THEN 'REVIEW_EVENT'
+
+        WHEN COALESCE(ge.has_positive_event, 0) = 1
+            THEN 'EXCLUDED_EVENT'
+
+        ELSE 'INCLUDED'
+    END AS census_scope_status,
 
     COUNT(*) OVER (PARTITION BY c.id) AS template_spawn_count
 
@@ -47,6 +62,25 @@ JOIN creature_template ct
 
 LEFT JOIN creature_addon ca
     ON ca.guid = c.guid
+
+LEFT JOIN (
+    SELECT
+        guid,
+
+        GROUP_CONCAT(
+            eventEntry
+            ORDER BY eventEntry
+            SEPARATOR '|'
+        ) AS event_entries,
+
+        MAX(eventEntry > 0) AS has_positive_event,
+        MAX(eventEntry < 0) AS has_negative_event
+
+    FROM game_event_creature
+
+    GROUP BY guid
+) ge
+    ON ge.guid = c.guid
 
 WHERE c.zoneId = 12
 
