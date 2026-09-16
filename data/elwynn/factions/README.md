@@ -37,10 +37,13 @@ Aktuální WorldFaction katalog je v `world_factions.csv`:
 `DEFIAS_BROTHERHOOD`, `RIVERPAW_GNOLLS`, `ELWYNN_KOBOLDS` a `ELWYNN_MURLOCS` jsou kandidáti pro custom player-visible reputation.
 `ELWYNN_WOLVES` je ecological/social WorldFaction pro coalition a living-world logiku a nemá mít player-visible reputation.
 
+První relation matrix je v `world_faction_relations.csv`. Neobsahuje ekologické predator/prey vztahy; ty nejsou politická diplomacie. V1 explicitně označuje jako `HOSTILE` pouze obousměrné vztahy Stormwind ↔ Defias/Riverpaw/Kobolds/Murlocs. Nevypsaný cross-faction vztah je pro tuto data vrstvu `NEUTRAL`; stejná WorldFaction je interně friendly/coalition-compatible podle konkrétních coalition pravidel.
+
 ## Soubory
 
 - `world_factions.csv` — stabilní katalog AI WorldFaction entit (`WorldFactionId`, key, typ, reputation policy).
 - `world_faction_assignments.csv` — mapování permanentních Elwynn creature templates na WorldFaction key nebo `NEUTRAL_UNAFFILIATED`; obsahuje také aktuální TrinityCore `FactionTemplate` pro audit.
+- `world_faction_relations.csv` — minimální static diplomacy matrix pro WorldFaction vrstvu; neřeší TrinityCore combat reaction ani ecological predator/prey pravidla.
 - `factions.csv` — plánované custom řádky pro `Faction.dbc`.
 - `faction_templates.csv` — plánované custom řádky pro `FactionTemplate.dbc`; jeho `id` je ID používané v `creature_template.faction` nebo budoucím override mechanismu.
 - `faction_groups.csv` — custom `FactionGroup.dbc` bitmasky pouze pokud se prokáže potřeba nad rámec vanilla groups.
