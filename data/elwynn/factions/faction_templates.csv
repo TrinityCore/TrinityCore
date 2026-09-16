@@ -1,5 +1,20 @@
-# DRAFT — placeholder rows pending Elwynn census export (roadmap 3.2)
-# and a designed relation matrix. Values below are TBD, not final.
+# STATUS: DEFERRED reaction-design data, NOT a runtime input.
+#
+# tools/dbc/build_elwynn_factions.py (V1, 2026-09-16) generates ONLY
+# Faction.dbc (the four player-reputation rows in factions.csv) and does not
+# read this file at all. The 2026-09-16 audit found that a single
+# WorldFaction today spans creature templates with genuinely different
+# TrinityCore mechanical reactions (e.g. ELWYNN_KOBOLDS covers both
+# FactionTemplate 25, enemy_group=0, and 26, enemy_group=PLAYER) - blindly
+# repointing every one of those templates at a single new reaction-enabled
+# FactionTemplate would change current combat/aggro behavior for NPCs that
+# were never intended to change, which this repository does not want to do
+# without a deliberate reaction audit first (see this directory's own
+# README "DBC stav" section). creature_template.faction and vanilla
+# FactionTemplate.dbc stay untouched until that audit exists.
+#
+# Placeholder rows pending Elwynn census export (roadmap 3.2) and a designed
+# relation matrix. Values below are TBD, not final.
 #
 # id: custom FactionTemplate.dbc ID. This is the ID used by
 #     creature_template.faction / creature_faction_override.faction —

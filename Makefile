@@ -1,4 +1,4 @@
-.PHONY: bootstrap build rebuild start stop restart-world logs world-logs shell db-shell clean-build reset-db gpu-test db-import-tdb configure-realm
+.PHONY: bootstrap build rebuild start stop restart-world logs world-logs shell db-shell clean-build reset-db gpu-test db-import-tdb configure-realm dbc-factions
 
 COMPOSE := docker compose -f compose.yml -f compose.dev.yml
 BUILD_DIR := /build
@@ -72,3 +72,11 @@ db-import-tdb:
 configure-realm:
 	$(COMPOSE) up -d mysql
 	$(COMPOSE) run --rm tc-dev bash /workspace/docker/scripts/configure-realm.sh
+
+## regenerate runtime/data/dbc/Faction.dbc from data/elwynn/factions/factions.csv
+## (see tools/dbc/build_elwynn_factions.py). Runs on the host with python3,
+## not through tc-dev like every other target above - tc-dev's own image
+## (docker/trinitycore/Dockerfile.dev) installs no Python interpreter at all,
+## and this script has no TrinityCore build dependency to justify adding one.
+dbc-factions:
+	python3 tools/dbc/build_elwynn_factions.py

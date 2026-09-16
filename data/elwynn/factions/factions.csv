@@ -1,11 +1,43 @@
-# DRAFT — placeholder rows pending Elwynn census export (roadmap 3.2).
-# id: custom Faction.dbc ID; must be verified against actual vanilla
-#     Faction.dbc max ID by the generator before use, not assumed here.
-# reputation_index: -1 if the faction has no player-visible reputation bar.
-# parent_id: 0 = no parent.
-id,reputation_index,parent_id,name
-1200,-1,0,Elwynn Forest
-1201,-1,1200,Defias Brotherhood
-1202,-1,1200,Riverpaw Gnolls
-1203,-1,1200,Elwynn Kobolds
-1204,-1,1200,Elwynn Murlocs
+# V1 accepted rows (see this directory's own README for the AI WorldFactionId
+# / TrinityCore Faction.dbc split). Audited free ranges as of 2026-09-16:
+#   Faction.dbc max ID            = 1160  ->  1201-1204 is unused and safe
+#   FactionTemplate.dbc max ID    = 2236  (not touched by this file)
+#   free ReputationIndex          = 105-127
+# tools/dbc/build_elwynn_factions.py re-verifies both of these against the
+# actual vanilla runtime/dbc-base/Faction.dbc before writing anything - the
+# numbers above are the audit result, not an assumption this file relies on.
+#
+# 1200 "Elwynn Forest" (an earlier draft's umbrella parent) is deliberately
+# gone: parent_id = 0 for all four rows below, so none of them can receive
+# spillover reputation from a shared parent that doesn't correspond to any
+# real WorldFaction.
+#
+# Only Faction.dbc is generated from this file. creature_template.faction
+# and vanilla FactionTemplate.dbc are NOT touched - see faction_templates.csv
+# for why that is deferred, not merged into this same step.
+#
+# id:                custom Faction.dbc id.
+# reputation_index:   Faction.dbc ReputationIndex - the slot ReputationMgr
+#                     uses to key a player's character_reputation row. Must
+#                     be free in the base DBC (checked by the generator).
+# world_faction:      cross-reference into world_factions.csv's own `key`
+#                     column, audit-only - Faction.dbc has no notion of
+#                     WorldFactionId, and the generator does not read this
+#                     column to build the DBC record. Verified to exist in
+#                     world_factions.csv anyway, so this file can never
+#                     silently drift from the AI WorldFactionId catalog.
+# base_reputation:    initial standing for RaceMask slot 0 (0 = Neutral).
+# visible:            1 sets ReputationFlags::Visible (0x0001) on slot 0 -
+#                     shows a normal bar in Character -> Reputation from the
+#                     start. 0 would leave the bar hidden until some other
+#                     mechanism reveals it (not used by any V1 row).
+# parent_id:          Faction.dbc ParentFactionID. 0 = no parent, no
+#                     spillover - true for all four V1 rows.
+# name:               Faction.dbc Name (written to all 16 client locale
+#                     slots identically - see the generator's own comment
+#                     for why per-locale text is out of scope for V1).
+id,reputation_index,world_faction,base_reputation,visible,parent_id,name
+1201,105,DEFIAS_BROTHERHOOD,0,1,0,Defias Brotherhood
+1202,106,RIVERPAW_GNOLLS,0,1,0,Riverpaw Gnolls
+1203,107,ELWYNN_KOBOLDS,0,1,0,Elwynn Kobolds
+1204,108,ELWYNN_MURLOCS,0,1,0,Elwynn Murlocs
