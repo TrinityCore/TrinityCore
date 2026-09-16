@@ -82,6 +82,7 @@ void ThreatReference::UpdateOffline()
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
         _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
+        _mgr._forceHighestOnNextSend = true;
     }
 }
 
@@ -195,8 +196,8 @@ void ThreatReference::HeapNotifyDecreased()
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL),
-    _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _forceHighestOnNextSend(false),
+    _updateTimer(THREAT_UPDATE_INTERVAL), _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -588,13 +589,14 @@ Unit* ThreatManager::GetFixateTarget() const
 void ThreatManager::UpdateVictim()
 {
     ThreatReference const* const newVictim = ReselectVictim();
-    bool const newHighest = newVictim && (newVictim != _currentVictimRef);
+    bool const newHighest = newVictim && ((newVictim != _currentVictimRef) || _forceHighestOnNextSend);
 
     _currentVictimRef = newVictim;
     if (newHighest || _needClientUpdate)
     {
         SendThreatListToClients(newHighest);
         _needClientUpdate = false;
+        _forceHighestOnNextSend = false;
     }
 
     ProcessAIUpdates();
