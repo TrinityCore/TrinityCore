@@ -11,7 +11,7 @@ Tento dokument je jediná projektová roadmapa: obsahuje aktuální stav, implem
 
 ## Stav projektu
 
-**Etapa 1 má splněný runtime gate. Etapa 2 je CLOSED / POC COMPLETE včetně 2.13 a finálního integračního gate 2.14. Etapa 3 — příprava Elwynn Forest — je IN PROGRESS: 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené, ale 3.3 má nově RUNTIME PASS pro AI WorldFactionId sociální vrstvu (persistence + population + coalition gating) a pro V1 custom player-reputation `Faction.dbc` (Defias Brotherhood/Riverpaw Gnolls/Elwynn Kobolds/Elwynn Murlocs). TrinityCore `FactionTemplate` reaction audit (druhá polovina 3.3) je další konkrétní krok.**
+**Etapa 1 má splněný runtime gate. Etapa 2 je CLOSED / POC COMPLETE včetně 2.13 a finálního integračního gate 2.14. Etapa 3 — příprava Elwynn Forest — je IN PROGRESS: 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené, ale 3.3 má RUNTIME PASS pro AI WorldFactionId sociální vrstvu, pro V1 custom player-reputation `Faction.dbc` (Defias Brotherhood/Riverpaw Gnolls/Elwynn Kobolds/Elwynn Murlocs) a pro `FactionTemplate.dbc` klony + creature_template repoint (32 NPC, player reaction ověřena). `creature_onkill_reputation` (zabití NPC → změna reputation) je vygenerované, runtime kill test je PENDING. Samotný TrinityCore `FactionTemplate` reaction audit (jsou vanilla reaction hodnoty správné?) zůstává otevřený.**
 
 | Etapa | Stav | Hlavní cíl | Gate pro pokračování |
 |---|---|---|---|
@@ -2207,7 +2207,7 @@ Etapa 2 je tímto CLOSED — viz `2.14` výše pro finální agregátní POC run
 
 ## Etapa 3 — Elwynn Forest World Preparation
 
-**Stav: IN PROGRESS.** 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené beze změny. 3.3 má RUNTIME PASS pro AI WorldFactionId sociální vrstvu a pro V1 custom player-reputation `Faction.dbc` - viz 3.3's own runtime evidence níže. TrinityCore `FactionTemplate` reaction audit (3.3's druhá, dosud neotevřená polovina) zůstává dalším krokem.
+**Stav: IN PROGRESS.** 3.0–3.2 (scope, census, sémantická mapa) zůstávají otevřené beze změny. 3.3 má RUNTIME PASS pro AI WorldFactionId sociální vrstvu, V1 custom player-reputation `Faction.dbc` a `FactionTemplate.dbc` klony + creature_template repoint (32 NPC, player reaction ověřena) - viz 3.3's own runtime evidence níže. `creature_onkill_reputation` je vygenerované (STATIC PASS), runtime kill test PENDING. Samotný TrinityCore `FactionTemplate` reaction audit zůstává dalším krokem.
 
 2.12F4B2/F4B3 již ověřilo technickou registraci a control activation Elwynn populace (`3540` agentů, `zoneId=12`). To samo neuzavírá sémantický/faction/data-quality audit této etapy. `FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND` a `VANILLA_ONLY` níže jsou plánované participation klasifikace; nejsou novými hodnotami existujícího dvouhodnotového `ControlMode`.
 
@@ -2348,12 +2348,20 @@ Ověřeno pro všechny čtyři player-visible WorldFaction (Defias Brotherhood/R
 **Stav (2026-09-16) — `FactionTemplate.dbc` klony (plumbing, ne reaction audit):** audit potvrdil, že jedna WorldFaction dnes reálně pokrývá víc než jeden vanilla `FactionTemplate` (`DEFIAS_BROTHERHOOD` = FT 7/17/27, `ELWYNN_KOBOLDS` = FT 25/26, `RIVERPAW_GNOLLS` = FT 20, `ELWYNN_MURLOCS` = FT 18 - 7 distinct FT, ne 4), a FT 7 je navíc SDÍLENÝ s `NEUTRAL_UNAFFILIATED` faunou (Porcine Entourage/Princess). `data/elwynn/factions/faction_templates.csv` proto definuje 7 custom `FactionTemplate.dbc` klonů (2300-2306) - každý byte-for-byte kopie svého vanilla zdroje (Flags/FactionGroup/FriendGroup/EnemyGroup/Enemies/Friend čtené live z DBC, ne přepsané ručně), jen `Faction` ukazuje na `factions.csv`'s 1201-1204. `sql/updates/world/3.3.5/2026_09_16_01_world.sql` repointuje `creature_template.faction` jen pro těch 32 konkrétních entries, které `world_faction_assignments.csv` řadí do jedné ze 4 player-visible WorldFaction (`tc_faction_action = CLONED`) - Porcine Entourage/Princess zůstávají na vanilla FT 7 beze změny.
 
 ```text
-FactionTemplate clone generation    STATIC PASS  (7 klonů, byte-for-byte proti vanilla, cross-checked skriptem proti CSV)
-creature_template.faction SQL       STATIC PASS  (32 entries, cross-checked proti world_faction_assignments.csv)
-runtime player reaction test        PENDING      (Neutral/Friendly/Hostile proti repointovaným NPC ještě neproběhlo)
+FactionTemplate clone generation    RUNTIME PASS  (7 klonů, byte-for-byte proti vanilla, cross-checked skriptem proti CSV)
+creature_template.faction SQL       RUNTIME PASS  (32 entries, cross-checked proti world_faction_assignments.csv)
+runtime player reaction test        PASS          (Neutral/Friendly/Hostile proti repointovaným NPC potvrzeno)
+deploy DBC regeneration              FIXED / PASS (`make dbc-factions` v .github/workflows/ci.yml deploy jobu)
 ```
 
-Tohle NENÍ auditovaná oprava (žádná vanilla reaction hodnota se nezkoumala/neměnila - jen se zkopírovala) - je to infrastruktura, která teprve umožní budoucí `creature_onkill_reputation` (zabití NPC → změna reputation na 1201-1204). Samotný `FactionTemplate` reaction audit (jsou tyhle vanilla hodnoty vůbec správné?) zůstává jako checklist položka výše otevřený.
+Tohle NENÍ auditovaná oprava (žádná vanilla reaction hodnota se nezkoumala/neměnila - jen se zkopírovala) - je to infrastruktura, která umožnila `creature_onkill_reputation` níže. Samotný `FactionTemplate` reaction audit (jsou tyhle vanilla hodnoty vůbec správné/zamýšlené?) zůstává jako checklist položka výše otevřený.
+
+**Runtime evidence (2026-09-16) — `creature_onkill_reputation`:** `sql/updates/world/3.3.5/2026_09_16_02_world.sql` přidává reputation reward za zabití pro přesně těch 32 entries, které už mají `FactionTemplate` klon (`tc_faction_action = CLONED` v `world_faction_assignments.csv`, nový sloupec `onkill_rep_value`) - cross-checked skriptem proti CSV stejným způsobem jako 2026_09_16_01. `RewOnKillRepFaction1` je přímo `factions.csv`'s `id` (1201-1204); `MaxStanding1 = 8` (jedna hodnota nad `REP_EXALTED`), protože `Player::RewardReputation()` by s `MaxStanding1 = 0` blokoval zisk reputace hned od prvního killu (tyto frakce startují na `REP_NEUTRAL`, což je už `> 0`). V1 flat baseline: `+1` reputace za kill, stejně pro common trash i unique named NPC - tiering podle vzácnosti je vědomě odložený.
+
+```text
+creature_onkill_reputation SQL      STATIC PASS  (32 entries, cross-checked proti world_faction_assignments.csv)
+runtime kill -> reputation test     PENDING      (zabití NPC -> změna standing na živém serveru ještě neproběhlo)
+```
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 
