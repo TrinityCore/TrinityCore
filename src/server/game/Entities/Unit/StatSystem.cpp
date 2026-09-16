@@ -106,10 +106,11 @@ int32 Unit::GetCreatePowerValue(Powers power) const
 
 bool Player::UpdateStats(Stats stat)
 {
-    // value = ((base_value * base_pct) + total_value) * total_pct
+    // value = (base_value * base_pct) * total_pct + total_value * total_pct
     float value  = GetTotalStatValue(stat);
 
     SetStat(stat, int32(value));
+    UpdateStatBuffMod(stat);
 
     if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
@@ -201,6 +202,7 @@ bool Player::UpdateAllStats()
     {
         float value = GetTotalStatValue(Stats(i));
         SetStat(Stats(i), int32(value));
+        UpdateStatBuffMod(Stats(i));
     }
 
     UpdateArmor();

@@ -155,17 +155,16 @@ typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmune
 
 enum UnitModifierFlatType
 {
-    BASE_VALUE = 0,
-    BASE_PCT_EXCLUDE_CREATE = 1,    // percent modifier affecting all stat values from auras and gear but not player base for level
-    TOTAL_VALUE = 2,
-    MODIFIER_TYPE_FLAT_END = 3
+    BASE_VALUE = 0,                // flat value containing only fixed create stats, e.g. player_classlevelstats
+    TOTAL_VALUE = 1,               // flat value containing flat modfiers from gear and auras
+    MODIFIER_TYPE_FLAT_END
 };
 
 enum UnitModifierPctType
 {
-    BASE_PCT = 0,
-    TOTAL_PCT = 1,
-    MODIFIER_TYPE_PCT_END = 2
+    BASE_PCT = 0,                  // percent modifier affecting only BASE_VALUE
+    TOTAL_PCT = 1,                 // percent modifier affecting BASE_VALUE and TOTAL_VALUE
+    MODIFIER_TYPE_PCT_END
 };
 
 enum WeaponDamageRange
@@ -1426,7 +1425,7 @@ class TC_GAME_API Unit : public WorldObject
         void InitStatBuffMods();
         void UpdateStatBuffMod(Stats stat);
         void UpdateStatBuffModForClient(Stats stat);
-        void SetCreateStat(Stats stat, float val) { m_createStats[stat] = val; }
+        void SetCreateStat(Stats stat, float val);
         void SetCreateHealth(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseHealth), val); }
         uint32 GetCreateHealth() const { return m_unitData->BaseHealth; }
         void SetCreateMana(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseMana), val); }
@@ -1434,7 +1433,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual int32 GetCreatePowerValue(Powers power) const;
         float GetPosStat(Stats stat) const { return m_unitData->StatPosBuff[stat]; }
         float GetNegStat(Stats stat) const { return m_unitData->StatNegBuff[stat]; }
-        float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
+        float GetCreateStat(Stats stat) const;
 
         uint32 GetChannelSpellId() const { return m_unitData->ChannelData->SpellID; }
         void SetChannelSpellId(uint32 channelSpellId)
@@ -1907,7 +1906,6 @@ class TC_GAME_API Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        std::array<float, MAX_STATS> m_createStats;
         std::array<float, MAX_STATS> m_floatStatPosBuff;
         std::array<float, MAX_STATS> m_floatStatNegBuff;
 
