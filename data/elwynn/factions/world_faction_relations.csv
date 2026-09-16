@@ -1,0 +1,9 @@
+from_world_faction_id,to_world_faction_id,relation
+1,2,HOSTILE
+2,1,HOSTILE
+1,3,HOSTILE
+3,1,HOSTILE
+1,4,HOSTILE
+4,1,HOSTILE
+1,5,HOSTILE
+5,1,HOSTILE
