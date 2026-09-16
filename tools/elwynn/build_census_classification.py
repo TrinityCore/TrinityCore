@@ -48,7 +48,25 @@ MANUAL_ACCEPTED = {
     6774: "Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.",
     10616: "Accepted as Alliance-aligned worker/supervisor for 3.1; final faction assignment belongs to 3.3.",
     14388: "Accepted as PREDATOR/beast for 3.1; underlying placement anomaly is deferred.",
+    330: "Single-spawn PREY_FAUNA template with an individual name (Princess); identity audit overrides the category-default unique_named=NO to YES because physical type must not determine identity.",
+    471: "Single-spawn PREDATOR template with an individual name (Mother Fang); identity audit overrides the category-default unique_named=NO to YES because physical type must not determine identity.",
+    6846: "Single-spawn template name is a generic role title (Defias Dockmaster), not a personal name; identity audit overrides the single-spawn default unique_named=YES to NO.",
+    14390: "Single-spawn template name is a generic archetype title (Expeditionary Mountaineer), not a personal name; identity audit overrides the single-spawn default unique_named=YES to NO.",
+    14393: "Single-spawn template name is a generic archetype title (Expeditionary Priest), not a personal name; identity audit overrides the single-spawn default unique_named=YES to NO.",
+    61: "Named template (Thuros Lightfingers) with 8 permanent spawns; unique_named stays NO because the entity is not unique in the census, flagged identity_status=NAMED_MULTI_SPAWN for later world-data cleanup.",
+    100: "Named template (Gruff Swiftbite) with 5 permanent spawns; unique_named stays NO because the entity is not unique in the census, flagged identity_status=NAMED_MULTI_SPAWN for later world-data cleanup.",
+    472: "Named template (Fedfennel) with 4 permanent spawns; unique_named stays NO because the entity is not unique in the census, flagged identity_status=NAMED_MULTI_SPAWN for later world-data cleanup.",
 }
+
+# Identity audit (all 182 permanent templates reviewed manually): the
+# category-default unique_named rule conflates two different axes — physical
+# creature type/spawn count vs. whether the template name denotes an
+# individual identity. These overrides correct the four confirmed
+# mismatches; NAMED_MULTI_SPAWN_ENTRIES flags named templates that are not
+# unique in the census without changing their unique_named value.
+UNIQUE_NAMED_OVERRIDE_YES = {330, 471}
+UNIQUE_NAMED_OVERRIDE_NO = {6846, 14390, 14393}
+NAMED_MULTI_SPAWN_ENTRIES = {61, 100, 472}
 
 TEMPLATE_FIELDS = [
     "name", "subname", "minlevel", "maxlevel", "faction_template_id",
@@ -176,6 +194,20 @@ def classify(t):
     else:
         unique_named = "YES"
 
+    if entry in UNIQUE_NAMED_OVERRIDE_YES:
+        unique_named = "YES"
+    elif entry in UNIQUE_NAMED_OVERRIDE_NO:
+        unique_named = "NO"
+
+    if category == "SPECIAL_SCRIPTED":
+        identity_status = "TECHNICAL"
+    elif entry in NAMED_MULTI_SPAWN_ENTRIES:
+        identity_status = "NAMED_MULTI_SPAWN"
+    elif unique_named == "YES":
+        identity_status = "UNIQUE_NAMED"
+    else:
+        identity_status = "GENERIC"
+
     return {
         "entry": entry,
         "name": name,
@@ -185,6 +217,7 @@ def classify(t):
         "participation_mode": mode,
         "role_or_profession": role,
         "unique_named": unique_named,
+        "identity_status": identity_status,
         "review_status": (
             "MANUAL_REVIEW" if entry in MANUAL_REVIEW
             else "ACCEPTED_MANUAL" if entry in MANUAL_ACCEPTED
@@ -249,6 +282,7 @@ def main():
                 "participation_mode": "EXCLUDED",
                 "role_or_profession": "",
                 "unique_named": "N/A",
+                "identity_status": "N/A",
                 "review_status": "EXCLUDED_BY_POLICY",
                 "classification_source": "game_event_creature positive eventEntry",
             })
@@ -259,6 +293,7 @@ def main():
                 "participation_mode": c["participation_mode"],
                 "role_or_profession": c["role_or_profession"],
                 "unique_named": c["unique_named"],
+                "identity_status": c["identity_status"],
                 "review_status": c["review_status"],
                 "classification_source": f"template:{r['entry']}",
             })
@@ -280,6 +315,11 @@ def main():
         n = to_int(r["included_spawn_count"])
         category_spawns[r["primary_category"]] += n
         mode_spawns[r["participation_mode"]] += n
+
+    identity_templates = Counter(r["identity_status"] for r in classification)
+    identity_spawns = Counter()
+    for r in classification:
+        identity_spawns[r["identity_status"]] += to_int(r["included_spawn_count"])
 
     manual = [r for r in classification if r["review_status"] == "MANUAL_REVIEW"]
     manual_accepted = [r for r in classification if r["review_status"] == "ACCEPTED_MANUAL"]
@@ -306,6 +346,20 @@ def main():
     ]
     for cat in sorted(category_templates):
         lines.append(f"| {cat} | {category_templates[cat]} | {category_spawns[cat]} |")
+
+    lines += [
+        "",
+        "## Identity status",
+        "",
+        "`unique_named` (YES/NO) stays a simple boolean derived from category and",
+        "spawn count. `identity_status` separates the identity axis from the",
+        "physical/population axis so named-but-multi-spawn templates are not lost:",
+        "",
+        "| Identity status | Templates | Spawns |",
+        "|---|---:|---:|",
+    ]
+    for id_status in sorted(identity_templates):
+        lines.append(f"| {id_status} | {identity_templates[id_status]} | {identity_spawns[id_status]} |")
 
     lines += [
         "",
