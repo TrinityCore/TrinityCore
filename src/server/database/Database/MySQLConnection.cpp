@@ -30,6 +30,17 @@
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
 
+namespace
+{
+    struct NoRetryScope
+    {
+        explicit NoRetryScope(bool& flag) : Flag(flag), Previous(flag) { Flag = true; }
+        ~NoRetryScope() { Flag = Previous; }
+        bool& Flag;
+        bool Previous;
+    };
+}
+
 MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
     std::vector<std::string_view> tokens = Trinity::Tokenize(infoString, ';', true);
@@ -390,7 +401,45 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
 {
     std::vector<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())
+    {
+        // Nothing was started, so nothing could have been applied.
+        transaction->_outcome = TransactionOutcome::RolledBack;
         return -1;
+    }
+
+    if (transaction->_noRetry)
+    {
+        NoRetryScope scope(m_noRetry);
+        if (!Execute("START TRANSACTION"))
+        {
+            // Nothing was started, so nothing could have been applied.
+            transaction->_outcome = TransactionOutcome::RolledBack;
+            return -1;
+        }
+        for (SQLElementData const& data : queries)
+        {
+            bool succeeded = data.type == SQL_ELEMENT_PREPARED
+                ? Execute(data.element.stmt) : Execute(data.element.query);
+            if (!succeeded)
+            {
+                bool rolledBack = Execute("ROLLBACK");
+                transaction->_outcome = rolledBack ? TransactionOutcome::RolledBack : TransactionOutcome::Unknown;
+                // A fixed nonzero result also prevents TransactionTask from
+                // retrying a deadlock. The caller owns failure recovery.
+                return -1;
+            }
+        }
+        if (!Execute("COMMIT"))
+        {
+            // COMMIT may have reached MySQL even if its acknowledgement was lost.
+            // Do not claim rollback or replay; the caller must reload DB state.
+            Execute("ROLLBACK");
+            transaction->_outcome = TransactionOutcome::Unknown;
+            return -1;
+        }
+        transaction->_outcome = TransactionOutcome::Committed;
+        return 0;
+    }
 
     BeginTransaction();
 
@@ -528,8 +577,19 @@ PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
     return new PreparedResultSet(mysqlStmt->GetSTMT(), result, rowCount, fieldCount);
 }
 
+ResultSet* MySQLConnection::QueryNoRetry(char const* sql)
+{
+    NoRetryScope scope(m_noRetry);
+    return Query(sql);
+}
+
 bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
 {
+    if (m_noRetry)
+    {
+        TC_LOG_ERROR("sql.sql", "No-retry database operation failed with error {}; returning failure to its caller.", errNo);
+        return false;
+    }
     switch (errNo)
     {
         case CR_SERVER_GONE_ERROR:

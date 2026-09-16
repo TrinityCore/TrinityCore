@@ -46,6 +46,8 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WowTime.h"
+#include <utility>
+#include <vector>
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -776,6 +778,62 @@ static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = { 1057, 1107, 1108 };
 /**
  * this function will be called whenever the user might have done a criteria relevant action
  */
+namespace
+{
+    std::vector<std::pair<uint32, uint32>> g_externalCriteriaRanges;
+}
+
+void AchievementMgr::RegisterExternalCriteriaRange(uint32 firstId, uint32 lastId)
+{
+    if (firstId > lastId)
+    {
+        uint32 temp = firstId;
+        firstId = lastId;
+        lastId = temp;
+    }
+    for (auto const& range : g_externalCriteriaRanges)
+        if (range.first == firstId && range.second == lastId)
+            return;
+    g_externalCriteriaRanges.emplace_back(firstId, lastId);
+}
+
+bool AchievementMgr::IsExternalCriteria(uint32 criteriaId)
+{
+    for (auto const& range : g_externalCriteriaRanges)
+        if (criteriaId >= range.first && criteriaId <= range.second)
+            return true;
+    return false;
+}
+
+bool AchievementMgr::ApplyExternalCriteriaProgress(uint32 criteriaId, uint32 counter, time_t date)
+{
+    // Only ranges a subsystem registered may be advanced this way.
+    if (!IsExternalCriteria(criteriaId))
+        return false;
+    // External criteria respect the same GM and RBAC restrictions as any other.
+    if (m_player->IsGameMaster() || m_player->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
+        return false;
+
+    AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteriaId);
+    if (!criteria)
+        return false;
+    AchievementEntry const* achievement = sAchievementStore.LookupEntry(criteria->AchievementID);
+    if (!achievement || !CanUpdateCriteria(criteria, achievement, criteria->Asset.GameObjectID, 0, nullptr, true))
+        return false;
+
+    SetCriteriaProgress(criteria, counter, PROGRESS_SET);
+    if (CriteriaProgress* progress = GetCriteriaProgress(criteria))
+    {
+        progress->date = date;
+        progress->changed = false; // Already committed; a later player save must not overwrite it.
+    }
+    // A stored counter may already be complete while the notification or reward
+    // was interrupted by a crash or disconnect.
+    if (IsCompletedCriteria(criteria, achievement))
+        CompletedCriteriaFor(achievement);
+    return true;
+}
+
 void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, WorldObject* ref /*= nullptr*/)
 {
     if (type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
@@ -798,6 +856,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, miscValue1);
     for (AchievementCriteriaEntry const* achievementCriteria : achievementCriteriaList)
     {
+        // Externally tracked criteria advance only through their owner's
+        // committed events, never through generic game events.
+        if (IsExternalCriteria(achievementCriteria->ID))
+            continue;
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementCriteria->AchievementID);
         if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, ref))
             continue;
@@ -1650,7 +1712,7 @@ bool AchievementMgr::HasAchieved(uint32 achievementId) const
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
 
-bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref)
+bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref, bool allowCompleted)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, nullptr))
     {
@@ -1694,7 +1756,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
             return false;
 
     // don't update already completed criteria
-    if (IsCompletedCriteria(criteria, achievement))
+    if (!allowCompleted && IsCompletedCriteria(criteria, achievement))
         return false;
 
     return true;

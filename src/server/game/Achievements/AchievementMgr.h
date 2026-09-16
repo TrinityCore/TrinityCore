@@ -293,6 +293,12 @@ class TC_GAME_API AchievementMgr
         void ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, WorldObject* ref = nullptr);
         void CompletedAchievement(AchievementEntry const* entry);
+        // Criteria advanced by an external subsystem rather than by world events.
+        // Ordinary events never advance a registered range; its owner applies
+        // progress explicitly with ApplyExternalCriteriaProgress.
+        static void RegisterExternalCriteriaRange(uint32 firstId, uint32 lastId);
+        static bool IsExternalCriteria(uint32 criteriaId);
+        bool ApplyExternalCriteriaProgress(uint32 criteriaId, uint32 counter, time_t date);
         void CheckAllAchievementCriteria();
         void SendAllAchievementData() const;
         void SendRespondInspectAchievements(Player* player) const;
@@ -313,7 +319,7 @@ class TC_GAME_API AchievementMgr
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref);
+        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 miscValue1, uint32 miscValue2, WorldObject const* ref, bool allowCompleted = false);
         void BuildAllDataPacket(Player const* receiver, WorldPackets::Achievement::AllAchievements* data) const;
 
         bool ConditionsSatisfied(AchievementCriteriaEntry const* criteria) const;

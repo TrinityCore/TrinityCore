@@ -18997,6 +18997,8 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 
 void Player::SaveToDB(bool create /*=false*/)
 {
+    if (m_characterSavesSuspended)
+        return;
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     SaveToDB(trans, create);
@@ -19006,6 +19008,8 @@ void Player::SaveToDB(bool create /*=false*/)
 
 void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false */)
 {
+    if (m_characterSavesSuspended)
+        return;
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -19324,12 +19328,16 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
 // fast save function for item/money cheating preventing - save only inventory and money state
 void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans)
 {
+    if (m_characterSavesSuspended)
+        return;
     _SaveInventory(trans);
     SaveGoldToDB(trans);
 }
 
 void Player::SaveGoldToDB(CharacterDatabaseTransaction trans) const
 {
+    if (m_characterSavesSuspended)
+        return;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_MONEY);
     stmt->setUInt32(0, GetMoney());
     stmt->setUInt32(1, GetGUID().GetCounter());

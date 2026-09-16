@@ -143,6 +143,9 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_SYNCH flag.
         PreparedQueryResult Query(PreparedStatement<T>* stmt);
 
+        //! Optional feature lookup: return failure without reconnect/retry/abort.
+        QueryResult QueryNoRetry(char const* sql);
+
         /**
             Asynchronous query (with resultset) methods.
         */

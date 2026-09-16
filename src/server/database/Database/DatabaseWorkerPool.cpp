@@ -223,6 +223,20 @@ QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= null
 }
 
 template <class T>
+QueryResult DatabaseWorkerPool<T>::QueryNoRetry(char const* sql)
+{
+    T* connection = GetFreeConnection();
+    ResultSet* result = connection->QueryNoRetry(sql);
+    connection->Unlock();
+    if (!result || !result->GetRowCount() || !result->NextRow())
+    {
+        delete result;
+        return QueryResult(nullptr);
+    }
+    return QueryResult(result);
+}
+
+template <class T>
 PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
     auto connection = GetFreeConnection();

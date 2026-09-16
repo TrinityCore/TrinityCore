@@ -70,6 +70,7 @@ class TC_DATABASE_API MySQLConnection
         bool Execute(char const* sql);
         bool Execute(PreparedStatementBase* stmt);
         ResultSet* Query(char const* sql);
+        ResultSet* QueryNoRetry(char const* sql);
         PreparedResultSet* Query(PreparedStatementBase* stmt);
         bool _Query(char const* sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount);
         bool _Query(PreparedStatementBase* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
@@ -105,6 +106,7 @@ class TC_DATABASE_API MySQLConnection
 
     private:
         bool _HandleMySQLErrno(uint32 errNo, uint8 attempts = 5);
+        bool m_noRetry = false;
 
         ProducerConsumerQueue<SQLOperation*>* m_queue;      //! Queue shared with other asynchronous connections.
         std::unique_ptr<DatabaseWorker> m_worker;           //! Core worker task.

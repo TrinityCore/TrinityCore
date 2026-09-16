@@ -26,6 +26,15 @@
 #include <mutex>
 #include <vector>
 
+// Outcome of executing a transaction. Money-journal callers use this to tell a
+// confirmed rollback apart from a commit whose result could not be determined.
+enum class TransactionOutcome : uint8
+{
+    Committed,    // committed and acknowledged by the server
+    RolledBack,   // definitively not applied (rollback confirmed, or nothing started)
+    Unknown       // outcome indeterminate (commit/rollback acknowledgement lost)
+};
+
 /*! Transactions, high level class. */
 class TC_DATABASE_API TransactionBase
 {
@@ -47,6 +56,11 @@ class TC_DATABASE_API TransactionBase
         }
 
         std::size_t GetSize() const { return m_queries.size(); }
+        TransactionOutcome GetOutcome() const { return _outcome; }
+
+        // Opt-in for money journals: never replay individual statements after a
+        // reconnect, and report failures to the caller instead of aborting core.
+        void SetNoRetry() { _noRetry = true; }
 
     protected:
         void AppendPreparedStatement(PreparedStatementBase* statement);
@@ -55,6 +69,8 @@ class TC_DATABASE_API TransactionBase
 
     private:
         bool _cleanedUp;
+        bool _noRetry = false;
+        TransactionOutcome _outcome = TransactionOutcome::Unknown;
 };
 
 template<typename T>

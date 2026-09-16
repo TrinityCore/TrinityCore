@@ -1366,6 +1366,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(CharacterDatabaseTransaction trans) const;
 
+        // Used immediately before disconnecting a player whose on-disk value for a
+        // subsystem-managed field could not be confirmed. A fresh login reloads
+        // authoritative DB state into a new Player object.
+        void SuspendCharacterSaves() { m_characterSavesSuspended = true; }
+
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -2208,6 +2213,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetAchievements();
         void ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, WorldObject* ref = nullptr);
+        AchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
@@ -2355,6 +2361,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 m_team;
         uint32 m_nextSave;
+        bool m_characterSavesSuspended = false;
         std::array<ChatFloodThrottle, ChatFloodThrottle::MAX> m_chatFloodData;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;

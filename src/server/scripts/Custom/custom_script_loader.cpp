@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Poker/Poker.h"
+
 // This is where scripts' loading functions should be declared:
 void AddSC_GOMove_commandscript();
 
@@ -23,4 +25,5 @@ void AddSC_GOMove_commandscript();
 void AddCustomScripts()
 {
     AddSC_GOMove_commandscript();
+    AddSC_poker();
 }
