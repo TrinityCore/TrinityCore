@@ -476,15 +476,30 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
         while (result->NextRow() && charEnum.Characters.size() < MAX_CHARACTERS_PER_REALM);
     }
 
-    for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
+    for (RaceClassAvailability const& requirement : sObjectMgr->GetRaceClassRequirements())
     {
-        WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
-        raceUnlock.RaceID = requirement.first;
-        raceUnlock.HasUnlockedLicense = GetAccountExpansion() >= requirement.second.Expansion;
-        raceUnlock.HasUnlockedAchievement = requirement.second.AchievementId != 0
+        WorldPackets::Character::EnumCharactersResult::RaceUnlock& raceUnlock = charEnum.RaceUnlockData.emplace_back();
+        raceUnlock.RaceID = requirement.RaceID;
+        raceUnlock.HasUnlockedLicense = GetAccountExpansion() >= requirement.UnlockRequirement.Expansion;
+        raceUnlock.HasUnlockedAchievement = requirement.UnlockRequirement.AchievementId != 0
             && (sWorld->getBoolConfig(CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT)
-                /* || HasAccountAchievement(requirement.second.AchievementId)*/);
-        charEnum.RaceUnlockData.push_back(raceUnlock);
+                /* || HasAccountAchievement(requirement.UnlockRequirement.AchievementId)*/);
+        raceUnlock.HasEntitlement = true;
+
+        for (ClassAvailability const& classRequirement : requirement.Classes)
+        {
+            WorldPackets::Character::EnumCharactersResult::ClassUnlock& classUnlock = raceUnlock.ClassUnlocks.emplace_back();
+            classUnlock.ClassID = classRequirement.ClassID;
+            //classUnlock.AchievementID = classRequirement.AchievementId;
+            classUnlock.HasExpansion = GetAccountExpansion() >= classRequirement.AccountExpansionLevel && GetExpansion() >= classRequirement.ActiveExpansionLevel;
+            classUnlock.HasUnlockedAchievement = true/*classRequirement.AchievementId == 0 || HasAccountAchievement(classRequirement.AchievementId)*/;
+            classUnlock.HasEntitlement = true;
+        }
+
+        raceUnlock.DoesNotHaveAvailableClasses = std::ranges::none_of(raceUnlock.ClassUnlocks, [](WorldPackets::Character::EnumCharactersResult::ClassUnlock const& classUnlock)
+        {
+            return classUnlock.HasExpansion && classUnlock.HasUnlockedAchievement && classUnlock.HasEntitlement;
+        });
     }
 
     SendPacket(charEnum.Write());

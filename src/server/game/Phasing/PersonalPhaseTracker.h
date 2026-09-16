@@ -27,7 +27,6 @@
 class Map;
 class PhaseShift;
 class WorldObject;
-struct Cell;
 
 struct PersonalPhaseSpawns
 {
@@ -67,13 +66,13 @@ private:
 /* Handles personal phase trackers for all owners */
 struct MultiPersonalPhaseTracker
 {
-    void LoadGrid(PhaseShift const& phaseShift, NGridType& grid, Map* map, Cell const& cell);
+    void LoadGrid(PhaseShift const& phaseShift, NGridType& grid, Map* map);
     void UnloadGrid(NGridType& grid);
 
     void RegisterTrackedObject(uint32 phaseId, ObjectGuid const& phaseOwner, WorldObject* object);
     void UnregisterTrackedObject(WorldObject* object);
 
-    void OnOwnerPhaseChanged(WorldObject const* phaseOwner, NGridType* grid, Map* map, Cell const& cell);
+    void OnOwnerPhaseChanged(WorldObject const* phaseOwner, NGridType* grid, Map* map);
     void MarkAllPhasesForDeletion(ObjectGuid const& phaseOwner);
 
     void Update(Map* map, uint32 diff);

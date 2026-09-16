@@ -170,13 +170,14 @@ ByteBuffer& operator<<(ByteBuffer& data, LfgPlayerDungeonInfo const& playerDunge
     data << uint32(playerDungeonInfo.CompletedMask);
     data << uint32(playerDungeonInfo.EncounterMask);
     data << Size<uint32>(playerDungeonInfo.ShortageReward);
+    data << playerDungeonInfo.Rewards;
+
+    for (LfgPlayerQuestReward const& shortageReward : playerDungeonInfo.ShortageReward)
+        data << shortageReward;
+
     data << Bits<1>(playerDungeonInfo.FirstReward);
     data << Bits<1>(playerDungeonInfo.ShortageEligible);
     data.FlushBits();
-
-    data << playerDungeonInfo.Rewards;
-    for (LfgPlayerQuestReward const& shortageReward : playerDungeonInfo.ShortageReward)
-        data << shortageReward;
 
     return data;
 }
@@ -216,8 +217,8 @@ WorldPacket const* LFGUpdateStatus::Write()
     for (ObjectGuid const& suspendedPlayer : SuspendedPlayers)
         _worldPacket << suspendedPlayer;
 
-    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(NotifyUI);
+    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(Joined);
     _worldPacket << Bits<1>(LfgJoined);
     _worldPacket << Bits<1>(Queued);
@@ -263,12 +264,12 @@ WorldPacket const* LFGRoleCheckUpdate::Write()
     for (uint64 bgQueueID : BgQueueIDs)
         _worldPacket << uint64(bgQueueID);
 
+    for (LFGRoleCheckUpdateMember const& member : Members)
+        _worldPacket << member;
+
     _worldPacket << Bits<1>(IsBeginning);
     _worldPacket << Bits<1>(IsRequeue);
     _worldPacket.FlushBits();
-
-    for (LFGRoleCheckUpdateMember const& member : Members)
-        _worldPacket << member;
 
     return &_worldPacket;
 }
@@ -314,11 +315,12 @@ ByteBuffer& operator<<(ByteBuffer& data, LFGPlayerRewards const& lfgPlayerReward
 {
     data << OptionalInit(lfgPlayerRewards.RewardItem);
     data << OptionalInit(lfgPlayerRewards.RewardCurrency);
+    data << uint32(lfgPlayerRewards.Quantity);
+    data << int32(lfgPlayerRewards.BonusQuantity);
+
     if (lfgPlayerRewards.RewardItem)
         data << *lfgPlayerRewards.RewardItem;
 
-    data << uint32(lfgPlayerRewards.Quantity);
-    data << int32(lfgPlayerRewards.BonusQuantity);
     if (lfgPlayerRewards.RewardCurrency)
         data << int32(*lfgPlayerRewards.RewardCurrency);
 

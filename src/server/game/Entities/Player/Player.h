@@ -1281,7 +1281,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ToggleDND();
         bool isAFK() const { return HasPlayerFlag(PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasPlayerFlag(PLAYER_FLAGS_DND); }
-        uint16 GetChatFlags() const;
+        uint32 GetChatFlags() const;
         std::string autoReplyMsg;
 
         int64 GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const;
@@ -2667,7 +2667,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
         WorldObject* m_seer;
         void SetFallInformation(uint32 time, float z);
-        void HandleFall(MovementInfo const& movementInfo);
+        void HandleFall();
 
         void SetClientControl(Unit* target, bool allowMove);
 
