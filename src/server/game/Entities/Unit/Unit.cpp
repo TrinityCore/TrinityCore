@@ -342,7 +342,6 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraFlatModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraFlatModifiersGroup[i][BASE_PCT_EXCLUDE_CREATE] = 100.0f;
         m_auraFlatModifiersGroup[i][TOTAL_VALUE] = 0.0f;
         m_auraPctModifiersGroup[i][BASE_PCT] = 1.0f;
         m_auraPctModifiersGroup[i][TOTAL_PCT] = 1.0f;
@@ -363,7 +362,6 @@ Unit::Unit(bool isWorldObject) :
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
 
-    m_createStats = { };
     m_floatStatPosBuff = { };
     m_floatStatNegBuff = { };
 
@@ -5206,75 +5204,61 @@ void Unit::UpdateStatBuffMod(Stats stat)
 {
     float modPos = 0.0f;
     float modNeg = 0.0f;
-    float currentValue = 0.0f;
-    float previousValue = 0.0f;
 
     UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // includes value from items and enchantments
-    float baseModValue = GetFlatModifierValue(unitMod, BASE_VALUE);
     if (IsGuardian())
-        baseModValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+    {
+        float modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+        if (modValue > 0.f)
+            modPos += modValue;
+        else
+            modNeg += modValue;
+    }
 
-    if (baseModValue >= 0.0f)
-        modPos = baseModValue;
-    else
-        modNeg = baseModValue;
-
-    previousValue = baseModValue;
-
-    // SPELL_AURA_MOD_STAT_BONUS_PCT only affects BASE_VALUE
-    currentValue = CalculatePct(baseModValue, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    if (G3D::fuzzyGe(currentValue, previousValue))
-        modPos += currentValue - previousValue;
-    else
-        modNeg -= previousValue - currentValue;
-
-    // SPELL_AURA_MOD_PERCENT_STAT affects the base_value as well as the create stat
-    previousValue += GetCreateStat(stat);
-    float multiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
+    modPos += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
         {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
+            if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() > 0)
                 return true;
             return false;
         });
 
-    currentValue = previousValue * multiplier;
-    if (G3D::fuzzyGe(currentValue, previousValue))
-        modPos += currentValue - previousValue;
-    else
-        modNeg -= previousValue - currentValue;
-
-    // total_value offsets
-    previousValue += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [&](AuraEffect const* aurEff) -> bool
+    modNeg += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
         {
-            if (aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat)
-            {
-                if (aurEff->GetAmount() > 0)
-                    modPos += aurEff->GetAmount();
-                else
-                    modNeg += aurEff->GetAmount();
-                return true;
-            }
-            return false;
-        });
-
-    // total_pct multiplier
-    multiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if (!aurEff->GetMiscValueB() || aurEff->GetMiscValueB() & (1 << stat))
+            if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() < 0)
                 return true;
             return false;
         });
 
-    currentValue = previousValue * multiplier;
-    if (G3D::fuzzyGe(currentValue, previousValue))
-        modPos += currentValue - previousValue;
-    else
-        modNeg -= previousValue - currentValue;
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float baseModFromPct = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
 
-    m_floatStatPosBuff[stat] = modPos;
-    m_floatStatNegBuff[stat] = modNeg;
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    float totalModFromPct = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
+    float modsFromPct = baseModFromPct + totalModFromPct;
+
+    // recalculate stat bonuses not applied by auras
+    float nonAuraMod = totalValue;
+    nonAuraMod -= modPos; // remove positive auras
+    nonAuraMod -= modNeg; // remove negative auras
+
+    // add item stat bonuses to positive
+    if (nonAuraMod > 0.f)
+        modPos += nonAuraMod;
+    else
+        modNeg += nonAuraMod;
+
+    // add pct mods
+    if (modsFromPct > 0.f)
+        modPos += modsFromPct;
+    else
+        modNeg += modsFromPct;
+
+    m_floatStatPosBuff[stat] = std::round(modPos);
+    m_floatStatNegBuff[stat] = std::round(modNeg);
 
     UpdateStatBuffModForClient(stat);
 }
@@ -5283,6 +5267,18 @@ void Unit::UpdateStatBuffModForClient(Stats stat)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatPosBuff, stat), int32(m_floatStatPosBuff[stat]));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatNegBuff, stat), int32(m_floatStatNegBuff[stat]));
+}
+
+void Unit::SetCreateStat(Stats stat, float val)
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    HandleStatFlatModifier(unitMod, BASE_VALUE, val, true);
+}
+
+float Unit::GetCreateStat(Stats stat) const
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    return GetFlatModifierValue(unitMod, BASE_VALUE);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -9491,7 +9487,6 @@ void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifie
     switch (modifierType)
     {
         case BASE_VALUE:
-        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraFlatModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -9751,14 +9746,16 @@ float Unit::GetTotalStatValue(Stats stat) const
 
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // value = ((base_value * base_pct) + total_value) * total_pct
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    value += createStat;
-    value *= GetPctModifierValue(unitMod, BASE_PCT);
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
-    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    // value = (base_value * base_pct) * total_pct + total_value * total_pct
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    return value;
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    return baseValue + totalValue;
 }
 
 float Unit::GetTotalAuraModValue(UnitMods unitMod) const
@@ -9769,7 +9766,7 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
         return 0.0f;
     }
 
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
@@ -9821,7 +9818,7 @@ void Unit::UpdateResistances(uint32 school)
     {
         UnitMods unitMod = UnitMods(UNIT_MOD_RESISTANCE_START + school);
 
-        float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+        float value = GetFlatModifierValue(unitMod, BASE_VALUE);
         value *= GetPctModifierValue(unitMod, BASE_PCT);
         value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
         value *= GetPctModifierValue(unitMod, TOTAL_PCT);

@@ -2179,7 +2179,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     //set create powers
     SetCreateMana(basemana);
 
-    SetArmor(int32(m_createStats[STAT_AGILITY]*2), 0);
+    SetArmor(int32(GetCreateStat(STAT_AGILITY)*2), 0);
 
     InitStatBuffMods();
 
@@ -2238,7 +2238,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DodgePercentage), 0.0f);
 
     // set armor (resistance 0) to original value (create_agility*2)
-    SetArmor(int32(m_createStats[STAT_AGILITY] * 2), 0);
+    SetArmor(int32(GetCreateStat(STAT_AGILITY) * 2), 0);
 
     // set other resistance to original value (0)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
@@ -12703,23 +12703,23 @@ void Player::ApplyItemModModifier(ItemModType modifier, int32 amount, bool apply
             HandleStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(amount), apply);
             break;
         case ITEM_MOD_AGILITY:
-            HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_AGILITY);
             break;
         case ITEM_MOD_STRENGTH:
-            HandleStatFlatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_STRENGTH);
             break;
         case ITEM_MOD_INTELLECT:
-            HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_INTELLECT);
             break;
         case ITEM_MOD_SPIRIT:
-            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_SPIRIT);
             break;
         case ITEM_MOD_STAMINA:
-            HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(amount), apply);
+            HandleStatFlatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(amount), apply);
             UpdateStatBuffMod(STAT_STAMINA);
             break;
         case ITEM_MOD_DEFENSE_SKILL_RATING:
