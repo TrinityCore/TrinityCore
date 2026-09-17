@@ -70,7 +70,7 @@ WorldPacket const* ChannelNotifyJoined::Write()
     _worldPacket << SizedString::BitsSize<7>(_Channel);
     _worldPacket << SizedString::BitsSize<11>(ChannelWelcomeMsg);
     _worldPacket << uint32(_ChannelFlags);
-    _worldPacket << uint8(Unknown1107);
+    _worldPacket << uint8(UserFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);
     _worldPacket << ChannelGUID;

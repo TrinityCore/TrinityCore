@@ -1,0 +1,13 @@
+diff --git a/dep/g3dlite/include/G3D/Plane.h b/dep/g3dlite/include/G3D/Plane.h
+index 4c1a2487b9..6ff2651d7f 100644
+--- a/dep/g3dlite/include/G3D/Plane.h
++++ b/dep/g3dlite/include/G3D/Plane.h
+@@ -77,8 +77,6 @@ public:
+ 
+     void serialize(class BinaryOutput& b) const;
+     void deserialize(class BinaryInput& b);
+-    
+-    virtual ~Plane() {}
+ 
+     /**
+      Returns true if point is on the side the normal points to or 
