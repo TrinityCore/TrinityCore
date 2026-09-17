@@ -1175,7 +1175,7 @@ private:
 };
 
 // 199422 - Holy Ritual (attached to 6940 - Blessing of Sacrifice and 1022 - Blessing of Protection)
-class spell_pal_holy_ritual : public AuraScript
+class spell_pal_holy_ritual : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1191,18 +1191,17 @@ class spell_pal_holy_ritual : public AuraScript
         return GetCaster()->HasAura(SPELL_PALADIN_HOLY_RITUAL_TALENT);
     }
 
-    void HandleHeal(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleHeal(SpellEffIndex /*effIndex*/) const
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_PALADIN_HOLY_RITUAL_HEAL, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
-            });
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_RITUAL_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_pal_holy_ritual::HandleHeal, EFFECT_1, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_ritual::HandleHeal, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
