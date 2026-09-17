@@ -52,28 +52,27 @@ namespace VMAP
     class LocationInfoCallback
     {
         public:
-            LocationInfoCallback(ModelInstance const* val, LocationInfo& info) : prims(val), locInfo(info), result(false) { }
+            LocationInfoCallback(ModelInstance const* val, StaticMapTreeLocationInfo& info) : prims(val), locInfo(info) { }
             void operator()(Vector3 const& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
                 TC_LOG_DEBUG("maps", "LocationInfoCallback: trying to intersect '{}'", prims[entry].name);
 #endif
                 if (prims[entry].GetLocationInfo(point, locInfo))
-                    result = true;
+                    locInfo.hitInstance = &prims[entry];
             }
 
             ModelInstance const* prims;
-            LocationInfo& locInfo;
-            bool result;
+            StaticMapTreeLocationInfo& locInfo;
     };
 
     //=========================================================
 
-    bool StaticMapTree::GetLocationInfo(Vector3 const& pos, LocationInfo& info) const
+    bool StaticMapTree::GetLocationInfo(Vector3 const& pos, StaticMapTreeLocationInfo& info) const
     {
         LocationInfoCallback intersectionCallBack(iTreeValues.data(), info);
         iTree.intersectPoint(pos, intersectionCallBack);
-        return intersectionCallBack.result;
+        return intersectionCallBack.locInfo.hitInstance != nullptr;
     }
 
     StaticMapTree::StaticMapTree(uint32 mapID, std::string const& basePath)

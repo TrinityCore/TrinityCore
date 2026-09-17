@@ -28,8 +28,8 @@
 
 namespace VMAP
 {
+    class GroupModel;
     class WorldModel;
-    struct AreaInfo;
     struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 }
@@ -41,6 +41,11 @@ struct GameObjectDisplayInfoEntry;
 class TC_COMMON_API GameObjectModelOwnerBase
 {
 public:
+    GameObjectModelOwnerBase() = default;
+    GameObjectModelOwnerBase(GameObjectModelOwnerBase const& other) = delete;
+    GameObjectModelOwnerBase(GameObjectModelOwnerBase&& other) noexcept = delete;
+    GameObjectModelOwnerBase& operator=(GameObjectModelOwnerBase const& other) = delete;
+    GameObjectModelOwnerBase& operator=(GameObjectModelOwnerBase&& other) noexcept = delete;
     virtual ~GameObjectModelOwnerBase() = default;
 
     virtual bool IsSpawned() const = 0;
@@ -81,7 +86,7 @@ public:
 
     bool IntersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
     bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const;
-    bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const;
+    bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::GroupModel const* model, float& liqHeight) const;
 
     static std::unique_ptr<GameObjectModel> Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 

@@ -18,22 +18,16 @@
 #ifndef _WORLDMODEL_H
 #define _WORLDMODEL_H
 
-#include <G3D/Vector3.h>
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
 #include "BoundingIntervalHierarchy.h"
-
 #include "Define.h"
 #include "EnumFlag.h"
+#include "ModelIgnoreFlags.h"
+#include <G3D/AABox.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
 
 namespace VMAP
 {
-    class TreeNode;
-    struct AreaInfo;
-    struct LocationInfo;
-    struct GroupLocationInfo;
-    enum class ModelIgnoreFlags : uint32;
-
     enum class ModelFlags : uint32
     {
         None    = 0x0,
@@ -113,6 +107,13 @@ namespace VMAP
             WmoLiquid* iLiquid;
     };
 
+    struct WorldModelLocationInfoQueryResult
+    {
+        GroupModel const* hitModel = nullptr;
+        float distanceToModel = 0.0f;
+        int32 rootId = -1;
+    };
+
     /*! Holds a model (converted M2 or WMO) in its original coordinate space */
     class TC_COMMON_API WorldModel
     {
@@ -124,7 +125,7 @@ namespace VMAP
             void setFlags(ModelFlags flags) { Flags = flags; }
             void setRootWmoID(uint32 id) { RootWMOID = id; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
-            bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, GroupLocationInfo& info) const;
+            bool GetLocationInfo(G3D::Vector3 const& p, G3D::Vector3 const& down, WorldModelLocationInfoQueryResult& info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
             bool IsM2() const { return Flags.HasFlag(ModelFlags::IsM2); }

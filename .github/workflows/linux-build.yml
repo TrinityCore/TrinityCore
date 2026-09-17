@@ -24,7 +24,7 @@ jobs:
             pch: 0
             launcher: ccache
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
     - name: Set reusable strings
       id: strings
       shell: bash
@@ -38,7 +38,7 @@ jobs:
     - name: Restore nopch cache
       id: ccache-restore
       if: ${{ matrix.pch == '0' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ github.workspace }}/.ccache
         key: ${{ steps.strings.outputs.ccache-key-prefix }}-${{ github.ref_name }}-${{ github.sha }}
