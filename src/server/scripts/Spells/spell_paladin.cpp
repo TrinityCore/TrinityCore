@@ -1179,11 +1179,7 @@ class spell_pal_holy_ritual : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PALADIN_HOLY_RITUAL_TALENT,
-            SPELL_PALADIN_HOLY_RITUAL_HEAL
-        });
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_RITUAL_TALENT,SPELL_PALADIN_HOLY_RITUAL_HEAL });
     }
 
     bool Load() override
