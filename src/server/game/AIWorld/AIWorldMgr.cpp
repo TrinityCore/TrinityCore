@@ -1385,6 +1385,13 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // see _spawnParticipationCatalog's own declaration comment.
     _spawnParticipationCatalog.Load();
 
+    // Runtime participation/scope boundary fix: unconditional, NOT gated
+    // behind AIWorld.EnableSpawnReconciliation below - see
+    // ApplyParticipationControlPolicy()'s own comment for why a safety
+    // invariant (Excluded/VanillaOnly must never be AIWorld-owned) must not
+    // depend on an optional data-reconciliation feature flag.
+    ApplyParticipationControlPolicy();
+
     // Milestone 2.12F4B2 (STATIC review): gated behind
     // AIWorld.EnableSpawnReconciliation (default false = disabled), unlike
     // LoadAgents() itself, AND - as of 2.12F4B2 - a fail-closed combination
@@ -5790,6 +5797,61 @@ void AIWorldMgr::RunControlModeSmokeTest(AgentId testAgentId) const
     TC_LOG_INFO("ai.world", "AI ControlMode smoke {}", allPassed ? "PASSED" : "FAILED");
 }
 
+void AIWorldMgr::ApplyParticipationControlPolicy()
+{
+    std::vector<AgentId> excludedIds;
+    std::vector<AgentId> vanillaOnlyDemotionCandidates;
+
+    for (AgentId const& id : _registry.GetAgents())
+    {
+        AgentRecord const* record = _registry.Find(id);
+        if (!record)
+            continue;
+
+        // TryResolve(), not Resolve(): a SpawnId this catalog has no data
+        // for at all (outside the currently-classified census, e.g. a
+        // different zone) must be left completely alone here - Resolve()'s
+        // own Excluded fallback is only correct for a call site that
+        // already knows it is scoped to a known census (RunSpawnReconciliation()'s
+        // zone-scoped `census` list), not for a scan of the WHOLE registry.
+        SpawnParticipationMode mode;
+        if (!_spawnParticipationCatalog.TryResolve(record->SpawnId, mode))
+            continue;
+
+        if (mode == SpawnParticipationMode::Excluded)
+        {
+            TC_LOG_ERROR("ai.world", "AI agent id={} map={} spawn={} is EXCLUDED_EVENT (event-gated spawn, outside the permanent census) - quarantined, removed from the registry; ai_agents row/control_mode left untouched for manual review",
+                record->Id.Value, record->MapId, record->SpawnId);
+            excludedIds.push_back(id);
+        }
+        else if (mode == SpawnParticipationMode::VanillaOnly && record->ControlMode == AgentControlMode::AIWorldControlled)
+        {
+            vanillaOnlyDemotionCandidates.push_back(id);
+        }
+    }
+
+    for (AgentId const& id : excludedIds)
+        _registry.Remove(id);
+
+    // Only entries DemoteControlModeBatch() itself confirms via read-back
+    // are reflected here - fail closed, the same discipline every other
+    // batch persistence method in this subsystem applies.
+    std::vector<AgentId> demoted = _persistence.DemoteControlModeBatch(vanillaOnlyDemotionCandidates);
+    for (AgentId const& id : demoted)
+    {
+        AgentRecord* record = _registry.Find(id);
+        if (record)
+            record->ControlMode = AgentControlMode::ObserveOnly;
+    }
+    for (AgentId const& id : vanillaOnlyDemotionCandidates)
+        if (std::find(demoted.begin(), demoted.end(), id) == demoted.end())
+            TC_LOG_ERROR("ai.world", "AI agent id={} is VanillaOnly but its ControlMode demotion to ObserveOnly was not confirmed by read-back - still AIWorldControlled",
+                id.Value);
+
+    TC_LOG_INFO("ai.world", "AI participation control policy: excludedQuarantined={} vanillaOnlyDemoted={}",
+        excludedIds.size(), demoted.size());
+}
+
 void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
 {
     std::vector<CreatureSpawnIdentity> fullCensus = BuildCreatureSpawnCensus();
@@ -5866,7 +5928,13 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // are deliberately left alone (no aggressive DB write - lifecycle/
     // cleanup policy for these historical rows isn't decided yet, and an
     // explicit quarantine is safer than silently rewriting persistent
-    // state a future policy might still want).
+    // state a future policy might still want). Redundant with
+    // AIWorldMgr::Initialize()'s own unconditional ApplyParticipationControlPolicy()
+    // pass by the time this runs (that pass already removed these from
+    // _registry regardless of AIWorld.EnableSpawnReconciliation) - kept
+    // here anyway as a second confirmation whenever reconciliation itself
+    // is enabled, since plan.ExcludedButBound is independently rebuilt from
+    // the raw ai_agents table each run, not from in-memory _registry state.
     for (AgentId excludedId : plan.ExcludedButBound)
     {
         AgentRecord const* record = _registry.Find(excludedId);
@@ -5965,14 +6033,17 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
             record->Type = confirmedMismatch.second;
     }
 
-    // Runtime participation/scope boundary fix: VanillaOnly (SPECIAL_SCRIPTED,
-    // e.g. Spirit Healer - only 4 spawns) is a legitimate permanent agent,
-    // unlike Excluded above - it must stay tracked in _registry, but must
-    // never be AIWorldControlled (TrinityCore/scripted AI owns it). Pure
-    // detection: no registry removal, no DB write - just a loud log for
-    // manual review, the same "quarantine + log, DB untouched" policy
-    // ExcludedButBound applies, adapted for a case where removal itself
-    // would be wrong.
+    // Runtime participation/scope boundary fix: confirmation pass, not the
+    // primary fix - AIWorldMgr::Initialize()'s own unconditional
+    // ApplyParticipationControlPolicy() already persists a VanillaOnly ->
+    // ObserveOnly demotion (via AgentPersistence::DemoteControlModeBatch(),
+    // batch + read-back confirm) before this ever runs, regardless of
+    // AIWorld.EnableSpawnReconciliation. This should therefore always
+    // report 0 in practice; a nonzero count here means that earlier
+    // demotion was requested but NOT actually confirmed by its own
+    // read-back (see ApplyParticipationControlPolicy()'s own error log for
+    // which agent) - real signal for an operator, not an expected steady
+    // state, unlike excludedEventQuarantined above.
     uint32 vanillaOnlyControlModeViolations = 0;
     for (CreatureSpawnIdentity const& identity : census)
     {
@@ -6017,6 +6088,22 @@ void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)
     for (CreatureSpawnIdentity const& identity : fullCensus)
     {
         if (zoneSpawnIds.find(identity.SpawnId) == zoneSpawnIds.end())
+            continue;
+
+        // Runtime participation/scope boundary fix: Excluded (EXCLUDED_EVENT)
+        // and VanillaOnly (e.g. Spirit Healer) are never eligible for
+        // AIWorldControlled ownership, by design - not counted at all here,
+        // never notYetReconciled (an Excluded spawn correctly has NO
+        // AgentRecord at all once AIWorldMgr::Initialize()'s own
+        // ApplyParticipationControlPolicy() has run, so treating its
+        // absence as "not yet reconciled" would permanently refuse whole-
+        // zone activation for any zone containing one). LightweightBackground
+        // stays eligible below, same as FullAgent - its own reduced-
+        // simulation runtime semantics are deliberately not implemented yet
+        // (AIWorld_Current_Roadmap.md), so this method cannot yet treat it
+        // differently.
+        SpawnParticipationMode participation = _spawnParticipationCatalog.Resolve(identity.SpawnId);
+        if (participation == SpawnParticipationMode::Excluded || participation == SpawnParticipationMode::VanillaOnly)
             continue;
 
         ++scopedEligibleCount;

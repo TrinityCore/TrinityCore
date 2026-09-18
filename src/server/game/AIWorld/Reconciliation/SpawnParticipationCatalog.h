@@ -54,6 +54,18 @@ class TC_GAME_API SpawnParticipationCatalog
         // a permanent agent", not silently fall through as FullAgent.
         SpawnParticipationMode Resolve(uint64 spawnId) const;
 
+        // Distinguishes "explicitly classified Excluded" from "simply
+        // outside this catalog's census scope" - Resolve() alone cannot,
+        // since both cases fall back to the same Excluded value. A caller
+        // that enforces policy across the WHOLE AgentRegistry (not just a
+        // known census zone, e.g. AIWorldMgr::ApplyParticipationControlPolicy())
+        // must use this instead of Resolve(): treating every non-Elwynn
+        // agent as Excluded just because this catalog has no data for it
+        // would incorrectly quarantine the entire rest of the game world.
+        // Returns false (outMode left unchanged) for a SpawnId absent from
+        // the table; true (outMode set) otherwise.
+        bool TryResolve(uint64 spawnId, SpawnParticipationMode& outMode) const;
+
     private:
         std::unordered_map<uint64, SpawnParticipationMode> _spawnIdToParticipation;
 };

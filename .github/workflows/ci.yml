@@ -285,7 +285,25 @@ jobs:
             exit 1
           fi
 
-          echo "AIWorld spawn reconciliation (participation/scope boundary): OK"
+          echo "AIWorld spawn reconciliation (excludedEventQuarantined reported): OK"
+
+          # Unlike excludedEventQuarantined above (deliberately not asserted
+          # ==0 - pre-existing EXCLUDED_EVENT ai_agents rows from before this
+          # fix are consciously left in the DB for manual review, not auto-
+          # repaired), a VanillaOnly agent (Spirit Healer) IS actively
+          # demoted to ObserveOnly with a persisted, read-back-confirmed DB
+          # write (AIWorldMgr::ApplyParticipationControlPolicy(), runs on
+          # every startup regardless of AIWorld.EnableSpawnReconciliation) -
+          # so this is expected to be exactly 0 on every deploy, and a
+          # nonzero value is a real regression, not historical drift.
+          VANILLA_ONLY_VIOLATIONS="$(grep -Eo 'vanillaOnlyControlModeViolations=[0-9]+' <<< "$WORLD_LOGS" | tail -1 | grep -Eo '[0-9]+')"
+          if [ -z "$VANILLA_ONLY_VIOLATIONS" ] || [ "$VANILLA_ONLY_VIOLATIONS" -ne 0 ]; then
+            echo "::error::AIWorld has a VanillaOnly agent that is still AIWorldControlled (vanillaOnlyControlModeViolations=${VANILLA_ONLY_VIOLATIONS:-missing})"
+            echo "$WORLD_LOGS" | tail -200
+            exit 1
+          fi
+
+          echo "AIWorld VanillaOnly ControlMode invariant (vanillaOnlyControlModeViolations=0): OK"
 
           echo
           echo "=== AI controlled agents ==="

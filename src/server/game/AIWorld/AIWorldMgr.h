@@ -1674,6 +1674,32 @@ class TC_GAME_API AIWorldMgr
         // 2.12F4B "Runtime evidence" note).
         void RunSpawnReconciliation(uint32 zoneId);
 
+        // Runtime participation/scope boundary fix (AIWorld_Current_
+        // Roadmap.md, Etapa 3): unlike RunSpawnReconciliation()/
+        // RunZoneControlActivation() above, this is NOT gated behind
+        // AIWorld.EnableSpawnReconciliation - a safety invariant must not
+        // depend on an optional data-reconciliation feature flag. Called
+        // unconditionally from Initialize() right after
+        // _spawnParticipationCatalog.Load(), before the reconciliation
+        // gate. Scans the WHOLE AgentRegistry (every persisted agent, not
+        // just one zone's census) via SpawnParticipationCatalog::TryResolve()
+        // - a SpawnId this catalog has no data for at all (outside the
+        // currently-classified census, e.g. a different zone) is left
+        // completely alone; only a SpawnId this catalog explicitly
+        // classifies is acted on:
+        //   Excluded (EXCLUDED_EVENT): must never be a live agent -
+        //   quarantined from _registry only, ai_agents row/control_mode
+        //   left untouched (same policy RunSpawnReconciliation()'s own
+        //   ExcludedButBound pass already applies whenever it happens to
+        //   run - this method makes that enforcement unconditional).
+        //   VanillaOnly (e.g. Spirit Healer): a legitimate permanent agent
+        //   that must simply never be AIWorldControlled - persisted
+        //   demotion via AgentPersistence::DemoteControlModeBatch()
+        //   (batch + read-back confirm, the same fail-closed shape every
+        //   other batch persistence method in this subsystem uses), record
+        //   removed nowhere.
+        void ApplyParticipationControlPolicy();
+
         // Milestone 2.12F4B3: promotes every scoped-eligible agent in
         // `zoneId` from ObserveOnly to AIWorldControlled - gated behind
         // AIWorld.EnableZoneControlActivation/AIWorld.ControlZoneId (see

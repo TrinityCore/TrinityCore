@@ -72,3 +72,13 @@ SpawnParticipationMode SpawnParticipationCatalog::Resolve(uint64 spawnId) const
 
     return it->second;
 }
+
+bool SpawnParticipationCatalog::TryResolve(uint64 spawnId, SpawnParticipationMode& outMode) const
+{
+    auto it = _spawnIdToParticipation.find(spawnId);
+    if (it == _spawnIdToParticipation.end())
+        return false;
+
+    outMode = it->second;
+    return true;
+}

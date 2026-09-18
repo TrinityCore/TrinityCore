@@ -405,6 +405,50 @@ std::vector<AgentId> AgentPersistence::PromoteControlModeBatch(std::vector<Agent
     return promoted;
 }
 
+std::vector<AgentId> AgentPersistence::DemoteControlModeBatch(std::vector<AgentId> const& ids)
+{
+    std::vector<AgentId> demoted;
+    if (ids.empty())
+        return demoted;
+
+    // Mirrors PromoteControlModeBatch() exactly (same chunked-transaction
+    // shape, same atomicity reasoning), just the opposite target value.
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    for (std::size_t offset = 0; offset < ids.size(); offset += AgentPersistenceBatchChunkSize)
+    {
+        std::size_t chunkEnd = offset + AgentPersistenceBatchChunkSize;
+        if (chunkEnd > ids.size())
+            chunkEnd = ids.size();
+
+        std::string sql = "UPDATE ai_agents SET control_mode = ";
+        sql += std::to_string(uint32(uint8(AgentControlMode::ObserveOnly)));
+        sql += " WHERE agent_id IN (";
+        for (std::size_t i = offset; i < chunkEnd; ++i)
+        {
+            if (i != offset)
+                sql += ',';
+            sql += std::to_string(ids[i].Value);
+        }
+        sql += ')';
+
+        trans->Append(sql.c_str());
+    }
+    CharacterDatabase.DirectCommitTransaction(trans);
+
+    std::unordered_map<uint64, AgentControlMode> controlModes = LoadAllControlModes();
+    demoted.reserve(ids.size());
+    for (AgentId const& id : ids)
+    {
+        auto it = controlModes.find(id.Value);
+        if (it != controlModes.end() && it->second == AgentControlMode::ObserveOnly)
+            demoted.push_back(id);
+        else
+            TC_LOG_ERROR("ai.world", "AgentPersistence: batch ControlMode demotion for agent id={} was not confirmed by read-back", id.Value);
+    }
+
+    return demoted;
+}
+
 std::unordered_map<uint64, AgentControlMode> AgentPersistence::LoadAllControlModes()
 {
     std::unordered_map<uint64, AgentControlMode> controlModes;

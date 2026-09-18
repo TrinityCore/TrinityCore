@@ -185,6 +185,24 @@ class TC_GAME_API AgentPersistence
         // batch size.
         std::unordered_map<uint64, AgentControlMode> LoadAllControlModes();
 
+        // Runtime participation/scope boundary fix (AIWorld_Current_
+        // Roadmap.md, Etapa 3): the reverse of PromoteControlModeBatch()
+        // above - bulk demotion to ObserveOnly for AIWorldMgr::
+        // ApplyParticipationControlPolicy()'s own VanillaOnly enforcement
+        // (a VanillaOnly agent, e.g. Spirit Healer, must never be
+        // AIWorldControlled - unlike an Excluded spawn, it stays a
+        // legitimate tracked AgentRecord, only its ControlMode is wrong).
+        // Same chunked-transaction/bulk-readback shape as
+        // PromoteControlModeBatch() - see its own comment for why a single
+        // CharacterDatabaseTransaction (not N independent DirectExecute()
+        // calls) matters here too. Confirms with exactly one bulk
+        // LoadAllControlModes() read; returns only the subset of `ids`
+        // confirmed ObserveOnly by that read-back - the caller must only
+        // mark those demoted in memory (AgentRecord::ControlMode); anything
+        // not confirmed keeps whatever ControlMode it already had, fail
+        // closed. No-op (empty result, no DB access) if ids is empty.
+        std::vector<AgentId> DemoteControlModeBatch(std::vector<AgentId> const& ids);
+
         // AI WorldFactionId: bulk reconcile-mismatch update for AIWorldMgr::
         // RunSpawnReconciliation()'s own WorldFactionCatalog refresh pass -
         // mirrors PromoteControlModeBatch()'s own chunked-transaction/bulk-
