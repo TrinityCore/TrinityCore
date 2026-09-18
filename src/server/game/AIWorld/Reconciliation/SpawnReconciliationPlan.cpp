@@ -23,7 +23,8 @@ SpawnReconciliationPlan BuildReconciliationPlan(
     std::unordered_set<uint64> const& allKnownSpawnIds,
     std::vector<AgentSpawnBinding> const& physicalBindings,
     WorldFactionCatalog const& worldFactionCatalog,
-    AgentTypeCatalog const& agentTypeCatalog)
+    AgentTypeCatalog const& agentTypeCatalog,
+    SpawnParticipationCatalog const& participationCatalog)
 {
     SpawnReconciliationPlan plan;
 
@@ -88,6 +89,17 @@ SpawnReconciliationPlan BuildReconciliationPlan(
             continue;
         }
 
+        // Runtime participation/scope boundary fix: eligible by the raw
+        // zone census, but SpawnParticipationCatalog says this SpawnId is
+        // Excluded (EXCLUDED_EVENT, outside the permanent census) - never
+        // counted as VALID, quarantined instead (see ExcludedButBound's own
+        // comment).
+        if (participationCatalog.Resolve(binding.SpawnId) == SpawnParticipationMode::Excluded)
+        {
+            plan.ExcludedButBound.push_back(binding.Id);
+            continue;
+        }
+
         ++plan.ValidCount;
     }
 
@@ -104,6 +116,16 @@ SpawnReconciliationPlan BuildReconciliationPlan(
         if (physicalAgentIds.find(identity.SpawnId) != physicalAgentIds.end())
         {
             plan.AgentIdCollisions.push_back(identity);
+            continue;
+        }
+
+        // Runtime participation/scope boundary fix: never create a new
+        // permanent agent for a SpawnId SpawnParticipationCatalog classifies
+        // as Excluded (EXCLUDED_EVENT) - see ExcludedSkippedCount's own
+        // comment.
+        if (participationCatalog.Resolve(identity.SpawnId) == SpawnParticipationMode::Excluded)
+        {
+            ++plan.ExcludedSkippedCount;
             continue;
         }
 

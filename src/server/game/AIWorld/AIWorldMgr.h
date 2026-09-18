@@ -49,6 +49,7 @@
 #include "Event/WorldEvent.h"
 #include "Agent/AgentTypeCatalog.h"
 #include "Faction/WorldFactionCatalog.h"
+#include "Reconciliation/SpawnParticipationCatalog.h"
 #include "Goal/FoodTargetResolver.h"
 #include "Goal/GoalSystem.h"
 #include "Goal/RoutineActivitySystem.h"
@@ -2980,6 +2981,16 @@ class TC_GAME_API AIWorldMgr
         // any already-valid agent whose stored agent_type has drifted from
         // what this catalog now says.
         AgentTypeCatalog _agentTypeCatalog;
+
+        // Runtime participation/scope boundary fix (AIWorld_Current_
+        // Roadmap.md, Etapa 3) - one world DB read at Initialize(), same
+        // lifecycle as _worldFactionCatalog/_agentTypeCatalog above.
+        // RunSpawnReconciliation() is the only caller: an Excluded
+        // (EXCLUDED_EVENT) SpawnId is never turned into a new permanent
+        // agent, and any already-physical row for one is quarantined from
+        // _registry (never a DB write) - see SpawnReconciliationPlan::
+        // ExcludedButBound/ExcludedSkippedCount for the actual boundary.
+        SpawnParticipationCatalog _spawnParticipationCatalog;
 
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity

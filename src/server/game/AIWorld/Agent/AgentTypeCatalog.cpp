@@ -19,31 +19,6 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 
-namespace
-{
-    // Fail-closed range check: a stored byte outside AgentType's own known
-    // enumerators (e.g. the retired value 3, or a future schema mismatch)
-    // must never be trusted as some other agent's real type - the same
-    // discipline AgentPersistence::LoadAgents() already applies to
-    // AgentControlMode's own stored byte.
-    AgentType ToKnownAgentType(uint8 value)
-    {
-        switch (AgentType(value))
-        {
-            case AgentType::Civilian:
-            case AgentType::Guard:
-            case AgentType::Merchant:
-            case AgentType::Unclassified:
-            case AgentType::Combatant:
-            case AgentType::Predator:
-            case AgentType::Prey:
-                return AgentType(value);
-            default:
-                return AgentType::Unclassified;
-        }
-    }
-}
-
 void AgentTypeCatalog::Load()
 {
     _entryToAgentType.clear();
@@ -61,7 +36,11 @@ void AgentTypeCatalog::Load()
     {
         Field* fields = result->Fetch();
         uint32 creatureEntry = fields[0].GetUInt32();
-        AgentType agentType = ToKnownAgentType(fields[1].GetUInt8());
+        uint8 rawAgentType = fields[1].GetUInt8();
+        AgentType agentType = ToKnownAgentType(rawAgentType);
+        if (uint8(agentType) != rawAgentType)
+            TC_LOG_ERROR("ai.world", "AI AgentTypeCatalog: creature_entry={} has unknown ai_agent_type_entry_defaults.agent_type={}, treated as Unclassified",
+                creatureEntry, rawAgentType);
         _entryToAgentType.emplace(creatureEntry, agentType);
     } while (result->NextRow());
 

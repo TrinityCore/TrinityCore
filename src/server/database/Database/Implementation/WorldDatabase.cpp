@@ -118,6 +118,15 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // CreatureEntry, the same shape WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS
     // above already provides for WorldFactionCatalog.
     PrepareStatement(WORLD_SEL_AI_AGENT_TYPE_ENTRY_DEFAULTS, "SELECT creature_entry, agent_type FROM ai_agent_type_entry_defaults", CONNECTION_SYNCH);
+
+    // Runtime participation/scope boundary fix (AIWorld_Current_Roadmap.md,
+    // Etapa 3): AI SpawnParticipationCatalog's own startup-only bulk read of
+    // the whole spawn_id -> SpawnParticipationMode default table - one
+    // query, not one per SpawnId, the same shape
+    // WORLD_SEL_AI_AGENT_TYPE_ENTRY_DEFAULTS above already provides for
+    // AgentTypeCatalog (keyed by SpawnId here, not CreatureEntry - see that
+    // catalog's own comment for why).
+    PrepareStatement(WORLD_SEL_AI_SPAWN_PARTICIPATION_DEFAULTS, "SELECT spawn_id, participation_mode FROM ai_spawn_participation_defaults", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
 }

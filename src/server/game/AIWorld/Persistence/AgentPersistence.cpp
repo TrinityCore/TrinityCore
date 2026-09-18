@@ -42,7 +42,11 @@ uint32 AgentPersistence::LoadAgents(AgentRegistry& registry)
 
         AgentRecord record;
         record.Id = AgentId{ fields[0].GetUInt64() };
-        record.Type = AgentType(fields[1].GetUInt8());
+        uint8 rawAgentType = fields[1].GetUInt8();
+        record.Type = ToKnownAgentType(rawAgentType);
+        if (uint8(record.Type) != rawAgentType)
+            TC_LOG_ERROR("ai.world", "AI agent id={} has unknown ai_agents.agent_type={}, treated as Unclassified",
+                fields[0].GetUInt64(), rawAgentType);
         record.MapId = fields[2].GetUInt32();
         record.SpawnId = fields[3].GetUInt64();
         record.RuntimeGuid = ObjectGuid::Empty;
@@ -625,7 +629,13 @@ std::unordered_map<uint64, AgentType> AgentPersistence::LoadAllAgentTypes()
     do
     {
         Field* fields = result->Fetch();
-        types.emplace(fields[0].GetUInt64(), AgentType(fields[1].GetUInt8()));
+        uint64 agentId = fields[0].GetUInt64();
+        uint8 rawAgentType = fields[1].GetUInt8();
+        AgentType type = ToKnownAgentType(rawAgentType);
+        if (uint8(type) != rawAgentType)
+            TC_LOG_ERROR("ai.world", "AI agent id={} has unknown ai_agents.agent_type={}, treated as Unclassified",
+                agentId, rawAgentType);
+        types.emplace(agentId, type);
     } while (result->NextRow());
 
     return types;

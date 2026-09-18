@@ -1380,6 +1380,11 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // _agentTypeCatalog's own declaration comment.
     _agentTypeCatalog.Load();
 
+    // Runtime participation/scope boundary fix: one world DB read, same
+    // reasoning and lifecycle as the two Load() calls immediately above -
+    // see _spawnParticipationCatalog's own declaration comment.
+    _spawnParticipationCatalog.Load();
+
     // Milestone 2.12F4B2 (STATIC review): gated behind
     // AIWorld.EnableSpawnReconciliation (default false = disabled), unlike
     // LoadAgents() itself, AND - as of 2.12F4B2 - a fail-closed combination
@@ -5824,7 +5829,7 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // own UNIQUE (map_id, spawn_id) key. See SpawnReconciliationPlan.h's
     // own comment for the full reasoning.
     std::vector<AgentSpawnBinding> physicalBindings = _persistence.LoadAllBindings();
-    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings, _worldFactionCatalog, _agentTypeCatalog);
+    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings, _worldFactionCatalog, _agentTypeCatalog, _spawnParticipationCatalog);
 
     // ORPHANED: the world.creature spawn no longer exists or is no longer
     // eligible. CONFLICTED: the spawn is still eligible, but the row's own
@@ -5853,6 +5858,22 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
             TC_LOG_ERROR("ai.world", "AI agent id={} map={} spawn={} has a MapId conflicting with world.creature - quarantined, removed from the registry this run (2.12F4B)",
                 conflictId.Value, record->MapId, record->SpawnId);
         _registry.Remove(conflictId);
+    }
+
+    // Runtime participation/scope boundary fix: same quarantine-only
+    // discipline as Orphaned/Conflicted above - an EXCLUDED_EVENT spawn
+    // must never run as a live agent, but its ai_agents row/control_mode
+    // are deliberately left alone (no aggressive DB write - lifecycle/
+    // cleanup policy for these historical rows isn't decided yet, and an
+    // explicit quarantine is safer than silently rewriting persistent
+    // state a future policy might still want).
+    for (AgentId excludedId : plan.ExcludedButBound)
+    {
+        AgentRecord const* record = _registry.Find(excludedId);
+        if (record)
+            TC_LOG_ERROR("ai.world", "AI agent id={} map={} spawn={} is EXCLUDED_EVENT (event-gated spawn, outside the 1863-spawn permanent census) - quarantined, removed from the registry this run; ai_agents row/control_mode left untouched for manual review",
+                excludedId.Value, record->MapId, record->SpawnId);
+        _registry.Remove(excludedId);
     }
 
     // Milestone 2.12F4B P2 fix (STATIC review): a spawn whose intended new
@@ -5944,6 +5965,29 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
             record->Type = confirmedMismatch.second;
     }
 
+    // Runtime participation/scope boundary fix: VanillaOnly (SPECIAL_SCRIPTED,
+    // e.g. Spirit Healer - only 4 spawns) is a legitimate permanent agent,
+    // unlike Excluded above - it must stay tracked in _registry, but must
+    // never be AIWorldControlled (TrinityCore/scripted AI owns it). Pure
+    // detection: no registry removal, no DB write - just a loud log for
+    // manual review, the same "quarantine + log, DB untouched" policy
+    // ExcludedButBound applies, adapted for a case where removal itself
+    // would be wrong.
+    uint32 vanillaOnlyControlModeViolations = 0;
+    for (CreatureSpawnIdentity const& identity : census)
+    {
+        if (_spawnParticipationCatalog.Resolve(identity.SpawnId) != SpawnParticipationMode::VanillaOnly)
+            continue;
+
+        AgentRecord const* record = _registry.Find(AgentId{ identity.SpawnId });
+        if (record && record->ControlMode == AgentControlMode::AIWorldControlled)
+        {
+            ++vanillaOnlyControlModeViolations;
+            TC_LOG_ERROR("ai.world", "AI agent id={} map={} spawn={} is VanillaOnly (SPECIAL_SCRIPTED) but is AIWorldControlled - TrinityCore/scripted AI must own this agent; control_mode left untouched for manual review",
+                record->Id.Value, record->MapId, record->SpawnId);
+        }
+    }
+
     // Milestone 2.12F4B2: zoneScope/rawZoneSpawns logged alongside the
     // eligible census size - the eligible count is expected to differ
     // from the raw WHERE zoneId=? count (further filtered by persistent/
@@ -5951,9 +5995,10 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // Roadmap.md's own "2.12F4B2" section), and both numbers together are
     // what makes that difference auditable instead of a single opaque
     // figure.
-    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={} worldFactionUpdated={} agentTypeUpdated={}",
+    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={} worldFactionUpdated={} agentTypeUpdated={} excludedEventQuarantined={} excludedEventSkipped={} vanillaOnlyControlModeViolations={}",
         zoneId, zoneSpawnIds.size(), census.size(), plan.ValidCount, plan.Missing.size(), addedCount, plan.Orphaned.size(), plan.Conflicted.size(),
-        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size(), worldFactionConfirmed.size(), agentTypeConfirmed.size());
+        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size(), worldFactionConfirmed.size(), agentTypeConfirmed.size(),
+        plan.ExcludedButBound.size(), plan.ExcludedSkippedCount, vanillaOnlyControlModeViolations);
 }
 
 void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)

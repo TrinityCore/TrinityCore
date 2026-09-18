@@ -2257,7 +2257,7 @@ Cílový stav:
 
 - [ ] 100 % spawnů v definovaném scope je vyexportováno;
 - [ ] unikátní named NPC jsou odlišení od generických spawnů stejného template;
-- [ ] spawny jsou klasifikované minimálně na civilians, guards, merchants/vendors, trainers, quest-related NPC, workers/farmers, travelers, hostile humanoids, predators, prey/fauna a special/scripted entities;
+- [ ] spawny jsou klasifikované minimálně na civilians, guards, merchants/vendors, trainers, quest-related NPC, workers/farmers, travelers, combatants (faction-affiliated humanoidi, jejichž běžná role zahrnuje boj - ne "hostile humanoid" identita, viz AgentType identity fix níže), predators, prey/fauna a special/scripted entities;
 - [ ] u každého relevantního spawnu je rozhodnutý participation režim (`FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND`, `VANILLA_ONLY` nebo jiný explicitní);
 - [ ] u AI-enabled NPC existují role/profession metadata oddělená od physical `AgentType`;
 - [ ] Home/Work/Roam/Guard/Resource anchors jsou připravené tam, kde dávají smysl;
@@ -2382,6 +2382,19 @@ AgentTypeCatalog + reconciliation   STATIC PASS  (kompilace ověřena, runtime r
 ```
 
 Žádná gameplay reakce se touto změnou nemění - `ControlMode` zůstává `ObserveOnly` jako dosud; `AgentType` se dnes nikde nepoužívá pro výběr chování/AI, jen pro identitu/persistenci/logging. `WorldFactionRelationCatalog`, player membership a Guard `DEFEND_FACTION` goal jsou vědomě mimo scope tohoto kroku.
+
+**Stav (2026-09-19) — runtime participation/scope boundary fix:** code review výše uvedeného commitu odhalil, že `AIWorldMgr::RunSpawnReconciliation()` pořád pracoval s RAW zoneId=12 census (3533 spawnů), ne s permanentním 3.1 census scope (1863 spawnů) - `EXCLUDED_EVENT` spawny (1670, 94 unikátních CreatureEntry, 0 překryv s permanentními entries) neměly žádnou runtime bariéru a mohly se stát trvalým `AgentRecord` s `AgentType::Unclassified`. Přidán `SpawnParticipationCatalog` (`src/server/game/AIWorld/Reconciliation/`) - první katalog klíčovaný `SpawnId`, ne `CreatureEntry` (participation je spawn-level, ne entry-level distinkce), natažený z nové `world.ai_spawn_participation_defaults` (generováno `tools/elwynn/build_agent_participation_defaults.py` ze `spawn_classification.csv`, 3533 řádků, fail-closed fallback = `Excluded`, opačným směrem než WorldFactionCatalog/AgentTypeCatalog).
+
+`SpawnReconciliationPlan` nově: `EXCLUDED_EVENT` spawn se nikdy nestane novým Missing/permanent agentem (`ExcludedSkippedCount`); existující `ai_agents` řádek pro `EXCLUDED_EVENT` spawn je quarantined z `AgentRegistry` (`ExcludedButBound` → `_registry.Remove()` + hlasitý log) - **`ai_agents` řádek a `control_mode` se NEmění** (vědomé rozhodnutí, konzistentní s existující Orphaned/Conflicted politikou - nikdy agresivní auto-repair perzistentního stavu). `VanillaOnly` (Spirit Healer, 4 spawny) je legitimní permanent agent, jen nesmí být `AIWorldControlled` - čistá detekce/log, žádná registry-removal, žádný DB zápis.
+
+```text
+ai_spawn_participation_defaults SQL   STATIC PASS  (3533 entries, cross-checked proti spawn_classification.csv: 1213+646+4=1863 permanent, 1670 excluded)
+SpawnParticipationCatalog + reconciliation   STATIC PASS (kompilace ověřena, runtime reconciliation běh proti živé DB PENDING)
+```
+
+Důležitá poznámka pro budoucí čtení logů: protože se `ai_agents`/`control_mode` v tomhle kroku vědomě NEmění, `excludedEventQuarantined` v reconciliation summary logu **zůstane nenulové i po druhém a dalších restartech**, dokud někdo ručně nevyčistí historické špatné řádky (vzniklé před touhle opravou) - to není bug ani chybějící idempotence, je to přímý důsledek "quarantine, nikdy ne aggressive DB repair" politiky. `agentTypeUpdated`/`worldFactionUpdated` (z předchozího kroku) jsou naproti tomu očekávaně `0` na stabilním druhém restartu.
+
+CI `AI smoke test` (`.github/workflows/ci.yml`) dostal měkkou kontrolu přítomnosti `excludedEventQuarantined=[0-9]+` v logu (potvrzuje, že mechanismus proběhl) - vědomě NE tvrdý assert na konkrétní `ai_agents` count nebo na "žádný excluded spawn nemá control_mode=1", protože takový assert by mohl natrvalo blokovat každý budoucí deploy, pokud produkční DB už dnes obsahuje historický špatný řádek přesně tohoto typu (což je čekaný a pochopitelný nález, ne CI regression). Doporučená jednorázová ruční kontrola po tomhle deployi: `SELECT spawn_id, control_mode FROM characters.ai_agents a JOIN world.ai_spawn_participation_defaults p ON a.spawn_id=p.spawn_id WHERE p.participation_mode=3 AND a.control_mode=1`.
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 

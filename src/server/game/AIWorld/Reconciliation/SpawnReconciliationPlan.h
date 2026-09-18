@@ -25,6 +25,7 @@
 #include "CreatureSpawnIdentity.h"
 #include "Define.h"
 #include "Faction/WorldFactionCatalog.h"
+#include "SpawnParticipationCatalog.h"
 #include <unordered_set>
 #include <vector>
 
@@ -90,6 +91,24 @@ struct SpawnReconciliationPlan
     // not removed from AgentRegistry, not logged as an error - counted
     // here purely for summary visibility.
     uint32 OutOfScopeCount = 0;
+
+    // Runtime participation/scope boundary fix (AIWorld_Current_Roadmap.md,
+    // Etapa 3): a physical, AgentId==SpawnId-valid binding for a still-
+    // eligible SpawnId (same census match Valid above would use), but whose
+    // own SpawnParticipationCatalog classification is Excluded (an
+    // EXCLUDED_EVENT spawn - outside the 1863-spawn permanent census, see
+    // data/elwynn/census/coverage.md) - must never run as a live agent.
+    // Reconciled the same quarantine-only way as Orphaned/Conflicted above:
+    // removed from AgentRegistry only, ai_agents row/control_mode left
+    // completely untouched (see AIWorldMgr::RunSpawnReconciliation()'s own
+    // comment for why never an aggressive auto-repair).
+    std::vector<AgentId> ExcludedButBound;
+
+    // Census entries that WOULD be Missing, but whose SpawnParticipationCatalog
+    // classification is Excluded - never turned into a new permanent agent
+    // in the first place, the same boundary ExcludedButBound enforces for
+    // an already-physical row.
+    uint32 ExcludedSkippedCount = 0;
 };
 
 // Pure - no DB/live pointers.
@@ -141,6 +160,7 @@ TC_GAME_API SpawnReconciliationPlan BuildReconciliationPlan(
     std::unordered_set<uint64> const& allKnownSpawnIds,
     std::vector<AgentSpawnBinding> const& physicalBindings,
     WorldFactionCatalog const& worldFactionCatalog,
-    AgentTypeCatalog const& agentTypeCatalog);
+    AgentTypeCatalog const& agentTypeCatalog,
+    SpawnParticipationCatalog const& participationCatalog);
 
 #endif // AIWORLD_SPAWNRECONCILIATIONPLAN_H

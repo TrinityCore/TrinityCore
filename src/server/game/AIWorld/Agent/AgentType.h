@@ -106,6 +106,33 @@ enum class AgentControlMode : uint8
     AIWorldControlled = 1
 };
 
+// Fail-closed range check: a stored byte outside AgentType's own known
+// enumerators (e.g. the retired value 3, or a future schema mismatch) must
+// never be trusted as some other agent's real type. Shared by every place
+// that turns a raw ai_agents.agent_type/ai_agent_type_entry_defaults.agent_type
+// byte into an AgentType (AgentTypeCatalog::Load(), AgentPersistence::
+// LoadAgents()/LoadAllAgentTypes()) so there is exactly one definition of
+// "known" to keep in sync when this enum grows. Deliberately pure (no
+// logging) so this header stays free of a Log.h dependency - callers that
+// want to know whether the input was actually unknown compare their own
+// raw byte against uint8(the returned value).
+inline AgentType ToKnownAgentType(uint8 value)
+{
+    switch (AgentType(value))
+    {
+        case AgentType::Civilian:
+        case AgentType::Guard:
+        case AgentType::Merchant:
+        case AgentType::Unclassified:
+        case AgentType::Combatant:
+        case AgentType::Predator:
+        case AgentType::Prey:
+            return AgentType(value);
+        default:
+            return AgentType::Unclassified;
+    }
+}
+
 inline char const* ToString(AgentType type)
 {
     switch (type)
