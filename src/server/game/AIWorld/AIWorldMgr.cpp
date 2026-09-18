@@ -1375,6 +1375,11 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // whether reconciliation is enabled this run.
     _worldFactionCatalog.Load();
 
+    // AgentType identity fix: one world DB read, same reasoning and
+    // lifecycle as _worldFactionCatalog.Load() immediately above - see
+    // _agentTypeCatalog's own declaration comment.
+    _agentTypeCatalog.Load();
+
     // Milestone 2.12F4B2 (STATIC review): gated behind
     // AIWorld.EnableSpawnReconciliation (default false = disabled), unlike
     // LoadAgents() itself, AND - as of 2.12F4B2 - a fail-closed combination
@@ -5819,7 +5824,7 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // own UNIQUE (map_id, spawn_id) key. See SpawnReconciliationPlan.h's
     // own comment for the full reasoning.
     std::vector<AgentSpawnBinding> physicalBindings = _persistence.LoadAllBindings();
-    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings, _worldFactionCatalog);
+    SpawnReconciliationPlan plan = BuildReconciliationPlan(census, allKnownSpawnIds, physicalBindings, _worldFactionCatalog, _agentTypeCatalog);
 
     // ORPHANED: the world.creature spawn no longer exists or is no longer
     // eligible. CONFLICTED: the spawn is still eligible, but the row's own
@@ -5914,6 +5919,31 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
             record->WorldFaction = confirmedMismatch.second;
     }
 
+    // AgentType identity fix: same refresh-pass shape as the WorldFaction
+    // pass immediately above, against _agentTypeCatalog instead - a spawn
+    // already VALID may still carry a stale agent_type (predates
+    // AgentTypeCatalog's own table, or the census classification changed
+    // since it was last reconciled).
+    std::vector<std::pair<AgentId, AgentType>> agentTypeMismatches;
+    for (CreatureSpawnIdentity const& identity : census)
+    {
+        AgentRecord* record = _registry.Find(AgentId{ identity.SpawnId });
+        if (!record || record->MapId != identity.MapId)
+            continue;
+
+        AgentType resolved = _agentTypeCatalog.Resolve(identity.Entry);
+        if (record->Type != resolved)
+            agentTypeMismatches.emplace_back(record->Id, resolved);
+    }
+
+    std::vector<std::pair<AgentId, AgentType>> agentTypeConfirmed = _persistence.ReconcileAgentTypesBatch(agentTypeMismatches);
+    for (auto const& confirmedMismatch : agentTypeConfirmed)
+    {
+        AgentRecord* record = _registry.Find(confirmedMismatch.first);
+        if (record)
+            record->Type = confirmedMismatch.second;
+    }
+
     // Milestone 2.12F4B2: zoneScope/rawZoneSpawns logged alongside the
     // eligible census size - the eligible count is expected to differ
     // from the raw WHERE zoneId=? count (further filtered by persistent/
@@ -5921,9 +5951,9 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
     // Roadmap.md's own "2.12F4B2" section), and both numbers together are
     // what makes that difference auditable instead of a single opaque
     // figure.
-    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={} worldFactionUpdated={}",
+    TC_LOG_INFO("ai.world", "AI spawn reconciliation: zoneScope={} rawZoneSpawns={} census={} valid={} missing={} created={} orphaned={} conflicted={} quarantined={} outOfScope={} agentIdCollisions={} worldFactionUpdated={} agentTypeUpdated={}",
         zoneId, zoneSpawnIds.size(), census.size(), plan.ValidCount, plan.Missing.size(), addedCount, plan.Orphaned.size(), plan.Conflicted.size(),
-        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size(), worldFactionConfirmed.size());
+        plan.QuarantinedCount, plan.OutOfScopeCount, plan.AgentIdCollisions.size(), worldFactionConfirmed.size(), agentTypeConfirmed.size());
 }
 
 void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)

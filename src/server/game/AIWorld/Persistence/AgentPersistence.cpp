@@ -546,6 +546,91 @@ std::unordered_map<uint64, WorldFactionId> AgentPersistence::LoadAllWorldFaction
     return factions;
 }
 
+std::vector<std::pair<AgentId, AgentType>> AgentPersistence::ReconcileAgentTypesBatch(std::vector<std::pair<AgentId, AgentType>> const& mismatches)
+{
+    std::vector<std::pair<AgentId, AgentType>> confirmed;
+    if (mismatches.empty())
+        return confirmed;
+
+    // Same shape as ReconcileWorldFactionsBatch() above: grouped by target
+    // value so each distinct target AgentType becomes its own chunked
+    // `UPDATE ... WHERE agent_id IN (...)`, all appended to ONE
+    // CharacterDatabaseTransaction/DirectCommitTransaction() for the same
+    // atomicity reason PromoteControlModeBatch() documents. Every
+    // interpolated value is a plain unsigned integer (AgentId::Value/
+    // AgentType enumerator), never an untrusted string.
+    std::unordered_map<uint8, std::vector<uint64>> idsByTargetType;
+    for (auto const& mismatch : mismatches)
+        idsByTargetType[uint8(mismatch.second)].push_back(mismatch.first.Value);
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    for (auto const& targetGroup : idsByTargetType)
+    {
+        std::vector<uint64> const& ids = targetGroup.second;
+        for (std::size_t offset = 0; offset < ids.size(); offset += AgentPersistenceBatchChunkSize)
+        {
+            std::size_t chunkEnd = offset + AgentPersistenceBatchChunkSize;
+            if (chunkEnd > ids.size())
+                chunkEnd = ids.size();
+
+            std::string sql = "UPDATE ai_agents SET agent_type = ";
+            sql += std::to_string(uint32(targetGroup.first));
+            sql += " WHERE agent_id IN (";
+            for (std::size_t i = offset; i < chunkEnd; ++i)
+            {
+                if (i != offset)
+                    sql += ',';
+                sql += std::to_string(ids[i]);
+            }
+            sql += ')';
+
+            trans->Append(sql.c_str());
+        }
+    }
+    CharacterDatabase.DirectCommitTransaction(trans);
+
+    // DirectCommitTransaction() reports no success/failure - confirm with
+    // exactly one bulk LoadAllAgentTypes() read (not one per id/chunk/
+    // target group), then only report back the subset actually confirmed
+    // at its own intended target value. Fail closed: anything not
+    // confirmed is simply not in the returned list, so the caller must not
+    // update AgentRecord::Type in memory for it - it keeps whatever Type it
+    // already had, the same discipline ReconcileWorldFactionsBatch() already
+    // applies to WorldFaction.
+    std::unordered_map<uint64, AgentType> current = LoadAllAgentTypes();
+    confirmed.reserve(mismatches.size());
+    for (auto const& mismatch : mismatches)
+    {
+        auto it = current.find(mismatch.first.Value);
+        if (it != current.end() && it->second == mismatch.second)
+            confirmed.push_back(mismatch);
+        else
+            TC_LOG_ERROR("ai.world", "AgentPersistence: batch AgentType reconcile for agent id={} to type={} was not confirmed by read-back",
+                mismatch.first.Value, ToString(mismatch.second));
+    }
+
+    return confirmed;
+}
+
+std::unordered_map<uint64, AgentType> AgentPersistence::LoadAllAgentTypes()
+{
+    std::unordered_map<uint64, AgentType> types;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_AGENT_TYPES);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return types;
+
+    types.reserve(result->GetRowCount());
+    do
+    {
+        Field* fields = result->Fetch();
+        types.emplace(fields[0].GetUInt64(), AgentType(fields[1].GetUInt8()));
+    } while (result->NextRow());
+
+    return types;
+}
+
 void AgentPersistence::SaveEconomyState(AgentId id, AgentEconomyState& state)
 {
     // 2.11E2 P3 fix: unconditional, first thing, regardless of what the

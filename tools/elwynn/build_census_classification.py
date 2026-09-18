@@ -42,6 +42,51 @@ HORSE_WORDS = ("horse", "mare", "stallion", "steed", "palomino", "pinto")
 
 MANUAL_REVIEW = {}
 
+# AgentType identity fix (AIWorld_Current_Roadmap.md, Etapa 3): the old
+# HOSTILE_HUMANOID category conflated "currently hostile to the player in
+# vanilla" with the creature's actual identity - a hostile relationship is
+# never an agent property, only ever computed dynamically between two
+# WorldFactions (see data/elwynn/factions/README.md). Every entry that hits
+# the hostile-faction/name heuristic below must have an explicit (category,
+# role) here - COMBATANT (its normal function includes armed combat, e.g.
+# bandit/caster/scout) or CIVILIAN (a non-combat role, e.g. miner/worker,
+# that vanilla merely made hostile) - reviewed per-template against name/
+# lore evidence, never derived from the heuristic itself.
+ROLE_OVERRIDES = {
+    6: ("COMBATANT", "skirmisher"),    # Kobold Vermin
+    38: ("COMBATANT", "bandit"),       # Defias Thug
+    40: ("CIVILIAN", "miner"),         # Kobold Miner
+    46: ("CIVILIAN", "forager"),       # Murloc Forager
+    60: ("COMBATANT", "trapper"),      # Ruklar the Trapper
+    61: ("COMBATANT", "thief"),        # Thuros Lightfingers
+    79: ("COMBATANT", "overseer"),     # Narg the Taskmaster
+    80: ("CIVILIAN", "laborer"),       # Kobold Laborer
+    94: ("COMBATANT", "bandit"),       # Defias Cutpurse
+    97: ("COMBATANT", "skirmisher"),   # Riverpaw Runt
+    99: ("COMBATANT", "bandit"),       # Morgaine the Sly
+    100: ("COMBATANT", "skirmisher"),  # Gruff Swiftbite
+    103: ("COMBATANT", "bandit"),      # Garrick Padfoot
+    116: ("COMBATANT", "bandit"),      # Defias Bandit
+    257: ("CIVILIAN", "worker"),       # Kobold Worker
+    285: ("COMBATANT", "skirmisher"),  # Murloc
+    327: ("COMBATANT", "skirmisher"),  # Goldtooth
+    448: ("COMBATANT", "chieftain"),   # Hogger
+    472: ("COMBATANT", "skirmisher"),  # Fedfennel
+    473: ("COMBATANT", "bandit"),      # Morgan the Collector
+    474: ("COMBATANT", "caster"),      # Defias Rogue Wizard
+    475: ("CIVILIAN", "miner"),        # Kobold Tunneler
+    476: ("COMBATANT", "caster"),      # Kobold Geomancer
+    478: ("COMBATANT", "scout"),       # Riverpaw Outrunner
+    732: ("COMBATANT", "ambusher"),    # Murloc Lurker
+    735: ("COMBATANT", "scout"),       # Murloc Streamrunner
+    880: ("COMBATANT", "bandit"),      # Erlan Drudgemoor
+    881: ("COMBATANT", "bandit"),      # Surena Caledon
+    6093: ("COMBATANT", "bandit"),     # Dead-Tooth Jack
+    6846: ("CIVILIAN", "overseer"),    # Defias Dockmaster
+    6927: ("CIVILIAN", "worker"),      # Defias Dockworker
+    13159: ("COMBATANT", "bandit"),    # James Clark
+}
+
 MANUAL_ACCEPTED = {
     1949: "Accepted as normal Alliance-aligned civilian for 3.1; final faction assignment belongs to 3.3.",
     6172: "Dead quest NPC accepted as normal Alliance-aligned civilian for 3.1; quest role is ignored and final faction assignment belongs to 3.3.",
@@ -155,8 +200,16 @@ def classify(t):
     elif creature_type == 7 and (
         faction in HOSTILE_HUMANOID_FACTIONS or has(text, HOSTILE_NAME_WORDS)
     ):
-        category, mode, role = "HOSTILE_HUMANOID", "FULL_AGENT", "hostile_humanoid"
-        basis = "humanoid + current hostile faction/name evidence"
+        if entry not in ROLE_OVERRIDES:
+            raise SystemExit(
+                f"ERROR: CreatureEntry {entry} ({name}) matches the hostile-faction/name "
+                "heuristic but has no ROLE_OVERRIDES entry - add an explicit "
+                "(category, role) mapping before classifying it; never silently guess "
+                "a Combatant/Civilian split."
+            )
+        category, role = ROLE_OVERRIDES[entry]
+        mode = "FULL_AGENT"
+        basis = "humanoid + current hostile faction/name evidence; role/category from ROLE_OVERRIDES, not the heuristic itself (see AIWorld_Current_Roadmap.md)"
     elif has(text, GUARD_WORDS):
         category, mode, role = "GUARD", "FULL_AGENT", "guard"
         basis = "guard/marshal/deputy/sergeant role in name"

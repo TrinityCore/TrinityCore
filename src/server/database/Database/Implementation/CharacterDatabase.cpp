@@ -691,6 +691,14 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // PromoteControlModeBatch().
     PrepareStatement(CHAR_SEL_AI_AGENT_WORLD_FACTIONS, "SELECT agent_id, world_faction_id FROM ai_agents", CONNECTION_SYNCH);
 
+    // AgentType identity fix (AIWorld_Current_Roadmap.md, Etapa 3):
+    // lightweight bulk read of every agent_id's current agent_type - none
+    // of CHAR_SEL_AI_AGENTS' other columns. Used by AgentPersistence::
+    // ReconcileAgentTypesBatch() to confirm its own batch UPDATE with
+    // exactly one query, the same shape CHAR_SEL_AI_AGENT_WORLD_FACTIONS
+    // above already provides for ReconcileWorldFactionsBatch().
+    PrepareStatement(CHAR_SEL_AI_AGENT_TYPES, "SELECT agent_id, agent_type FROM ai_agents", CONNECTION_SYNCH);
+
     // Milestone 2.11E2: unlike CHAR_SEL_AI_AGENTS/CHAR_INS_AI_AGENT above
     // (startup-only), this is used from the world update thread every time
     // a WORK ActionCompletion reaches Succeeded/Performed - CONNECTION_ASYNC/

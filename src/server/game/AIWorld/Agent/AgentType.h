@@ -42,11 +42,27 @@ enum class AgentType : uint8
     // available yet" provenance - a bulk world.creature reconciliation
     // bootstrap must never silently mislabel an unclassifiable spawn as
     // Civilian just because that enumerator happens to be 0. See
-    // Reconciliation/AgentTypeProvenance.h's own comment for the
-    // classification rule that produces this; extend that rule (not its
-    // callers) when a new deterministic signal is found, rather than
-    // guessing here.
-    Unclassified = 4
+    // AgentTypeCatalog's own comment for where this comes from now.
+    Unclassified = 4,
+
+    // AgentType identity fix (AIWorld_Current_Roadmap.md, Etapa 3): a
+    // humanoid whose normal function includes armed combat (bandit,
+    // caster, scout, ...). Deliberately does NOT mean "hostile to the
+    // player" - hostility is never an agent property, only ever a
+    // dynamically computed relationship between two WorldFactions (see
+    // data/elwynn/factions/README.md). A Combatant can be Friendly to a
+    // given player exactly as a Guard can be Hostile to one, depending on
+    // that player's own relationship with the agent's WorldFaction - see
+    // AgentRecord::WorldFaction's own comment.
+    Combatant = 5,
+
+    // Fauna, not humanoid social/political roles - a beast has no
+    // diplomacy, so unlike Combatant its relationship to the player is not
+    // expected to vary by WorldFaction membership (see ELWYNN_WOLVES'
+    // own "ecological/social, no player reputation" design note in
+    // data/elwynn/factions/README.md).
+    Predator = 6,
+    Prey = 7
 };
 
 // Materialized: bound to a currently-loaded Creature (RuntimeGuid valid).
@@ -98,6 +114,9 @@ inline char const* ToString(AgentType type)
         case AgentType::Guard:        return "GUARD";
         case AgentType::Merchant:     return "MERCHANT";
         case AgentType::Unclassified: return "UNCLASSIFIED";
+        case AgentType::Combatant:    return "COMBATANT";
+        case AgentType::Predator:     return "PREDATOR";
+        case AgentType::Prey:         return "PREY";
         default:                      return "UNKNOWN";
     }
 }

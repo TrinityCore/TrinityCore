@@ -111,6 +111,13 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // README.md's own generated output) - one query, not one per
     // CreatureEntry.
     PrepareStatement(WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS, "SELECT creature_entry, world_faction_id FROM ai_world_faction_entry_defaults", CONNECTION_SYNCH);
+
+    // AI AgentTypeCatalog's own startup-only bulk read of the whole
+    // creature_entry -> AgentType default table (AIWorld_Current_Roadmap.md,
+    // Etapa 3's own AgentType identity fix) - one query, not one per
+    // CreatureEntry, the same shape WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS
+    // above already provides for WorldFactionCatalog.
+    PrepareStatement(WORLD_SEL_AI_AGENT_TYPE_ENTRY_DEFAULTS, "SELECT creature_entry, agent_type FROM ai_agent_type_entry_defaults", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
 }

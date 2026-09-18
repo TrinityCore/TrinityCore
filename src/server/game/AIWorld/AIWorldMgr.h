@@ -47,6 +47,7 @@
 #include "Define.h"
 #include "Event/EventBus.h"
 #include "Event/WorldEvent.h"
+#include "Agent/AgentTypeCatalog.h"
 #include "Faction/WorldFactionCatalog.h"
 #include "Goal/FoodTargetResolver.h"
 #include "Goal/GoalSystem.h"
@@ -2970,6 +2971,15 @@ class TC_GAME_API AIWorldMgr
         // agent whose stored world_faction_id has drifted from what this
         // catalog now says.
         WorldFactionCatalog _worldFactionCatalog;
+
+        // AgentType identity fix (AIWorld_Current_Roadmap.md, Etapa 3) - one
+        // world DB read at Initialize(), same lifecycle as
+        // _worldFactionCatalog above. RunSpawnReconciliation() is the only
+        // caller: it resolves each Missing entry's own AgentType through
+        // this when building PendingCreatureAgent, and separately refreshes
+        // any already-valid agent whose stored agent_type has drifted from
+        // what this catalog now says.
+        AgentTypeCatalog _agentTypeCatalog;
 
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity

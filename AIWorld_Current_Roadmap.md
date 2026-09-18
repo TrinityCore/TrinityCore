@@ -2371,6 +2371,18 @@ creature_onkill_reputation SQL      STATIC PASS  (32 entries, cross-checked prot
 runtime kill -> reputation test     PENDING      (zabití NPC -> změna standing na živém serveru ještě neproběhlo)
 ```
 
+**Stav (2026-09-19) — AgentType identity fix (HOSTILE_HUMANOID zrušen):** hostilita není vlastnost agenta, je to dynamicky počítaný vztah mezi dvěma stranami - census kategorie `HOSTILE_HUMANOID` (32 templatů/658 spawnů) tohle porušovala, protože kódovala aktuální vanilla reakci do identity NPC místo role. `tools/elwynn/build_census_classification.py` teď má explicitní `ROLE_OVERRIDES` mapu (entry → category/role) pro těchto 32 entries, fail-closed (`raise SystemExit`, pokud nová entry spadne do stejné heuristiky bez overridu) - výsledek je `CIVILIAN` (7 templatů, non-combat role jako miner/worker/forager) nebo `COMBATANT` (25 templatů, bandit/caster/scout/...). `world_faction_assignments.csv` beze změny - `WorldFactionId` byl u všech 32 entries už správně přiřazený nezávisle na téhle kategorii.
+
+Runtime `AgentType` (`src/server/game/AIWorld/Agent/AgentType.h`) přibral `Combatant`/`Predator`/`Prey` - `Combatant` výslovně NEZNAMENÁ nepřítele hráče, jen že agentova běžná funkce zahrnuje boj. Nový `AgentTypeCatalog` (mirror `WorldFactionCatalog`) je teď jediný zdroj pravdy pro `CreatureEntry -> AgentType` (nahrazuje starou `DeriveCreatureAgentType(npcFlags)` heuristiku, která uměla rozeznat jen vendor flag), natažený z nové `world.ai_agent_type_entry_defaults` (generováno `tools/elwynn/build_agent_type_defaults.py` z `template_classification.csv`, 182 řádků, mirror `ai_world_faction_entry_defaults`). `AgentPersistence::ReconcileAgentTypesBatch()`/`LoadAllAgentTypes()` (mirror `ReconcileWorldFactionsBatch()`) teď opravují `agent_type` i u existujících agentů v `RunSpawnReconciliation()`, ne jen při vzniku nového (MISSING) agenta.
+
+```text
+AgentType census reklasifikace      STATIC PASS  (32 entries, generátor + ROLE_OVERRIDES, coverage.md přepočítáno: CIVILIAN 46→53, COMBATANT 0→25)
+ai_agent_type_entry_defaults SQL    STATIC PASS  (182 entries, cross-checked proti template_classification.csv)
+AgentTypeCatalog + reconciliation   STATIC PASS  (kompilace ověřena, runtime reconciliation běh proti živé DB PENDING)
+```
+
+Žádná gameplay reakce se touto změnou nemění - `ControlMode` zůstává `ObserveOnly` jako dosud; `AgentType` se dnes nikde nepoužívá pro výběr chování/AI, jen pro identitu/persistenci/logging. `WorldFactionRelationCatalog`, player membership a Guard `DEFEND_FACTION` goal jsou vědomě mimo scope tohoto kroku.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:

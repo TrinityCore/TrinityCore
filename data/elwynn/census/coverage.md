@@ -16,9 +16,9 @@ Quest-giver status does not affect category or participation.
 
 | Category | Templates | Spawns |
 |---|---:|---:|
-| CIVILIAN | 46 | 55 |
+| CIVILIAN | 53 | 275 |
+| COMBATANT | 25 | 438 |
 | GUARD | 11 | 56 |
-| HOSTILE_HUMANOID | 32 | 658 |
 | MERCHANT_VENDOR | 26 | 26 |
 | PREDATOR | 10 | 378 |
 | PREY_FAUNA | 26 | 646 |

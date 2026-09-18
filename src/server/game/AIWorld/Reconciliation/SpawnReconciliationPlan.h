@@ -20,6 +20,7 @@
 
 #include "Agent/AgentId.h"
 #include "Agent/AgentSpawnBinding.h"
+#include "Agent/AgentTypeCatalog.h"
 #include "Agent/PendingCreatureAgent.h"
 #include "CreatureSpawnIdentity.h"
 #include "Define.h"
@@ -128,14 +129,18 @@ struct SpawnReconciliationPlan
 // disagreeing with world.creature about which map that spawn is on.
 // `worldFactionCatalog` resolves each Missing entry's own CreatureSpawnIdentity::
 // Entry into PendingCreatureAgent::WorldFaction (data/elwynn/factions/
-// README.md) - Valid/Orphaned/Conflicted/AgentIdCollisions entries don't
-// need it here: an already-valid agent's own WorldFaction is refreshed
+// README.md); `agentTypeCatalog` resolves the same Entry into
+// PendingCreatureAgent::Type (AgentTypeCatalog, the AgentType identity fix
+// - replaces the old npcflag-only DeriveCreatureAgentType() heuristic) -
+// Valid/Orphaned/Conflicted/AgentIdCollisions entries don't need either
+// here: an already-valid agent's own WorldFaction/Type is refreshed
 // separately by AIWorldMgr::RunSpawnReconciliation()'s own catalog refresh
-// pass, not by this diff.
+// passes, not by this diff.
 TC_GAME_API SpawnReconciliationPlan BuildReconciliationPlan(
     std::vector<CreatureSpawnIdentity> const& census,
     std::unordered_set<uint64> const& allKnownSpawnIds,
     std::vector<AgentSpawnBinding> const& physicalBindings,
-    WorldFactionCatalog const& worldFactionCatalog);
+    WorldFactionCatalog const& worldFactionCatalog,
+    AgentTypeCatalog const& agentTypeCatalog);
 
 #endif // AIWORLD_SPAWNRECONCILIATIONPLAN_H

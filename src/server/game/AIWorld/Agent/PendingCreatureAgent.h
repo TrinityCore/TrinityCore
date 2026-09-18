@@ -29,6 +29,11 @@
 // generated.
 struct PendingCreatureAgent
 {
+    // AgentType identity fix - resolved once by BuildReconciliationPlan()
+    // from CreatureSpawnIdentity::Entry via AgentTypeCatalog::Resolve(),
+    // the same "resolve once, carry the value" shape WorldFaction below
+    // already has. No longer derived from npcFlags (DeriveCreatureAgentType,
+    // retired) - the catalog is the single source of truth now.
     AgentType Type = AgentType::Unclassified;
     uint32 MapId = 0;
     uint64 SpawnId = 0;

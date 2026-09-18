@@ -16,14 +16,14 @@
  */
 
 #include "SpawnReconciliationPlan.h"
-#include "AgentTypeProvenance.h"
 #include <unordered_map>
 
 SpawnReconciliationPlan BuildReconciliationPlan(
     std::vector<CreatureSpawnIdentity> const& census,
     std::unordered_set<uint64> const& allKnownSpawnIds,
     std::vector<AgentSpawnBinding> const& physicalBindings,
-    WorldFactionCatalog const& worldFactionCatalog)
+    WorldFactionCatalog const& worldFactionCatalog,
+    AgentTypeCatalog const& agentTypeCatalog)
 {
     SpawnReconciliationPlan plan;
 
@@ -108,7 +108,7 @@ SpawnReconciliationPlan BuildReconciliationPlan(
         }
 
         PendingCreatureAgent pending;
-        pending.Type = DeriveCreatureAgentType(identity.NpcFlags);
+        pending.Type = agentTypeCatalog.Resolve(identity.Entry);
         pending.MapId = identity.MapId;
         pending.SpawnId = identity.SpawnId;
         pending.WorldFaction = worldFactionCatalog.Resolve(identity.Entry);

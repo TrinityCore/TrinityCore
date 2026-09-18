@@ -204,6 +204,26 @@ class TC_GAME_API AgentPersistence
         // size.
         std::unordered_map<uint64, WorldFactionId> LoadAllWorldFactions();
 
+        // AgentType identity fix (AIWorld_Current_Roadmap.md, Etapa 3): bulk
+        // reconcile-mismatch update for AIWorldMgr::RunSpawnReconciliation()'s
+        // own AgentTypeCatalog refresh pass - mirrors
+        // ReconcileWorldFactionsBatch() above exactly (same chunked-
+        // transaction/bulk-readback shape, grouped by target value since a
+        // refresh pass can produce several different target AgentType
+        // values in one pass). Confirmed afterward with exactly one bulk
+        // LoadAllAgentTypes() read; returns only the subset of `mismatches`
+        // whose read-back agent_type actually matches the intended target -
+        // the caller must only update AgentRecord::Type in memory for
+        // those, fail closed like every other batch method here. No-op if
+        // mismatches is empty.
+        std::vector<std::pair<AgentId, AgentType>> ReconcileAgentTypesBatch(std::vector<std::pair<AgentId, AgentType>> const& mismatches);
+
+        // AgentType identity fix: lightweight bulk read of every agent_id's
+        // current agent_type - none of LoadAgents()'s other columns. Used
+        // internally by ReconcileAgentTypesBatch() above to confirm its own
+        // batch UPDATE with exactly one query, regardless of batch size.
+        std::unordered_map<uint64, AgentType> LoadAllAgentTypes();
+
         // Milestone 2.12F4A P2 fix (STATIC review): explicit, synchronous
         // ControlMode upgrade for a single already-created agent - startup-
         // only, like CreateCreatureAgent()/LoadAgents() above, never called
