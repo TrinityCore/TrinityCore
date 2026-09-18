@@ -58,6 +58,9 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_FREEZING_TRAP                      = 187651,
+    SPELL_HUNTER_FREEZING_TRAP_TARGETING_SPELL      = 177419,
+    SPELL_HUNTER_FREEZING_TRAP_STUN                 = 3355,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -437,6 +440,54 @@ class spell_hun_explosive_shot : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 187651 - Freezing Trap
+// 4424 - AreatriggerId
+struct areatrigger_hun_freezing_trap : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_FREEZING_TRAP))
+                other->SetDuration(0);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_FREEZING_TRAP_TARGETING_SPELL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                at->Remove();
+            }
+        }
+    }
+};
+
+// 177419 - Freezing Trap Targeting Spell
+class spell_hun_freezing_trap_targeting_spell : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FREEZING_TRAP_STUN });
+    }
+
+    void HandleFreezingTrap() const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_HUNTER_FREEZING_TRAP_STUN, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_hun_freezing_trap_targeting_spell::HandleFreezingTrap);
     }
 };
 
@@ -1473,6 +1524,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
+    RegisterAreaTriggerAI(areatrigger_hun_freezing_trap);
+    RegisterSpellScript(spell_hun_freezing_trap_targeting_spell);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
