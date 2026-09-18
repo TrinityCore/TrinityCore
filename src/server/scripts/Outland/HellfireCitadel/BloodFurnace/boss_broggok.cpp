@@ -197,7 +197,7 @@ struct boss_broggok : public BossAI
 
 struct BroggokPrisionerBaseAI : public ScriptedAI
 {
-    BroggokPrisionerBaseAI(Creature* creature) : ScriptedAI(creature), EmoteCounter(0), Instance(creature->GetInstanceScript()) { }
+    BroggokPrisionerBaseAI(Creature* creature) : ScriptedAI(creature), Instance(creature->GetInstanceScript()) { }
 
     void JustAppeared() override
     {
@@ -256,29 +256,22 @@ struct BroggokPrisionerBaseAI : public ScriptedAI
         // Timer is random but all prisoners from the same cell plays emote at the same time,
         // meaning they are in same spawn group and event is linked to all spawn group members.
         // We can't support that for now in an easy way
-        EmoteCounter = 1;
-
         Scheduler.Schedule(6s, 12s, [this](TaskContext task)
         {
-            switch (EmoteCounter)
+            switch (task.GetRepeatCounter() % 3)
             {
-                case 1:
+                case 0:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
                     break;
-                case 2:
+                case 1:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                     break;
-                case 3:
+                case 2:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
                     break;
                 default:
                     break;
             }
-
-            if (EmoteCounter >= 3)
-                EmoteCounter = 1;
-            else
-                ++EmoteCounter;
 
             task.Repeat(6s, 12s);
         });
@@ -312,7 +305,6 @@ struct BroggokPrisionerBaseAI : public ScriptedAI
     }
 
 protected:
-    uint8 EmoteCounter;
     InstanceScript* Instance;
     TaskScheduler Scheduler;
 };

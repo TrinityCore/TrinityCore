@@ -22,7 +22,6 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ScriptedCreature.h"
 #include <algorithm>
 
 static constexpr DoorData doorData[] =
@@ -204,8 +203,8 @@ class instance_blood_furnace : public InstanceMapScript
                             if (GameObject* go = GetGameObject(DATA_PRISON_DOOR_05))
                                 HandleGameObject(ObjectGuid::Empty, true, go);
 
-                            for (uint32 data : PrisonCellDoorsData)
-                                if (GameObject* go = GetGameObject(data))
+                            for (uint32 prisonCellId : PrisonCellDoorsData)
+                                if (GameObject* go = GetGameObject(prisonCellId))
                                     HandleGameObject(ObjectGuid::Empty, false, go);
 
                             for (uint32 group : PrisonersSpawnGroupsData)
@@ -225,8 +224,8 @@ class instance_blood_furnace : public InstanceMapScript
             }
 
         protected:
-            uint8 PrisonersEventState;
             GuidSet WaveGuidList[4];
+            uint8 PrisonersEventState;
             bool ShouldResetPrisoners;
         };
 
