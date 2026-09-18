@@ -2217,14 +2217,18 @@ Zásadní pravidlo Etapy 3:
 
 > **Nejdřív musí být jasné kdo je kdo, kde žije/pracuje/působí, ke které frakci patří a jaké části mapy mají význam. Teprve potom má smysl nechat AI svět dlouhodobě měnit.**
 
+**Jak číst seznamy níže:** položky pod 3.0–3.6 nejsou striktní postup ani pořadí kroků, kterým se musí řídit konkrétní implementace. Jsou to **cílové stavy** — věci, které mají být pravdivé/hotové, než je Etapa 3 u konce. Cesta k nim (pořadí, nástroje, dílčí kroky) je na implementaci. Seznam navíc není uzavřený: jak census/audit postupuje, mohou (a mají) přibývat další konkrétní položky, které tu dnes ještě nejsou zapsané — doplňují se přímo sem, jakmile se objeví.
+
 ### 3.0 Scope a source of truth
 
-- [ ] cílová oblast je Elwynn Forest v používaném TrinityCore 3.3.5/TDB datasetu;
-- [ ] přesně definovat hranici census výběru podle authoritative map/zone/area dat, ne podle ručně odhadnutého obdélníku;
-- [ ] vytvořit reprodukovatelný export z world DB pro creature spawny, templates, movement/pathing, faction/faction-template, NPC flags a relevantní vazby;
-- [ ] uložit odvozený audit/manifest do repozitáře v reviewovatelném formátu (např. CSV/JSON/Markdown generated report); samotný TDB dump se necommitne;
-- [ ] každý ruční override musí mít důvod a být verzovaný;
-- [ ] z census nesmí mizet spawn jen proto, že zatím není AI-enabled.
+Cílový stav:
+
+- [ ] cílová oblast je jasně Elwynn Forest v používaném TrinityCore 3.3.5/TDB datasetu;
+- [ ] hranice census výběru je přesně definovaná podle authoritative map/zone/area dat, ne podle ručně odhadnutého obdélníku;
+- [ ] existuje reprodukovatelný export z world DB pro creature spawny, templates, movement/pathing, faction/faction-template, NPC flags a relevantní vazby;
+- [ ] odvozený audit/manifest je uložený v repozitáři v reviewovatelném formátu (např. CSV/JSON/Markdown generated report); samotný TDB dump se necommitne;
+- [ ] každý ruční override má zapsaný důvod a je verzovaný;
+- [ ] žádný spawn z census nemizí jen proto, že zatím není AI-enabled.
 
 Minimální spawn evidence:
 
@@ -2249,14 +2253,16 @@ notes / correction status
 
 Cílem je **zmapovat všechny creature/NPC spawny v Elwynn Forest**, ne jen několik testovacích agentů.
 
-- [ ] vyexportovat 100 % spawnů v definovaném scope;
-- [ ] odlišit unikátní named NPC od generických spawnů stejného template;
-- [ ] klasifikovat minimálně civilians, guards, merchants/vendors, trainers, quest-related NPC, workers/farmers, travelers, hostile humanoids, predators, prey/fauna a special/scripted entities;
-- [ ] u každého relevantního spawnu rozhodnout `FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND`, `VANILLA_ONLY` nebo jiný explicitní participation režim;
-- [ ] u AI-enabled NPC připravit role/profession metadata odděleně od physical `AgentType`;
-- [ ] připravit Home/Work/Roam/Guard/Resource anchors tam, kde dávají smysl;
-- [ ] identifikovat duplicity, nesmyslné spawny, chybné souřadnice, chybné movement types a entity, které se nesmí automaticky převést na persistent AI agenta;
-- [ ] vytvořit coverage report, který failne gate, pokud zůstane spawn bez klasifikace nebo explicitního důvodu `VANILLA_ONLY`.
+Cílový stav:
+
+- [ ] 100 % spawnů v definovaném scope je vyexportováno;
+- [ ] unikátní named NPC jsou odlišení od generických spawnů stejného template;
+- [ ] spawny jsou klasifikované minimálně na civilians, guards, merchants/vendors, trainers, quest-related NPC, workers/farmers, travelers, hostile humanoids, predators, prey/fauna a special/scripted entities;
+- [ ] u každého relevantního spawnu je rozhodnutý participation režim (`FULL_AGENT`, `LIGHTWEIGHT/BACKGROUND`, `VANILLA_ONLY` nebo jiný explicitní);
+- [ ] u AI-enabled NPC existují role/profession metadata oddělená od physical `AgentType`;
+- [ ] Home/Work/Roam/Guard/Resource anchors jsou připravené tam, kde dávají smysl;
+- [ ] duplicity, nesmyslné spawny, chybné souřadnice, chybné movement types a entity, které se nesmí automaticky převést na persistent AI agenta, jsou identifikované;
+- [ ] existuje coverage report, který failne gate, pokud zůstane spawn bez klasifikace nebo explicitního důvodu `VANILLA_ONLY`.
 
 **Gate 3.1:** každý spawn v Elwynn census má explicitní klasifikaci a auditovatelný stav.
 
@@ -2297,11 +2303,13 @@ faction presence / holding capability
 population capacity / role hints
 ```
 
-- [ ] `HomeLocation`/`WorkLocation` postupně odkazovat na semantic locations/anchors místo náhodných magic coordinates, kde je to vhodné;
-- [ ] definovat adjacency a použitelné přesuny mezi lokalitami;
-- [ ] rozlišit fyzickou lokaci od politického vlastnictví — jedna location může změnit faction presence bez změny identity;
-- [ ] ověřit reprezentativní pathing mezi sousedními semantic locations přes TrinityCore movement/nav data;
-- [ ] vytvořit debug výpis/map report, ze kterého lze zjistit, která NPC a frakce jsou přiřazeny k dané lokaci.
+Cílový stav:
+
+- [ ] `HomeLocation`/`WorkLocation` postupně odkazují na semantic locations/anchors místo náhodných magic coordinates, kde je to vhodné;
+- [ ] adjacency a použitelné přesuny mezi lokalitami jsou definované;
+- [ ] fyzická lokace je odlišená od politického vlastnictví — jedna location může změnit faction presence bez změny identity;
+- [ ] reprezentativní pathing mezi sousedními semantic locations je ověřený přes TrinityCore movement/nav data;
+- [ ] existuje debug výpis/map report, ze kterého lze zjistit, která NPC a frakce jsou přiřazeny k dané lokaci.
 
 ### 3.3 Faction audit a oprava
 
@@ -2318,8 +2326,8 @@ AI WorldFactionId
       coalition eligibility, holdings a budoucí dynamiku světa
 ```
 
-- [ ] auditovat faction/faction-template u všech Elwynn census spawnů;
-- [ ] identifikovat a verzovaně opravit zjevně chybné/inconsistent TrinityCore faction assignments tam, kde ovlivňují gameplay/reaction;
+- [ ] faction/faction-template u všech Elwynn census spawnů je auditovaný;
+- [ ] zjevně chybné/inconsistent TrinityCore faction assignments, které ovlivňují gameplay/reaction, jsou identifikované a verzovaně opravené;
 - [x] zavést explicitní persistentní `WorldFactionId` nebo ekvivalentní sociální identity layer nezávislou na `AgentGroup`;
 - [x] každý AI-enabled agent musí mít explicitní WorldFaction affiliation nebo explicitní `Neutral/Unaffiliated` stav;
 - [x] definovat první konkrétní seznam WorldFaction entit pro Elwynn podle skutečného census, nikoli podle několika předem vymyšlených typů;
@@ -2387,7 +2395,7 @@ Základní invariant:
 - [ ] jedna frakce může mít mnoho současných coalitions a mnoho agentů bez coalition;
 - [ ] faction membership sama automaticky nevytváří group;
 - [ ] pokud agent někdy v budoucnu změní frakci, jeho nekompatibilní group membership musí být nejprve bezpečně ukončeno/reconciled;
-- [ ] runtime test musí potvrdit same-faction join PASS a cross-faction join REJECT bez side effects.
+- [ ] runtime test potvrzuje same-faction join PASS a cross-faction join REJECT bez side effects.
 
 **Stav (2026-09-16):** `CoalitionFormationProfile::RequiredWorldFaction` (centrálně `RequiredWorldFactionFor(CoalitionFormationProfileId)` - `WolfLoose` → `ELWYNN_WOLVES`, `DefiasLoose` → `DEFIAS_BROTHERHOOD`) je zapojené do `CoalitionFormationSystem::Propose()`, `AgentGroupLifecycleSystem::RequestJoinGroup()` (kontrola i pro prázdnou group, ne jen proti existujícím members) a `AgentGroupPersistence::LoadGroupMembers()` (fail-closed skip při reloadu). STATIC/BUILD-level hotové; dedikovaný runtime test (same-faction join PASS / cross-faction join REJECT na živém serveru) ještě neproběhl - poslední položka checklistu zůstává otevřená, dokud ten test neproběhne.
 
@@ -2405,14 +2413,16 @@ WorldFaction identity
 current faction presence / holdings / occupied locations
 ```
 
-- [ ] zavést nebo navrhnout `FactionPresence`/`FactionHolding` state nad `SemanticLocationId`;
+Cílový stav:
+
+- [ ] existuje `FactionPresence`/`FactionHolding` state nad `SemanticLocationId`;
 - [ ] frakce může mít současně přítomnost ve více lokalitách;
-- [ ] presence může mít minimálně strength/population/priority nebo jiný malý deterministic state potřebný pro budoucí simulaci;
+- [ ] presence má minimálně strength/population/priority nebo jiný malý deterministic state potřebný pro budoucí simulaci;
 - [ ] movement znamená přesun/redeployment konkrétních agentů/coalitions mezi semantic locations přes existující movement/action pravidla, ne teleport celé abstraktní frakce;
-- [ ] unloaded/background pohyb musí mít později reconciliation na physical spawny bez force-load; Etapa 3 má připravit seam a kontrolovaný smoke, ne kompletní strategickou AI;
-- [ ] faction holdings/presence změna nesmí automaticky měnit faction identity NPC, která se v lokaci právě nacházejí;
-- [ ] připravit controlled runtime scenario, kde same-faction coalition/presence opustí location A a přesune se do location B se zachováním AgentIds, GroupId a WorldFactionId;
-- [ ] všechny změny presence musí být auditovatelné a mít jasný source/cause pro budoucí Event System integraci.
+- [ ] unloaded/background pohyb má připravenou reconciliaci na physical spawny bez force-load (seam a kontrolovaný smoke za Etapu 3, ne kompletní strategická AI);
+- [ ] faction holdings/presence změna automaticky nemění faction identity NPC, která se v lokaci právě nacházejí;
+- [ ] existuje controlled runtime scenario, kde same-faction coalition/presence opustí location A a přesune se do location B se zachováním AgentIds, GroupId a WorldFactionId;
+- [ ] všechny změny presence jsou auditovatelné a mají jasný source/cause pro budoucí Event System integraci.
 
 **Etapa 3 připravuje pohyb frakcí jako mechanismus. Proč frakce expanduje, ustupuje, bojuje nebo mění vztahy, bude až dynamika Etapy 4.**
 
@@ -2420,17 +2430,21 @@ current faction presence / holdings / occupied locations
 
 Mapování není pouze dokumentace. Pokud census odhalí špatná data, musí být cílový Elwynn baseline skutečně opraven.
 
-- [ ] opravy spawn position/orientation tam, kde jsou prokazatelně chybné;
-- [ ] opravy movement/pathing/home/wander parametrů;
-- [ ] odstranění nebo zdokumentování chybných/duplicitních spawnů;
-- [ ] opravy faction/faction-template a dalších flags, pokud neodpovídají zamýšlenému authoritative gameplay;
-- [ ] validace vendor/trainer/questgiver/special NPC flags proti skutečné roli;
-- [ ] AI metadata a WorldFaction mapování držet ve vlastní versionované vrstvě, pokud není důvod měnit upstream world schema;
-- [ ] všechny world DB změny dodat jako versionované TrinityCore SQL updates/migrations, nikdy jako ruční zásah do běžící DB;
-- [ ] vytvořit before/after audit report a smoke checklist pro reprezentativní lokace;
-- [ ] ověřit, že opravy nerozbily vanilla login, quest/NPC interaction a základní hostile/friendly reaction.
+Cílový stav:
+
+- [ ] spawn position/orientation je opravená tam, kde je prokazatelně chybná;
+- [ ] movement/pathing/home/wander parametry jsou opravené;
+- [ ] chybné/duplicitní spawny jsou odstraněné nebo zdokumentované;
+- [ ] faction/faction-template a další flags jsou opravené tam, kde neodpovídají zamýšlenému authoritative gameplay;
+- [ ] vendor/trainer/questgiver/special NPC flags jsou validované proti skutečné roli;
+- [ ] AI metadata a WorldFaction mapování jsou ve vlastní versionované vrstvě, pokud není důvod měnit upstream world schema;
+- [ ] všechny world DB změny jsou dodané jako versionované TrinityCore SQL updates/migrations, nikdy jako ruční zásah do běžící DB;
+- [ ] existuje before/after audit report a smoke checklist pro reprezentativní lokace;
+- [ ] je ověřené, že opravy nerozbily vanilla login, quest/NPC interaction a základní hostile/friendly reaction.
 
 ### Etapa 3 — Definition of Done
+
+Toto je minimální množina cílových stavů, ne uzavřený seznam úkolů — pokud během 3.0–3.6 vyplyne další konkrétní požadavek, přidá se sem jako další cílový stav.
 
 - [ ] 100 % creature/NPC spawnů v definovaném Elwynn Forest scope je v census manifestu;
 - [ ] každý spawn má explicitní classification/participation status;
