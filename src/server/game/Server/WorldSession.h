@@ -904,7 +904,7 @@ class TC_GAME_API WorldSession
         void HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query);
         void HandleGuildCreateOpcode(WorldPackets::Guild::GuildCreate& packet);
         void HandleGuildInviteOpcode(WorldPackets::Guild::GuildInviteByName& packet);
-        void HandleGuildRemoveOpcode(WorldPackets::Guild::GuildOfficerRemoveMember& packet);
+        void HandleGuildOfficerRemoveMember(WorldPackets::Guild::GuildOfficerRemoveMember& packet);
         void HandleGuildAcceptOpcode(WorldPackets::Guild::AcceptGuildInvite& invite);
         void HandleGuildDeclineOpcode(WorldPackets::Guild::GuildDeclineInvitation& decline);
         void HandleGuildInfoOpcode(WorldPackets::Guild::GuildGetInfo& packet);

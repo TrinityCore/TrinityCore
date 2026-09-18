@@ -265,7 +265,7 @@ struct boss_lady_vashj : public BossAI
     {
         for (uint32 data : ShieldGeneratorData)
             if (GameObject* generator = instance->GetGameObject(data))
-                generator->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+                generator->ActivateObject(GameObjectActions::MakeInert);
 
         DoDespawnSummons();
         DoCleanupTriggers();
@@ -460,7 +460,7 @@ struct boss_lady_vashj : public BossAI
 
                     for (uint32 data : ShieldGeneratorData)
                         if (GameObject* generator = instance->GetGameObject(data))
-                            generator->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
+                            generator->ActivateObject(GameObjectActions::MakeActive);
 
                     me->SetReactState(REACT_AGGRESSIVE);
 
@@ -703,7 +703,7 @@ struct go_shield_generator : public GameObjectAI
         if (Creature* vashj = _instance->GetCreature(BOSS_LADY_VASHJ))
             vashj->AI()->DoAction(ACTION_SHIELD_GENERATOR_DEACTIVATED);
 
-        me->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+        me->ActivateObject(GameObjectActions::MakeInert);
 
         return false;
     }
