@@ -980,7 +980,7 @@ class spell_grizzly_hills_script_cast_summon_image_of_drakuru : public SpellScri
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId, true);
     }
 
     void Register() override

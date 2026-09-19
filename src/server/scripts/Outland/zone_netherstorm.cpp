@@ -519,7 +519,7 @@ class spell_netherstorm_detonate_teleporter : public SpellScript
                             return;
                     }
 
-                    player->CastSpell(player, spellId);
+                    player->CastSpell(player, spellId, true);
                 }
             }
         }
@@ -560,10 +560,10 @@ class spell_netherstorm_socrethars_stone : public SpellScript
         switch (caster->GetAreaId())
         {
             case AREA_INVASION_POINT_OVERLORD:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_TO_SEAT);
+                caster->CastSpell(caster, SPELL_SOCRETHAR_TO_SEAT, true);
                 break;
             case AREA_SOCRETHARS_SEAT:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_FROM_SEAT);
+                caster->CastSpell(caster, SPELL_SOCRETHAR_FROM_SEAT, true);
                 break;
             default:
                 return;
