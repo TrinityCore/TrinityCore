@@ -61,6 +61,8 @@ enum HunterSpells
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
+    SPELL_HUNTER_HORSEHAIR_TETHER_TALENT            = 472729,
+    SPELL_HUNTER_HORSEHAIR_TETHER_GRIP              = 472731,
     SPELL_HUNTER_IMPLOSIVE_TRAP                     = 462032,
     SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE              = 462033,
     SPELL_HUNTER_INTIMIDATION                       = 19577,
@@ -298,6 +300,9 @@ struct at_hun_binding_shot : AreaTriggerAI
             {
                 caster->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_STUN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 caster->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_IMMUNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+                if (caster->HasAura(SPELL_HUNTER_HORSEHAIR_TETHER_TALENT))
+                    unit->CastSpell(at->GetPosition(), SPELL_HUNTER_HORSEHAIR_TETHER_GRIP, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             }
         }
     }
