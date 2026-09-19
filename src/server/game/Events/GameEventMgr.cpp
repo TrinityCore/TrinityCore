@@ -1262,12 +1262,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
-            {
-                Creature* creature = new Creature();
-                //TC_LOG_DEBUG("misc", "Spawning creature {}", *itr);
-                if (!creature->LoadFromDB(*itr, map, true, false))
-                    delete creature;
-            }
+                Creature::CreateCreatureFromDB(*itr, map);
         }
     }
 
@@ -1291,15 +1286,14 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             {
-                GameObject* pGameobject = new GameObject;
-                //TC_LOG_DEBUG("misc", "Spawning gameobject {}", *itr);
-                /// @todo find out when it is add to map
-                if (!pGameobject->LoadFromDB(*itr, map, false))
-                    delete pGameobject;
-                else
+                if (GameObject* go = GameObject::CreateGameObjectFromDB(*itr, map, false))
                 {
-                    if (pGameobject->isSpawnedByDefault())
-                        map->AddToMap(pGameobject);
+                    /// @todo find out when it is add to map
+                    if (go->isSpawnedByDefault())
+                    {
+                        if (!map->AddToMap(go))
+                            delete go;
+                    }
                 }
             }
         }

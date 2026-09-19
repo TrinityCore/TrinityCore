@@ -302,13 +302,9 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
     if (map->GetCreatureRespawnTime(guid))
         return nullptr;
 
-    Creature* creature = new Creature();
-
-    if (!creature->LoadFromDB(guid, map, false, false))
-    {
-        delete creature;
+    Creature* creature = Creature::CreateCreatureFromDB(guid, map, false);
+    if (!creature)
         return nullptr;
-    }
 
     float x, y, z, o;
     data->spawnPoint.GetPosition(x, y, z, o);
@@ -350,13 +346,9 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     if (map->GetGORespawnTime(guid))
         return nullptr;
 
-    GameObject* go = new GameObject();
-
-    if (!go->LoadFromDB(guid, map, false))
-    {
-        delete go;
+    GameObject* go = GameObject::CreateGameObjectFromDB(guid, map, false);
+    if (!go)
         return nullptr;
-    }
 
     ASSERT(data);
 

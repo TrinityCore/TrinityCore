@@ -159,65 +159,23 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
     if (spellId == SI_SILITHYST_FLAG)
     {
         // if it was dropped away from the player's turn-in point, then create a silithyst mound, if it was dropped near the areatrigger, then it was dispelled by the outdoorpvp, so do nothing
-        switch (player->GetTeam())
+        if (AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(player->GetTeam() == ALLIANCE ? SI_AREATRIGGER_A : SI_AREATRIGGER_H))
         {
-            case ALLIANCE:
+            // 5.0f is safe-distance
+            if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
             {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_A);
-                if (atEntry)
+                // he dropped it further, summon mound
+                Map* map = player->GetMap();
+                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, player->GetPhaseMask(), player->GetPosition(), QuaternionData(), 255, GO_STATE_READY))
                 {
-                    // 5.0f is safe-distance
-                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
+                    go->SetRespawnTime(0);
+
+                    if (!map->AddToMap(go))
                     {
-                        // he dropped it further, summon mound
-                        GameObject* go = new GameObject;
-                        Map* map = player->GetMap();
-
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
-                        {
-                            delete go;
-                            return true;
-                        }
-
-                        go->SetRespawnTime(0);
-
-                        if (!map->AddToMap(go))
-                        {
-                            delete go;
-                            return true;
-                        }
+                        delete go;
+                        return true;
                     }
                 }
-                break;
-            }
-            case HORDE:
-            {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_H);
-                if (atEntry)
-                {
-                    // 5.0f is safe-distance
-                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
-                    {
-                        // he dropped it further, summon mound
-                        GameObject* go = new GameObject;
-                        Map* map = player->GetMap();
-
-                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
-                        {
-                            delete go;
-                            return true;
-                        }
-
-                        go->SetRespawnTime(0);
-
-                        if (!map->AddToMap(go))
-                        {
-                            delete go;
-                            return true;
-                        }
-                    }
-                }
-                break;
             }
         }
         return true;

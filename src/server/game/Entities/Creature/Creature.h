@@ -81,7 +81,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie() { ForcedDespawn(0); }
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, Position const& pos, CreatureData const* data = nullptr, uint32 vehId = 0, bool dynamic = false);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, Position const& pos, CreatureData const* data, uint32 vehId, bool dynamic = false);
+
+        static Creature* CreateCreature(uint32 entry, Map* map, uint32 phaseMask, Position const& pos, uint32 vehId = 0);
+        static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
+
         bool LoadCreaturesAddon();
         void SelectLevel();
         void UpdateLevelDependantStats();
