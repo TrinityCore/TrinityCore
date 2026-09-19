@@ -1218,9 +1218,9 @@ class spell_hun_surging_shots : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
     }
 
-    bool RollProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
+    bool RollProc(AuraEffect const* aurEff, ProcEventInfo& /*procInfo*/)
     {
-        return roll_chance(GetEffect(EFFECT_2)->GetAmount());
+        return roll_chance(aurEff->GetAmount());
     }
 
     void HandleProc(ProcEventInfo const& /*eventInfo*/) const
