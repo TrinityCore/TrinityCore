@@ -96,6 +96,7 @@ class TC_GAME_API CreatureAI : public UnitAI
             EVADE_REASON_NO_PATH,           // the creature was unable to reach its target for over 5 seconds
             EVADE_REASON_SEQUENCE_BREAK,    // this is a boss and the pre-requisite encounters for engaging it are not defeated yet
             EVADE_REASON_OTHER,             // anything else
+            EVADE_REASON_VEHICLE_EVADE
         };
 
         explicit CreatureAI(Creature* creature);
