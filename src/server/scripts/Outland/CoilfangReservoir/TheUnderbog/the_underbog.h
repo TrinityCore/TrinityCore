@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_THE_UNDERBOG_H
-#define DEF_THE_UNDERBOG_H
+#ifndef TRINITYCORE_THE_UNDERBOG_H
+#define TRINITYCORE_THE_UNDERBOG_H
 
 #include "CreatureAIImpl.h"
 
@@ -46,4 +46,4 @@ inline AI* GetTheUnderbogAI(T* obj)
 
 #define RegisterTheUnderbogCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetTheUnderbogAI)
 
-#endif // DEF_THE_UNDERBOG_H
+#endif // TRINITYCORE_THE_UNDERBOG_H
