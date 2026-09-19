@@ -16,6 +16,7 @@
  */
 
 #include "Transport.h"
+#include "AreaTrigger.h"
 #include "CellImpl.h"
 #include "DB2Stores.h"
 #include "GameEventSender.h"
@@ -71,6 +72,7 @@ void TransportBase::UpdatePassengerPosition(Map* map, WorldObject* passenger, Po
             break;
         case TYPEID_AREATRIGGER:
             map->AreaTriggerRelocation(passenger->ToAreaTrigger(), x, y, z, o);
+            passenger->ToAreaTrigger()->RelocateStationaryPosition(position);
             break;
         default:
             break;

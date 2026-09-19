@@ -549,7 +549,7 @@ struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
             return;
 
         float radius = at->GetExactDist(caster);
-        float angle = at->GetOrientation();
+        float angle = caster->GetAbsoluteAngle(at);
 
         AreaTriggerOrbitInfo orbitInfo;
         orbitInfo.CounterClockwise = false;

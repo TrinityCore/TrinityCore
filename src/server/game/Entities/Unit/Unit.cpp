@@ -342,7 +342,6 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraFlatModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraFlatModifiersGroup[i][BASE_PCT_EXCLUDE_CREATE] = 100.0f;
         m_auraFlatModifiersGroup[i][TOTAL_VALUE] = 0.0f;
         m_auraPctModifiersGroup[i][BASE_PCT] = 1.0f;
         m_auraPctModifiersGroup[i][TOTAL_PCT] = 1.0f;
@@ -363,7 +362,6 @@ Unit::Unit(bool isWorldObject) :
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
 
-    m_createStats = { };
     m_floatStatPosBuff = { };
     m_floatStatNegBuff = { };
 
@@ -1862,22 +1860,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
 
     victimResistance = std::max(victimResistance, 0.0f);
 
-    // level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
-    // gameobject caster -- should it have level based resistance?
-    if (caster && caster->GetTypeId() != TYPEID_GAMEOBJECT && (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL)))
-        victimResistance += std::max((float(victim->GetLevelForTarget(caster)) - float(caster->GetLevelForTarget(victim))) * 5.0f, 0.0f);
-
-    static uint32 const bossLevel = 83;
-    static float const bossResistanceConstant = 510.0f;
-    uint32 level = caster ? victim->GetLevelForTarget(caster) : victim->GetLevel();
-    float resistanceConstant = 0.0f;
-
-    if (level == bossLevel)
-        resistanceConstant = bossResistanceConstant;
-    else
-        resistanceConstant = level * 5.0f;
-
-    return victimResistance / (victimResistance + resistanceConstant);
+    return victimResistance;
 }
 
 /*static*/ void Unit::CalcAbsorbResist(DamageInfo& damageInfo, Spell* spell /*= nullptr*/)
@@ -5253,29 +5236,17 @@ void Unit::UpdateStatBuffMod(Stats stat)
 {
     float modPos = 0.0f;
     float modNeg = 0.0f;
-    float factor = 0.0f;
 
     UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // includes value from items and enchantments
-    float modValue = GetFlatModifierValue(unitMod, BASE_VALUE);
-    if (modValue > 0.f)
-        modPos += modValue;
-    else
-        modNeg += modValue;
-
     if (IsGuardian())
     {
-        modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+        float modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
         if (modValue > 0.f)
             modPos += modValue;
         else
             modNeg += modValue;
     }
-
-    // SPELL_AURA_MOD_STAT_BONUS_PCT only affects BASE_VALUE
-    modPos = CalculatePct(modPos, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    modNeg = CalculatePct(modNeg, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
 
     modPos += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
         {
@@ -5291,25 +5262,35 @@ void Unit::UpdateStatBuffMod(Stats stat)
             return false;
         });
 
-    factor = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
-                return true;
-            return false;
-        });
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float baseModFromPct = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
 
-    factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
-                return true;
-            return false;
-        });
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    float totalModFromPct = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
+    float modsFromPct = baseModFromPct + totalModFromPct;
 
-    modPos *= factor;
-    modNeg *= factor;
+    // recalculate stat bonuses not applied by auras
+    float nonAuraMod = totalValue;
+    nonAuraMod -= modPos; // remove positive auras
+    nonAuraMod -= modNeg; // remove negative auras
 
-    m_floatStatPosBuff[stat] = modPos;
-    m_floatStatNegBuff[stat] = modNeg;
+    // add item stat bonuses to positive
+    if (nonAuraMod > 0.f)
+        modPos += nonAuraMod;
+    else
+        modNeg += nonAuraMod;
+
+    // add pct mods
+    if (modsFromPct > 0.f)
+        modPos += modsFromPct;
+    else
+        modNeg += modsFromPct;
+
+    m_floatStatPosBuff[stat] = std::round(modPos);
+    m_floatStatNegBuff[stat] = std::round(modNeg);
 
     UpdateStatBuffModForClient(stat);
 }
@@ -5318,6 +5299,18 @@ void Unit::UpdateStatBuffModForClient(Stats stat)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatPosBuff, stat), int32(m_floatStatPosBuff[stat]));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatNegBuff, stat), int32(m_floatStatNegBuff[stat]));
+}
+
+void Unit::SetCreateStat(Stats stat, float val)
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    HandleStatFlatModifier(unitMod, BASE_VALUE, val, true);
+}
+
+float Unit::GetCreateStat(Stats stat) const
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    return GetFlatModifierValue(unitMod, BASE_VALUE);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -9643,7 +9636,6 @@ void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifie
     switch (modifierType)
     {
         case BASE_VALUE:
-        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraFlatModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -9898,18 +9890,18 @@ void Unit::UpdateAllDamagePctDoneMods()
 
 float Unit::GetTotalStatValue(Stats stat) const
 {
-    float createStat = GetCreateStat(stat); // retrieved early to workaround a GCC false positive warning about out of bounds array access (conversion to UnitMods confuses it)
-
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // value = ((base_value * base_pct) + total_value) * total_pct
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    value += createStat;
-    value *= GetPctModifierValue(unitMod, BASE_PCT);
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
-    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    // value = (base_value * base_pct) * total_pct + total_value * total_pct
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    return value;
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    return baseValue + totalValue;
 }
 
 float Unit::GetTotalAuraModValue(UnitMods unitMod) const
@@ -9920,7 +9912,7 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
         return 0.0f;
     }
 
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
@@ -9972,7 +9964,7 @@ void Unit::UpdateResistances(uint32 school)
     {
         UnitMods unitMod = UnitMods(UNIT_MOD_RESISTANCE_START + school);
 
-        float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+        float value = GetFlatModifierValue(unitMod, BASE_VALUE);
         value *= GetPctModifierValue(unitMod, BASE_PCT);
 
         float baseValue = value;
@@ -13073,7 +13065,7 @@ void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
     WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
     moveUpdateTeleport.Status = &m_movementInfo;
     if (_movementForces)
-        moveUpdateTeleport.MovementForces = _movementForces->GetForces();
+        moveUpdateTeleport.MovementForces = *_movementForces->GetForces();
 
     // should this really be the unit _being_ moved? not the unit doing the moving?
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
@@ -13432,7 +13424,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/, bool updatePlayHoverAnim /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -13469,7 +13461,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         SendMessageToSet(packet.Write(), true);
     }
 
-    if (!GetVehicle())
+    if (updatePlayHoverAnim && !GetVehicle())
     {
         if (IsAlive())
         {
@@ -13760,13 +13752,13 @@ bool Unit::SetCollision(bool disable)
 
 bool Unit::SetStrafingDisabled(bool disable)
 {
-    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE))
+    if (disable == HasUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE))
         return false;
 
     if (disable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+        AddUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE);
 
     static OpcodeServer const disableStrafingOpcodeTable[2] =
     {
@@ -13791,13 +13783,13 @@ bool Unit::SetStrafingDisabled(bool disable)
 
 bool Unit::SetJumpingDisabled(bool disable)
 {
-    if (disable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING))
+    if (disable == HasUnitMovementFlag(MOVEMENTFLAG_NO_JUMPING))
         return false;
 
     if (disable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+        AddUnitMovementFlag(MOVEMENTFLAG_NO_JUMPING);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_NO_JUMPING);
 
     static OpcodeServer const disableJumpingOpcodeTable[2] =
     {
@@ -13822,13 +13814,13 @@ bool Unit::SetJumpingDisabled(bool disable)
 
 bool Unit::SetEnableFullSpeedTurning(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_TURNING))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+        AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_TURNING);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_TURNING);
 
     static constexpr OpcodeServer fullSpeedTurningOpcodeTable[2] =
     {
@@ -13853,13 +13845,13 @@ bool Unit::SetEnableFullSpeedTurning(bool enable)
 
 bool Unit::SetEnableFullSpeedPitching(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_PITCHING))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+        AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_PITCHING);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_PITCHING);
 
     static constexpr OpcodeServer fullSpeedPitchingOpcodeTable[2] =
     {
@@ -13884,13 +13876,13 @@ bool Unit::SetEnableFullSpeedPitching(bool enable)
 
 bool Unit::SetAlwaysAllowPitching(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        AddUnitMovementFlag(MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING);
 
     static constexpr OpcodeServer alwaysAllowPitchingOpcodeTable[2] =
     {
@@ -13918,13 +13910,13 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
     if (GetTypeId() != TYPEID_PLAYER)
         return false;
 
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_SWIM_TO_FLY_TRANS))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_SWIM_TO_FLY_TRANS);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_SWIM_TO_FLY_TRANS);
 
     static OpcodeServer const swimToFlyTransOpcodeTable[2] =
     {
@@ -13950,13 +13942,13 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
 bool Unit::SetCanTurnWhileFalling(bool enable)
 {
     // Temporarily disabled for short lived auras that unapply before client had time to ACK applying
-    //if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING))
+    //if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_TURN_WHILE_FALLING))
     //    return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_TURN_WHILE_FALLING);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_TURN_WHILE_FALLING);
 
     static OpcodeServer const canTurnWhileFallingOpcodeTable[2] =
     {
@@ -13981,13 +13973,13 @@ bool Unit::SetCanTurnWhileFalling(bool enable)
 
 bool Unit::SetCanDoubleJump(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_DOUBLE_JUMP))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_DOUBLE_JUMP))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_DOUBLE_JUMP);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_DOUBLE_JUMP);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_DOUBLE_JUMP);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_DOUBLE_JUMP);
 
     static OpcodeServer const doubleJumpOpcodeTable[2] =
     {
@@ -14012,13 +14004,13 @@ bool Unit::SetCanDoubleJump(bool enable)
 
 bool Unit::SetDisableInertia(bool disable)
 {
-    if (disable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA))
+    if (disable == HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_INERTIA))
         return false;
 
     if (disable)
-        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_INERTIA);
     else
-        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_INERTIA);
 
     static OpcodeServer const disableInertiaOpcodeTable[2] =
     {
@@ -14043,13 +14035,13 @@ bool Unit::SetDisableInertia(bool disable)
 
 bool Unit::SetCanAdvFly(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY))
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_ADV_FLY))
         return false;
 
     if (enable)
-        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_ADV_FLY);
     else
-        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CAN_ADV_FLY | MOVEMENTFLAG3_ADV_FLYING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_ADV_FLY | MOVEMENTFLAG_ADV_FLYING);
 
     static OpcodeServer const advFlyOpcodeTable[2] =
     {
@@ -14074,13 +14066,13 @@ bool Unit::SetCanAdvFly(bool enable)
 
 bool Unit::SetMoveCantSwim(bool cantSwim)
 {
-    if (cantSwim == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM))
+    if (cantSwim == HasUnitMovementFlag(MOVEMENTFLAG_CANNOT_SWIM))
         return false;
 
     if (cantSwim)
-        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM);
+        AddUnitMovementFlag(MOVEMENTFLAG_CANNOT_SWIM);
     else
-        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CANNOT_SWIM);
 
     static OpcodeServer const cantSwimOpcodeTable[2] =
     {
@@ -14185,13 +14177,13 @@ void Unit::RemoveMovementForce(ObjectGuid id)
 
 bool Unit::SetIgnoreMovementForces(bool ignore)
 {
-    if (ignore == HasExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES))
+    if (ignore == HasUnitMovementFlag(MOVEMENTFLAG_IGNORE_MOVEMENT_FORCES))
         return false;
 
     if (ignore)
-        AddExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES);
+        AddUnitMovementFlag(MOVEMENTFLAG_IGNORE_MOVEMENT_FORCES);
     else
-        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_IGNORE_MOVEMENT_FORCES);
 
     static OpcodeServer const ignoreMovementForcesOpcodeTable[2] =
     {
@@ -14243,6 +14235,55 @@ void Unit::UpdateMovementForcesModMagnitude()
         _movementForces->SetModMagnitude(modMagnitude);
         if (_movementForces->IsEmpty())
             _movementForces.reset();
+    }
+}
+
+void Unit::ApplyInertia(int32 id, Milliseconds duration)
+{
+    MovementInfo::Inertia& inertia = m_movementInfo.inertia.emplace();
+    inertia.id = id;
+    inertia.lifetime = duration.count();
+
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveApplyInertia applyInertia;
+        applyInertia.MoverGUID = GetGUID();
+        applyInertia.SequenceIndex = m_movementCounter++;
+        applyInertia.InertiaID = id;
+        applyInertia.LifetimeMs = duration;
+        movingPlayer->SendDirectMessage(applyInertia.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateApplyInertia updateApplyInertia;
+        updateApplyInertia.Status = &m_movementInfo;
+        updateApplyInertia.InertiaID = id;
+        updateApplyInertia.LifetimeMs = duration;
+        SendMessageToSet(updateApplyInertia.Write(), true);
+    }
+}
+
+void Unit::RemoveInertia(int32 id)
+{
+    if (!m_movementInfo.inertia || m_movementInfo.inertia->id != id)
+        return;
+
+    m_movementInfo.inertia.reset();
+
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveRemoveInertia moveRemoveInertia;
+        moveRemoveInertia.MoverGUID = GetGUID();
+        moveRemoveInertia.SequenceIndex = m_movementCounter++;
+        moveRemoveInertia.InertiaID = id;
+        movingPlayer->SendDirectMessage(moveRemoveInertia.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateRemoveInertia updateRemoveInertia;
+        updateRemoveInertia.Status = &m_movementInfo;
+        updateRemoveInertia.InertiaID = id;
+        SendMessageToSet(updateRemoveInertia.Write(), true);
     }
 }
 
@@ -14668,7 +14709,7 @@ std::string Unit::GetDebugInfo() const
     sstr << WorldObject::GetDebugInfo() << "\n"
         << std::boolalpha
         << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << std::to_string(getDeathState())
-        << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags: " << GetExtraUnitMovementFlags()
+        << " UnitMovementFlags: " << Movement::MovementFlags_ToString(GetUnitMovementFlags())
         << " Class: " << std::to_string(GetClass()) << "\n"
         << "" << (movespline ? movespline->ToString() : "Movespline: <none>\n")
         << "GetCharmedGUID(): " << GetCharmedGUID().ToString() << "\n"

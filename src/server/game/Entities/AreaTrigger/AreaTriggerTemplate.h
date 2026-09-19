@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_AREATRIGGER_TEMPLATE_H
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
@@ -59,19 +60,14 @@ enum AreaTriggerActionUserTypes
 
 enum class AreaTriggerCreatePropertiesFlag : uint32
 {
-    None                           = 0x00000,
-    HasAbsoluteOrientation         = 0x00001,
-    HasDynamicShape                = 0x00002,
-    HasAttached                    = 0x00004, // DEPRECATED
-    HasFaceMovementDir             = 0x00008,
-    HasFollowsTerrain              = 0x00010, // NYI
-    AlwaysExterior                 = 0x00020,
-    HasTargetRollPitchYaw          = 0x00040, // NYI
-    HasAnimId                      = 0x00080, // DEPRECATED
-    VisualAnimIsDecay              = 0x00100,
-    HasAnimKitId                   = 0x00200, // DEPRECATED
-    HasCircularMovement            = 0x00400, // DEPRECATED
-    Unk5                           = 0x00800,
+    None                           = 0x0000,
+    HeightIgnoresScale             = 0x0001,
+    VisualAnimIsDecay              = 0x0002,
+    AbsoluteOrientation            = 0x0004,
+    FaceMovementDir                = 0x0008, // NYI
+    FollowsTerrain                 = 0x0010, // NYI
+    AlwaysExterior                 = 0x0020,
+    UsesUnitRawFacing              = 0x0040  // NYI
 };
 
 DEFINE_ENUM_FLAG(AreaTriggerCreatePropertiesFlag);
@@ -106,6 +102,7 @@ struct AreaTriggerShapeInfo
         float RadiusTarget;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     struct Box
@@ -119,21 +116,24 @@ struct AreaTriggerShapeInfo
         TaggedPosition<Position::XYZ> ExtentsTarget;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     struct Polygon
     {
         Polygon()
-            : PolygonVertices(), PolygonVerticesTarget(), Height(0.0f), HeightTarget(0.0f) { }
-        explicit Polygon(std::array<float, MAX_AREATRIGGER_ENTITY_DATA> const& raw)
-            : PolygonVertices(), PolygonVerticesTarget(), Height(raw[0]), HeightTarget(raw[1]) { }
+            : PolygonVertices(), PolygonVerticesTarget(), Height(0.0f), HeightTarget(0.0f), Type(AreaTriggerShapeType::Polygon) { }
+        explicit Polygon(AreaTriggerShapeType type, std::array<float, MAX_AREATRIGGER_ENTITY_DATA> const& raw)
+            : PolygonVertices(), PolygonVerticesTarget(), Height(raw[0]), HeightTarget(raw[1]), Type(type) { }
 
         std::vector<TaggedPosition<Position::XY>> PolygonVertices;
         std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
         float Height;
         float HeightTarget;
+        AreaTriggerShapeType Type;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     struct Cylinder
@@ -151,6 +151,7 @@ struct AreaTriggerShapeInfo
         float LocationZOffsetTarget;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     struct Disk
@@ -172,19 +173,22 @@ struct AreaTriggerShapeInfo
         float LocationZOffsetTarget;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     struct BoundedPlane
     {
-        BoundedPlane()
-            : Extents(), ExtentsTarget() { }
+        BoundedPlane() = default;
         explicit BoundedPlane(std::array<float, MAX_AREATRIGGER_ENTITY_DATA> const& raw)
-            : Extents(raw[0], raw[1]), ExtentsTarget(raw[2], raw[3]) { }
+            : ExtentsY(raw[0]), ExtentsZ(raw[1]), ExtentsTargetY(raw[2]), ExtentsTargetZ(raw[3]) { }
 
-        TaggedPosition<Position::XY> Extents;
-        TaggedPosition<Position::XY> ExtentsTarget;
+        float ExtentsY = 0.0f;
+        float ExtentsZ = 0.0f;
+        float ExtentsTargetY = 0.0f;
+        float ExtentsTargetZ = 0.0f;
 
         float GetMaxSearchRadius() const;
+        bool IsDynamic() const;
     };
 
     std::variant<Sphere, Box, Polygon, Cylinder, Disk, BoundedPlane> Data;
@@ -196,6 +200,7 @@ struct AreaTriggerShapeInfo
     bool IsDisk()           const { return std::holds_alternative<Disk>(Data);          }
     bool IsBoundedPlane()   const { return std::holds_alternative<BoundedPlane>(Data);  }
     float GetMaxSearchRadius() const;
+    bool IsDynamic() const;
 };
 
 struct AreaTriggerOrbitInfo
@@ -246,6 +251,8 @@ public:
 
     Optional<int32> SpellForVisuals;
 
+    int32 PositionalSoundKitId = 0;
+
     uint32 TimeToTargetScale = 0;
 
     AreaTriggerShapeInfo Shape;
@@ -254,6 +261,9 @@ public:
     bool SpeedIsTime = false;
     using SplineInfo = std::vector<Position>;
     std::variant<std::monostate, SplineInfo, AreaTriggerOrbitInfo> Movement;
+
+    TaggedPosition<Position::XYZ> RollPitchYaw;
+    Optional<TaggedPosition<Position::XYZ>> TargetRollPitchYaw;
 
     uint32 ScriptId = 0;
 };

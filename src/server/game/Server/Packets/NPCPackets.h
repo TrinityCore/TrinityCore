@@ -98,7 +98,7 @@ namespace WorldPackets
             int32 QuestID = 0;
             int32 ContentTuningID = 0;
             int32 QuestType = 0;
-            int32 Unused1102 = 0;
+            int32 QuestInfoID = 0;
             bool Repeatable = false;
             bool ResetByScheduler = false;
             bool Important = false;

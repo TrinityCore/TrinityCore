@@ -16,6 +16,7 @@
  */
 
 #include "MoveSplineFlag.h"
+#include "MovementInfo.h"
 #include "MovementTypedefs.h"
 #include "SmartEnum.h"
 #include <cmath>
@@ -100,20 +101,6 @@ namespace Movement
     }
 
     std::string MovementFlags_ToString(MovementFlags flags)
-    {
-        std::string str;
-        PrintFlags(flags, str);
-        return str;
-    }
-
-    std::string MovementFlags_ToString(MovementFlags2 flags)
-    {
-        std::string str;
-        PrintFlags(flags, str);
-        return str;
-    }
-
-    std::string MovementFlags_ToString(MovementFlags3 flags)
     {
         std::string str;
         PrintFlags(flags, str);
