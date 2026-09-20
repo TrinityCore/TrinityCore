@@ -1,14 +1,15 @@
 # AI World Viewer
 
-The viewer is a read-only FastAPI service. Compose publishes its browser UI at
-`http://127.0.0.1:8090` by default. The worldserver sends a complete snapshot
-about once per second to `http://world-viewer:8000/internal/telemetry`.
+The viewer is a read-only FastAPI service. Compose publishes its browser UI on
+all host interfaces at port 8090 by default (`http://<server-LAN-IP>:8090`).
+The worldserver sends a complete snapshot about once per second to
+`http://world-viewer:8000/internal/telemetry`.
 
 Set a long random `WORLD_VIEWER_TELEMETRY_TOKEN` in `.env` before enabling
 export in the worldserver. Compose passes the same token to both containers.
 With an empty token, the viewer remains available but refuses all ingestion.
-The browser's `GET /api/state` is intentionally unauthenticated; keep the
-published port on localhost if telemetry is sensitive.
+The browser's `GET /api/state` is unauthenticated: anyone on the network who
+can reach the published port can read the telemetry.
 
 `POST /internal/telemetry` requires `Authorization: Bearer <token>` and a
 version 1 JSON body:

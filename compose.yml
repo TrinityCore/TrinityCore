@@ -155,7 +155,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "127.0.0.1:${WORLD_VIEWER_PORT:-8090}:8000"
+      - "${WORLD_VIEWER_PORT:-8090}:8000"
 
   account-web:
     build:
