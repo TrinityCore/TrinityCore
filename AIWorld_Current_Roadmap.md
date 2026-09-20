@@ -2430,6 +2430,17 @@ Catch2 unit testy                   PASS (lokálně přes tests/game/WorldFactio
 
 `tools/elwynn/build_world_faction_relations_defaults.py` navíc teď validuje už při generování (fail loudly, ne až za běhu): `world_faction_id = 0` na kterékoliv straně, explicitní `from == to` řádek, duplicitní `(from, to)` pár, a že obě ID existují v `world_factions.csv` - všechny čtyři ověřeny na syntetických špatných CSV.
 
+**Stav (2026-09-20) — player WorldFaction membership (persistence only):** první krok vertical slice popsaného v "Hráč a frakce — Etapa 4" výše - záměrně jen `character → persistent ActiveWorldFaction → load/save`, žádný `ReputationMgr` bridge, žádná combat změna, žádný resolver hráč↔faction ještě. Nová `characters.ai_player_world_faction` (`character_guid` PK, `world_faction_id`, `joined_at`) - V1 má nejvýš jedno aktivní membership na postavu; "žádné membership" je nepřítomnost řádku, nikdy explicitní `world_faction_id = 0` řádek.
+
+Architektonické rozhodnutí: `PlayerWorldFactionPersistence` (`src/server/game/AIWorld/Faction/`) je bezstavová a čte/zapisuje on-demand podle `ObjectGuid` - **není** napojená na `Player::LoadFromDB()`'s `LoginQueryHolder` (jak to dělá `character_reputation`/`ReputationMgr`) ani cachovaná na živém `Player` objektu. Vědomý kompromis: žádný zásah do `Player.h`/`.cpp` (velký, citlivý core soubor na živě nasazovaném branchi), za cenu jednoho DB dotazu při každém budoucím lookupu místo in-memory cache. `LoadMembership()` vrací `WorldFactions::Unaffiliated` pro "žádný řádek" i "neznámá postava" (nerozlišuje - není co rozlišovat). `Join()` odmítne zápis `Unaffiliated` (to dělá `Leave()`), `REPLACE INTO` pro switch mezi factions, oboje s read-back confirm (fail-closed, stejná disciplína jako zbytek subsystému). Zatím bez callera - žádný chat/GM příkaz, žádný jiný kód tuhle třídu nevolá.
+
+```text
+ai_player_world_faction migrace     STATIC PASS (schema, žádná data k migraci)
+PlayerWorldFactionPersistence       STATIC PASS (kompilace ověřena, runtime Join/Leave/Load proti živé DB PENDING)
+```
+
+Další krok (samostatný commit): `PlayerFactionRelationResolver` nad `PlayerWorldFactionPersistence` + `WorldFactionRelationCatalog` + existující TrinityCore reputation, teprve poté `ReputationMgr::ApplyForceReaction()` bridge.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:

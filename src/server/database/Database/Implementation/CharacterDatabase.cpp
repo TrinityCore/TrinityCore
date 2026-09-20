@@ -880,6 +880,30 @@ void CharacterDatabaseConnection::DoPrepareStatements()
         "actor_spawn_id, actor_entry, actor_agent_id, target_guid, target_spawn_id, target_entry, target_agent_id, "
         "channel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         CONNECTION_ASYNC);
+
+    // AI player WorldFaction membership (AIWorld_Current_Roadmap.md) -
+    // PlayerWorldFactionPersistence's own on-demand queries, never cached on
+    // the live Player object and never part of Player::LoadFromDB()'s own
+    // LoginQueryHolder batch (deliberate - see that class's own comment).
+    // CONNECTION_SYNCH/DirectExecute() throughout: called synchronously,
+    // on demand, by whatever future code needs a specific character's
+    // membership - never from the world update loop, the same startup-
+    // only-or-on-demand discipline AgentPersistence's own non-economy
+    // methods already follow.
+    PrepareStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION, "SELECT world_faction_id FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_SYNCH);
+
+    // REPLACE INTO (CHAR_REP_ prefix, the same convention CHAR_REP_INVENTORY_ITEM/
+    // CHAR_REP_ITEM_INSTANCE already use elsewhere in this file) - a
+    // character has at most one active membership row (V1), so joining a
+    // new WorldFaction always replaces any existing row rather than needing
+    // a separate UPDATE-vs-INSERT branch. joined_at is set SQL-side
+    // (UNIX_TIMESTAMP()), not passed as a bound parameter.
+    PrepareStatement(CHAR_REP_AI_PLAYER_WORLD_FACTION, "REPLACE INTO ai_player_world_faction (character_guid, world_faction_id, joined_at) VALUES (?, ?, UNIX_TIMESTAMP())", CONNECTION_SYNCH);
+
+    // Leaving a WorldFaction deletes the row entirely - "no membership" is
+    // row absence, never an explicit world_faction_id = 0 row (see the
+    // migration's own comment).
+    PrepareStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION, "DELETE FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_SYNCH);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

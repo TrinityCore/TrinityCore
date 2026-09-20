@@ -48,6 +48,7 @@
 #include "Event/EventBus.h"
 #include "Event/WorldEvent.h"
 #include "Agent/AgentTypeCatalog.h"
+#include "Faction/PlayerWorldFactionPersistence.h"
 #include "Faction/WorldFactionCatalog.h"
 #include "Faction/WorldFactionRelationCatalog.h"
 #include "Reconciliation/SpawnParticipationCatalog.h"
@@ -3029,6 +3030,15 @@ class TC_GAME_API AIWorldMgr
         // it unconditionally now (rather than only once a consumer exists)
         // matches _worldFactionCatalog/_agentTypeCatalog's own precedent.
         WorldFactionRelationCatalog _worldFactionRelationCatalog;
+
+        // Player WorldFaction membership vertical slice (AIWorld_Current_
+        // Roadmap.md) - unlike every catalog above, this is stateless (no
+        // Load(), nothing to initialize): every method is an independent,
+        // on-demand characters-DB query keyed by ObjectGuid, never a bulk
+        // startup load. Held here purely as a convenient, uniform access
+        // point (the same reason _persistence exists) - deliberately no
+        // caller yet, same as _worldFactionRelationCatalog.
+        PlayerWorldFactionPersistence _playerWorldFactionPersistence;
 
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity
