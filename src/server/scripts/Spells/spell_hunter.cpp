@@ -455,9 +455,9 @@ struct at_hun_legion_flare : public AreaTriggerAI
                 unit->CastSpell(unit, SPELL_HUNTER_FLARE_DISPEL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* target) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
-        target->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
+        unit->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
     }
 };
 
