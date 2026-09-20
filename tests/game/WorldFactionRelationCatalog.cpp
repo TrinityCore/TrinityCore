@@ -88,6 +88,14 @@ TEST_CASE("ResolveWorldFactionRelation locks in the Elwynn diplomacy matrix", "[
         REQUIRE(ResolveWorldFactionRelation(WorldFactions::ElwynnWolves, WorldFactions::StormwindAlliance, relations) == WorldFactionRelation::Neutral);
         REQUIRE(ResolveWorldFactionRelation(WorldFactions::ElwynnWolves, WorldFactions::ElwynnWolves, relations) == WorldFactionRelation::Friendly);
     }
+
+    SECTION("a corrupt (Unaffiliated, X) row in the table is still ignored - Unaffiliated is Neutral by invariant, not by absence of data")
+    {
+        std::unordered_map<uint64, WorldFactionRelation> corrupted = relations;
+        corrupted.emplace(MakeWorldFactionRelationKey(WorldFactions::Unaffiliated, WorldFactions::DefiasBrotherhood), WorldFactionRelation::Hostile);
+
+        REQUIRE(ResolveWorldFactionRelation(WorldFactions::Unaffiliated, WorldFactions::DefiasBrotherhood, corrupted) == WorldFactionRelation::Neutral);
+    }
 }
 
 TEST_CASE("MakeWorldFactionRelationKey is directional, not symmetric", "[WorldFactionRelationCatalog]")

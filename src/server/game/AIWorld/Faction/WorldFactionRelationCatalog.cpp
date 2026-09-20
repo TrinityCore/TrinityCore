@@ -19,6 +19,27 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 
+namespace
+{
+    // Fail-closed range check, mirroring AgentType.h's own ToKnownAgentType():
+    // a stored byte outside WorldFactionRelation's own known enumerators
+    // must never be trusted as some other relation - defaults to Neutral,
+    // the same "no data/bad data means the safest, most inert value" rule
+    // ResolveWorldFactionRelation() itself applies for a missing row.
+    WorldFactionRelation ToKnownWorldFactionRelation(uint8 value)
+    {
+        switch (WorldFactionRelation(value))
+        {
+            case WorldFactionRelation::Neutral:
+            case WorldFactionRelation::Friendly:
+            case WorldFactionRelation::Hostile:
+                return WorldFactionRelation(value);
+            default:
+                return WorldFactionRelation::Neutral;
+        }
+    }
+}
+
 uint64 MakeWorldFactionRelationKey(WorldFactionId from, WorldFactionId to)
 {
     return (uint64(from.Value) << 32) | uint64(to.Value);
@@ -28,7 +49,18 @@ WorldFactionRelation ResolveWorldFactionRelation(
     WorldFactionId from, WorldFactionId to,
     std::unordered_map<uint64, WorldFactionRelation> const& relations)
 {
-    if (from && to && from == to)
+    // Checked BEFORE the same-faction/table lookup below, not after: a
+    // stray (Unaffiliated, X) or (X, Unaffiliated) row that somehow ended
+    // up in `relations` (bad data, never something a well-formed CSV/
+    // generator should produce - see build_world_faction_relations_defaults.py's
+    // own validation) must never override this invariant. Unaffiliated has
+    // no diplomacy, full stop - data/elwynn/factions/README.md's own
+    // "Nevypsaný cross-faction vztah je NEUTRAL" note applies doubly hard
+    // to a side that isn't even a real WorldFaction.
+    if (!from || !to)
+        return WorldFactionRelation::Neutral;
+
+    if (from == to)
         return WorldFactionRelation::Friendly;
 
     auto it = relations.find(MakeWorldFactionRelationKey(from, to));
@@ -56,7 +88,11 @@ void WorldFactionRelationCatalog::Load()
         Field* fields = result->Fetch();
         WorldFactionId from{ fields[0].GetUInt32() };
         WorldFactionId to{ fields[1].GetUInt32() };
-        auto relation = WorldFactionRelation(fields[2].GetUInt8());
+        uint8 rawRelation = fields[2].GetUInt8();
+        WorldFactionRelation relation = ToKnownWorldFactionRelation(rawRelation);
+        if (uint8(relation) != rawRelation)
+            TC_LOG_ERROR("ai.world", "AI WorldFactionRelationCatalog: (from={}, to={}) has unknown ai_world_faction_relations.relation={}, treated as Neutral",
+                from.Value, to.Value, rawRelation);
         _relations.emplace(MakeWorldFactionRelationKey(from, to), relation);
     } while (result->NextRow());
 

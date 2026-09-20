@@ -63,16 +63,58 @@ def main():
         nargs="?",
         default="sql/updates/world/3.3.5/2026_09_20_00_world.sql",
     )
+    parser.add_argument(
+        "--catalog",
+        default="data/elwynn/factions/world_factions.csv",
+        help="world_factions.csv - the valid WorldFactionId set to validate rows against",
+    )
     args = parser.parse_args()
+
+    with Path(args.catalog).open(newline="", encoding="utf-8") as f:
+        known_ids = {int(row["world_faction_id"]) for row in csv.DictReader(f)}
 
     with Path(args.input).open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
 
     values = []
+    seen_pairs = set()
     for row in rows:
         from_id = int(row["from_world_faction_id"])
         to_id = int(row["to_world_faction_id"])
         relation = row["relation"]
+
+        # NEUTRAL_UNAFFILIATED (world_faction_id 0) is not a real WorldFaction
+        # entity (data/elwynn/factions/README.md) - it has no diplomacy, so
+        # it must never appear as either side of an explicit relation row.
+        # ResolveWorldFactionRelation() itself now also fails closed against
+        # this at runtime, but catching it here stops bad data before it
+        # ever reaches a migration.
+        if from_id == 0 or to_id == 0:
+            raise SystemExit(
+                f"ERROR: ({from_id}, {to_id}): NEUTRAL_UNAFFILIATED (world_faction_id 0) "
+                "is not a real WorldFaction and must never appear in an explicit relation row."
+            )
+
+        # Same-faction Friendly is WorldFactionRelationCatalog::Resolve()'s
+        # own implicit rule, never a stored row - an explicit (X, X) row
+        # would at best be redundant and at worst silently contradict that
+        # rule if it ever said anything other than FRIENDLY.
+        if from_id == to_id:
+            raise SystemExit(
+                f"ERROR: ({from_id}, {to_id}): a same-faction row is never valid here - "
+                "Resolve() already treats from == to as Friendly implicitly."
+            )
+
+        if from_id not in known_ids or to_id not in known_ids:
+            raise SystemExit(
+                f"ERROR: ({from_id}, {to_id}): both ids must exist in {args.catalog} "
+                f"(known ids: {sorted(known_ids)})."
+            )
+
+        if (from_id, to_id) in seen_pairs:
+            raise SystemExit(f"ERROR: duplicate row for (from={from_id}, to={to_id}).")
+        seen_pairs.add((from_id, to_id))
+
         if relation not in RELATION_VALUES:
             raise SystemExit(
                 f"ERROR: ({from_id}, {to_id}): unmapped relation={relation!r} "

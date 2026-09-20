@@ -2426,6 +2426,10 @@ Catch2 unit testy                   PASS (lokálně přes tests/game/WorldFactio
 
 `_worldFactionRelationCatalog` je členem `AIWorldMgr`, `Load()` se volá unconditionally v `Initialize()` (stejný vzor jako ostatní katalogy) - ale zatím nemá žádného callera. Player WorldFaction membership, `PlayerFactionRelationResolver` a `ReputationMgr::ApplyForceReaction()` bridge jsou vědomě další, oddělené kroky - viz "Hráč a frakce — Etapa 4" výše.
 
+**Stav (2026-09-20) — hardening před player membership:** code review odhalil dvě fail-closed mezery v `ResolveWorldFactionRelation()`/`Load()`, sice nebyly zneužitelné současnými daty, ale byly by riskantní, jakmile katalog začne ovlivňovat player reaction. (1) `Unaffiliated` invariant se kontroloval AŽ za same-faction/table-lookup větvemi, takže by ho případný chybný `(0, X)` řádek v DB tiše přebil - opraveno přesunutím `if (!from || !to) return Neutral;` na úplný začátek funkce, před jakýkoliv lookup. (2) `Load()` dělal přímý `WorldFactionRelation(byte)` cast bez validace - přidán `ToKnownWorldFactionRelation()` (stejný fail-closed vzor jako `AgentType.h`'s `ToKnownAgentType()`), fallback na `Neutral`, `TC_LOG_ERROR` při neznámé hodnotě. Nový test explicitně vkládá korumpovaný `(Unaffiliated, Defias) = Hostile` řádek a ověřuje, že resolver ho ignoruje.
+
+`tools/elwynn/build_world_faction_relations_defaults.py` navíc teď validuje už při generování (fail loudly, ne až za běhu): `world_faction_id = 0` na kterékoliv straně, explicitní `from == to` řádek, duplicitní `(from, to)` pár, a že obě ID existují v `world_factions.csv` - všechny čtyři ověřeny na syntetických špatných CSV.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
