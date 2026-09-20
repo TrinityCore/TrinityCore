@@ -5833,23 +5833,41 @@ void AIWorldMgr::ApplyParticipationControlPolicy()
     for (AgentId const& id : excludedIds)
         _registry.Remove(id);
 
-    // Only entries DemoteControlModeBatch() itself confirms via read-back
-    // are reflected here - fail closed, the same discipline every other
-    // batch persistence method in this subsystem applies.
-    std::vector<AgentId> demoted = _persistence.DemoteControlModeBatch(vanillaOnlyDemotionCandidates);
-    for (AgentId const& id : demoted)
+    // Runtime safety takes precedence over persistence durability: every
+    // VanillaOnly candidate is forced to ObserveOnly IN MEMORY
+    // unconditionally, BEFORE the DB write below is even attempted (and
+    // regardless of whether it is later confirmed) - OwnsSpawn() (checks
+    // AgentRecord::ControlMode alone, never the DB) must never see
+    // AIWorldControlled for one of these in THIS process, no matter how
+    // the persisted UPDATE turns out. A failed/unconfirmed DB write is a
+    // durability/drift problem to retry on the next startup, never a
+    // window where this process actually owns a VanillaOnly agent.
+    for (AgentId const& id : vanillaOnlyDemotionCandidates)
     {
         AgentRecord* record = _registry.Find(id);
         if (record)
             record->ControlMode = AgentControlMode::ObserveOnly;
     }
-    for (AgentId const& id : vanillaOnlyDemotionCandidates)
-        if (std::find(demoted.begin(), demoted.end(), id) == demoted.end())
-            TC_LOG_ERROR("ai.world", "AI agent id={} is VanillaOnly but its ControlMode demotion to ObserveOnly was not confirmed by read-back - still AIWorldControlled",
-                id.Value);
 
-    TC_LOG_INFO("ai.world", "AI participation control policy: excludedQuarantined={} vanillaOnlyDemoted={}",
-        excludedIds.size(), demoted.size());
+    std::vector<AgentId> demoted = _persistence.DemoteControlModeBatch(vanillaOnlyDemotionCandidates);
+    uint32 demotionFailures = 0;
+    for (AgentId const& id : vanillaOnlyDemotionCandidates)
+    {
+        if (std::find(demoted.begin(), demoted.end(), id) == demoted.end())
+        {
+            ++demotionFailures;
+            TC_LOG_ERROR("ai.world", "AI agent id={} is VanillaOnly and was forced to ObserveOnly in memory this run, but the persisted control_mode demotion was not confirmed by read-back - ai_agents drift will be retried on the next startup",
+                id.Value);
+        }
+    }
+
+    // Unconditional summary (unlike RunSpawnReconciliation()'s own log
+    // line, this one is emitted on every startup regardless of
+    // AIWorld.EnableSpawnReconciliation) - vanillaOnlyDemotionFailures is
+    // the field CI should assert ==0 against, since it reflects THIS
+    // unconditional policy phase, not a value only reconciliation reports.
+    TC_LOG_INFO("ai.world", "AI participation control policy: excludedQuarantined={} vanillaOnlyDemoted={} vanillaOnlyDemotionFailures={}",
+        excludedIds.size(), demoted.size(), demotionFailures);
 }
 
 void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
@@ -6033,17 +6051,21 @@ void AIWorldMgr::RunSpawnReconciliation(uint32 zoneId)
             record->Type = confirmedMismatch.second;
     }
 
-    // Runtime participation/scope boundary fix: confirmation pass, not the
-    // primary fix - AIWorldMgr::Initialize()'s own unconditional
-    // ApplyParticipationControlPolicy() already persists a VanillaOnly ->
-    // ObserveOnly demotion (via AgentPersistence::DemoteControlModeBatch(),
-    // batch + read-back confirm) before this ever runs, regardless of
-    // AIWorld.EnableSpawnReconciliation. This should therefore always
-    // report 0 in practice; a nonzero count here means that earlier
-    // demotion was requested but NOT actually confirmed by its own
-    // read-back (see ApplyParticipationControlPolicy()'s own error log for
-    // which agent) - real signal for an operator, not an expected steady
-    // state, unlike excludedEventQuarantined above.
+    // Runtime participation/scope boundary fix: regression tripwire, not
+    // the primary fix - AIWorldMgr::Initialize()'s own unconditional
+    // ApplyParticipationControlPolicy() already forces every VanillaOnly
+    // AgentRecord::ControlMode to ObserveOnly IN MEMORY unconditionally
+    // (before even attempting its own persisted demotion, and regardless
+    // of AIWorld.EnableSpawnReconciliation - see its own comment for why
+    // runtime safety must not depend on a DB write's read-back succeeding).
+    // By the time this pass runs, it is therefore structurally impossible
+    // for a VanillaOnly record to still be AIWorldControlled in memory -
+    // this should always report 0. A nonzero count here would mean that
+    // guarantee itself regressed, not merely that a DB write failed to
+    // confirm (that case is reported separately, as
+    // vanillaOnlyDemotionFailures in ApplyParticipationControlPolicy()'s
+    // own log line - CI asserts against that field, not this one, since it
+    // is emitted unconditionally).
     uint32 vanillaOnlyControlModeViolations = 0;
     for (CreatureSpawnIdentity const& identity : census)
     {
@@ -6090,11 +6112,26 @@ void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)
         if (zoneSpawnIds.find(identity.SpawnId) == zoneSpawnIds.end())
             continue;
 
-        // Runtime participation/scope boundary fix: Excluded (EXCLUDED_EVENT)
-        // and VanillaOnly (e.g. Spirit Healer) are never eligible for
-        // AIWorldControlled ownership, by design - not counted at all here,
-        // never notYetReconciled (an Excluded spawn correctly has NO
-        // AgentRecord at all once AIWorldMgr::Initialize()'s own
+        // Runtime participation/scope boundary fix: TryResolve(), not
+        // Resolve() - this method explicitly activates a chosen zoneId, so
+        // a scoped-eligible SpawnId this catalog has NO data for at all
+        // (e.g. a zone the Elwynn census never covered) must REFUSE the
+        // whole activation the same way a missing AgentRecord already does
+        // below, never silently fall through Resolve()'s own Excluded
+        // fallback and get skipped as if it were a known, deliberately
+        // ineligible spawn - that would let activation for an entirely
+        // unclassified zone "succeed" with 0 eligible/0 promoted instead of
+        // loudly refusing an unknown scope.
+        SpawnParticipationMode participation;
+        if (!_spawnParticipationCatalog.TryResolve(identity.SpawnId, participation))
+        {
+            ++notYetReconciled;
+            continue;
+        }
+
+        // Known and deliberately ineligible for AIWorldControlled ownership
+        // - not counted at all here (an Excluded spawn correctly has NO
+        // AgentRecord once AIWorldMgr::Initialize()'s own
         // ApplyParticipationControlPolicy() has run, so treating its
         // absence as "not yet reconciled" would permanently refuse whole-
         // zone activation for any zone containing one). LightweightBackground
@@ -6102,7 +6139,6 @@ void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)
         // simulation runtime semantics are deliberately not implemented yet
         // (AIWorld_Current_Roadmap.md), so this method cannot yet treat it
         // differently.
-        SpawnParticipationMode participation = _spawnParticipationCatalog.Resolve(identity.SpawnId);
         if (participation == SpawnParticipationMode::Excluded || participation == SpawnParticipationMode::VanillaOnly)
             continue;
 
@@ -6142,7 +6178,7 @@ void AIWorldMgr::RunZoneControlActivation(uint32 zoneId)
     // real AgentRecord first; only then attempt any promotion at all.
     if (notYetReconciled != 0)
     {
-        TC_LOG_ERROR("ai.world", "AI zone control activation REFUSED: zone={} has {} scoped-eligible spawn(s) with no valid AgentRecord yet (run 2.12F4B reconciliation for this zone first) - promoting the rest would leave a partially-Controlled zone",
+        TC_LOG_ERROR("ai.world", "AI zone control activation REFUSED: zone={} has {} scoped-eligible spawn(s) with no valid AgentRecord yet and/or no known SpawnParticipationCatalog classification (run reconciliation for this zone / extend the census first) - promoting the rest would leave a partially-Controlled zone or silently activate an unclassified zone",
             zoneId, notYetReconciled);
         return;
     }

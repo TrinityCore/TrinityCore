@@ -2408,6 +2408,12 @@ Oprava:
 
 **`LightweightBackground` (646 spawnů, PREY_FAUNA) je zatím čistě klasifikační metadata** - runtime nijak neomezuje simulaci/scheduling odlišně od `FullAgent`. Reduced-simulation sémantika je vědomě odložená (žádný kód v `AIWorldMgr` na `LightweightBackground` dnes nijak nereaguje) - budoucí krok, ne implicitní součást tohoto fixu.
 
+**Stav (2026-09-19) — třetí kolo code review, fail-closed runtime vs. persistence:** review odhalil, že `ApplyParticipationControlPolicy()`'s VanillaOnly demotion nastavovala `record->ControlMode = ObserveOnly` v paměti jen pro entries, které `DemoteControlModeBatch()` potvrdil read-backem - při selhání DB zápisu zůstal `AgentRecord` v `_registry` s původním `AIWorldControlled` a `OwnsSpawn()` (rozhoduje čistě podle `AgentRecord::ControlMode`, ne podle DB) by tedy pořád vracel `true`. Runtime safety nesmí záviset na úspěchu persistence.
+
+Oprava: `ApplyParticipationControlPolicy()` teď vynutí `ControlMode = ObserveOnly` v paměti pro VŠECHNY VanillaOnly kandidáty bezpodmínečně, PŘED pokusem o DB zápis - `DemoteControlModeBatch()`'s výsledek se používá jen k reportování `vanillaOnlyDemotionFailures` (persistence drift k dořešení při příštím startu), nikdy k rozhodnutí, jestli je runtime bezpečný. `RunSpawnReconciliation()`'s vlastní `vanillaOnlyControlModeViolations` pass je teď strukturálně nemožné vyvolat (jen regression tripwire, kdyby se garance výše rozbila) - CI asserty se přesunuly na `vanillaOnlyDemotionFailures=0` z `ApplyParticipationControlPolicy()`'s vlastního bezpodmínečného log řádku (nezávislého na `AIWorld.EnableSpawnReconciliation`).
+
+Zároveň opraveno: `RunZoneControlActivation()` používala `Resolve()` (fail-closed fallback = Excluded), takže aktivace zóny mimo dosud klasifikovaný census by tiše proskočila každý neznámý spawn jako "ineligible" a nahlásila by "0 eligible, 0 promoted" místo hlasitého odmítnutí neznámého scope. Teď používá `TryResolve()` - neznámá participation pro scoped-eligible spawn se počítá jako `notYetReconciled` (celá zone activation se odmítne), zatímco explicitně `Excluded`/`VanillaOnly` zůstává tiše ignorováno (správně, ne chyba).
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:

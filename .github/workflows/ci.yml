@@ -287,23 +287,33 @@ jobs:
 
           echo "AIWorld spawn reconciliation (excludedEventQuarantined reported): OK"
 
-          # Unlike excludedEventQuarantined above (deliberately not asserted
-          # ==0 - pre-existing EXCLUDED_EVENT ai_agents rows from before this
-          # fix are consciously left in the DB for manual review, not auto-
-          # repaired), a VanillaOnly agent (Spirit Healer) IS actively
-          # demoted to ObserveOnly with a persisted, read-back-confirmed DB
-          # write (AIWorldMgr::ApplyParticipationControlPolicy(), runs on
-          # every startup regardless of AIWorld.EnableSpawnReconciliation) -
-          # so this is expected to be exactly 0 on every deploy, and a
-          # nonzero value is a real regression, not historical drift.
-          VANILLA_ONLY_VIOLATIONS="$(grep -Eo 'vanillaOnlyControlModeViolations=[0-9]+' <<< "$WORLD_LOGS" | tail -1 | grep -Eo '[0-9]+')"
-          if [ -z "$VANILLA_ONLY_VIOLATIONS" ] || [ "$VANILLA_ONLY_VIOLATIONS" -ne 0 ]; then
-            echo "::error::AIWorld has a VanillaOnly agent that is still AIWorldControlled (vanillaOnlyControlModeViolations=${VANILLA_ONLY_VIOLATIONS:-missing})"
+          # AIWorldMgr::ApplyParticipationControlPolicy()'s own summary line
+          # - unlike the reconciliation-only checks above/below, this one is
+          # emitted on EVERY startup regardless of
+          # AIWorld.EnableSpawnReconciliation, so it is the right thing for
+          # CI to assert against for a config-independent guarantee.
+          # vanillaOnlyDemotionFailures counts a VanillaOnly agent (e.g.
+          # Spirit Healer) whose forced-ObserveOnly-in-memory fix landed
+          # (runtime is always safe regardless) but whose PERSISTED
+          # control_mode demotion was not confirmed by read-back - expected
+          # to be exactly 0 on every deploy; nonzero is a real DB/persistence
+          # regression to investigate, not historical drift (contrast with
+          # excludedEventQuarantined above, which is never asserted ==0).
+          PARTICIPATION_POLICY_LINE="$(grep -E 'AI participation control policy:' <<< "$WORLD_LOGS" | tail -1)"
+          if [ -z "$PARTICIPATION_POLICY_LINE" ]; then
+            echo "::error::AIWorld did not report the unconditional participation control policy summary"
             echo "$WORLD_LOGS" | tail -200
             exit 1
           fi
 
-          echo "AIWorld VanillaOnly ControlMode invariant (vanillaOnlyControlModeViolations=0): OK"
+          VANILLA_ONLY_DEMOTION_FAILURES="$(grep -Eo 'vanillaOnlyDemotionFailures=[0-9]+' <<< "$PARTICIPATION_POLICY_LINE" | grep -Eo '[0-9]+')"
+          if [ -z "$VANILLA_ONLY_DEMOTION_FAILURES" ] || [ "$VANILLA_ONLY_DEMOTION_FAILURES" -ne 0 ]; then
+            echo "::error::AIWorld failed to persist a VanillaOnly ControlMode demotion (vanillaOnlyDemotionFailures=${VANILLA_ONLY_DEMOTION_FAILURES:-missing})"
+            echo "$WORLD_LOGS" | tail -200
+            exit 1
+          fi
+
+          echo "AIWorld VanillaOnly ControlMode invariant (vanillaOnlyDemotionFailures=0, unconditional): OK"
 
           echo
           echo "=== AI controlled agents ==="
