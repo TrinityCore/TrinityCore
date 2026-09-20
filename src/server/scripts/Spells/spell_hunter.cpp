@@ -58,6 +58,7 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_FLARE_DISPEL                       = 132951,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -65,6 +66,7 @@ enum HunterSpells
     SPELL_HUNTER_IMPLOSIVE_TRAP_DAMAGE              = 462033,
     SPELL_HUNTER_INTIMIDATION                       = 19577,
     SPELL_HUNTER_INTIMIDATION_MARKSMANSHIP          = 474421,
+    SPELL_HUNTER_KINDLING_FLARE                     = 459506,
     SPELL_HUNTER_LATENT_POISON_STACK                = 378015,
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
@@ -440,6 +442,25 @@ class spell_hun_explosive_shot : public AuraScript
     }
 };
 
+// 132950 - Flare
+// Ids - 510 and 35958
+struct at_hun_legion_flare : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                unit->CastSpell(unit, SPELL_HUNTER_FLARE_DISPEL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnUnitExit(Unit* target) override
+    {
+        target->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
+    }
+};
+
 // 236775 - High Explosive Trap
 // 9810 - AreatriggerId
 struct areatrigger_hun_high_explosive_trap : AreaTriggerAI
@@ -514,6 +535,33 @@ struct areatrigger_hun_implosive_trap : AreaTriggerAI
                 at->Remove();
             }
         }
+    }
+};
+
+// 459506 - Kindling Flare (attached to 132950 - Flare)
+class spell_hun_kindling_flare : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_KINDLING_FLARE });
+    }
+
+    void HandleFlare(SpellEffIndex effIndex)
+    {
+        if (GetCaster()->HasAura(SPELL_HUNTER_KINDLING_FLARE))
+            PreventHitEffect(effIndex);
+    }
+
+    void HandleKindlingFlare(SpellEffIndex effIndex)
+    {
+        if (!GetCaster()->HasAura(SPELL_HUNTER_KINDLING_FLARE))
+            PreventHitEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_hun_kindling_flare::HandleFlare, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+        OnEffectLaunch += SpellEffectFn(spell_hun_kindling_flare::HandleKindlingFlare, EFFECT_1, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
 
@@ -1473,9 +1521,11 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
+    RegisterAreaTriggerAI(at_hun_legion_flare);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
+    RegisterSpellScript(spell_hun_kindling_flare);
     RegisterSpellScript(spell_hun_last_stand_pet);
     RegisterSpellScript(spell_hun_latent_poison_damage);
     RegisterSpellScript(spell_hun_latent_poison_trigger);
