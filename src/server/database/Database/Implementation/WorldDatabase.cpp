@@ -127,6 +127,12 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // AgentTypeCatalog (keyed by SpawnId here, not CreatureEntry - see that
     // catalog's own comment for why).
     PrepareStatement(WORLD_SEL_AI_SPAWN_PARTICIPATION_DEFAULTS, "SELECT spawn_id, participation_mode FROM ai_spawn_participation_defaults", CONNECTION_SYNCH);
+
+    // AI WorldFactionRelationCatalog's own startup-only bulk read of the
+    // whole static WorldFaction diplomacy matrix - one query, not one per
+    // (from, to) pair, the same shape WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS
+    // above already provides for WorldFactionCatalog.
+    PrepareStatement(WORLD_SEL_AI_WORLD_FACTION_RELATIONS, "SELECT from_world_faction_id, to_world_faction_id, relation FROM ai_world_faction_relations", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
 }

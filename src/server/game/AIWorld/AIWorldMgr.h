@@ -49,6 +49,7 @@
 #include "Event/WorldEvent.h"
 #include "Agent/AgentTypeCatalog.h"
 #include "Faction/WorldFactionCatalog.h"
+#include "Faction/WorldFactionRelationCatalog.h"
 #include "Reconciliation/SpawnParticipationCatalog.h"
 #include "Goal/FoodTargetResolver.h"
 #include "Goal/GoalSystem.h"
@@ -3017,6 +3018,17 @@ class TC_GAME_API AIWorldMgr
         // _registry (never a DB write) - see SpawnReconciliationPlan::
         // ExcludedButBound/ExcludedSkippedCount for the actual boundary.
         SpawnParticipationCatalog _spawnParticipationCatalog;
+
+        // WorldFactionRelationCatalog vertical slice (AIWorld_Current_
+        // Roadmap.md) - one world DB read at Initialize(), same lifecycle
+        // as the catalogs above. Deliberately has NO caller yet: this is
+        // only the static WorldFaction <-> WorldFaction diplomacy layer,
+        // loaded and ready to Resolve() - player membership, the
+        // TrinityCore ReputationMgr bridge, and any combat/behavior
+        // decision built on top of it are separate, later steps. Loading
+        // it unconditionally now (rather than only once a consumer exists)
+        // matches _worldFactionCatalog/_agentTypeCatalog's own precedent.
+        WorldFactionRelationCatalog _worldFactionRelationCatalog;
 
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity

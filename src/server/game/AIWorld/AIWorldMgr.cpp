@@ -1385,6 +1385,12 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // see _spawnParticipationCatalog's own declaration comment.
     _spawnParticipationCatalog.Load();
 
+    // WorldFactionRelationCatalog vertical slice: one world DB read, same
+    // reasoning/lifecycle as the Load() calls above - see
+    // _worldFactionRelationCatalog's own declaration comment. No consumer
+    // yet, loaded anyway for the same reason the other catalogs are.
+    _worldFactionRelationCatalog.Load();
+
     // Runtime participation/scope boundary fix: unconditional, NOT gated
     // behind AIWorld.EnableSpawnReconciliation below - see
     // ApplyParticipationControlPolicy()'s own comment for why a safety

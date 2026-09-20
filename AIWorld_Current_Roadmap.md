@@ -2414,6 +2414,18 @@ Oprava: `ApplyParticipationControlPolicy()` teď vynutí `ControlMode = ObserveO
 
 Zároveň opraveno: `RunZoneControlActivation()` používala `Resolve()` (fail-closed fallback = Excluded), takže aktivace zóny mimo dosud klasifikovaný census by tiše proskočila každý neznámý spawn jako "ineligible" a nahlásila by "0 eligible, 0 promoted" místo hlasitého odmítnutí neznámého scope. Teď používá `TryResolve()` - neznámá participation pro scoped-eligible spawn se počítá jako `notYetReconciled` (celá zone activation se odmítne), zatímco explicitně `Excluded`/`VanillaOnly` zůstává tiše ignorováno (správně, ne chyba).
 
+**Stav (2026-09-20) — `WorldFactionRelationCatalog` vertical slice:** první runtime vrstva pro statickou diplomacii mezi WorldFactions - záměrně minimální a izolovaná: žádný player join, žádný `ReputationMgr` override, žádná combat/behavior změna. `WorldFactionRelation` enum (`Neutral`/`Friendly`/`Hostile`) + `WorldFactionRelationCatalog` (mirror `WorldFactionCatalog`, `src/server/game/AIWorld/Faction/`) natažený z nové `world.ai_world_faction_relations` (generováno `tools/elwynn/build_world_faction_relations_defaults.py` z `world_faction_relations.csv`, 8 směrovaných řádků). `Resolve(from, to)` pravidla: stejná nenulová faction → `Friendly` (nikdy lookup do tabulky); explicitní řádek → jeho hodnota; jinak → `Neutral` (chybějící cross-faction i `Unaffiliated` na kterékoliv straně). Relace je záměrně nesymetrická - obousměrná hostilita je v CSV dva řádky, ne odvozená.
+
+Resoluční logika je vytažená do čisté funkce `ResolveWorldFactionRelation(from, to, relations)` mimo `Load()`/DB závislost - stejný "pure value logic" seam, jaký už `PerceptionSystem::ObserveDirectedEvent()` používá pro Catch2 pokrytí bez potřeby živé DB connection v testovacím sandboxu. Nový `tests/game/WorldFactionRelationCatalog.cpp` zamyká přesně tuhle sémantiku - Stormwind↔Defias/Riverpaw/Kobolds/Murlocs `HOSTILE` oběma směry, `Defias→Kobolds`/`Kobolds→Murlocs` `NEUTRAL`, `Defias→Defias` `FRIENDLY`, `Unaffiliated` na kterékoliv straně `NEUTRAL`, a `MakeWorldFactionRelationKey` je nesymetrický.
+
+```text
+ai_world_faction_relations SQL      STATIC PASS  (8 entries, cross-checked proti world_faction_relations.csv)
+WorldFactionRelationCatalog Load()  STATIC PASS  (kompilace ověřena, runtime Load() proti živé world DB PENDING)
+Catch2 unit testy                   PASS (lokálně přes tests/game/WorldFactionRelationCatalog.cpp, viz acceptance níže)
+```
+
+`_worldFactionRelationCatalog` je členem `AIWorldMgr`, `Load()` se volá unconditionally v `Initialize()` (stejný vzor jako ostatní katalogy) - ale zatím nemá žádného callera. Player WorldFaction membership, `PlayerFactionRelationResolver` a `ReputationMgr::ApplyForceReaction()` bridge jsou vědomě další, oddělené kroky - viz "Hráč a frakce — Etapa 4" výše.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
