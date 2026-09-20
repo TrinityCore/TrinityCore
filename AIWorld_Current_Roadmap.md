@@ -2441,6 +2441,17 @@ PlayerWorldFactionPersistence       STATIC PASS (kompilace ověřena, runtime Jo
 
 Další krok (samostatný commit): `PlayerFactionRelationResolver` nad `PlayerWorldFactionPersistence` + `WorldFactionRelationCatalog` + existující TrinityCore reputation, teprve poté `ReputationMgr::ApplyForceReaction()` bridge.
 
+**Stav (2026-09-20) — identity/lifecycle hardening před resolverem:** code review odhalil dvě persistentní-identity mezery, obě opravené před pokračováním na `PlayerFactionRelationResolver`. (1) Všechny tři metody `PlayerWorldFactionPersistence` dnes používaly `characterGuid.GetCounter()` bez `IsPlayer()` kontroly - `ai_player_world_faction` je keyed jen podle low GUID counteru, který si Creature/GameObject/... `ObjectGuid` může sdílet se zcela nesouvisejícím hráčem. Opraveno: `LoadMembership()`/`Join()`/`Leave()` teď fail-closed odmítnou non-Player GUID (`LoadMembership` → `Unaffiliated` + log, `Join`/`Leave` → `false` + log, bez jakéhokoliv DB přístupu). (2) `Player::DeleteFromDB()`'s `CHAR_DELETE_REMOVE` (definitivní smazání) mazal `character_reputation` a desítky dalších tabulek, ale ne `ai_player_world_faction` - protože `ObjectMgr::SetHighestGuids()` po restartu znovu použije `MAX(guid)` z `characters`, definitivně smazaná postava s nejvyšším GUID by mohla nechat nový hráč zdědit stará membership data. Přidán `CHAR_DEL_AI_PLAYER_WORLD_FACTION` do stejné transakce hned vedle `CHAR_DEL_CHAR_REPUTATION` - `CHAR_DELETE_UNLINK` (soft delete/restore) záměrně beze změny, membership přežívá stejně jako reputation.
+
+Menší oprava zároveň: `Join()` do stejné faction, kterou hráč už má, je teď idempotentní no-op (nepřepisuje `joined_at` přes `REPLACE INTO`'s implicitní DELETE+INSERT).
+
+Architektonická poznámka pro `PlayerFactionRelationResolver` (další krok, zatím žádný kód): `PlayerWorldFactionPersistence` zůstává čistě DB adaptér se synchronními dotazy - resolver by ji NEMĚL volat přímo z gameplay/reaction cesty (`LoadMembership()` per rozhodnutí by byl synchronní DB dotaz z hot pathu). Membership by měl držet jako runtime cache/registry hodnotu (`WorldFactionId`), kterou resolver dostane jako parametr - žádný `Player*` by neměl překročit hranici čisté resoluční logiky, stejně jako `WorldFactionRelationCatalog::Resolve()` dnes nebere nic jiného než hodnoty.
+
+```text
+PlayerWorldFactionPersistence IsPlayer() guard   STATIC PASS
+Player::DeleteFromDB() cleanup                   STATIC PASS (kompilace ověřena, runtime delete->restart->GUID reuse test PENDING)
+```
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:

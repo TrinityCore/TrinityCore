@@ -4137,6 +4137,20 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
+            // AI player WorldFaction membership (AIWorld_Current_Roadmap.md) -
+            // must be cleaned up on a FINAL delete the same as
+            // character_reputation immediately above: ObjectMgr::SetHighestGuids()
+            // reseeds the next Player low GUID from MAX(guid) in `characters`
+            // after a restart, so a permanently deleted character's low GUID
+            // can be reassigned to a brand-new character - which must never
+            // inherit a stale WorldFaction membership row keyed by that same
+            // low GUID. Deliberately NOT added to the CHAR_DELETE_UNLINK case
+            // below (soft delete) - a character pending restore should keep
+            // its membership, the same as it keeps its reputation.
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);

@@ -21,6 +21,17 @@
 
 WorldFactionId PlayerWorldFactionPersistence::LoadMembership(ObjectGuid characterGuid)
 {
+    // Fail closed: ai_player_world_faction is keyed by the low GUID counter
+    // alone, which a non-Player ObjectGuid (Creature, GameObject, ...) can
+    // share with an unrelated player - see this class's own header comment.
+    // Never query with an unchecked counter.
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: LoadMembership() called with a non-Player ObjectGuid ({}), refusing to query - treated as Unaffiliated",
+            characterGuid.ToString());
+        return WorldFactions::Unaffiliated;
+    }
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
     stmt->setUInt32(0, characterGuid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -33,6 +44,13 @@ WorldFactionId PlayerWorldFactionPersistence::LoadMembership(ObjectGuid characte
 
 bool PlayerWorldFactionPersistence::Join(ObjectGuid characterGuid, WorldFactionId faction)
 {
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: Join() called with a non-Player ObjectGuid ({}), refusing - no DB access attempted",
+            characterGuid.ToString());
+        return false;
+    }
+
     // "Joining" Unaffiliated is nonsensical - Unaffiliated is the absence
     // of membership, not a WorldFaction a character can belong to. Refuse
     // before any DB access, the same "never write a row that would violate
@@ -44,6 +62,15 @@ bool PlayerWorldFactionPersistence::Join(ObjectGuid characterGuid, WorldFactionI
             characterGuid.GetCounter());
         return false;
     }
+
+    // Idempotent no-op if already a member of `faction`: joined_at marks
+    // the start of the CURRENT membership, so a retried/duplicate Join()
+    // to the same faction must not reset it via REPLACE INTO's own DELETE+
+    // INSERT semantics. characterGuid is already known to be a Player GUID
+    // here, so this LoadMembership() call cannot itself hit the IsPlayer()
+    // guard above.
+    if (LoadMembership(characterGuid) == faction)
+        return true;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_AI_PLAYER_WORLD_FACTION);
     stmt->setUInt32(0, characterGuid.GetCounter());
@@ -65,6 +92,13 @@ bool PlayerWorldFactionPersistence::Join(ObjectGuid characterGuid, WorldFactionI
 
 bool PlayerWorldFactionPersistence::Leave(ObjectGuid characterGuid)
 {
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: Leave() called with a non-Player ObjectGuid ({}), refusing - no DB access attempted",
+            characterGuid.ToString());
+        return false;
+    }
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION);
     stmt->setUInt32(0, characterGuid.GetCounter());
     CharacterDatabase.DirectExecute(stmt);
