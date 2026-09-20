@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI World Observer · Elwynn Forest</title>
+  <link rel="stylesheet" href="/static/viewer.css">
+  <script src="/static/viewer.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon">✦</span><div><strong>AI WORLD OBSERVER</strong><small>ELWYNN FOREST · READ ONLY</small></div></div>
+    <div class="connection"><span id="status-dot" class="status-dot waiting"></span><span id="status-text">Čekám na telemetrii</span><span id="updated-text" class="updated"></span></div>
+  </header>
+
+  <main class="layout">
+    <aside class="filters panel">
+      <div class="panel-heading"><span class="eyebrow">POHLED NA SVĚT</span><h1>Elwynn Forest</h1><p>Každý bod představuje jeden AgentId. Poloha je převzatá z posledního snímku worldserveru.</p></div>
+      <div class="counts">
+        <div><strong id="total-count">0</strong><span>agentů</span></div>
+        <div><strong id="live-count">0</strong><span>live</span></div>
+        <div><strong id="background-count">0</strong><span>background</span></div>
+      </div>
+      <div class="section-title">FILTRY <button id="reset-filters" type="button">Reset</button></div>
+      <label class="field">Jméno nebo AgentId<input id="search" type="search" placeholder="Hledat NPC…" autocomplete="off"></label>
+      <label class="field">Typ agenta<select id="type-filter"><option value="">Všechny typy</option></select></label>
+      <label class="field">Frakce<select id="faction-filter"><option value="">Všechny frakce</option></select></label>
+      <label class="check"><input id="live-filter" type="checkbox"><span>Jen live pozice</span></label>
+      <label class="check"><input id="combat-filter" type="checkbox"><span>V boji</span></label>
+      <label class="check"><input id="goal-filter" type="checkbox"><span>Aktivní cíl</span></label>
+      <label class="check"><input id="hunger-filter" type="checkbox"><span>Hlad nad 0,7</span></label>
+      <div class="legend"><div class="section-title">LEGENDA</div><div><span class="legend-dot live"></span> Skutečná live pozice</div><div><span class="legend-dot background"></span> Spawn / poslední známá</div><div><span class="legend-dot combat"></span> V boji</div></div>
+    </aside>
+
+    <section class="map-section panel" aria-label="Souřadnicová mapa Elwynn Forest">
+      <div class="map-toolbar"><div><span class="eyebrow">MAP ID 0 · ZONE 12</span><h2>Souřadnicová mapa</h2></div><div class="map-actions"><span id="visible-count">0 zobrazeno</span><button id="reset-view" type="button" title="Obnovit přiblížení">↺ Obnovit pohled</button></div></div>
+      <div class="map-frame"><canvas id="map" aria-label="Mapa agentů"></canvas><div id="map-empty" class="map-empty">Čekám na první snímek worldserveru…</div><div class="map-caption">Schématický podklad · body používají skutečné souřadnice X/Y · kolečko pro přiblížení, tažením posun</div></div>
+      <div class="map-footer"><span id="capture-time">Bez snímku</span><span>Zdroj polohy je uveden v detailu NPC</span></div>
+    </section>
+
+    <aside class="detail panel"><div class="section-title">DETAIL AGENTA</div><div id="detail-empty" class="detail-empty"><span class="detail-symbol">⌖</span><h2>Vyberte bod na mapě</h2><p>Kliknutím zobrazíte stav, potřeby, cíl a aktuální akci NPC.</p></div><div id="detail-content" hidden>
+      <div class="agent-heading"><span id="detail-type" class="tag"></span><h2 id="detail-name"></h2><div id="detail-source" class="source"></div></div>
+      <dl class="facts"><div><dt>AgentId</dt><dd id="detail-id"></dd></div><div><dt>SpawnId</dt><dd id="detail-spawn"></dd></div><div><dt>Entry</dt><dd id="detail-entry"></dd></div><div><dt>WorldFaction</dt><dd id="detail-faction"></dd></div><div><dt>ControlMode</dt><dd id="detail-control"></dd></div><div><dt>WorldState</dt><dd id="detail-state"></dd></div><div><dt>SimulationTier</dt><dd id="detail-tier"></dd></div><div><dt>GroupId</dt><dd id="detail-group"></dd></div></dl>
+      <div class="detail-section"><div class="section-title">STAV</div><div class="status-row"><span id="detail-health"></span><span id="detail-combat"></span></div><div id="detail-position" class="position"></div></div>
+      <div class="detail-section"><div class="section-title">POTŘEBY</div><div id="needs"></div></div>
+      <div class="detail-section"><div class="section-title">ROZHODOVÁNÍ</div><dl class="facts"><div><dt>Cíl</dt><dd id="detail-goal"></dd></div><div><dt>Utility</dt><dd id="detail-utility"></dd></div><div><dt>Akce</dt><dd id="detail-action"></dd></div><div><dt>Rutina</dt><dd id="detail-routine"></dd></div></dl></div>
+    </div></aside>
+  </main>
+</body>
+</html>

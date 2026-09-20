@@ -76,6 +76,7 @@ services:
     environment:
       TC_DB_USER: ${TC_DB_USER:-trinity}
       TC_DB_PASSWORD: ${TC_DB_PASSWORD:-trinity}
+      WORLD_VIEWER_TELEMETRY_TOKEN: ${WORLD_VIEWER_TELEMETRY_TOKEN:-}
     volumes:
       - build-data:/build
       - ./deploy/worldserver.conf:/etc/trinitycore/worldserver.conf:ro
@@ -139,6 +140,22 @@ services:
     # Internal only: worldserver reaches it at http://ai-server:8000 over the
     # Compose network. Publish AI_SERVER_PORT yourself if you need to hit
     # /health from the host while developing.
+
+  world-viewer:
+    build:
+      context: docker/world-viewer
+    restart: unless-stopped
+    environment:
+      # Without a token the ingest endpoint rejects all POSTs. Configure the
+      # same value for worldserver in .env before enabling telemetry export.
+      WORLD_VIEWER_TELEMETRY_TOKEN: ${WORLD_VIEWER_TELEMETRY_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "127.0.0.1:${WORLD_VIEWER_PORT:-8090}:8000"
 
   account-web:
     build:

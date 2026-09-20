@@ -38,6 +38,7 @@
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "PathGenerator.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
@@ -50,6 +51,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <optional>
 #include <string>
@@ -1359,6 +1361,20 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
 
     _aiClient = std::make_unique<AIClient>(ioContext, aiHost, aiPort, uint32(requestTimeoutMs), _decisionMaxInFlight, dynamicTaskSlots);
 
+    // Opt-in observer. The token is supplied through the process environment
+    // so it never has to be written to the worldserver configuration file.
+    // A missing token fails closed even if the feature flag was enabled.
+    if (sConfigMgr->GetBoolDefault("AIWorld.TelemetryEnabled", false))
+    {
+        char const* token = std::getenv("WORLD_VIEWER_TELEMETRY_TOKEN");
+        if (token && *token)
+            _telemetryExporter = std::make_unique<TelemetryExporter>(ioContext,
+                sConfigMgr->GetStringDefault("AIWorld.TelemetryHost", "world-viewer"),
+                sConfigMgr->GetStringDefault("AIWorld.TelemetryPort", "8000"), token);
+        else
+            TC_LOG_WARN("ai.world", "AIWorld.TelemetryEnabled requires WORLD_VIEWER_TELEMETRY_TOKEN; telemetry disabled");
+    }
+
     TC_LOG_INFO("ai.world", "AIWorld enabled");
 
     // Rebuild _registry from characters.ai_agents before touching anything
@@ -1908,6 +1924,15 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
         aiHost, aiPort, requestTimeoutMs, _healthIntervalMs, _decisionMaxInFlight,
         _decisionSchedulerIntervalMs, _decisionNearbyIntervalMs, _decisionActiveIntervalMs, _decisionNearbyPlayerRange,
         _backgroundSimulationIntervalMs, _groupSimulationIntervalMs, _coarseSimulationMaxPerPass);
+
+    // A startup-only zone identity read, not a live-state database poll.
+    // Runtime position/needs/goal/action still come only from world-thread
+    // value snapshots. Elwynn's zoneId is 12 in the current V1 scope.
+    if (_telemetryExporter)
+    {
+        _telemetrySpawnIds = FetchCreatureSpawnIdsForZone(12);
+        TC_LOG_INFO("ai.world", "AI World telemetry scoped to {} Elwynn spawn ids", _telemetrySpawnIds.size());
+    }
 
     // Last step: only from here on can PublishWorldEvent() actually enqueue
     // anything. Ordered after everything above so a map worker can't race
@@ -8603,6 +8628,91 @@ void AIWorldMgr::Update(uint32 diff)
         // this still never calls ActionExecutor.
         ValidateDecisionIntent(response.Agent, *record, response);
     }
+
+    if (_telemetryExporter)
+    {
+        _telemetryTimer += diff;
+        if (_telemetryTimer >= 1000)
+        {
+            _telemetryTimer = 0;
+            if (!_telemetryExporter->Busy())
+                CaptureTelemetry();
+        }
+    }
+}
+
+void AIWorldMgr::CaptureTelemetry()
+{
+    std::vector<AgentTelemetrySnapshot> snapshots;
+    std::vector<AgentId> ids = _registry.GetAgents();
+    snapshots.reserve(std::min(ids.size(), _telemetrySpawnIds.size()));
+    Map* elwynnMap = sMapMgr->FindBaseNonInstanceMap(0);
+    for (AgentId id : ids)
+    {
+        AgentRecord const* record = _registry.Find(id);
+        if (!record || record->MapId != 0 || record->ControlMode != AgentControlMode::AIWorldControlled ||
+            _telemetrySpawnIds.find(record->SpawnId) == _telemetrySpawnIds.end())
+            continue;
+
+        CreatureData const* spawn = sObjectMgr->GetCreatureData(uint32(record->SpawnId));
+        if (!spawn)
+            continue;
+
+        AgentTelemetrySnapshot item;
+        item.Agent = id;
+        item.SpawnId = record->SpawnId;
+        item.Entry = spawn->id;
+        if (CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(item.Entry))
+            item.Name = creatureTemplate->Name;
+        item.Type = record->Type;
+        item.ControlMode = record->ControlMode;
+        item.WorldFaction = record->WorldFaction;
+        item.MapId = record->MapId;
+        item.SpawnX = spawn->spawnPoint.GetPositionX();
+        item.SpawnY = spawn->spawnPoint.GetPositionY();
+        item.SpawnZ = spawn->spawnPoint.GetPositionZ();
+        item.Needs = record->Needs;
+        if (record->ActiveGoalState)
+        {
+            item.Goal = record->ActiveGoalState->Type;
+            item.GoalUtility = record->ActiveGoalState->Utility;
+        }
+        if (record->RoutineGoalState)
+            item.RoutineGoal = record->RoutineGoalState->Type;
+        if (record->ActiveActionState)
+            item.Action = record->ActiveActionState->Type;
+        std::vector<GroupId> groups = _groupRegistry.GetGroupsOfMember(id);
+        if (!groups.empty())
+            item.GroupId = std::min_element(groups.begin(), groups.end())->Value;
+
+        // GetCreatureBySpawnId only checks already-loaded map state. This
+        // capture never loads a grid to satisfy the viewer.
+        if (Creature* creature = ResolveLiveCreature(*record, elwynnMap))
+        {
+            AgentSnapshot live;
+            live.Agent = id;
+            live.SpawnId = record->SpawnId;
+            live.Entry = creature->GetEntry();
+            live.MapId = creature->GetMapId();
+            live.X = creature->GetPositionX();
+            live.Y = creature->GetPositionY();
+            live.Z = creature->GetPositionZ();
+            live.Orientation = creature->GetOrientation();
+            live.Health = creature->GetHealth();
+            live.MaxHealth = creature->GetMaxHealth();
+            live.Alive = creature->IsAlive();
+            live.InCombat = creature->IsInCombat();
+            live.SnapshotSequence = record->SnapshotSequence;
+            item.Live = live;
+            item.WorldState = AgentWorldState::Materialized;
+            auto tier = _agentSimulationTier.find(id.Value);
+            item.Tier = tier != _agentSimulationTier.end() && tier->second != SimulationTier::Background
+                ? tier->second : SimulationTier::Active;
+        }
+        snapshots.push_back(std::move(item));
+    }
+
+    _telemetryExporter->Submit(std::move(snapshots), CurrentTimeMs());
 }
 
 // Milestone 2.9C: translates a structured DecisionIntent into an

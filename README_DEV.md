@@ -326,6 +326,12 @@ Expect every test to report `ok` and a final `OK` summary line.
 
 AIWorld settings are versioned in `deploy/worldserver.conf` and mirrored in `src/server/worldserver/worldserver.conf.dist`.
 
+### AI World Observer
+
+`world-viewer` serves a read-only Elwynn agent map at `http://127.0.0.1:${WORLD_VIEWER_PORT:-8090}`. The container can start without telemetry; it shows a waiting state until a snapshot arrives. To enable live data, set a long random `WORLD_VIEWER_TELEMETRY_TOKEN` in `.env`, then set `AIWorld.TelemetryEnabled = 1` in `deploy/worldserver.conf` and restart `worldserver`. The same token is passed to both containers by Compose and is required on `POST /internal/telemetry`. The viewer port is bound to localhost by default.
+
+The world thread captures AI-controlled Elwynn agents once per second and hands value-only snapshots to a bounded asynchronous HTTP exporter. The Elwynn spawn ID scope is read once at startup from `creature.zoneId = 12`; those zone IDs must be current for all expected agents to appear. Capture never loads grids. `live` positions and combat/health data come from a currently resolved Creature; `spawn` positions are authoritative spawn coordinates for an abstract agent and are never presented as a current location. The viewer keeps only the latest snapshot in memory, displays its age, and has no NPC control API. It does not query the database for live state.
+
 The subsystem can be disabled:
 
 ```ini

@@ -82,6 +82,7 @@
 #include "Scheduler/SimulationScheduleState.h"
 #include "Scheduler/SimulationTier.h"
 #include "Scheduler/StableAgentHash.h"
+#include "Telemetry/TelemetryExporter.h"
 #include <array>
 #include <atomic>
 #include <functional>
@@ -232,6 +233,7 @@ class TC_GAME_API AIWorldMgr
         void ProcessObservation(Observation const& observation);
         void ScanNearbyEntities();
         void UpdateNeeds(uint32 elapsedMs);
+        void CaptureTelemetry();
         void ProcessActionEngineEvent(ActionEngineEvent const& event);
         void HandleActionCompletion(AgentRecord& record, ActionCompletion const& completion);
         void TryEat(AgentRecord& record, Creature& creature, PendingEatContinuation const& pending, uint64 nowMs);
@@ -3893,6 +3895,9 @@ class TC_GAME_API AIWorldMgr
         // (see Main.cpp), so there is no safe moment left to tear it down
         // early. Setting _enabled = false just stops new submissions.
         std::unique_ptr<AIClient> _aiClient;
+        std::unique_ptr<TelemetryExporter> _telemetryExporter;
+        uint32 _telemetryTimer = 0;
+        std::unordered_set<uint64> _telemetrySpawnIds;
 
         uint32 _healthIntervalMs = 10000;
         uint32 _healthTimer = 0;
