@@ -2375,8 +2375,10 @@ creature_onkill_reputation SQL      STATIC PASS  (32 entries, cross-checked prot
 kill -> ReputationMgr cesta         RUNTIME PASS  (správná faction 1201-1204, okamžitá client update)
 hodnota/sign reputation             FAIL -> FIXED (bylo +1, opraveno na -1, viz 2026_09_21_00_world.sql)
 magnituda vs. CalculatePct rounding FAIL -> FIXED (-1 se ořezávalo na 0 přes racial modifier, opraveno na -10, viz 2026_09_21_01_world.sql)
-opravená hodnota re-test            PENDING       (další kill po obou opravách ještě neproběhl)
+opravená hodnota re-test            RUNTIME PASS  (-10 potvrzeno živým killem, včetně Human Diplomacy racial modifieru - standing se reálně sníží)
 ```
+
+**Kill-reputation vertical slice uzavřen (2026-09-21):** `NPC patří do custom WorldFaction → NPC reaguje podle ní → hráč vidí reputation bar → zabití NPC reálně mění reputaci → změna se persistentně uloží` je teď celé RUNTIME PASS, ověřeno včetně edge case (Human racial modifier), ne jen "happy path" bez modifierů. Žádný další kód tu není potřeba - `-10`/kill je finální V1 baseline pro `DEFIAS_BROTHERHOOD`/`RIVERPAW_GNOLLS`/`ELWYNN_KOBOLDS`/`ELWYNN_MURLOCS`.
 
 **Stav (2026-09-19) — AgentType identity fix (HOSTILE_HUMANOID zrušen):** hostilita není vlastnost agenta, je to dynamicky počítaný vztah mezi dvěma stranami - census kategorie `HOSTILE_HUMANOID` (32 templatů/658 spawnů) tohle porušovala, protože kódovala aktuální vanilla reakci do identity NPC místo role. `tools/elwynn/build_census_classification.py` teď má explicitní `ROLE_OVERRIDES` mapu (entry → category/role) pro těchto 32 entries, fail-closed (`raise SystemExit`, pokud nová entry spadne do stejné heuristiky bez overridu) - výsledek je `CIVILIAN` (7 templatů, non-combat role jako miner/worker/forager) nebo `COMBATANT` (25 templatů, bandit/caster/scout/...). `world_faction_assignments.csv` beze změny - `WorldFactionId` byl u všech 32 entries už správně přiřazený nezávisle na téhle kategorii.
 
