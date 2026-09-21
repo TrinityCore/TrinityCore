@@ -240,6 +240,23 @@ class TC_GAME_API AIWorldMgr
         };
         std::optional<GroupDebugInfo> DescribeGroup(GroupId id) const;
 
+        // On-demand, read-only WolfLoose diagnostic. A proposal is a snapshot,
+        // not a promise that the next async formation pass will admit this agent.
+        struct WolfFormationDebugInfo
+        {
+            AgentControlMode ControlMode = AgentControlMode::ObserveOnly;
+            uint32 ExpectedEntry = 0;
+            uint32 MinMembers = 0;
+            float FormationRadius = 0.0f;
+            float Hunger = 0.0f;
+            bool LivingEnabled = false;
+            std::optional<uint32> NearbyEligibleIncludingSelf;
+            char const* Goal = "NONE";
+            char const* Action = "NONE";
+            char const* FormationState = "UNKNOWN";
+        };
+        std::optional<WolfFormationDebugInfo> DescribeWolfFormation(Creature const& creature) const;
+
         // Thin Manual-only wrappers around the otherwise-private
         // RequestJoinGroupWithPolicy()/RequestLeaveGroupWithPolicy() below -
         // AgentGroupOperationSource::Manual is baked in here rather than
@@ -1824,7 +1841,7 @@ class TC_GAME_API AIWorldMgr
         // resolve is simply absent from the returned list, the same as if
         // it did not exist for this pass at all - an unload must never be
         // misread as a formation-relevant fact.
-        std::vector<CoalitionCandidate> CollectCoalitionCandidates();
+        std::vector<CoalitionCandidate> CollectCoalitionCandidates() const;
 
         // Milestone 2.12E4R (STATIC review): replaces the old wolf-only
         // IsMemberOfAnyLooseGroup() - builds a one-off O(1)-lookup set of

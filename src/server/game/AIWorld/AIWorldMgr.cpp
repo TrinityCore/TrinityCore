@@ -3027,6 +3027,86 @@ std::vector<GroupId> AIWorldMgr::GetGroupsOfAgent(AgentId id) const
     return _groupRegistry.GetGroupsOfMember(id);
 }
 
+std::optional<AIWorldMgr::WolfFormationDebugInfo> AIWorldMgr::DescribeWolfFormation(Creature const& creature) const
+{
+    AgentRecord const* record = _registry.FindBySpawn(creature.GetMapId(), creature.GetSpawnId());
+    if (!record)
+        return std::nullopt;
+
+    CoalitionFormationProfile const& profile = _wolfLooseFormationProfile;
+    WolfFormationDebugInfo info;
+    info.ControlMode = record->ControlMode;
+    info.ExpectedEntry = profile.CreatureEntry;
+    info.MinMembers = profile.MinMembers;
+    info.FormationRadius = profile.FormationRadius;
+    info.Hunger = record->Needs.Hunger;
+    info.LivingEnabled = _livingWolvesEnabled;
+    if (record->ActiveGoalState)
+        info.Goal = ToString(record->ActiveGoalState->Type);
+    else if (record->GroupCoordinationGoalState)
+        info.Goal = ToString(record->GroupCoordinationGoalState->Type);
+    if (record->ActiveActionState)
+        info.Action = ToString(record->ActiveActionState->Type);
+
+    if (!_enabled)
+        info.FormationState = "AIWORLD_DISABLED";
+    else if (creature.GetEntry() != profile.CreatureEntry)
+        info.FormationState = "ENTRY_MISMATCH";
+    else if (record->WorldFaction != profile.RequiredWorldFaction)
+        info.FormationState = "FACTION_MISMATCH";
+    else if (record->ControlMode != AgentControlMode::AIWorldControlled)
+        info.FormationState = "OBSERVE_ONLY";
+    else if (!creature.IsAlive())
+        info.FormationState = "ACTOR_DEAD";
+    else if (record->WorldState != AgentWorldState::Materialized || record->RuntimeGuid != creature.GetGUID())
+        info.FormationState = "NOT_BOUND_TO_CURRENT_CREATURE";
+    else
+    {
+        std::unordered_set<uint64> excluded = CollectMemberIdsOfKind(profile.Kind);
+        if (excluded.count(record->Id.Value))
+            info.FormationState = "ALREADY_IN_LOOSE_GROUP";
+        else if (!_wolfGroupAutoFormation)
+            info.FormationState = "AUTOFORMATION_DISABLED";
+        else if (_formationReservedMembers.count(CoalitionFormationReservationKey{ record->Id.Value, profile.Kind }))
+            info.FormationState = "MEMBER_RESERVED";
+        else if (_formationInFlight.count(profile.Id))
+            info.FormationState = "PROFILE_FORMATION_IN_FLIGHT";
+        else if (_formationInFlight.size() >= _coalitionFormationMaxInFlight)
+            info.FormationState = "GLOBAL_FORMATION_BUDGET_BUSY";
+        else
+        {
+            // Reuse production discovery and proposal selection, without binding
+            // creatures, creating groups, writing DB state, or loading any grids.
+            std::vector<CoalitionCandidate> eligible;
+            uint32 nearby = 0;
+            for (CoalitionCandidate const& candidate : CollectCoalitionCandidates())
+            {
+                if (excluded.count(candidate.Id.Value) ||
+                    _formationReservedMembers.count(CoalitionFormationReservationKey{ candidate.Id.Value, profile.Kind }))
+                    continue;
+                eligible.push_back(candidate);
+                if (candidate.CreatureEntry != profile.CreatureEntry || candidate.WorldFaction != profile.RequiredWorldFaction ||
+                    candidate.MapId != creature.GetMapId())
+                    continue;
+                float dx = candidate.X - creature.GetPositionX();
+                float dy = candidate.Y - creature.GetPositionY();
+                float dz = candidate.Z - creature.GetPositionZ();
+                if (dx * dx + dy * dy + dz * dz <= profile.FormationRadius * profile.FormationRadius)
+                    ++nearby;
+            }
+            info.NearbyEligibleIncludingSelf = nearby;
+            std::optional<CoalitionProposal> proposal = _coalitionFormationSystem.Propose(eligible, profile);
+            if (!proposal)
+                info.FormationState = "NO_FORMATION_PROPOSAL";
+            else if (std::find(proposal->Members.begin(), proposal->Members.end(), record->Id) != proposal->Members.end())
+                info.FormationState = "IN_CURRENT_FORMATION_PROPOSAL";
+            else
+                info.FormationState = "NOT_IN_CURRENT_FORMATION_PROPOSAL";
+        }
+    }
+    return info;
+}
+
 std::optional<AIWorldMgr::GroupDebugInfo> AIWorldMgr::DescribeGroup(GroupId id) const
 {
     AgentGroupRecord const* group = _groupRegistry.Find(id);
@@ -3241,13 +3321,13 @@ void AIWorldMgr::RunGroupPolicySmokeTest(AgentId testMemberId)
         });
 }
 
-std::vector<CoalitionCandidate> AIWorldMgr::CollectCoalitionCandidates()
+std::vector<CoalitionCandidate> AIWorldMgr::CollectCoalitionCandidates() const
 {
     std::vector<CoalitionCandidate> candidates;
 
     for (AgentId id : _registry.GetAgents())
     {
-        AgentRecord* record = _registry.Find(id);
+        AgentRecord const* record = _registry.Find(id);
         if (!record || record->WorldState != AgentWorldState::Materialized)
             continue;
 

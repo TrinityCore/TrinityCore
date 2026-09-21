@@ -72,6 +72,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Creature.h"
 #include "Faction/WorldFactionId.h"
+#include "StringFormat.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <string>
@@ -119,8 +120,8 @@ namespace
 
         AgentId agentId = sAIWorldMgr->FindAgentIdForCreature(*target);
         if (!agentId)
-            handler->PSendSysMessage("AIWorld group: target (map={}, spawnId={}) has no registered AgentRecord.",
-                target->GetMapId(), target->GetSpawnId());
+            handler->SendSysMessage(Trinity::StringFormat("AIWorld group: target (map={}, spawnId={}) has no registered AgentRecord.",
+                target->GetMapId(), target->GetSpawnId()));
 
         return agentId;
     }
@@ -157,7 +158,24 @@ public:
             return true;
 
         WorldFactionId faction = sAIWorldMgr->GetAgentWorldFaction(agentId);
-        handler->PSendSysMessage("AIWorld group: agent id={} worldFaction={}", agentId.Value, WorldFactionDisplayName(faction));
+        handler->SendSysMessage(Trinity::StringFormat("AIWorld group: agent id={} worldFaction={}", agentId.Value, WorldFactionDisplayName(faction)));
+
+        Creature const* target = handler->getSelectedCreature();
+        if (target)
+        {
+            handler->SendSysMessage(Trinity::StringFormat("AIWorld group: target={} entry={} spawnId={} health={:.1f}%",
+                target->GetName(), target->GetEntry(), target->GetSpawnId(), target->GetHealthPct()));
+            if (std::optional<AIWorldMgr::WolfFormationDebugInfo> wolf = sAIWorldMgr->DescribeWolfFormation(*target))
+            {
+                handler->SendSysMessage(Trinity::StringFormat("AIWorld wolf: control={} livingEnabled={} hunger={:.2f} goal={} action={}",
+                    ToString(wolf->ControlMode), wolf->LivingEnabled, wolf->Hunger, wolf->Goal, wolf->Action));
+                handler->SendSysMessage(Trinity::StringFormat("AIWorld wolf: formation={} expectedEntry={} radius={:.1f} minMembers={}",
+                    wolf->FormationState, wolf->ExpectedEntry, wolf->FormationRadius, wolf->MinMembers));
+                if (wolf->NearbyEligibleIncludingSelf)
+                    handler->SendSysMessage(Trinity::StringFormat("AIWorld wolf: nearby free eligible agents (including self)={}; formation is a current snapshot, not a completed join.",
+                        *wolf->NearbyEligibleIncludingSelf));
+            }
+        }
 
         std::vector<GroupId> groups = sAIWorldMgr->GetGroupsOfAgent(agentId);
         if (groups.empty())
@@ -171,13 +189,13 @@ public:
             std::optional<AIWorldMgr::GroupDebugInfo> info = sAIWorldMgr->DescribeGroup(groupId);
             if (!info)
             {
-                handler->PSendSysMessage("AIWorld group: member of group id={} (no longer resolves in the registry - stale?)", groupId.Value);
+                handler->SendSysMessage(Trinity::StringFormat("AIWorld group: member of group id={} (no longer resolves in the registry - stale?)", groupId.Value));
                 continue;
             }
 
             std::string requiredFaction = info->RequiredWorldFaction ? WorldFactionDisplayName(*info->RequiredWorldFaction) : "(none - manual/admin group)";
-            handler->PSendSysMessage("AIWorld group: member of group id={} kind={} profile={} requiredWorldFaction={} members={}",
-                groupId.Value, ToString(info->Kind), ToString(info->ProfileId), requiredFaction, uint32(info->MemberCount));
+            handler->SendSysMessage(Trinity::StringFormat("AIWorld group: member of group id={} kind={} profile={} requiredWorldFaction={} members={}",
+                groupId.Value, ToString(info->Kind), ToString(info->ProfileId), requiredFaction, uint32(info->MemberCount)));
         }
 
         return true;

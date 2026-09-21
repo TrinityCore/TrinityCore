@@ -82,3 +82,31 @@ Full server CMake configuration is blocked locally by missing Boost >= 1.78.
 7. Check another creature species and ObserveOnly agents retain their behavior.
 
 No runtime PASS or deployment is claimed by the local unit-test result.
+
+## Diagnosing `.aiworld group status`
+
+The status command now uses brace-aware formatting, so it prints actual IDs
+and values instead of literal `{}`. It also prints the selected creature's
+entry/spawn, control mode, health, hunger, current goal/action, and a read-only
+snapshot of WolfLoose formation eligibility.
+
+- `ENTRY_MISMATCH`: compare `entry` with `expectedEntry`. In the pilot, entry 525
+  is the configured hunt target; only entry 69 is a WolfLoose member candidate.
+- `OBSERVE_ONLY`: the agent is registered but AIWorld does not control it.
+- `FACTION_MISMATCH`: its AI world faction does not match the wolf profile.
+- `ALREADY_IN_LOOSE_GROUP`: the membership lines below identify that group.
+- `AUTOFORMATION_DISABLED` / `AIWORLD_DISABLED`: a required runtime setting is off.
+- `MEMBER_RESERVED`, `PROFILE_FORMATION_IN_FLIGHT`, `GLOBAL_FORMATION_BUDGET_BUSY`:
+  a formation operation is pending; check again after the next few passes.
+- `NO_FORMATION_PROPOSAL`: the production selector cannot currently form any
+  eligible WolfLoose group. The nearby count includes the selected agent and
+  excludes existing Loose members and reserved candidates.
+- `IN_CURRENT_FORMATION_PROPOSAL` / `NOT_IN_CURRENT_FORMATION_PROPOSAL`: the
+  selected agent is/is not included in the selector's first current proposal.
+  This is not confirmation of a completed database join.
+
+Nearby counts are shown only when proposal evaluation was reached. Radius and
+minimum member count come from the running server, not hard-coded assumptions.
+The command does not create groups, force membership, or load grids. An absent
+group alone is not proof of a behavior bug. Capture the entire status output
+for the same selected wolf when investigating a failed formation.
