@@ -113,3 +113,158 @@ bool PlayerWorldFactionPersistence::Leave(ObjectGuid characterGuid)
 
     return true;
 }
+
+namespace
+{
+    // An already-resolved QueryCallback for the IsPlayer() guard's fail-fast
+    // path below - no real query is ever issued, but every async method
+    // here must still return a genuine QueryCallback (its ~QueryCallback()
+    // has to see a valid future either way).
+    QueryCallback MakeImmediatelyReadyNullResult()
+    {
+        std::promise<PreparedQueryResult> promise;
+        promise.set_value(PreparedQueryResult(nullptr));
+        return QueryCallback(promise.get_future());
+    }
+}
+
+QueryCallback PlayerWorldFactionPersistence::LoadMembershipAsync(ObjectGuid characterGuid, std::function<void(WorldFactionId)> callback)
+{
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: LoadMembershipAsync() called with a non-Player ObjectGuid ({}), refusing to query - treated as Unaffiliated",
+            characterGuid.ToString());
+        return MakeImmediatelyReadyNullResult().WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult)
+        {
+            callback(WorldFactions::Unaffiliated);
+        });
+    }
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
+    stmt->setUInt32(0, characterGuid.GetCounter());
+
+    return CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult result)
+    {
+        if (!result)
+        {
+            callback(WorldFactions::Unaffiliated);
+            return;
+        }
+
+        Field* fields = result->Fetch();
+        callback(WorldFactionId{ fields[0].GetUInt32() });
+    });
+}
+
+QueryCallback PlayerWorldFactionPersistence::JoinAsync(ObjectGuid characterGuid, WorldFactionId faction, std::function<void(bool)> callback)
+{
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: JoinAsync() called with a non-Player ObjectGuid ({}), refusing - no DB access attempted",
+            characterGuid.ToString());
+        return MakeImmediatelyReadyNullResult().WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult)
+        {
+            callback(false);
+        });
+    }
+
+    if (!faction)
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: refusing to JoinAsync() character guid={} to Unaffiliated - call LeaveAsync() instead",
+            characterGuid.GetCounter());
+        return MakeImmediatelyReadyNullResult().WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult)
+        {
+            callback(false);
+        });
+    }
+
+    CharacterDatabasePreparedStatement* loadStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
+    loadStmt->setUInt32(0, characterGuid.GetCounter());
+
+    // Three chained stages, mirroring WorldSession::HandleCharCreateOpcode()'s
+    // own AsyncQuery().WithChainingPreparedCallback(...) shape
+    // (CharacterHandler.cpp): (1) load current membership - if already
+    // `faction`, stop here (idempotent no-op, joined_at untouched, the same
+    // behavior Join() itself has); otherwise queue the write. (2) REPLACE
+    // INTO write - queue a confirm read regardless of its own (empty)
+    // result. (3) confirm read - the terminal, non-chaining callback that
+    // actually reports success/failure to the caller.
+    return CharacterDatabase.AsyncQuery(loadStmt)
+        .WithChainingPreparedCallback([characterGuid, faction, callback](QueryCallback& queryCallback, PreparedQueryResult loadResult)
+    {
+        WorldFactionId current = WorldFactions::Unaffiliated;
+        if (loadResult)
+        {
+            Field* fields = loadResult->Fetch();
+            current = WorldFactionId{ fields[0].GetUInt32() };
+        }
+
+        if (current == faction)
+        {
+            callback(true);
+            return;
+        }
+
+        CharacterDatabasePreparedStatement* writeStmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_AI_PLAYER_WORLD_FACTION);
+        writeStmt->setUInt32(0, characterGuid.GetCounter());
+        writeStmt->setUInt32(1, faction.Value);
+        queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(writeStmt));
+    })
+        .WithChainingPreparedCallback([characterGuid](QueryCallback& queryCallback, PreparedQueryResult /*writeResult*/)
+    {
+        CharacterDatabasePreparedStatement* confirmStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
+        confirmStmt->setUInt32(0, characterGuid.GetCounter());
+        queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(confirmStmt));
+    })
+        .WithPreparedCallback([characterGuid, faction, callback](PreparedQueryResult confirmResult)
+    {
+        bool confirmed = false;
+        if (confirmResult)
+        {
+            Field* fields = confirmResult->Fetch();
+            confirmed = WorldFactionId{ fields[0].GetUInt32() } == faction;
+        }
+
+        if (!confirmed)
+            TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: JoinAsync() for character guid={} to worldFactionId={} was not confirmed by read-back",
+                characterGuid.GetCounter(), faction.Value);
+
+        callback(confirmed);
+    });
+}
+
+QueryCallback PlayerWorldFactionPersistence::LeaveAsync(ObjectGuid characterGuid, std::function<void(bool)> callback)
+{
+    if (!characterGuid.IsPlayer())
+    {
+        TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: LeaveAsync() called with a non-Player ObjectGuid ({}), refusing - no DB access attempted",
+            characterGuid.ToString());
+        return MakeImmediatelyReadyNullResult().WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult)
+        {
+            callback(false);
+        });
+    }
+
+    CharacterDatabasePreparedStatement* deleteStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION);
+    deleteStmt->setUInt32(0, characterGuid.GetCounter());
+
+    return CharacterDatabase.AsyncQuery(deleteStmt)
+        .WithChainingPreparedCallback([characterGuid](QueryCallback& queryCallback, PreparedQueryResult /*deleteResult*/)
+    {
+        CharacterDatabasePreparedStatement* confirmStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
+        confirmStmt->setUInt32(0, characterGuid.GetCounter());
+        queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(confirmStmt));
+    })
+        .WithPreparedCallback([characterGuid, callback](PreparedQueryResult confirmResult)
+    {
+        bool confirmed = !confirmResult;
+        if (!confirmed)
+        {
+            Field* fields = confirmResult->Fetch();
+            TC_LOG_ERROR("ai.world", "AI player WorldFaction membership: LeaveAsync() for character guid={} was not confirmed by read-back, still shows worldFactionId={}",
+                characterGuid.GetCounter(), fields[0].GetUInt32());
+        }
+
+        callback(confirmed);
+    });
+}

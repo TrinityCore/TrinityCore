@@ -20,7 +20,9 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "QueryCallback.h"
 #include "WorldFactionId.h"
+#include <functional>
 
 // Player WorldFaction membership vertical slice (AIWorld_Current_Roadmap.md):
 // persistent storage for a character's own social/political allegiance -
@@ -34,9 +36,15 @@
 // cached on the live Player object - every method here is an independent,
 // on-demand characters-DB query keyed by ObjectGuid, the same "contained,
 // no core-file changes" shape AgentPersistence already uses for ai_agents.
-// Stateless (holds no member data) - every call is synchronous
-// (CONNECTION_SYNCH/DirectExecute()) and must never be called from the
-// world update loop.
+// Stateless (holds no member data). LoadMembership()/Join()/Leave() are
+// synchronous (CONNECTION_SYNCH/DirectExecute()) and must never be called
+// from the world update loop - CMSG_MESSAGECHAT and most other opcodes are
+// PROCESS_THREADUNSAFE (Opcodes.cpp) and are processed inline on
+// World::UpdateSessions(), the world thread itself, so even a GM chat
+// command handler counts as "the world update loop" here. Use the
+// LoadMembershipAsync()/JoinAsync()/LeaveAsync() counterparts below from
+// any such context instead - see their own comment for the exact call
+// shape.
 //
 // V1: at most one active membership per character. "No membership" is the
 // ABSENCE of a row, never an explicit WorldFactionId{0} (Unaffiliated) row -
@@ -85,6 +93,30 @@ class TC_GAME_API PlayerWorldFactionPersistence
         // characterGuid is not a Player GUID - see this class's own
         // comment.
         bool Leave(ObjectGuid characterGuid);
+
+        // Async counterparts - safe to call from the world thread (a GM
+        // chat command handler included, see this class's own comment on
+        // why). The DB work runs on a database worker thread; `callback`
+        // fires later, on the world thread, whenever the CALLER's own
+        // QueryCallbackProcessor next drains ready callbacks (WorldSession::
+        // GetQueryProcessor(), pumped every WorldSession::Update() tick) -
+        // never synchronously, never blocking the caller's own stack frame.
+        // The caller owns registering the returned QueryCallback:
+        //
+        //   session->GetQueryProcessor().AddCallback(
+        //       persistence.JoinAsync(guid, faction, [](bool confirmed) { ... }));
+        //
+        // Same fail-closed semantics as the synchronous methods (IsPlayer()
+        // guard, Join() refuses Unaffiliated, Join() is idempotent for an
+        // already-current faction without resetting joined_at, every write
+        // is confirmed by a read-back before the callback reports success) -
+        // just reached via chained QueryCallback stages instead of blocking
+        // calls, mirroring WorldSession::HandleCharCreateOpcode()'s own
+        // multi-step AsyncQuery().WithChainingPreparedCallback(...) chain
+        // (CharacterHandler.cpp) rather than inventing a new async shape.
+        QueryCallback LoadMembershipAsync(ObjectGuid characterGuid, std::function<void(WorldFactionId)> callback);
+        QueryCallback JoinAsync(ObjectGuid characterGuid, WorldFactionId faction, std::function<void(bool)> callback);
+        QueryCallback LeaveAsync(ObjectGuid characterGuid, std::function<void(bool)> callback);
 };
 
 #endif // AIWORLD_PLAYERWORLDFACTIONPERSISTENCE_H

@@ -21,12 +21,24 @@ Name: aiworld_faction_commandscript
 Comment: .aiworld faction status/join/leave - GM/debug interface for
     PlayerWorldFactionPersistence (AIWorld_Current_Roadmap.md, player
     WorldFaction membership vertical slice). A thin wrapper only: every
-    subcommand calls straight into the existing LoadMembership()/Join()/
-    Leave() methods, no direct SQL here. Operates on the command issuer's
-    own character, the same "self" convention .gm on/off already uses -
-    there is no target-player syntax (a GM testing their own membership
-    across relog/restart does not need one, and adding target selection is
-    easy to bolt on later without breaking this command's own shape).
+    subcommand calls straight into the existing LoadMembershipAsync()/
+    JoinAsync()/LeaveAsync() methods, no direct SQL here. Operates on the
+    command issuer's own character, the same "self" convention .gm on/off
+    already uses - there is no target-player syntax.
+
+    Async, NOT the synchronous LoadMembership()/Join()/Leave() overloads:
+    CMSG_MESSAGECHAT is PROCESS_THREADUNSAFE (Opcodes.cpp) and is processed
+    inline on World::UpdateSessions(), the world thread itself - a
+    CONNECTION_SYNCH/DirectExecute() call from here would block the whole
+    world tick on a DB round trip (up to three, for Join()'s own load-then-
+    write-then-confirm sequence), exactly what PlayerWorldFactionPersistence's
+    own header comment says never to do. Every subcommand instead registers
+    the returned QueryCallback on the command issuer's own WorldSession::
+    GetQueryProcessor(), so the DB work happens on a database worker thread
+    and the result is only applied (PSendSysMessage etc.) later, on the
+    world thread, once that session's query processor drains it - never
+    blocking this handler's own stack frame.
+
     Deliberately long-lived tooling, not a temporary startup smoke test:
     this is the only way to exercise Join()/Leave()/LoadMembership() at all
     right now, since PlayerFactionRelationResolver (the intended production
@@ -40,6 +52,7 @@ EndScriptData */
 #include "Faction/WorldFactionId.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include <string>
 
 using namespace Trinity::ChatCommands;
 
@@ -50,8 +63,16 @@ namespace
     // (data/elwynn/factions/world_factions.csv is the real source of
     // truth). Not a general-purpose catalog lookup - just enough for this
     // command's own status/join/leave feedback.
-    char const* WorldFactionDisplayName(WorldFactionId faction)
+    //
+    // Returns a distinct "UNKNOWN(<id>)" string for any nonzero id outside
+    // the known set, never silently folded into "Unaffiliated" - the
+    // schema has no FK/check constraint against a WorldFaction catalog, so
+    // a corrupt/out-of-range stored world_faction_id is a real possibility
+    // this diagnostic tool must surface, not mask as if nothing were wrong.
+    std::string WorldFactionDisplayName(WorldFactionId faction)
     {
+        if (!faction)
+            return "Unaffiliated";
         if (faction == WorldFactions::StormwindAlliance)
             return "Stormwind Alliance";
         if (faction == WorldFactions::DefiasBrotherhood)
@@ -64,7 +85,7 @@ namespace
             return "Elwynn Murlocs";
         if (faction == WorldFactions::ElwynnWolves)
             return "Elwynn Wolves";
-        return "Unaffiliated";
+        return "UNKNOWN(" + std::to_string(faction.Value) + ")";
     }
 }
 
@@ -103,44 +124,59 @@ public:
 
     static bool HandleAIWorldFactionStatusCommand(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        WorldSession* session = handler->GetSession();
+        ObjectGuid characterGuid = session->GetPlayer()->GetGUID();
 
         PlayerWorldFactionPersistence persistence;
-        WorldFactionId current = persistence.LoadMembership(player->GetGUID());
+        session->GetQueryProcessor().AddCallback(persistence.LoadMembershipAsync(characterGuid,
+            [session](WorldFactionId current)
+        {
+            session->SendNotification("AIWorld WorldFaction membership: %s", WorldFactionDisplayName(current).c_str());
+        }));
 
-        handler->PSendSysMessage("AIWorld WorldFaction membership: %s", WorldFactionDisplayName(current));
         return true;
     }
 
     static bool HandleAIWorldFactionLeaveCommand(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        WorldSession* session = handler->GetSession();
+        ObjectGuid characterGuid = session->GetPlayer()->GetGUID();
 
         PlayerWorldFactionPersistence persistence;
-        if (!persistence.Leave(player->GetGUID()))
+        session->GetQueryProcessor().AddCallback(persistence.LeaveAsync(characterGuid,
+            [session](bool confirmed)
         {
-            handler->PSendSysMessage("AIWorld WorldFaction membership: Leave() failed - see the worldserver log for details.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+            if (!confirmed)
+            {
+                session->SendNotification("AIWorld WorldFaction membership: Leave() failed - see the worldserver log for details.");
+                return;
+            }
 
-        handler->PSendSysMessage("AIWorld WorldFaction membership: left (now Unaffiliated).");
+            session->SendNotification("AIWorld WorldFaction membership: left (now Unaffiliated).");
+        }));
+
         return true;
     }
 
     static bool HandleJoin(ChatHandler* handler, WorldFactionId faction)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        WorldSession* session = handler->GetSession();
+        ObjectGuid characterGuid = session->GetPlayer()->GetGUID();
+        std::string factionName = WorldFactionDisplayName(faction);
 
         PlayerWorldFactionPersistence persistence;
-        if (!persistence.Join(player->GetGUID(), faction))
+        session->GetQueryProcessor().AddCallback(persistence.JoinAsync(characterGuid, faction,
+            [session, factionName](bool confirmed)
         {
-            handler->PSendSysMessage("AIWorld WorldFaction membership: Join(%s) failed - see the worldserver log for details.", WorldFactionDisplayName(faction));
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+            if (!confirmed)
+            {
+                session->SendNotification("AIWorld WorldFaction membership: Join(%s) failed - see the worldserver log for details.", factionName.c_str());
+                return;
+            }
 
-        handler->PSendSysMessage("AIWorld WorldFaction membership: joined %s.", WorldFactionDisplayName(faction));
+            session->SendNotification("AIWorld WorldFaction membership: joined %s.", factionName.c_str());
+        }));
+
         return true;
     }
 
