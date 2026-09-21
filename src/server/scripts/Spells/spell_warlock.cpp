@@ -88,6 +88,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOWBURN_ENERGIZE               = 245731,
     SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE              = 194192,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
+    SPELL_WARLOCK_SHARD_INSTABILITY                 = 1260269,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 453000,
     SPELL_WARLOCK_SOUL_FIRE_ENERGIZE                = 281490,
     SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
@@ -1417,6 +1418,39 @@ class spell_warl_shadow_invocation : public AuraScript
     }
 };
 
+// 1260264 - Shard Instability
+class spell_warl_shard_instability : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SHARD_INSTABILITY });
+    }
+
+    template <bool IsDrainSoul>
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_WARLOCK, { 0x800000 }) != IsDrainSoul)
+            return false;
+
+        return roll_chance(aurEff->GetAmount(), _rng);
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_WARLOCK_SHARD_INSTABILITY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_shard_instability::CheckProc<true>, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_shard_instability::CheckProc<false>, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warl_shard_instability::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warl_shard_instability::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+
+    PseudoRandomDistributionState _rng;
+};
+
 // 452999 - Siphon Life
 class spell_warl_siphon_life : public AuraScript
 {
@@ -1888,6 +1922,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_warl_shadowburn, spell_warl_shadowburn_aura);
     RegisterSpellScript(spell_warl_shadow_bolt);
     RegisterSpellScript(spell_warl_shadow_invocation);
+    RegisterSpellScript(spell_warl_shard_instability);
     RegisterSpellScript(spell_warl_siphon_life);
     RegisterSpellScript(spell_warl_soul_fire);
     RegisterSpellScript(spell_warl_soul_swap);
