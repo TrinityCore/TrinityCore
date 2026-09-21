@@ -2476,7 +2476,7 @@ Oprava: všechny tři statementy jsou teď `CONNECTION_BOTH` - `LoadMembership()
 
 ```text
 CONNECTION_BOTH fix            STATIC PASS (code review, žádný compiler/CI běh potvrzen)
-runtime membership test        PENDING (znovu od .aiworld faction status, po deployi tohohle fixu)
+runtime membership test        RUNTIME PASS (status/join/switch/leave/relog-restart persistence potvrzeno po CONNECTION_BOTH fixu)
 ```
 
 ## Architektonický audit (2026-09-21) — TrinityCore zůstává jedinou gameplay reaction autoritou
@@ -2490,6 +2490,8 @@ Player → ReputationMgr → character_reputation → standing/AtWar/GetForcedRa
 ```
 
 `WorldObject::GetReactionTo()` už dnes kontroluje `ReputationMgr::GetForcedRankIfAny()`, standardní reputaci, AtWar i `FactionTemplateEntry::IsHostileTo()`/`IsFriendlyTo()` - to je přesně to jediné místo, přes které smí gameplay reakce chodit. Plánovaný `PlayerFactionRelationResolver` by byl druhý, paralelní `GetReactionTo()` - dva systémy, které by se pak musely nějak rozhodovat, který má přednost. To se neimplementuje.
+
+Přesný invariant (upřesněno 2026-09-21 review): `WorldObject::GetReactionTo()` NIKDY přímo nečte `WorldFactionId` ani `WorldFactionRelationCatalog` - o tom není žádná debata ani výjimka. AIWorld smí při explicitní změně stavu (login/join/leave/diplomacy change) jednorázově promítnout svůj politický stav do standardního Trinity `ReputationMgr`. Od tohoto okamžiku už každou jednotlivou gameplay reakci řeší zase výhradně TrinityCore - `AIWorld decides political state → one-time synchronization → Trinity ReputationMgr state → GetReactionTo() → Trinity gameplay`. Tohle není druhý reaction engine, je to adapter mezi living-world stavem a existujícím Trinity systémem.
 
 Důležitá nuance: `Player::m_team` (Alliance/Horde) je jen dvoustranný team odvozený z rasy (`TeamForRace()`/`SetFactionForRace()` při loginu) - WorldFaction membership nikdy nesmí být modelovaná jako "třetí Team vedle Alliance/Horde", to by zasahovalo PvP/battlegroundy/group pravidla, na kterých TrinityCore hluboce staví.
 
@@ -2528,12 +2530,26 @@ Player joins Defias
           ReputationMgr::ApplyForceReaction(factionId, Friendly/Hostile) - jen tam, kde relation
           NENÍ Neutral; Neutral = žádný override, beze změny
                 ↓
+          ReputationMgr::SendForceReactions() - klient MUSÍ dostat SMSG_SET_FORCED_REACTIONS,
+          jinak server má nový vztah, ale klient stále vidí/útočí podle starého
+                ↓
+          Unit::StopAttackFaction(factionId) tam, kde se faction právě stala Friendly -
+          jinak může pokračovat combat proti něčemu, co už není nepřítel
+                ↓
           Trinity WorldObject::GetReactionTo() - jediná autorita, beze změny
 ```
+
+Přesně tuhle sekvenci (`ApplyForceReaction` → `SendForceReactions` → případně `StopAttackFaction`) používá i stock Trinity `SPELL_AURA_FORCE_REACTION` handler (`SpellAuraEffects.cpp`) - bridge ji musí replikovat celou, ne jen první krok.
+
+`ReputationMgr::_forcedReactions` není source-aware (`map<FactionId, ReputationRank>`, sdílené se stock force-reaction aurami) - při přechodu Defias → Riverpaw se nesmí smazat všechny forced reactions, jen ty, které spravuje tenhle bridge, a pak aplikovat nový stav. Potenciální kolize s vanilla spell force-reactionem na stejný FactionId (relevantní hlavně pro vanilla Stormwind FactionId, ne pro custom 1201-1204, které žádný vanilla spell nemůže znát) je potřeba před runtime uzavřením explicitně otestovat - `ReputationMgr` se kvůli tomu zatím nepřestavuje na source-aware systém, to by bylo předčasné.
 
 Klíčový rozdíl oproti resolveru: `WorldFactionRelationCatalog` se čte **jednou při změně allegiance** (max. 6 lookupů, O(počet WorldFaction)), ne při každé reaction kontrole. Žádný `Player*`/`Creature*` nepřekračuje hranici mimo tenhle jednorázový bridge - vše ostatní zůstává čistě Trinity.
 
 `character_reputation`/earned reputation se `ApplyForceReaction()`-em nepřepisuje - `ApplyForceReaction()` je runtime-only override (ne persistentní stav v Trinity), takže opuštění Defias znamená jen zrušení override, ne rekonstrukci staré reputace.
+
+**Login integrace (upřesněno 2026-09-21 review):** allegiance se NESMÍ aplikovat až po tom, co je hráč ve světě (async DB lookup po loginu by na krátkou dobu nechal hráče ve špatném reaction stavu). Patří do `LoginQueryHolder`/`Player::LoadFromDB()` stejně jako `PLAYER_LOGIN_QUERY_LOAD_REPUTATION` - nový login query (existující `CHAR_SEL_AI_PLAYER_WORLD_FACTION` je už `CONNECTION_BOTH`, technicky se na to hodí), zpracovaný PO `ReputationMgr::LoadFromDB()`, ale PŘED `SendInitialPacketsBeforeAddToMap()`. Hráč tak vstoupí do světa už ve správném stavu, žádné okno se špatnou reakcí, žádný extra DB round-trip za běhu.
+
+**Zvážená a zamítnutá alternativa - přepsat `Player`'s vlastní `FactionTemplate`:** `player->SetFaction(...)` by nevyřešilo nic navíc - `WorldObject::GetFactionReactionTo()` kontroluje hráčův `ReputationMgr` (přes `FactionEntry::CanHaveReputation()`) ještě PŘED faction-template fallbackem, takže samotná změna player FactionTemplate by negarantovala "Defias member → Defias NPC Friendly", pokud by hráčova skutečná Defias reputation řekla něco jiného. `ApplyForceReaction()` je naopak přímo na začátku reaction cesty a přesně k tomuto typu override existuje - bridge přes `ReputationMgr` je správnější než přepisování `UNIT_FIELD_FACTIONTEMPLATE`.
 
 Tenhle bridge **není implementovaný** - je to jen opravený plán. Než se začne psát, je potřeba doplnit `WorldFactionId -> Trinity FactionId` mapu (zatím žádná neexistuje) a ověřit `ApplyForceReaction()`'s přesnou signaturu/lifetime sémantiku (runtime-only vs. persisted, per-session vs. permanentní).
 
@@ -2541,7 +2557,15 @@ Tenhle bridge **není implementovaný** - je to jen opravený plán. Než se za�
 
 `PlayerWorldFactionPersistence.h`, `WorldFactionRelationCatalog.h` a `cs_aiworld_faction.cpp` zmiňovaly `PlayerFactionRelationResolver` jako budoucího konzumenta - opraveno na `ApplyForceReaction()` bridge podle tohohle auditu. Žádná funkční změna kódu, jen dokumentace.
 
-**Tenhle audit + komentáře jsou jediný obsah tohoto kroku - žádný feature commit.** Další skutečný krok (samostatný commit, až po runtime potvrzení `PlayerWorldFactionPersistence` z předchozí sekce) je `WorldFactionId -> Trinity FactionId` mapa + samotný login/allegiance-change bridge, ne resolver.
+**Tenhle audit + komentáře jsou jediný obsah tohoto kroku - žádný feature commit.** Doporučené pořadí dalších kroků (2026-09-21 review):
+
+1. `WorldFactionId -> Trinity FactionId` source-of-truth mapování - generovaná tabulka/katalog z `factions.csv`'s cross-reference (stejný CSV → world DB table → C++ catalog vzor jako ostatní katalogy v tomhle subsystému), ne hardcoded C++ switch.
+2. Allegiance query zapojený do `LoginQueryHolder`/`Player::LoadFromDB()` (po `ReputationMgr::LoadFromDB()`, před `SendInitialPacketsBeforeAddToMap()`) - existující `CHAR_SEL_AI_PLAYER_WORLD_FACTION` je už `CONNECTION_BOTH`, technicky připravený.
+3. Jeden malý bridge (`ApplyPlayerAllegianceToTrinity(Player&, WorldFactionId)` nebo podobně) - `ApplyForceReaction()` + `SendForceReactions()` + `StopAttackFaction()`, per-source cleanup starých overrides (ne wipe všech forced reactions), žádný vlastní `IsFriendly`/combat rozhodování.
+4. `.aiworld faction join/leave` zavolá bridge okamžitě po potvrzeném async write (jsme zpět na world threadu s živým `Player`).
+5. Runtime gate: join → Defias Friendly + Stormwind Hostile; switch → starý override zmizí, nový se aplikuje; leave → plně obnoví normální reputation chování; relog/restart → stejný stav ještě před vstupem do mapy; klientské barvy/attackability odpovídají serveru; Friendly transition během combatu ho korektně ukončí (`StopAttackFaction`).
+
+Až tohle projde, je sekce "Hráč a frakce" uzavřená jako první vertical slice; teprve pak defection/allegiance-change podmínky a diplomacy consequences z Etapy 4.
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 
