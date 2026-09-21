@@ -3069,6 +3069,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
         void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
+        void SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen, uint32 SpellID);
+        void StopMirrorTimer(MirrorTimerType Type);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3195,8 +3198,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         /***              ENVIRONMENTAL SYSTEM                 ***/
         /*********************************************************/
         void HandleSobering();
-        void SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen);
-        void StopMirrorTimer(MirrorTimerType Type);
         void HandleDrowning(uint32 time_diff);
         int32 getMaxTimer(MirrorTimerType timer) const;
 
