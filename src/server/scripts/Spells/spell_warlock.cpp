@@ -535,9 +535,15 @@ class spell_warl_cunning_cruelty : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_SHADOWBOLT_VOLLEY_AREA });
     }
 
-    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        return roll_chance(aurEff->GetAmount());
+        // Shadow Bolt proc chance is 50%
+        // Drain Soul proc chance is 25%
+        float chance = 50.0f;
+        if (eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_WARLOCK, { 0x800000 }))
+            chance = 25.0f;
+
+        return roll_chance(chance, _rng);
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -550,6 +556,8 @@ class spell_warl_cunning_cruelty : public AuraScript
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_cunning_cruelty::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_warl_cunning_cruelty::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+    PseudoRandomDistributionState _rng;
 };
 
 // 108416 - Dark Pact
