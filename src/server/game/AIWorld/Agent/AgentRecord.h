@@ -114,6 +114,11 @@ struct AgentRecord
     // else here does. Frozen (not updated) while WorldState == Abstract.
     NeedsState Needs;
 
+    // A successful, nearby hunt offers this incarnation of a corpse for one meal.
+    // Cleared on interruption, unload and death; never persisted or reused.
+    ObjectGuid WolfMealTarget;
+    ObjectGuid WolfActionRuntimeGuid;
+
     // Milestone 2.6C: edge-trigger latch for NeedsThresholdEvent, owned
     // alongside Needs for the same reason - must survive Creature
     // unload/reload so a threshold doesn't spuriously re-fire on the next

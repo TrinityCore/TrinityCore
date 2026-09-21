@@ -88,7 +88,12 @@ enum class GoalType : uint8
     GoHome,
     Regroup,
     Roam,
-    Hunt
+    Hunt,
+    // Living-wolf individual goals, evaluated by UpdateLivingWolf rather
+    // than the generic need selector. They preempt group coordination.
+    Defend,
+    Feed,
+    WildlifeRest
 };
 
 inline char const* ToString(GoalType type)
@@ -102,6 +107,9 @@ inline char const* ToString(GoalType type)
         case GoalType::Regroup:    return "REGROUP";
         case GoalType::Roam:       return "ROAM";
         case GoalType::Hunt:       return "HUNT";
+        case GoalType::Defend:     return "DEFEND";
+        case GoalType::Feed:       return "FEED";
+        case GoalType::WildlifeRest: return "WILDLIFE_REST";
         default:                   return "UNKNOWN";
     }
 }

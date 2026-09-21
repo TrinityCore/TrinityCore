@@ -145,6 +145,12 @@ struct ActionValidationContext
     // approach's Destination must be provably where the target actually
     // is right now, not merely a geometrically-valid MoveTo destination
     // that happens to be nearby.
+    // Independently resolved authority for the living-wolf actions.
+    // TargetWithinAttackRange is also a live bounded defense-acquisition
+    // or corpse-feeding distance for Defend/Feed, not a melee-only fact.
+    ObjectGuid DefenseThreatGuid;
+    ObjectGuid MealTargetGuid;
+    bool WildlifeRestAllowed = false;
     bool TargetResolved = false;
     bool TargetAlive = false;
     bool TargetAttackable = false;

@@ -285,6 +285,26 @@ ActionValidationResult ActionSystem::ValidateHuntTarget(ActionRequest const& req
 
 ActionValidationResult ActionSystem::ValidateAttack(ActionRequest const& request, ActionValidationContext const& context) const
 {
+    if (*context.ActiveGoalType == GoalType::Defend)
+    {
+        if (context.HasActiveMovement)
+            return { false, ActionRejectReason::ActorMovementBusy };
+        if (!request.Target || !request.Target->Guid.IsUnit() ||
+            request.Target->Guid != context.DefenseThreatGuid || request.Target->Guid != context.TargetGuid)
+            return { false, ActionRejectReason::TargetIdentityMismatch };
+        if (!context.TargetResolved || !context.TargetAlive || !context.TargetAttackable)
+            return { false, ActionRejectReason::TargetNotAttackable };
+        if (request.Target->Entry != context.TargetEntry)
+            return { false, ActionRejectReason::TargetEntryMismatch };
+        if (context.TargetMapId != context.MapId)
+            return { false, ActionRejectReason::TargetMapMismatch };
+        if (!context.TargetWithinAttackRange || !context.TargetInLineOfSight)
+            return { false, ActionRejectReason::TargetOutOfAttackRange };
+        if (!context.ActorCurrentVictimGuid.IsEmpty() && context.ActorCurrentVictimGuid != context.TargetGuid)
+            return { false, ActionRejectReason::ActorEngagedWithDifferentTarget };
+        return { true, ActionRejectReason::None };
+    }
+
     // Attack is HUNT-only in this milestone - no other GoalType has a
     // combat phase yet, the same "tied to one specific GoalType" rule
     // ValidateEat()/ValidateWork()/ValidateRest() already enforce for
@@ -354,6 +374,24 @@ ActionValidationResult ActionSystem::ValidateAttack(ActionRequest const& request
 
 ActionValidationResult ActionSystem::ValidateEat(ActionRequest const& request, ActionValidationContext const& context) const
 {
+    if (*context.ActiveGoalType == GoalType::Feed)
+    {
+        if (!request.Target || request.Target->Guid.IsEmpty() ||
+            !request.Target->Guid.IsCreature() || request.Target->Guid.GetEntry() != request.Target->Entry ||
+            request.Target->Guid != context.MealTargetGuid ||
+            request.Target->Guid != context.TargetGuid || request.Target->Entry != context.TargetEntry)
+            return { false, ActionRejectReason::TargetIdentityMismatch };
+        if (!context.TargetResolved || context.TargetAlive)
+            return { false, ActionRejectReason::TargetNotResolved };
+        if (context.TargetMapId != context.MapId)
+            return { false, ActionRejectReason::TargetMapMismatch };
+        if (!context.TargetWithinAttackRange || !context.TargetInLineOfSight)
+            return { false, ActionRejectReason::TargetOutOfAttackRange };
+        if (context.InCombat || context.HasActiveMovement)
+            return { false, ActionRejectReason::ActorInCombat };
+        return { true, ActionRejectReason::None };
+    }
+
     // Unlike MoveTo, Eat is tied to a specific GoalType - only a GetFood
     // goal ever justifies eating.
     if (*context.ActiveGoalType != GoalType::GetFood)
@@ -422,6 +460,15 @@ ActionValidationResult ActionSystem::ValidateWork(ActionRequest const& request, 
 
 ActionValidationResult ActionSystem::ValidateRest(ActionRequest const& request, ActionValidationContext const& context) const
 {
+    if (*context.ActiveGoalType == GoalType::WildlifeRest)
+    {
+        if (!context.WildlifeRestAllowed)
+            return { false, ActionRejectReason::RoutineActivityMismatch };
+        if (context.InCombat || context.HasActiveMovement)
+            return { false, ActionRejectReason::ActorInCombat };
+        return { true, ActionRejectReason::None };
+    }
+
     if (*context.ActiveGoalType != GoalType::GoHome)
         return { false, ActionRejectReason::GoalMismatch };
 

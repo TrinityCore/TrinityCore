@@ -4309,6 +4309,12 @@ AIWorld.WolfGroupRoamArrivalRadius = 5.0
 #                     this profile with a logged ERROR rather than silently matching nothing.
 #        Default:     0 - (Disabled)
 
+# Optional living cycle for WolfGroupCreatureEntry / wolf faction.
+# Requires the usual WolfGroupAutoFormation, GroupCoordination and Hunt gates.
+# Hunger rises by 0.003/s; hunts begin at 0.65. Meals take 5s, rest takes 20s.
+# Healthy wolves defend; below 30% health they flee (50% recovery threshold).
+# Also enable WolfGroupRoamEnabled for movement between hunts.
+AIWorld.LivingWolvesEnabled = 0
 AIWorld.WolfGroupHuntEnabled = 0
 
 #

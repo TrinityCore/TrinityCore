@@ -18,6 +18,7 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_account_commandscript();
 void AddSC_aiworld_faction_commandscript();
+void AddSC_aiworld_group_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_ahbot_commandscript();
 void AddSC_arena_commandscript();
@@ -65,6 +66,7 @@ void AddCommandsScripts()
 {
     AddSC_account_commandscript();
     AddSC_aiworld_faction_commandscript();
+    AddSC_aiworld_group_commandscript();
     AddSC_achievement_commandscript();
     AddSC_ahbot_commandscript();
     AddSC_arena_commandscript();

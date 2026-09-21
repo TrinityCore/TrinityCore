@@ -215,6 +215,7 @@ class TC_GAME_API ActionExecutor
         // we can prove is ours" discipline StopMoveTo() already applies to
         // its own POINT_MOTION_TYPE generator.
         void StopAttack(Creature& actor, ObjectGuid ownedTargetGuid) const;
+        void StopWildlifeRest(Creature& actor) const;
 };
 
 #endif // AIWORLD_ACTIONEXECUTOR_H

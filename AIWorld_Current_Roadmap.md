@@ -2700,6 +2700,9 @@ Toto je minimální množina cílových stavů, ne uzavřený seznam úkolů —
 
 ## Etapa 4 — Living World
 
+**Pilot vlčích smeček (2026-09-22): implementace v pracovním stromu, runtime PENDING.**
+První viditelný cyklus propojuje teritorium → hlad → lov → krmení → spánek; zdraví vlci se brání, zranění utíkají. Rozsah je konfigurací vybraný druh WolfLoose (entry 69), nikoli všichni živočichové. [Implementace, lokální testy a runtime acceptance](doc/LivingWolves.md). Lokálně prošlo 44 samostatných C++ kontrol; plný build blokuje chybějící Boost a herní ověření zatím neproběhlo.
+
 **Stav: PLANNED — po data-quality/runtime gate Etapy 3.**
 
 **Cíl:** z technologií ověřených v Etapě 2 a z datově připraveného Elwynn Forest z Etapy 3 vytvořit první skutečně komplexní dlouhodobě žijící oblast.

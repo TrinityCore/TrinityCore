@@ -203,17 +203,23 @@ ActionResult ActionExecutor::ExecuteRest(ActionRequest const& request, Creature&
         return result;
     }
 
-    // One-shot animation broadcast only, same as ExecuteEat()/ExecuteWork().
-    // No dedicated one-shot "rest"/"sleep" emote exists in 3.3.5 -
-    // EMOTE_ONESHOT_USE_STANDING is the closest generic "settling into an
-    // idle standing action" gesture; a later milestone could pick something
-    // more specific (or a persistent EMOTE_STATE_SIT/SLEEP, which is a
-    // different, stateful mechanism this one-shot-only class does not use).
-    actor.HandleEmoteCommand(EMOTE_ONESHOT_USE_STANDING);
+    // Civilian routine rest remains a one-shot gesture. Wildlife sleep
+    // owns a persistent posture, released by StopWildlifeRest on completion
+    // or interruption (only if that posture is still present).
+    if (request.SourceGoal == GoalType::WildlifeRest)
+        actor.SetStandState(UNIT_STAND_STATE_SLEEP);
+    else
+        actor.HandleEmoteCommand(EMOTE_ONESHOT_USE_STANDING);
 
     result.Status = ActionExecutionStatus::Started;
     result.Reason = ActionExecutionReason::None;
     return result;
+}
+
+void ActionExecutor::StopWildlifeRest(Creature& actor) const
+{
+    if (actor.GetStandState() == UNIT_STAND_STATE_SLEEP)
+        actor.SetStandState(UNIT_STAND_STATE_STAND);
 }
 
 ActionResult ActionExecutor::ExecuteAttack(ActionRequest const& request, Creature& actor, Unit& target) const
@@ -228,6 +234,14 @@ ActionResult ActionExecutor::ExecuteAttack(ActionRequest const& request, Creatur
     {
         result.Status = ActionExecutionStatus::Failed;
         result.Reason = ActionExecutionReason::UnsupportedAction;
+        return result;
+    }
+
+    if (request.SourceGoal == GoalType::Defend &&
+        actor.GetMotionMaster()->GetCurrentMovementGenerator(MOTION_SLOT_ACTIVE))
+    {
+        result.Status = ActionExecutionStatus::Failed;
+        result.Reason = ActionExecutionReason::EngineRejected;
         return result;
     }
 

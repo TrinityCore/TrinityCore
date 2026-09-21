@@ -16,6 +16,7 @@
  */
 
 #include "AIWorldMgr.h"
+#include "Agent/WolfBehaviorPolicy.h"
 #include "Action/ArrivalTolerance.h"
 #include "Agent/AgentGroupIntentProjector.h"
 #include "Agent/AgentGroupIntentSystem.h"
@@ -713,6 +714,7 @@ void AIWorldMgr::Initialize(Trinity::Asio::IoContext& ioContext)
     // subsequent clamp target (roamEnvelopeMax itself, or
     // wolfGroupRoamDistance which is by then already >= MinRoamDistance)
     // is provably still >= the floor it is being compared against.
+    _livingWolvesEnabled = sConfigMgr->GetBoolDefault("AIWorld.LivingWolvesEnabled", false);
     bool wolfGroupRoamEnabled = sConfigMgr->GetBoolDefault("AIWorld.WolfGroupRoamEnabled", false);
     float wolfGroupRoamDistance = sConfigMgr->GetFloatDefault("AIWorld.WolfGroupRoamDistance", 10.0f);
     float wolfGroupRoamArrivalRadius = sConfigMgr->GetFloatDefault("AIWorld.WolfGroupRoamArrivalRadius", 5.0f);
@@ -3004,6 +3006,49 @@ void AIWorldMgr::RequestLeaveGroupWithPolicy(GroupId groupId, AgentId memberId, 
 
             onComplete(success, AgentGroupPolicyDecision::Allowed);
         });
+}
+
+// AI 3.4 runtime coalition gate debug tooling (AIWorld_Current_Roadmap.md) -
+// see this method's own declaration (AIWorldMgr.h) for why this exists.
+AgentId AIWorldMgr::FindAgentIdForCreature(Creature const& creature) const
+{
+    AgentRecord const* record = _registry.FindBySpawn(creature.GetMapId(), creature.GetSpawnId());
+    return record ? record->Id : AgentId{};
+}
+
+WorldFactionId AIWorldMgr::GetAgentWorldFaction(AgentId id) const
+{
+    AgentRecord const* record = _registry.Find(id);
+    return record ? record->WorldFaction : WorldFactions::Unaffiliated;
+}
+
+std::vector<GroupId> AIWorldMgr::GetGroupsOfAgent(AgentId id) const
+{
+    return _groupRegistry.GetGroupsOfMember(id);
+}
+
+std::optional<AIWorldMgr::GroupDebugInfo> AIWorldMgr::DescribeGroup(GroupId id) const
+{
+    AgentGroupRecord const* group = _groupRegistry.Find(id);
+    if (!group)
+        return std::nullopt;
+
+    GroupDebugInfo info;
+    info.Kind = group->Kind;
+    info.ProfileId = group->ProfileId;
+    info.RequiredWorldFaction = RequiredWorldFactionFor(group->ProfileId);
+    info.MemberCount = group->Members.size();
+    return info;
+}
+
+void AIWorldMgr::RequestManualJoinGroup(GroupId groupId, AgentId memberId, std::function<void(bool, AgentGroupPolicyDecision)> onComplete)
+{
+    RequestJoinGroupWithPolicy(groupId, memberId, CurrentTimeMs(), AgentGroupOperationSource::Manual, std::move(onComplete));
+}
+
+void AIWorldMgr::RequestManualLeaveGroup(GroupId groupId, AgentId memberId, std::function<void(bool, AgentGroupPolicyDecision)> onComplete)
+{
+    RequestLeaveGroupWithPolicy(groupId, memberId, AgentGroupOperationSource::Manual, std::move(onComplete));
 }
 
 // Milestone 2.12E3B: part one - pure, synchronous, no registry/DB touched.
@@ -6714,7 +6759,16 @@ void AIWorldMgr::ReconcileActiveHuntTargetsForGroup(AgentGroupRecord const& grou
             // retainHuntOwnershipOnArrival, gated specifically on Reason ==
             // Arrived) - a defeated target ends the whole HUNT attempt,
             // GroupCoordinationGoalState is released here.
+            // Only an engaged participant within feeding reach earns a meal.
+            ObjectGuid meal;
+            if (IsLivingWolf(*member) && creature->IsAlive() && creature->IsWithinDistInMap(target, 5.0f) &&
+                member->ActiveActionState && member->ActiveActionState->Type == ActionType::Attack &&
+                member->ActiveActionState->SourceGoal == GoalType::Hunt &&
+                member->ActiveActionState->GoalStartedAtMs == goal.StartedAtMs &&
+                member->ActiveActionState->Target && member->ActiveActionState->Target->Guid == goal.TargetGuid)
+                meal = target->GetGUID();
             HandleActionCompletion(*member, completion);
+            member->WolfMealTarget = meal;
             continue;
         }
 
@@ -6901,7 +6955,13 @@ void AIWorldMgr::RunCoalitionCoordination()
         // Roam rules.
         bool huntInFlight = profile->HuntEnabled && HasInFlightHuntAttempt(*group);
         std::optional<HuntIntent> huntIntent;
-        if (profile->HuntEnabled)
+        bool hungryPack = !_livingWolvesEnabled || group->ProfileId != CoalitionFormationProfileId::WolfLoose;
+        for (AgentGroupMembership const& membership : group->Members)
+            if (AgentRecord const* member = _registry.Find(membership.Member))
+                if (IsLivingWolf(*member) && WolfBehaviorPolicy::WantsHunt(member->Needs.Hunger,
+                    member->Needs.HealthPressure, member->ActiveGoalState.has_value() || !member->WolfMealTarget.IsEmpty()))
+                    hungryPack = true;
+        if (profile->HuntEnabled && (huntInFlight || hungryPack))
             huntIntent = ResolveHuntIntentForGroup(*group, *profile, observations, nowMs);
 
         // Milestone 2.12G3D: dispatch ATTACK for every member of this group
@@ -7129,7 +7189,7 @@ void AIWorldMgr::DispatchGroupMemberActionProposal(GroupMemberActionProposal con
     // Regroup/Roam are both the LOWEST MOVE_TO tier - any higher-tier
     // individual reason already owns this agent's own action slot this
     // pass, and this proposal is simply dropped, not queued.
-    if (record->ActiveGoalState || record->RoutineGoalState)
+    if (record->ActiveGoalState || record->RoutineGoalState || !record->WolfMealTarget.IsEmpty())
         return;
 
     if (record->ActiveActionState)
@@ -7348,6 +7408,10 @@ void AIWorldMgr::DispatchHuntProposal(HuntProposal const& proposal)
     // diagnostics to it would silence them at exactly the point they
     // become useful.
     bool huntDiagnosticsEnabled = proposal.Member == _testObserveActiveHuntAgentId;
+    if (AgentRecord const* wolf = _registry.Find(proposal.Member); wolf && IsLivingWolf(*wolf))
+        if (!WolfBehaviorPolicy::WantsHunt(wolf->Needs.Hunger, wolf->Needs.HealthPressure,
+            wolf->ActiveGoalState.has_value() || !wolf->WolfMealTarget.IsEmpty()))
+            return;
     auto logDispatchRejected = [&](char const* reason)
     {
         if (huntDiagnosticsEnabled)
@@ -11333,6 +11397,7 @@ void AIWorldMgr::UpdateNeeds(uint32 elapsedMs)
             // validate against (TryEat() needs a live Creature&) - drop it
             // rather than let it linger for a future re-materialize.
             record->PendingEat.reset();
+            record->WolfMealTarget.Clear();
 
             // Milestone 2.11D: unlike ActiveGoalState/RoutineGoalState (both
             // deliberately left alone here - they are intent, allowed to
@@ -11395,7 +11460,10 @@ void AIWorldMgr::UpdateNeeds(uint32 elapsedMs)
 
         context.MemorySafetyPressure = _needsSystem.EvaluateMemorySafety(safetyMemories, nowMs, _shortTermMemoryTtlMs);
 
-        _needsSystem.Update(record->Needs, context, elapsedMs, _needsRates);
+        NeedsUpdateRates rates = _needsRates;
+        if (IsLivingWolf(*record))
+            rates.HungerPerSecond = WolfBehaviorPolicy::HungerPerSecond;
+        _needsSystem.Update(record->Needs, context, elapsedMs, rates);
 
         TC_LOG_DEBUG("ai.world",
             "AI needs agent={} dt={}ms alive={} inCombat={} memorySafety={:.4f} healthPressure={:.4f} hunger={:.4f} fatigue={:.4f} safetyPressure={:.4f} resourcePressure={:.4f}",
@@ -11425,6 +11493,7 @@ void AIWorldMgr::UpdateNeeds(uint32 elapsedMs)
         // through the normal retention check.
         if (!context.Alive)
         {
+            record->WolfActionRuntimeGuid.Clear();
             // Milestone 2.8F P2 fix: TrinityCore's own death handling
             // (MotionMaster::StopOnDeath()) already stops/clears the
             // actor's movement, so ActiveActionState must not keep
@@ -11454,6 +11523,7 @@ void AIWorldMgr::UpdateNeeds(uint32 elapsedMs)
             // Milestone 2.8G P2 fix: same reasoning as ActiveGoalState
             // above - a dead agent must not have a pending Eat either.
             record->PendingEat.reset();
+            record->WolfMealTarget.Clear();
 
             // Milestone 2.11B: same reasoning again - a corpse has no
             // routine destination either.
@@ -11508,6 +11578,12 @@ void AIWorldMgr::UpdateNeeds(uint32 elapsedMs)
             }
 
             HandleActionCompletion(*record, completion);
+        }
+
+        if (IsLivingWolf(*record))
+        {
+            UpdateLivingWolf(*record, *creature, nowMs);
+            continue;
         }
 
         // Milestone 2.7A: level-triggered, not derived from the edge-

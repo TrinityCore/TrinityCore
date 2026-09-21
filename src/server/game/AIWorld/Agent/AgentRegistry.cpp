@@ -114,6 +114,14 @@ void AgentRegistry::BindCreature(AgentId id, Creature const& creature)
         TC_LOG_INFO("ai.world", "AI agent id={} materialized spawn={} guid={}",
             id.Value, record->SpawnId, newGuid.ToString());
 
+    // A wildlife action belongs to one materialized incarnation only.
+    if (!record->WolfActionRuntimeGuid.IsEmpty() && record->WolfActionRuntimeGuid != newGuid)
+    {
+        record->ActiveActionState.reset();
+        record->ActiveGoalState.reset();
+        record->WolfActionRuntimeGuid.Clear();
+    }
+    record->WolfMealTarget.Clear();
     record->RuntimeGuid = newGuid;
     record->WorldState = AgentWorldState::Materialized;
 }
@@ -126,6 +134,13 @@ void AgentRegistry::UnbindCreature(AgentId id)
 
     TC_LOG_INFO("ai.world", "AI agent id={} dematerialized spawn={}", id.Value, record->SpawnId);
 
+    if (!record->WolfActionRuntimeGuid.IsEmpty())
+    {
+        record->ActiveActionState.reset();
+        record->ActiveGoalState.reset();
+        record->WolfActionRuntimeGuid.Clear();
+    }
+    record->WolfMealTarget.Clear();
     record->RuntimeGuid = ObjectGuid::Empty;
     record->WorldState = AgentWorldState::Abstract;
 }

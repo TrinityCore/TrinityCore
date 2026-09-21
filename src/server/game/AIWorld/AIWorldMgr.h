@@ -202,6 +202,56 @@ class TC_GAME_API AIWorldMgr
         WorldFactionRelationCatalog const& GetWorldFactionRelationCatalog() const { return _worldFactionRelationCatalog; }
         WorldFactionReputationCatalog const& GetWorldFactionReputationCatalog() const { return _worldFactionReputationCatalog; }
 
+        // AI 3.4 runtime coalition gate debug tooling (AIWorld_Current_
+        // Roadmap.md, "Coalition pravidla uvnitr frakci") - read-only
+        // lookups plus the first EXTERNAL (GM command) caller of
+        // RequestJoinGroupWithPolicy()/RequestLeaveGroupWithPolicy() below,
+        // both otherwise-private and reachable only from AIWorldMgr's own
+        // internal callers (the manual smoke test) today. See
+        // cs_aiworld_group.cpp for the actual command surface built on top
+        // of these - this class exposes nothing about group lifecycle
+        // mutation beyond the two Manual-only wrappers below.
+
+        // Resolves a live Creature's own (map, spawnId) binding to its
+        // AgentId via AgentRegistry::FindBySpawn() - AgentId{} (0) if this
+        // creature has no registered AgentRecord at all. Read-only, safe
+        // to call from the world thread (a GM command handler).
+        AgentId FindAgentIdForCreature(Creature const& creature) const;
+
+        // WorldFactionId of a registered agent, or WorldFactions::
+        // Unaffiliated for an unknown/never-registered AgentId - see
+        // AgentRecord::WorldFaction.
+        WorldFactionId GetAgentWorldFaction(AgentId id) const;
+
+        // Every GroupId this agent currently belongs to - see
+        // AgentGroupRegistry::GetGroupsOfMember() (almost always 0 or 1,
+        // never assumed to be at most 1).
+        std::vector<GroupId> GetGroupsOfAgent(AgentId id) const;
+
+        // Read-only identity snapshot of one group - Kind/ProfileId/that
+        // profile's own RequiredWorldFactionFor()/live member count - or
+        // std::nullopt for an unknown GroupId. See AgentGroupRegistry::Find().
+        struct GroupDebugInfo
+        {
+            AgentGroupKind Kind = AgentGroupKind::Loose;
+            CoalitionFormationProfileId ProfileId = CoalitionFormationProfileId::Invalid;
+            std::optional<WorldFactionId> RequiredWorldFaction;
+            std::size_t MemberCount = 0;
+        };
+        std::optional<GroupDebugInfo> DescribeGroup(GroupId id) const;
+
+        // Thin Manual-only wrappers around the otherwise-private
+        // RequestJoinGroupWithPolicy()/RequestLeaveGroupWithPolicy() below -
+        // AgentGroupOperationSource::Manual is baked in here rather than
+        // exposed as a caller-supplied parameter, so a debug command can
+        // never accidentally drive these as AutomaticPolicy (see
+        // AgentGroupOperationSource.h's own comment - Manual is exactly
+        // "an admin/test command", the case this method exists for). Same
+        // (success, decision) contract as RequestJoinGroupWithPolicy()/
+        // RequestLeaveGroupWithPolicy() themselves.
+        void RequestManualJoinGroup(GroupId groupId, AgentId memberId, std::function<void(bool success, AgentGroupPolicyDecision decision)> onComplete);
+        void RequestManualLeaveGroup(GroupId groupId, AgentId memberId, std::function<void(bool success, AgentGroupPolicyDecision decision)> onComplete);
+
         // Milestone 2.8F: safe to call from ANY thread TrinityCore itself
         // calls AIWorldCreatureAI::MovementInform() from (a map-updater
         // thread during Map::Update(), not necessarily the world thread).
@@ -2756,6 +2806,10 @@ class TC_GAME_API AIWorldMgr
         // return, or "stage=ATTACK result=STARTED|ALREADY_ENGAGED" on
         // success.
         void DispatchHuntAttack(AgentId member, GroupId sourceGroup);
+        bool IsLivingWolf(AgentRecord const& record) const;
+        void UpdateLivingWolf(AgentRecord& record, Creature& creature, uint64 nowMs);
+        void StopLivingWolfAction(AgentRecord& record, Creature& creature);
+        bool _livingWolvesEnabled = false;
 
         // Milestone 2.12F2 P2 fix, round 4 (STATIC review): how many
         // currently-registered groups member belongs to whose own resolved
