@@ -2,7 +2,8 @@
 
 The implementation is limited to AIWorld-controlled creatures matching
 `AIWorld.WolfGroupCreatureEntry` and the WolfLoose faction. The deployment
-configuration uses entry **69 (Diseased Timber Wolf)** and prey entry **525**.
+configuration uses entry **69 (Diseased Timber Wolf)** and prey entry
+**721 (Rabbit)**.
 Other species retain their existing behavior. Roaming and hunting still require
 membership in a valid WolfLoose group; a lone wolf can defend or flee but does
 not acquire prey independently in this pilot.
@@ -40,6 +41,19 @@ also enabled in the deployment configuration. Apply configuration through the
 project's normal render/build/restart workflow; editing the tracked file alone
 does not alter a running server.
 
+The hunt target must also pass TrinityCore's normal attackability checks. Entry
+525 (Mangy Wolf), used in the initial configuration, is friendly to entry 69 in
+the local faction data and fails with `TARGET_NOT_ATTACKABLE`. Entry 721 uses
+FactionTemplate 31 (Faction 28), which entry 69's FactionTemplate 32 explicitly
+lists as an enemy. Merely configuring a target entry does not override combat
+reactions.
+
+Prey does not need an AIWorld AgentRecord: nearby perception observes ordinary
+creatures too. The hunters must already be AIWorld-controlled WolfLoose members.
+On a test server, `.npc add 721` can supply nearby prey; it creates a persistent
+spawn, so record its spawn ID with `.npc info` and remove that test spawn with
+`.npc delete <spawnID>` afterward. Use `.aiworld group status` on a hunter.
+
 ## Automated verification
 
 `tests/game/LivingWolf.cpp` is included in the normal Catch2 suite. It can also
@@ -64,7 +78,15 @@ combat/distance/LOS meal rejection, and rest validation. It does **not** exercis
 live TrinityCore movement, animation, group formation, or the manager lifecycle.
 Full server CMake configuration is blocked locally by missing Boost >= 1.78.
 
-## Required runtime acceptance (pending)
+## Runtime verification
+
+On 2026-09-22, the user reported a successful in-game test after changing the
+hunt target to entry 721: the wolves performed the described hunt, feeding and
+rest cycle as expected. This is user-reported confirmation of the basic cycle;
+it does not establish that every interruption, unload or regression case below
+was exercised. Exact timings and DEBUG log markers were not separately supplied.
+
+### Acceptance checklist
 
 1. Build the server and run the full test suite using README_DEV's normal gate.
 2. Observe a materialized entry-69 pack with valid prey nearby for at least five
@@ -81,7 +103,8 @@ Full server CMake configuration is blocked locally by missing Boost >= 1.78.
    individual action. No delayed nutrition or stale action may survive.
 7. Check another creature species and ObserveOnly agents retain their behavior.
 
-No runtime PASS or deployment is claimed by the local unit-test result.
+The local unit-test result and the user-reported runtime result are separate
+evidence; remaining checklist items still need their own confirmation.
 
 ## Diagnosing `.aiworld group status`
 
@@ -90,8 +113,10 @@ and values instead of literal `{}`. It also prints the selected creature's
 entry/spawn, control mode, health, hunger, current goal/action, and a read-only
 snapshot of WolfLoose formation eligibility.
 
-- `ENTRY_MISMATCH`: compare `entry` with `expectedEntry`. In the pilot, entry 525
-  is the configured hunt target; only entry 69 is a WolfLoose member candidate.
+- `ENTRY_MISMATCH`: compare `entry` with `expectedEntry`. Only entry 69 is a
+  WolfLoose member candidate in this pilot. The configured prey entry 721 does
+  not need group membership or an AgentRecord; an unregistered target reports
+  `has no registered AgentRecord` before the formation diagnostic is reached.
 - `OBSERVE_ONLY`: the agent is registered but AIWorld does not control it.
 - `FACTION_MISMATCH`: its AI world faction does not match the wolf profile.
 - `ALREADY_IN_LOOSE_GROUP`: the membership lines below identify that group.

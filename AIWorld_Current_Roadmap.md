@@ -2700,8 +2700,8 @@ Toto je minimální množina cílových stavů, ne uzavřený seznam úkolů —
 
 ## Etapa 4 — Living World
 
-**Pilot vlčích smeček (2026-09-22): implementace v pracovním stromu, runtime PENDING.**
-První viditelný cyklus propojuje teritorium → hlad → lov → krmení → spánek; zdraví vlci se brání, zranění utíkají. Rozsah je konfigurací vybraný druh WolfLoose (entry 69), nikoli všichni živočichové. [Implementace, lokální testy a runtime acceptance](doc/LivingWolves.md). Lokálně prošlo 44 samostatných C++ kontrol; plný build blokuje chybějící Boost a herní ověření zatím neproběhlo.
+**Pilot vlčích smeček (2026-09-22): základní cyklus ve hře potvrzen uživatelem.**
+První viditelný cyklus propojuje teritorium → hlad → lov → krmení → spánek; zdraví vlci se brání, zranění utíkají. Rozsah je konfigurací vybraný druh WolfLoose (entry 69), nikoli všichni živočichové. Po opravě kořisti z entry 525 na 721 (Rabbit) uživatel potvrdil úspěšný herní test popsaného cyklu lovu, krmení a odpočinku. Původní cíl 525 blokovala přátelská herní reakce mezi vlky. [Implementace, lokální testy a runtime acceptance](doc/LivingWolves.md). Lokálně prošlo 44 samostatných C++ kontrol; plný lokální build blokuje chybějící Boost. Přerušení akcí, unload/rebind a ostatní regresní scénáře zatím nemají samostatné runtime potvrzení.
 
 **Stav: PLANNED — po data-quality/runtime gate Etapy 3.**
 
