@@ -261,6 +261,8 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
     data.WriteBit(flags.MeshObject);
     data.FlushBits();
 
+    data << uint32(PauseTimes.size());
+
     if (flags.MovementUpdate)
     {
         Unit const* unit = static_cast<Unit const*>(this);
@@ -274,9 +276,7 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
 
         data << GetGUID();                                             // MoverGUID
 
-        data << uint32(unit->GetUnitMovementFlags());
-        data << uint32(unit->GetExtraUnitMovementFlags());
-        data << uint32(unit->GetExtraUnitMovementFlags2());
+        data << uint64(unit->GetUnitMovementFlags());
 
         data << uint32(unit->m_movementInfo.time);                     // MoveTime
         data << float(unit->GetPositionX());
@@ -306,24 +306,11 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
         data.WriteBit(HasDriveStatus);                                 // HasDriveStatus
         data.FlushBits();
 
-        if (!unit->m_movementInfo.transport.guid.IsEmpty())
-            data << unit->m_movementInfo.transport;
-
         if (HasStandingOnGameObjectGUID)
             data << *unit->m_movementInfo.standingOnGameObjectGUID;
 
-        if (HasInertia)
-        {
-            data << unit->m_movementInfo.inertia->id;
-            data << unit->m_movementInfo.inertia->force.PositionXYZStream();
-            data << uint32(unit->m_movementInfo.inertia->lifetime);
-        }
-
-        if (HasAdvFlying)
-        {
-            data << float(unit->m_movementInfo.advFlying->forwardVelocity);
-            data << float(unit->m_movementInfo.advFlying->upVelocity);
-        }
+        if (!unit->m_movementInfo.transport.guid.IsEmpty())
+            data << unit->m_movementInfo.transport;
 
         if (HasFall)
         {
@@ -336,6 +323,19 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
                 data << float(unit->m_movementInfo.jump.cosAngle);
                 data << float(unit->m_movementInfo.jump.xyspeed);      // Speed
             }
+        }
+
+        if (HasInertia)
+        {
+            data << unit->m_movementInfo.inertia->id;
+            data << unit->m_movementInfo.inertia->force.PositionXYZStream();
+            data << uint32(unit->m_movementInfo.inertia->lifetime);
+        }
+
+        if (HasAdvFlying)
+        {
+            data << float(unit->m_movementInfo.advFlying->forwardVelocity);
+            data << float(unit->m_movementInfo.advFlying->upVelocity);
         }
 
         if (HasDriveStatus)
@@ -386,18 +386,22 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
         data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION));
         data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_LAUNCH_SPEED_COEFFICIENT));
 
-        data.WriteBit(HasSpline);
-        data.FlushBits();
-
         if (MovementForces const* movementForces = unit->GetMovementForces())
             for (MovementForce const& force : *movementForces->GetForces())
                 WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(force, data, unit);
+
+        data.WriteBit(HasSpline);
+        data.FlushBits();
 
         if (HasSpline)
             WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, data);
     }
 
-    data << uint32(PauseTimes.size());
+    if (flags.MovementTransport)
+    {
+        WorldObject const* self = static_cast<WorldObject const*>(this);
+        data << self->m_movementInfo.transport;
+    }
 
     if (flags.Stationary)
     {
@@ -433,30 +437,6 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
     {
         GameObject const* gameObject = static_cast<GameObject const*>(this);
         data << uint64(gameObject->GetPackedLocalRotation());          // Rotation
-    }
-
-    //if (flags.Room)
-    //    data << ObjectGuid(HouseGUID);
-
-    //if (flags.Decor)
-    //    data << ObjectGuid(RoomGUID);
-
-    //if (flags.MeshObject)
-    //{
-    //    data << ObjectGuid(AttachParentGUID);
-    //    data << TaggedPosition<Position::XYZ>(PositionLocalSpace);
-    //    data << QuaternionData(RotationLocalSpace);
-    //    data << float(ScaleLocalSpace);
-    //    data << uint8(AttachmentFlags);
-    //}
-
-    if (!PauseTimes.empty())
-        data.append(PauseTimes.data(), PauseTimes.size());
-
-    if (flags.MovementTransport)
-    {
-        WorldObject const* self = static_cast<WorldObject const*>(this);
-        data << self->m_movementInfo.transport;
     }
 
     if (flags.GameObject)
@@ -652,6 +632,24 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
 
         data.FlushBits();
     }
+
+    //if (flags.Room)
+    //    data << ObjectGuid(HouseGUID);
+
+    //if (flags.Decor)
+    //    data << ObjectGuid(RoomGUID);
+
+    //if (flags.MeshObject)
+    //{
+    //    data << ObjectGuid(AttachParentGUID);
+    //    data << TaggedPosition<Position::XYZ>(PositionLocalSpace);
+    //    data << QuaternionData(RotationLocalSpace);
+    //    data << float(ScaleLocalSpace);
+    //    data << uint8(AttachmentFlags);
+    //}
+
+    if (!PauseTimes.empty())
+        data.append(PauseTimes.data(), PauseTimes.size());
 }
 
 UF::UpdateFieldFlag BaseEntity::GetUpdateFieldFlagsFor(Player const* /*target*/) const

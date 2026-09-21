@@ -169,14 +169,18 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     }
 
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
-        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, SpeedIsTime, "
-        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger_create_properties`"))
+        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, "
+        "PositionalSoundKitId, TimeToTargetScale, Speed, SpeedIsTime, "
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, "
+        "Roll, Pitch, Yaw, TargetRoll, TargetPitch, TargetYaw, ScriptName FROM `areatrigger_create_properties`"))
     {
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (Id)(IsCustom)(AreaTriggerId)(IsAreatriggerCustom)(Flags)
-                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)(TimeToTargetScale)(Speed)(SpeedIsTime)
-                (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)(ScriptName)
+                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)
+                (PositionalSoundKitId)(TimeToTargetScale)(Speed)(SpeedIsTime)
+                (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)
+                (Roll)(Pitch)(Yaw)(TargetRoll)(TargetPitch)(TargetYaw)(ScriptName)
             ) fields { *areatriggerCreateProperties };
 
             AreaTriggerCreatePropertiesId createPropertiesId = { fields.Id().GetUInt32(), fields.IsCustom().GetBool() };
@@ -193,7 +197,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            if (shape == AreaTriggerShapeType::Unk || shape >= AreaTriggerShapeType::Max)
+            if (shape == AreaTriggerShapeType::Script || shape == AreaTriggerShapeType::FromUnit || shape >= AreaTriggerShapeType::Max)
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid shape {}.",
                     createPropertiesId.Id, uint32(createPropertiesId.IsCustom), uint32(shape));
@@ -236,6 +240,23 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 }
             }
 
+            createProperties.PositionalSoundKitId  = fields.PositionalSoundKitId().GetInt32();
+            if (createProperties.PositionalSoundKitId)
+            {
+                if (!sSoundKitStore.HasRecord(createProperties.PositionalSoundKitId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid PositionalSoundKitId {}, set to 0.",
+                        createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties.PositionalSoundKitId);
+                    createProperties.PositionalSoundKitId = 0;
+                }
+                else if (shape != AreaTriggerShapeType::Sphere && shape != AreaTriggerShapeType::Cylinder)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with PositionalSoundKitId {} on unsupported shape {}, set to 0.",
+                        createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties.PositionalSoundKitId, uint32(shape));
+                    createProperties.PositionalSoundKitId = 0;
+                }
+            }
+
             createProperties.TimeToTargetScale     = fields.TimeToTargetScale().GetUInt32();
             createProperties.Speed                 = fields.Speed().GetFloat();
             createProperties.SpeedIsTime           = fields.SpeedIsTime().GetBool();
@@ -254,9 +275,10 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 case AreaTriggerShapeType::Box:
                     createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Box>(shapeData);
                     break;
+                case AreaTriggerShapeType::Quad2D:
                 case AreaTriggerShapeType::Polygon:
                 {
-                    AreaTriggerShapeInfo::Polygon& polygon = createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Polygon>(shapeData);
+                    AreaTriggerShapeInfo::Polygon& polygon = createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Polygon>(shape, shapeData);
                     if (polygon.Height <= 0.0f)
                     {
                         polygon.Height = 1.0f;
@@ -286,6 +308,31 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                     break;
                 default:
                     break;
+            }
+
+            createProperties.RollPitchYaw.Pos.Relocate(
+                Position::NormalizeOrientation(fields.Roll().GetFloat()),
+                Position::NormalizeOrientation(fields.Pitch().GetFloat()),
+                Position::NormalizeOrientation(fields.Yaw().GetFloat()));
+
+            std::array<Optional<float>, 3> targetRollPitchYaw =
+            {
+                fields.TargetRoll().GetFloatOrNull(),
+                fields.TargetPitch().GetFloatOrNull(),
+                fields.TargetYaw().GetFloatOrNull()
+            };
+
+            if (std::ptrdiff_t trpyFields = std::ranges::count_if(targetRollPitchYaw, [](Optional<float> const& angle) { return angle.has_value(); }); trpyFields == 3)
+            {
+                createProperties.TargetRollPitchYaw.emplace(
+                    Position::NormalizeOrientation(*targetRollPitchYaw[0]),
+                    Position::NormalizeOrientation(*targetRollPitchYaw[1]),
+                    Position::NormalizeOrientation(*targetRollPitchYaw[2]));
+            }
+            else if (trpyFields)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid TargetRoll {}, TargetPitch {}, TargetYaw {} combination, they must either all be NULL or all have value, ignored.",
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), targetRollPitchYaw[0], targetRollPitchYaw[1], targetRollPitchYaw[2]);
             }
 
             createProperties.ScriptId = sObjectMgr->GetScriptId(fields.ScriptName().GetStringView());
