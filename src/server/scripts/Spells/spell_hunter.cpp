@@ -440,6 +440,31 @@ class spell_hun_explosive_shot : public AuraScript
     }
 };
 
+// 5384 - Feign Death
+class spell_hun_feign_death : public AuraScript
+{
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetCaster()->ToPlayer()->SendMirrorTimer(FIRE_TIMER, GetDuration(), GetDuration(), -1, GetAura()->GetId());
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetCaster()->ToPlayer()->StopMirrorTimer(FIRE_TIMER);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_hun_feign_death::OnApply, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_feign_death::OnRemove, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 236775 - High Explosive Trap
 // 9810 - AreatriggerId
 struct areatrigger_hun_high_explosive_trap : AreaTriggerAI
@@ -1473,6 +1498,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
+    RegisterSpellScript(spell_hun_feign_death);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
