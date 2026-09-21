@@ -15,6 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Chain Lightning repeat timer requires to be revisited
+ * The way he casts shocks is quite tricky, requires research and proper implementation. He can cast all 4 shocks in a row with 1 sec
+   delay between shocks in normal (sniff) and heroic (video). At the same time he can cast shocks with bigger delays(too short sniff).
+   Looks like he can't cast same shock more than once per 'wave'. Looks like shocks are always shuffled before using. Elementals casts
+   serverside spells on spawn and on death but looks like on-death spells has nothing to do with shocks. Maybe on-spawn does
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -31,12 +39,17 @@ enum SythTexts
 
 enum SythSpells
 {
-    SPELL_FROST_SHOCK           = 21401,
-    SPELL_FLAME_SHOCK           = 34354,
-    SPELL_SHADOW_SHOCK          = 30138,
-    SPELL_ARCANE_SHOCK          = 37132,
+    SPELL_FROST_SHOCK           = 12548,
+    SPELL_FROST_SHOCK_H         = 21401,
+    SPELL_FLAME_SHOCK           = 15039,
+    SPELL_FLAME_SHOCK_H         = 15616,
+    SPELL_SHADOW_SHOCK          = 33620,
+    SPELL_SHADOW_SHOCK_H        = 38136,
+    SPELL_ARCANE_SHOCK          = 33534,
+    SPELL_ARCANE_SHOCK_H        = 38135,
 
     SPELL_CHAIN_LIGHTNING       = 15659,
+    SPELL_CHAIN_LIGHTNING_H     = 15305,
 
     SPELL_SUMMON_ELEMENTALS     = 33595,
 
@@ -48,10 +61,10 @@ enum SythSpells
 
 enum SythEvents
 {
-    EVENT_FLAME_SHOCK           = 1,
-    EVENT_ARCANE_SHOCK,
-    EVENT_FROST_SHOCK,
+    EVENT_FROST_SHOCK           = 1,
+    EVENT_FLAME_SHOCK,
     EVENT_SHADOW_SHOCK,
+    EVENT_ARCANE_SHOCK,
     EVENT_CHAIN_LIGHTNING,
     EVENT_SUMMON
 };
@@ -84,28 +97,14 @@ struct boss_darkweaver_syth : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
-        events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
-        events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
-        events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
-        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10s, 15s);
 
         Talk(SAY_AGGRO);
-    }
 
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
-
-        if (Creature* lakka = me->FindNearestCreature(NPC_LAKKA, 500.0f, true))
-            lakka->AI()->Talk(SAY_LAKKA_FREE);
-    }
-
-    void KilledUnit(Unit* who) override
-    {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
+        events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
+        events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
+        events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
+        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -116,9 +115,9 @@ struct boss_darkweaver_syth : public BossAI
         summons.Summon(summoned);
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_SUMMON_ELEMENTALS)
+        if (spellInfo->Id == SPELL_SUMMON_ELEMENTALS)
             Talk(SAY_SUMMON);
     }
 
@@ -143,29 +142,43 @@ struct boss_darkweaver_syth : public BossAI
         }
     }
 
+    void KilledUnit(Unit* /*who*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+
+        if (Creature* lakka = me->FindNearestCreature(NPC_LAKKA, 500.0f, true))
+            lakka->AI()->Talk(SAY_LAKKA_FREE);
+    }
+
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
-            case EVENT_FLAME_SHOCK:
-                DoCastVictim(SPELL_FLAME_SHOCK);
-                events.Repeat(10s, 15s);
-                break;
-            case EVENT_ARCANE_SHOCK:
-                DoCastVictim(SPELL_ARCANE_SHOCK);
-                events.Repeat(10s, 15s);
-                break;
             case EVENT_FROST_SHOCK:
-                DoCastVictim(SPELL_FROST_SHOCK);
+                DoCastVictim(DUNGEON_MODE(SPELL_FROST_SHOCK, SPELL_FROST_SHOCK_H));
+                events.Repeat(10s, 15s);
+                break;
+            case EVENT_FLAME_SHOCK:
+                DoCastVictim(DUNGEON_MODE(SPELL_FLAME_SHOCK, SPELL_FLAME_SHOCK_H));
                 events.Repeat(10s, 15s);
                 break;
             case EVENT_SHADOW_SHOCK:
-                DoCastVictim(SPELL_SHADOW_SHOCK);
+                DoCastVictim(DUNGEON_MODE(SPELL_SHADOW_SHOCK, SPELL_SHADOW_SHOCK_H));
+                events.Repeat(10s, 15s);
+                break;
+            case EVENT_ARCANE_SHOCK:
+                DoCastVictim(DUNGEON_MODE(SPELL_ARCANE_SHOCK, SPELL_ARCANE_SHOCK_H));
                 events.Repeat(10s, 15s);
                 break;
             case EVENT_CHAIN_LIGHTNING:
-                DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                events.Repeat(25s);
+                DoCastVictim(DUNGEON_MODE(SPELL_CHAIN_LIGHTNING, SPELL_CHAIN_LIGHTNING_H));
+                events.Repeat(20s, 35s);
                 break;
             case EVENT_SUMMON:
                 DoCastSelf(SPELL_SUMMON_ELEMENTALS);
@@ -198,10 +211,10 @@ class spell_darkweaver_syth_summon_elementals : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_SUMMON_SYTH_ARCANE, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
-        caster->CastSpell(caster, SPELL_SUMMON_SYTH_FIRE, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
-        caster->CastSpell(caster, SPELL_SUMMON_SYTH_FROST, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
-        caster->CastSpell(caster, SPELL_SUMMON_SYTH_SHADOW, TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
+        caster->CastSpell(nullptr, SPELL_SUMMON_SYTH_ARCANE, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_SYTH_FIRE, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_SYTH_FROST, true);
+        caster->CastSpell(nullptr, SPELL_SUMMON_SYTH_SHADOW, true);
     }
 
     void Register() override
