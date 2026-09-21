@@ -2467,7 +2467,16 @@ Player::DeleteFromDB() cleanup                   STATIC PASS (kompilace ověřen
 
 ```text
 .aiworld faction command       STATIC PASS (code review proti existujícímu QueryCallback/CharacterHandler.cpp vzoru; registrace v cs_script_loader.cpp ověřena čtením - žádný compiler/CI běh pro tenhle commit potvrzen, BUILD PASS zatím netvrdíme)
-runtime membership test        PENDING (none -> join Defias -> DB=2 -> relog stále 2 -> join znovu idempotentní -> switch Riverpaw=3 -> leave -> row zmizí)
+runtime membership test        FAIL -> FIXED (worldserver crash/disconnect při prvním použití - viz níže)
+```
+
+**HIGH regrese nalezená živým testem (2026-09-21):** první pokus o `.aiworld faction status` server rovnou spadl (disconnect všech klientů). Příčina: `CHAR_SEL_AI_PLAYER_WORLD_FACTION`/`CHAR_REP_AI_PLAYER_WORLD_FACTION`/`CHAR_DEL_AI_PLAYER_WORLD_FACTION` byly pořád připravené jen jako `CONNECTION_SYNCH`, i po zavedení `LoadMembershipAsync()`/`JoinAsync()`/`LeaveAsync()` v předchozím komitu. `MySQLConnection::PrepareStatement()` (`m_connectionFlags & flags` kontrola) statement s `CONNECTION_SYNCH`-only flagem na async connection vůbec nezaregistruje - zůstane `nullptr`. `CharacterDatabase.AsyncQuery(stmt)` na takovém statementu pak spadne na nullptr, což shodí celý proces, ne jen volajícího. Klasický "opravil jsem volající kód, zapomněl přegenerovat statement flags" bug.
+
+Oprava: všechny tři statementy jsou teď `CONNECTION_BOTH` - `LoadMembership()`/`Join()`/`Leave()` (sync, `Query()`/`DirectExecute()`) i `LoadMembershipAsync()`/`JoinAsync()`/`LeaveAsync()` (async, `AsyncQuery()`) je legitimně používají obě, takže je potřeba oba flagy najednou, ne přepnutí z jednoho na druhý.
+
+```text
+CONNECTION_BOTH fix            STATIC PASS (code review, žádný compiler/CI běh potvrzen)
+runtime membership test        PENDING (znovu od .aiworld faction status, po deployi tohohle fixu)
 ```
 
 ### 3.4 Coalition pravidla uvnitř frakcí

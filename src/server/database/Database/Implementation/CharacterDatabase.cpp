@@ -885,12 +885,21 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // PlayerWorldFactionPersistence's own on-demand queries, never cached on
     // the live Player object and never part of Player::LoadFromDB()'s own
     // LoginQueryHolder batch (deliberate - see that class's own comment).
-    // CONNECTION_SYNCH/DirectExecute() throughout: called synchronously,
-    // on demand, by whatever future code needs a specific character's
-    // membership - never from the world update loop, the same startup-
-    // only-or-on-demand discipline AgentPersistence's own non-economy
-    // methods already follow.
-    PrepareStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION, "SELECT world_faction_id FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_SYNCH);
+    // CONNECTION_BOTH, not CONNECTION_SYNCH: PlayerWorldFactionPersistence
+    // has two calling conventions on these same three statements -
+    // LoadMembership()/Join()/Leave() use CharacterDatabase.Query()/
+    // DirectExecute() (need CONNECTION_SYNCH), while LoadMembershipAsync()/
+    // JoinAsync()/LeaveAsync() use CharacterDatabase.AsyncQuery() (need
+    // CONNECTION_ASYNC - a statement prepared CONNECTION_SYNCH-only is
+    // simply never registered at all on an async connection, per
+    // MySQLConnection::PrepareStatement()'s own `m_connectionFlags & flags`
+    // check, so AsyncQuery() against it hits a null prepared statement and
+    // crashes the whole process, not just the caller - reproduced live
+    // when CONNECTION_SYNCH was still in place here). Both calling
+    // conventions are legitimately used (see that class's own header
+    // comment for which contexts call which), so both connection flags are
+    // required, not a choice between them.
+    PrepareStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION, "SELECT world_faction_id FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_BOTH);
 
     // REPLACE INTO (CHAR_REP_ prefix, the same convention CHAR_REP_INVENTORY_ITEM/
     // CHAR_REP_ITEM_INSTANCE already use elsewhere in this file) - a
@@ -898,12 +907,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // new WorldFaction always replaces any existing row rather than needing
     // a separate UPDATE-vs-INSERT branch. joined_at is set SQL-side
     // (UNIX_TIMESTAMP()), not passed as a bound parameter.
-    PrepareStatement(CHAR_REP_AI_PLAYER_WORLD_FACTION, "REPLACE INTO ai_player_world_faction (character_guid, world_faction_id, joined_at) VALUES (?, ?, UNIX_TIMESTAMP())", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_REP_AI_PLAYER_WORLD_FACTION, "REPLACE INTO ai_player_world_faction (character_guid, world_faction_id, joined_at) VALUES (?, ?, UNIX_TIMESTAMP())", CONNECTION_BOTH);
 
     // Leaving a WorldFaction deletes the row entirely - "no membership" is
     // row absence, never an explicit world_faction_id = 0 row (see the
     // migration's own comment).
-    PrepareStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION, "DELETE FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_DEL_AI_PLAYER_WORLD_FACTION, "DELETE FROM ai_player_world_faction WHERE character_guid = ?", CONNECTION_BOTH);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
