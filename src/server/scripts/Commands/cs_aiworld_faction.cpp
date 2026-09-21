@@ -41,8 +41,12 @@ Comment: .aiworld faction status/join/leave - GM/debug interface for
 
     Deliberately long-lived tooling, not a temporary startup smoke test:
     this is the only way to exercise Join()/Leave()/LoadMembership() at all
-    right now, since PlayerFactionRelationResolver (the intended production
-    consumer) does not exist yet.
+    right now. Per the 2026-09-21 architectural audit
+    (AIWorld_Current_Roadmap.md), the intended production consumer is a
+    future login/allegiance-change bridge into
+    ReputationMgr::ApplyForceReaction() - there is no
+    PlayerFactionRelationResolver and none will be built; TrinityCore's own
+    WorldObject::GetReactionTo() stays the sole gameplay reaction authority.
 Category: commandscripts
 EndScriptData */
 

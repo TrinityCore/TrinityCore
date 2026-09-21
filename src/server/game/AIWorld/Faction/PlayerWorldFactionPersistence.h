@@ -28,9 +28,18 @@
 // persistent storage for a character's own social/political allegiance -
 // separate from earned reputation (TrinityCore's own character_reputation/
 // ReputationMgr, untouched by this) and from any diplomacy/combat
-// consequence (WorldFactionRelationCatalog, a future resolver, and any
-// ReputationMgr::ApplyForceReaction() bridge are all later, separate
-// steps - this class is pure persistence, nothing else).
+// consequence. This class is pure persistence, nothing else.
+//
+// Architectural audit (2026-09-21, AIWorld_Current_Roadmap.md): TrinityCore's
+// own Faction.dbc/FactionTemplate.dbc/WorldObject::GetReactionTo()/
+// ReputationMgr remains the SOLE gameplay reaction authority - there is no
+// PlayerFactionRelationResolver and none will be built (it would be a second,
+// parallel GetReactionTo()). The intended future consumer of the value
+// stored here is a small login/allegiance-change bridge that calls
+// ReputationMgr::ApplyForceReaction() once per change (via
+// WorldFactionRelationCatalog + a WorldFactionId -> Trinity FactionId map,
+// neither of which exist yet) - never a per-interaction resolver, never
+// something a live Player*/Creature* reaction check consults directly.
 //
 // Deliberately NOT integrated with Player::LoadFromDB()'s LoginQueryHolder/
 // cached on the live Player object - every method here is an independent,

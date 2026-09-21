@@ -2479,6 +2479,70 @@ CONNECTION_BOTH fix            STATIC PASS (code review, žádný compiler/CI b�
 runtime membership test        PENDING (znovu od .aiworld faction status, po deployi tohohle fixu)
 ```
 
+## Architektonický audit (2026-09-21) — TrinityCore zůstává jedinou gameplay reaction autoritou
+
+Před pokračováním na `PlayerFactionRelationResolver` proběhl audit celé faction sekce 3.3. Závěr: TrinityCore už má silnou, plně autoritativní cestu pro player↔NPC reakci -
+
+```text
+Faction.dbc → FactionTemplate.dbc → WorldObject::GetReactionTo() → IsFriendlyTo()/IsHostileTo()
+                                            ↑
+Player → ReputationMgr → character_reputation → standing/AtWar/GetForcedRankIfAny()
+```
+
+`WorldObject::GetReactionTo()` už dnes kontroluje `ReputationMgr::GetForcedRankIfAny()`, standardní reputaci, AtWar i `FactionTemplateEntry::IsHostileTo()`/`IsFriendlyTo()` - to je přesně to jediné místo, přes které smí gameplay reakce chodit. Plánovaný `PlayerFactionRelationResolver` by byl druhý, paralelní `GetReactionTo()` - dva systémy, které by se pak musely nějak rozhodovat, který má přednost. To se neimplementuje.
+
+Důležitá nuance: `Player::m_team` (Alliance/Horde) je jen dvoustranný team odvozený z rasy (`TeamForRace()`/`SetFactionForRace()` při loginu) - WorldFaction membership nikdy nesmí být modelovaná jako "třetí Team vedle Alliance/Horde", to by zasahovalo PvP/battlegroundy/group pravidla, na kterých TrinityCore hluboce staví.
+
+### Klasifikace existující faction práce
+
+| Artefakt | Kategorie | Rozhodnutí |
+|---|---|---|
+| `factions.csv`, `faction_templates.csv`, `tools/dbc/build_elwynn_factions.py` (custom `Faction.dbc` 1201-1204, `FactionTemplate.dbc` klony 2300-2306) | **(A) TrinityCore extension** | Ponechat beze změny - rozšiřuje Trinity vlastní DBC pipeline, nic neobchází. |
+| `2026_09_16_01_world.sql` (`creature_template.faction` repoint na custom klony) | **(A) TrinityCore extension** | Ponechat - napojuje se přímo do `FactionTemplate` → `GetReactionTo()` cesty. |
+| `creature_onkill_reputation` (`2026_09_16_02`/`2026_09_21_00`/`01_world.sql`) | **(A) TrinityCore extension** | Ponechat - stock `Player::RewardReputation()`/`ReputationMgr`, runtime PASS. |
+| `character_reputation`/`ReputationMgr` runtime (4 custom reputation bary) | **(A) TrinityCore extension** | Ponechat - runtime ověřeno 2026-09-16/09-21, beze změny. |
+| `WorldFactionId` na `AgentRecord`, `WorldFactionCatalog` (`CreatureEntry -> WorldFactionId`), `world_factions.csv`/`world_faction_assignments.csv`'s `world_faction` sloupec | **(B) AI simulation metadata** | Ponechat - sociální/politická identita NPC pro coalition eligibility (`CoalitionFormationProfile::RequiredWorldFaction`), holdings, unloaded simulation. Nikdy nesmí být vstupem do `GetReactionTo()` - to řídí výhradně `creature_template.faction`/`FactionTemplate.dbc`, nezávisle. |
+| `WorldFactionRelationCatalog` (`world_faction_relations.csv`) | **(B) AI simulation metadata, zúženo** | Ponechat, ale konzumentem smí být jen AI-simulation kód (budoucí coalition conflict/expanze v Etapě 4, a jednorázově allegiance-change bridge níže) - nikdy per-interakce player reaction resolver. |
+| `PlayerFactionRelationResolver` | **(C) Duplicitní systém** | **Zrušeno, neimplementuje se.** Byl by to druhý `GetReactionTo()`. |
+| `PlayerWorldFactionPersistence` (`Join()`/`Leave()`/`LoadMembership()` + async varianty) | **(C) → přerámováno, ne zrušeno** | Mechanismus (tabulka, read-back-confirmed zápis) zůstává použitelný, ale role se mění: není to vstup do vlastního relation enginu. Je to persistentní "active allegiance" flag, jehož jediný budoucí konzument je login/allegiance-change bridge volající `ReputationMgr::ApplyForceReaction()` - nikdy přímo gameplay/reaction cesta. |
+| `.aiworld faction status/join/leave` (`cs_aiworld_faction.cpp`) | Nezávislé na výše | Zůstává jako debug nástroj pro `PlayerWorldFactionPersistence` - funguje beze změny, jen komentář aktualizován (viz níže). |
+
+### Opravený plán pro "hráč vstoupil do Defias"
+
+Místo resolveru:
+
+```text
+Player joins Defias
+        │
+        ├── persistent active allegiance = Defias   (PlayerWorldFactionPersistence, beze změny)
+        │
+        └── při loginu / změně allegiance (NOVÝ, malý bridge - zatím neimplementováno)
+                ↓
+          malá explicitní mapa WorldFactionId -> Trinity FactionId
+          (STORMWIND_ALLIANCE -> vanilla Stormwind FactionId, DEFIAS_BROTHERHOOD -> 1201,
+           RIVERPAW_GNOLLS -> 1202, ELWYNN_KOBOLDS -> 1203, ELWYNN_MURLOCS -> 1204,
+           ELWYNN_WOLVES -> žádná - není player-visible)
+                ↓
+          WorldFactionRelationCatalog.Resolve(Defias, X) pro každou mapovanou X
+                ↓
+          ReputationMgr::ApplyForceReaction(factionId, Friendly/Hostile) - jen tam, kde relation
+          NENÍ Neutral; Neutral = žádný override, beze změny
+                ↓
+          Trinity WorldObject::GetReactionTo() - jediná autorita, beze změny
+```
+
+Klíčový rozdíl oproti resolveru: `WorldFactionRelationCatalog` se čte **jednou při změně allegiance** (max. 6 lookupů, O(počet WorldFaction)), ne při každé reaction kontrole. Žádný `Player*`/`Creature*` nepřekračuje hranici mimo tenhle jednorázový bridge - vše ostatní zůstává čistě Trinity.
+
+`character_reputation`/earned reputation se `ApplyForceReaction()`-em nepřepisuje - `ApplyForceReaction()` je runtime-only override (ne persistentní stav v Trinity), takže opuštění Defias znamená jen zrušení override, ne rekonstrukci staré reputace.
+
+Tenhle bridge **není implementovaný** - je to jen opravený plán. Než se začne psát, je potřeba doplnit `WorldFactionId -> Trinity FactionId` mapu (zatím žádná neexistuje) a ověřit `ApplyForceReaction()`'s přesnou signaturu/lifetime sémantiku (runtime-only vs. persisted, per-session vs. permanentní).
+
+### Zastaralé komentáře opraveny
+
+`PlayerWorldFactionPersistence.h`, `WorldFactionRelationCatalog.h` a `cs_aiworld_faction.cpp` zmiňovaly `PlayerFactionRelationResolver` jako budoucího konzumenta - opraveno na `ApplyForceReaction()` bridge podle tohohle auditu. Žádná funkční změna kódu, jen dokumentace.
+
+**Tenhle audit + komentáře jsou jediný obsah tohoto kroku - žádný feature commit.** Další skutečný krok (samostatný commit, až po runtime potvrzení `PlayerWorldFactionPersistence` z předchozí sekce) je `WorldFactionId -> Trinity FactionId` mapa + samotný login/allegiance-change bridge, ne resolver.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
