@@ -1426,9 +1426,13 @@ class spell_warl_shard_instability : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_SHARD_INSTABILITY });
     }
 
-    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    template <bool IsDrainSoul>
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return roll_chance(aurEff->GetAmount());
+        if (eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_WARLOCK, { 0x800000 }) != IsDrainSoul)
+            return false;
+
+        return roll_chance(aurEff->GetAmount(), _rng);
     }
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
@@ -1438,9 +1442,13 @@ class spell_warl_shard_instability : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_shard_instability::CheckProc, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_shard_instability::CheckProc<true>, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warl_shard_instability::CheckProc<false>, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warl_shard_instability::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_warl_shard_instability::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
+
+    PseudoRandomDistributionState _rng;
 };
 
 // 452999 - Siphon Life
