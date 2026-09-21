@@ -59,18 +59,16 @@ TC_GAME_API WorldFactionRelation ResolveWorldFactionRelation(
 // - this class never reads the CSV directly, only the world DB table it
 // was used to populate.
 //
-// Deliberately NOT wired into any player/combat/reputation decision yet -
-// this is only the static WorldFaction <-> WorldFaction diplomacy layer.
-//
 // Architectural audit (2026-09-21, AIWorld_Current_Roadmap.md): this catalog
 // must NEVER become the authority for player<->NPC gameplay reaction -
 // TrinityCore's own WorldObject::GetReactionTo()/FactionTemplate.dbc/
 // ReputationMgr keeps that role permanently. There is no
 // PlayerFactionRelationResolver reading Resolve() per interaction, and none
-// will be built. The only planned consumer is a future login/allegiance-
-// change bridge that reads Resolve() a handful of times (once per known
-// WorldFaction, on membership change) to decide which TrinityCore FactionIds
-// to ReputationMgr::ApplyForceReaction() - not a hot path, not per-tick, not
+// will be built. The actual consumer is PlayerWorldFactionReactionBridge
+// (Faction/PlayerWorldFactionReactionBridge.h), which reads Resolve() a
+// handful of times (once per known WorldFaction, on login or .aiworld
+// faction join/leave) to decide which TrinityCore FactionIds to
+// ReputationMgr::ApplyForceReaction() - not a hot path, not per-tick, not
 // per-reaction-check. AI-simulation code (Etapa 4 coalition conflict/
 // expansion, holdings) may also read it - that was always in scope.
 class TC_GAME_API WorldFactionRelationCatalog

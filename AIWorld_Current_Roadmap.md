@@ -2578,6 +2578,21 @@ WorldFactionReputationCatalog              STATIC PASS (code review, žádný co
 
 Krok 2/2 (login query + bridge + `.aiworld faction` napojení) je samostatný, následující commit.
 
+**Stav (2026-09-21) — krok 2/2, login integrace + `PlayerWorldFactionReactionBridge`:** `PLAYER_LOGIN_QUERY_LOAD_AI_WORLD_FACTION` (`Player.h`) zapojen do `LoginQueryHolder::Initialize()` (`CharacterHandler.cpp`, reuse existující `CHAR_SEL_AI_PLAYER_WORLD_FACTION`, už `CONNECTION_BOTH`) a zpracován v `Player::LoadFromDB()` hned za `m_reputationMgr->LoadFromDB(...)`, před `_LoadInventory(...)` - přesně podle ověřeného pořadí (`Player.cpp:17505-17513`). Gated na `AIWorldMgr::IsEnabled()`.
+
+Nový `PlayerWorldFactionReactionBridge` (`src/server/game/AIWorld/Faction/`) - dvě volné funkce, žádný stav. `ApplySync(Player&, WorldFactionId, ...)` vždy nejdřív vyčistí celou známou množinu Faction.dbc ID (`WorldFactionReputationCatalog::AllMappings()`), pak pro non-Unaffiliated allegiance aplikuje Friendly/Hostile podle `WorldFactionRelationCatalog::Resolve()` (Neutral = žádný override) - stateless z konstrukce, nikdy nepotřebuje znát předchozí stav. `NotifyAndDisengage(Player&, ...)` (jen pro živého hráče, nikdy z loginu) volá `SendForceReactions()` + `StopAttackFaction()` pro každou efektivně Friendly faction - mirror `AuraEffect::HandleForceReaction()` (`SpellAuraEffects.cpp:4722-4742`) přesně, jen napříč celou spravovanou množinou místo jedné změněné.
+
+`AIWorldMgr` dostal `GetWorldFactionRelationCatalog()`/`GetWorldFactionReputationCatalog()` const gettery (dosud private bez přístupu). `.aiworld faction join/leave` (`cs_aiworld_faction.cpp`) volá bridge v success callbacku - `session->GetPlayer()` se znovu načítá UVNITŘ callbacku (ne zachycený `Player*` napříč async mezerou - hráč se mohl mezitím odhlásit).
+
+```text
+Login query wiring (Player.h/.cpp, CharacterHandler.cpp)   STATIC PASS (code review proti ověřenému Player::LoadFromDB() pořadí, žádný compiler/CI běh potvrzen)
+PlayerWorldFactionReactionBridge                            STATIC PASS (mirror SPELL_AURA_FORCE_REACTION handleru, code review)
+.aiworld faction -> bridge napojení                          STATIC PASS
+runtime gate (join/switch/leave/relog/combat)                PENDING - žádné tvrzení RUNTIME PASS bez potvrzení na živém serveru
+```
+
+Tohle je vědomě první implementace tohoto rozsahu, co se nemohla ověřit kompilací (core soubory `Player.h`/`Player.cpp`/`CharacterHandler.cpp`) - runtime gate z bodu 5 výše (join → Defias Friendly + Stormwind Hostile; switch; leave; relog/restart; combat transition) je nutný krok před uzavřením celé sekce "Hráč a frakce", ne formalita.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:

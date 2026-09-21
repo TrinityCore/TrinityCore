@@ -191,6 +191,17 @@ class TC_GAME_API AIWorldMgr
         // time in this milestone, never mutated concurrently with it.
         bool OwnsSpawn(uint32 mapId, uint64 spawnId) const;
 
+        // Login/allegiance-change ReputationMgr bridge (AIWorld_Current_
+        // Roadmap.md, 2026-09-21 architectural audit) - read-only accessors
+        // to catalogs that were already private members with no consumer.
+        // Both are startup-loaded, read-only for the rest of this process's
+        // lifetime (see each catalog's own Load() comment), so returning a
+        // const reference is safe to call from anywhere that already holds
+        // a valid AIWorldMgr instance, including Player::LoadFromDB() (the
+        // world thread, during login) and a GM command callback.
+        WorldFactionRelationCatalog const& GetWorldFactionRelationCatalog() const { return _worldFactionRelationCatalog; }
+        WorldFactionReputationCatalog const& GetWorldFactionReputationCatalog() const { return _worldFactionReputationCatalog; }
+
         // Milestone 2.8F: safe to call from ANY thread TrinityCore itself
         // calls AIWorldCreatureAI::MovementInform() from (a map-updater
         // thread during Map::Update(), not necessarily the world thread).

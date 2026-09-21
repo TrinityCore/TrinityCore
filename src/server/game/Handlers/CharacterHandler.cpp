@@ -119,6 +119,16 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_REPUTATION, stmt);
 
+    // AI player WorldFaction allegiance (AIWorld_Current_Roadmap.md) - reuses
+    // the existing PlayerWorldFactionPersistence statement (already
+    // CONNECTION_BOTH), read here so Player::LoadFromDB() can apply it as a
+    // ReputationMgr forced-reaction override before the player is added to
+    // the map, the same "before inventory" placement discipline the
+    // reputation query above documents for its own ordering constraint.
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AI_PLAYER_WORLD_FACTION);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AI_WORLD_FACTION, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_INVENTORY);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INVENTORY, stmt);

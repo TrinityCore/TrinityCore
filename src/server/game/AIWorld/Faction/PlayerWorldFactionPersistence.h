@@ -34,15 +34,19 @@
 // own Faction.dbc/FactionTemplate.dbc/WorldObject::GetReactionTo()/
 // ReputationMgr remains the SOLE gameplay reaction authority - there is no
 // PlayerFactionRelationResolver and none will be built (it would be a second,
-// parallel GetReactionTo()). The intended future consumer of the value
-// stored here is a small login/allegiance-change bridge that calls
-// ReputationMgr::ApplyForceReaction() once per change (via
-// WorldFactionRelationCatalog + a WorldFactionId -> Trinity FactionId map,
-// neither of which exist yet) - never a per-interaction resolver, never
+// parallel GetReactionTo()). The actual consumer of the value stored here is
+// PlayerWorldFactionReactionBridge (Faction/PlayerWorldFactionReactionBridge.h),
+// called once per lifecycle event (login, .aiworld faction join/leave) to
+// push a ReputationMgr::ApplyForceReaction() sync via WorldFactionRelationCatalog
+// + WorldFactionReputationCatalog - never a per-interaction resolver, never
 // something a live Player*/Creature* reaction check consults directly.
 //
-// Deliberately NOT integrated with Player::LoadFromDB()'s LoginQueryHolder/
-// cached on the live Player object - every method here is an independent,
+// This class's own methods (LoadMembership()/Join()/Leave() and their async
+// counterparts) are still never called from Player::LoadFromDB() directly -
+// login instead reads the same CHAR_SEL_AI_PLAYER_WORLD_FACTION statement
+// through PLAYER_LOGIN_QUERY_LOAD_AI_WORLD_FACTION in the ordinary
+// LoginQueryHolder batch (CharacterHandler.cpp), independent of this class.
+// Every method here remains an independent,
 // on-demand characters-DB query keyed by ObjectGuid, the same "contained,
 // no core-file changes" shape AgentPersistence already uses for ai_agents.
 // Stateless (holds no member data). LoadMembership()/Join()/Leave() are

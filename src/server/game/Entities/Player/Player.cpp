@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "AIWorldMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -82,6 +83,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PetitionMgr.h"
+#include "PlayerWorldFactionReactionBridge.h"
 #include "PoolMgr.h"
 #include "QueryHolder.h"
 #include "QuestDef.h"
@@ -17509,6 +17511,26 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
+
+    // AI player WorldFaction allegiance -> ReputationMgr forced-reaction
+    // sync (AIWorld_Current_Roadmap.md, login/allegiance-change bridge).
+    // Must run after the real reputation load immediately above (a forced
+    // override should never race a real standing it might need to
+    // consider) and before the player reaches SendInitialPacketsBeforeAddToMap()
+    // (its own later SendInitialReputations()/SendForceReactions() calls
+    // pick up whatever ApplySync() sets here, so no extra packet is needed
+    // from login specifically - see PlayerWorldFactionReactionBridge's own
+    // header comment). Gated on AIWorldMgr::IsEnabled() - when AIWorld is
+    // disabled, no AIWorld code runs at all, this included.
+    if (sAIWorldMgr->IsEnabled())
+    {
+        WorldFactionId allegiance = WorldFactions::Unaffiliated;
+        if (PreparedQueryResult allegianceResult = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AI_WORLD_FACTION))
+            allegiance = WorldFactionId{ allegianceResult->Fetch()[0].GetUInt32() };
+
+        PlayerWorldFactionReactionBridge::ApplySync(*this, allegiance,
+            sAIWorldMgr->GetWorldFactionReputationCatalog(), sAIWorldMgr->GetWorldFactionRelationCatalog());
+    }
 
     _LoadInventory(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY), time_diff);
 

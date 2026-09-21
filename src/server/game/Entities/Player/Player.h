@@ -724,6 +724,13 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
     PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS,
+    // AI player WorldFaction allegiance (AIWorld_Current_Roadmap.md,
+    // login/allegiance-change ReputationMgr bridge) - must be applied
+    // before the player is added to the map, the same reasoning
+    // PLAYER_LOGIN_QUERY_LOAD_REPUTATION's own "must be before inventory"
+    // comment documents for a different ordering constraint. See
+    // Player::LoadFromDB()'s own use of this index.
+    PLAYER_LOGIN_QUERY_LOAD_AI_WORLD_FACTION,
     MAX_PLAYER_LOGIN_QUERY
 };
 

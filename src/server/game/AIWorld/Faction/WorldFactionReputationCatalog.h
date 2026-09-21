@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "WorldFactionId.h"
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 // WorldFactionId -> Trinity Faction.dbc id bridge (AIWorld_Current_Roadmap.md,
 // architectural audit 2026-09-21): the ONLY reason this mapping exists is to
@@ -58,6 +60,16 @@ class TC_GAME_API WorldFactionReputationCatalog
         // left unchanged) if it does not - the caller must not force any
         // reaction for a WorldFactionId this returns false for.
         bool TryResolve(WorldFactionId worldFaction, uint32& outFactionId) const;
+
+        // Every (WorldFactionId, Faction.dbc id) pair this catalog knows -
+        // lets a caller (PlayerWorldFactionReactionBridge) enumerate every
+        // Faction.dbc id it might ever need to clear/apply without
+        // hardcoding the known WorldFaction set a second time in C++. The
+        // generated world DB table stays the only source of truth for
+        // "which WorldFactions have a player-visible reputation" - this
+        // just exposes it for iteration, same data Resolve()/TryResolve()
+        // already serve one at a time.
+        std::vector<std::pair<WorldFactionId, uint32>> AllMappings() const;
 
     private:
         std::unordered_map<uint32, uint32> _worldFactionToFactionId;

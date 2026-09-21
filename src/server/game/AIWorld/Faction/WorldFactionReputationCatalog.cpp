@@ -52,3 +52,13 @@ bool WorldFactionReputationCatalog::TryResolve(WorldFactionId worldFaction, uint
     outFactionId = it->second;
     return true;
 }
+
+std::vector<std::pair<WorldFactionId, uint32>> WorldFactionReputationCatalog::AllMappings() const
+{
+    std::vector<std::pair<WorldFactionId, uint32>> mappings;
+    mappings.reserve(_worldFactionToFactionId.size());
+    for (auto const& entry : _worldFactionToFactionId)
+        mappings.emplace_back(WorldFactionId{ entry.first }, entry.second);
+
+    return mappings;
+}

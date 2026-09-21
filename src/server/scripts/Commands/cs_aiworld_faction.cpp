@@ -40,19 +40,23 @@ Comment: .aiworld faction status/join/leave - GM/debug interface for
     blocking this handler's own stack frame.
 
     Deliberately long-lived tooling, not a temporary startup smoke test:
-    this is the only way to exercise Join()/Leave()/LoadMembership() at all
-    right now. Per the 2026-09-21 architectural audit
-    (AIWorld_Current_Roadmap.md), the intended production consumer is a
-    future login/allegiance-change bridge into
-    ReputationMgr::ApplyForceReaction() - there is no
-    PlayerFactionRelationResolver and none will be built; TrinityCore's own
-    WorldObject::GetReactionTo() stays the sole gameplay reaction authority.
+    this is the only way to exercise Join()/Leave()/LoadMembership() at all.
+    Per the 2026-09-21 architectural audit (AIWorld_Current_Roadmap.md),
+    there is no PlayerFactionRelationResolver and none will be built;
+    TrinityCore's own WorldObject::GetReactionTo() stays the sole gameplay
+    reaction authority. join/leave call PlayerWorldFactionReactionBridge
+    (Faction/PlayerWorldFactionReactionBridge.h) right after a confirmed
+    persistence write - the same one-time ReputationMgr::ApplyForceReaction()
+    sync Player::LoadFromDB() performs at login, reused here for a live
+    player instead of reinventing it.
 Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "AIWorldMgr.h"
 #include "Chat.h"
 #include "Faction/PlayerWorldFactionPersistence.h"
+#include "Faction/PlayerWorldFactionReactionBridge.h"
 #include "Faction/WorldFactionId.h"
 #include "Player.h"
 #include "WorldSession.h"
@@ -90,6 +94,26 @@ namespace
         if (faction == WorldFactions::ElwynnWolves)
             return "Elwynn Wolves";
         return "UNKNOWN(" + std::to_string(faction.Value) + ")";
+    }
+
+    // Shared by the Join()/Leave() success callbacks below - re-fetches
+    // session->GetPlayer() INSIDE the async callback rather than capturing
+    // a raw Player* across the DB round trip (the character may have logged
+    // out in the meantime even though the WorldSession itself survived a
+    // little longer; a captured Player* could dangle, a re-fetched one is
+    // simply null and skipped). Applies the same one-time ReputationMgr
+    // forced-reaction sync Player::LoadFromDB() performs at login, then
+    // (unlike login - this player is already live) notifies the client and
+    // disengages any now-Friendly combat.
+    void SyncLivePlayer(WorldSession* session, WorldFactionId allegiance)
+    {
+        Player* player = session->GetPlayer();
+        if (!player)
+            return;
+
+        WorldFactionReputationCatalog const& reputationCatalog = sAIWorldMgr->GetWorldFactionReputationCatalog();
+        PlayerWorldFactionReactionBridge::ApplySync(*player, allegiance, reputationCatalog, sAIWorldMgr->GetWorldFactionRelationCatalog());
+        PlayerWorldFactionReactionBridge::NotifyAndDisengage(*player, reputationCatalog);
     }
 }
 
@@ -156,6 +180,7 @@ public:
                 return;
             }
 
+            SyncLivePlayer(session, WorldFactions::Unaffiliated);
             session->SendNotification("AIWorld WorldFaction membership: left (now Unaffiliated).");
         }));
 
@@ -170,7 +195,7 @@ public:
 
         PlayerWorldFactionPersistence persistence;
         session->GetQueryProcessor().AddCallback(persistence.JoinAsync(characterGuid, faction,
-            [session, factionName](bool confirmed)
+            [session, faction, factionName](bool confirmed)
         {
             if (!confirmed)
             {
@@ -178,6 +203,7 @@ public:
                 return;
             }
 
+            SyncLivePlayer(session, faction);
             session->SendNotification("AIWorld WorldFaction membership: joined %s.", factionName.c_str());
         }));
 
