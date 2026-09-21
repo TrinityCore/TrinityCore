@@ -153,7 +153,7 @@ struct boss_anzu : public BossAI
         {
             _deadBroodCount++;
 
-            if (_deadBroodCount == std::size(BroodSpawnGroupsData))
+            if (_deadBroodCount == BroodSpawnGroupsData.size())
             {
                 me->RemoveAurasDueToSpell(SPELL_BANISH_SELF);
                 _deadBroodCount = 0;
