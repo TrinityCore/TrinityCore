@@ -133,6 +133,12 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // (from, to) pair, the same shape WORLD_SEL_AI_WORLD_FACTION_ENTRY_DEFAULTS
     // above already provides for WorldFactionCatalog.
     PrepareStatement(WORLD_SEL_AI_WORLD_FACTION_RELATIONS, "SELECT from_world_faction_id, to_world_faction_id, relation FROM ai_world_faction_relations", CONNECTION_SYNCH);
+
+    // AI WorldFactionReputationCatalog's own startup-only bulk read of the
+    // whole WorldFactionId -> Trinity Faction.dbc id bridge table
+    // (AIWorld_Current_Roadmap.md, login/allegiance-change ReputationMgr
+    // bridge) - one query, not one per WorldFactionId.
+    PrepareStatement(WORLD_SEL_AI_WORLD_FACTION_REPUTATION_DEFAULTS, "SELECT world_faction_id, faction_id FROM ai_world_faction_reputation_defaults", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
 }

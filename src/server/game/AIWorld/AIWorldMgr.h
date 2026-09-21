@@ -51,6 +51,7 @@
 #include "Faction/PlayerWorldFactionPersistence.h"
 #include "Faction/WorldFactionCatalog.h"
 #include "Faction/WorldFactionRelationCatalog.h"
+#include "Faction/WorldFactionReputationCatalog.h"
 #include "Reconciliation/SpawnParticipationCatalog.h"
 #include "Goal/FoodTargetResolver.h"
 #include "Goal/GoalSystem.h"
@@ -3041,6 +3042,15 @@ class TC_GAME_API AIWorldMgr
         // point (the same reason _persistence exists) - deliberately no
         // caller yet, same as _worldFactionRelationCatalog.
         PlayerWorldFactionPersistence _playerWorldFactionPersistence;
+
+        // WorldFactionId -> Trinity Faction.dbc id bridge table
+        // (AIWorld_Current_Roadmap.md, login/allegiance-change ReputationMgr
+        // bridge) - one world DB read at Initialize(), same lifecycle as the
+        // catalogs above. No caller yet, same "load the layer before a
+        // consumer exists" precedent _worldFactionRelationCatalog already
+        // set - the login/allegiance-change bridge that actually consumes
+        // this is a separate, later step.
+        WorldFactionReputationCatalog _worldFactionReputationCatalog;
 
         // Milestone 2.12D (STATIC review P2 fix): registry of persistent
         // AgentGroups - deliberately its own registry/GroupId identity

@@ -2567,6 +2567,17 @@ Tenhle bridge **není implementovaný** - je to jen opravený plán. Než se za�
 
 Až tohle projde, je sekce "Hráč a frakce" uzavřená jako první vertical slice; teprve pak defection/allegiance-change podmínky a diplomacy consequences z Etapy 4.
 
+**Stav (2026-09-21) — krok 1/2, `WorldFactionReputationCatalog` (bez callera):** `WorldFactionId -> Trinity Faction.dbc id` mapa - `data/elwynn/factions/world_faction_vanilla_reputation.csv` (nová, jeden řádek `STORMWIND_ALLIANCE,72,Stormwind`) + `tools/elwynn/build_world_faction_reputation_defaults.py`, který JOINuje `world_factions.csv` proti `factions.csv`'s existujícímu `world_faction` sloupci (4 custom, žádná duplicitní mapa) a proti nové vanilla CSV (Stormwind) - `ELWYNN_WOLVES` zůstává bez řádku (žádná player-visible reputace). Vanilla Stormwind `FactionId=72` je při generování cross-checknuté proti skutečnému `runtime/dbc-base/Faction.dbc` (ne jen okomentované jako předpoklad) - **ověření prošlo, 72 v base DBC reálně existuje.**
+
+Nová `WorldFactionReputationCatalog` (`src/server/game/AIWorld/Faction/`, mirror `WorldFactionCatalog`) - `TryResolve()` fail-closed vrací `false` pro cokoliv mimo mapovanou pětici, nikdy nehádá. `_worldFactionReputationCatalog` je členem `AIWorldMgr`, `Load()` unconditionally v `Initialize()` - zatím bez callera, stejný precedent jako `WorldFactionRelationCatalog`.
+
+```text
+ai_world_faction_reputation_defaults SQL   STATIC PASS (5 řádků, cross-checked proti CSV; Stormwind FactionId=72 ověřen proti reálnému Faction.dbc)
+WorldFactionReputationCatalog              STATIC PASS (code review, žádný compiler/CI běh potvrzen)
+```
+
+Krok 2/2 (login query + bridge + `.aiworld faction` napojení) je samostatný, následující commit.
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
