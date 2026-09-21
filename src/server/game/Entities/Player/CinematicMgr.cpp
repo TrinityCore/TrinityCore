@@ -47,7 +47,7 @@ void CinematicMgr::BeginCinematic()
     if (m_activeCinematicCameraId == 0)
         return;
 
-    uint32 const activeCamera = m_activeCinematicCameraId;
+    uint32 activeCamera = m_activeCinematicCameraId;
 
     if (!m_CinematicObjectGUID.IsEmpty())
         EndCinematic();
