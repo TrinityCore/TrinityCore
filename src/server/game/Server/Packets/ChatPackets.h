@@ -176,7 +176,7 @@ namespace WorldPackets
             std::string _Channel;   ///< Channel Name
             std::string ChatText;
             uint32 AchievementID = 0;
-            uint16 _ChatFlags = 0;   ///< @see enum ChatFlags
+            uint32 _ChatFlags = 0;   ///< @see enum ChatFlags
             float DisplayTime = 0.0f;
             int32 SpellID = 0;
             Optional<uint32> BroadcastTextID;

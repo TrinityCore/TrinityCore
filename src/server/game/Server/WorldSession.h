@@ -617,6 +617,7 @@ namespace WorldPackets
         class SetRestrictPingsToAssistants;
         class SendPingUnit;
         class SendPingWorldPoint;
+        class SendPingCooldown;
     }
 
     namespace Pet
@@ -1424,6 +1425,7 @@ class TC_GAME_API WorldSession
         void HandleSetRestrictPingsToAssistants(WorldPackets::Party::SetRestrictPingsToAssistants const& setRestrictPingsToAssistants);
         void HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& pingUnit);
         void HandleSendPingWorldPoint(WorldPackets::Party::SendPingWorldPoint const& pingWorldPoint);
+        void HandleSendPingCooldown(WorldPackets::Party::SendPingCooldown const& pingCooldown);
 
         void HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet);
         void HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures& packet);

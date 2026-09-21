@@ -18,6 +18,7 @@
 #include "Random.h"
 #include "Errors.h"
 #include "SFMTRand.h"
+#include <boost/math/tools/roots.hpp>
 #include <memory>
 #include <random>
 
@@ -88,4 +89,56 @@ uint32 urandweighted(size_t count, double const* chances)
 {
     std::discrete_distribution<uint32> dd(chances, chances + count);
     return dd(engine);
+}
+
+namespace
+{
+struct PseudoRandomDistributionChanceTable : std::array<float, 10000>
+{
+    PseudoRandomDistributionChanceTable()
+    {
+        (*this)[0] = 0.0f;
+        for (std::size_t i = 1; i < size(); ++i)
+            (*this)[i] = NormalizePseudoRandomDistributionChance(i * 0.0001f);
+    }
+
+    static float NormalizePseudoRandomDistributionChance(float chance)
+    {
+        std::uintptr_t iterationLimit = 10;
+        return boost::math::tools::newton_raphson_iterate([target = 1.0f / chance](float p) -> std::pair<float, float>
+        {
+            // (value, derivative) pairs
+            std::pair<float, float> chain = { 1.0f, 0.0f };
+            std::pair<float, float> result = { 1.0f - target, 0.0f };
+
+            uint32 cap = uint32(std::ceil(1.0f / p));
+            for (uint32 i = 1; i < cap; ++i)
+            {
+                float chanceToFail = 1 - p * i;
+                chain.second = chain.second * chanceToFail - chain.first * i;
+                chain.first = chain.first * chanceToFail;
+
+                result.first += chain.first;
+                result.second += chain.second;
+            }
+
+            return result;
+        }, chance * chance, 0.0f, chance, 6, iterationLimit);
+    }
+} const ChanceCache;
+}
+
+bool roll_chance(float chance, PseudoRandomDistributionState& state)
+{
+    std::ptrdiff_t chanceIndex = std::ptrdiff_t(std::round(chance * 100.0f));
+    if (chanceIndex < 0)
+        return false;
+
+    if (chanceIndex >= std::ssize(ChanceCache) || state.AccumulateChance(ChanceCache[chanceIndex]) > rand_norm())
+    {
+        state.Reset();
+        return true;
+    }
+
+    return false;
 }

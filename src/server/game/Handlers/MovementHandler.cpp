@@ -56,8 +56,8 @@ bool WorldSession::ValidateMovementInfo(Unit const* mover, MovementInfo* mi) con
         if (check) \
         { \
             TC_LOG_DEBUG("entities.unit", "Player::ValidateMovementInfo: Violation of MovementFlags found ({}). " \
-                "MovementFlags: {}, MovementFlags2: {}, MovementFlags3: {} for player {}. Mask {} will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), mi->GetExtraMovementFlags2(), GetPlayer()->GetGUID(), maskToRemove); \
+                "MovementFlags: {} for player {}. Mask {} will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), GetPlayer()->GetGUID(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
         } \
     } while (0)
@@ -481,9 +481,9 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
 
     Player* plrMover = mover->ToPlayer();
 
-    TC_LOG_TRACE("opcodes.movement", "HandleMovementOpcode Name {}: opcode {} {} Flags {} Flags2 {} Flags3 {} Pos {}",
+    TC_LOG_TRACE("opcodes.movement", "HandleMovementOpcode Name {}: opcode {} {} Flags {} Pos {}",
         mover->GetName(), opcode, GetOpcodeNameForLogging(opcode),
-        movementInfo.flags, movementInfo.flags2, movementInfo.flags3, movementInfo.pos);
+        movementInfo.flags, movementInfo.pos);
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
