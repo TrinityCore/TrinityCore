@@ -15,19 +15,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (@CGUID+8,23135,556,0,0,3,1,0,0,-72.343414,290.86087,26.485113,3.2986722,86400,0,0,0,0,0,0,0,0,'',NULL,15595),
 (@CGUID+9,23136,556,0,0,3,1,0,0,-99.59056,276.6608,26.846674,0.75049156,86400,0,0,0,0,0,0,0,0,'',NULL,15595);
 
-DELETE FROM `spawn_group` WHERE `spawnId` BETWEEN @CGUID+0 AND @CGUID+9 AND `spawnType` = 0;
-INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
-(@SPAWN_GROUP_ID+0,0,@CGUID+0),
-(@SPAWN_GROUP_ID+1,0,@CGUID+1),
-(@SPAWN_GROUP_ID+2,0,@CGUID+2),
-(@SPAWN_GROUP_ID+3,0,@CGUID+3),
-(@SPAWN_GROUP_ID+4,0,@CGUID+4),
-(@SPAWN_GROUP_ID+5,0,@CGUID+5),
-(@SPAWN_GROUP_ID+6,0,@CGUID+6),
-(@SPAWN_GROUP_ID+7,0,@CGUID+7),
-(@SPAWN_GROUP_ID+8,0,@CGUID+8),
-(@SPAWN_GROUP_ID+9,0,@CGUID+9);
-
 DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWN_GROUP_ID+0 AND @SPAWN_GROUP_ID+9;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (@SPAWN_GROUP_ID+0,"Sethekk Halls - Brood of Anzu 000",4), -- 406
@@ -40,6 +27,19 @@ INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (@SPAWN_GROUP_ID+7,"Sethekk Halls - Hawk Spirit",4), -- 413
 (@SPAWN_GROUP_ID+8,"Sethekk Halls - Falcon Spirit",4), -- 414
 (@SPAWN_GROUP_ID+9,"Sethekk Halls - Eagle Spirit",4); -- 415
+
+DELETE FROM `spawn_group` WHERE `spawnId` BETWEEN @CGUID+0 AND @CGUID+9 AND `spawnType` = 0;
+INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
+(@SPAWN_GROUP_ID+0,0,@CGUID+0),
+(@SPAWN_GROUP_ID+1,0,@CGUID+1),
+(@SPAWN_GROUP_ID+2,0,@CGUID+2),
+(@SPAWN_GROUP_ID+3,0,@CGUID+3),
+(@SPAWN_GROUP_ID+4,0,@CGUID+4),
+(@SPAWN_GROUP_ID+5,0,@CGUID+5),
+(@SPAWN_GROUP_ID+6,0,@CGUID+6),
+(@SPAWN_GROUP_ID+7,0,@CGUID+7),
+(@SPAWN_GROUP_ID+8,0,@CGUID+8),
+(@SPAWN_GROUP_ID+9,0,@CGUID+9);
 
 DELETE FROM `waypoint_data` WHERE `id` IN ((@CGUID+0)*10,(@CGUID+1)*10);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
