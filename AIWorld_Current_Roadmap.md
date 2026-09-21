@@ -2461,6 +2461,13 @@ PlayerWorldFactionPersistence IsPlayer() guard   STATIC PASS
 Player::DeleteFromDB() cleanup                   STATIC PASS (kompilace ověřena, runtime delete->restart->GUID reuse test PENDING)
 ```
 
+**Stav (2026-09-21) — GM/debug interface pro runtime test membership:** `PlayerWorldFactionPersistence`/`WorldFactionRelationCatalog` byly dosud bez callera - `LoadMembership()`/`Join()`/`Leave()` se v runtime nedaly vůbec vyzkoušet. Přidán `.aiworld faction status|join <faction>|leave` (`src/server/scripts/Commands/cs_aiworld_faction.cpp`) - tenký wrapper nad existující persistencí (žádné přímé SQL v commandu), operuje na vlastní postavě GMa (stejná konvence jako `.gm on/off`), `RBAC_PERM_COMMAND_DEBUG` (existující base auth permission, žádná nová RBAC migrace). `join` má šest doslovných subcommand větví (stormwind/defias/riverpaw/kobolds/murlocs/wolves) - žádná joinable-policy validace na téhle vrstvě (to je vědomě odložené, viz `Join()`'s vlastní komentář), takže command dnes umožní i nesmyslné joiny (např. wolves) - to je pro debug účel žádoucí, ne bug. Dlouhodobě použitelný nástroj, ne dočasný startup hack.
+
+```text
+.aiworld faction command      STATIC PASS (kompilace ověřena, registrováno v cs_script_loader.cpp)
+runtime membership test       PENDING (none -> join Defias -> DB=2 -> relog stále 2 -> join znovu idempotentní -> switch Riverpaw=3 -> leave -> row zmizí)
+```
+
 ### 3.4 Coalition pravidla uvnitř frakcí
 
 `AgentGroup`/coalition a `WorldFaction` jsou dvě různé úrovně:
