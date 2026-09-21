@@ -34,7 +34,7 @@ Aktuální WorldFaction katalog je v `world_factions.csv`:
 `NEUTRAL_UNAFFILIATED` není samostatná WorldFaction entita. Je to explicitní stav bez sociální/politické affiliation a při runtime reprezentaci odpovídá `WorldFactionId = 0` / none.
 
 `STORMWIND_ALLIANCE` používá existující vanilla player-reputation vrstvu.
-`DEFIAS_BROTHERHOOD`, `RIVERPAW_GNOLLS`, `ELWYNN_KOBOLDS` a `ELWYNN_MURLOCS` mají od V1 (2026-09-16) vlastní custom player-visible reputation (`Faction.dbc` 1201-1204, runtime ověřeno), jsou repointované na vlastní `FactionTemplate.dbc` klony (player reaction runtime ověřena) a mají `creature_onkill_reputation` řádky pro +1 reputation za kill (vygenerováno, runtime kill test zatím PENDING) - viz "DBC stav" níže.
+`DEFIAS_BROTHERHOOD`, `RIVERPAW_GNOLLS`, `ELWYNN_KOBOLDS` a `ELWYNN_MURLOCS` mají od V1 (2026-09-16) vlastní custom player-visible reputation (`Faction.dbc` 1201-1204, runtime ověřeno), jsou repointované na vlastní `FactionTemplate.dbc` klony (player reaction runtime ověřena) a mají `creature_onkill_reputation` řádky pro -1 reputation za kill (zabití člena té faction je nepřátelský čin vůči ní, ne laskavost; runtime kill test 2026-09-21 potvrdil cestu, ale odhalil, že původní hodnota byla omylem +1 - opraveno v `2026_09_21_00_world.sql`) - viz "DBC stav" níže.
 `ELWYNN_WOLVES` je ecological/social WorldFaction pro coalition a living-world logiku a nemá mít player-visible reputation.
 
 První relation matrix je v `world_faction_relations.csv`. Neobsahuje ekologické predator/prey vztahy; ty nejsou politická diplomacie. V1 explicitně označuje jako `HOSTILE` pouze obousměrné vztahy Stormwind ↔ Defias/Riverpaw/Kobolds/Murlocs. Nevypsaný cross-faction vztah je pro tuto data vrstvu `NEUTRAL`; stejná WorldFaction je interně friendly/coalition-compatible podle konkrétních coalition pravidel.
@@ -70,7 +70,7 @@ make restart-world
 
 **Runtime ověřeno (2026-09-16):** custom `Faction.dbc` generation, worldserver DBC load, client MPQ load, 4 custom reputation bary, initial Neutral state, server-side reputation change, DB persistence (`character_reputation`) a hráčova reakce (Neutral/Friendly/Hostile) proti repointovaným NPC po `FactionTemplate.dbc` klonech - viz `AIWorld_Current_Roadmap.md` sekce 3.3. Klientský MPQ patch tedy reálně existuje a funguje, ale `make client-patch` jako automatizovaný tooling krok zatím neexistuje - patch byl aplikován mimo tento repozitář.
 
-`creature_onkill_reputation` (`sql/updates/world/3.3.5/2026_09_16_02_world.sql`) je vygenerovaný a cross-checked proti CSV, ale zabití NPC → reálná změna standingu na živém serveru ještě není runtime ověřené - to je další test.
+`creature_onkill_reputation` (`sql/updates/world/3.3.5/2026_09_16_02_world.sql`) je vygenerovaný a cross-checked proti CSV. Zabití NPC → reálná změna standingu na živém serveru je runtime ověřené (2026-09-21) - kill projde celou cestou `KillRewarder → Player::RewardReputation → ReputationMgr` a projeví se hned v UI i v DB. Původní hodnota (`+1`) byla ale sémanticky obrácená; korektivní `2026_09_21_00_world.sql` ji opravuje na `-1` (zabití člena faction jí reputaci snižuje, ne zvyšuje) - re-test po opravě zatím neproběhl.
 
 ## Nekomituje se
 
