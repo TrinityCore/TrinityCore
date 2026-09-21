@@ -3406,7 +3406,7 @@ AIWorld.Enable = 0
 # Read-only AI World Observer. Requires WORLD_VIEWER_TELEMETRY_TOKEN in the
 # worldserver and world-viewer environments. Capture runs once per second;
 # network I/O runs on the shared asynchronous io_context. No grid is loaded.
-AIWorld.TelemetryEnabled = 0
+AIWorld.TelemetryEnabled = 1
 AIWorld.TelemetryHost = world-viewer
 AIWorld.TelemetryPort = 8000
 
