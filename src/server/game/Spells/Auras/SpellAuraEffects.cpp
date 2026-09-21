@@ -731,6 +731,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //659
     &AuraEffect::HandleNULL,                                      //660
     &AuraEffect::HandleNULL,                                      //661 SPELL_AURA_ALTERED_FORM_IN_COMBAT
+    &AuraEffect::HandleNULL,                                      //662
+    &AuraEffect::HandleNULL,                                      //663
+    &AuraEffect::HandleNULL,                                      //664
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, SpellEffectValue const* baseAmount, Unit* caster) :
@@ -3975,31 +3978,20 @@ void AuraEffect::HandleModBonusArmorPercent(AuraApplication const* aurApp, uint8
     aurApp->GetTarget()->UpdateArmor();
 }
 
-void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
     Unit* target = aurApp->GetTarget();
 
-    if (GetMiscValue() < -1 || GetMiscValue() > 4)
+    if (GetMiscValue() < 0 || GetMiscValue() >= MAX_STATS)
     {
         TC_LOG_ERROR("spells", "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
         return;
     }
 
-    // only players have base stats
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-    {
-        if (GetMiscValue() == i || GetMiscValue() == -1)
-        {
-            target->HandleStatFlatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(GetAmount()), apply);
-            target->UpdateStatBuffMod(Stats(i));
-        }
-    }
+    target->UpdateStats(Stats(GetMiscValue()));
 }
 
 void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const

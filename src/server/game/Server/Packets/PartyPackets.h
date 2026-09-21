@@ -518,7 +518,7 @@ namespace WorldPackets
             int32 ConsecutiveSuccesses = 0;
             Timestamp<> LastPenaltyTime;
             Timestamp<> LeaverExpirationTime;
-            int32 Unknown_1120 = 0;
+            int32 Flags = 0;
             bool LeaverStatus = false;
         };
 
@@ -532,6 +532,7 @@ namespace WorldPackets
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
+            uint8 RolesUnk_1210 = 0u;   // forces role displayed to be tank if this field contains tank role and RolesAssigned is dps
             uint8 FactionGroup = 0u;
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
@@ -729,6 +730,9 @@ namespace WorldPackets
             PingSubjectType Type = { };
             uint32 PinFrameID = 0;
             Duration<Milliseconds, int32> PingDuration;
+            float Health = 1.0f; // range 0-1
+            float Mana = 1.0f; // range 0-1
+            bool IsUnitFrameStatusTextPing = false; // prints health (and mana if healer) in chat
             Optional<uint32> CreatureID;
             Optional<uint32> SpellOverrideNameID;
         };
@@ -736,7 +740,7 @@ namespace WorldPackets
         class ReceivePingUnit final : public ServerPacket
         {
         public:
-            explicit ReceivePingUnit() : ServerPacket(SMSG_RECEIVE_PING_UNIT, 16 + 16 + 1 + 4) { }
+            explicit ReceivePingUnit() : ServerPacket(SMSG_RECEIVE_PING_UNIT, 16 + 16 + 1 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -745,6 +749,9 @@ namespace WorldPackets
             PingSubjectType Type = { };
             uint32 PinFrameID = 0;
             Duration<Milliseconds, int32> PingDuration;
+            float Health = 1.0f; // range 0-1
+            float Mana = 1.0f; // range 0-1
+            bool IsUnitFrameStatusTextPing = false; // prints health (and mana if healer) in chat
             Optional<uint32> CreatureID;
             Optional<uint32> SpellOverrideNameID;
         };
@@ -779,6 +786,40 @@ namespace WorldPackets
             uint32 PinFrameID = 0;
             Duration<Milliseconds, int32> PingDuration;
             ObjectGuid Transport;
+        };
+
+        class SendPingCooldown final : public ClientPacket
+        {
+        public:
+            explicit SendPingCooldown(WorldPacket&& packet) : ClientPacket(CMSG_SEND_PING_COOLDOWN, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            uint32 PinFrameID = 0;
+            uint32 SpellID = 0;
+            uint32 ItemID = 0;
+            WorldPackets::Duration<Milliseconds, int32> Duration;
+            WorldPackets::Duration<Milliseconds, int32> Remaining;
+            PingSubjectType Type = { };
+            uint32 SpellCategoryID = 0;
+        };
+
+        class ReceivePingCooldown final : public ServerPacket
+        {
+        public:
+            explicit ReceivePingCooldown() : ServerPacket(SMSG_RECEIVE_PING_COOLDOWN, 16 + 4 + 4 + 4 + 4 + 4 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint32 PinFrameID = 0;
+            uint32 SpellID = 0;
+            uint32 ItemID = 0;
+            WorldPackets::Duration<Milliseconds, int32> Duration;
+            WorldPackets::Duration<Milliseconds, int32> Remaining;
+            PingSubjectType Type = { };
+            uint32 SpellCategoryID = 0;
         };
 
         class CancelPingPin final : public ServerPacket
