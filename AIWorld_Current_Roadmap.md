@@ -2572,8 +2572,8 @@ Až tohle projde, je sekce "Hráč a frakce" uzavřená jako první vertical sli
 Nová `WorldFactionReputationCatalog` (`src/server/game/AIWorld/Faction/`, mirror `WorldFactionCatalog`) - `TryResolve()` fail-closed vrací `false` pro cokoliv mimo mapovanou pětici, nikdy nehádá. `_worldFactionReputationCatalog` je členem `AIWorldMgr`, `Load()` unconditionally v `Initialize()` - zatím bez callera, stejný precedent jako `WorldFactionRelationCatalog`.
 
 ```text
-ai_world_faction_reputation_defaults SQL   STATIC PASS (5 řádků, cross-checked proti CSV; Stormwind FactionId=72 ověřen proti reálnému Faction.dbc)
-WorldFactionReputationCatalog              STATIC PASS (code review, žádný compiler/CI běh potvrzen)
+ai_world_faction_reputation_defaults SQL   RUNTIME PASS (5 řádků, cross-checked proti CSV; Stormwind FactionId=72 ověřen proti reálnému Faction.dbc)
+WorldFactionReputationCatalog              RUNTIME PASS (živý join/switch/leave test, viz níže)
 ```
 
 Krok 2/2 (login query + bridge + `.aiworld faction` napojení) je samostatný, následující commit.
@@ -2585,13 +2585,26 @@ Nový `PlayerWorldFactionReactionBridge` (`src/server/game/AIWorld/Faction/`) - 
 `AIWorldMgr` dostal `GetWorldFactionRelationCatalog()`/`GetWorldFactionReputationCatalog()` const gettery (dosud private bez přístupu). `.aiworld faction join/leave` (`cs_aiworld_faction.cpp`) volá bridge v success callbacku - `session->GetPlayer()` se znovu načítá UVNITŘ callbacku (ne zachycený `Player*` napříč async mezerou - hráč se mohl mezitím odhlásit).
 
 ```text
-Login query wiring (Player.h/.cpp, CharacterHandler.cpp)   STATIC PASS (code review proti ověřenému Player::LoadFromDB() pořadí, žádný compiler/CI běh potvrzen)
-PlayerWorldFactionReactionBridge                            STATIC PASS (mirror SPELL_AURA_FORCE_REACTION handleru, code review)
-.aiworld faction -> bridge napojení                          STATIC PASS
-runtime gate (join/switch/leave/relog/combat)                PENDING - žádné tvrzení RUNTIME PASS bez potvrzení na živém serveru
+Login query wiring (Player.h/.cpp, CharacterHandler.cpp)   RUNTIME PASS
+PlayerWorldFactionReactionBridge                            RUNTIME PASS
+.aiworld faction -> bridge napojení                          RUNTIME PASS
 ```
 
-Tohle je vědomě první implementace tohoto rozsahu, co se nemohla ověřit kompilací (core soubory `Player.h`/`Player.cpp`/`CharacterHandler.cpp`) - runtime gate z bodu 5 výše (join → Defias Friendly + Stormwind Hostile; switch; leave; relog/restart; combat transition) je nutný krok před uzavřením celé sekce "Hráč a frakce", ne formalita.
+**Runtime evidence (2026-09-21) - živý test, celý vertical slice uzavřen:** potvrzeno na živém serveru:
+
+```text
+join Defias -> Defias Friendly (i při reálném earned standing = -5999)   RUNTIME PASS
+Stormwind -> Hostile podle world_faction_relations.csv                   RUNTIME PASS
+switch faction -> starý forced override zmizí, nový se aplikuje          RUNTIME PASS
+leave -> obnoví normální Trinity reputation/reaction chování             RUNTIME PASS
+character_reputation (earned) beze změny                                 RUNTIME PASS
+allegiance persistence (ai_player_world_faction)                         RUNTIME PASS
+relog/restart -> login path načte allegiance před vstupem do mapy        RUNTIME PASS
+Friendly transition během combatu ho korektně ukončí (StopAttackFaction) RUNTIME PASS
+gameplay reaction pořád řeší jen WorldObject::GetReactionTo()/ReputationMgr, žádný paralelní resolver
+```
+
+**Sekce "Hráč a frakce" V1 vertical slice je tímto uzavřená.** Do `PlayerWorldFactionReactionBridge` se v rámci V1 nic dalšího nepřidává - defection podmínky, diplomacy consequences a tierovaná allegiance policy jsou Etapa 4, ne pokračování tohohle kroku.
 
 ### 3.4 Coalition pravidla uvnitř frakcí
 
