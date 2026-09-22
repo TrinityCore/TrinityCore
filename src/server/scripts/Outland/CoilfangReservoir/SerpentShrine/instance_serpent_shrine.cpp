@@ -86,7 +86,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     case NPC_COILFANG_PRIESTESS:
                     case NPC_COILFANG_SHATTERER:
                         if (KilledElitesCount < MIN_KILLED_ELITES)
-                            ++KilledElitesCount;
+                            ++KilledElitesCount;    // TODO: spawn Coilfang Frenzy Corpse (21689)
                         break;
                     default:
                         break;
