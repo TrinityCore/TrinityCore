@@ -214,10 +214,16 @@ namespace WorldPackets
         struct SupportTicketHouseInfo
         {
             std::string NeighborhoodName;
-            ObjectGuid Unknown_1127_1;
-            ObjectGuid Unknown_1127_2;
-            ObjectGuid Unknown_1127_3;
-            uint8 Unknown_1127_4 = 0;
+            ObjectGuid NeighborhoodGUID;
+            ObjectGuid NeighborhoodOwnerGUID;
+            ObjectGuid HouseGUID;
+            uint8 PlotID = 0;
+        };
+
+        struct SupportTicketHousingBlueprint
+        {
+            std::string_view Id;
+            std::string_view ShareCode;
         };
 
         class SupportTicketSubmitComplaint final : public ClientPacket
@@ -245,6 +251,7 @@ namespace WorldPackets
             Optional<SupportTicketClubFinderInfo> ClubFinderInfo;
             Optional<SupportTicketArenaTeamInfo> ArenaTeamInfo;
             Optional<SupportTicketHouseInfo> HouseInfo;
+            Optional<SupportTicketHousingBlueprint> HousingBlueprint;
         };
 
         class Complaint final : public ClientPacket

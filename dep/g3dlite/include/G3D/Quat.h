@@ -214,6 +214,10 @@ public:
     void toRotationMatrix(
         Matrix3&            rot) const;
     
+    static Quat fromYPRAngles(float fYAngle, float fPAngle, float fRAngle);
+
+    void toYPRAngles(float& fYAngle, float& fPAngle, float& fRAngle) const;
+
 private:
     /**  \param maxAngle Maximum angle of rotation allowed.  If a larger rotation is required, the angle of rotation applied is clamped to maxAngle */
     Quat slerp

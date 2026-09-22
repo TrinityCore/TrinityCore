@@ -160,6 +160,26 @@ void Quat::toRotationMatrix(
     rot = Matrix3(*this);
 }
 
+Quat Quat::fromYPRAngles(float fYAngle, float fPAngle, float fRAngle)
+{
+    float angles[3] = { fRAngle * 0.5f, fPAngle * 0.5f, fYAngle * 0.5f };
+    float s[3]      = { sinf(angles[0]), sinf(angles[1]), sinf(angles[2]) };
+    float c[3]      = { cosf(angles[0]), cosf(angles[1]), cosf(angles[2]) };
+
+    return Quat(
+        s[0] * c[1] * c[2] - c[0] * s[1] * s[2],
+        c[0] * s[1] * c[2] + s[0] * c[1] * s[2],
+        c[0] * c[1] * s[2] - s[0] * s[1] * c[2],
+        c[0] * c[1] * c[2] + s[0] * s[1] * s[2]
+    );
+}
+
+void Quat::toYPRAngles(float& fYAngle, float& fPAngle, float& fRAngle) const
+{
+    fYAngle = atan2f(2.0f * (w * z + x * y), 1.0f - 2.0f * (y * y + z * z));
+    fPAngle = asinf(clamp(2.0f * (w * y - z * x), -1.0f, 1.0f));
+    fRAngle = atan2f(2.0f * (w * x + y * z), 1.0f - 2.0f * (x * x + y * y));
+}
 
 Quat Quat::slerp
    (const Quat&         _quat1,
