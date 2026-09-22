@@ -95,14 +95,8 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            GameObject* go = new GameObject();
-            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
-            {
-                delete go;
-                return;
-            }
-
-            instance->AddToMap(go);
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
+                instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go) override
