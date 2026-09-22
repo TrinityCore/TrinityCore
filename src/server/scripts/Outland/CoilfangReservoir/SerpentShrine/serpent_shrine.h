@@ -23,42 +23,41 @@
 #define SSCScriptName "instance_serpent_shrine"
 #define DataHeader "SS"
 
-enum SSWaterEventState
-{
-    WATERSTATE_NONE     = 0,
-    WATERSTATE_FRENZY   = 1,
-    WATERSTATE_SCALDING = 2
-};
+uint32 constexpr EncounterCount     = 6;
 
 enum SSBosses
 {
-    BOSS_HYDROSS_THE_UNSTABLE   = 0,
-    BOSS_THE_LURKER_BELOW       = 1,
-    BOSS_LEOTHERAS_THE_BLIND    = 2,
-    BOSS_FATHOM_LORD_KARATHRESS = 3,
-    BOSS_MOROGRIM_TIDEWALKER    = 4,
-    BOSS_LADY_VASHJ             = 5
+    BOSS_HYDROSS_THE_UNSTABLE       = 0,
+    BOSS_THE_LURKER_BELOW           = 1,
+    BOSS_LEOTHERAS_THE_BLIND        = 2,
+    BOSS_FATHOM_LORD_KARATHRESS     = 3,
+    BOSS_MOROGRIM_TIDEWALKER        = 4,
+    BOSS_LADY_VASHJ                 = 5
 };
 
 enum SSDataTypes
 {
-    DATA_CARIBDIS                   = 2,
-    DATA_KARATHRESS                 = 3,
-    DATA_SHARKKIS                   = 6,
-    DATA_TIDALVESS                  = 12,
-    DATA_WATER                      = 18,
-
+    DATA_CARIBDIS                   = 6,
+    DATA_TIDALVESS,
+    DATA_SHARKKIS,
     DATA_BRIDGE_PART_1,
     DATA_BRIDGE_PART_2,
     DATA_BRIDGE_PART_3,
     DATA_SHIELD_GENERATOR_1,
     DATA_SHIELD_GENERATOR_2,
     DATA_SHIELD_GENERATOR_3,
-    DATA_SHIELD_GENERATOR_4
+    DATA_SHIELD_GENERATOR_4,
+    DATA_KILLED_ELITES
 };
 
 enum SSCreatureIds
 {
+    NPC_COILFANG_PRIESTESS          = 21220,
+    NPC_COILFANG_SHATTERER          = 21301,
+    NPC_CARIBDIS                    = 21964,
+    NPC_TIDALVESS                   = 21965,
+    NPC_SHARKKIS                    = 21966,
+    NPC_KARATHRESS                  = 21214,
     NPC_THE_LURKER_BELOW            = 21217,
     NPC_LEOTHERAS_THE_BLIND         = 21215,
     NPC_LADY_VASHJ                  = 21212
@@ -78,6 +77,11 @@ enum SSGameObjectIds
 enum SSEventsIds
 {
     EVENT_RESPAWN_STRANGE_POOL      = 1
+};
+
+enum SSMisc
+{
+    MIN_KILLED_ELITES               = 30
 };
 
 template <class AI, class T>
