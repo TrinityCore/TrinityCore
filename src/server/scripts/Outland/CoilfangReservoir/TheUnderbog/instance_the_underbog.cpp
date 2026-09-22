@@ -30,14 +30,14 @@ gets instead the deserter debuff.
 class instance_the_underbog : public InstanceMapScript
 {
 public:
-    instance_the_underbog() : InstanceMapScript(TheUndebogScriptName, 546) { }
+    instance_the_underbog() : InstanceMapScript(UBOGScriptName, 546) { }
 
     struct instance_the_underbog_InstanceMapScript : public InstanceScript
     {
         instance_the_underbog_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            SetHeaders(TheUndebogDataHeader);
-            SetBossNumber(TheUnderbogBossCount);
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
         }
 
         void OnUnitDeath(Unit* unit) override
