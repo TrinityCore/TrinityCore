@@ -426,6 +426,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             }
         }
 
+        if (owner->IsMounted())
+            SetUnitFlag(UNIT_FLAG_STUNNED);
+
         // must be after SetMinion (owner guid check)
         LoadTemplateImmunities();
         m_loading = false;
