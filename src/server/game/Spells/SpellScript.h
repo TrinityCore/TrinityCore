@@ -554,6 +554,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     AURA_SCRIPT_HOOK_DISPEL,
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
+    AURA_SCRIPT_HOOK_ON_INTERRUPT,
     // Spell Proc Hooks
     AURA_SCRIPT_HOOK_CHECK_PROC,
     AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC,
@@ -579,6 +580,7 @@ class TC_GAME_API AuraScript : public _SpellScript
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
         typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit* target); \
         typedef void(CLASSNAME::*AuraDispelFnType)(DispelInfo* dispelInfo); \
+        typedef bool(CLASSNAME::*AuraInterruptFnType)(AuraApplication const* aurApp, uint32 interruptMask); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const*, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const*); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect*); \
@@ -609,6 +611,14 @@ class TC_GAME_API AuraScript : public _SpellScript
                 void Call(AuraScript* auraScript, DispelInfo* dispelInfo);
             private:
                 AuraDispelFnType pHandlerScript;
+        };
+        class TC_GAME_API AuraInterruptHandler
+        {
+            public:
+                AuraInterruptHandler(AuraInterruptFnType pHandlerScript);
+                bool Call(AuraScript* auraScript, AuraApplication const* aurApp, uint32 interruptMask);
+            private:
+                AuraInterruptFnType pHandlerScript;
         };
         class TC_GAME_API EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
         {
@@ -726,6 +736,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: explicit CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) { } }; \
         class AuraDispelFunction : public AuraScript::AuraDispelHandler { public: explicit AuraDispelFunction(AuraDispelFnType _pHandlerScript) : AuraScript::AuraDispelHandler((AuraScript::AuraDispelFnType)_pHandlerScript) { } }; \
+        class AuraInterruptHandlerFunction : public AuraScript::AuraInterruptHandler { public: explicit AuraInterruptHandlerFunction(AuraInterruptFnType _pHandlerScript) : AuraScript::AuraInterruptHandler((AuraScript::AuraInterruptFnType)_pHandlerScript) { } }; \
         class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: explicit EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: explicit EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: explicit EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
@@ -788,6 +799,12 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: void function (DispelInfo* dispelInfo);
         HookList<AuraDispelHandler> AfterDispel;
         #define AuraDispelFn(F) AuraDispelFunction(&F)
+
+        // executed when aura checks if it can be interrupted
+        // example: OnInterrupt += AuraInterruptFn(class::function);
+        // where function is: bool function (AuraApplication const* aurApp, uint32 interruptMask);
+        HookList<AuraInterruptHandler> OnInterrupt;
+        #define AuraInterruptFn(F) AuraInterruptHandlerFunction(&F)
 
         // executed when aura effect is applied with specified mode to target
         // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
