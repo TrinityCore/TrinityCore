@@ -18,6 +18,7 @@
 /* Timers requires to be revisited */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -118,14 +119,14 @@ struct boss_warbringer_omrogg : public BossAI
             leftHead->AI()->DoAction(RAND(ACTION_AGGRO_1, ACTION_AGGRO_2, ACTION_AGGRO_3));
     }
 
-    void OnSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spellInfo) override
     {
         // Apparently this and all other are handled by GameEvents since this spell sends GameEvent
-        if (spell->Id == SPELL_BEATDOWN)
+        if (spellInfo->Id == SPELL_BEATDOWN)
             if (Creature* leftHead = instance->GetCreature(DATA_LEFT_HEAD))
                 leftHead->AI()->DoAction(RAND(ACTION_ATTACK_1, ACTION_ATTACK_2, ACTION_ATTACK_3, ACTION_ATTACK_4));
 
-        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_BURNING_MAUL, me))
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_BURNING_MAUL, me))
             Talk(EMOTE_ROAR);
     }
 
@@ -437,22 +438,38 @@ class spell_omrogg_beatdown : public SpellScript
 {
     PrepareSpellScript(spell_omrogg_beatdown);
 
-    void HandleAfterCast()
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+        _selectedTargetGuid = target->GetGUID();
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
         if (!caster->IsCreature())
             return;
 
-        caster->GetThreatManager().ResetAllThreat();
-
-        if (Unit* target = caster->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true))
+        if (target->GetGUID() == _selectedTargetGuid)
+        {
+            caster->GetThreatManager().ResetAllThreat();
             caster->GetAI()->AttackStart(target);
+        }
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_omrogg_beatdown::HandleAfterCast);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omrogg_beatdown::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_omrogg_beatdown::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    ObjectGuid _selectedTargetGuid;
 };
 
 void AddSC_boss_warbringer_omrogg()
