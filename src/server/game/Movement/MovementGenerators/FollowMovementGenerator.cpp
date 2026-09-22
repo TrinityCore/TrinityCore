@@ -160,6 +160,24 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             init.MovebyPath(_path->GetPath());
             init.SetWalk(target->IsWalking());
             init.SetFacing(target->GetOrientation());
+
+            // For units following their owner/charmer, dynamically scale spline speed
+            if (Creature* cOwner = owner->ToCreature())
+            {
+                if (cOwner->IsCharmed() && !cOwner->ToPet())
+                {
+                    Unit* followed = GetTarget();
+                    if (followed && followed->GetGUID() == owner->GetCharmerOrOwnerGUID())
+                    {
+                        float dist = owner->GetDistance(followed);
+                        float ownerSpeed = followed->GetSpeed(MOVE_RUN);
+                        float catchupSpeed = ownerSpeed * std::min(std::max(1.0f, 0.75f + (dist - PET_FOLLOW_DIST) * 0.05f), 1.3f);
+                        if (catchupSpeed > owner->GetSpeed(MOVE_RUN))
+                            init.SetVelocity(catchupSpeed);
+                    }
+                }
+            }
+
             init.Launch();
         }
     }
