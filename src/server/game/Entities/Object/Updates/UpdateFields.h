@@ -1751,10 +1751,10 @@ struct AreaTriggerDisk : public IsUpdateFieldStructureTag, public HasChangesMask
 
 struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<float, 0, 1> ExtentsX;
-    UpdateField<float, 0, 2> ExtentsY;
-    UpdateField<float, 0, 3> ExtentsTargetX;
-    UpdateField<float, 0, 4> ExtentsTargetY;
+    UpdateField<float, 0, 1> ExtentsY;
+    UpdateField<float, 0, 2> ExtentsZ;
+    UpdateField<float, 0, 3> ExtentsTargetY;
+    UpdateField<float, 0, 4> ExtentsTargetZ;
 
     using OwnerObject = AreaTrigger;
     void WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const;
@@ -1769,14 +1769,14 @@ struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask
     UpdateField<UF::OverrideCurve, 0, 3> OverrideMoveCurveX;
     UpdateField<UF::OverrideCurve, 0, 4> OverrideMoveCurveY;
     UpdateField<UF::OverrideCurve, 0, 5> OverrideMoveCurveZ;
-    UpdateField<UF::OverrideCurve, 0, 6> OverrideFacingCurve;
+    UpdateField<UF::OverrideCurve, 0, 6> OverrideShapeCurve;
     UpdateField<ObjectGuid, 0, 7> Caster;
     UpdateField<uint32, 0, 8> Duration;
     UpdateField<uint32, 0, 9> TimeToTarget;
     UpdateField<uint32, 0, 10> TimeToTargetScale;
     UpdateField<uint32, 0, 11> TimeToTargetExtraScale;
     UpdateField<uint32, 0, 12> TimeToTargetPos;                                 // Linked to m_overrideMoveCurve
-    UpdateField<uint32, 0, 13> TimeToTargetFacing;                              // Linked to m_overrideFacingCurve
+    UpdateField<uint32, 0, 13> TimeToTargetShape;                               // Linked to m_overrideShapeCurve
     UpdateField<int32, 0, 14> SpellID;
     UpdateField<int32, 0, 15> SpellForVisuals;
     UpdateField<UF::SpellCastVisual, 0, 16> SpellVisual;

@@ -2927,8 +2927,12 @@ Position Creature::GetRespawnPosition(float* dist) const
 void Creature::InitializeMovementCapabilities()
 {
     SetHover(GetMovementTemplate().IsHoverInitiallyEnabled());
-    SetDisableGravity(IsFloating());
-    SetControlled(IsSessile(), UNIT_STATE_ROOT);
+
+    // CREATURE_STATIC_FLAG_FLOATING disables gravity and plays hover anim
+    UpdateFloatingMovementFlags();
+
+    // CREATURE_STATIC_FLAG_SESSILE disables gravity and applies root
+    UpdateSessileMovementFlags();
 
     if (CanOnlySwimIfTargetSwims())
     {
@@ -2961,6 +2965,58 @@ void Creature::UpdateMovementCapabilities()
         SetSwim(true);
     else if (!IsInWater()) // We do not want to disable swimming again when a creature is in water - may to lead some nasty bugs
         SetSwim(false);
+}
+
+void Creature::SetFloating(bool floating)
+{
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_FLOATING, floating);
+    UpdateFloatingMovementFlags();
+}
+
+void Creature::UpdateFloatingMovementFlags()
+{
+    if (IsFloating())
+        SetDisableGravity(true, false);
+    else
+    {
+        if (IsSessile() ||
+            HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_DISABLE_GRAVITY))
+            return;
+
+        SetDisableGravity(false, false);
+    }
+}
+
+void Creature::SetSessile(bool sessile)
+{
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_SESSILE, sessile);
+    UpdateSessileMovementFlags();
+}
+
+void Creature::UpdateSessileMovementFlags()
+{
+    if (IsSessile())
+    {
+        SetControlled(true, UNIT_STATE_ROOT);
+        SetDisableGravity(true, false, false);
+    }
+    else
+    {
+        if (!HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY))
+            return;
+
+        if (!HasAuraType(SPELL_AURA_MOD_ROOT))
+            SetControlled(false, UNIT_STATE_ROOT);
+
+        if (IsFloating() ||
+            HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_DISABLE_GRAVITY))
+            return;
+
+        SetDisableGravity(false, false, false);
+    }
 }
 
 CreatureMovementData const& Creature::GetMovementTemplate() const

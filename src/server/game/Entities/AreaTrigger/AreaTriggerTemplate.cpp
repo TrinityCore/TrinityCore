@@ -83,13 +83,13 @@ bool AreaTriggerShapeInfo::Disk::IsDynamic() const
 float AreaTriggerShapeInfo::BoundedPlane::GetMaxSearchRadius() const
 {
     return std::sqrt(std::max(
-        Extents.Pos.GetPositionX() * Extents.Pos.GetPositionX() / 4 + Extents.Pos.GetPositionY() * Extents.Pos.GetPositionY() / 4,
-        ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() / 4 + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY() / 4));
+        ExtentsY * ExtentsY + ExtentsZ * ExtentsZ,
+        ExtentsTargetY * ExtentsTargetY + ExtentsTargetZ * ExtentsTargetZ));
 }
 
 bool AreaTriggerShapeInfo::BoundedPlane::IsDynamic() const
 {
-    return Extents != ExtentsTarget;
+    return ExtentsY != ExtentsTargetY || ExtentsZ != ExtentsTargetZ;
 }
 
 float AreaTriggerShapeInfo::GetMaxSearchRadius() const

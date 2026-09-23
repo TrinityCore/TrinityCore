@@ -21,6 +21,7 @@
 #include "Object.h"
 #include "GridObject.h"
 #include "MapObject.h"
+#include "QuaternionData.h"
 #include "AreaTriggerTemplate.h"
 
 class AuraEffect;
@@ -50,7 +51,7 @@ enum class AreaTriggerFieldFlags : uint32
     Attached            = 0x0020,
     FaceMovementDir     = 0x0040,   // applies when attached to unit (refers to movement direction of the unit)
     FollowsTerrain      = 0x0080,
-    Unknown1025         = 0x0100,
+    UsesUnitRawFacing   = 0x0100,   // uses GetTransOffsetO instead of GetOrientation when attached to unit on a transport/vehicle
     AlwaysExterior      = 0x0200,
     HasPlayers          = 0x0400,
 };
@@ -61,7 +62,7 @@ enum class AreaTriggerPathType : int32
 {
     Spline          = 0,
     Orbit           = 1,
-    None            = 2,
+    Stationary      = 2,
     MovementScript  = 3
 };
 
@@ -152,9 +153,9 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
             Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideMoveCurve();
 
-        void SetOverrideFacingCurve(float overrideFacing);
-        void SetOverrideFacingCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
-        void ClearOverrideFacingCurve();
+        void SetOverrideShapeCurve(float overrideShape);
+        void SetOverrideShapeCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
+        void ClearOverrideShapeCurve();
 
         uint32 GetTimeToTarget() const { return m_areaTriggerData->TimeToTarget; }
         void SetTimeToTarget(uint32 timeToTarget) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget); }
@@ -168,10 +169,15 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         uint32 GetTimeToTargetPos() const { return m_areaTriggerData->TimeToTargetPos; }
         void SetTimeToTargetPos(uint32 timeToTargetPos) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), timeToTargetPos); }
 
-        uint32 GetTimeToTargetFacing() const { return m_areaTriggerData->TimeToTargetFacing; }
-        void SetTimeToTargetFacing(uint32 timeToTargetFacing) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetFacing), timeToTargetFacing); }
+        uint32 GetTimeToTargetShape() const { return m_areaTriggerData->TimeToTargetShape; }
+        void SetTimeToTargetShape(uint32 timeToTargetShape) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetShape), timeToTargetShape); }
 
         void SetSpellVisual(SpellCastVisual const& visual);
+
+        void SetRollPitchYaw(float roll, float pitch, float yaw,
+            Optional<float> targetRoll = {}, Optional<float> targetPitch = {}, Optional<float> targetYaw = {});
+        void SetRollPitchYaw(TaggedPosition<Position::XYZ> const& rollPitchYaw,
+            Optional<TaggedPosition<Position::XYZ>> const& targetRollPitchYaw = {});
 
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
@@ -217,7 +223,10 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
     protected:
         void _UpdateDuration(int32 newDuration);
 
-        float GetProgress() const;
+        float GetScaleProgress() const { return GetOverrideCurveProgress(m_areaTriggerData->OverrideScaleCurve, m_areaTriggerData->TimeToTargetScale); }
+        float GetExtraScaleProgress() const { return GetOverrideCurveProgress(m_areaTriggerData->ExtraScaleCurve, m_areaTriggerData->TimeToTargetExtraScale); }
+        float GetOverridePosProgress() const { return GetOverrideCurveProgress(m_areaTriggerData->OverrideMoveCurveX, m_areaTriggerData->TimeToTargetPos); }
+        float GetShapeProgress() const { return GetOverrideCurveProgress(m_areaTriggerData->OverrideShapeCurve, m_areaTriggerData->TimeToTargetShape); }
 
         struct OverrideCurveData
         {
@@ -251,13 +260,22 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
 
-        void UpdatePolygonVertices();
-        void UpdateOrbitPosition();
-        void UpdateSplinePosition(Movement::Spline<float>& spline);
-        void UpdateOverridePosition();
+        void UpdatePositionAndRotation();
 
-        Position const* GetOrbitCenterPosition() const;
-        Position CalculateOrbitPosition() const;
+        struct MovementUpdateWorldResult;
+        MovementUpdateWorldResult CalculateWorldPositionAndRotation() const;
+
+        struct MovementUpdateLocalResult;
+        MovementUpdateLocalResult CalculateLocalPositionAndRotation() const;
+
+        friend struct AreaTriggerPositionAndRotationCalcVisitor;
+        MovementUpdateLocalResult CalculateLocalSplinePositionAndRotation() const;
+        MovementUpdateLocalResult CalculateLocalOrbitPositionAndRotation(UF::AreaTriggerOrbit const& orbit) const;
+        MovementUpdateLocalResult CalculateLocalStationaryPositionAndRotation() const;
+
+        Position const& GetMovementOrigin() const;
+
+        void UpdatePolygonVertices();
 
         void UpdateDynamicShapeFlag();
         void UpdateHasPlayersFlag();
@@ -271,16 +289,16 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         AuraEffect const* _aurEff;
 
         Position _stationaryPosition;
+        QuaternionData _rotation;
         int32 _duration;
         int32 _totalDuration;
-        float _verticesUpdatePreviousOrientation;
+        QuaternionData _verticesUpdatePreviousRotation;
         bool _isRemoved;
 
         std::vector<Position> _polygonVertices;
         std::unique_ptr<::Movement::Spline<float>> _spline;
 
         bool _reachedDestination;
-        int32 _lastSplineIndex;
 
         AreaTriggerCreateProperties const* _areaTriggerCreateProperties;
         AreaTriggerTemplate const* _areaTriggerTemplate;
