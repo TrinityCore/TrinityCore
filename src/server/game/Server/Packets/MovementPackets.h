@@ -837,7 +837,7 @@ namespace WorldPackets
             void Read() override;
 
             MovementAck Ack;
-            float GravityModifier = 0.0f;
+            float GravityModifier = 1.0f;
         };
 
         class MoveSetGravityModifier final : public ServerPacket
@@ -849,7 +849,7 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             uint32 SequenceIndex = 0;
-            float GravityModifier = 0.0f;
+            float GravityModifier = 1.0f;
         };
 
         class MoveUpdateSetGravityModifier final : public ServerPacket
@@ -860,7 +860,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* Status = nullptr;
-            float GravityModifier = 0.0f;
+            float GravityModifier = 1.0f;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, MovementAck& ack);

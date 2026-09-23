@@ -14278,6 +14278,25 @@ void Unit::RemoveInertia(int32 id)
     }
 }
 
+void Unit::SetGravityModifier(float gravityModifier)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+        setGravityModifier.MoverGUID = GetGUID();
+        setGravityModifier.SequenceIndex = m_movementCounter++;
+        setGravityModifier.GravityModifier = gravityModifier;
+        movingPlayer->SendDirectMessage(setGravityModifier.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+        updateSetGravityModifier.Status = &m_movementInfo;
+        updateSetGravityModifier.GravityModifier = gravityModifier;
+        SendMessageToSet(updateSetGravityModifier.Write(), true);
+    }
+}
+
 void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
 {
     if (IsPlayingHoverAnim() == enable)
@@ -14293,18 +14312,6 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
     data.PlayHoverAnim = enable;
 
     SendMessageToSet(data.Write(), true);
-}
-
-void Unit::SetGravity(float gravityModifier)
-{
-    if (Player const* movingPlayer = GetPlayerMovingMe())
-    {
-        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
-        setGravityModifier.MoverGUID = GetGUID();
-        setGravityModifier.SequenceIndex = m_movementCounter++;
-        setGravityModifier.GravityModifier = gravityModifier;
-        movingPlayer->SendDirectMessage(setGravityModifier.Write());
-    }
 }
 
 void Unit::CalculateHoverHeight()

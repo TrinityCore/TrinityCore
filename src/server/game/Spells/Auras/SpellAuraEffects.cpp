@@ -6233,12 +6233,11 @@ void AuraEffect::HandleModGravity(AuraApplication const* aurApp, uint8 mode, boo
         return;
 
     Unit* target = aurApp->GetTarget();
-    float amount = target->GetTotalAuraModifier(SPELL_AURA_MOD_GRAVITY);
+    Unit::AuraEffectList const& gravityAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_GRAVITY);
+    float amount = std::transform_reduce(gravityAuras.begin(), gravityAuras.end(), 1.0f, std::multiplies(),
+        [](AuraEffect const* aurEff) { return aurEff->GetAmount(); });
 
-    if (amount <= 0.0f)
-        amount = 1.0f;
-
-    target->SetGravity(amount);
+    target->SetGravityModifier(std::max(amount, 0.01f));
 }
 
 void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const

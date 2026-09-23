@@ -560,8 +560,8 @@ namespace WorldPackets
         class MoveRemoveMovementForceAck;
         class MoveApplyInertiaAck;
         class MoveRemoveInertiaAck;
-        class MoveInitActiveMoverComplete;
         class MoveForceGravityModifierChangeAck;
+        class MoveInitActiveMoverComplete;
     }
 
     namespace NPC
