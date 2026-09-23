@@ -40,9 +40,10 @@ enum PasswordChangeSecurity
     PW_RBAC
 };
 
-#define MAX_PASS_STR 16
-#define MAX_ACCOUNT_STR 16
-#define MAX_EMAIL_STR 64
+inline constexpr std::size_t MAX_ACCOUNT_STR[2] = { 16, 64 };
+inline constexpr std::size_t MAX_ACCOUNT_NAME_BYTES = 255;
+inline constexpr std::size_t MAX_PASS_STR = 16;
+inline constexpr std::size_t MAX_EMAIL_STR = 64;
 
 namespace rbac
 {
