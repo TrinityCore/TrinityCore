@@ -1145,8 +1145,8 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_ZONE               = 5078,
     LANG_LIST_RESPAWNS_LISTHEADER         = 5079,
     LANG_LIST_RESPAWNS_OVERDUE            = 5080,
-    // unused 5081
-    // unused 5082
+    LANG_ACTION_TRIGGERS_NAME             = 5081,
+    LANG_ACTION_SET_NAME                  = 5082,
     LANG_OBJECTINFO_AITYPE                = 5083,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084, // master branch ONLY
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085, // master branch ONLY

@@ -16,6 +16,7 @@
  */
 
 #include "Creature.h"
+#include "AIGroupMgr.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "CombatPackets.h"
@@ -45,6 +46,7 @@
 #include "QueryPackets.h"
 #include "QuestDef.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -638,6 +640,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
 
+    currentTriggersId = GetCurrentTriggersId();
+
     m_stringIds[AsUnderlyingType(StringIdType::Template)] = &cInfo->StringId;
 
     if (IsSpiritGuide() && sWorld->IsFFAPvPRealm())
@@ -741,7 +745,7 @@ void Creature::Update(uint32 diff)
             if (m_deathState != CORPSE)
                 break;
 
-            if (IsEngaged())
+            if (IsEngaged() || GetCurrentTriggersId())
                 Unit::AIUpdateTick(diff);
 
             if (m_groupLootTimer && !lootingGroupLowGUID.IsEmpty())
@@ -1105,6 +1109,8 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     }
 
     LastUsedScriptID = GetScriptId();
+
+    currentTriggersId = GetNativeTriggersId();
 
     if (IsSpiritHealer() || IsSpiritGuide() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
     {
@@ -2807,6 +2813,22 @@ void Creature::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+void Creature::SetTriggersId(uint32 triggersId)
+{
+    currentTriggersId = triggersId;
+
+    if (CreatureAI* ai = AI())
+        ai->OnActionTriggersChange(triggersId);
+}
+
+void Creature::ResetTriggersId()
+{
+    currentTriggersId = GetCreatureTemplate()->TriggersId;
+
+    if (CreatureAI* ai = AI())
+        ai->OnActionTriggersChange(currentTriggersId);
 }
 
 VendorItemData const* Creature::GetVendorItems() const
