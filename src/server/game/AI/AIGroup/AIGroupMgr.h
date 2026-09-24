@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 
 class WorldObject;
