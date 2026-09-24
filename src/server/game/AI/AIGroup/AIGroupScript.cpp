@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "Random.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
