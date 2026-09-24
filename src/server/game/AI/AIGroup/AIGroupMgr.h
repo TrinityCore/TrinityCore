@@ -248,7 +248,51 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_EMOTE_PLAYER                      = 213,   // NYI // Unit(s) perform an emote to a player
     AI_GROUP_UNIT_SET_QUEST_LOOT                    = 214,   // NYI // Set the quest loot for a unit
     // ^ 3.3.5a
-    AI_GROUP_MAX                                    = 215
+    AI_GROUP_UNIT_CAST_RANDOM_UNIT                  = 215,   // NYI // Unit(s) cast a spell on a random unit
+    AI_GROUP_UNIT_CAST_RANDOM_PLAYER                = 216,   // NYI // Unit(s) cast a spell on a random player
+    AI_GROUP_UNIT_CAST_OTHER_UNIT                   = 217,   // NYI // Unit(s) tell some other unit to cast a spell
+    AI_GROUP_MOVE_CIRCLE_RELATIVE                   = 218,   // NYI // Move in a circle relative to position
+    AI_GROUP_RETURN_HOME_INSTANTLY                  = 219,   // NYI // Move everybody back to spawn positions instantly
+    AI_GROUP_ABORT_ACTION_SET_NO_STRINGID           = 220,   // NYI // Abort action set if stringID is not found
+    AI_GROUP_ABORT_ACTION_SET_COMBAT_CONDITION_TRUE = 221,   // NYI // Abort action set if combat condition is true
+    AI_GROUP_FORCE_COMBAT                           = 222,   // NYI // Force combat with a unit
+    AI_GROUP_STOP_FORCE_COMBAT                      = 223,   // NYI // Stop Force combat
+    AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT            = 224,   // NYI // Unit(s) Set Untargetable By Client
+    AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT_RESET      = 225,   // NYI // Unit(s) Reset Untargetable By Client
+    AI_GROUP_UNIT_NO_MELEE_APPROACH                 = 226,   // NYI // Set "No Melee Approach" flag for unit(s) in the group
+    AI_GROUP_UNIT_NO_MELEE_APPROACH_RESET           = 227,   // NYI // Reset "No Melee Approach" flag for unit(s) in the group
+    AI_GROUP_UNIT_RAID_LOCK_TAP_LIST                = 228,   // NYI // Unit(s) Raid Lock everyone on their tap list
+    AI_GROUP_UNIT_CANNOT_TURN                       = 229,   // NYI // Set "Cannot Turn" flag for unit(s) in the group
+    AI_GROUP_UNIT_CANNOT_TURN_RESET                 = 230,   // NYI // Reset "Cannot Turn" flag for unit(s) in the group
+    AI_GROUP_UNIT_PREFER_NPCS_ENEMIES               = 231,   // NYI // Set "Prefer NPCs When Searching For Enemies" flag for unit(s) in the group
+    AI_GROUP_UNIT_PREFER_NPCS_ENEMIES_RESET         = 232,   // NYI // Reset "Prefer NPCs When Searching For Enemies" flag for unit(s) in the group
+    AI_GROUP_OBJECT_FACTION                         = 233,   // NYI // Change faction template for object(s)
+    AI_GROUP_OBJECT_FACTION_RESET                   = 234,   // NYI // Reset faction template for object(s)
+    AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_KIT          = 235,   // NYI // Unit(s) perform spell visual kit on self
+    AI_GROUP_UNIT_PERFORM_SPELL_VISUAL              = 236,   // NYI // Unit(s) perform spell visual
+    AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS      = 237,   // NYI // Unit(s) perform spell visual and trigger actions
+    AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE      = 238,   // NYI // Unit(s) Set "No LeaveCombat State Restore" flag
+    AI_GROUP_OBJECT_STRINGID                        = 239,   // NYI // Set the string ID for object(s)
+    AI_GROUP_OBJECT_STRINGID_RESET                  = 240,   // NYI // Reset the string ID for object(s)
+    AI_GROUP_UNIT_DESPAWN_PERSISTENT_AURA_OBJECTS   = 241,   // NYI // Unit(s) despawn persistent area aura objects
+    AI_GROUP_UNIT_DEFAULT_MOUNT                     = 242,   // NYI // Unit(s) set the default mount
+    AI_GROUP_UNIT_DEFAULT_MOUNT_RESET               = 243,   // NYI // Unit(s) reset the default mount
+    AI_GROUP_ABORT_ACTION_SET_FOUND_STRINGID        = 244,   // NYI // Abort action set if stringID is found
+    AI_GROUP_UNSUPPRESS_NPC_GREETINGS               = 245,   // NYI // NPC Greetings - Un-Suppress them
+    AI_GROUP_SUPPRESS_NPC_GREETINGS                 = 246,   // NYI // NPC Greetings - Suppress Them
+    AI_GROUP_UNIT_CLEAR_BOSS_EMOTES                 = 247,   // NYI // Unit(s) clears boss emotes
+    AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE            = 248,   // NYI // Unit(s) clears boss emotes for the zone
+    AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_PLAYER          = 249,   // NYI // Unit(s) clears boss emotes for a player
+    AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE            = 250,   // NYI // Unit(s) Set Interact While Hostile
+    AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE_RESET      = 251,   // NYI // Unit(s) Reset Interact While Hostile
+    AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION       = 252,   // NYI // Unit(s) set the model highlight suppression
+    AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION_RESET = 253,   // NYI // Unit(s) reset the model highlight suppression
+    AI_GROUP_FOLLOW_TAXI_PATH                       = 254,   // NYI // Follow a taxi path
+    AI_GROUP_FOLLOW_TAXI_PATH_RELATIVE              = 255,   // NYI // Follow a taxi path relative
+    AI_GROUP_START_DUNGEON_ENCOUNTER                = 256,   // NYI // Start a Dungeon Encounter
+    AI_GROUP_END_DUNGEON_ENCOUNTER                  = 257,   // NYI // End a Dungeon Encounter
+    // ^ 4.3.4
+    AI_GROUP_MAX                                    = 258
 };
 
 // EnumeratedString's EnumID 598 and g_actionTriggers
