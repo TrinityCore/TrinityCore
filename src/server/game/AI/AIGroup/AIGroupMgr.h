@@ -18,7 +18,9 @@
 #ifndef TRINITYCORE_AI_GROUP_MGR_H
 #define TRINITYCORE_AI_GROUP_MGR_H
 
+#include "Define.h"
 #include "EnumFlag.h"
+#include <unordered_map>
 
 class WorldObject;
 
@@ -313,7 +315,7 @@ enum ActionTriggersFlags
 // EnumeratedString's EnumID 880. First flag is shown in Action Set editor (Loop)
 enum class ActionSetFlags : uint32
 {
-    Looping	                                  = 0x00000001,   // Action set is looping (see example in Action Set editor screenshot)
+    Looping                                   = 0x00000001,   // Action set is looping (see example in Action Set editor screenshot)
     Resumable                                 = 0x00000002,   // Makes action set resumable if it was interrupted with a higher priority action set
     PauseForCombat                            = 0x00000004,   // NYI
     NoCorpseHeartbeat                         = 0x00000008,   // NYI
@@ -332,19 +334,19 @@ DEFINE_ENUM_FLAG(ActionSetFlags);
 enum class ActionSetPriorityType : uint8
 {
     Any                                       = 0,
-    Low	                                      = 1,
+    Low                                       = 1,
     LowToMid                                  = 2,
     MidToHigh                                 = 3,
     High                                      = 4,
     Medium                                    = 5,
-	Max
+    Max
 };
 
 // From g_aiGroupUnits. Max Unit should be max size of already existing formation
 enum class AIGroupUnit : uint8
 {
     RandomUnit                                = 0,
-    AllUnits	                              = 1,
+    AllUnits                                  = 1,
     Unit1                                     = 2,
     Unit2                                     = 3,
     Unit3                                     = 4,
