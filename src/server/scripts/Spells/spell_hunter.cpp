@@ -377,7 +377,7 @@ class spell_hun_disruptive_rounds : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -934,16 +934,18 @@ class spell_hun_posthaste : public SpellScript
         return ValidateSpellInfo({ SPELL_HUNTER_POSTHASTE_TALENT, SPELL_HUNTER_POSTHASTE_INCREASE_SPEED });
     }
 
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT);
+    }
+
     void HandleAfterCast() const
     {
-        if (GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT))
-        {
-            GetCaster()->RemoveMovementImpairingAuras(true);
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE_INCREASE_SPEED, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringSpell = GetSpell()
-            });
-        }
+        GetCaster()->RemoveMovementImpairingAuras(true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE_INCREASE_SPEED, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
@@ -1440,7 +1442,7 @@ class spell_hun_t29_2p_marksmanship_bonus : public AuraScript
     }
 };
 
-// 343242 Wilderness Medicine (attached by 136 - Mend Pet)
+// 343242 Wilderness Medicine (attached to 136 - Mend Pet)
 class spell_hun_wilderness_medicine : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
