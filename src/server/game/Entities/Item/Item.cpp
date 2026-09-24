@@ -2235,7 +2235,7 @@ uint32 Item::GetSellPrice(Player const* owner, bool forVendor /*= false*/) const
 {
     ItemTemplate const* itemTemplate = GetTemplate();
     int64 price = Item::GetSellPrice(itemTemplate, GetQuality(), GetItemLevel(owner));
-    if (forVendor)
+    if (price && forVendor)
     {
         std::span<ItemEffectEntry const* const> effects = GetEffects();
         auto effectWithCharges = std::ranges::find_if(effects,
