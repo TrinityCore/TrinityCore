@@ -376,8 +376,12 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
 
 bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const
 {
-    return me && me->IsInCombat() &&
-        (sAIGroupMgr->GetActionSetFlags(actionSet.Id) & uint32(ActionSetFlags::PauseForCombat));
+    if (!me)
+        return false;
+
+    uint32 flags = sAIGroupMgr->GetActionSetFlags(actionSet.Id);
+    return (me->IsInCombat() && (flags & uint32(ActionSetFlags::PauseForCombat))) ||
+        (me->IsReturningHome() && (flags & uint32(ActionSetFlags::PauseUntilAllMembersAreDoneReturning)));
 }
 
 void AIGroupScript::UpdateActionSets(uint32 diff)

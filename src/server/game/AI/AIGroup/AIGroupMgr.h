@@ -365,7 +365,7 @@ enum class ActionSetFlags : uint32
     PauseForCombat                            = 0x00000004,   // Pauses the action set while the creature is in combat
     NoCorpseHeartbeat                         = 0x00000008,   // NYI
     ChainActionsTogetherWithoutStopping       = 0x00000010,   // NYI
-    PauseUntilAllMembersAreDoneReturning      = 0x00000020,   // NYI
+    PauseUntilAllMembersAreDoneReturning      = 0x00000020,   // Action set is paused until creature is done returning home
     AllowAllActionsWhileDead                  = 0x00000040,   // Allows to start action set in OnDeath trigger. Action set will continue to run even if the unit is dead
     TreatLikeCreatureActionSet                = 0x00000080,   // NYI
     DoNotResetCombatState                     = 0x00000100,   // NYI
