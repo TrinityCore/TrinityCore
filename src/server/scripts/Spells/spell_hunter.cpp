@@ -78,6 +78,8 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION                       = 34477,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
+    SPELL_HUNTER_NO_HARD_FEELINGS_TALENT            = 459546,
+    SPELL_HUNTER_NO_HARD_FEELINGS_AURA              = 459547,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
@@ -839,6 +841,38 @@ class spell_hun_misdirection_proc : public AuraScript
     }
 };
 
+// 459546 - No Hard Feelings (attached to 34477 - Misdirection)
+class spell_hun_no_hard_feelings : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_NO_HARD_FEELINGS_TALENT, SPELL_HUNTER_NO_HARD_FEELINGS_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_NO_HARD_FEELINGS_TALENT);
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!target->IsPet() || target->GetOwnerGUID() != caster->GetGUID())
+            return;
+
+        caster->CastSpell(target, SPELL_HUNTER_NO_HARD_FEELINGS_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_no_hard_feelings::HandleHitTarget, EFFECT_0, SPELL_EFFECT_REDIRECT_THREAT);
+    }
+};
+
 // 2643 - Multi-Shot
 class spell_hun_multi_shot : public SpellScript
 {
@@ -1512,6 +1546,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_multi_shot);
+    RegisterSpellScript(spell_hun_no_hard_feelings);
     RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
