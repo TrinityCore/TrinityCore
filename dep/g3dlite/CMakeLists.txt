@@ -64,7 +64,9 @@ target_sources(g3dlib
       include/G3D/AABox.h
       include/G3D/BoundsTrait.h
       include/G3D/Box.h
+      include/G3D/CollisionDetection.h
       include/G3D/CoordinateFrame.h
+      include/G3D/Cylinder.h
       include/G3D/g3dmath.h
       include/G3D/Matrix3.h
       include/G3D/Matrix4.h
