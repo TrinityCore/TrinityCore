@@ -59,6 +59,7 @@ class TC_GAME_API AIGroupScript
         bool CanActionBeInfinite(uint16 action);
         bool ShouldStopMovementForAction(uint16 action);
         bool IsActionWaitable(uint16 action);
+        bool IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const;
         uint32 GetActionDuration(ActionSetEventHolder const& action) const;
         float GetStringIdSearchRadius(ActionSetEventHolder const& action) const;
 

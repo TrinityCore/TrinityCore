@@ -105,11 +105,20 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
 
     if (type == WAYPOINT_MOTION_TYPE)
     {
-        auto activeActionSet = std::max_element(mActionSets.begin(), mActionSets.end(), [](AIGroupActiveActionSet const& left, AIGroupActiveActionSet const& right)
+        auto activeActionSet = std::max_element(mActionSets.begin(), mActionSets.end(), [this](AIGroupActiveActionSet const& left, AIGroupActiveActionSet const& right)
         {
+            if (IsActionSetPaused(left))
+                return !IsActionSetPaused(right);
+
+            if (IsActionSetPaused(right))
+                return false;
+
             return sAIGroupMgr->GetPriorityPercentForPriorityType(ActionSetPriorityType(sAIGroupMgr->GetActionSetPriority(left.Id))) <
                 sAIGroupMgr->GetPriorityPercentForPriorityType(ActionSetPriorityType(sAIGroupMgr->GetActionSetPriority(right.Id)));
         });
+
+        if (IsActionSetPaused(*activeActionSet))
+            return;
 
         if (activeActionSet->CurrentAction >= activeActionSet->Actions.size() || !activeActionSet->ActionStarted)
             return;
@@ -365,6 +374,12 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
     }
 }
 
+bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const
+{
+    return me && me->IsInCombat() &&
+        (sAIGroupMgr->GetActionSetFlags(actionSet.Id) & uint32(ActionSetFlags::PauseForCombat));
+}
+
 void AIGroupScript::UpdateActionSets(uint32 diff)
 {
     if (mActionSets.empty())
@@ -374,11 +389,24 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
         return;
     }
 
-    auto activeActionSet = std::max_element(mActionSets.begin(), mActionSets.end(), [](AIGroupActiveActionSet const& left, AIGroupActiveActionSet const& right)
+    auto activeActionSet = std::max_element(mActionSets.begin(), mActionSets.end(), [this](AIGroupActiveActionSet const& left, AIGroupActiveActionSet const& right)
     {
+        if (IsActionSetPaused(left))
+            return !IsActionSetPaused(right);
+
+        if (IsActionSetPaused(right))
+            return false;
+
         return sAIGroupMgr->GetPriorityPercentForPriorityType(ActionSetPriorityType(sAIGroupMgr->GetActionSetPriority(left.Id))) <
             sAIGroupMgr->GetPriorityPercentForPriorityType(ActionSetPriorityType(sAIGroupMgr->GetActionSetPriority(right.Id)));
     });
+
+    if (IsActionSetPaused(*activeActionSet))
+    {
+        if (me)
+            me->currentRunningActionSet = 0;
+        return;
+    }
 
     if (me)
         me->currentRunningActionSet = activeActionSet->Id;

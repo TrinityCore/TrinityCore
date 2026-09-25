@@ -362,7 +362,7 @@ enum class ActionSetFlags : uint32
 {
     Looping                                   = 0x00000001,   // Action set is looping (see example in Action Set editor screenshot)
     Resumable                                 = 0x00000002,   // Makes action set resumable if it was interrupted with a higher priority action set
-    PauseForCombat                            = 0x00000004,   // NYI
+    PauseForCombat                            = 0x00000004,   // Pauses the action set while the creature is in combat
     NoCorpseHeartbeat                         = 0x00000008,   // NYI
     ChainActionsTogetherWithoutStopping       = 0x00000010,   // NYI
     PauseUntilAllMembersAreDoneReturning      = 0x00000020,   // NYI
