@@ -854,15 +854,17 @@ class spell_hun_no_hard_feelings : public SpellScript
         return GetCaster()->HasAura(SPELL_HUNTER_NO_HARD_FEELINGS_TALENT);
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        if (GetHitUnit() == caster->ToPlayer()->GetPet())
-            caster->CastSpell(caster->ToPlayer()->GetPet(), SPELL_HUNTER_NO_HARD_FEELINGS_AURA, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringSpell = GetSpell()
-            });
+        Unit* target = GetHitUnit();
+        if (!target->IsPet() || target->GetOwnerGUID() != caster->GetGUID())
+            return;
 
+        caster->CastSpell(target, SPELL_HUNTER_NO_HARD_FEELINGS_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
