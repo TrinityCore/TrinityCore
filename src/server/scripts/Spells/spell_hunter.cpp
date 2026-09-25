@@ -1275,6 +1275,11 @@ class spell_hun_surging_shots : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
     }
 
+    static bool RollProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/)
+    {
+        return roll_chance(aurEff->GetAmount());
+    }
+
     void HandleProc(ProcEventInfo const& /*eventInfo*/) const
     {
         GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
@@ -1283,6 +1288,7 @@ class spell_hun_surging_shots : public AuraScript
     void Register() override
     {
         OnProc += AuraProcFn(spell_hun_surging_shots::HandleProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_surging_shots::RollProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
