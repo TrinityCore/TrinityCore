@@ -97,6 +97,7 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
     SPELL_HUNTER_STREAMLINE_BUFF                    = 342076,
+    SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW      = 391561,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
     SPELL_HUNTER_TAR_TRAP                           = 187699,
@@ -1272,7 +1273,7 @@ class spell_hun_surging_shots : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE, SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW });
     }
 
     static bool RollProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/)
@@ -1280,15 +1281,17 @@ class spell_hun_surging_shots : public AuraScript
         return roll_chance(aurEff->GetAmount());
     }
 
-    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+        Unit* caster = eventInfo.GetActor();
+        caster->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+        caster->CastSpell(caster, SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_hun_surging_shots::HandleProc);
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_surging_shots::RollProc, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_surging_shots::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
