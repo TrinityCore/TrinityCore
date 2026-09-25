@@ -367,7 +367,12 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.reserve(9);
 
     // CLI Client connection info
+#ifdef _WIN32
     args.emplace_back("-h" + host);
+#else
+    // "." selects the unix socket, which the CLI client only uses for "localhost"
+    args.emplace_back("-h" + (host == "." ? std::string("localhost") : host));
+#endif
     args.emplace_back("-u" + user);
 
     if (!password.empty())
@@ -385,7 +390,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     if (!std::isdigit(port_or_socket[0]))
     {
-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
+        // not a port: port_or_socket is the socket path
         args.emplace_back("-P0");
         args.emplace_back("--protocol=SOCKET");
         args.emplace_back("-S" + port_or_socket);

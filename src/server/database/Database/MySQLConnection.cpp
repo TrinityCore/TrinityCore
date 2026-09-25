@@ -99,6 +99,8 @@ uint32 MySQLConnection::Open()
 
     int port = 0;
     char const* unix_socket = nullptr;
+    // Connection info is shared by all connections of a pool, so don't rewrite "." in it.
+    std::string host = m_connectionInfo.host;
     //unsigned int timeout = 10;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
@@ -112,7 +114,7 @@ uint32 MySQLConnection::Open()
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
 #else
-        m_connectionInfo.host = "localhost";
+        host = "localhost";
         unix_socket = m_connectionInfo.port_or_socket.c_str();
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
 #endif
@@ -149,7 +151,7 @@ uint32 MySQLConnection::Open()
 #endif
     }
 
-    m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
+    m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, host.c_str(), m_connectionInfo.user.c_str(),
         m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0));
 
     if (m_Mysql)
@@ -163,7 +165,7 @@ uint32 MySQLConnection::Open()
             //     TC_LOG_INFO("sql.sql", "[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
         }
 
-        TC_LOG_INFO("sql.sql", "Connected to MySQL database at {}", m_connectionInfo.host);
+        TC_LOG_INFO("sql.sql", "Connected to MySQL database at {}", host);
         mysql_autocommit(m_Mysql, 1);
 
         // set connection properties to UTF8 to properly handle locales for different
@@ -173,7 +175,7 @@ uint32 MySQLConnection::Open()
     }
     else
     {
-        TC_LOG_ERROR("sql.sql", "Could not connect to MySQL database at {}: {}", m_connectionInfo.host, mysql_error(mysqlInit));
+        TC_LOG_ERROR("sql.sql", "Could not connect to MySQL database at {}: {}", host, mysql_error(mysqlInit));
         uint32 errorCode = mysql_errno(mysqlInit);
         mysql_close(mysqlInit);
         return errorCode;
