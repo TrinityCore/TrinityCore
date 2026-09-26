@@ -18,6 +18,7 @@
 #include "AIGroupMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Timer.h"
 
@@ -260,6 +261,9 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsSpellValid(action))
         return false;
 
+    if (!IsBroadcastTextValid(action))
+        return false;
+
     return true;
 }
 
@@ -281,6 +285,42 @@ bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action)
             if (!sSpellMgr->GetSpellInfo(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsBroadcastTextValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_SAY:
+        case AI_GROUP_UNIT_YELL:
+        case AI_GROUP_UNIT_CHAT_EMOTE:
+        case AI_GROUP_OBJECT_CHAT_EMOTE:
+        case AI_GROUP_UNIT_WHISPER:
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
+        case AI_GROUP_UNIT_YELL_ZONE:
+        case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE:
+        case AI_GROUP_UNIT_BOSS_EMOTE:
+        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
+        case AI_GROUP_UNIT_SAY_ZONE:
+        case AI_GROUP_UNIT_CHAT_PARTY:
+        case AI_GROUP_UNIT_BOSS_WHISPER:
+        case AI_GROUP_UNIT_SAY_PLAYER:
+        case AI_GROUP_UNIT_YELL_PLAYER:
+        case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER:
+        case AI_GROUP_UNIT_SAY_GAME_REGION:
+        case AI_GROUP_UNIT_YELL_GAME_REGION:
+            if (!sObjectMgr->GetBroadcastText(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent broadcast text {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra2));
                 return false;
             }

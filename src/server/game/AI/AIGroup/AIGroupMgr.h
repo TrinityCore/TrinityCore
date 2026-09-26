@@ -719,6 +719,7 @@ class TC_GAME_API AIGroupMgr
 
         static bool IsActionValid(ActionSetEventHolder const& action);
         static bool IsSpellValid(ActionSetEventHolder const& action);
+        static bool IsBroadcastTextValid(ActionSetEventHolder const& action);
 
     public:
         static AIGroupMgr* Instance();
