@@ -1444,14 +1444,15 @@ class spell_hun_trailblazer : public AuraScript
 
     void HandleDummyTick(AuraEffect const* /*aurEff*/) const
     {
-        Unit* caster = GetCaster();
+        Unit* caster = GetTarget();
 
         if (!caster->HasAura(SPELL_HUNTER_TRAILBLAZER))
             caster->CastSpell(caster, SPELL_HUNTER_TRAILBLAZER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, AuraEffect* aurEff, ProcEventInfo const& eventInfo)
     {
+        aurEff->ResetPeriodic(true);
         eventInfo.GetActor()->RemoveAurasDueToSpell(SPELL_HUNTER_TRAILBLAZER);
     }
 
@@ -1464,7 +1465,7 @@ class spell_hun_trailblazer : public AuraScript
     {
         DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_hun_trailblazer::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_trailblazer::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
-        OnProc += AuraProcFn(spell_hun_trailblazer::HandleProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_trailblazer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_trailblazer::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
