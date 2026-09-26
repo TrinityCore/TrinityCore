@@ -276,8 +276,6 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
             else
                 me->CastSpell(nullptr, uint32(action.Extra2));
             return true;
-        case AI_GROUP_UNIT_FINISH_CAST:
-            return false;
         case AI_GROUP_DESPAWN:
             if (WorldObject* baseObject = GetBaseObject())
             {
@@ -315,6 +313,8 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
         case AI_GROUP_UNIT_TRIGGERS_RESET:
             me->ResetTriggersId();
             return true;
+        case AI_GROUP_UNIT_FINISH_CAST:
+            return false;
         case AI_GROUP_UNIT_WHISPER:
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
