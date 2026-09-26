@@ -50,6 +50,7 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
+    SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
     SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
     SPELL_HUNTER_EMERGENCY_SALVE_DISPEL             = 459521,
     SPELL_HUNTER_ENTRAPMENT_TALENT                  = 393344,
@@ -77,6 +78,8 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION                       = 34477,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
+    SPELL_HUNTER_NO_HARD_FEELINGS_TALENT            = 459546,
+    SPELL_HUNTER_NO_HARD_FEELINGS_AURA              = 459547,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
@@ -94,6 +97,7 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
     SPELL_HUNTER_STREAMLINE_BUFF                    = 342076,
+    SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW      = 391561,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
     SPELL_HUNTER_TAR_TRAP                           = 187699,
@@ -103,11 +107,6 @@ enum HunterSpells
     SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT         = 343242,
     SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL         = 384784,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
-};
-
-enum MiscSpells
-{
-    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
 };
 
 // 131894 - A Murder of Crows
@@ -371,6 +370,28 @@ class spell_hun_concussive_shot : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_hun_concussive_shot::HandleDuration, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 343244 - Disruptive Rounds
+class spell_hun_disruptive_rounds : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_disruptive_rounds::HandleProc);
     }
 };
 
@@ -822,6 +843,38 @@ class spell_hun_misdirection_proc : public AuraScript
     }
 };
 
+// 459546 - No Hard Feelings (attached to 34477 - Misdirection)
+class spell_hun_no_hard_feelings : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_NO_HARD_FEELINGS_TALENT, SPELL_HUNTER_NO_HARD_FEELINGS_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_NO_HARD_FEELINGS_TALENT);
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!target->IsPet() || target->GetOwnerGUID() != caster->GetGUID())
+            return;
+
+        caster->CastSpell(target, SPELL_HUNTER_NO_HARD_FEELINGS_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_no_hard_feelings::HandleHitTarget, EFFECT_0, SPELL_EFFECT_REDIRECT_THREAT);
+    }
+};
+
 // 2643 - Multi-Shot
 class spell_hun_multi_shot : public SpellScript
 {
@@ -909,7 +962,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScript
     }
 };
 
-// 781 - Disengage
+// 109215 Posthaste (attached to 781 - Disengage)
 class spell_hun_posthaste : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -917,13 +970,18 @@ class spell_hun_posthaste : public SpellScript
         return ValidateSpellInfo({ SPELL_HUNTER_POSTHASTE_TALENT, SPELL_HUNTER_POSTHASTE_INCREASE_SPEED });
     }
 
-    void HandleAfterCast()
+    bool Load() override
     {
-        if (GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT))
-        {
-            GetCaster()->RemoveMovementImpairingAuras(true);
-            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE_INCREASE_SPEED, GetSpell());
-        }
+        return GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->RemoveMovementImpairingAuras(true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE_INCREASE_SPEED, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
@@ -1216,17 +1274,25 @@ class spell_hun_surging_shots : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE });
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE, SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW });
     }
 
-    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    static bool RollProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+        return roll_chance(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        caster->GetSpellHistory()->ResetCooldown(SPELL_HUNTER_RAPID_FIRE, true);
+        caster->CastSpell(caster, SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_hun_surging_shots::HandleProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_surging_shots::RollProc, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_surging_shots::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1461,7 +1527,7 @@ class spell_hun_t29_2p_marksmanship_bonus : public AuraScript
     }
 };
 
-// Called by 136 - Mend Pet
+// 343242 Wilderness Medicine (attached to 136 - Mend Pet)
 class spell_hun_wilderness_medicine : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1512,6 +1578,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_concussive_shot);
+    RegisterSpellScript(spell_hun_disruptive_rounds);
     RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
@@ -1530,6 +1597,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_multi_shot);
+    RegisterSpellScript(spell_hun_no_hard_feelings);
     RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);

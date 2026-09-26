@@ -3237,8 +3237,10 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled /*= false*/,
     if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
     {
-        if ((!isAutoshoot || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)) &&
-            (!skipChanneledAllowingActions || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)))
+        SpellInfo const* channeledSpellInfo = m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo;
+
+        if ((!isAutoshoot || !channeledSpellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS) || channeledSpellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::Action | SpellAuraInterruptFlags::ActionDelayed)) &&
+            (!skipChanneledAllowingActions || !channeledSpellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)))
             return true;
     }
     // autorepeat spells may be finished or delayed, but they are still considered cast
@@ -4281,7 +4283,7 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* s
             && spell->GetSpellInfo()->HasChannelInterruptFlag(flag)
             && (!source || spell->GetSpellInfo()->Id != source->Id)
             && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo(), true, source))
-            InterruptNonMeleeSpells(false);
+            InterruptSpell(CURRENT_CHANNELED_SPELL, false, false);
 
     UpdateInterruptMask();
 }
@@ -5401,21 +5403,13 @@ void Unit::AddGameObject(GameObject* gameObj)
         ToCreature()->AI()->JustSummonedGameobject(gameObj);
 }
 
-void Unit::RemoveGameObject(GameObject* gameObj, bool del)
+void Unit::RemoveGameObjectImpl(GameObject* gameObj, bool del)
 {
-    if (!gameObj || gameObj->GetOwnerGUID() != GetGUID())
-        return;
-
     gameObj->SetOwnerGUID(ObjectGuid::Empty);
 
-    for (uint8 i = 0; i < MAX_GAMEOBJECT_SLOT; ++i)
-    {
-        if (m_ObjectSlot[i] == gameObj->GetGUID())
-        {
-            m_ObjectSlot[i].Clear();
-            break;
-        }
-    }
+    auto objectSlotItr = std::ranges::find(m_ObjectSlot, gameObj->GetGUID());
+    if (objectSlotItr != std::ranges::end(m_ObjectSlot))
+        objectSlotItr->Clear();
 
     // GO created by some spell
     if (uint32 spellid = gameObj->GetSpellId())
@@ -5429,8 +5423,6 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
             GetSpellHistory()->SendCooldownEvent(createBySpell);
     }
 
-    m_gameObj.remove(gameObj);
-
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled())
         ToCreature()->AI()->SummonedGameobjectDespawn(gameObj);
 
@@ -5441,27 +5433,30 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
     }
 }
 
+void Unit::RemoveGameObject(GameObject* gameObj, bool del)
+{
+    if (!gameObj || gameObj->GetOwnerGUID() != GetGUID())
+        return;
+
+    RemoveGameObjectImpl(gameObj, del);
+
+    m_gameObj.remove(gameObj);
+}
+
 void Unit::RemoveGameObject(uint32 spellid, bool del)
 {
     if (m_gameObj.empty())
         return;
-    GameObjectList::iterator i, next;
-    for (i = m_gameObj.begin(); i != m_gameObj.end(); i = next)
+
+    for (auto i = m_gameObj.begin(); i != m_gameObj.end(); )
     {
-        next = i;
         if (spellid == 0 || (*i)->GetSpellId() == spellid)
         {
-            (*i)->SetOwnerGUID(ObjectGuid::Empty);
-            if (del)
-            {
-                (*i)->SetRespawnTime(0);
-                (*i)->Delete();
-            }
-
-            next = m_gameObj.erase(i);
+            RemoveGameObjectImpl(*i, del);
+            i = m_gameObj.erase(i);
         }
         else
-            ++next;
+            ++i;
     }
 }
 
@@ -5470,11 +5465,9 @@ void Unit::RemoveAllGameObjects()
     // remove references to unit
     while (!m_gameObj.empty())
     {
-        GameObjectList::iterator i = m_gameObj.begin();
-        (*i)->SetOwnerGUID(ObjectGuid::Empty);
-        (*i)->SetRespawnTime(0);
-        (*i)->Delete();
-        m_gameObj.erase(i);
+        GameObject* gameObj = m_gameObj.front();
+        m_gameObj.pop_front();
+        RemoveGameObjectImpl(gameObj, true);
     }
 }
 
@@ -14284,6 +14277,25 @@ void Unit::RemoveInertia(int32 id)
         updateRemoveInertia.Status = &m_movementInfo;
         updateRemoveInertia.InertiaID = id;
         SendMessageToSet(updateRemoveInertia.Write(), true);
+    }
+}
+
+void Unit::SetGravityModifier(float gravityModifier)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+        setGravityModifier.MoverGUID = GetGUID();
+        setGravityModifier.SequenceIndex = m_movementCounter++;
+        setGravityModifier.GravityModifier = gravityModifier;
+        movingPlayer->SendDirectMessage(setGravityModifier.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+        updateSetGravityModifier.Status = &m_movementInfo;
+        updateSetGravityModifier.GravityModifier = gravityModifier;
+        SendMessageToSet(updateSetGravityModifier.Write(), true);
     }
 }
 

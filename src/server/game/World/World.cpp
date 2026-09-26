@@ -590,7 +590,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit"sv, 100));
-    SetMotd(sConfigMgr->GetStringDefault("Motd"sv, "Welcome to a Trinity Core Server."sv));
+    SetMotd(sConfigMgr->GetStringDefault("Motd"sv, "Welcome to a TrinityCore Server."sv));
 
     uint32 databaseCacheVersion = m_int_configs[CONFIG_CLIENTCACHE_VERSION];
 
@@ -617,6 +617,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "AllowTwoSide.Interaction.Guild"sv, .DefaultValue = false, .Index = CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD },
         { .Name = "AllowTwoSide.Interaction.Auction"sv, .DefaultValue = true, .Index = CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION },
         { .Name = "AllowTwoSide.Trade"sv, .DefaultValue = false, .Index = CONFIG_ALLOW_TWO_SIDE_TRADE },
+        { .Name = "ExtendedAccountNameLengthLimit"sv, .DefaultValue = false, .Index = CONFIG_EXTENDED_ACCOUNT_NAME_LENGTH_LIMIT },
         { .Name = "CharacterCreating.DisableAlliedRaceAchievementRequirement"sv, .DefaultValue = false, .Index = CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT },
         { .Name = "AllFlightPaths"sv, .DefaultValue = false, .Index = CONFIG_ALL_TAXI_PATHS },
         { .Name = "InstantFlightPaths"sv, .DefaultValue = false, .Index = CONFIG_INSTANT_TAXI },
@@ -752,7 +753,6 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "StartPlayerLevel"sv, .DefaultValue = 1, .Index = CONFIG_START_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartDeathKnightPlayerLevel"sv, .DefaultValue = 8, .Index = CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartDemonHunterPlayerLevel"sv, .DefaultValue = 8, .Index = CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL, .Min = 1 },
-        { .Name = "StartEvokerPlayerLevel"sv, .DefaultValue = 10, .Index = CONFIG_START_EVOKER_PLAYER_LEVEL, .Min = 1 },
         { .Name = "StartAlliedRacePlayerLevel"sv, .DefaultValue = 10, .Index = CONFIG_START_ALLIED_RACE_LEVEL, .Min = 1 },
         { .Name = "Currency.ResetHour"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_HOUR, .Min = 0, .Max = 23 },
         { .Name = "Currency.ResetDay"sv, .DefaultValue = 3, .Index = CONFIG_CURRENCY_RESET_DAY, .Min = 0, .Max = 6 },
@@ -826,7 +826,7 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "Arena.RatedUpdateTimer"sv, .DefaultValue = 5 * IN_MILLISECONDS, .Index = CONFIG_ARENA_RATED_UPDATE_TIMER },
         { .Name = "Arena.ArenaSeason.ID"sv, .DefaultValue = 32, .Index = CONFIG_ARENA_SEASON_ID },
         { .Name = "Arena.ArenaStartRating"sv, .DefaultValue = 0, .Index = CONFIG_ARENA_START_RATING },
-        { .Name = "Arena.ArenaStartPersonalRating"sv, .DefaultValue = 1000, .Index = CONFIG_ARENA_START_PERSONAL_RATING },
+        { .Name = "Arena.ArenaStartPersonalRating"sv, .DefaultValue = 0, .Index = CONFIG_ARENA_START_PERSONAL_RATING },
         { .Name = "Arena.ArenaStartMatchmakerRating"sv, .DefaultValue = 1500, .Index = CONFIG_ARENA_START_MATCHMAKER_RATING },
         { .Name = "Creature.PickPocketRefillDelay"sv, .DefaultValue = 10 * MINUTE, .Index = CONFIG_CREATURE_PICKPOCKET_REFILL },
         { .Name = "Creature.MovingStopTimeForPlayer"sv, .DefaultValue = 3 * MINUTE * IN_MILLISECONDS, .Index = CONFIG_CREATURE_STOP_FOR_PLAYER },
@@ -1081,8 +1081,7 @@ void World::LoadConfigSettings(bool reload)
     validateStartLevel(CONFIG_START_PLAYER_LEVEL, "StartPlayerLevel");
     validateStartLevel(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL, "StartDeathKnightPlayerLevel");
     validateStartLevel(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL, "StartDemonHunterPlayerLevel");
-    validateStartLevel(CONFIG_START_EVOKER_PLAYER_LEVEL, "StartEvokerPlayerLevel");
-    validateStartLevel(CONFIG_START_ALLIED_RACE_LEVEL, "StartDemonHunterPlayerLevel");
+    validateStartLevel(CONFIG_START_ALLIED_RACE_LEVEL, "StartAlliedRacePlayerLevel");
     validateStartLevel(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL, "RecruitAFriend.MaxLevel");
 
     if (m_int_configs[CONFIG_START_GM_LEVEL] < m_int_configs[CONFIG_START_PLAYER_LEVEL])
