@@ -62,6 +62,7 @@ void AddSC_boss_leotheras_the_blind();
 void AddSC_boss_morogrim_tidewalker();
 void AddSC_instance_serpentshrine_cavern();
 void AddSC_boss_the_lurker_below();
+void AddSC_serpentshrine_cavern();
 
 // Coilfang Reservoir - The Steam Vault
 void AddSC_boss_hydromancer_thespia();
@@ -188,6 +189,7 @@ void AddOutlandScripts()
     AddSC_boss_morogrim_tidewalker();
     AddSC_instance_serpentshrine_cavern();
     AddSC_boss_the_lurker_below();
+    AddSC_serpentshrine_cavern();
 
     // Coilfang Reservoir - The Steam Vault
     AddSC_instance_steam_vault();

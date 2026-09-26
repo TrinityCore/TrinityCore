@@ -50,55 +50,11 @@ public:
     {
         instance_the_slave_pens_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            counter = DATA_FLAMECALLER_000;
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
-
-        void OnCreatureCreate(Creature* creature) override
-        {
-            InstanceScript::OnCreatureCreate(creature);
-
-            if (creature->GetEntry() == NPC_EARTHEN_RING_FLAMECALLER)
-            {
-                switch (counter)
-                {
-                    case DATA_FLAMECALLER_000:
-                        FlameCallerGUIDs[0] = creature->GetGUID();
-                        break;
-                    case DATA_FLAMECALLER_001:
-                        FlameCallerGUIDs[1] = creature->GetGUID();
-                        break;
-                    case DATA_FLAMECALLER_002:
-                        FlameCallerGUIDs[2] = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-                ++counter;
-            }
-        }
-
-        ObjectGuid GetGuidData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_FLAMECALLER_000:
-                    return FlameCallerGUIDs[0];
-                case DATA_FLAMECALLER_001:
-                    return FlameCallerGUIDs[1];
-                case DATA_FLAMECALLER_002:
-                    return FlameCallerGUIDs[2];
-                default:
-                    break;
-            }
-            return ObjectGuid::Empty;
-        }
-
-    protected:
-        ObjectGuid FlameCallerGUIDs[3];
-        uint8 counter;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -1192,6 +1192,8 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyInertia(int32 id, Milliseconds duration);
         void RemoveInertia(int32 id);
 
+        void SetGravityModifier(float gravityModifier);
+
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
         void SetFacingToObject(WorldObject const* object, bool force = true, uint32 movementId = EVENT_FACE);
@@ -1921,6 +1923,7 @@ class TC_GAME_API Unit : public WorldObject
         DynObjectList m_dynObj;
 
         typedef std::list<GameObject*> GameObjectList;
+        void RemoveGameObjectImpl(GameObject* gameObj, bool del);
         GameObjectList m_gameObj;
 
         typedef std::vector<AreaTrigger*> AreaTriggerList;
