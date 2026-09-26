@@ -23,6 +23,7 @@
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
+#include "AIGroupMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
@@ -2128,6 +2129,14 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Action Sets...");
+    sAIGroupMgr->LoadActionSetsFromDB();
+    sAIGroupMgr->LoadActionSetsNamesFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Action Triggers...");
+    sAIGroupMgr->LoadActionTriggersFromDB();
+    sAIGroupMgr->LoadActionTriggersNamesFromDB();
 
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();

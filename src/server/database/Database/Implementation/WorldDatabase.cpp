@@ -28,6 +28,10 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_REP_LINKED_RESPAWN, "REPLACE INTO linked_respawn (guid, linkedGuid, linkType) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(WORLD_SEL_CREATURE_TEXT, "SELECT CreatureID, GroupID, ID, Text, Type, Language, Probability, Emote, Duration, Sound, BroadcastTextId, TextRange FROM creature_text", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_SMART_SCRIPTS, "SELECT entryorguid, source_type, id, link, event_type, event_phase_mask, event_chance, event_flags, event_param1, event_param2, event_param3, event_param4, event_param5, action_type, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, target_type, target_param1, target_param2, target_param3, target_param4, target_x, target_y, target_z, target_o FROM smart_scripts ORDER BY entryorguid, source_type, id, link", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_ACTION_SET, "SELECT Id, `Index`, `Type`, Unit, Point, Path, TimeA, MoveSpeed, StringId, TimeB, LinearPath, CircularPath, FlightPath, Extra0, Extra1, Extra2, Extra3, Extra4, TargetType, TargetParam1, TargetParam2, TargetParam3, TargetParam4 FROM action_set ORDER BY Id, `Index`", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_ACTION_SET_NAME, "SELECT Id, Flags, Priority, `Name` FROM action_set_name ORDER BY Id", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_ACTION_TRIGGERS, "SELECT Id, `Index`, Chance, Flags, CombatCondition, TriggerId, TriggerParam1, TriggerParam2, ActionSetID, RepeatMin, RepeatMax FROM action_triggers ORDER BY Id, `Index`", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_ACTION_TRIGGERS_NAME, "SELECT Id, `Name` FROM action_triggers_name ORDER BY Id", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_GAMEOBJECT, "DELETE FROM gameobject WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_EVENT_GAMEOBJECT, "DELETE FROM game_event_gameobject WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_INS_GRAVEYARD_ZONE, "INSERT INTO graveyard_zone (ID, GhostZone, Faction) VALUES (?, ?, ?)", CONNECTION_ASYNC);
