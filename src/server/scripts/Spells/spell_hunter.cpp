@@ -1525,6 +1525,28 @@ class spell_hun_wilderness_medicine : public AuraScript
     SpellEffectValue _dispelChance = 0;
 };
 
+// 473523 - Windrunner Quiver
+class spell_hun_windrunner_quiver : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (roll_chance(aurEff->GetAmount(), _rng))
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_LOCK_AND_LOAD, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_windrunner_quiver::HandleEffectProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+
+    PseudoRandomDistributionState _rng;
+};
+
 void AddSC_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_hun_a_murder_of_crows);
@@ -1577,4 +1599,5 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
     RegisterSpellScript(spell_hun_wilderness_medicine);
+    RegisterSpellScript(spell_hun_windrunner_quiver);
 }
