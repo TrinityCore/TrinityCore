@@ -85,6 +85,13 @@ ChannelMgr::~ChannelMgr()
             continue;
         }
 
+        // with CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL both teams share the same manager, so channels with the same name from each team collide
+        if (mgr->_customChannels.find(channelName) != mgr->_customChannels.end())
+        {
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' (team {}) from database - a channel with the same name is already loaded. Skipped.", dbName, team);
+            continue;
+        }
+
         Channel* channel = new Channel(dbName, team, dbBanned);
         channel->SetAnnounce(dbAnnounce);
         channel->SetOwnership(dbOwnership);
