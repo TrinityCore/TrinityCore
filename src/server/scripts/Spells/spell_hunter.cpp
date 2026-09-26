@@ -103,6 +103,7 @@ enum HunterSpells
     SPELL_HUNTER_TAR_TRAP                           = 187699,
     SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
     SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
+    SPELL_HUNTER_TRAILBLAZER                        = 231390,
     SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT         = 343242,
     SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL         = 384784,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
@@ -1427,6 +1428,48 @@ struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
     }
 };
 
+// 199921 - Trailblazer
+class spell_hun_trailblazer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_TRAILBLAZER });
+    }
+
+    static void CalcPeriodic(AuraScript const&, AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = 3 * IN_MILLISECONDS;
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/) const
+    {
+        Unit* caster = GetTarget();
+
+        if (!caster->HasAura(SPELL_HUNTER_TRAILBLAZER))
+            caster->CastSpell(caster, SPELL_HUNTER_TRAILBLAZER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect* aurEff, ProcEventInfo const& eventInfo)
+    {
+        aurEff->ResetPeriodic(true);
+        eventInfo.GetActor()->RemoveAurasDueToSpell(SPELL_HUNTER_TRAILBLAZER);
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_TRAILBLAZER);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_hun_trailblazer::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_trailblazer::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_trailblazer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_trailblazer::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 67151 - Item - Hunter T9 4P Bonus (Steady Shot)
 class spell_hun_t9_4p_bonus : public AuraScript
 {
@@ -1574,6 +1617,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
+    RegisterSpellScript(spell_hun_trailblazer);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
     RegisterSpellScript(spell_hun_wilderness_medicine);
