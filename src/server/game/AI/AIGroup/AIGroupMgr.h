@@ -292,7 +292,41 @@ enum AI_GROUP_ACTION
     AI_GROUP_START_DUNGEON_ENCOUNTER                = 256,   // NYI // Start a Dungeon Encounter
     AI_GROUP_END_DUNGEON_ENCOUNTER                  = 257,   // NYI // End a Dungeon Encounter
     // ^ 4.3.4
-    AI_GROUP_MAX                                    = 258
+    AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL              = 258,   // NYI // Unit(s) set Wild BattlePet Level
+    AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL_RESET        = 259,   // NYI // Unit(s) reset Wild BattlePet Level
+    AI_GROUP_UNIT_TRACK_PLAYER_STAT                 = 260,   // NYI // Unit(s) track player stat
+    AI_GROUP_UNIT_CANNOT_PENETRATE_WATER            = 261,   // NYI // Set "Cannot Penetrate Water" flag for unit(s) in the group
+    AI_GROUP_UNIT_CANNOT_PENETRATE_WATER_RESET      = 262,   // NYI // Reset "Cannot Penetrate Water" flag for unit(s) in the group
+    AI_GROUP_UNIT_DESPAWN_STRINGID                  = 263,   // NYI // Unit(s) Despawn units/objects matching string ID
+    AI_GROUP_UNIT_SET_SAFE_LOCATION                 = 264,   // NYI // Unit(s) Set Safe Location
+    AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT           = 265,   // NYI // Set "Treat Unit As Raid Unit" flag for unit(s)
+    AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT_RESET     = 266,   // NYI // Reset "Treat Unit As Raid Unit" flag for unit(s)
+    AI_GROUP_UNIT_DESPAWN_SUMMONED_AREA_TRIGGERS    = 267,   // NYI // Unit(s) Despawn all summoned area triggers
+    AI_GROUP_UNIT_ADD_PERMANENT_WORLD_EFFECT        = 268,   // NYI // Add permanent World Effect to unit(s)
+    AI_GROUP_UNIT_REMOVE_PERMANENT_WORLD_EFFECT     = 269,   // NYI // Remove permanent World Effect from unit(s)
+    AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT       = 270,   // NYI // Unit(s) tell some other unit to cast a spell with points
+    AI_GROUP_UNIT_SET_ANCHOR_POINT                  = 271,   // NYI // Unit(s) Set Anchor Point
+    AI_GROUP_CIRCLE_UNIT                            = 272,   // NYI // Circle a Unit
+    AI_GROUP_RUN_SPELL_SCRIPT                       = 273,   // NYI // Run a spell script
+    AI_GROUP_TURN_IN_PLACE_DEGREES                  = 274,   // NYI // Turn in Place(Degrees)
+    AI_GROUP_TURN_IN_PLACE_TIMED                    = 275,   // NYI // Turn in Place(Timed)
+    AI_GROUP_UNIT_PREFER_UNENGAGED_TARGETS          = 276,   // NYI // Set "Prefer Unengaged Targets" flag for unit(s) in the group
+    AI_GROUP_UNIT_GENERATE_SPAWNGROUP_EVENT         = 277,   // NYI // Unit(s) in the group generates a spawngroup event
+    AI_GROUP_PUSH_ACTIONSET                         = 278,   // NYI // Push Actionset
+    // ^ 6.0.1 Build 18125
+    AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT            = 279,   // NYI // Move on path graph to point
+    AI_GROUP_TRIGGER_ACTIONS_ON_SELF                = 280,   // NYI // Trigger actions on self
+    AI_GROUP_UNIT_EJECT_PASSENGER                   = 281,   // NYI // Unit(s) eject passenger
+    AI_GROUP_PERFORM_ACTIONSET                      = 282,   // NYI // Perform actionset
+    AI_GROUP_UNIT_PAUSE_SPELL_COOLDOWNS             = 283,   // NYI // Unit(s) Pause Spell Cooldowns
+    AI_GROUP_UNIT_RESUME_SPELL_COOLDOWNS            = 284,   // NYI // Unit(s) Resume Spell Cooldowns
+    AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN   = 285,   // NYI // Unit(s) Trigger a Spell Category Cooldown
+    AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT   = 286,   // NYI // Unit(s) Plays a sound on itself [Speakerbot]
+    AI_GROUP_UNIT_STOP_SPEAKERBOT_SOUND             = 287,   // NYI // Unit(s) Stops the [Speakerbot] sound it is playing
+    // ^ 6.0.3 Build 19342
+    // ^ 6.1.2 Build 19865
+    // ^ 6.2.0 Build 20253
+    AI_GROUP_MAX                                    = 288
 };
 
 // EnumeratedString's EnumID 598 and g_actionTriggers
