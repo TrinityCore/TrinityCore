@@ -73,8 +73,10 @@ void AIGroupMgr::LoadActionSetsFromDB()
         eventHolder.Extra3 = fields[21].GetDouble();
         eventHolder.Extra4 = fields[22].GetDouble();
 
-        mActionSetMap[eventHolder.Id].push_back(eventHolder);
-        ++count;
+        AIGroupActionSet& actionSet = mActionSetMap[eventHolder.Id];
+        if (actionSet.empty())
+            ++count;
+        actionSet.push_back(eventHolder);
     }
     while (result->NextRow());
 
