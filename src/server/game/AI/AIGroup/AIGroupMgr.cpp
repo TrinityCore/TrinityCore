@@ -62,16 +62,16 @@ void AIGroupMgr::LoadActionSetsFromDB()
         eventHolder.LinearPath = fields[10].GetBool();
         eventHolder.CircularPath = fields[11].GetBool();
         eventHolder.FlightPath = fields[12].GetBool();
-        eventHolder.TargetType = fields[13].GetUInt8();
-        eventHolder.TargetParam1 = fields[14].GetUInt32();
-        eventHolder.TargetParam2 = fields[15].GetUInt32();
-        eventHolder.TargetParam3 = fields[16].GetUInt32();
-        eventHolder.TargetParam4 = fields[17].GetUInt32();
-        eventHolder.Extra0 = fields[18].GetDouble();
-        eventHolder.Extra1 = fields[19].GetDouble();
-        eventHolder.Extra2 = fields[20].GetDouble();
-        eventHolder.Extra3 = fields[21].GetDouble();
-        eventHolder.Extra4 = fields[22].GetDouble();
+        eventHolder.Extra0 = fields[13].GetDouble();
+        eventHolder.Extra1 = fields[14].GetDouble();
+        eventHolder.Extra2 = fields[15].GetDouble();
+        eventHolder.Extra3 = fields[16].GetDouble();
+        eventHolder.Extra4 = fields[17].GetDouble();
+        eventHolder.TargetType = fields[18].GetUInt8();
+        eventHolder.TargetParam1 = fields[19].GetUInt32();
+        eventHolder.TargetParam2 = fields[20].GetUInt32();
+        eventHolder.TargetParam3 = fields[21].GetUInt32();
+        eventHolder.TargetParam4 = fields[22].GetUInt32();
 
         AIGroupActionSet& actionSet = mActionSetMap[eventHolder.Id];
         if (actionSet.empty())
