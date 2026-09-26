@@ -717,6 +717,9 @@ class TC_GAME_API AIGroupMgr
         AIGroupEventMap mEventMap;
         AIGroupActionSetMap mActionSetMap;
 
+        static bool IsActionValid(ActionSetEventHolder const& action);
+        static bool IsSpellValid(ActionSetEventHolder const& action);
+
     public:
         static AIGroupMgr* Instance();
 

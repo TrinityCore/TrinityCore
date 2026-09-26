@@ -18,6 +18,7 @@
 #include "AIGroupMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "SpellMgr.h"
 #include "Timer.h"
 
 AIGroupMgr* AIGroupMgr::Instance()
@@ -72,6 +73,9 @@ void AIGroupMgr::LoadActionSetsFromDB()
         eventHolder.TargetParam2 = fields[20].GetUInt32();
         eventHolder.TargetParam3 = fields[21].GetUInt32();
         eventHolder.TargetParam4 = fields[22].GetUInt32();
+
+        if (!IsActionValid(eventHolder))
+            continue;
 
         AIGroupActionSet& actionSet = mActionSetMap[eventHolder.Id];
         if (actionSet.empty())
@@ -235,6 +239,57 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} action trigger names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
+{
+    if (action.Type >= AI_GROUP_MAX)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    if (action.TargetType >= AIGROUP_TARGET_END)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid target type {}, skipped.",
+            action.Id, action.Index, action.TargetType);
+        return false;
+    }
+
+    if (!IsSpellValid(action))
+        return false;
+
+    return true;
+}
+
+bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_CAST:
+        case AI_GROUP_UNIT_CANCEL_CAST:
+        case AI_GROUP_UNIT_CANCEL_AURA:
+        case AI_GROUP_UNIT_CAST_FAILURE:
+        case AI_GROUP_UNIT_CAST_WITH_POINTS:
+        case AI_GROUP_UNIT_RIDE_VEHICLE:
+        case AI_GROUP_UNIT_INTERACT_SPELL:
+        case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+        case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+        case AI_GROUP_UNIT_CAST_OTHER_UNIT:
+        case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
+            if (!sSpellMgr->GetSpellInfo(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
 }
 
 AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[UnitActionTriggers::Max] =
