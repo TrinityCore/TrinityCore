@@ -49,6 +49,7 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_STUN                  = 117526,
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
+    SPELL_HUNTER_BULLETSTORM                        = 389020,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
     SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
@@ -308,6 +309,28 @@ struct at_hun_binding_shot : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+};
+
+// 389019 - Bulletstorm
+class spell_hun_bulletstorm : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BULLETSTORM });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_BULLETSTORM, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_bulletstorm::HandleProc);
+    }
 };
 
 // 204089 - Bullseye
@@ -1533,6 +1556,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
     RegisterSpellScript(spell_hun_binding_shot);
     RegisterAreaTriggerAI(at_hun_binding_shot);
+    RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_concussive_shot);
