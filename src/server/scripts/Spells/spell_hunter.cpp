@@ -100,6 +100,7 @@ enum HunterSpells
     SPELL_HUNTER_SURGING_SHOTS_ACTION_BAR_GLOW      = 391561,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_T29_2P_MARKSMANSHIP_DAMAGE         = 394371,
+    SPELL_HUNTER_TAKE_AIM                           = 1273132,
     SPELL_HUNTER_TAR_TRAP                           = 187699,
     SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
     SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
@@ -1019,10 +1020,10 @@ class spell_hun_rapid_fire : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE_DAMAGE });
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_HUNTER_RAPID_FIRE_DAMAGE, true);
+            caster->CastSpell(GetTarget(), SPELL_HUNTER_RAPID_FIRE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -1039,9 +1040,12 @@ class spell_hun_rapid_fire_damage : public SpellScript
         return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE_ENERGIZE });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(nullptr, SPELL_HUNTER_RAPID_FIRE_ENERGIZE, true);
+        GetCaster()->CastSpell(nullptr, SPELL_HUNTER_RAPID_FIRE_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
@@ -1292,6 +1296,26 @@ class spell_hun_surging_shots : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_surging_shots::RollProc, EFFECT_2, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_hun_surging_shots::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1273132 Take Aim (attached to 257045 - Rapid Fire)
+class spell_hun_take_aim : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_TAKE_AIM, SPELL_HUNTER_AIMED_SHOT });
+    }
+
+    void HandleOnHit() const
+    {
+        if (AuraEffect const* takeAim = GetCaster()->GetAuraEffect(SPELL_HUNTER_TAKE_AIM, EFFECT_1))
+            GetCaster()->GetSpellHistory()->ModifyChargeRecoveryTime(sSpellMgr->AssertSpellInfo(SPELL_HUNTER_AIMED_SHOT, GetCastDifficulty())->ChargeCategoryId, Milliseconds(-takeAim->GetAmountAsInt()));
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_hun_take_aim::HandleOnHit);
     }
 };
 
@@ -1571,6 +1595,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_streamline);
     RegisterSpellScript(spell_hun_surging_shots);
+    RegisterSpellScript(spell_hun_take_aim);
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
