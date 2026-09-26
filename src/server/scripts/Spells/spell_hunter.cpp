@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
 #include "CellImpl.h"
+#include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -60,6 +61,7 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
     SPELL_HUNTER_FLARE_DISPEL                       = 132951,
+    SPELL_HUNTER_FLARE_VISUAL                       = 214000,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -469,9 +471,35 @@ class spell_hun_explosive_shot : public AuraScript
     }
 };
 
+// 1543 - Flare
+class spell_hun_flare : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FLARE_VISUAL });
+    }
+
+    void PlayVisual(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        uint32 spellXSpellVisualId = caster->GetCastSpellXSpellVisualId(sSpellMgr->AssertSpellInfo(SPELL_HUNTER_FLARE_VISUAL, DIFFICULTY_NONE));
+        SpellXSpellVisualEntry const* sxsv = sSpellXSpellVisualStore.LookupEntry(spellXSpellVisualId);
+        if (!sxsv)
+            return;
+
+        FloatSeconds travelTime = FloatMilliseconds(GetSpell()->GetDelayMoment()) + FloatSeconds(GetEffectValue());
+        caster->SendPlaySpellVisual(*GetHitDest(), sxsv->SpellVisualID, SPELL_MISS_NONE, SPELL_MISS_NONE, travelTime.count(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_hun_flare::PlayVisual, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
 // 132950 - Flare
 // Ids - 510 and 35958
-struct at_hun_legion_flare : public AreaTriggerAI
+struct at_hun_flare : public AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
@@ -1636,7 +1664,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_emergency_salve);
     RegisterSpellScript(spell_hun_exhilaration);
     RegisterSpellScript(spell_hun_explosive_shot);
-    RegisterAreaTriggerAI(at_hun_legion_flare);
+    RegisterSpellScript(spell_hun_flare);
+    RegisterAreaTriggerAI(at_hun_flare);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
