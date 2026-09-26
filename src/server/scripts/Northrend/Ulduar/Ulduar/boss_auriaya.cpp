@@ -159,7 +159,6 @@ struct boss_auriaya : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SONIC_SCREECH, 48s);
         events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, 38s);
         events.ScheduleEvent(EVENT_SUMMON_DEFENDER, 1min);
@@ -205,14 +204,7 @@ struct boss_auriaya : public BossAI
     {
         _JustDied();
         DoPlaySoundToSet(me, AURIAYA_DEATH_SOUNDID);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         HandleCats(false);
-    }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        BossAI::EnterEvadeMode(why);
     }
 
     void UpdateAI(uint32 diff) override
