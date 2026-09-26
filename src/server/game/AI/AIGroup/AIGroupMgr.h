@@ -326,7 +326,23 @@ enum AI_GROUP_ACTION
     // ^ 6.0.3 Build 19342
     // ^ 6.1.2 Build 19865
     // ^ 6.2.0 Build 20253
-    AI_GROUP_MAX                                    = 288
+    AI_GROUP_UNIT_BECOME_PERSONAL_INVIS_CLONE       = 288,   // NYI // Unit(s) Becomes a personal invis clone for triggering player
+    AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID             = 289,   // NYI // Move on path graph to unit or game object
+    AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS     = 290,   // NYI // Move on path graph - multiple points
+    AI_GROUP_UNIT_NEVER_EVADE                       = 291,   // NYI // Unit(s) "Never Evade" flag
+    AI_GROUP_UNIT_NEVER_EVADE_RESET                 = 292,   // NYI // Reset Unit(s) "Never Evade" flag
+    AI_GROUP_UNIT_DONT_LEAVE_COMBAT                 = 293,   // NYI // Unit(s) Set "Don't leave combat" flag
+    AI_GROUP_UNIT_CANCEL_CURRENT_SPELL              = 294,   // NYI // Unit(s) Cancel Current Spell
+    AI_GROUP_UNIT_SAY_GAME_REGION                   = 295,   // NYI // Unit(s) say something to the entire game region
+    AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM            = 296,   // NYI // Unit(s) say something random to the entire game region
+    AI_GROUP_UNIT_YELL_GAME_REGION                  = 297,   // NYI // Unit(s) yell something to the entire game region
+    AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM           = 298,   // NYI // Unit(s) yell something random to the entire game region
+    AI_GROUP_COMBAT_POSITION                        = 299,   // NYI // Combat Position
+    AI_GROUP_COMBAT_CHASE                           = 300,   // NYI // Combat Chase
+    AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT      = 301,   // NYI // Set "Don't Dismiss On Flying Mount" for unit(s)
+    AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT_RES  = 302,   // NYI // Reset "Don't Dismiss On Flying Mount" for unit(s)
+    // ^ 7.3.5 Build 25717
+    AI_GROUP_MAX                                    = 303
 };
 
 // EnumeratedString's EnumID 598 and g_actionTriggers
