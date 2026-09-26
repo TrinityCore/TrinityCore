@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Random_h__
-#define Random_h__
+#ifndef TRINITYCORE_RANDOM_H
+#define TRINITYCORE_RANDOM_H
 
 #include "Define.h"
 #include "Duration.h"
@@ -84,4 +84,16 @@ public:
     result_type operator()() const { return rand32(); }
 };
 
-#endif // Random_h__
+struct PseudoRandomDistributionState
+{
+    float AccumulateChance(float progress) { return _progress += progress; }
+    void Reset() { _progress = 0; }
+
+private:
+    float _progress = 0.0f;
+};
+
+/* Return true if a random roll fits in the specified chance (range 0-100) using pseudo random distribution that minimizes long good/bad luck streaks. */
+TC_COMMON_API bool roll_chance(float chance, PseudoRandomDistributionState& state);
+
+#endif // TRINITYCORE_RANDOM_H

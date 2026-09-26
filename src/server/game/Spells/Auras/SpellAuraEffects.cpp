@@ -713,7 +713,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //641
     &AuraEffect::HandleNULL,                                      //642
     &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
-    &AuraEffect::HandleNULL,                                      //644 SPELL_AURA_MOD_GRAVITY
+    &AuraEffect::HandleModGravity,                                //644 SPELL_AURA_MOD_GRAVITY
     &AuraEffect::HandleNULL,                                      //645
     &AuraEffect::HandleNULL,                                      //646 SPELL_AURA_ADD_FLAT_PVP_MODIFIER
     &AuraEffect::HandleNULL,                                      //647 SPELL_AURA_ADD_PCT_PVP_MODIFIER
@@ -6225,6 +6225,19 @@ void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode,
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, powerEntry->MaxPower);
     else
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+}
+
+void AuraEffect::HandleModGravity(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    Unit::AuraEffectList const& gravityAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_GRAVITY);
+    float amount = std::transform_reduce(gravityAuras.begin(), gravityAuras.end(), 1.0f, std::multiplies(),
+        [](AuraEffect const* aurEff) { return aurEff->GetAmount(); });
+
+    target->SetGravityModifier(std::max(amount, 0.01f));
 }
 
 void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const
