@@ -273,7 +273,11 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
         case AI_GROUP_UNIT_CAST:
             if (!targets.empty())
                 me->CastSpell(targets.front(), uint32(action.Extra2));
+            else
+                me->CastSpell(nullptr, uint32(action.Extra2));
             return true;
+        case AI_GROUP_UNIT_FINISH_CAST:
+            return false;
         case AI_GROUP_DESPAWN:
             if (WorldObject* baseObject = GetBaseObject())
             {
@@ -368,6 +372,7 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
     {
         case AI_GROUP_FOLLOW_PATH:
         case AI_GROUP_MOVETO:
+        case AI_GROUP_UNIT_FINISH_CAST:
             return true;
         default:
             return false;
@@ -421,6 +426,25 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
         if (activeActionSet->ActionStarted)
         {
+            if (action.Type == AI_GROUP_UNIT_FINISH_CAST)
+            {
+                if (action.TimeA == 0 && action.TimeB == 0)
+                {
+                    if (me && me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
+                else if (activeActionSet->ActionTimer > diff)
+                {
+                    activeActionSet->ActionTimer -= diff;
+                    return;
+                }
+
+                activeActionSet->ActionTimer = 0;
+                activeActionSet->ActionStarted = false;
+                ++activeActionSet->CurrentAction;
+                continue;
+            }
+
             if (IsActionWaitable(action.Type))
                 return;
 
