@@ -898,11 +898,11 @@ Creature* AIGroupScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid:
     return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
 }
 
-void AIGroupScript::ProcessEventsFor(UnitActionTriggers trigger, Unit* unit, uint32 triggerParam1, uint32 triggerParam2, GameObject* gob)
+void AIGroupScript::ProcessEventsFor(ActionTriggers trigger, Unit* unit, uint32 triggerParam1, uint32 triggerParam2, GameObject* gob)
 {
     for (ActionTriggersHolder& holder : mEvents)
     {
-        UnitActionTriggers triggerType = UnitActionTriggers(holder.TriggerId);
+        ActionTriggers triggerType = ActionTriggers(holder.TriggerId);
         if (triggerType == trigger)
             ProcessEvent(holder, unit, triggerParam1, triggerParam2, gob);
     }

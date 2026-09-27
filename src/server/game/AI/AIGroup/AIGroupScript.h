@@ -43,7 +43,7 @@ class TC_GAME_API AIGroupScript
         AIGroupActiveActionSetList const& GetActiveActionSets() const { return mActionSets; }
         void ReplaceActionTriggers();
         void ProcessEvent(ActionTriggersHolder& holder, Unit* unit = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0, GameObject* gob = nullptr);
-        void ProcessEventsFor(UnitActionTriggers holder, Unit* unit = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0, GameObject* gob = nullptr);
+        void ProcessEventsFor(ActionTriggers holder, Unit* unit = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0, GameObject* gob = nullptr);
 
         void GetActionTargets(AIGroupObjectVector& targets, ActionSetEventHolder const& action, WorldObject* invoker = nullptr) const;
         GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;

@@ -49,7 +49,7 @@ void AIGroup::MovementInform(uint32 type, uint32 id)
 
 void AIGroup::JustDied(Unit* killer)
 {
-    GetScript()->ProcessEventsFor(UnitActionTriggers::OnDeath, killer);
+    GetScript()->ProcessEventsFor(ActionTriggers::OnDeath, killer);
     GetScript()->TerminateActionSets();
 }
 
@@ -58,17 +58,17 @@ void AIGroup::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
     if (!spellInfo)
         return;
 
-    GetScript()->ProcessEventsFor(UnitActionTriggers::OnSpell, caster->ToUnit(), spellInfo->Id, 0, caster->ToGameObject());
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster->ToUnit(), spellInfo->Id, 0, caster->ToGameObject());
 }
 
 void AIGroup::JustAppeared()
 {
     CreatureAI::JustAppeared();
 
-    GetScript()->ProcessEventsFor(UnitActionTriggers::OnSpawn);
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
 }
 
 void AIGroup::ReceiveEmote(Player* player, uint32 textEmote)
 {
-    GetScript()->ProcessEventsFor(UnitActionTriggers::OnEmote, player, textEmote);
+    GetScript()->ProcessEventsFor(ActionTriggers::OnEmote, player, textEmote);
 }

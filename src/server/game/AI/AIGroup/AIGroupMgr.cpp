@@ -206,7 +206,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
         triggers.RepeatMin = fields[9].GetUInt32();
         triggers.RepeatMax = fields[10].GetUInt32();
 
-        if (triggers.TriggerId >= UnitActionTriggers::Max)
+        if (triggers.TriggerId >= ActionTriggers::Max)
         {
             TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) has invalid TriggerId ({}), skipped.",
                 triggers.Id, triggers.Index, triggers.TriggerId);
@@ -564,7 +564,7 @@ bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action)
     return true;
 }
 
-AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[UnitActionTriggers::Max] =
+AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[ActionTriggers::Max] =
 {
     { "None",                       false, false },
     { "OnReaction",                 true,  false },

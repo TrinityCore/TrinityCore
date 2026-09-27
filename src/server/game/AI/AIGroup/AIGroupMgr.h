@@ -346,7 +346,7 @@ enum AI_GROUP_ACTION
 };
 
 // EnumeratedString's EnumID 598 and g_actionTriggers
-enum UnitActionTriggers
+enum ActionTriggers
 {
     None                        = 0,
     OnReaction                  = 1,    // NYI // Unit detects {$Detection Type}.
@@ -753,7 +753,7 @@ class TC_GAME_API AIGroupMgr
             bool HasTriggerParam1;
             bool HasTriggerParam2;
         };
-        static ActionTriggerTypeInfo const StaticActionTriggerTypeData[UnitActionTriggers::Max];
+        static ActionTriggerTypeInfo const StaticActionTriggerTypeData[ActionTriggers::Max];
 
         std::string GetTriggersName(uint32 triggersId) const;
         std::string GetActionSetName(uint32 actionSetId) const;
