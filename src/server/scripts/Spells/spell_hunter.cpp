@@ -1389,16 +1389,27 @@ class spell_hun_take_aim : public SpellScript
         return ValidateSpellInfo({ SPELL_HUNTER_TAKE_AIM, SPELL_HUNTER_AIMED_SHOT });
     }
 
-    void HandleOnHit() const
+    bool Load() override
     {
         if (AuraEffect const* takeAim = GetCaster()->GetAuraEffect(SPELL_HUNTER_TAKE_AIM, EFFECT_1))
-            GetCaster()->GetSpellHistory()->ModifyChargeRecoveryTime(sSpellMgr->AssertSpellInfo(SPELL_HUNTER_AIMED_SHOT, GetCastDifficulty())->ChargeCategoryId, Milliseconds(-takeAim->GetAmountAsInt()));
+        {
+            _aimedShotCooldownReduction = Milliseconds(-takeAim->GetAmountAsInt());
+            return true;
+        }
+        return false;
+    }
+
+    void HandleOnHit() const
+    {
+        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, _aimedShotCooldownReduction);
     }
 
     void Register() override
     {
         OnHit += SpellHitFn(spell_hun_take_aim::HandleOnHit);
     }
+
+    Milliseconds _aimedShotCooldownReduction = 0ms;
 };
 
 // 1515 - Tame Beast
