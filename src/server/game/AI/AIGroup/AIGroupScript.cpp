@@ -161,6 +161,20 @@ void AIGroupScript::PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid)
     mActionSets.emplace_back(actionSetId, std::move(actionSet), invokerGuid);
 }
 
+void AIGroupScript::PerformRandomActionSet(uint32 randomActionSetId, ObjectGuid invokerGuid)
+{
+    AIGroupRandomActionSet randomActionSet = sAIGroupMgr->GetRandomActionSet(randomActionSetId);
+    if (randomActionSet.empty())
+        return;
+
+    auto actionSet = Trinity::Containers::SelectRandomWeightedContainerElement(randomActionSet, [](RandomActionSetHolder const& randomActionSetHolder)
+    {
+        return randomActionSetHolder.Probability;
+    });
+
+    PerformActionSet(actionSet->ActionSetId, invokerGuid);
+}
+
 void AIGroupScript::TerminateActionSets()
 {
     mActionSets.erase(std::remove_if(mActionSets.begin(), mActionSets.end(), [](AIGroupActiveActionSet const& actionSet)
@@ -319,6 +333,9 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
                     me->Whisper(action.Extra2, player);
+            return true;
+        case AI_GROUP_RANDOM_ACTION_SET:
+            PerformRandomActionSet(uint32(action.Extra2), invokerGuid);
             return true;
         default:
             return true;

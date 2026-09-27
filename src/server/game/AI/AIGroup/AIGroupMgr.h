@@ -685,10 +685,22 @@ struct ActionSetHolder
     std::string Name;
 };
 
+struct RandomActionSetHolder
+{
+    RandomActionSetHolder() : Id(0), Index(0), Probability(0.0f), ActionSetId(0) { }
+
+    uint32 Id;
+    uint16 Index;
+    float Probability;
+    uint32 ActionSetId;
+};
+
 typedef std::vector<ActionTriggersHolder> AIGroupEventList;
 typedef std::unordered_map<uint32, AIGroupEventList> AIGroupEventMap;
 typedef std::vector<ActionSetEventHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
+typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
+typedef std::unordered_map<uint32, AIGroupRandomActionSet> AIGroupRandomActionSetMap;
 typedef std::vector<WorldObject*> AIGroupObjectVector;
 
 struct AIGroupActiveActionSet
@@ -716,6 +728,7 @@ class TC_GAME_API AIGroupMgr
         std::unordered_map<uint32, ActionSetHolder> _actionSets;
         AIGroupEventMap mEventMap;
         AIGroupActionSetMap mActionSetMap;
+        AIGroupRandomActionSetMap mRandomActionSetMap;
 
         static bool IsActionValid(ActionSetEventHolder const& action);
         static bool IsSpellValid(ActionSetEventHolder const& action);
@@ -730,6 +743,7 @@ class TC_GAME_API AIGroupMgr
 
         void LoadActionSetsFromDB();
         void LoadActionSetsNamesFromDB();
+        void LoadRandomActionSetsFromDB();
         void LoadActionTriggersFromDB();
         void LoadActionTriggersNamesFromDB();
 
@@ -750,6 +764,7 @@ class TC_GAME_API AIGroupMgr
 
         AIGroupEventList GetScript(uint32 triggersId);
         AIGroupActionSet GetActionSet(uint32 actionSetId);
+        AIGroupRandomActionSet GetRandomActionSet(uint32 randomActionSetId);
 };
 
 #define sAIGroupMgr AIGroupMgr::Instance()

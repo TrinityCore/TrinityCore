@@ -38,6 +38,7 @@ class TC_GAME_API AIGroupScript
         void OnUpdate(const uint32 diff);
         void MovementInform(uint32 type, uint32 id);
         void PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid = ObjectGuid::Empty);
+        void PerformRandomActionSet(uint32 randomActionSetId, ObjectGuid invokerGuid = ObjectGuid::Empty);
         void TerminateActionSets();
         AIGroupActiveActionSetList const& GetActiveActionSets() const { return mActionSets; }
         void ReplaceActionTriggers();

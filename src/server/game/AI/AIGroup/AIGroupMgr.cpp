@@ -126,6 +126,51 @@ void AIGroupMgr::LoadActionSetsNamesFromDB()
     TC_LOG_INFO("server.loading", ">> Loaded {} action set names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AIGroupMgr::LoadRandomActionSetsFromDB()
+{
+    uint32 oldMSTime = getMSTime();
+
+    mRandomActionSetMap.clear();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RANDOM_ACTION_SET);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 random action sets. DB table `random_action_set` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        RandomActionSetHolder randomActionSetHolder;
+
+        randomActionSetHolder.Id = fields[0].GetUInt32();
+        randomActionSetHolder.Index = fields[1].GetUInt16();
+        randomActionSetHolder.Probability = fields[2].GetFloat();
+        randomActionSetHolder.ActionSetId = fields[3].GetUInt32();
+
+        if (!randomActionSetHolder.ActionSetId || mActionSetMap.find(randomActionSetHolder.ActionSetId) == mActionSetMap.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `random_action_set` (Id: {}, Index: {}) references an invalid ActionSetId ({}), skipped.",
+                randomActionSetHolder.Id, randomActionSetHolder.Index, randomActionSetHolder.ActionSetId);
+            continue;
+        }
+
+        AIGroupRandomActionSet& randomActionSet = mRandomActionSetMap[randomActionSetHolder.Id];
+        if (randomActionSet.empty())
+            ++count;
+        randomActionSet.push_back(randomActionSetHolder);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} random action sets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void AIGroupMgr::LoadActionTriggersFromDB()
 {
     uint32 oldMSTime = getMSTime();
@@ -604,6 +649,15 @@ AIGroupActionSet AIGroupMgr::GetActionSet(uint32 actionSetId)
         return itr->second;
 
     return AIGroupActionSet();
+}
+
+AIGroupRandomActionSet AIGroupMgr::GetRandomActionSet(uint32 randomActionSetId)
+{
+    auto itr = mRandomActionSetMap.find(randomActionSetId);
+    if (itr != mRandomActionSetMap.end())
+        return itr->second;
+
+    return AIGroupRandomActionSet();
 }
 
 uint8 AIGroupMgr::GetPriorityPercentForPriorityType(ActionSetPriorityType type)
