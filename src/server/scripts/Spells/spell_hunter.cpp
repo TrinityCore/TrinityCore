@@ -59,7 +59,7 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
-    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_AREA                = 212680,
     SPELL_HUNTER_FLARE_DISPEL                       = 132951,
     SPELL_HUNTER_FLARE_VISUAL                       = 214000,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
@@ -457,18 +457,18 @@ class spell_hun_explosive_shot : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE });
+        return ValidateSpellInfo({ SPELL_HUNTER_EXPLOSIVE_SHOT_AREA });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE, true);
+            caster->CastSpell(GetTarget()->GetPosition(), SPELL_HUNTER_EXPLOSIVE_SHOT_AREA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
