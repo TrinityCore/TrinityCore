@@ -17,6 +17,7 @@
 
 #include "AIGroupMgr.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
@@ -264,6 +265,18 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsBroadcastTextValid(action))
         return false;
 
+    if (!IsCreatureValid(action))
+        return false;
+
+    if (!IsEmoteValid(action))
+        return false;
+
+    if (!IsSoundValid(action))
+        return false;
+
+    if (!IsQuestValid(action))
+        return false;
+
     return true;
 }
 
@@ -321,6 +334,101 @@ bool AIGroupMgr::IsBroadcastTextValid(ActionSetEventHolder const& action)
             if (!sObjectMgr->GetBroadcastText(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent broadcast text {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_MOUNT:
+        case AI_GROUP_UNIT_MODE:
+        case AI_GROUP_UNIT_KILL_CREDIT:
+        case AI_GROUP_UNIT_KILL_CREDIT_TAP:
+        case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
+        case AI_GROUP_UNIT_DEFAULT_MOUNT:
+            if (!sObjectMgr->GetCreatureTemplate(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsEmoteValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_EMOTE:
+        case AI_GROUP_EMOTE_STATE:
+        case AI_GROUP_UNIT_EMOTE_PLAYER:
+            if (!sEmotesStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent emote {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsSoundValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_PLAY_SOUND:
+        case AI_GROUP_OBJECT_PLAY_SOUND:
+        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
+        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
+        case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
+        case AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT:
+        case AI_GROUP_UNIT_PLAY_MUSIC:
+        case AI_GROUP_OBJECT_PLAY_MUSIC:
+        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
+        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
+        case AI_GROUP_UNIT_PLAY_TARGETED_MUSIC:
+            if (!sSoundEntriesStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent sound {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER:
+        case AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER:
+        case AI_GROUP_UNIT_START_QUEST:
+            if (!sObjectMgr->GetQuestTemplate(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra2));
                 return false;
             }
