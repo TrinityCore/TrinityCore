@@ -369,12 +369,8 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
 
 bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
 {
-    if (action.Type >= AI_GROUP_MAX)
-    {
-        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
-            action.Id, action.Index, action.Type);
+    if (!IsActionTypeValid(action))
         return false;
-    }
 
     if (action.TargetType >= AIGROUP_TARGET_END)
     {
@@ -402,6 +398,239 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
         return false;
 
     return true;
+}
+
+bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
+{
+    if (action.Type >= AI_GROUP_MAX)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_WANDER_AREA:
+        case AI_GROUP_GUARD_AREA:
+        case AI_GROUP_UNIT_CHANGE_MODE_OBSOLETE:
+        case AI_GROUP_SET_RADIUS_OBSOLETE:
+        case AI_GROUP_SET_FACTION_OBSOLETE:
+        case AI_GROUP_PLAYER_ACTION:
+        case AI_GROUP_VENDOR_IDLE_OBSOLETE:
+            // ^ Officially unused \ obsolete \ reused \ not yet implemented
+        case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+        case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+        case AI_GROUP_UNIT_CAST_OTHER_UNIT:
+        case AI_GROUP_MOVE_CIRCLE_RELATIVE:
+        case AI_GROUP_RETURN_HOME_INSTANTLY:
+        case AI_GROUP_ABORT_ACTION_SET_NO_STRINGID:
+        case AI_GROUP_ABORT_ACTION_SET_COMBAT_CONDITION_TRUE:
+        case AI_GROUP_FORCE_COMBAT:
+        case AI_GROUP_STOP_FORCE_COMBAT:
+        case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT:
+        case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT_RESET:
+        case AI_GROUP_UNIT_NO_MELEE_APPROACH:
+        case AI_GROUP_UNIT_NO_MELEE_APPROACH_RESET:
+        case AI_GROUP_UNIT_RAID_LOCK_TAP_LIST:
+        case AI_GROUP_UNIT_CANNOT_TURN:
+        case AI_GROUP_UNIT_CANNOT_TURN_RESET:
+        case AI_GROUP_UNIT_PREFER_NPCS_ENEMIES:
+        case AI_GROUP_UNIT_PREFER_NPCS_ENEMIES_RESET:
+        case AI_GROUP_OBJECT_FACTION:
+        case AI_GROUP_OBJECT_FACTION_RESET:
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_KIT:
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL:
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS:
+        case AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE:
+        case AI_GROUP_OBJECT_STRINGID:
+        case AI_GROUP_OBJECT_STRINGID_RESET:
+        case AI_GROUP_UNIT_DESPAWN_PERSISTENT_AURA_OBJECTS:
+        case AI_GROUP_UNIT_DEFAULT_MOUNT:
+        case AI_GROUP_UNIT_DEFAULT_MOUNT_RESET:
+        case AI_GROUP_ABORT_ACTION_SET_FOUND_STRINGID:
+        case AI_GROUP_UNSUPPRESS_NPC_GREETINGS:
+        case AI_GROUP_SUPPRESS_NPC_GREETINGS:
+        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES:
+        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE:
+        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_PLAYER:
+        case AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE:
+        case AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE_RESET:
+        case AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION:
+        case AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION_RESET:
+        case AI_GROUP_FOLLOW_TAXI_PATH:
+        case AI_GROUP_FOLLOW_TAXI_PATH_RELATIVE:
+        case AI_GROUP_START_DUNGEON_ENCOUNTER:
+        case AI_GROUP_END_DUNGEON_ENCOUNTER:
+            // ^ 4.3.4
+        case AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL:
+        case AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL_RESET:
+        case AI_GROUP_UNIT_TRACK_PLAYER_STAT:
+        case AI_GROUP_UNIT_CANNOT_PENETRATE_WATER:
+        case AI_GROUP_UNIT_CANNOT_PENETRATE_WATER_RESET:
+        case AI_GROUP_UNIT_DESPAWN_STRINGID:
+        case AI_GROUP_UNIT_SET_SAFE_LOCATION:
+        case AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT:
+        case AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT_RESET:
+        case AI_GROUP_UNIT_DESPAWN_SUMMONED_AREA_TRIGGERS:
+        case AI_GROUP_UNIT_ADD_PERMANENT_WORLD_EFFECT:
+        case AI_GROUP_UNIT_REMOVE_PERMANENT_WORLD_EFFECT:
+        case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
+        case AI_GROUP_UNIT_SET_ANCHOR_POINT:
+        case AI_GROUP_CIRCLE_UNIT:
+        case AI_GROUP_RUN_SPELL_SCRIPT:
+        case AI_GROUP_TURN_IN_PLACE_DEGREES:
+        case AI_GROUP_TURN_IN_PLACE_TIMED:
+        case AI_GROUP_UNIT_PREFER_UNENGAGED_TARGETS:
+        case AI_GROUP_UNIT_GENERATE_SPAWNGROUP_EVENT:
+        case AI_GROUP_PUSH_ACTIONSET:
+            // ^ 6.0.1 Build 18125
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
+        case AI_GROUP_TRIGGER_ACTIONS_ON_SELF:
+        case AI_GROUP_UNIT_EJECT_PASSENGER:
+        case AI_GROUP_PERFORM_ACTIONSET:
+        case AI_GROUP_UNIT_PAUSE_SPELL_COOLDOWNS:
+        case AI_GROUP_UNIT_RESUME_SPELL_COOLDOWNS:
+        case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
+        case AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT:
+        case AI_GROUP_UNIT_STOP_SPEAKERBOT_SOUND:
+            // ^ 6.0.3 Build 19342
+            // ^ 6.1.2 Build 19865
+            // ^ 6.2.0 Build 20253
+        case AI_GROUP_UNIT_BECOME_PERSONAL_INVIS_CLONE:
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS:
+        case AI_GROUP_UNIT_NEVER_EVADE:
+        case AI_GROUP_UNIT_NEVER_EVADE_RESET:
+        case AI_GROUP_UNIT_DONT_LEAVE_COMBAT:
+        case AI_GROUP_UNIT_CANCEL_CURRENT_SPELL:
+        case AI_GROUP_UNIT_SAY_GAME_REGION:
+        case AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM:
+        case AI_GROUP_UNIT_YELL_GAME_REGION:
+        case AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM:
+        case AI_GROUP_COMBAT_POSITION:
+        case AI_GROUP_COMBAT_CHASE:
+        case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT:
+        case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT_RES:
+            // ^ 7.3.5 Build 25717
+        case AI_GROUP_RESERVED_1:
+        case AI_GROUP_RESERVED_2:
+        case AI_GROUP_RESERVED_3:
+        case AI_GROUP_RESERVED_4:
+        case AI_GROUP_RESERVED_5:
+        case AI_GROUP_RESERVED_6:
+        case AI_GROUP_RESERVED_7:
+        case AI_GROUP_RESERVED_8:
+        case AI_GROUP_RESERVED_9:
+        case AI_GROUP_RESERVED_10:
+        case AI_GROUP_RESERVED_11:
+        case AI_GROUP_RESERVED_12:
+        case AI_GROUP_RESERVED_13:
+        case AI_GROUP_RESERVED_14:
+        case AI_GROUP_RESERVED_15:
+        case AI_GROUP_RESERVED_16:
+        case AI_GROUP_RESERVED_17:
+        case AI_GROUP_RESERVED_18:
+        case AI_GROUP_RESERVED_19:
+        case AI_GROUP_RESERVED_20:
+        case AI_GROUP_RESERVED_21:
+        case AI_GROUP_RESERVED_22:
+        case AI_GROUP_RESERVED_23:
+        case AI_GROUP_RESERVED_24:
+        case AI_GROUP_RESERVED_25:
+        case AI_GROUP_RESERVED_26:
+        case AI_GROUP_RESERVED_27:
+        case AI_GROUP_RESERVED_28:
+        case AI_GROUP_RESERVED_29:
+        case AI_GROUP_RESERVED_30:
+        case AI_GROUP_RESERVED_31:
+        case AI_GROUP_RESERVED_32:
+        case AI_GROUP_RESERVED_33:
+        case AI_GROUP_RESERVED_34:
+        case AI_GROUP_RESERVED_35:
+        case AI_GROUP_RESERVED_36:
+        case AI_GROUP_RESERVED_37:
+        case AI_GROUP_RESERVED_38:
+        case AI_GROUP_RESERVED_39:
+        case AI_GROUP_RESERVED_40:
+        case AI_GROUP_RESERVED_41:
+        case AI_GROUP_RESERVED_42:
+        case AI_GROUP_RESERVED_43:
+        case AI_GROUP_RESERVED_44:
+        case AI_GROUP_RESERVED_45:
+        case AI_GROUP_RESERVED_46:
+        case AI_GROUP_RESERVED_47:
+        case AI_GROUP_RESERVED_48:
+        case AI_GROUP_RESERVED_49:
+        case AI_GROUP_RESERVED_50:
+        case AI_GROUP_RESERVED_51:
+        case AI_GROUP_RESERVED_52:
+        case AI_GROUP_RESERVED_53:
+        case AI_GROUP_RESERVED_54:
+        case AI_GROUP_RESERVED_55:
+        case AI_GROUP_RESERVED_56:
+        case AI_GROUP_RESERVED_57:
+        case AI_GROUP_RESERVED_58:
+        case AI_GROUP_RESERVED_59:
+        case AI_GROUP_RESERVED_60:
+        case AI_GROUP_RESERVED_61:
+        case AI_GROUP_RESERVED_62:
+        case AI_GROUP_RESERVED_63:
+        case AI_GROUP_RESERVED_64:
+        case AI_GROUP_RESERVED_65:
+        case AI_GROUP_RESERVED_66:
+        case AI_GROUP_RESERVED_67:
+        case AI_GROUP_RESERVED_68:
+        case AI_GROUP_RESERVED_69:
+        case AI_GROUP_RESERVED_70:
+        case AI_GROUP_RESERVED_71:
+        case AI_GROUP_RESERVED_72:
+        case AI_GROUP_RESERVED_73:
+        case AI_GROUP_RESERVED_74:
+        case AI_GROUP_RESERVED_75:
+        case AI_GROUP_RESERVED_76:
+        case AI_GROUP_RESERVED_77:
+        case AI_GROUP_RESERVED_78:
+        case AI_GROUP_RESERVED_79:
+        case AI_GROUP_RESERVED_80:
+        case AI_GROUP_RESERVED_81:
+        case AI_GROUP_RESERVED_82:
+        case AI_GROUP_RESERVED_83:
+        case AI_GROUP_RESERVED_84:
+        case AI_GROUP_RESERVED_85:
+        case AI_GROUP_RESERVED_86:
+        case AI_GROUP_RESERVED_87:
+        case AI_GROUP_RESERVED_88:
+        case AI_GROUP_RESERVED_89:
+        case AI_GROUP_RESERVED_90:
+        case AI_GROUP_RESERVED_91:
+        case AI_GROUP_RESERVED_92:
+        case AI_GROUP_RESERVED_93:
+        case AI_GROUP_RESERVED_94:
+        case AI_GROUP_RESERVED_95:
+        case AI_GROUP_RESERVED_96:
+        case AI_GROUP_RESERVED_97:
+        case AI_GROUP_RESERVED_98:
+        case AI_GROUP_RESERVED_99:
+        case AI_GROUP_RESERVED_100:
+            // ^ Reserved
+        case AI_GROUP_CU_1:
+        case AI_GROUP_CU_2:
+        case AI_GROUP_CU_3:
+        case AI_GROUP_CU_4:
+        case AI_GROUP_CU_5:
+        case AI_GROUP_CU_6:
+        case AI_GROUP_CU_7:
+        case AI_GROUP_CU_8:
+        case AI_GROUP_CU_9:
+        case AI_GROUP_CU_10:
+            // ^ Custom
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
+                action.Id, action.Index, action.Type);
+            return false;
+        default:
+            return true;
+    }
 }
 
 bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action)
