@@ -1103,7 +1103,7 @@ class spell_hun_quick_draw : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_QUICK_DRAW_SPEED });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_QUICK_DRAW_SPEED, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
@@ -1117,7 +1117,7 @@ class spell_hun_quick_draw : public AuraScript
 // 1279347 - Quick Draw
 class spell_hun_quick_draw_speed : public AuraScript
 {
-    static constexpr uint8 SpeedAmount = 5;
+    static constexpr SpellEffectValue SpeedAmount = 5;
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -1125,7 +1125,7 @@ class spell_hun_quick_draw_speed : public AuraScript
             && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_INCREASE_SPEED);
     }
 
-    void HandleSpeed(AuraEffect const* /*aurEff*/) const
+    void UpdateSpeed(AuraEffect const* /*aurEff*/) const
     {
         if (AuraEffect* speed = GetEffect(EFFECT_0))
             speed->ChangeAmount(speed->GetAmount() - SpeedAmount);
@@ -1133,7 +1133,7 @@ class spell_hun_quick_draw_speed : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_quick_draw_speed::HandleSpeed, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_quick_draw_speed::UpdateSpeed, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
