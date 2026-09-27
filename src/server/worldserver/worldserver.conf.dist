@@ -1,6 +1,6 @@
-################################################
-# Trinity Core World Server configuration file #
-################################################
+###############################################
+# TrinityCore World Server configuration file #
+###############################################
 [worldserver]
 
 ###################################################################################################
@@ -190,7 +190,7 @@ ThreadPool = 2
 #    CMakeCommand
 #        Description: The path to your CMake binary.
 #                     If the path is left empty, the built-in CMAKE_COMMAND is used.
-#        Example:     "C:/Program Files (x86)/CMake/bin/cmake.exe"
+#        Example:     "C:/Program Files/CMake/bin/cmake.exe"
 #                     "/usr/bin/cmake"
 #        Default:     ""
 
@@ -631,6 +631,13 @@ GameType = 0
 RealmZone = 1
 
 #
+#    ExtendedAccountNameLengthLimit
+#        Description: Extends account name limit from 16 (retail-like) to 64 characters
+#        Default      0
+
+ExtendedAccountNameLengthLimit = 0
+
+#
 #    StrictPlayerNames
 #        Description: Limit player name to language specific symbol set. Prevents character
 #                     creation and forces rename request if not allowed symbols are used
@@ -936,23 +943,15 @@ StartDeathKnightPlayerLevel = 8
 
 #
 #    StartDemonHunterPlayerLevel
-#        Description: Staring level for demon hunters after creation.
+#        Description: Starting level for demon hunters after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     8
 
 StartDemonHunterPlayerLevel = 8
 
 #
-#    StartEvokerPlayerLevel
-#        Description: Staring level for evokers after creation.
-#        Range:       1-MaxPlayerLevel
-#        Default:     10
-
-StartEvokerPlayerLevel = 10
-
-#
 #    StartAlliedRacePlayerLevel
-#        Description: Staring level for allied races after creation.
+#        Description: Starting level for allied races after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     10
 
@@ -1366,10 +1365,10 @@ FlashAtStart = 1
 #
 #    Motd
 #        Description: Message of the Day, displayed at login. Use '@' for a newline.
-#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
-#        Default:     "Welcome to a Trinity Core server."
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by TrinityCore."
+#        Default:     "Welcome to a TrinityCore server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to a TrinityCore server."
 
 #
 #    Server.LoginInfo
