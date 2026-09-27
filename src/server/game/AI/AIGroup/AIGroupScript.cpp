@@ -137,7 +137,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
     }
 }
 
-void AIGroupScript::StartActionSet(uint32 actionSetId, ObjectGuid invokerGuid)
+void AIGroupScript::PerformActionSet(uint32 actionSetId, ObjectGuid invokerGuid)
 {
     if (me && !me->IsAlive() && !(sAIGroupMgr->GetActionSetFlags(actionSetId) & uint32(ActionSetFlags::AllowAllActionsWhileDead)))
         return;
@@ -896,25 +896,25 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
     if (!holder.IsTriggerActive || ((holder.Flags & NotRepeatable) && holder.IsTriggerUsed))
         return;
 
-    bool shouldStartActionSet = false;
+    bool shouldPerformActionSet = false;
 
     switch (holder.TriggerId)
     {
         case OnDeath:
         case OnSpawn:
-            shouldStartActionSet = true;
+            shouldPerformActionSet = true;
             break;
         case OnSpell:
             if (triggerParam1 == holder.TriggerParam1)
             {
-                shouldStartActionSet = true;
+                shouldPerformActionSet = true;
                 RecalcTimer(holder);
             }
             break;
         case OnEmote:
             if (triggerParam1 == holder.TriggerParam1)
             {
-                shouldStartActionSet = true;
+                shouldPerformActionSet = true;
                 RecalcTimer(holder);
             }
             break;
@@ -922,13 +922,13 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
             break;
     }
 
-    if (!shouldStartActionSet || !roll_chance_i(holder.Chance))
+    if (!shouldPerformActionSet || !roll_chance_i(holder.Chance))
         return;
 
     if (holder.Flags & NotRepeatable)
         holder.IsTriggerUsed = true;
 
-    StartActionSet(holder.ActionSetId, unit ? unit->GetGUID() : ObjectGuid::Empty);
+    PerformActionSet(holder.ActionSetId, unit ? unit->GetGUID() : ObjectGuid::Empty);
 }
 
 void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder)
