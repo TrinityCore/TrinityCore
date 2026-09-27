@@ -1681,7 +1681,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
         MailDraft(AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType::Sold, itemId, boughtFromAuction),
             AuctionHouseMgr::BuildAuctionSoldMailBody(player->GetGUID(), auction->BuyoutOrUnitPrice * boughtFromAuction, boughtFromAuction, depositPart, auctionHouseCut))
             .AddMoney(profit)
-            .SendMailTo(trans, MailReceiver(ObjectAccessor::FindConnectedPlayer(auction->Owner), auction->Owner), this, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+            .SendMailTo(trans, MailReceiver(ObjectAccessor::FindConnectedPlayer(auction->Owner), auction->Owner), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
 
     player->ModifyMoney(-int64(totalPrice));
@@ -1703,7 +1703,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
             mail.AddItem(batch.Items[i]);
         }
 
-        mail.SendMailTo(trans, player, this, MAIL_CHECK_MASK_COPIED);
+        mail.SendMailTo(trans, player, this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION_WON | MAIL_CHECK_MASK_AUCTION);
     }
 
     WorldPackets::AuctionHouse::AuctionWonNotification packet;
@@ -1748,7 +1748,7 @@ void AuctionHouseObject::SendAuctionOutbid(AuctionPosting const* auction, Object
 
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Outbid, auction), "")
             .AddMoney(auction->BidAmount)
-            .SendMailTo(trans, MailReceiver(oldBidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED);
+            .SendMailTo(trans, MailReceiver(oldBidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION);
     }
 }
 
@@ -1816,7 +1816,7 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
             bidder->UpdateCriteria(CriteriaType::AuctionsWon, 1);
         }
 
-        mail.SendMailTo(trans, MailReceiver(bidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED);
+        mail.SendMailTo(trans, MailReceiver(bidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION_WON | MAIL_CHECK_MASK_AUCTION);
     }
     else
     {
@@ -1853,7 +1853,7 @@ void AuctionHouseObject::SendAuctionSold(AuctionPosting const* auction, Player* 
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Sold, auction),
             AuctionHouseMgr::BuildAuctionSoldMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit, auctionHouseCut))
             .AddMoney(profit)
-            .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+            .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
 }
 
@@ -1874,7 +1874,7 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
             for (std::size_t i = 0; i < MAX_MAIL_ITEMS && itemItr != auction->Items.end(); ++i, ++itemItr)
                 mail.AddItem(*itemItr);
 
-            mail.SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, 0);
+            mail.SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION, 0);
         }
     }
     else
@@ -1898,7 +1898,7 @@ void AuctionHouseObject::SendAuctionRemoved(AuctionPosting const* auction, Playe
         for (std::size_t i = 0; i < MAX_MAIL_ITEMS && itemItr != auction->Items.end(); ++i, ++itemItr)
             draft.AddItem(*itemItr);
 
-        draft.SendMailTo(trans, owner, this, MAIL_CHECK_MASK_COPIED);
+        draft.SendMailTo(trans, owner, this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION);
     }
 }
 
@@ -1911,7 +1911,7 @@ void AuctionHouseObject::SendAuctionCancelledToBidder(AuctionPosting const* auct
     if ((bidder || sCharacterCache->HasCharacterCacheEntry(auction->Bidder)) && !sAuctionBotConfig->IsBotChar(auction->Bidder))
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Removed, auction), "")
         .AddMoney(auction->BidAmount)
-        .SendMailTo(trans, MailReceiver(bidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED);
+        .SendMailTo(trans, MailReceiver(bidder, auction->Bidder), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION);
 }
 
 void AuctionHouseObject::SendAuctionInvoice(AuctionPosting const* auction, Player* owner, CharacterDatabaseTransaction trans) const
@@ -1930,6 +1930,6 @@ void AuctionHouseObject::SendAuctionInvoice(AuctionPosting const* auction, Playe
         MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Invoice, auction),
             AuctionHouseMgr::BuildAuctionInvoiceMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit,
                 CalculateAuctionHouseCut(auction->BidAmount), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), eta.GetPackedTime()))
-            .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED);
+            .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED | MAIL_CHECK_MASK_AUCTION);
     }
 }
