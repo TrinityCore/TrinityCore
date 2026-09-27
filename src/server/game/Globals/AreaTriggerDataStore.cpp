@@ -311,9 +311,9 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             }
 
             createProperties.RollPitchYaw.Pos.Relocate(
-                Position::NormalizeOrientation(fields.Roll().GetFloat()),
-                Position::NormalizeOrientation(fields.Pitch().GetFloat()),
-                Position::NormalizeOrientation(fields.Yaw().GetFloat()));
+                fields.Roll().GetFloat(),
+                fields.Pitch().GetFloat(),
+                fields.Yaw().GetFloat());
 
             std::array<Optional<float>, 3> targetRollPitchYaw =
             {
@@ -325,9 +325,9 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             if (std::ptrdiff_t trpyFields = std::ranges::count_if(targetRollPitchYaw, [](Optional<float> const& angle) { return angle.has_value(); }); trpyFields == 3)
             {
                 createProperties.TargetRollPitchYaw.emplace(
-                    Position::NormalizeOrientation(*targetRollPitchYaw[0]),
-                    Position::NormalizeOrientation(*targetRollPitchYaw[1]),
-                    Position::NormalizeOrientation(*targetRollPitchYaw[2]));
+                    *targetRollPitchYaw[0],
+                    *targetRollPitchYaw[1],
+                    *targetRollPitchYaw[2]);
             }
             else if (trpyFields)
             {
