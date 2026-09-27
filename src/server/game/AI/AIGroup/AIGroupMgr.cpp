@@ -183,6 +183,85 @@ void AIGroupMgr::LoadActionTriggersFromDB()
                 triggers.Id, triggers.Index, triggerType.Name, triggers.Flags);
         }
 
+        switch (triggers.TriggerId)
+        {
+            case OnReaction:
+                // Detection Type
+                break;
+            case OnHealthRange:
+            case OnEnergyRange:
+            case OnHealthRangeRandom:
+            case OnEnergyRangeRandom:
+                if (triggers.TriggerParam1 > 100)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has trigger param 1 higner than 100 {}, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
+                    continue;
+                }
+                if (triggers.TriggerParam2 > 100)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has trigger param 2 higner than 100 {}, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam2);
+                    continue;
+                }
+                if (triggers.TriggerParam1 > triggers.TriggerParam2)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has trigger param 1 higner than trigger param 2, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name);
+                    continue;
+                }
+                break;
+            case OnEmote:
+                if (!sEmotesStore.LookupEntry(triggers.TriggerParam1))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} uses non-existent emote {}, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
+                    continue;
+                }
+                break;
+            case OnCombatTrigger:
+                // Trigger ID
+                break;
+            case OnGeneralTrigger:
+                // Trigger ID
+                break;
+            case OnSpell:
+            case OnSpellCast:
+            case OnSpellFailed:
+            case OnSpellStart:
+            case OnAuraApplied:
+            case OnAuraRemoved:
+            case OnChannelStart:
+            case OnChannelInterrupted:
+            case OnChannelFinished:
+                if (!sSpellMgr->GetSpellInfo(triggers.TriggerParam1))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} uses non-existent spell {}, skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
+                    continue;
+                }
+                break;
+            case OnPassengerControlEnd:
+            case OnVehicleReturn:
+            case OnVehicleRide:
+            case OnVehicleAbandon:
+            case OnPassengerRide:
+            case OnPassengerAbandon:
+            case OnPassengerSpawn:
+                if (triggers.TriggerParam1 >= MAX_VEHICLE_SEATS)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has invalid seat id {} (must be less than {}), skipped.",
+                        triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1, MAX_VEHICLE_SEATS);
+                    continue;
+                }
+                break;
+            case OnLootLockReleased:
+                // Loot Window
+                break;
+            default:
+                break;
+        }
+
         if (triggers.TriggerParam1 && !triggerType.HasTriggerParam1)
             TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has useless data in TriggerParam1 ({}).",
                 triggers.Id, triggers.Index, triggerType.Name, triggers.TriggerParam1);
