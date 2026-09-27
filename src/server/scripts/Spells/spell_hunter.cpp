@@ -92,6 +92,7 @@ enum HunterSpells
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_PRECISE_SHOTS                      = 260242,
+    SPELL_HUNTER_QUICK_DRAW_SPEED                   = 1279347,
     SPELL_HUNTER_RAPID_FIRE                         = 257044,
     SPELL_HUNTER_RAPID_FIRE_DAMAGE                  = 257045,
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
@@ -1094,6 +1095,48 @@ class spell_hun_precise_shots : public AuraScript
     }
 };
 
+// 459794 - Quick Draw
+class spell_hun_quick_draw : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_QUICK_DRAW_SPEED });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_HUNTER_QUICK_DRAW_SPEED, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_quick_draw::HandleProc);
+    }
+};
+
+// 1279347 - Quick Draw
+class spell_hun_quick_draw_speed : public AuraScript
+{
+    static constexpr SpellEffectValue SpeedAmount = 5;
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_INCREASE_SPEED);
+    }
+
+    void UpdateSpeed(AuraEffect const* /*aurEff*/) const
+    {
+        if (AuraEffect* speed = GetEffect(EFFECT_0))
+            speed->ChangeAmount(speed->GetAmount() - SpeedAmount);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_quick_draw_speed::UpdateSpeed, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 257044 - Rapid Fire
 class spell_hun_rapid_fire : public AuraScript
 {
@@ -1722,6 +1765,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_precise_shots);
+    RegisterSpellScript(spell_hun_quick_draw);
+    RegisterSpellScript(spell_hun_quick_draw_speed);
     RegisterSpellScript(spell_hun_rapid_fire);
     RegisterSpellScript(spell_hun_rapid_fire_damage);
     RegisterSpellScript(spell_hun_rejuvenating_wind);
