@@ -1386,7 +1386,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORT_RESULT_DEAD;
     else if (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING))
         error = LFG_TELEPORT_RESULT_FALLING;
-    else if (player->IsMirrorTimerActive(FATIGUE_TIMER))
+    else if (player->IsMirrorTimerActive(MIRROR_TIMER_FATIGUE))
         error = LFG_TELEPORT_RESULT_EXHAUSTION;
     else if (player->GetVehicle())
         error = LFG_TELEPORT_RESULT_ON_TRANSPORT;

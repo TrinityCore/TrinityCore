@@ -189,8 +189,6 @@ enum PlayerUnderwaterState
     UNDERWATER_INLAVA                   = 0x02,             // terrain type is lava and player is afflicted by it
     UNDERWATER_INSLIME                  = 0x04,             // terrain type is lava and player is afflicted by it
     UNDERWATER_INDARKWATER              = 0x08,             // terrain type is dark water and player is afflicted by it
-
-    UNDERWATER_EXIST_TIMERS             = 0x10
 };
 
 enum BuyBankSlotResult
@@ -601,12 +599,73 @@ enum PlayerFieldByte2Flags
 
 enum MirrorTimerType
 {
-    FATIGUE_TIMER      = 0,
-    BREATH_TIMER       = 1,
-    FIRE_TIMER         = 2 // feign death
+    MIRROR_TIMER_FATIGUE        = 0,
+    MIRROR_TIMER_BREATH         = 1,
+    MIRROR_TIMER_FEIGN_DEATH    = 2,
+
+    MIRROR_TIMER_MAX
 };
-#define MAX_TIMERS      3
-#define DISABLED_MIRROR_TIMER   -1
+
+enum class MirrorTimerFlags : uint8
+{
+    None            = 0x00,
+    Paused          = 0x01,
+    Changed         = 0x02,
+    PausedChanged   = 0x04
+};
+
+DEFINE_ENUM_FLAG(MirrorTimerFlags)
+
+class MirrorTimer
+{
+public:
+    bool IsActive() const { return m_maxValue > 0; }
+    bool IsRegenerating() const { return m_scale > 0; }
+
+    int32 GetValue() const { return m_value; }
+    void SetValue(int32 value);
+
+    int32 GetMaxValue() const { return m_maxValue; }
+    void SetMaxValue(int32 maxValue);
+
+    int32 GetScale() const { return m_scale; }
+    void SetScale(int32 scale);
+
+    int32 GetSpellId() const { return m_spellId; }
+
+    bool IsPaused() const { return m_flags.HasFlag(MirrorTimerFlags::Paused) && !IsRegenerating(); }
+    void SetPaused(bool state);
+
+    bool IsChanged() const { return m_flags.HasFlag(MirrorTimerFlags::Changed); }
+    bool IsPausedChanged() const { return m_flags.HasFlag(MirrorTimerFlags::PausedChanged); }
+    void ClearChanged() { m_flags.RemoveFlag(MirrorTimerFlags::Changed | MirrorTimerFlags::PausedChanged); }
+
+    void Start(int32 maxValue, int32 spellId);
+    void Start(int32 value, int32 maxValue, int32 spellId);
+
+    void Stop();
+
+    enum class UpdateResult : uint8
+    {
+        Inactive,
+        Decreased,
+        DecreasedExpired,
+        ExpiredTicked,
+        Regenerated
+    };
+
+    UpdateResult Update(uint32 diff);
+
+private:
+    int32 m_value = 0;
+    int32 m_maxValue = 0;
+    int32 m_scale = -1;
+    int32 m_spellId = 0;
+    EnumFlag<MirrorTimerFlags> m_flags = MirrorTimerFlags::None;
+
+    static constexpr int32 ExpiredTickPeriod = 1 * IN_MILLISECONDS;
+    PeriodicTimer m_expiredTick = { ExpiredTickPeriod, ExpiredTickPeriod };
+};
 
 // 2^n values
 enum PlayerExtraFlags
@@ -2318,6 +2377,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         void UpdateLiquidMirrorTimerFlagsOnPositionChange(Optional<LiquidData> const& newLiquidData);
+        void UpdateLiquidMirrorTimerValuesOnAura();
         void AtEnterCombat() override;
         void AtExitCombat() override;
 
@@ -2348,8 +2408,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank);
         void DurabilityRepair(uint16 pos, bool takeCost, float discountMod);
 
-        void UpdateMirrorTimers();
-        void StopMirrorTimers();
         bool IsMirrorTimerActive(MirrorTimerType type) const;
 
         bool CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const;
@@ -3195,10 +3253,11 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         /***              ENVIRONMENTAL SYSTEM                 ***/
         /*********************************************************/
         void HandleSobering();
-        void SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen, uint32 SpellID);
-        void StopMirrorTimer(MirrorTimerType Type);
-        void HandleDrowning(uint32 time_diff);
-        int32 getMaxTimer(MirrorTimerType timer) const;
+        void SendMirrorTimer(MirrorTimerType type, int32 value, int32 maxValue, int32 scale, int32 spellId, bool paused);
+        void PauseMirrorTimer(MirrorTimerType type, bool paused);
+        void StopMirrorTimer(MirrorTimerType type);
+        void UpdateMirrorTimers(uint32 diff);
+        int32 GetMirrorTimerMaxValue(MirrorTimerType type) const;
 
         /*********************************************************/
         /***                  HONOR SYSTEM                     ***/
@@ -3368,9 +3427,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_lastFallTime;
         float  m_lastFallZ;
 
-        std::array<int32, MAX_TIMERS> m_MirrorTimer;
+        std::array<MirrorTimer, MIRROR_TIMER_MAX> m_mirrorTimers;
+        int32 m_environmentalDamageTimer;
         uint8 m_MirrorTimerFlags;
-        uint8 m_MirrorTimerFlagsLast;
 
         // Current teleport data
         TeleportLocation m_teleport_dest;
