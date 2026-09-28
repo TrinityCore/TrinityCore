@@ -468,15 +468,15 @@ namespace WorldPackets
             explicit StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 1 + 4 + 4 + 4 + 4 + 1) { }
             explicit StartMirrorTimer(uint8 timer, int32 value, int32 maxValue, int32 scale, int32 spellID, bool paused)
                 : ServerPacket(SMSG_START_MIRROR_TIMER, 1 + 4 + 4 + 4 + 4 + 1),
-                Timer(timer), Scale(scale), MaxValue(maxValue), SpellID(spellID), Value(value), Paused(paused) { }
+                Timer(timer), Value(value), MaxValue(maxValue), Scale(scale), SpellID(spellID), Paused(paused) { }
 
             WorldPacket const* Write() override;
 
             uint8 Timer = 0;
-            int32 Scale = 0;
-            int32 MaxValue = 0;
-            int32 SpellID = 0;
             int32 Value = 0;
+            int32 MaxValue = 0;
+            int32 Scale = 0;
+            int32 SpellID = 0;
             bool Paused = false;
         };
 
