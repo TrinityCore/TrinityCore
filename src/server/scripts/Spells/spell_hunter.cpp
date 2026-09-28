@@ -50,6 +50,7 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_STUN                  = 117526,
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
+    SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE        = 468572,
     SPELL_HUNTER_BULLETSTORM                        = 389020,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
@@ -319,6 +320,25 @@ struct at_hun_binding_shot : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+};
+
+// 466930 - Black Arrow
+class spell_hun_black_arrow : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_black_arrow::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 389019 - Bulletstorm
@@ -1733,6 +1753,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
     RegisterSpellScript(spell_hun_binding_shot);
     RegisterAreaTriggerAI(at_hun_binding_shot);
+    RegisterSpellScript(spell_hun_black_arrow);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
