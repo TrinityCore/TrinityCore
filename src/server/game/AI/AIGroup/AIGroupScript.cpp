@@ -917,6 +917,32 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
 
     switch (holder.TriggerId)
     {
+        case OnHealthRange:
+            if (me && me->IsEngaged() && me->GetMaxHealth())
+            {
+                uint32 healthPercent = uint32(me->GetHealthPct());
+                if (healthPercent >= holder.TriggerParam1 && healthPercent <= holder.TriggerParam2)
+                {
+                    shouldPerformActionSet = true;
+                    RecalcTimer(holder);
+                }
+                else
+                    RecalcTimer(holder, 1200, 1200);
+            }
+            break;
+        case OnEnergyRange:
+            if (me && me->IsEngaged() && me->GetMaxPower(POWER_MANA))
+            {
+                uint32 manaPercent = uint32(me->GetPowerPct(POWER_MANA));
+                if (manaPercent >= holder.TriggerParam1 && manaPercent <= holder.TriggerParam2)
+                {
+                    shouldPerformActionSet = true;
+                    RecalcTimer(holder);
+                }
+                else
+                    RecalcTimer(holder, 1200, 1200);
+            }
+            break;
         case OnDeath:
         case OnSpawn:
             shouldPerformActionSet = true;
@@ -954,6 +980,12 @@ void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder)
     holder.IsTriggerActive = holder.RepeatTimer ? false : true;
 }
 
+void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder, uint32 repeatMin, uint32 repeatMax)
+{
+    holder.RepeatTimer = urand(repeatMin, repeatMax);
+    holder.IsTriggerActive = holder.RepeatTimer ? false : true;
+}
+
 void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
 {
     if ((holder.Flags & NotRepeatable) && holder.IsTriggerUsed)
@@ -963,6 +995,16 @@ void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
         holder.IsTriggerActive = true;
     else
         holder.RepeatTimer -= diff;
+
+    switch (holder.TriggerId)
+    {
+        case OnHealthRange:
+        case OnEnergyRange:
+            ProcessEvent(holder);
+            break;
+        default:
+            break;
+    }
 }
 
 void AIGroupScript::OnUpdate(uint32 const diff)

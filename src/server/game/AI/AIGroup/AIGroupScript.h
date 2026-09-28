@@ -34,6 +34,7 @@ class TC_GAME_API AIGroupScript
         void GetScript();
         void FillScript(AIGroupEventList eventList);
         static void RecalcTimer(ActionTriggersHolder& holder);
+        static void RecalcTimer(ActionTriggersHolder& holder, uint32 repeatMin, uint32 repeatMax);
         void UpdateTimer(ActionTriggersHolder& holder, uint32 const diff);
         void OnUpdate(const uint32 diff);
         void MovementInform(uint32 type, uint32 id);
