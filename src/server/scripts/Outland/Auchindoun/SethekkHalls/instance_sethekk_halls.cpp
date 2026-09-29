@@ -21,13 +21,13 @@
 #include "InstanceScript.h"
 #include "sethekk_halls.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, DOOR_TYPE_PASSAGE },
     { 0,             0,                     DOOR_TYPE_ROOM    } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_TALON_KING_COFFER, DATA_TALON_KING_COFFER },
     { 0,                    0                      } // END
