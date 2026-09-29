@@ -362,7 +362,7 @@ struct go_broggok_lever : public GameObjectAI
         if (_instance->GetBossState(DATA_BROGGOK) != DONE)
             _instance->SetData(DATA_PRISONERS_EVENT, IN_PROGRESS);
 
-        me->ActivateObject(GameObjectActions(GameObjectActions::MakeInert));
+        me->ActivateObject(GameObjectActions::MakeInert);
 
         return false;
     }
