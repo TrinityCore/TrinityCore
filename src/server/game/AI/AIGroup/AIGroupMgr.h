@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
+#include <initializer_list>
 #include <unordered_map>
 
 class WorldObject;
@@ -850,6 +851,7 @@ class TC_GAME_API AIGroupMgr
 
         static bool IsActionValid(ActionSetEventHolder const& action);
         static bool IsActionTypeValid(ActionSetEventHolder const& action);
+        static void LogUselessActionParams(ActionSetEventHolder const& action);
         static bool IsSpellValid(ActionSetEventHolder const& action);
         static bool IsBroadcastTextValid(ActionSetEventHolder const& action);
         static bool IsCreatureValid(ActionSetEventHolder const& action);
@@ -865,6 +867,74 @@ class TC_GAME_API AIGroupMgr
         void LoadRandomActionSetsFromDB();
         void LoadActionTriggersFromDB();
         void LoadActionTriggersNamesFromDB();
+
+        enum ActionTypeField : uint16
+        {
+            FieldUnit          = 0x0001,
+            FieldPoint         = 0x0002,
+            FieldPath          = 0x0004,
+            FieldTimeA         = 0x0008,
+            FieldMoveSpeed     = 0x0010,
+            FieldStringId      = 0x0020,
+            FieldTimeB         = 0x0040,
+            FieldLinearPath    = 0x0080,
+            FieldCircularPath  = 0x0100,
+            FieldFlightPath    = 0x0200,
+            FieldExtra0        = 0x0400,
+            FieldExtra1        = 0x0800,
+            FieldExtra2        = 0x1000,
+            FieldExtra3        = 0x2000,
+            FieldExtra4        = 0x4000
+        };
+
+        struct ActionSetTypeInfo
+        {
+            char const* Name;
+            bool HasUnit;
+            bool HasPoint;
+            bool HasPath;
+            bool HasTimeA;
+            bool HasMoveSpeed;
+            bool HasStringId;
+            bool HasTimeB;
+            bool HasLinearPath;
+            bool HasCircularPath;
+            bool HasFlightPath;
+            bool HasExtra0;
+            bool HasExtra1;
+            bool HasExtra2;
+            bool HasExtra3;
+            bool HasExtra4;
+
+            ActionSetTypeInfo() : Name(""), HasUnit(false), HasPoint(false), HasPath(false), HasTimeA(false),
+                HasMoveSpeed(false), HasStringId(false), HasTimeB(false), HasLinearPath(false), HasCircularPath(false),
+                HasFlightPath(false), HasExtra0(false), HasExtra1(false), HasExtra2(false), HasExtra3(false), HasExtra4(false) { }
+
+            ActionSetTypeInfo(char const* name, std::initializer_list<ActionTypeField> usedFields) : ActionSetTypeInfo()
+            {
+                Name = name;
+                for (ActionTypeField field : usedFields)
+                    switch (field)
+                    {
+                        case FieldUnit: HasUnit = true; break;
+                        case FieldPoint: HasPoint = true; break;
+                        case FieldPath: HasPath = true; break;
+                        case FieldTimeA: HasTimeA = true; break;
+                        case FieldMoveSpeed: HasMoveSpeed = true; break;
+                        case FieldStringId: HasStringId = true; break;
+                        case FieldTimeB: HasTimeB = true; break;
+                        case FieldLinearPath: HasLinearPath = true; break;
+                        case FieldCircularPath: HasCircularPath = true; break;
+                        case FieldFlightPath: HasFlightPath = true; break;
+                        case FieldExtra0: HasExtra0 = true; break;
+                        case FieldExtra1: HasExtra1 = true; break;
+                        case FieldExtra2: HasExtra2 = true; break;
+                        case FieldExtra3: HasExtra3 = true; break;
+                        case FieldExtra4: HasExtra4 = true; break;
+                    }
+            }
+        };
+        static ActionSetTypeInfo const StaticActionSetTypeData[AI_GROUP_MAX];
 
         struct ActionTriggerTypeInfo
         {
