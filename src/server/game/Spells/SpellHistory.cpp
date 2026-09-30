@@ -479,6 +479,13 @@ bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignor
     return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
 }
 
+bool SpellHistory::HasCooldownOnHold(uint32 spellId) const
+{
+    // TODO: Delete this function and make SpellHistory::IsReady return enum with reason instead of bool
+    auto itr = _spellCooldowns.find(spellId);
+    return itr != _spellCooldowns.end() && itr->second.OnHold;
+}
+
 uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
 {
     Clock::time_point end;
