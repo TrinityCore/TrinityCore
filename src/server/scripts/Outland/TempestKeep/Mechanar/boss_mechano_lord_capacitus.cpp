@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "GridNotifiers.h"
 #include "mechanar.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -207,10 +208,7 @@ class spell_capacitus_polarity_shift : public SpellScript
         std::vector<WorldObject*> shuffledTargets(targets.begin(), targets.end());
         Trinity::Containers::RandomShuffle(shuffledTargets);
 
-        targets.clear();
-
-        for (WorldObject* target : shuffledTargets)
-            targets.push_back(target);
+        targets.assign(shuffledTargets.begin(), shuffledTargets.end());
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -223,7 +221,8 @@ class spell_capacitus_polarity_shift : public SpellScript
         target->RemoveAurasDueToSpell(SPELL_NEGATIVE_CHARGE_STACK);
 
         // In sniffs two or even three targets in a row can receive same buff, so current handling is not entirely correct. Just a small detail
-        target->CastSpell(nullptr, (_targetIndex % 2 == 0) ? SPELL_POSITIVE_CHARGE_PERIODIC : SPELL_NEGATIVE_CHARGE_PERIODIC, GetCaster()->GetGUID());
+        target->CastSpell(nullptr, (_targetIndex % 2 == 0) ? SPELL_POSITIVE_CHARGE_PERIODIC : SPELL_NEGATIVE_CHARGE_PERIODIC,
+            CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(GetCaster()->GetGUID()));
 
         ++_targetIndex;
     }
@@ -284,38 +283,31 @@ class spell_capacitus_polarity_charge_damage : public SpellScript
         if (!GetTriggeringSpell())
             return;
 
-        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
-        {
-            if ((*itr)->IsPlayer() && (*itr)->ToPlayer()->HasAura(GetTriggeringSpell()->Id))
-            {
-                itr = targets.erase(itr);
-                ++_targetCount;
-            }
-            else
-                ++itr;
-        }
+        _targetCount = targets.size();
+        targets.remove_if(Trinity::UnitAuraCheck(true, GetTriggeringSpell()->Id));
+        _targetCount -= targets.size();
     }
 
     void HandleAfterCast()
     {
-        if (_targetCount)
-        {
-            uint32 spellId = 0;
+        if (!_targetCount)
+            return;
 
-            if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE_DAMAGE)
-                spellId = SPELL_POSITIVE_CHARGE_STACK;
-            else if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE_DAMAGE)
-                spellId = SPELL_NEGATIVE_CHARGE_STACK;
+        uint32 spellId = 0;
 
-            if (!spellId)
-                return;
+        if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE_DAMAGE)
+            spellId = SPELL_POSITIVE_CHARGE_STACK;
+        else if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE_DAMAGE)
+            spellId = SPELL_NEGATIVE_CHARGE_STACK;
 
-            GetCaster()->RemoveAurasDueToSpell(spellId);
+        if (!spellId)
+            return;
 
-            GetCaster()->CastSpell(nullptr, spellId, CastSpellExtraArgs()
-                .SetTriggerFlags(TRIGGERED_FULL_MASK)
-                .AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount));
-        }
+        GetCaster()->RemoveAurasDueToSpell(spellId);
+
+        GetCaster()->CastSpell(nullptr, spellId, CastSpellExtraArgs()
+            .SetTriggerFlags(TRIGGERED_FULL_MASK)
+            .AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount));
     }
 
     void Register() override
