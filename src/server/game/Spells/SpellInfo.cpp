@@ -1884,6 +1884,11 @@ bool SpellInfo::IsNextMeleeSwingSpell() const
     return HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0_ON_NEXT_SWING));
 }
 
+bool SpellInfo::IsAutoShot() const
+{
+    return IsAffected(SPELLFAMILY_HUNTER, { 0x1 }) && IsAutoRepeatRangedSpell();
+}
+
 bool SpellInfo::IsRangedWeaponSpell() const
 {
     return (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED) || (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT));
