@@ -738,7 +738,8 @@ struct AIGroupTarget
 struct ActionTriggersHolder
 {
     ActionTriggersHolder() : Id(0), Index(0), Chance(0), Flags(0), CombatCondition(-1), TriggerId(0),
-    TriggerParam1(0), TriggerParam2(0), ActionSetId(0), RepeatMin(0), RepeatMax(0), RepeatTimer(0), IsTriggerActive(false), IsTriggerUsed(false) { }
+    TriggerParam1(0), TriggerParam2(0), ActionSetId(0), RepeatMin(0), RepeatMax(0),
+    RepeatTimer(0), HealthRangeMin(0), HealthRangeMax(0), EnergyRangeMin(0), EnergyRangeMax(0), IsTriggerActive(false), IsTriggerUsed(false) { }
 
     uint32 Id;
     uint16 Index;
@@ -751,7 +752,12 @@ struct ActionTriggersHolder
     uint32 ActionSetId;
     uint32 RepeatMin;
     uint32 RepeatMax;
+
     uint32 RepeatTimer;
+    uint32 HealthRangeMin;
+    uint32 HealthRangeMax;
+    uint32 EnergyRangeMin;
+    uint32 EnergyRangeMax;
     bool IsTriggerActive;
     bool IsTriggerUsed;
 };

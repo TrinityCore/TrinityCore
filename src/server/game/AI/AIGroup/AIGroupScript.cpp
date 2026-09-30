@@ -83,7 +83,13 @@ void AIGroupScript::InstallEvents()
     if (!mInstallEvents.empty())
     {
         for (AIGroupEventList::const_iterator it = mInstallEvents.begin(); it != mInstallEvents.end(); ++it)
+        {
             mEvents.push_back(*it);
+            if (mEvents.back().TriggerId == OnHealthRangeRandom)
+                RandomizeHealthRange(mEvents.back());
+            else if (mEvents.back().TriggerId == OnEnergyRangeRandom)
+                RandomizeEnergyRange(mEvents.back());
+        }
 
         mInstallEvents.clear();
     }
@@ -94,6 +100,10 @@ void AIGroupScript::FillScript(AIGroupEventList eventList)
     for (AIGroupEventList::const_iterator it = eventList.begin(); it != eventList.end(); ++it)
     {
         mEvents.push_back(*it);
+        if (mEvents.back().TriggerId == OnHealthRangeRandom)
+            RandomizeHealthRange(mEvents.back());
+        else if (mEvents.back().TriggerId == OnEnergyRangeRandom)
+            RandomizeEnergyRange(mEvents.back());
         RecalcTimer(mEvents.back());
     }
 }
@@ -926,8 +936,6 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
                     shouldPerformActionSet = true;
                     RecalcTimer(holder);
                 }
-                else
-                    RecalcTimer(holder, 1200, 1200);
             }
             break;
         case OnEnergyRange:
@@ -939,8 +947,30 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
                     shouldPerformActionSet = true;
                     RecalcTimer(holder);
                 }
-                else
-                    RecalcTimer(holder, 1200, 1200);
+            }
+            break;
+        case OnHealthRangeRandom:
+            if (me && me->IsEngaged() && me->GetMaxHealth())
+            {
+                uint32 healthPercent = uint32(me->GetHealthPct());
+                if (healthPercent >= holder.HealthRangeMin && healthPercent <= holder.HealthRangeMax)
+                {
+                    shouldPerformActionSet = true;
+                    RandomizeHealthRange(holder);
+                    RecalcTimer(holder);
+                }
+            }
+            break;
+        case OnEnergyRangeRandom:
+            if (me && me->IsEngaged() && me->GetMaxPower(POWER_MANA))
+            {
+                uint32 manaPercent = uint32(me->GetPowerPct(POWER_MANA));
+                if (manaPercent >= holder.EnergyRangeMin && manaPercent <= holder.EnergyRangeMax)
+                {
+                    shouldPerformActionSet = true;
+                    RandomizeEnergyRange(holder);
+                    RecalcTimer(holder);
+                }
             }
             break;
         case OnDeath:
@@ -980,10 +1010,20 @@ void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder)
     holder.IsTriggerActive = holder.RepeatTimer ? false : true;
 }
 
-void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder, uint32 repeatMin, uint32 repeatMax)
+void AIGroupScript::RandomizeHealthRange(ActionTriggersHolder& holder)
 {
-    holder.RepeatTimer = urand(repeatMin, repeatMax);
-    holder.IsTriggerActive = holder.RepeatTimer ? false : true;
+    holder.HealthRangeMin = urand(holder.TriggerParam1, holder.TriggerParam2);
+    holder.HealthRangeMax = urand(holder.TriggerParam1, holder.TriggerParam2);
+    if (holder.HealthRangeMin > holder.HealthRangeMax)
+        std::swap(holder.HealthRangeMin, holder.HealthRangeMax);
+}
+
+void AIGroupScript::RandomizeEnergyRange(ActionTriggersHolder& holder)
+{
+    holder.EnergyRangeMin = urand(holder.TriggerParam1, holder.TriggerParam2);
+    holder.EnergyRangeMax = urand(holder.TriggerParam1, holder.TriggerParam2);
+    if (holder.EnergyRangeMin > holder.EnergyRangeMax)
+        std::swap(holder.EnergyRangeMin, holder.EnergyRangeMax);
 }
 
 void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
@@ -1000,6 +1040,8 @@ void AIGroupScript::UpdateTimer(ActionTriggersHolder& holder, uint32 const diff)
     {
         case OnHealthRange:
         case OnEnergyRange:
+        case OnHealthRangeRandom:
+        case OnEnergyRangeRandom:
             ProcessEvent(holder);
             break;
         default:
