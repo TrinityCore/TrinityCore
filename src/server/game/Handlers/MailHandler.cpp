@@ -280,11 +280,16 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
         if (mailInfo.Attachments.empty())
             mailInfo.Cod = 0;
 
+        MailCheckMask mailFlags = mailInfo.Body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY;
+
+        if (player->IsGameMaster())
+            mailFlags |= MAIL_CHECK_MASK_NOT_RETURNABLE;
+
         // will delete item or place to receiver mail list
         draft
             .AddMoney(mailInfo.SendMoney)
             .AddCOD(mailInfo.Cod)
-            .SendMailTo(trans, MailReceiver(ObjectAccessor::FindConnectedPlayer(receiverGuid), receiverGuid.GetCounter()), MailSender(player), mailInfo.Body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+            .SendMailTo(trans, MailReceiver(ObjectAccessor::FindConnectedPlayer(receiverGuid), receiverGuid.GetCounter()), MailSender(player), mailFlags, deliver_delay);
 
         player->SaveInventoryAndGoldToDB(trans);
         CharacterDatabase.CommitTransaction(trans);
