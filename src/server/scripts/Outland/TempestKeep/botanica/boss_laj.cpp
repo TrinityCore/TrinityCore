@@ -57,16 +57,24 @@ enum LajEvents
     EVENT_THRASH
 };
 
+static constexpr std::array<uint32, 5> AllTransformSpells =
+{
+    SPELL_TRANSFORM_ARCANE,
+    SPELL_TRANSFORM_FIRE,
+    SPELL_TRANSFORM_FROST,
+    SPELL_TRANSFORM_NATURE,
+    SPELL_TRANSFORM_SHADOW
+};
+
 // 17980 - Laj
 struct boss_laj : public BossAI
 {
-    boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _lastTransformSpell(0), _isFirstTransform(true) { }
+    boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _lastTransformSpell(SPELL_TRANSFORM_SHADOW) { }
 
     void Reset() override
     {
         _Reset();
-        _lastTransformSpell = 0;
-        _isFirstTransform = true;
+        _lastTransformSpell = SPELL_TRANSFORM_SHADOW;
 
         me->SetReactState(REACT_AGGRESSIVE);
     }
@@ -127,25 +135,13 @@ struct boss_laj : public BossAI
                     break;
                 case EVENT_TRANSFORM:
                 {
-                    std::vector<uint32> transformSpells = { SPELL_TRANSFORM_ARCANE, SPELL_TRANSFORM_FIRE, SPELL_TRANSFORM_FROST, SPELL_TRANSFORM_NATURE, SPELL_TRANSFORM_SHADOW };
+                    me->RemoveAurasDueToSpell(_lastTransformSpell);
 
-                    if (_isFirstTransform)
-                    {
-                        std::erase(transformSpells, static_cast<uint32>(SPELL_TRANSFORM_SHADOW));
-                        _isFirstTransform = false;
-                    }
+                    std::array<uint32, 4> transformSpells;
+                    std::ranges::remove_copy(AllTransformSpells, transformSpells.begin(), _lastTransformSpell);
+                    _lastTransformSpell = Trinity::Containers::SelectRandomContainerElement(transformSpells);
 
-                    if (_lastTransformSpell)
-                    {
-                        std::erase(transformSpells, _lastTransformSpell);
-                        me->RemoveAurasDueToSpell(_lastTransformSpell);
-                    }
-
-                    uint32 selectedSpell = Trinity::Containers::SelectRandomContainerElement(transformSpells);
-
-                    _lastTransformSpell = selectedSpell;
-
-                    DoCastSelf(selectedSpell);
+                    DoCastSelf(_lastTransformSpell);
                     events.Repeat(25s, 45s);
                     break;
                 }
@@ -166,7 +162,6 @@ struct boss_laj : public BossAI
 
 private:
     uint32 _lastTransformSpell;
-    bool _isFirstTransform;
 };
 
 void AddSC_boss_laj()
