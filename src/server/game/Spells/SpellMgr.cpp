@@ -5557,6 +5557,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(8, 0, 1261193, EFFECT_1, {}, {});
     });
 
+    // Bleak Powder
+    ApplySpellFix({ 467914, 472084 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 467911, EFFECT_1, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
