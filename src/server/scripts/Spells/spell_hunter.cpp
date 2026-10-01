@@ -65,6 +65,7 @@ enum HunterSpells
     SPELL_HUNTER_EXPLOSIVE_SHOT_AREA                = 212680,
     SPELL_HUNTER_FLARE_DISPEL                       = 132951,
     SPELL_HUNTER_FLARE_VISUAL                       = 214000,
+    SPELL_HUNTER_FOCUSED_AIM                        = 378767,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -594,6 +595,26 @@ struct at_hun_flare : public AreaTriggerAI
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
+    }
+};
+
+// 378767 - Focused Aim (attached to 260242 - Precise Shots)
+class spell_hun_focused_aim : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FOCUSED_AIM });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        if (AuraEffect const* focusedAim = eventInfo.GetActor()->GetAuraEffect(SPELL_HUNTER_FOCUSED_AIM, EFFECT_0))
+            eventInfo.GetActor()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, -Milliseconds(focusedAim->GetAmountAsInt()));
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_focused_aim::HandleProc);
     }
 };
 
@@ -1803,6 +1824,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterSpellScript(spell_hun_flare);
     RegisterAreaTriggerAI(at_hun_flare);
+    RegisterSpellScript(spell_hun_focused_aim);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
