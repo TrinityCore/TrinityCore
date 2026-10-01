@@ -52,6 +52,9 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
     SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE        = 468572,
+    SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER           = 467912,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP   = 467914,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY  = 472084,
     SPELL_HUNTER_BULLETSTORM                        = 389020,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
@@ -376,6 +379,48 @@ class spell_hun_bleak_arrows : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_hun_bleak_arrows::ReplaceAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_hun_bleak_arrows::RestoreAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 467911 - Bleak Powder
+class spell_hun_bleak_powder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor()->GetPosition(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_bleak_powder::HandleProc);
+    }
+};
+
+// 467912 - Bleak Powder
+struct at_hun_bleak_powder : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        Player* player = caster->ToPlayer();
+
+        if (!player)
+            return;
+
+        if (player->IsValidAttackTarget(unit))
+        {
+            if (player->GetPrimarySpecialization() == ChrSpecialization::HunterMarksmanship)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            else if (player->GetPrimarySpecialization() == ChrSpecialization::HunterBeastMastery)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
     }
 };
 
@@ -1793,6 +1838,8 @@ void AddSC_hunter_spell_scripts()
     RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_black_arrow);
     RegisterSpellScript(spell_hun_bleak_arrows);
+    RegisterSpellScript(spell_hun_bleak_powder);
+    RegisterAreaTriggerAI(at_hun_bleak_powder);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
