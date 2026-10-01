@@ -392,7 +392,7 @@ class spell_hun_bleak_powder : public AuraScript
 
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActor()->GetPosition(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget()->GetPosition(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
