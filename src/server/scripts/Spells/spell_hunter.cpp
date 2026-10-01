@@ -44,6 +44,7 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_AUTO_SHOT                          = 75,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_BINDING_SHOT_IMMUNE                = 117553,
     SPELL_HUNTER_BINDING_SHOT_MARKER                = 117405,
@@ -338,6 +339,43 @@ class spell_hun_black_arrow : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_hun_black_arrow::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 467749 - Bleak Arrows
+class spell_hun_bleak_arrows : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && ValidateSpellInfo({ SPELL_HUNTER_AUTO_SHOT, spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void ReplaceAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveSpell(SPELL_HUNTER_AUTO_SHOT, false, false, true);
+        target->LearnSpell(aurEff->GetSpellEffectInfo().TriggerSpell, true, 0, true);
+        target->AddOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell); // this is a hack to work around auto shot being relearned on level change
+    }
+
+    void RestoreAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell);
+        target->RemoveSpell(aurEff->GetSpellEffectInfo().TriggerSpell, false, false, true);
+        target->LearnSpell(SPELL_HUNTER_AUTO_SHOT, true, 0, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_bleak_arrows::ReplaceAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_bleak_arrows::RestoreAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1754,6 +1792,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_binding_shot);
     RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_black_arrow);
+    RegisterSpellScript(spell_hun_bleak_arrows);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);

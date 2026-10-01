@@ -29,6 +29,7 @@
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "MapReference.h"
+#include "MirrorTimer.h"
 #include "PetDefines.h"
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
@@ -595,76 +596,6 @@ enum PlayerFieldByte2Flags
     PLAYER_FIELD_BYTE2_NONE                 = 0x00,
     PLAYER_FIELD_BYTE2_STEALTH              = 0x20,
     PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW    = 0x40
-};
-
-enum MirrorTimerType
-{
-    MIRROR_TIMER_FATIGUE        = 0,
-    MIRROR_TIMER_BREATH         = 1,
-    MIRROR_TIMER_FEIGN_DEATH    = 2,
-
-    MIRROR_TIMER_MAX
-};
-
-enum class MirrorTimerFlags : uint8
-{
-    None            = 0x00,
-    Paused          = 0x01,
-    Changed         = 0x02,
-    PausedChanged   = 0x04
-};
-
-DEFINE_ENUM_FLAG(MirrorTimerFlags)
-
-class MirrorTimer
-{
-public:
-    bool IsActive() const { return m_maxValue > 0; }
-    bool IsRegenerating() const { return m_scale > 0; }
-
-    int32 GetValue() const { return m_value; }
-    void SetValue(int32 value);
-
-    int32 GetMaxValue() const { return m_maxValue; }
-    void SetMaxValue(int32 maxValue);
-
-    int32 GetScale() const { return m_scale; }
-    void SetScale(int32 scale);
-
-    int32 GetSpellId() const { return m_spellId; }
-
-    bool IsPaused() const { return m_flags.HasFlag(MirrorTimerFlags::Paused) && !IsRegenerating(); }
-    void SetPaused(bool state);
-
-    bool IsChanged() const { return m_flags.HasFlag(MirrorTimerFlags::Changed); }
-    bool IsPausedChanged() const { return m_flags.HasFlag(MirrorTimerFlags::PausedChanged); }
-    void ClearChanged() { m_flags.RemoveFlag(MirrorTimerFlags::Changed | MirrorTimerFlags::PausedChanged); }
-
-    void Start(int32 maxValue, int32 spellId);
-    void Start(int32 value, int32 maxValue, int32 spellId);
-
-    void Stop();
-
-    enum class UpdateResult : uint8
-    {
-        Inactive,
-        Decreased,
-        DecreasedExpired,
-        ExpiredTicked,
-        Regenerated
-    };
-
-    UpdateResult Update(uint32 diff);
-
-private:
-    int32 m_value = 0;
-    int32 m_maxValue = 0;
-    int32 m_scale = -1;
-    int32 m_spellId = 0;
-    EnumFlag<MirrorTimerFlags> m_flags = MirrorTimerFlags::None;
-
-    static constexpr int32 ExpiredTickPeriod = 1 * IN_MILLISECONDS;
-    PeriodicTimer m_expiredTick = { ExpiredTickPeriod, ExpiredTickPeriod };
 };
 
 // 2^n values
