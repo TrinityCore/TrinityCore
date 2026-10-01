@@ -44,6 +44,7 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_AUTO_SHOT                          = 75,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_BINDING_SHOT_IMMUNE                = 117553,
     SPELL_HUNTER_BINDING_SHOT_MARKER                = 117405,
@@ -64,6 +65,7 @@ enum HunterSpells
     SPELL_HUNTER_EXPLOSIVE_SHOT_AREA                = 212680,
     SPELL_HUNTER_FLARE_DISPEL                       = 132951,
     SPELL_HUNTER_FLARE_VISUAL                       = 214000,
+    SPELL_HUNTER_FOCUSED_AIM                        = 378767,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -341,6 +343,43 @@ class spell_hun_black_arrow : public SpellScript
     }
 };
 
+// 467749 - Bleak Arrows
+class spell_hun_bleak_arrows : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && ValidateSpellInfo({ SPELL_HUNTER_AUTO_SHOT, spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void ReplaceAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveSpell(SPELL_HUNTER_AUTO_SHOT, false, false, true);
+        target->LearnSpell(aurEff->GetSpellEffectInfo().TriggerSpell, true, 0, true);
+        target->AddOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell); // this is a hack to work around auto shot being relearned on level change
+    }
+
+    void RestoreAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell);
+        target->RemoveSpell(aurEff->GetSpellEffectInfo().TriggerSpell, false, false, true);
+        target->LearnSpell(SPELL_HUNTER_AUTO_SHOT, true, 0, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_bleak_arrows::ReplaceAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_bleak_arrows::RestoreAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 389019 - Bulletstorm
 class spell_hun_bulletstorm : public AuraScript
 {
@@ -556,6 +595,26 @@ struct at_hun_flare : public AreaTriggerAI
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
+    }
+};
+
+// 378767 - Focused Aim (attached to 260242 - Precise Shots)
+class spell_hun_focused_aim : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FOCUSED_AIM });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        if (AuraEffect const* focusedAim = eventInfo.GetActor()->GetAuraEffect(SPELL_HUNTER_FOCUSED_AIM, EFFECT_0))
+            eventInfo.GetActor()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, -Milliseconds(focusedAim->GetAmountAsInt()));
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_focused_aim::HandleProc);
     }
 };
 
@@ -1754,6 +1813,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_binding_shot);
     RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_black_arrow);
+    RegisterSpellScript(spell_hun_bleak_arrows);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
@@ -1764,6 +1824,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterSpellScript(spell_hun_flare);
     RegisterAreaTriggerAI(at_hun_flare);
+    RegisterSpellScript(spell_hun_focused_aim);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
