@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.43, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.43-0ubuntu0.22.04.2
+-- Server version	8.0.46-0ubuntu0.24.04.4
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -302,12 +302,13 @@ CREATE TABLE `conditions` (
   `ConditionValue1` int unsigned NOT NULL DEFAULT '0',
   `ConditionValue2` int unsigned NOT NULL DEFAULT '0',
   `ConditionValue3` int unsigned NOT NULL DEFAULT '0',
+  `ConditionStringValue1` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `NegativeCondition` tinyint unsigned NOT NULL DEFAULT '0',
   `ErrorType` int unsigned NOT NULL DEFAULT '0',
   `ErrorTextId` int unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
+  PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ConditionStringValue1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Condition System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2301,11 +2302,11 @@ CREATE TABLE `player_levelstats` (
   `race` tinyint unsigned NOT NULL,
   `class` tinyint unsigned NOT NULL,
   `level` tinyint unsigned NOT NULL,
-  `str` tinyint unsigned NOT NULL,
-  `agi` tinyint unsigned NOT NULL,
-  `sta` tinyint unsigned NOT NULL,
-  `inte` tinyint unsigned NOT NULL,
-  `spi` tinyint unsigned NOT NULL,
+  `str` smallint unsigned NOT NULL COMMENT 'strength',
+  `agi` smallint unsigned NOT NULL COMMENT 'agility',
+  `sta` smallint unsigned NOT NULL COMMENT 'stamina',
+  `inte` smallint unsigned NOT NULL COMMENT 'intellect',
+  `spi` smallint unsigned NOT NULL COMMENT 'spirit',
   PRIMARY KEY (`race`,`class`,`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci PACK_KEYS=0 COMMENT='Stores levels stats.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2725,6 +2726,8 @@ CREATE TABLE `quest_request_items` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `EmoteOnComplete` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteOnIncomplete` smallint unsigned NOT NULL DEFAULT '0',
+  `EmoteOnCompleteDelay` int unsigned NOT NULL DEFAULT '0',
+  `EmoteOnIncompleteDelay` int unsigned NOT NULL DEFAULT '0',
   `CompletionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
@@ -2827,6 +2830,7 @@ CREATE TABLE `quest_template` (
   `RewardFactionID5` smallint unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
   `RewardFactionValue5` int NOT NULL DEFAULT '0',
   `RewardFactionOverride5` int NOT NULL DEFAULT '0',
+  `RewardFactionFlags` int unsigned NOT NULL DEFAULT '0',
   `TimeAllowed` int unsigned NOT NULL DEFAULT '0',
   `AllowableRaces` int unsigned NOT NULL DEFAULT '0',
   `LogTitle` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -2854,7 +2858,6 @@ CREATE TABLE `quest_template` (
   `RequiredItemCount4` smallint unsigned NOT NULL DEFAULT '0',
   `RequiredItemCount5` smallint unsigned NOT NULL DEFAULT '0',
   `RequiredItemCount6` smallint unsigned NOT NULL DEFAULT '0',
-  `Unknown0` tinyint unsigned NOT NULL DEFAULT '0',
   `ObjectiveText1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ObjectiveText2` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ObjectiveText3` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -2904,11 +2907,11 @@ DROP TABLE IF EXISTS `quest_template_locale`;
 CREATE TABLE `quest_template_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Title` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Details` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Objectives` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `EndText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `CompletedText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `LogTitle` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `LogDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `QuestDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `AreaDescription` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `QuestCompletionLog` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ObjectiveText1` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ObjectiveText2` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ObjectiveText3` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -3020,25 +3023,6 @@ CREATE TABLE `script_spline_chain_waypoints` (
   `z` float NOT NULL,
   PRIMARY KEY (`entry`,`chainId`,`splineId`,`wpId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `script_waypoint`
---
-
-DROP TABLE IF EXISTS `script_waypoint`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `script_waypoint` (
-  `entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
-  `pointid` int unsigned NOT NULL DEFAULT '0',
-  `location_x` float NOT NULL DEFAULT '0',
-  `location_y` float NOT NULL DEFAULT '0',
-  `location_z` float NOT NULL DEFAULT '0',
-  `waittime` int unsigned NOT NULL DEFAULT '0' COMMENT 'waittime in millisecs',
-  `point_comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`entry`,`pointid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Script Creature waypoints';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3546,29 +3530,6 @@ CREATE TABLE `spell_script_names` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `spell_scripts`
---
-
-DROP TABLE IF EXISTS `spell_scripts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `spell_scripts` (
-  `id` int unsigned NOT NULL DEFAULT '0',
-  `effIndex` tinyint unsigned NOT NULL DEFAULT '0',
-  `delay` int unsigned NOT NULL DEFAULT '0',
-  `command` int unsigned NOT NULL DEFAULT '0',
-  `datalong` int unsigned NOT NULL DEFAULT '0',
-  `datalong2` int unsigned NOT NULL DEFAULT '0',
-  `dataint` int NOT NULL DEFAULT '0',
-  `x` float NOT NULL DEFAULT '0',
-  `y` float NOT NULL DEFAULT '0',
-  `z` float NOT NULL DEFAULT '0',
-  `o` float NOT NULL DEFAULT '0',
-  `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `spell_target_position`
 --
 
@@ -3985,26 +3946,6 @@ CREATE TABLE `waypoint_scripts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `waypoints`
---
-
-DROP TABLE IF EXISTS `waypoints`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `waypoints` (
-  `entry` int unsigned NOT NULL DEFAULT '0',
-  `pointid` int unsigned NOT NULL DEFAULT '0',
-  `position_x` float NOT NULL DEFAULT '0',
-  `position_y` float NOT NULL DEFAULT '0',
-  `position_z` float NOT NULL DEFAULT '0',
-  `orientation` float DEFAULT NULL,
-  `delay` int unsigned NOT NULL DEFAULT '0',
-  `point_comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`entry`,`pointid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Creature waypoints';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Dumping routines for database 'world'
 --
 
@@ -4071,4 +4012,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-21 18:16:59
+-- Dump completed on 2026-09-09 19:08:56
