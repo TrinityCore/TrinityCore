@@ -819,7 +819,7 @@ class spell_malacrass_lifebloom : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
             return;
 
-        GetTarget()->CastSpell(nullptr, SPELL_LIFEBLOOM_FINAL_HEAL, { aurEff, GetCasterGUID() });
+        GetTarget()->CastSpell(nullptr, SPELL_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
     }
 
     void Register() override
