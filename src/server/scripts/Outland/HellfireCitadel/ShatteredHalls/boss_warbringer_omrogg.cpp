@@ -438,6 +438,11 @@ class spell_omrogg_beatdown : public SpellScript
 {
     PrepareSpellScript(spell_omrogg_beatdown);
 
+    bool Load() override
+    {
+        return GetCaster()->IsCreature();
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.empty())
@@ -450,16 +455,13 @@ class spell_omrogg_beatdown : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-        if (!caster->IsCreature())
+        if (target->GetGUID() != _selectedTargetGuid)
             return;
 
-        if (target->GetGUID() == _selectedTargetGuid)
-        {
-            caster->GetThreatManager().ResetAllThreat();
-            caster->GetAI()->AttackStart(target);
-        }
+        Unit* caster = GetCaster();
+        caster->GetThreatManager().ResetAllThreat();
+        caster->GetAI()->AttackStart(target);
     }
 
     void Register() override

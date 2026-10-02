@@ -257,14 +257,13 @@ class spell_kargath_blade_dance_targeting : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
+        if (target->GetGUID() != _selectedTargetGuid)
+            return;
 
-        if (target->GetGUID() == _selectedTargetGuid)
-        {
-            caster->CastSpell(target, SPELL_BLADE_DANCE_CHARGE);
-            caster->CastSpell(nullptr, SPELL_BLADE_DANCE);
-        }
+        Unit* caster = GetCaster();
+        caster->CastSpell(target, SPELL_BLADE_DANCE_CHARGE);
+        caster->CastSpell(nullptr, SPELL_BLADE_DANCE);
     }
 
     void Register() override
