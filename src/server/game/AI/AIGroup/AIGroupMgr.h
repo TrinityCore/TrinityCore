@@ -58,8 +58,8 @@ enum AI_GROUP_ACTION
     AI_GROUP_ATTACK_GUID                            = 26,    // NYI // Attack unit
     AI_GROUP_UNIT_MOUNT                             = 27,    // NYI // Unit(s) mount a creature
     AI_GROUP_UNIT_DISMOUNT                          = 28,    // NYI // Unit(s) dismount
-    AI_GROUP_UNINTERACTIBLE                         = 29,    // NYI // Set "Uninteractible" flag for unit(s); old AI_GROUP_BEASTMASTER_ON
-    AI_GROUP_UNINTERACTIBLE_RESET                   = 30,    // NYI // Reset "Uninteractible" flag for unit(s); old AI_GROUP_BEASTMASTER_OFF
+    AI_GROUP_UNIT_UNINTERACTIBLE                    = 29,    // NYI // Set "Uninteractible" flag for unit(s); old AI_GROUP_BEASTMASTER_ON
+    AI_GROUP_UNIT_UNINTERACTIBLE_RESET              = 30,    // NYI // Reset "Uninteractible" flag for unit(s); old AI_GROUP_BEASTMASTER_OFF
     AI_GROUP_UNIT_MODE                              = 31,    // NYI // Change mode for unit(s)
     AI_GROUP_UNIT_MODE_RESET                        = 32,    // NYI // Reset mode for unit(s)
     AI_GROUP_UNIT_FACTION                           = 33,    // NYI // Change faction template for unit(s)
