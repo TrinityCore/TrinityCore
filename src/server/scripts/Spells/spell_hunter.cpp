@@ -113,6 +113,7 @@ enum HunterSpells
     SPELL_HUNTER_TAR_TRAP                           = 187699,
     SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
     SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
+    SPELL_HUNTER_TENSILE_BOWSTRING                  = 471366,
     SPELL_HUNTER_TRAILBLAZER                        = 231390,
     SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT         = 343242,
     SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL         = 384784,
@@ -1639,6 +1640,34 @@ struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
     }
 };
 
+// 471366 - Tensile Bowstring (attached to 288613 - Trueshot)
+class spell_hun_tensile_bowstring : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_TENSILE_BOWSTRING })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_6 } });
+    }
+
+    void CalcCastTimeReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* tensileBowstring = GetCaster()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_0))
+            amount = -tensileBowstring->GetAmount();
+    }
+
+    void CalcPowerCostReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* tensileBowstring = GetCaster()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1))
+            amount = -tensileBowstring->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_tensile_bowstring::CalcCastTimeReduction, EFFECT_5, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_tensile_bowstring::CalcPowerCostReduction, EFFECT_6, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 // 199921 - Trailblazer
 class spell_hun_trailblazer : public AuraScript
 {
@@ -1861,6 +1890,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
+    RegisterSpellScript(spell_hun_tensile_bowstring);
     RegisterSpellScript(spell_hun_trailblazer);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
