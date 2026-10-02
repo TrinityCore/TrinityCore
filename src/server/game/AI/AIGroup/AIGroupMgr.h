@@ -858,6 +858,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsEmoteValid(ActionSetEventHolder const& action);
         static bool IsSoundValid(ActionSetEventHolder const& action);
         static bool IsQuestValid(ActionSetEventHolder const& action);
+        static bool IsZoneValid(ActionSetEventHolder const& action);
         static bool IsBooleanValid(ActionSetEventHolder const& action);
 
     public:

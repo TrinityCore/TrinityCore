@@ -399,6 +399,9 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsQuestValid(action))
         return false;
 
+    if (!IsZoneValid(action))
+        return false;
+
     if (!IsBooleanValid(action))
         return false;
 
@@ -816,6 +819,36 @@ bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action)
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM:
+        case AI_GROUP_UNIT_YELL_ZONE:
+        case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
+        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
+        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
+        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
+        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
+        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
+        case AI_GROUP_UNIT_SAY_ZONE:
+        case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
+        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE:
+            if (uint32(action.Extra4) != 0 && !sAreaTableStore.LookupEntry(uint32(action.Extra4)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra4));
                 return false;
             }
             break;
