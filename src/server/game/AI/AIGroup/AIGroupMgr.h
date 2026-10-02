@@ -533,10 +533,10 @@ enum class ActionSetFlags : uint32
     TreatLikeCreatureActionSet                = 0x00000080,   // NYI
     DoNotResetCombatState                     = 0x00000100,   // NYI
     ResetCombatAtStart                        = 0x00000200,   // NYI
-    RespectRecursivePriority                  = 0x00000400    // NYI
-};
+    RespectRecursivePriority                  = 0x00000400,   // NYI
 
-DEFINE_ENUM_FLAG(ActionSetFlags);
+    ActionSetFlagsAll                         = (Looping | Resumable | PauseForCombat | PauseUntilAllMembersAreDoneReturning | AllowAllActionsWhileDead)
+};
 
 // EnumeratedString's EnumID 909. Shown in Action Set editor (Priority: Medium)
 enum class ActionSetPriorityType : uint8

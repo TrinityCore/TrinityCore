@@ -117,6 +117,19 @@ void AIGroupMgr::LoadActionSetsNamesFromDB()
         set.Priority = fields[2].GetUInt8();
         set.Name = fields[3].GetString();
 
+        if (set.Flags & ~uint32(ActionSetFlags::ActionSetFlagsAll))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set_name` (Id: {}) has invalid Flags ({}).",
+                set.Id, set.Flags);
+        }
+
+        if (set.Priority >= uint8(ActionSetPriorityType::Max))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set_name` (Id: {}) has invalid Priority ({}), skipped.",
+                set.Id, set.Priority);
+            continue;
+        }
+
         _actionSets[set.Id] = std::move(set);
 
         ++count;
