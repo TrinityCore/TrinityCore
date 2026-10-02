@@ -399,6 +399,9 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsQuestValid(action))
         return false;
 
+    if (!IsBooleanValid(action))
+        return false;
+
     return true;
 }
 
@@ -813,6 +816,79 @@ bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action)
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_ATTACK_GUID:
+        case AI_GROUP_UNIT_UNINTERACTIBLE:
+        case AI_GROUP_UNIT_IMMUNEPC:
+        case AI_GROUP_UNIT_IMMUNENPC:
+        case AI_GROUP_UNIT_UNKILLABLE:
+        case AI_GROUP_UNIT_NO_LOOT:
+        case AI_GROUP_UNIT_NO_XP:
+        case AI_GROUP_UNIT_PVP_ENABLING:
+        case AI_GROUP_UNIT_FLOATING:
+        case AI_GROUP_UNIT_IGNORE_COMBAT:
+        case AI_GROUP_UNIT_NO_REPUTATION:
+        case AI_GROUP_UNIT_SESSILE:
+        case AI_GROUP_UNIT_RAID_LOCK:
+        case AI_GROUP_UNIT_NO_MELEE:
+        case AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC:
+        case AI_GROUP_UNIT_NO_THREAT_FEEDBACK:
+        case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT:
+        case AI_GROUP_UNIT_NO_MELEE_APPROACH:
+        case AI_GROUP_UNIT_CANNOT_TURN:
+        case AI_GROUP_UNIT_PREFER_NPCS_ENEMIES:
+        case AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE:
+        case AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE:
+        case AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION:
+        case AI_GROUP_UNIT_CANNOT_PENETRATE_WATER:
+        case AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT:
+        case AI_GROUP_UNIT_PREFER_UNENGAGED_TARGETS:
+        case AI_GROUP_UNIT_NEVER_EVADE:
+        case AI_GROUP_UNIT_DONT_LEAVE_COMBAT:
+        case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT:
+            if (action.Extra2 != 0 && action.Extra2 != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid boolean value {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
+        case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
+        case AI_GROUP_UNIT_SET_ITEM_RANGED:
+            if (action.Extra3 != 0 && action.Extra3 != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid boolean value {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra3);
+                return false;
+            }
+            break;
+        case AI_GROUP_UNIT_SAY:
+        case AI_GROUP_UNIT_ACTIVATE_OBJECT:
+        case AI_GROUP_UNIT_SAY_RANDOM:
+        case AI_GROUP_UNIT_YELL:
+        case AI_GROUP_UNIT_YELL_RANDOM:
+        case AI_GROUP_MOVE_RELATIVE:
+        case AI_GROUP_UNIT_SAY_PLAYER:
+        case AI_GROUP_UNIT_YELL_PLAYER:
+        case AI_GROUP_END_DUNGEON_ENCOUNTER:
+            if (action.Extra4 != 0 && action.Extra4 != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid boolean value {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra4);
                 return false;
             }
             break;
