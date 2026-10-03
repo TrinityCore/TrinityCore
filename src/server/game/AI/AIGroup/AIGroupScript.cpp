@@ -239,6 +239,18 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
         case AI_GROUP_UNIT_GET_TAP_LIST:
         case AI_GROUP_TIER_TRANSITION_MOVETO:
         case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
+        case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+        case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+        case AI_GROUP_UNIT_CAST_OTHER_UNIT:
+        case AI_GROUP_FORCE_COMBAT:
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL:
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS:
+        case AI_GROUP_UNIT_DESPAWN_STRINGID:
+        case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
+        case AI_GROUP_CIRCLE_UNIT:
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
+        case AI_GROUP_COMBAT_POSITION:
+        case AI_GROUP_COMBAT_CHASE:
             searchRadius = action.Extra0;
             break;
         case AI_GROUP_JUMP_POINT:
