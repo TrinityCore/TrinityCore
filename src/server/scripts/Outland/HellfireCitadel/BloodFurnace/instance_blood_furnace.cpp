@@ -195,7 +195,7 @@ class instance_blood_furnace : public InstanceMapScript
                         case FAIL:
                         {
                             if (GameObject* lever = GetGameObject(DATA_BROGGOK_LEVER))
-                                lever->ActivateObject(GameObjectActions(GameObjectActions::MakeActive));
+                                lever->ActivateObject(GameObjectActions::MakeActive);
 
                             if (Creature* broggok = GetCreature(DATA_BROGGOK))
                                 broggok->AI()->DoAction(ACTION_DESPAWN_TRIGGER);
