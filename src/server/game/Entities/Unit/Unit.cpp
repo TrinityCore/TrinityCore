@@ -1115,42 +1115,45 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel
         {
             if (victim != attacker && (!spellProto || !(spellProto->HasAttribute(SPELL_ATTR6_NO_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))))
             {
-                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                for (uint32 i = CURRENT_GENERIC_SPELL; i <= CURRENT_CHANNELED_SPELL; ++i)
                 {
-                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    if (Spell* spell = victim->m_currentSpells[i])
                     {
-                        auto isCastInterrupted = [&]()
+                        if (spell->getState() == SPELL_STATE_PREPARING)
                         {
-                            if (!damageTaken)
-                                return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
+                            auto isCastInterrupted = [&]()
+                            {
+                                if (!damageTaken)
+                                    return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
+                                    return true;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
-                                return true;
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
+                                    return true;
 
-                            return false;
-                        };
-
-                        auto isCastDelayed = [&]()
-                        {
-                            if (!damageTaken)
                                 return false;
+                            };
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
-                                return true;
+                            auto isCastDelayed = [&]()
+                            {
+                                if (!damageTaken)
+                                    return false;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
+                                    return true;
 
-                            return false;
-                        };
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
+                                    return true;
 
-                        if (isCastInterrupted())
-                            victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
-                        else if (isCastDelayed())
-                            spell->Delayed();
+                                return false;
+                            };
+
+                            if (isCastInterrupted())
+                                victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
+                            else if (isCastDelayed())
+                                spell->Delayed();
+                        }
                     }
                 }
 
