@@ -73,7 +73,7 @@ ChannelMgr::~ChannelMgr()
         if (!Utf8toWStr(dbName, channelName))
         {
             TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid utf8 sequence? Deleted.", dbName);
-            toDelete.push_back({ dbName, team });
+            toDelete.emplace_back(std::move(dbName), team);
             continue;
         }
 
@@ -81,24 +81,31 @@ ChannelMgr::~ChannelMgr()
         if (!mgr)
         {
             TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid team {}. Deleted.", dbName, team);
-            toDelete.push_back({ dbName, team });
+            toDelete.emplace_back(std::move(dbName), team);
             continue;
         }
 
-        Channel* channel = new Channel(dbName, team, dbBanned);
+        auto [itr, isNew] = mgr->_customChannels.try_emplace(std::move(channelName));
+        if (!isNew)
+        {
+            // with CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL both teams share the same manager, so channels with the same name from each team collide
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' (team {}) from database - a channel with the same name is already loaded. Skipped.", dbName, team);
+            continue;
+        }
+
+        Channel* channel = itr->second = new Channel(dbName, team, dbBanned);
         channel->SetAnnounce(dbAnnounce);
         channel->SetOwnership(dbOwnership);
         channel->SetPassword(dbPass);
-        mgr->_customChannels.emplace(channelName, channel);
 
         ++count;
     } while (result->NextRow());
 
-    for (auto pair : toDelete)
+    for (auto const& [dbName, team] : toDelete)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
-        stmt->setString(0, pair.first);
-        stmt->setUInt32(1, pair.second);
+        stmt->setString(0, dbName);
+        stmt->setUInt32(1, team);
         CharacterDatabase.Execute(stmt);
     }
 
