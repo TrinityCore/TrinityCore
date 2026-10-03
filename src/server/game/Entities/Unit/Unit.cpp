@@ -1580,6 +1580,26 @@ void Unit::HandleEmoteCommand(Emote emoteId)
     SendMessageToSet(packet.Write(), true);
 }
 
+void Unit::PerformEmote(Emote emote)
+{
+    EmotesEntry const* entry = sEmotesStore.LookupEntry(emote);
+    if (!entry)
+        return;
+
+    switch (entry->EmoteSpecProc)
+    {
+        case 0:
+            HandleEmoteCommand(emote);
+            break;
+        case 1:
+            SetStandState(static_cast<UnitStandStateType>(entry->EmoteSpecProcParam));
+            break;
+        case 2:
+            SetEmoteState(emote == EMOTE_STATE_NONE ? static_cast<Emote>(0) : emote);
+            break;
+    }
+}
+
 /*static*/ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/)
 {
     // only physical spells damage gets reduced by armor

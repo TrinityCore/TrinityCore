@@ -490,7 +490,9 @@ void ObjectMgr::LoadCreatureTemplates()
         // 63
         "ScriptName,"
         // 64
-        "StringId"
+        "StringId,"
+        // 65
+        "TriggersId"
         " FROM creature_template ct"
         " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
 
@@ -611,6 +613,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.flags_extra           = fields[62].GetUInt32();
     creatureTemplate.ScriptID              = GetScriptId(fields[63].GetString());
     creatureTemplate.StringId              = fields[64].GetString();
+    creatureTemplate.TriggersId            = fields[65].GetUInt32();
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
