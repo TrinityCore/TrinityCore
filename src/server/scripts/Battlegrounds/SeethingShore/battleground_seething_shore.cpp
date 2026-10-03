@@ -797,7 +797,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
         if (!groundDummy)
             return;
 
-        QuaternionData const rot = QuaternionData::fromEulerAnglesZYX(groundDummy->GetOrientation(), 0.f, 0.f);
+        QuaternionData const rot = QuaternionData::fromOrientation(groundDummy->GetOrientation());
         uint8 const action = urand(0, 3);
         switch (action)
         {
