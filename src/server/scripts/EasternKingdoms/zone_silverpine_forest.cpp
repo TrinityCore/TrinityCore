@@ -1143,19 +1143,25 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
 enum SylvanasForsakenHighCommand
 {
     QUEST_NO_ESCAPE                             = 27099,
+    QUEST_LORDAERON                             = 27098,
+    QUEST_TO_FORSAKEN_HIGH_COMMAND              = 27290,
 
     NPC_FORSAKEN_WARHORSE_SERVERSIDE            = 73595,
 
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
-    SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011
+    SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE         = 84011,
+    SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
+    SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
+    SPELL_SUMMON_LORDAERON_ACTORS               = 84127,
+    SPELL_FLIGHT_OF_THE_VALKYR_FORWARD          = 84695
 };
 
-// 44365 - Lady Sylvanas Windrunner (Forsaken High Command)
-struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
+// 44365 - Lady Sylvanas Windrunner (Forsaken High Command and Sepulcher)
+struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public ScriptedAI
 {
-    npc_silverpine_sylvanas_windrunner_high_command(Creature* creature) : ScriptedAI(creature) { }
+    npc_silverpine_sylvanas_windrunner_high_command_sepulcher(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -1175,12 +1181,34 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
         }
     }
 
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        switch (quest->GetQuestId())
+        {
+            case QUEST_LORDAERON:
+                player->CastSpell(player, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
+                player->CastSpell(player, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
+                player->CastSpell(player, SPELL_SUMMON_LORDAERON_ACTORS, true);
+                break;
+
+            case QUEST_TO_FORSAKEN_HIGH_COMMAND:
+                player->CastSpell(player, SPELL_FLIGHT_OF_THE_VALKYR_FORWARD, true);
+                break;
+
+            default:
+                break;
+        }
+    }
+
     void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
     {
         switch (quest->GetQuestId())
         {
             case QUEST_NO_ESCAPE:
-                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_AGATHA, true);
+                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE, true);
+                break;
+            case QUEST_LORDAERON:
+                player->RemoveAura(SPELL_SUMMON_FORSAKEN_WARHORSE);
                 break;
             default:
                 break;
@@ -1204,7 +1232,6 @@ struct npc_silverpine_deathstalker : public ScriptedAI
 
 enum WorgenRenegade
 {
-    SPELL_HEARTSTRIKE                           = 84182,
     SPELL_KILL_ME_AURA                          = 84181,
     SPELL_FLURRY_OF_CLAWS                       = 80365,
 
@@ -1216,15 +1243,15 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
 {
     npc_silverpine_worgen_renegade(Creature* creature) : ScriptedAI(creature) { }
 
+    void JustAppeared() override
+    {
+        if (me->IsSummon())
+            DoCastSelf(SPELL_KILL_ME_AURA);
+    }
+
     void Reset() override
     {
         _events.Reset();
-
-        // Note: this is for a later usage during Lordaeron (questId 27098).
-        if (me->IsSummon())
-            DoCastSelf(SPELL_KILL_ME_AURA);
-
-        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -4163,7 +4190,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 _events.ScheduleEvent(EVENT_FLEE_FROM_FENRIS + 2, 1s);
                 break;
 
-            case SPELL_DESPAWN_ALL_SUMMONS_AGATHA:
+            case SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE:
                 DoCastSelf(SPELL_MARK_MASTER_AS_DESUMMONED);
                 break;
 
@@ -5226,6 +5253,617 @@ private:
     bool _isWorgen;
 };
 
+Position const LordaeronFinishScenePos = { 498.54f, 1560.2840f, 128.2032f, 1.100281f };
+
+enum ForsakenWarhorsePlayer
+{
+    NPC_FORSAKEN_WARHORSE_SYLVANAS              = 45057,
+
+    SPELL_RIDE_SYLVANAS_HORSE                   = 84166,
+    SPELL_LORDAERON_COMPLETE                    = 84185,
+    SPELL_DESPAWN_ALL_SUMMONS_LORDAERON         = 84173,
+    SPELL_FADE_TO_BLACK                         = 89092,
+
+    EVENT_ACTIVATE_SKIP                         = 1,
+
+    SEAT_WARHORSE_SYLVANAS_PLAYER               = 1
+};
+
+// 45041 - Forsaken Warhorse (Player)
+struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
+{
+    npc_silverpine_warhorse_player_lordaeron(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->HandleEmoteCommand(EMOTE_ONESHOT_MOUNT_SPECIAL);
+
+        me->CastSpell(nullptr, SPELL_RIDE_SYLVANAS_HORSE, true);
+
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        Player* player = passenger->ToPlayer();
+        if (!player)
+            return;
+
+        if (apply)
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        else
+        {
+            if (player->GetQuestStatus(QUEST_LORDAERON) == QUEST_STATUS_INCOMPLETE)
+                player->CastSpell(player, SPELL_FADE_TO_BLACK, true);
+
+            _events.ScheduleEvent(EVENT_ACTIVATE_SKIP, 250ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        Unit* summoner = tempSummon->GetSummonerUnit();
+        if (!summoner)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ACTIVATE_SKIP:
+                    me->CastSpell(summoner, SPELL_LORDAERON_COMPLETE, true);
+                    summoner->NearTeleportTo(LordaeronFinishScenePos, false);
+                    summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+Position const LordaeronFinishPos = { 499.185f, 1549.9855f, 129.094f };
+
+enum ForsakenWarhorseSylvanas
+{
+    NPC_SYLVANAS_LORDAERON                      = 45051,
+    NPC_FORSAKEN_WARHORSE_PLAYER                = 45041,
+
+    PATH_WARHORSE_TO_SEPULCHER                  = 450570,
+
+    WAYPOINT_ARRIVED_TO_SEPULCHER               = 44,
+
+    POINT_CLOSE_TO_ZONE                         = 1,
+
+    SEAT_WARHORSE_SYLVANAS                      = 0
+};
+
+// 45057 - Forsaken Warhorse (Sylvanas)
+struct npc_silverpine_warhorse_sylvanas_lordaeron : public ScriptedAI
+{
+    npc_silverpine_warhorse_sylvanas_lordaeron(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->HandleEmoteCommand(EMOTE_ONESHOT_MOUNT_SPECIAL);
+
+        me->SetSpeed(MOVE_RUN, 6.3564f);
+
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
+    {
+        if (!apply)
+            return;
+
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_WARHORSE_TO_SEPULCHER)
+        {
+            if (waypointId == WAYPOINT_ARRIVED_TO_SEPULCHER)
+                me->GetMotionMaster()->MovePoint(POINT_CLOSE_TO_ZONE, LordaeronFinishPos, false, 3.5f);
+        }
+    }
+};
+
+enum SylvanasWindrunnerLordaeron
+{
+    SPELL_DREADGUARD_SALUTE_AURA                = 84200,
+    SPELL_KILL_ME                               = 84180,
+    SPELL_HEARTSTRIKE                           = 84182,
+
+    EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON      = 1,
+    EVENT_SYLVANAS_TALK                         = 3,
+    EVENT_FINISH_SCENE_LORDAERON                = 25,
+    EVENT_REMOVE_HEARTSTRIKE_COOLDOWN           = 27,
+
+    TALK_SYLVANAS_LORDAERON_0                   = 0,
+    TALK_SYLVANAS_LORDAERON_1                   = 1,
+    TALK_SYLVANAS_LORDAERON_2                   = 2,
+    TALK_SYLVANAS_LORDAERON_3                   = 3,
+    TALK_SYLVANAS_LORDAERON_4                   = 4,
+    TALK_SYLVANAS_LORDAERON_5                   = 5,
+    TALK_SYLVANAS_LORDAERON_6                   = 6,
+    TALK_SYLVANAS_LORDAERON_7                   = 7,
+    TALK_SYLVANAS_LORDAERON_8                   = 8,
+    TALK_SYLVANAS_LORDAERON_9                   = 9,
+    TALK_SYLVANAS_LORDAERON_10                  = 10,
+    TALK_SYLVANAS_LORDAERON_11                  = 11,
+    TALK_SYLVANAS_LORDAERON_12                  = 12,
+    TALK_SYLVANAS_LORDAERON_13                  = 13,
+    TALK_SYLVANAS_LORDAERON_14                  = 14,
+    TALK_SYLVANAS_LORDAERON_15                  = 15,
+    TALK_SYLVANAS_LORDAERON_16                  = 16,
+    TALK_SYLVANAS_LORDAERON_17                  = 17,
+    TALK_SYLVANAS_LORDAERON_18                  = 18,
+    TALK_SYLVANAS_LORDAERON_19                  = 19,
+    TALK_SYLVANAS_LORDAERON_20                  = 20,
+    TALK_SYLVANAS_LORDAERON_21                  = 21
+};
+
+// 45051 - Lady Sylvanas Windrunner (Lordaeron)
+struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
+{
+    npc_silverpine_sylvanas_lordaeron(Creature* creature) : ScriptedAI(creature), _isHeartstrikeOnCooldown(false) { }
+
+    void JustAppeared() override
+    {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+        {
+            std::vector<Creature*> sylvanasHorse;
+            me->GetCreatureListWithEntryInGrid(sylvanasHorse, NPC_FORSAKEN_WARHORSE_SYLVANAS, 5.0f);
+            for (Creature* forsakenWarhorse : sylvanasHorse)
+            {
+                if (forsakenWarhorse->GetOwner() != summoner)
+                    continue;
+
+                _sylvanasHorseGUID = forsakenWarhorse->GetGUID();
+
+                me->EnterVehicle(forsakenWarhorse, SEAT_WARHORSE_SYLVANAS);
+
+                _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON, 500ms);
+            }
+        }
+
+        me->SetUnitFlag(UNIT_FLAG_UNK_6);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag3(UNIT_FLAG3_UNK0);
+
+        DoCastSelf(SPELL_DREADGUARD_SALUTE_AURA);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_KILL_ME || _isHeartstrikeOnCooldown)
+            return;
+
+        _isHeartstrikeOnCooldown = true;
+
+        me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
+
+        _events.ScheduleEvent(EVENT_REMOVE_HEARTSTRIKE_COOLDOWN, 3s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        // Note: SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnOnSummonerDeath are NYI.
+        Unit* summoner = tempSummon->GetSummonerUnit();
+        if (!summoner || !summoner->IsAlive())
+        {
+            me->DespawnOrUnsummon();
+            return;
+        }
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON:
+                    _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON + 1, 1s);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK, 7s + 500ms);
+                    break;
+
+                case EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON + 1:
+                    if (Creature* sylvanasHorse = ObjectAccessor::GetCreature(*me, _sylvanasHorseGUID))
+                        sylvanasHorse->GetMotionMaster()->MovePath(PATH_WARHORSE_TO_SEPULCHER, false);
+                    break;
+
+                case EVENT_SYLVANAS_TALK:
+                    Talk(TALK_SYLVANAS_LORDAERON_0, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 1, 5s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 1:
+                    Talk(TALK_SYLVANAS_LORDAERON_1, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 2, 5s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 2:
+                    Talk(TALK_SYLVANAS_LORDAERON_2, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 3, 9s + 100ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 3:
+                    Talk(TALK_SYLVANAS_LORDAERON_3, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 4, 5s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 4:
+                    Talk(TALK_SYLVANAS_LORDAERON_4, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 5, 8s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 5:
+                    Talk(TALK_SYLVANAS_LORDAERON_5, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 6, 9s + 200ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 6:
+                    Talk(TALK_SYLVANAS_LORDAERON_6, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 7, 9s + 900ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 7:
+                    Talk(TALK_SYLVANAS_LORDAERON_7, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 8, 10s + 900ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 8:
+                    Talk(TALK_SYLVANAS_LORDAERON_8, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 9, 9s + 800ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 9:
+                    Talk(TALK_SYLVANAS_LORDAERON_9, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 10, 6s + 100ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 10:
+                    Talk(TALK_SYLVANAS_LORDAERON_10, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 11, 5s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 11:
+                    Talk(TALK_SYLVANAS_LORDAERON_11, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 12, 9s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 12:
+                    Talk(TALK_SYLVANAS_LORDAERON_12, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 13, 7s + 100ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 13:
+                    Talk(TALK_SYLVANAS_LORDAERON_13, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 14, 11s + 300ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 14:
+                    Talk(TALK_SYLVANAS_LORDAERON_14, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 15, 11s + 300ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 15:
+                    Talk(TALK_SYLVANAS_LORDAERON_15, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 16, 9s + 600ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 16:
+                    Talk(TALK_SYLVANAS_LORDAERON_16, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 17, 9s + 800ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 17:
+                    Talk(TALK_SYLVANAS_LORDAERON_17, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 18, 5s + 800ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 18:
+                    Talk(TALK_SYLVANAS_LORDAERON_18, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 19, 9s + 300ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 19:
+                    Talk(TALK_SYLVANAS_LORDAERON_19, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 20, 12s + 500ms);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 20:
+                    Talk(TALK_SYLVANAS_LORDAERON_20, summoner);
+                    _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 21, 7s);
+                    break;
+
+                case EVENT_SYLVANAS_TALK + 21:
+                    Talk(TALK_SYLVANAS_LORDAERON_21, summoner);
+                    _events.ScheduleEvent(EVENT_FINISH_SCENE_LORDAERON, 10s);
+                    break;
+
+                case EVENT_FINISH_SCENE_LORDAERON:
+                    summoner->CastSpell(summoner, SPELL_FADE_TO_BLACK, true);
+                    me->CastSpell(summoner, SPELL_LORDAERON_COMPLETE, true);
+                    _events.ScheduleEvent(EVENT_FINISH_SCENE_LORDAERON + 1, 100ms);
+                    break;
+
+                case EVENT_FINISH_SCENE_LORDAERON + 1:
+                    summoner->NearTeleportTo(LordaeronFinishScenePos, false);
+                    summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
+                    break;
+
+                case EVENT_REMOVE_HEARTSTRIKE_COOLDOWN:
+                    _isHeartstrikeOnCooldown = false;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        UpdateVictim();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _sylvanasHorseGUID;
+    bool _isHeartstrikeOnCooldown;
+};
+
+enum DreadguardLordaeron
+{
+    SPELL_DREADGUARD_SALUTE                     = 84199,
+
+    EVENT_RESET_ANIMKIT                         = 1,
+
+    ANIMKIT_DREADGUARD                          = 898
+};
+
+// 44911 - Dreadguard
+struct npc_silverpine_dreadguard_lordaeron : public ScriptedAI
+{
+    npc_silverpine_dreadguard_lordaeron(Creature* creature) : ScriptedAI(creature), _done(false) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        _done = false;
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_DREADGUARD_SALUTE:
+                if (_done)
+                    return;
+                _done = true;
+                me->SetAIAnimKitId(ANIMKIT_DREADGUARD);
+                _events.ScheduleEvent(EVENT_RESET_ANIMKIT, 2s + 500ms);
+                break;
+
+        default:
+            break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESET_ANIMKIT:
+                    _done = false;
+                    me->SetAIAnimKitId(ANIMKIT_RESET);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _done;
+};
+
+Position const ForsakenTrooperMPos[8] =
+{
+    { 1278.29f, 1053.83f, 54.284f, 3.16124f },
+    { 1258.23f, 1078.28f, 52.430f, 3.30653f },
+    { 1251.07f, 1161.13f, 51.974f, 3.53822f },
+    { 1204.23f, 1174.21f, 46.824f, 3.53822f },
+    { 1180.46f, 1227.42f, 54.059f, 3.53822f },
+    { 1244.08f, 1137.64f, 50.124f, 1.24199f },
+    { 1219.74f, 1207.46f, 52.489f, 3.94696f },
+    { 1278.76f, 1144.46f, 51.269f, 5.58114f }
+};
+
+Position const ForsakenTrooperFPos[8] =
+{
+    { 1308.89f, 1059.13f, 54.598f, 3.16124f },
+    { 1227.65f, 1107.85f, 50.456f, 3.30653f },
+    { 1252.97f, 1148.88f, 49.575f, 3.53822f },
+    { 1178.60f, 1200.06f, 48.753f, 3.53822f },
+    { 1144.25f, 1153.30f, 48.406f, 3.53822f },
+    { 1308.06f, 1107.48f, 48.315f, 2.19707f },
+    { 1163.96f, 1198.18f, 47.255f, 2.64785f },
+    { 1301.43f, 1153.10f, 52.386f, 0.43350f }
+};
+
+Position const WorgenRenegadePos[16] =
+{
+    { 1278.29f, 1053.83f, 54.284f, 3.16124f },
+    { 1258.23f, 1078.28f, 52.430f, 3.30653f },
+    { 1251.07f, 1161.13f, 51.974f, 3.53822f },
+    { 1204.23f, 1174.21f, 46.824f, 3.53822f },
+    { 1180.46f, 1227.42f, 54.059f, 3.53822f },
+    { 1244.08f, 1137.64f, 50.124f, 1.24199f },
+    { 1219.74f, 1207.46f, 52.489f, 3.94696f },
+    { 1278.76f, 1144.46f, 51.269f, 5.58114f },
+    { 1308.89f, 1059.13f, 54.598f, 3.16124f },
+    { 1227.65f, 1107.85f, 50.456f, 3.30653f },
+    { 1252.97f, 1148.88f, 49.575f, 3.53822f },
+    { 1178.60f, 1200.06f, 48.753f, 3.53822f },
+    { 1144.25f, 1153.30f, 48.406f, 3.53822f },
+    { 1308.06f, 1107.48f, 48.315f, 2.19707f },
+    { 1163.96f, 1198.18f, 47.255f, 2.64785f },
+    { 1301.43f, 1153.10f, 52.386f, 0.43350f }
+};
+
+Position const OrcDemolisherPos[3] =
+{
+    { 1072.83f, 1270.05f, 43.02f, 3.16124f },
+    { 1013.34f, 1313.89f, 42.85f, 3.30653f },
+    { 969.38f, 1361.34f, 47.302f, 3.53822f }
+};
+
+Position const SeaOrcPos[9] =
+{
+    { 1076.48f, 1253.85f, 45.929f, 2.43872f },
+    { 1077.14f, 1263.65f, 43.694f, 1.59048f },
+    { 1070.36f, 1263.61f, 45.013f, 1.56299f },
+
+    { 1014.53f, 1307.78f, 43.935f, 1.54728f },
+    { 1003.97f, 1315.32f, 44.549f, 4.10375f },
+    { 1002.05f, 1338.77f, 44.450f, 3.85635f },
+
+    { 971.74f, 1354.18f, 46.846f, 3.46365f  },
+    { 964.22f, 1366.20f, 46.887f, 5.15618f  },
+    { 969.18f, 1368.70f, 47.393f, 5.03445f  }
+};
+
+Position const SeaOrcLeaderPos1 = { 1010.04f, 1301.17f, 45.891f, 2.53684f };
+
+Position const SeaOrcLeaderPos2 = { 1042.26f, 1337.02f, 37.903f, 3.68637f };
+
+Position const DreadguardPos[33] =
+{
+    { 634.12701416015625f, 1320.52001953125f, 83.78723907470703125f, 3.630284786224365234f   },
+    { 622.53802490234375f, 1340.219970703125f, 85.43963623046875f, 3.525565147399902343f     },
+    { 629.906005859375f, 1326.52001953125f, 84.15843963623046875f, 3.665191411972045898f     },
+    { 626.1669921875f, 1332.780029296875f, 84.69873809814453125f, 3.560471534729003906f      },
+    { 618.56097412109375f, 1347.0999755859375f, 86.084136962890625f, 3.560471534729003906f   },
+    { 614.75897216796875f, 1336.969970703125f, 86.1674346923828125f, 0.645771801471710205f   },
+    { 625.81298828125f, 1317.010009765625f, 84.4972381591796875f, 0.645771801471710205f      },
+    { 622.22601318359375f, 1322.6300048828125f, 85.16963958740234375f, 0.645771801471710205f },
+    { 614.85400390625f, 1355.6300048828125f, 86.87713623046875f, 3.473205089569091796f       },
+    { 618.52398681640625f, 1329.4599609375f, 85.74703216552734375f, 0.645771801471710205f    },
+    { 610.7239990234375f, 1344.530029296875f, 86.6329345703125f, 0.645771801471710205f       },
+    { 606.46002197265625f, 1352.8499755859375f, 87.35283660888671875f, 0.645771801471710205f },
+    { 610.56298828125f, 1365.0999755859375f, 87.761932373046875f, 3.50811171531677246f       },
+    { 602.11102294921875f, 1362.239990234375f, 88.252532958984375f, 0.645771801471710205f    },
+    { 606.41302490234375f, 1376.47998046875f, 88.97403717041015625f, 3.438298702239990234f   },
+    { 596.18597412109375f, 1372.81005859375f, 89.34323883056640625f, 0.645771801471710205f   },
+    { 602.12701416015625f, 1384.3499755859375f, 90.04973602294921875f, 3.543018341064453125f },
+    { 591.97601318359375f, 1380.77001953125f, 90.32863616943359375f, 0.645771801471710205f   },
+    { 597.49102783203125f, 1395.3499755859375f, 91.6871337890625f, 3.647738218307495117f     },
+    { 587.97601318359375f, 1390.5899658203125f, 91.8007354736328125f, 0.645771801471710205f  },
+    { 592.40802001953125f, 1406.1600341796875f, 93.38373565673828125f, 3.525565147399902343f },
+    { 583.12298583984375f, 1401.469970703125f, 93.7557373046875f, 0.645771801471710205f      },
+    { 574.67401123046875f, 1412.9000244140625f, 96.23223876953125f, 5.480333805084228515f    },
+    { 589.6409912109375f, 1422.1099853515625f, 96.60943603515625f, 5.16617441177368164f      },
+    { 558.7659912109375f, 1426.969970703125f, 99.60413360595703125f, 0.48869219422340393f    },
+    { 573.9439697265625f, 1436.8800048828125f, 100.802337646484375f, 4.729842185974121093f   },
+    { 556.385009765625f, 1430.22998046875f, 100.3133392333984375f, 0.48869219422340393f      },
+    { 573.3060302734375f, 1440.5400390625f, 101.784332275390625f, 3.96189737319946289f       },
+    { 485.446014404296875f, 1509.739990234375f, 135.3153228759765625f, 1.221730470657348632f },
+    { 464.031005859375f, 1486.9300537109375f, 146.788330078125f, 1.151917338371276855f       },
+    { 472.25201416015625f, 1540.760009765625f, 131.2733306884765625f, 0.0f                   },
+    { 554.0989990234375f, 1579.75f, 131.211334228515625f, 3.31612563133239746f               },
+    { 511.608001708984375f, 1626.579956054687f, 125.6103363037109375f, 4.555309295654296875f }
+};
+
+enum SummonLordaeronActors
+{
+    NPC_FORSAKEN_TROOPER_M_LORDAERON            = 44791,
+    NPC_FORSAKEN_TROOPER_F_LORDAERON            = 44792,
+    NPC_ORC_MOVER_LORDAERON                     = 45589,
+    NPC_ORC_DEMOLISHER_LORDAERON                = 45635,
+    NPC_DREADGUARD_LORDAERON                    = 44911,
+
+    PATH_ORC_LEADER1                            = 4494200,
+    PATH_ORC_LEADER2                            = 4494201
+};
+
+// 84127 - Summon Lordaeron Actors
+class spell_silverpine_summon_lordaeron_actors : public SpellScript
+{
+    PrepareSpellScript(spell_silverpine_summon_lordaeron_actors);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        for (Position const& pos : ForsakenTrooperMPos)
+            caster->SummonCreature(NPC_FORSAKEN_TROOPER_F_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+
+        for (Position const& pos : ForsakenTrooperFPos)
+            caster->SummonCreature(NPC_FORSAKEN_TROOPER_M_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+
+        for (Position const& pos : WorgenRenegadePos)
+            caster->SummonCreature(NPC_WORGEN_RENEGADE, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+
+        for (Position const& pos : OrcDemolisherPos)
+            caster->SummonCreature(NPC_ORC_DEMOLISHER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+
+        for (Position const& pos : SeaOrcPos)
+            caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+
+        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+        {
+            leaderOrc->GetMotionMaster()->MovePath(PATH_ORC_LEADER1, true);
+
+            for (uint8 i = 0; i < 4; i++)
+                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3.0f * i));
+        }
+
+        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+        {
+            leaderOrc->GetMotionMaster()->MovePath(PATH_ORC_LEADER2, true);
+
+            for (uint8 i = 0; i < 4; i++)
+                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3.0f * i));
+        }
+
+        for (Position const& pos : DreadguardPos)
+            caster->SummonCreature(NPC_DREADGUARD_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_silverpine_summon_lordaeron_actors::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -5239,7 +5877,7 @@ void AddSC_silverpine_forest()
     RegisterSpellScript(spell_silverpine_raise_forsaken_83173);
     RegisterCreatureAI(npc_silverpine_fallen_human);
     RegisterSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
-    RegisterCreatureAI(npc_silverpine_sylvanas_windrunner_high_command);
+    RegisterCreatureAI(npc_silverpine_sylvanas_windrunner_high_command_sepulcher);
     RegisterCreatureAI(npc_silverpine_deathstalker);
     RegisterCreatureAI(npc_silverpine_worgen_renegade);
     RegisterSpellScript(spell_silverpine_flurry_of_claws);
@@ -5296,4 +5934,12 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_fenris_keep_camera);
     RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);
     RegisterCreatureAI(npc_silverpine_generic_actor_fenris_keep);
+
+    /* Lordaeron */
+
+    RegisterCreatureAI(npc_silverpine_warhorse_player_lordaeron);
+    RegisterCreatureAI(npc_silverpine_warhorse_sylvanas_lordaeron);
+    RegisterCreatureAI(npc_silverpine_sylvanas_lordaeron);
+    RegisterCreatureAI(npc_silverpine_dreadguard_lordaeron);
+    RegisterSpellScript(spell_silverpine_summon_lordaeron_actors);
 }
