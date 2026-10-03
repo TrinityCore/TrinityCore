@@ -1732,10 +1732,9 @@ struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
 // 471366 - Tensile Bowstring (attached to 288613 - Trueshot)
 class spell_hun_tensile_bowstring : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_HUNTER_TENSILE_BOWSTRING })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_6 } });
+        return ValidateSpellEffect({ { SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1 } });
     }
 
     void CalcCastTimeReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
