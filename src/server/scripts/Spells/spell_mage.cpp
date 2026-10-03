@@ -104,6 +104,7 @@ enum MageSpells
     SPELL_MAGE_REVERBERATE                       = 281482,
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
+    SPELL_MAGE_RING_OF_FROST_SLOW                = 321329,
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
     SPELL_MAGE_SCALD                             = 450746,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
@@ -1790,19 +1791,27 @@ class spell_mage_ring_of_frost : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE })
-            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_0 } });
+            && ValidateSpellEffect({ { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_0 }, { SPELL_MAGE_RING_OF_FROST_SUMMON, EFFECT_2 } });
     }
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
+        PreventDefaultAction();
+
         if (TempSummon* ringOfFrost = GetRingOfFrostMinion())
-            GetTarget()->CastSpell(ringOfFrost->GetPosition(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
+        {
+            if (ringOfFrost->IsInCombat())
+                ringOfFrost->CombatStop();
+
+            ringOfFrost->CastSpell(ringOfFrost->GetPosition(), SPELL_MAGE_RING_OF_FROST_FREEZE,
+                CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(GetTarget()->GetGUID()));
+        }
     }
 
     void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         std::list<TempSummon*> minions;
-        GetTarget()->GetAllMinionsByEntry(minions, sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).MiscValue);
+        GetTarget()->GetAllMinionsByEntry(minions, sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).MiscValue);
 
         // Get the last summoned RoF, save it and despawn older ones
         for (TempSummon* summon : minions)
@@ -1839,7 +1848,7 @@ private:
     ObjectGuid _ringOfFrostGUID;
 };
 
-// 82691 - Ring of Frost (freeze efect)
+// 82691 - Ring of Frost (freeze effect)
 class spell_mage_ring_of_frost_freeze : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1872,23 +1881,30 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
     }
 };
 
-class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
+// 82691 - Ring of Frost (freeze effect)
+// 321329 - Ring of Frost (slow effect)
+class spell_mage_ring_of_frost_freeze_slow : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_DUMMY });
+        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_DUMMY, SPELL_MAGE_RING_OF_FROST_SLOW });
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            if (GetCaster())
-                GetCaster()->CastSpell(GetTarget(), SPELL_MAGE_RING_OF_FROST_DUMMY, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            caster->CastSpell(GetTarget(), SPELL_MAGE_RING_OF_FROST_SLOW, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+
+        caster->CastSpell(GetTarget(), SPELL_MAGE_RING_OF_FROST_DUMMY, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ring_of_frost_freeze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ring_of_frost_freeze_slow::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2180,7 +2196,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_radiant_spark);
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
-    RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
+    RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_slow);
     RegisterSpellScript(spell_mage_scald);
     RegisterSpellScript(spell_mage_scorch);
     RegisterSpellScript(spell_mage_spontaneous_combustion);
