@@ -301,16 +301,10 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
             me->GetMotionMaster()->MovePath(action.Path, false);
             return false;
         case AI_GROUP_UNIT_SAY:
-            if (!targets.empty())
-                me->Say(action.Extra2, targets.front());
-            else
-                me->Say(action.Extra2);
+            me->Say(action.Extra2, targets.empty() ? nullptr : targets.front());
             return true;
         case AI_GROUP_UNIT_CAST:
-            if (!targets.empty())
-                me->CastSpell(targets.front(), uint32(action.Extra2));
-            else
-                me->CastSpell(nullptr, uint32(action.Extra2));
+            me->CastSpell(targets.empty() ? nullptr : targets.front(), uint32(action.Extra2));
             return true;
         case AI_GROUP_DESPAWN:
             if (WorldObject* baseObject = GetBaseObject())
@@ -332,16 +326,10 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
             me->PerformEmote(static_cast<Emote>(action.Extra2));
             return true;
         case AI_GROUP_UNIT_YELL:
-            if (!targets.empty())
-                me->Yell(action.Extra2, targets.front());
-            else
-                me->Yell(action.Extra2);
+            me->Yell(action.Extra2, targets.empty() ? nullptr : targets.front());
             return true;
         case AI_GROUP_UNIT_CHAT_EMOTE:
-            if (!targets.empty())
-                me->TextEmote(action.Extra2, targets.front());
-            else
-                me->TextEmote(action.Extra2);
+            me->TextEmote(action.Extra2, targets.empty() ? nullptr : targets.front());
             return true;
         case AI_GROUP_UNIT_TRIGGERS:
             me->SetTriggersId(action.Extra2);
