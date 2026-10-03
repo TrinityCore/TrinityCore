@@ -547,7 +547,7 @@ public:
 
             std::string nameLink = handler->playerLink(player->GetName());
             handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), player->GetGUID().ToString().c_str());
-            handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+            handler->PSendSysMessage("-==================================================================-");
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
             stmt->setUInt32(0, player->GetGUID().GetCounter());
@@ -617,7 +617,7 @@ public:
                             while (result2->NextRow());
                         }
                     }
-                    handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+                    handler->PSendSysMessage("-==================================================================-");
                 }
                 while (queryResult->NextRow());
             }

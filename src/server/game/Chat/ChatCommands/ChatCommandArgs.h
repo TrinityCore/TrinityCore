@@ -325,7 +325,32 @@ namespace Trinity::Impl::ChatCommands
     {
         static ChatCommandResult TryConsume(SpellInfo const*&, ChatHandler const*, std::string_view);
     };
+}
 
+namespace Trinity::ChatCommands
+{
+    template<typename ValT, char... Key>
+    struct KeyedArg : ExactSequence<Key...>
+    {
+        using value_type = ValT;
+
+        operator value_type() const { return val; }
+        value_type operator*() const { return val; }
+
+        Impl::ChatCommands::ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args)
+        {
+            Impl::ChatCommands::ChatCommandResult result = ExactSequence<Key...>::TryConsume(handler, args);
+            if (result.IsSuccessful())
+                result = Impl::ChatCommands::ArgInfo<ValT>::TryConsume(val, handler, *result);
+
+            return result;
+        }
+
+    private:
+        value_type val;
+    };
+
+    #define KEYED_ARG(type, str) Trinity::ChatCommands::KeyedArg<type, CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
 }
 
 #endif
