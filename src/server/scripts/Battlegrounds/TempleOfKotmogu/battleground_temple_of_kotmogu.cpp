@@ -453,7 +453,7 @@ struct battleground_temple_of_kotmogu final : BattlegroundScript
 
     void SpawnOrb(TempleOfKotmogu::StaticOrbData const* orbData) const
     {
-        if (GameObject* orb = GameObject::CreateGameObject(orbData->Entry, battlegroundMap, orbData->SpawnPosition, QuaternionData::fromEulerAnglesZYX(orbData->SpawnPosition.GetOrientation(), 0.f, 0.f), 255, GO_STATE_READY))
+        if (GameObject* orb = GameObject::CreateGameObject(orbData->Entry, battlegroundMap, orbData->SpawnPosition, QuaternionData::fromOrientation(orbData->SpawnPosition.GetOrientation()), 255, GO_STATE_READY))
         {
             orb->SetSpawnedByDefault(false);
             orb->SetRespawnTime(7200);

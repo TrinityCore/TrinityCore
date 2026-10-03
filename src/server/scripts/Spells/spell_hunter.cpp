@@ -52,6 +52,9 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
     SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE        = 468572,
+    SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER           = 467912,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP   = 467914,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY  = 472084,
     SPELL_HUNTER_BULLETSTORM                        = 389020,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
@@ -89,6 +92,7 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_NO_HARD_FEELINGS_TALENT            = 459546,
     SPELL_HUNTER_NO_HARD_FEELINGS_AURA              = 459547,
+    SPELL_HUNTER_NO_SCOPE                           = 473385,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -381,6 +385,64 @@ class spell_hun_bleak_arrows : public AuraScript
     }
 };
 
+// 467911 - Bleak Powder
+class spell_hun_bleak_powder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_bleak_powder::HandleProc);
+    }
+};
+
+// 467912 - Bleak Powder
+class spell_hun_bleak_powder_areatrigger_summon : public SpellScript
+{
+    void UpdateOrientation(SpellDestination& target) const
+    {
+        Position pos = target._position;
+        pos.SetOrientation(GetCaster()->GetAbsoluteAngle(pos));
+        target.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_hun_bleak_powder_areatrigger_summon::UpdateOrientation, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
+    }
+};
+
+// 467912 - Bleak Powder
+struct at_hun_bleak_powder : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        Player* player = caster->ToPlayer();
+
+        if (!player)
+            return;
+
+        if (player->IsValidAttackTarget(unit))
+        {
+            if (player->GetPrimarySpecialization() == ChrSpecialization::HunterMarksmanship)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            else if (player->GetPrimarySpecialization() == ChrSpecialization::HunterBeastMastery)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+};
+
 // 389019 - Bulletstorm
 class spell_hun_bulletstorm : public AuraScript
 {
@@ -607,7 +669,7 @@ class spell_hun_focused_aim : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_FOCUSED_AIM });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         if (AuraEffect const* focusedAim = eventInfo.GetActor()->GetAuraEffect(SPELL_HUNTER_FOCUSED_AIM, EFFECT_0))
             eventInfo.GetActor()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, -Milliseconds(focusedAim->GetAmountAsInt()));
@@ -1034,6 +1096,33 @@ class spell_hun_no_hard_feelings : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_hun_no_hard_feelings::HandleHitTarget, EFFECT_0, SPELL_EFFECT_REDIRECT_THREAT);
+    }
+};
+
+// 473385 - No Scope (attached to 257044 - Rapid Fire)
+class spell_hun_no_scope : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_NO_SCOPE, SPELL_HUNTER_PRECISE_SHOTS });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_NO_SCOPE);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_PRECISE_SHOTS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_no_scope::HandleAfterCast);
     }
 };
 
@@ -1843,6 +1932,9 @@ void AddSC_hunter_spell_scripts()
     RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_black_arrow);
     RegisterSpellScript(spell_hun_bleak_arrows);
+    RegisterSpellScript(spell_hun_bleak_powder);
+    RegisterSpellScript(spell_hun_bleak_powder_areatrigger_summon);
+    RegisterAreaTriggerAI(at_hun_bleak_powder);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
@@ -1869,6 +1961,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_no_hard_feelings);
+    RegisterSpellScript(spell_hun_no_scope);
     RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);

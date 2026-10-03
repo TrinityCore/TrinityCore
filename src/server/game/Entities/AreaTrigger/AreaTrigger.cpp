@@ -567,7 +567,7 @@ float AreaTrigger::CalcCurrentScale() const
 float AreaTrigger::GetOverrideCurveProgress(UF::OverrideCurve const& overrideCurve, uint32 timeTo) const
 {
     if (!timeTo)
-        return 0.0f;
+        return 1.0f;
 
     return std::clamp(float(GetTimeSinceCreated() - overrideCurve.StartTimeOffset) / float(timeTo), 0.0f, 1.0f);
 }
@@ -808,7 +808,7 @@ void AreaTrigger::SearchUnitInBox(UF::AreaTriggerBox const& box, std::vector<Uni
         return;
 
     G3D::Box rotatedBox = G3D::CoordinateFrame(G3D::Quat(_rotation.x, _rotation.y, _rotation.z, _rotation.w), PositionToVector3(GetPosition()))
-        .toWorldSpace(G3D::AABox({ -extentsX, -extentsY, -extentsZ / 2 }, { extentsX, extentsY, extentsZ / 2 }));
+        .toWorldSpace(G3D::AABox({ -extentsX, -extentsY, -extentsZ }, { extentsX, extentsY, extentsZ }));
 
     Trinity::Containers::EraseIf(targetList, [&rotatedBox](Unit const* unit) -> bool
     {
@@ -1503,6 +1503,12 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
         ? speed
         : _spline->length() / speed) * static_cast<float>(IN_MILLISECONDS);
 
+    if (!timeToTarget)
+    {
+        _spline.reset();
+        return;
+    }
+
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::MovementStartTime), GameTime::GetGameTimeMS());
@@ -1546,6 +1552,9 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     uint32 timeToTarget = (speedIsTimeInSeconds.value_or(GetCreateProperties()->SpeedIsTime)
         ? speed
         : static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) / speed)) * static_cast<float>(IN_MILLISECONDS);
+
+    if (!timeToTarget)
+        return;
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);

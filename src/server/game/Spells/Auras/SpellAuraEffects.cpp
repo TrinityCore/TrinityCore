@@ -6529,7 +6529,7 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
                     if (GameObject* gameObjectCaster = target->GetMap()->GetGameObject(GetCasterGUID()))
                     {
                         gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, target));
-                        if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
+                        if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromOrientation(target->GetOrientation()), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
                             droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
                     }
                 }
@@ -6677,7 +6677,7 @@ void AuraEffect::HandleAuraActAsControlZone(AuraApplication const* aurApp, uint8
         return;
     }
 
-    if (GameObject* controlZone = auraOwner->SummonGameObject(gameobjectTemplate->entry, auraOwner->GetPosition(), QuaternionData::fromEulerAnglesZYX(aurApp->GetTarget()->GetOrientation(), 0.f, 0.f), 24h, GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))
+    if (GameObject* controlZone = auraOwner->SummonGameObject(gameobjectTemplate->entry, auraOwner->GetPosition(), QuaternionData::fromOrientation(aurApp->GetTarget()->GetOrientation()), 24h, GO_SUMMON_TIMED_OR_CORPSE_DESPAWN))
         controlZone->SetSpellId(GetSpellInfo()->Id);
 }
 

@@ -121,12 +121,18 @@ bool QuaternionData::isUnit() const
 
 void QuaternionData::toEulerAnglesZYX(float& Z, float& Y, float& X) const
 {
-    G3D::Matrix3(G3D::Quat(x, y, z, w)).toEulerAnglesZYX(Z, Y, X);
+    G3D::Quat(x, y, z, w).toYPRAngles(Z, Y, X);
 }
 
 QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 {
-    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(Z, Y, X));
+    G3D::Quat quat = G3D::Quat::fromYPRAngles(Z, Y, X);
+    return QuaternionData(quat.x, quat.y, quat.z, quat.w);
+}
+
+QuaternionData QuaternionData::fromOrientation(float orientation)
+{
+    G3D::Quat quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), orientation);
     return QuaternionData(quat.x, quat.y, quat.z, quat.w);
 }
 
@@ -3730,7 +3736,7 @@ void GameObject::SetParentRotation(QuaternionData const& rotation)
 
 void GameObject::SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+    QuaternionData quat = QuaternionData::fromEulerAnglesZYX(z_rot, y_rot, x_rot);
     SetLocalRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
@@ -3746,7 +3752,7 @@ QuaternionData GameObject::GetWorldRotation() const
 
         G3D::Quat resultRotation = localRotationQuat * worldRotationQuat;
 
-        return QuaternionData(resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w);
+        localRotation = { resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w };
     }
     return localRotation;
 }
