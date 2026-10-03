@@ -25,6 +25,10 @@ void AddSC_instance_sanctum_of_domination();
 void AddSC_boss_anduin_wrynn();
 void AddSC_instance_sepulcher_of_the_first_ones();
 
+// Plaguefall
+void AddSC_boss_globgrog();
+void AddSC_instance_plaguefall();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddShadowlandsScripts()
@@ -39,4 +43,8 @@ void AddShadowlandsScripts()
     // Sepulcher of The First Ones
     AddSC_boss_anduin_wrynn();
     AddSC_instance_sepulcher_of_the_first_ones();
+
+    // Plaguefall
+    AddSC_boss_globgrog();
+    AddSC_instance_plaguefall();
 }
