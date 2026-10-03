@@ -1739,13 +1739,13 @@ class spell_hun_tensile_bowstring : public AuraScript
 
     void CalcCastTimeReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
     {
-        if (AuraEffect const* tensileBowstring = GetCaster()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_0))
+        if (AuraEffect const* tensileBowstring = GetUnitOwner()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_0))
             amount = -tensileBowstring->GetAmount();
     }
 
     void CalcPowerCostReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
     {
-        if (AuraEffect const* tensileBowstring = GetCaster()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1))
+        if (AuraEffect const* tensileBowstring = GetUnitOwner()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1))
             amount = -tensileBowstring->GetAmount();
     }
 
