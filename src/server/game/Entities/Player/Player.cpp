@@ -14172,10 +14172,8 @@ uint32 Player::GetQuestXPReward(Quest const* quest)
 {
     uint32 XP = quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST);
 
-    // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
-    Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
-    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
-        AddPct(XP, (*i)->GetAmount());
+    // SPELL_AURA_MOD_XP_QUEST_PCT bonus
+    XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
 
     return XP;
 }

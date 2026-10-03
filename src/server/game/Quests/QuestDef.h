@@ -563,6 +563,7 @@ class TC_GAME_API Quest
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
         bool IsMeta() const;
+        bool LevelScalesWithPlayer() const;
         uint32 GetQuestLevelForPlayer(Player const* player) const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }

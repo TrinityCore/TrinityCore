@@ -410,17 +410,14 @@ uint32 Quest::XPValue(Player const* player) const
     return XPValue(player ? player->GetLevel() : 0, GetQuestLevelForPlayer(player), _level, _rewardXPDifficulty, _rewardXPMultiplier);
 }
 
-uint32 Quest::XPValue(uint8 playerLevel, uint32 questLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/)
+/*static*/ uint32 Quest::XPValue(uint8 playerLevel, uint32 effectiveQuestLevel, int32 unscaledQuestLevel, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/)
 {
-    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
+    QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(effectiveQuestLevel);
     if (!questXp || xpDifficulty >= 10)
         return 0;
 
-    int32 diffFactor = 2 * (questLevel - (unscaledQuestLevel == -1 ? 0 : -5) - playerLevel) + 10;
-    if (diffFactor < 1)
-        diffFactor = 1;
-    else if (diffFactor > 10)
-        diffFactor = 10;
+    int32 diffFactor = 2 * (effectiveQuestLevel - (unscaledQuestLevel == -1 ? 0 : -5) - playerLevel) + 10;
+    diffFactor = std::clamp(diffFactor, 1, 10);
 
     uint32 xp = RoundXPValue(diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10);
 
@@ -473,13 +470,18 @@ bool Quest::IsMeta() const
     return false;
 }
 
+bool Quest::LevelScalesWithPlayer() const
+{
+    return _level == -1;
+}
+
 uint32 Quest::GetQuestLevelForPlayer(Player const* player) const
 {
-    if (_level != -1)
+    if (!LevelScalesWithPlayer())
         return static_cast<uint32>(_level);
 
     int32 questLevel = _minLevel;
-    if (_level == -1 && _scalingFactionGroup != 0 && player->m_unitData->ScalingFactionGroup != _scalingFactionGroup)
+    if (_scalingFactionGroup != 0 && player->m_unitData->ScalingFactionGroup != _scalingFactionGroup)
         questLevel = _maxScalingLevel;
 
     int32 playerLevel = player->GetLevel();
