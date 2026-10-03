@@ -198,7 +198,7 @@ public:
 
         void UseStatue(GameObject* go)
         {
-            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 0s);
+            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData::fromOrientation(go->GetOrientation()), 0s);
             go->SetFlag(GO_FLAG_INTERACT_COND);
         }
 

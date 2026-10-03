@@ -1251,7 +1251,7 @@ class spell_sindragosa_ice_tomb_trap : public AuraScript
                 {
                     summon->AI()->SetGUID(GetTarget()->GetGUID(), DATA_TRAPPED_PLAYER);
                     GetTarget()->CastSpell(GetTarget(), SPELL_ICE_TOMB_UNTARGETABLE);
-                    if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 0s))
+                    if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData::fromOrientation(pos.GetOrientation()), 0s))
                     {
                         go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                         summon->AddGameObject(go);

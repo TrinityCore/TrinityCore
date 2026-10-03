@@ -101,7 +101,7 @@ bool BattlefieldTB::SetupBattlefield()
     for (uint8 i = 0; i < TB_BASE_COUNT; i++)
     {
         //Spawn flag pole
-        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromOrientation(TBCapturePoints[i].pos.GetOrientation())))
         {
             std::unique_ptr<TolBaradCapturePoint> controlZone = std::make_unique<TolBaradCapturePoint>(this, TBCapturePoints[i]);
             if (GetDefenderTeam() == TEAM_ALLIANCE)
@@ -123,7 +123,7 @@ bool BattlefieldTB::SetupBattlefield()
 
     // Spawn towers
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
-        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, QuaternionData::fromEulerAnglesZYX(TBTowers[i].pos.GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, QuaternionData::fromOrientation(TBTowers[i].pos.GetOrientation())))
             Towers.insert(go->GetGUID());
 
     // Init Graveyards
@@ -394,7 +394,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
         // Create capture points
         for (uint8 i = 0; i < TB_BASE_COUNT; i++)
         {
-            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
+            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromOrientation(TBCapturePoints[i].pos.GetOrientation())))
             {
                 std::unique_ptr<TolBaradCapturePoint> controlZone = std::make_unique<TolBaradCapturePoint>(this, TBCapturePoints[i]);
                 if (GetDefenderTeam() == TEAM_ALLIANCE)
@@ -442,7 +442,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
         // Spawn portals
         for (uint8 i = 0; i < TB_PORTAL_MAX; i++)
-            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], QuaternionData::fromEulerAnglesZYX(TBPortals[i].GetOrientation(), 0.0f, 0.0f)))
+            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], QuaternionData::fromOrientation(TBPortals[i].GetOrientation())))
                 TemporaryGOs.insert(go->GetGUID());
 
         // Update towers
@@ -469,7 +469,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
     // Spawn banners
     for (uint8 i = 0; i < TB_BANNER_MAX; i++)
-        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], QuaternionData::fromEulerAnglesZYX(TBBanners[i].GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], QuaternionData::fromOrientation(TBBanners[i].GetOrientation())))
             TemporaryGOs.insert(go->GetGUID());
 
     // Set graveyard controls

@@ -17292,12 +17292,12 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
         if (questGiver->IsGossip())
             packet.LaunchGossip = quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE);
 
-        if (questGiver->IsQuestGiver())
-            packet.LaunchQuest = (GetQuestDialogStatus(questGiver) & ~QuestGiverStatusFutureMask) != QuestGiverStatus::None;
-
         if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
             if (Quest const* rewardQuest = GetNextQuest(questGiver, quest))
                 packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
+
+        if (questGiver->IsQuestGiver())
+            packet.LaunchQuest = !packet.UseQuestReward && (GetQuestDialogStatus(questGiver) & ~QuestGiverStatusFutureMask) != QuestGiverStatus::None;
     }
 
     packet.HideChatMessage = hideChatMessage;
