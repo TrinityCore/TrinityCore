@@ -2025,8 +2025,8 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     }
 
     Map* map = GetMap();
-    GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+    GameObject* go = GameObject::CreateGameObject(entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY);
+    if (!go)
     {
         delete go;
         return nullptr;

@@ -1327,12 +1327,11 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
-    GameObject* go = new GameObject;
-    if (!go->Create(GetBgMap()->GenerateLowGuid<HighGuid::GameObject>(), entry, GetBgMap(), PHASEMASK_NORMAL, Position(x, y, z, o), rot, 255, goState))
+    GameObject* go = GameObject::CreateGameObject(entry, GetBgMap(), PHASEMASK_NORMAL, Position(x, y, z, o), rot, 255, goState);
+    if (!go)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
                 entry, m_MapId, m_InstanceID);
-        delete go;
         return false;
     }
 /*
@@ -1468,6 +1467,13 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
     if (!map)
         return nullptr;
 
+    if (!sObjectMgr->GetCreatureTemplate(entry))
+    {
+        TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: creature template (entry: {}) does not exist for BG (map: {}, instance id: {})!",
+            entry, m_MapId, m_InstanceID);
+        return nullptr;
+    }
+
     if (transport)
     {
         if (Creature* creature = transport->SummonPassenger(entry, { x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN))
@@ -1479,26 +1485,17 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
         return nullptr;
     }
 
-    Creature* creature = new Creature();
+    Position pos = { x, y, z, o };
 
-    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, PHASEMASK_NORMAL, entry, { x, y, z, o }))
+    Creature* creature = Creature::CreateCreature(entry, map, PHASEMASK_NORMAL, pos);
+    if (!creature)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: {}) for BG (map: {}, instance id: {})!",
             entry, m_MapId, m_InstanceID);
-        delete creature;
         return nullptr;
     }
 
-    creature->SetHomePosition(x, y, z, o);
-
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
-    if (!cinfo)
-    {
-        TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: creature template (entry: {}) does not exist for BG (map: {}, instance id: {})!",
-            entry, m_MapId, m_InstanceID);
-        delete creature;
-        return nullptr;
-    }
+    creature->SetHomePosition(pos);
 
     if (!map->AddToMap(creature))
     {
