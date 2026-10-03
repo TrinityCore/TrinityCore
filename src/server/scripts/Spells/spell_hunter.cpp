@@ -92,6 +92,7 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_NO_HARD_FEELINGS_TALENT            = 459546,
     SPELL_HUNTER_NO_HARD_FEELINGS_AURA              = 459547,
+    SPELL_HUNTER_NO_SCOPE                           = 473385,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -1097,6 +1098,33 @@ class spell_hun_no_hard_feelings : public SpellScript
     }
 };
 
+// 473385 - No Scope (attached to 257044 - Rapid Fire)
+class spell_hun_no_scope : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_NO_SCOPE, SPELL_HUNTER_PRECISE_SHOTS });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_NO_SCOPE);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_PRECISE_SHOTS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_no_scope::HandleAfterCast);
+    }
+};
+
 // 459783 - Penetrating Shots
 class spell_hun_penetrating_shots : public AuraScript
 {
@@ -1904,6 +1932,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_no_hard_feelings);
+    RegisterSpellScript(spell_hun_no_scope);
     RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
