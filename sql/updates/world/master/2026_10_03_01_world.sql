@@ -1,6 +1,8 @@
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_bleak_powder';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_bleak_powder_areatrigger_summon';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(467911, 'spell_hun_bleak_powder');
+(467911, 'spell_hun_bleak_powder'),
+(467912, 'spell_hun_bleak_powder_areatrigger_summon');
 
 DELETE FROM `areatrigger_template` WHERE (`Id`=37291 AND `IsCustom`=0);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `VerifiedBuild`) VALUES
@@ -12,8 +14,8 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 
 DELETE FROM `areatrigger_create_properties_polygon_vertex` WHERE (`AreaTriggerCreatePropertiesId`=35089 AND `IsCustom`=0 AND `Idx`=0) OR (`AreaTriggerCreatePropertiesId`=35089 AND `IsCustom`=0 AND `Idx`=1) OR (`AreaTriggerCreatePropertiesId`=35089 AND `IsCustom`=0 AND `Idx`=2) OR (`AreaTriggerCreatePropertiesId`=35089 AND `IsCustom`=0 AND `Idx`=3);
 INSERT INTO `areatrigger_create_properties_polygon_vertex` (`AreaTriggerCreatePropertiesId`, `IsCustom`, `Idx`, `VerticeX`, `VerticeY`, `VerticeTargetX`, `VerticeTargetY`, `VerifiedBuild`) VALUES
-(35089, 0, 0, -4.40000009536743164, 5, NULL, NULL, 69933), -- Spell: 467912 (Bleak Powder)
-(35089, 0, 1, -4.40000009536743164, -5, NULL, NULL, 69933), -- Spell: 467912 (Bleak Powder)
+(35089, 0, 0, -4.4, 5, NULL, NULL, 69933), -- Spell: 467912 (Bleak Powder)
+(35089, 0, 1, -4.4, -5, NULL, NULL, 69933), -- Spell: 467912 (Bleak Powder)
 (35089, 0, 2, 12, -12, NULL, NULL, 69933), -- Spell: 467912 (Bleak Powder)
 (35089, 0, 3, 12, 12, NULL, NULL, 69933); -- Spell: 467912 (Bleak Powder)
 

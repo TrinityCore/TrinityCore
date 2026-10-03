@@ -391,14 +391,30 @@ class spell_hun_bleak_powder : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget()->GetPosition(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
         OnProc += AuraProcFn(spell_hun_bleak_powder::HandleProc);
+    }
+};
+
+// 467912 - Bleak Powder
+class spell_hun_bleak_powder_areatrigger_summon : public SpellScript
+{
+    void UpdateOrientation(SpellDestination& target) const
+    {
+        Position pos = target._position;
+        pos.SetOrientation(GetCaster()->GetAbsoluteAngle(pos));
+        target.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_hun_bleak_powder_areatrigger_summon::UpdateOrientation, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
     }
 };
 
@@ -651,7 +667,7 @@ class spell_hun_focused_aim : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_FOCUSED_AIM });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         if (AuraEffect const* focusedAim = eventInfo.GetActor()->GetAuraEffect(SPELL_HUNTER_FOCUSED_AIM, EFFECT_0))
             eventInfo.GetActor()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, -Milliseconds(focusedAim->GetAmountAsInt()));
@@ -1860,6 +1876,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_black_arrow);
     RegisterSpellScript(spell_hun_bleak_arrows);
     RegisterSpellScript(spell_hun_bleak_powder);
+    RegisterSpellScript(spell_hun_bleak_powder_areatrigger_summon);
     RegisterAreaTriggerAI(at_hun_bleak_powder);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
