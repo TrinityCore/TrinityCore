@@ -973,23 +973,27 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
                 }
             }
             break;
+        case OnEnterCombat:
         case OnDeath:
         case OnSpawn:
+        case OnDespawn:
             shouldPerformActionSet = true;
             break;
         case OnSpell:
+        case OnEmote:
+        case OnSpellCast:
+        case OnSpellStart:
+        case OnAuraApplied:
+        case OnAuraRemoved:
             if (triggerParam1 == holder.TriggerParam1)
             {
                 shouldPerformActionSet = true;
                 RecalcTimer(holder);
             }
             break;
-        case OnEmote:
-            if (triggerParam1 == holder.TriggerParam1)
-            {
-                shouldPerformActionSet = true;
-                RecalcTimer(holder);
-            }
+        case OnKill:
+            shouldPerformActionSet = true;
+            RecalcTimer(holder);
             break;
         default:
             break;

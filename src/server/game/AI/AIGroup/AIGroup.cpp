@@ -18,6 +18,7 @@
 #include "AIGroup.h"
 #include "Creature.h"
 #include "Player.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 
 AIGroup::AIGroup(Creature* creature) : CreatureAI(creature) { }
@@ -47,6 +48,11 @@ void AIGroup::MovementInform(uint32 type, uint32 id)
     GetScript()->MovementInform(type, id);
 }
 
+void AIGroup::JustEngagedWith(Unit* enemy)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnEnterCombat, enemy);
+}
+
 void AIGroup::JustDied(Unit* killer)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnDeath, killer);
@@ -55,10 +61,12 @@ void AIGroup::JustDied(Unit* killer)
 
 void AIGroup::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
 {
-    if (!spellInfo)
-        return;
-
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster->ToUnit(), spellInfo->Id, 0, caster->ToGameObject());
+}
+
+void AIGroup::KilledUnit(Unit* victim)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnKill, victim);
 }
 
 void AIGroup::JustAppeared()
@@ -71,4 +79,34 @@ void AIGroup::JustAppeared()
 void AIGroup::ReceiveEmote(Player* player, uint32 textEmote)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnEmote, player, textEmote);
+}
+
+void AIGroup::OnSpellCast(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
+}
+
+void AIGroup::OnDespawn()
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnDespawn);
+}
+
+void AIGroup::OnSpellFailed(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellFailed, nullptr, spellInfo->Id);
+}
+
+void AIGroup::OnSpellStart(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpellStart, nullptr, spellInfo->Id);
+}
+
+void AIGroup::OnAuraApplied(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnAuraApplied, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
+}
+
+void AIGroup::OnAuraRemoved(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }

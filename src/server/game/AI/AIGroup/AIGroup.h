@@ -52,8 +52,14 @@ class TC_GAME_API AIGroup : public CreatureAI
 
         // Original Action Triggers, ordered by id
 
+        // Unit enters combat.
+        void JustEngagedWith(Unit* enemy) override;
+
         // Unit is hit by spell {Spell}.
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override;
+
+        // Unit kills an enemy target.
+        void KilledUnit(Unit* victim) override;
 
         // Unit dies.
         void JustDied(Unit* killer) override;
@@ -63,6 +69,24 @@ class TC_GAME_API AIGroup : public CreatureAI
 
         // Unit receives emote {EmotesText}.
         void ReceiveEmote(Player* player, uint32 textEmote) override;
+
+        // Unit casts spell {Spell}.
+        void OnSpellCast(SpellInfo const* spellInfo) override;
+
+        // Unit receives a despawn request. (Instantaneous)
+        void OnDespawn() override;
+
+        // Unit fails to cast spell {Spell}.
+        void OnSpellFailed(SpellInfo const* spellInfo) override;
+
+        // Unit starts casting spell {Spell}.
+        void OnSpellStart(SpellInfo const* spellInfo) override;
+
+        // Unit has aura {Spell} applied.
+        void OnAuraApplied(AuraApplication const* aurApp) override;
+
+        // Unit has aura {Spell} removed.
+        void OnAuraRemoved(AuraApplication const* aurApp) override;
 
     private:
         AIGroupScript _script;
