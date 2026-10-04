@@ -44,6 +44,7 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
+    SPELL_HUNTER_AUTO_SHOT                          = 75,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
     SPELL_HUNTER_BINDING_SHOT_IMMUNE                = 117553,
     SPELL_HUNTER_BINDING_SHOT_MARKER                = 117405,
@@ -51,6 +52,9 @@ enum HunterSpells
     SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
     SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
     SPELL_HUNTER_BLACK_ARROW_PERIODIC_DAMAGE        = 468572,
+    SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER           = 467912,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP   = 467914,
+    SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY  = 472084,
     SPELL_HUNTER_BULLETSTORM                        = 389020,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_DISRUPTIVE_ROUNDS_ENERGIZE         = 459976,
@@ -64,6 +68,7 @@ enum HunterSpells
     SPELL_HUNTER_EXPLOSIVE_SHOT_AREA                = 212680,
     SPELL_HUNTER_FLARE_DISPEL                       = 132951,
     SPELL_HUNTER_FLARE_VISUAL                       = 214000,
+    SPELL_HUNTER_FOCUSED_AIM                        = 378767,
     SPELL_HUNTER_GREVIOUS_INJURY                    = 1217789,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP                = 236775,
     SPELL_HUNTER_HIGH_EXPLOSIVE_TRAP_DAMAGE         = 236777,
@@ -87,6 +92,7 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_NO_HARD_FEELINGS_TALENT            = 459546,
     SPELL_HUNTER_NO_HARD_FEELINGS_AURA              = 459547,
+    SPELL_HUNTER_NO_SCOPE                           = 473385,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -111,6 +117,7 @@ enum HunterSpells
     SPELL_HUNTER_TAR_TRAP                           = 187699,
     SPELL_HUNTER_TAR_TRAP_AREATRIGGER               = 187700,
     SPELL_HUNTER_TAR_TRAP_SLOW                      = 135299,
+    SPELL_HUNTER_TENSILE_BOWSTRING                  = 471366,
     SPELL_HUNTER_TRAILBLAZER                        = 231390,
     SPELL_HUNTER_WILDERNESS_MEDICINE_TALENT         = 343242,
     SPELL_HUNTER_WILDERNESS_MEDICINE_DISPEL         = 384784,
@@ -341,6 +348,101 @@ class spell_hun_black_arrow : public SpellScript
     }
 };
 
+// 467749 - Bleak Arrows
+class spell_hun_bleak_arrows : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && ValidateSpellInfo({ SPELL_HUNTER_AUTO_SHOT, spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void ReplaceAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveSpell(SPELL_HUNTER_AUTO_SHOT, false, false, true);
+        target->LearnSpell(aurEff->GetSpellEffectInfo().TriggerSpell, true, 0, true);
+        target->AddOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell); // this is a hack to work around auto shot being relearned on level change
+    }
+
+    void RestoreAutoShot(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        target->RemoveOverrideSpell(SPELL_HUNTER_AUTO_SHOT, aurEff->GetSpellEffectInfo().TriggerSpell);
+        target->RemoveSpell(aurEff->GetSpellEffectInfo().TriggerSpell, false, false, true);
+        target->LearnSpell(SPELL_HUNTER_AUTO_SHOT, true, 0, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_bleak_arrows::ReplaceAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_bleak_arrows::RestoreAutoShot, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 467911 - Bleak Powder
+class spell_hun_bleak_powder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_BLEAK_POWDER_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_bleak_powder::HandleProc);
+    }
+};
+
+// 467912 - Bleak Powder
+class spell_hun_bleak_powder_areatrigger_summon : public SpellScript
+{
+    void UpdateOrientation(SpellDestination& target) const
+    {
+        Position pos = target._position;
+        pos.SetOrientation(GetCaster()->GetAbsoluteAngle(pos));
+        target.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_hun_bleak_powder_areatrigger_summon::UpdateOrientation, EFFECT_0, TARGET_DEST_TARGET_ENEMY);
+    }
+};
+
+// 467912 - Bleak Powder
+struct at_hun_bleak_powder : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        Player* player = caster->ToPlayer();
+
+        if (!player)
+            return;
+
+        if (player->IsValidAttackTarget(unit))
+        {
+            if (player->GetPrimarySpecialization() == ChrSpecialization::HunterMarksmanship)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_MARKSMANSHIP, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            else if (player->GetPrimarySpecialization() == ChrSpecialization::HunterBeastMastery)
+                player->CastSpell(unit, SPELL_HUNTER_BLEAK_POWDER_DAMAGE_BEAST_MASTERY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+};
+
 // 389019 - Bulletstorm
 class spell_hun_bulletstorm : public AuraScript
 {
@@ -556,6 +658,26 @@ struct at_hun_flare : public AreaTriggerAI
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_HUNTER_FLARE_DISPEL);
+    }
+};
+
+// 378767 - Focused Aim (attached to 260242 - Precise Shots)
+class spell_hun_focused_aim : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FOCUSED_AIM });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        if (AuraEffect const* focusedAim = eventInfo.GetActor()->GetAuraEffect(SPELL_HUNTER_FOCUSED_AIM, EFFECT_0))
+            eventInfo.GetActor()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_AIMED_SHOT, -Milliseconds(focusedAim->GetAmountAsInt()));
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_focused_aim::HandleProc);
     }
 };
 
@@ -974,6 +1096,33 @@ class spell_hun_no_hard_feelings : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_hun_no_hard_feelings::HandleHitTarget, EFFECT_0, SPELL_EFFECT_REDIRECT_THREAT);
+    }
+};
+
+// 473385 - No Scope (attached to 257044 - Rapid Fire)
+class spell_hun_no_scope : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_NO_SCOPE, SPELL_HUNTER_PRECISE_SHOTS });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_NO_SCOPE);
+    }
+
+    void HandleAfterCast() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_PRECISE_SHOTS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_no_scope::HandleAfterCast);
     }
 };
 
@@ -1580,6 +1729,33 @@ struct areatrigger_hun_tar_trap_activate : AreaTriggerAI
     }
 };
 
+// 471366 - Tensile Bowstring (attached to 288613 - Trueshot)
+class spell_hun_tensile_bowstring : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1 } });
+    }
+
+    void CalcCastTimeReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* tensileBowstring = GetUnitOwner()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_0))
+            amount = -tensileBowstring->GetAmount();
+    }
+
+    void CalcPowerCostReduction(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* tensileBowstring = GetUnitOwner()->GetAuraEffect(SPELL_HUNTER_TENSILE_BOWSTRING, EFFECT_1))
+            amount = -tensileBowstring->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_tensile_bowstring::CalcCastTimeReduction, EFFECT_5, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_tensile_bowstring::CalcPowerCostReduction, EFFECT_6, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 // 199921 - Trailblazer
 class spell_hun_trailblazer : public AuraScript
 {
@@ -1754,6 +1930,10 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_binding_shot);
     RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_black_arrow);
+    RegisterSpellScript(spell_hun_bleak_arrows);
+    RegisterSpellScript(spell_hun_bleak_powder);
+    RegisterSpellScript(spell_hun_bleak_powder_areatrigger_summon);
+    RegisterAreaTriggerAI(at_hun_bleak_powder);
     RegisterSpellScript(spell_hun_bulletstorm);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
@@ -1764,6 +1944,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_explosive_shot);
     RegisterSpellScript(spell_hun_flare);
     RegisterAreaTriggerAI(at_hun_flare);
+    RegisterSpellScript(spell_hun_focused_aim);
     RegisterAreaTriggerAI(areatrigger_hun_high_explosive_trap);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterAreaTriggerAI(areatrigger_hun_implosive_trap);
@@ -1779,6 +1960,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_no_hard_feelings);
+    RegisterSpellScript(spell_hun_no_scope);
     RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
@@ -1800,6 +1982,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap);
     RegisterAreaTriggerAI(areatrigger_hun_tar_trap_activate);
+    RegisterSpellScript(spell_hun_tensile_bowstring);
     RegisterSpellScript(spell_hun_trailblazer);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
     RegisterSpellScript(spell_hun_t29_2p_marksmanship_bonus);
