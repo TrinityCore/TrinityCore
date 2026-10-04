@@ -568,6 +568,15 @@ enum class AIGroupUnit : uint8
     Max
 };
 
+// From g_aiMoveSpeed
+enum class MoveSpeed : uint8
+{
+    Normal                                    = 0,
+    Hurry                                     = 1,
+    Meander                                   = 2,
+    Max
+};
+
 // Custom
 enum AIGroupTargetType : uint8
 {

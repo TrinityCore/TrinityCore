@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Timer.h"
+#include "WaypointManager.h"
 
 AIGroupMgr* AIGroupMgr::Instance()
 {
@@ -75,6 +76,34 @@ void AIGroupMgr::LoadActionSetsFromDB()
         eventHolder.TargetParam2 = fields[20].GetUInt32();
         eventHolder.TargetParam3 = fields[21].GetUInt32();
         eventHolder.TargetParam4 = fields[22].GetUInt32();
+
+        if (eventHolder.Unit && eventHolder.Unit >= uint8(AIGroupUnit::Max))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Unit ({}), skipped.",
+                eventHolder.Id, eventHolder.Index, eventHolder.Unit);
+            continue;
+        }
+
+        if (eventHolder.Path && !sWaypointMgr->GetPath(eventHolder.Path))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Path ({}), skipped.",
+                eventHolder.Id, eventHolder.Index, eventHolder.Path);
+            continue;
+        }
+
+        if (eventHolder.TimeB && eventHolder.TimeA > eventHolder.TimeB)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid TimeA ({}), greater than TimeB ({}), skipped.",
+                eventHolder.Id, eventHolder.Index, eventHolder.TimeA, eventHolder.TimeB);
+            continue;
+        }
+
+        if (eventHolder.MoveSpeed >= uint8(MoveSpeed::Max))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid MoveSpeed ({}), skipped.",
+                eventHolder.Id, eventHolder.Index, eventHolder.MoveSpeed);
+            continue;
+        }
 
         if (!IsActionValid(eventHolder))
             continue;
