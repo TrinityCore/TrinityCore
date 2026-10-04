@@ -538,6 +538,34 @@ enum class ActionSetFlags : uint32
     ActionSetFlagsAll                         = (Looping | Resumable | PauseForCombat | PauseUntilAllMembersAreDoneReturning | AllowAllActionsWhileDead)
 };
 
+// EnumeratedString's EnumID 1114
+enum class ActionFlags : uint32
+{
+    MovementHurry                               = 0x00000001, // NYI // movement: Hurry
+    MovementNoPathing                           = 0x00000002, // NYI // movement: Don't use pathfinder to connect dots (no pathing)
+    MovementNoPathSmoothing                     = 0x00000004, // NYI // movement: Don't round corners (no path smoothing)
+    OnlyTargetUnitsAndObjectsWithSameCreator    = 0x00000008, // NYI // stringID: Only Target Units and Objects with Same Creator
+    MovementCheckForDoors                       = 0x00000010, // NYI // movement: Check for Doors when pathing (performance)
+    MovementMoveBackwards                       = 0x00000020, // NYI // movement: move backwards
+    UsesTravelTimeNotTravelSpeed                = 0x00000040, // NYI // uses travel time not travel speed
+    MovementDisableCompression                  = 0x00000080, // NYI // movement: disable compression (because precision matters)
+    HideChatOutput                              = 0x00000100, // NYI // hide chat output
+    QuestNotificationStyle                      = 0x00000200, // NYI // quest notification style
+    IgnoreCrossRealmPlayers                     = 0x00000400, // NYI // ignore cross realm players
+    PauseIfCantFindNamedPoint                   = 0x00000800, // NYI // pause if can't find named point (otherwise skip action)
+    OnlyTargetUnitsWithSharedPhase              = 0x00001000, // NYI // stringID: Only Target Units with shared phase
+    CleanupAction                               = 0x00002000, // NYI // Cleanup Action (Run Once On Stop or Interrupt)
+    AbortActionSetIfTargetIsNotFound            = 0x00004000, // NYI // Abort action set if no target is found
+    DoNotChainIntoThisAction                    = 0x00008000, // NYI // Do Not Chain Into This Action (Wait For Regular AI Update)
+    RandomizeTargets                            = 0x00010000, // NYI // Randomize Targets (instead of sort)
+    DespawnAtEndOfPathOrOnPathFail              = 0x00020000, // NYI // Despawn At End of Path or on path fail (while animating)
+    EnableAISteering                            = 0x00040000, // NYI // Enable AI Steering (Avoid Obstacles - client side)
+    DisableAISteering                           = 0x00080000, // NYI // Disable AI Steering (Don't Avoid Obstacles - client side)
+    InterruptAnyChargeOrJumpCharge              = 0x00100000, // NYI // Interrupt any Charge or Jump Charge
+    AutoDismount                                = 0x00200000, // NYI // Auto-Dismount
+    AlsoSuppressGreetingsOnGossipPanelOpen      = 0x00400000  // NYI // Also suppress greetings on gossip panel open
+};
+
 // EnumeratedString's EnumID 909. Shown in Action Set editor (Priority: Medium)
 enum class ActionSetPriorityType : uint8
 {
