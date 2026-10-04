@@ -50,7 +50,8 @@ void ThreatReference::AddThreat(float amount)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
-    _mgr._needClientUpdate = true;
+
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::ScaleThreat(float factor)
@@ -62,7 +63,8 @@ void ThreatReference::ScaleThreat(float factor)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
-    _mgr._needClientUpdate = true;
+
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::UpdateOffline()
@@ -82,7 +84,7 @@ void ThreatReference::UpdateOffline()
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
         _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
-        _mgr._forceHighestOnNextSend = true;
+        _mgr._updateFlags |= ThreatListClientUpdateFlags::ForceHighestUpdate;
     }
 }
 
@@ -143,7 +145,7 @@ void ThreatReference::UpdateTauntState(TauntState state)
     else
         HeapNotifyIncreased();
 
-    _mgr._needClientUpdate = true;
+    _mgr._updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
 }
 
 void ThreatReference::ClearThreat()
@@ -196,8 +198,8 @@ void ThreatReference::HeapNotifyDecreased()
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _forceHighestOnNextSend(false),
-    _updateTimer(THREAT_UPDATE_INTERVAL), _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _updateFlags(ThreatListClientUpdateFlags::None), _updateTimer(THREAT_UPDATE_INTERVAL),
+    _sortedThreatList(std::make_unique<Heap>()), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -589,14 +591,13 @@ Unit* ThreatManager::GetFixateTarget() const
 void ThreatManager::UpdateVictim()
 {
     ThreatReference const* const newVictim = ReselectVictim();
-    bool const newHighest = newVictim && ((newVictim != _currentVictimRef) || _forceHighestOnNextSend);
+    bool const newHighest = newVictim && ((newVictim != _currentVictimRef) || _updateFlags.HasFlag(ThreatListClientUpdateFlags::ForceHighestUpdate));
 
     _currentVictimRef = newVictim;
-    if (newHighest || _needClientUpdate)
+    if (newHighest || _updateFlags.HasFlag(ThreatListClientUpdateFlags::UpdateNeeded))
     {
         SendThreatListToClients(newHighest);
-        _needClientUpdate = false;
-        _forceHighestOnNextSend = false;
+        _updateFlags = ThreatListClientUpdateFlags::None;
     }
 
     ProcessAIUpdates();
@@ -876,7 +877,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
 
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
 {
-    _needClientUpdate = true;
+    _updateFlags |= ThreatListClientUpdateFlags::UpdateNeeded;
     auto& inMap = _myThreatListEntries[guid];
     ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
