@@ -474,11 +474,6 @@ struct Areas
 #define MAX_RUNES 7
 #define MAX_RECHARGING_RUNES 3
 
-enum RuneCooldowns
-{
-    RUNE_BASE_COOLDOWN  = 10000
-};
-
 struct Runes
 {
     std::deque<uint8> CooldownOrder;

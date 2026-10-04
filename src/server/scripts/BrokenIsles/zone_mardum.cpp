@@ -2243,7 +2243,7 @@ class spell_fel_lord_caza_disarmed : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_fel_lord_caza_disarmed::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fel_lord_caza_disarmed::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_NO_REGEN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
