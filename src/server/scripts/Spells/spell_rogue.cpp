@@ -1374,16 +1374,16 @@ class spell_rog_swift_slasher : public AuraScript
     void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
-        {
-            int32 hasteRating = GetUnitOwner()->ToPlayer()->m_activePlayerData->CombatRatings[CR_HASTE_MELEE];
-            amount = CalculatePct(hasteRating, amountHolder->GetAmount());
-        }
+            amount = CalculatePct((1.0f / GetUnitOwner()->m_unitData->ModHaste - 1.0f) * 100.0f, amountHolder->GetAmount());
     }
 
     void UpdatePeriodic(AuraEffect const* aurEff) const
     {
         if (AuraEffect* bonus = GetEffect(EFFECT_0))
             bonus->RecalculateAmount(aurEff);
+
+        if (AuraEffect* sliceAndDice = GetUnitOwner()->GetAuraEffect(SPELL_ROGUE_SLICE_AND_DICE, EFFECT_0))
+            sliceAndDice->RecalculateAmount(aurEff);
     }
 
     void Register() override
