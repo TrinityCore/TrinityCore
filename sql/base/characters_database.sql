@@ -2684,7 +2684,7 @@ CREATE TABLE `item_loot_items` (
   `rnd_bonus` int unsigned NOT NULL DEFAULT '0' COMMENT 'random bonus list added when originally rolled',
   `context` tinyint unsigned NOT NULL DEFAULT '0',
   `bonus_list_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Space separated list of bonus list ids',
-  PRIMARY KEY (`container_id`,`item_type`,`item_id`)
+  PRIMARY KEY (`container_id`,`item_index`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3420,7 +3420,8 @@ INSERT INTO `updates` VALUES
 ('2026_08_15_00_characters.sql','2136AF5F5DF926BB350BD14BEFB26C56FCCF4253','RELEASED','2026-08-15 14:48:00',0),
 ('2026_08_22_00_characters.sql','62FF99C88CAABFDEC933B0EF15F0787C0DBE1190','RELEASED','2026-08-15 16:03:00',0),
 ('2026_08_29_00_characters.sql','3E13A0BE53FF679F92F8222B5F3897B740340237','RELEASED','2026-08-29 23:01:00',0),
-('2026_09_12_00_characters.sql','A476229E4CCA5553050524484DD685FDCCDF91EF','RELEASED','2026-09-26 18:16:43',0);
+('2026_09_12_00_characters.sql','A476229E4CCA5553050524484DD685FDCCDF91EF','RELEASED','2026-09-26 18:16:43',0),
+('2026_10_05_00_characters.sql','9F10D43D4FBD253308862806066A8CEDAE7E5965','RELEASED','2026-10-05 11:57:42',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
