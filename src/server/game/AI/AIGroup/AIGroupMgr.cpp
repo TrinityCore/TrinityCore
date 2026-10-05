@@ -444,6 +444,9 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsZoneValid(action))
         return false;
 
+    if (!IsItemValid(action))
+        return false;
+
     if (!IsBooleanValid(action))
         return false;
 
@@ -891,6 +894,27 @@ bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action)
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra4));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsItemValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
+        case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
+        case AI_GROUP_UNIT_SET_ITEM_RANGED:
+            if (!sItemStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Item {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
                 return false;
             }
             break;
