@@ -123,7 +123,7 @@ namespace WorldPackets
             float SplineDist = 0.0f;
         };
 
-        class MoveSplineSetSpeed : public ServerPacket
+        class MoveSplineSetSpeed final : public ServerPacket
         {
         public:
             explicit MoveSplineSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4) { }
@@ -134,7 +134,7 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
-        class MoveSetSpeed : public ServerPacket
+        class MoveSetSpeed final : public ServerPacket
         {
         public:
             explicit MoveSetSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 4 + 1 + 4) { }
@@ -147,7 +147,7 @@ namespace WorldPackets
             bool Unknown = true;
         };
 
-        class MoveUpdateSpeed : public ServerPacket
+        class MoveUpdateSpeed final : public ServerPacket
         {
         public:
             explicit MoveUpdateSpeed(OpcodeServer opcode) : ServerPacket(opcode, 8 + 30 + 4) { }

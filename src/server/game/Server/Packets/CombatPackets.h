@@ -30,7 +30,7 @@ namespace WorldPackets
         class AttackSwing final : public ClientPacket
         {
         public:
-            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_SWING, std::move(packet)) { }
+            explicit AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_SWING, std::move(packet)) { }
 
             void Read() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class AttackSwingNotInRange final : public ServerPacket
         {
         public:
-            AttackSwingNotInRange() : ServerPacket(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0) { }
+            explicit AttackSwingNotInRange() : ServerPacket(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -48,7 +48,7 @@ namespace WorldPackets
         class AttackSwingBadFacing final : public ServerPacket
         {
         public:
-            AttackSwingBadFacing() : ServerPacket(SMSG_ATTACK_SWING_BAD_FACING, 0) { }
+            explicit AttackSwingBadFacing() : ServerPacket(SMSG_ATTACK_SWING_BAD_FACING, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -56,7 +56,7 @@ namespace WorldPackets
         class AttackSwingDeadTarget final : public ServerPacket
         {
         public:
-            AttackSwingDeadTarget() : ServerPacket(SMSG_ATTACK_SWING_DEAD_TARGET, 0) { }
+            explicit AttackSwingDeadTarget() : ServerPacket(SMSG_ATTACK_SWING_DEAD_TARGET, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -64,7 +64,7 @@ namespace WorldPackets
         class AttackSwingCantAttack final : public ServerPacket
         {
         public:
-            AttackSwingCantAttack() : ServerPacket(SMSG_ATTACK_SWING_CANT_ATTACK, 0) { }
+            explicit AttackSwingCantAttack() : ServerPacket(SMSG_ATTACK_SWING_CANT_ATTACK, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -72,7 +72,7 @@ namespace WorldPackets
         class AttackStop final : public ClientPacket
         {
         public:
-            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_STOP, std::move(packet)) { }
+            explicit AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_STOP, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -80,7 +80,7 @@ namespace WorldPackets
         class AttackStart final : public ServerPacket
         {
         public:
-            AttackStart() : ServerPacket(SMSG_ATTACK_START, 8 + 8) { }
+            explicit AttackStart() : ServerPacket(SMSG_ATTACK_START, 8 + 8) { }
 
             WorldPacket const* Write() override;
 
@@ -154,7 +154,7 @@ namespace WorldPackets
         class CancelCombat final : public ServerPacket
         {
         public:
-            CancelCombat() : ServerPacket(SMSG_CANCEL_COMBAT, 0) { }
+            explicit CancelCombat() : ServerPacket(SMSG_CANCEL_COMBAT, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -162,7 +162,7 @@ namespace WorldPackets
         class CancelAutoRepeat final : public ServerPacket
         {
         public:
-            CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 8) { }
+            explicit CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -172,7 +172,7 @@ namespace WorldPackets
         class SetSheathed final : public ClientPacket
         {
         public:
-            SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
+            explicit SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
 
             void Read() override;
 

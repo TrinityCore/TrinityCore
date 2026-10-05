@@ -49,7 +49,7 @@ namespace WorldPackets
         class EnvironmentalDamageLog final : public ServerPacket
         {
         public:
-            EnvironmentalDamageLog() : ServerPacket(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 21) { }
+            explicit EnvironmentalDamageLog() : ServerPacket(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 21) { }
 
             WorldPacket const* Write() override;
 

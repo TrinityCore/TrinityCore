@@ -38,7 +38,7 @@ namespace WorldPackets
         class Hello final : public ClientPacket
         {
         public:
-            Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
@@ -120,7 +120,7 @@ namespace WorldPackets
         class TrainerList final : public ServerPacket
         {
         public:
-            TrainerList() : ServerPacket(SMSG_TRAINER_LIST) { }
+            explicit TrainerList() : ServerPacket(SMSG_TRAINER_LIST) { }
 
             WorldPacket const* Write() override;
 
@@ -133,7 +133,7 @@ namespace WorldPackets
         class GossipPOI final : public ServerPacket
         {
         public:
-            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 32) { }
+            explicit GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 32) { }
 
             WorldPacket const* Write() override;
 
@@ -147,7 +147,7 @@ namespace WorldPackets
         class TrainerBuySpell final : public ClientPacket
         {
         public:
-            TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
+            explicit TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
 
             void Read() override;
 
@@ -158,7 +158,7 @@ namespace WorldPackets
         class TrainerBuyFailed final : public ServerPacket
         {
         public:
-            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 8 + 4 + 4) { }
+            explicit TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -170,7 +170,7 @@ namespace WorldPackets
         class TrainerBuySucceeded final : public ServerPacket
         {
         public:
-            TrainerBuySucceeded() : ServerPacket(SMSG_TRAINER_BUY_SUCCEEDED, 8 + 4) { }
+            explicit TrainerBuySucceeded() : ServerPacket(SMSG_TRAINER_BUY_SUCCEEDED, 8 + 4) { }
 
             WorldPacket const* Write() override;
 

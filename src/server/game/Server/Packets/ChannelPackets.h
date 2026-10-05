@@ -126,7 +126,7 @@ namespace WorldPackets
         class ChannelMemberCount final : public ServerPacket
         {
         public:
-            ChannelMemberCount() : ServerPacket(SMSG_CHANNEL_MEMBER_COUNT, 30 + 1 + 4) { }
+            explicit ChannelMemberCount() : ServerPacket(SMSG_CHANNEL_MEMBER_COUNT, 30 + 1 + 4) { }
 
             WorldPacket const* Write() override;
 

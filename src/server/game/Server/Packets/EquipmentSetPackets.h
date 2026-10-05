@@ -39,7 +39,7 @@ namespace WorldPackets
         class LoadEquipmentSet final : public ServerPacket
         {
         public:
-            LoadEquipmentSet() : ServerPacket(SMSG_EQUIPMENT_SET_LIST, 1000) { }
+            explicit LoadEquipmentSet() : ServerPacket(SMSG_EQUIPMENT_SET_LIST, 1000) { }
 
             WorldPacket const* Write() override;
 
@@ -49,7 +49,7 @@ namespace WorldPackets
         class SaveEquipmentSet final : public ClientPacket
         {
         public:
-            SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
+            explicit SaveEquipmentSet(WorldPacket&& packet) : ClientPacket(CMSG_EQUIPMENT_SET_SAVE, std::move(packet)) { }
 
             void Read() override;
 

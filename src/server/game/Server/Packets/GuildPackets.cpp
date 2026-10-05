@@ -22,9 +22,6 @@ void WorldPackets::Guild::QueryGuildInfo::Read()
     _worldPacket >> GuildId;
 }
 
-WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
-    : ServerPacket(SMSG_GUILD_QUERY_RESPONSE) { }
-
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildId;

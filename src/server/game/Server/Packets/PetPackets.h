@@ -30,7 +30,7 @@ namespace WorldPackets
         class DismissCritter final : public ClientPacket
         {
         public:
-            DismissCritter(WorldPacket&& packet) : ClientPacket(CMSG_DISMISS_CRITTER, std::move(packet)) { }
+            explicit DismissCritter(WorldPacket&& packet) : ClientPacket(CMSG_DISMISS_CRITTER, std::move(packet)) { }
 
             void Read() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class PetAbandon final : public ClientPacket
         {
         public:
-            PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
+            explicit PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
 
             void Read() override;
 
@@ -50,7 +50,7 @@ namespace WorldPackets
         class PetStopAttack final : public ClientPacket
         {
         public:
-            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
+            explicit PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
 
             void Read() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class PetSpellAutocast final : public ClientPacket
         {
         public:
-            PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
+            explicit PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
 
             void Read() override;
 
@@ -72,7 +72,7 @@ namespace WorldPackets
         class PetLearnedSpell final : public ServerPacket
         {
         public:
-            PetLearnedSpell() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
+            explicit PetLearnedSpell() : ServerPacket(SMSG_PET_LEARNED_SPELL, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -82,7 +82,7 @@ namespace WorldPackets
         class PetUnlearnedSpell final : public ServerPacket
         {
         public:
-            PetUnlearnedSpell() : ServerPacket(SMSG_PET_UNLEARNED_SPELL, 4) { }
+            explicit PetUnlearnedSpell() : ServerPacket(SMSG_PET_UNLEARNED_SPELL, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -92,7 +92,7 @@ namespace WorldPackets
         class RequestPetInfo final : public ClientPacket
         {
         public:
-            RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
+            explicit RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -100,7 +100,7 @@ namespace WorldPackets
         class PetActionFeedback final : public ServerPacket
         {
         public:
-            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
+            explicit PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -111,7 +111,7 @@ namespace WorldPackets
         class PetActionSound final : public ServerPacket
         {
         public:
-            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4) { }
+            explicit PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -122,7 +122,7 @@ namespace WorldPackets
         class PetDismissSound final : public ServerPacket
         {
         public:
-            PetDismissSound() : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12) { }
+            explicit PetDismissSound() : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12) { }
 
             WorldPacket const* Write() override;
 

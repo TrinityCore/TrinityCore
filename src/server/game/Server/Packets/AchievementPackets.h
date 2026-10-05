@@ -73,7 +73,7 @@ namespace WorldPackets
         class CriteriaUpdate final : public ServerPacket
         {
         public:
-            CriteriaUpdate() : ServerPacket(SMSG_CRITERIA_UPDATE, 4 + 8 + 8 + 4 + 4 + 4 + 4) { }
+            explicit CriteriaUpdate() : ServerPacket(SMSG_CRITERIA_UPDATE, 4 + 8 + 8 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -109,7 +109,7 @@ namespace WorldPackets
         class AchievementEarned final : public ServerPacket
         {
         public:
-            AchievementEarned() : ServerPacket(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 4 + 4) { }
+            explicit AchievementEarned() : ServerPacket(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
