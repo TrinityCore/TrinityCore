@@ -432,6 +432,9 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsCreatureValid(action))
         return false;
 
+    if (!IsAnimTierValid(action))
+        return false;
+
     if (!IsEmoteValid(action))
         return false;
 
@@ -792,6 +795,29 @@ bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action)
             if (!sObjectMgr->GetCreatureTemplate(uint32(action.Extra2)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
+                    action.Id, action.Index, action.Type, uint32(action.Extra2));
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsAnimTierValid(ActionSetEventHolder const& action)
+{
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_TIER_TRANSITION_LAND:
+        case AI_GROUP_TIER_TRANSITION_TAKE_OFF:
+        case AI_GROUP_TIER_TRANSITION_MOVETO:
+        case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
+        case AI_GROUP_TIER_TRANSITION_FOLLOW_PATH:
+            if (action.Extra2 >= uint8(AnimTier::Max))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid anim tier {}, skipped.",
                     action.Id, action.Index, action.Type, uint32(action.Extra2));
                 return false;
             }
