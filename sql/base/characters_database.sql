@@ -2074,7 +2074,8 @@ CREATE TABLE `item_loot_items` (
   `under_threshold` tinyint(1) NOT NULL DEFAULT '0',
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
   `rnd_prop` int NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
-  `rnd_suffix` int NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled'
+  `rnd_suffix` int NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled',
+  PRIMARY KEY (`container_id`,`item_index`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2695,7 +2696,8 @@ INSERT INTO `updates` VALUES
 ('2025_09_09_00_characters.sql','A1A793D656117C31DAA92653DF0BE4AE6354358A','ARCHIVED','2025-09-09 14:03:38',0),
 ('2025_10_21_00_characters.sql','DAC3249AE0CF374815D6A656489FE7B0AD3AA051','ARCHIVED','2025-10-21 18:16:45',0),
 ('2026_09_09_00_characters.sql','AEBBEFF9434695DE9A1ACBEEEF312B2C0791377B','ARCHIVED','2026-09-09 19:08:27',0),
-('2026_09_12_00_characters.sql','A476229E4CCA5553050524484DD685FDCCDF91EF','RELEASED','2026-09-11 23:59:59',0);
+('2026_09_12_00_characters.sql','A476229E4CCA5553050524484DD685FDCCDF91EF','RELEASED','2026-09-11 23:59:59',0),
+('2026_10_05_00_characters.sql','E65A7ADCF95C7F746433BE56AEEA0AB4C70AABE9','RELEASED','2026-10-05 11:57:42',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
