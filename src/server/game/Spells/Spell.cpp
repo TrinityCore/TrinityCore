@@ -588,14 +588,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     else
         m_originalCasterGUID = m_caster->GetGUID();
 
-    if (m_originalCasterGUID == m_caster->GetGUID())
-        m_originalCaster = m_caster->ToUnit();
-    else
-    {
-        m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
-        if (m_originalCaster && !m_originalCaster->IsInWorld())
-            m_originalCaster = nullptr;
-    }
+    UpdateOriginalCasterPointer();
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
@@ -3333,6 +3326,9 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
     SetReferencedFromCurrent(false);
     if (m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = nullptr;
+
+    // update original caster pointer to prevent access to non-existed already object (grid unload)
+    UpdateOriginalCasterPointer();
 
     // originalcaster handles gameobjects/dynobjects for gob caster
     if (m_originalCaster)
@@ -7304,7 +7300,7 @@ void Spell::DelayedChannel()
     SendChannelUpdate(m_timer);
 }
 
-bool Spell::UpdatePointers()
+void Spell::UpdateOriginalCasterPointer()
 {
     if (m_originalCasterGUID == m_caster->GetGUID())
         m_originalCaster = m_caster->ToUnit();
@@ -7314,6 +7310,11 @@ bool Spell::UpdatePointers()
         if (m_originalCaster && !m_originalCaster->IsInWorld())
             m_originalCaster = nullptr;
     }
+}
+
+bool Spell::UpdatePointers()
+{
+    UpdateOriginalCasterPointer();
 
     if (!m_focusObjectGUID.IsEmpty())
         focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
