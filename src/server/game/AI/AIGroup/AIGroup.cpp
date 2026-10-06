@@ -86,6 +86,11 @@ void AIGroup::OnSpellCast(SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
 }
 
+void AIGroup::JustReachedHome()
+{
+    GetScript()->ProcessEventsFor(ActionTriggers::OnCombatReturn);
+}
+
 void AIGroup::OnDespawn()
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnDespawn);

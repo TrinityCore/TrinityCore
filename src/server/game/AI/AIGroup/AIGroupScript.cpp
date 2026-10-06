@@ -976,6 +976,7 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
         case OnEnterCombat:
         case OnDeath:
         case OnSpawn:
+        case OnCombatReturn:
         case OnDespawn:
             shouldPerformActionSet = true;
             break;

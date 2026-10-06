@@ -73,6 +73,9 @@ class TC_GAME_API AIGroup : public CreatureAI
         // Unit casts spell {Spell}.
         void OnSpellCast(SpellInfo const* spellInfo) override;
 
+        // Unit returns to its home position after combat.
+        void JustReachedHome() override;
+
         // Unit receives a despawn request. (Instantaneous)
         void OnDespawn() override;
 
