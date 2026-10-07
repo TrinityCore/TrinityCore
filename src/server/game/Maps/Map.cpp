@@ -3906,16 +3906,16 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->Create(corpse->GetGUID().GetCounter(), this);
 
         bones->ReplaceAllCorpseDynamicFlags(corpse->GetCorpseDynamicFlags());
-        bones->SetOwnerGUID(corpse->m_corpseData->Owner);
-        bones->SetPartyGUID(corpse->m_corpseData->PartyGUID);
-        bones->SetGuildGUID(corpse->m_corpseData->GuildGUID);
-        bones->SetDisplayId(corpse->m_corpseData->DisplayID);
-        bones->SetRace(corpse->m_corpseData->RaceID);
-        bones->SetSex(corpse->m_corpseData->Sex);
-        bones->SetClass(corpse->m_corpseData->Class);
-        bones->SetCustomizations(Trinity::Containers::MakeIteratorPair(corpse->m_corpseData->Customizations.begin(), corpse->m_corpseData->Customizations.end()));
-        bones->ReplaceAllFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
-        bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
+        bones->SetOwnerGUID(corpse->GetOwnerGUID());
+        bones->SetPartyGUID(corpse->GetPartyGUID());
+        bones->SetGuildGUID(corpse->GetGuildGUID());
+        bones->SetDisplayId(corpse->GetDisplayId());
+        bones->SetRace(corpse->GetRace());
+        bones->SetSex(corpse->GetSex());
+        bones->SetClass(corpse->GetClass());
+        bones->SetCustomizations(corpse->GetCustomizations());
+        bones->ReplaceAllCorpseFlags(corpse->GetCorpseFlags() | CORPSE_FLAG_BONES);
+        bones->SetFactionTemplate(corpse->GetFactionTemplate());
 
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 

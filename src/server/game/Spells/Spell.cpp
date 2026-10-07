@@ -8230,7 +8230,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
             if (target->GetGUID() != corpse->GetOwnerGUID())
                 return false;
 
-            if (!corpse->HasDynamicFlag(CORPSE_DYNFLAG_LOOTABLE))
+            if (!corpse->HasCorpseFlag(CORPSE_FLAG_SKINNABLE))
                 return false;
 
             if (!IsWithinLOS(m_caster, corpse, true, VMAP::ModelIgnoreFlags::M2))

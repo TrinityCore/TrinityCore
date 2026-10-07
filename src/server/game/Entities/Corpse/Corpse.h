@@ -49,6 +49,8 @@ enum CorpseFlags
     CORPSE_FLAG_FFA_PVP     = 0x40
 };
 
+DEFINE_ENUM_FLAG(CorpseFlags);
+
 class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
 {
     public:
@@ -90,7 +92,14 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
         void DeleteFromDB(CharacterDatabaseTransaction trans);
         static void DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans);
 
+        CorpseFlags GetCorpseFlags() const { return CorpseFlags(*m_corpseData->Flags); }
+        bool HasCorpseFlag(CorpseFlags flags) const { return (*m_corpseData->Flags & flags) != 0; }
+        void SetCorpseFlag(CorpseFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Flags), flags); }
+        void RemoveCorpseFlag(CorpseFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Flags), flags); }
+        void ReplaceAllCorpseFlags(CorpseFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Flags), flags); }
+
         CorpseDynFlags GetCorpseDynamicFlags() const { return CorpseDynFlags(*m_corpseData->DynamicFlags); }
+        bool HasCorpseDynamicFlag(CorpseDynFlags flags) const { return (*m_corpseData->DynamicFlags & flags) != 0; }
         void SetCorpseDynamicFlag(CorpseDynFlags dynamicFlags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DynamicFlags), dynamicFlags); }
         void RemoveCorpseDynamicFlag(CorpseDynFlags dynamicFlags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DynamicFlags), dynamicFlags); }
         void ReplaceAllCorpseDynamicFlags(CorpseDynFlags dynamicFlags) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DynamicFlags), dynamicFlags); }
@@ -98,28 +107,31 @@ class TC_GAME_API Corpse final : public WorldObject, public GridObject<Corpse>
         ObjectGuid GetCreatorGUID() const override { return m_corpseData->Owner; }
         ObjectGuid GetOwnerGUID() const override { return m_corpseData->Owner; }
         void SetOwnerGUID(ObjectGuid owner) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Owner), owner); }
+        ObjectGuid GetPartyGUID() const { return m_corpseData->PartyGUID; }
         void SetPartyGUID(ObjectGuid partyGuid) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::PartyGUID), partyGuid); }
+        ObjectGuid GetGuildGUID() const { return m_corpseData->GuildGUID; }
         void SetGuildGUID(ObjectGuid guildGuid) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::GuildGUID), guildGuid); }
+        uint32 GetDisplayId() const { return m_corpseData->DisplayID; }
         void SetDisplayId(uint32 displayId) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DisplayID), displayId); }
+        uint8 GetRace() const { return m_corpseData->RaceID; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::RaceID), race); }
+        uint8 GetClass() const { return m_corpseData->Class; }
         void SetClass(uint8 playerClass) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Class), playerClass); }
+        uint8 GetSex() const { return m_corpseData->Sex; }
         void SetSex(uint8 sex) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Sex), sex); }
-        void ReplaceAllFlags(uint32 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Flags), flags); }
+        uint32 GetFactionTemplate() const { return m_corpseData->FactionTemplate; }
         void SetFactionTemplate(int32 factionTemplate) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::FactionTemplate), factionTemplate); }
         uint32 GetFaction() const override { return m_corpseData->FactionTemplate; }
         void SetFaction(uint32 faction) override { SetFactionTemplate(faction); }
+        uint32 GetItem(uint32 slot) const { return m_corpseData->Items[slot]; }
         void SetItem(uint32 slot, uint32 item) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Items, slot), item); }
 
-        template<typename Iter>
-        void SetCustomizations(Trinity::IteratorPair<Iter> customizations)
+        std::span<UF::ChrCustomizationChoice const> GetCustomizations() const { return { m_corpseData->Customizations.begin(), m_corpseData->Customizations.end() }; }
+        void SetCustomizations(std::span<UF::ChrCustomizationChoice const> customizations)
         {
             ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
-            for (auto&& customization : customizations)
-            {
-                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
-                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-            }
+            for (UF::ChrCustomizationChoice const& customization : customizations)
+                AddDynamicUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations)) = customization;
         }
 
         time_t const& GetGhostTime() const { return m_time; }
