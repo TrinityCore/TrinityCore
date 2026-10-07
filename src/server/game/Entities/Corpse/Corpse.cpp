@@ -24,10 +24,8 @@
 #include "Map.h"
 #include "Player.h"
 #include "UpdateData.h"
-#include "UpdateMask.h"
-#include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
-#include "World.h"
+#include "StringConvert.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
@@ -86,7 +84,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
-    SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
+    SetOwnerGUID(owner->GetGUID());
 
     _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
 
@@ -99,6 +97,10 @@ void Corpse::SaveToDB()
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
+    std::ostringstream items;
+    for (uint32 itemSlot = 0; itemSlot < EQUIPMENT_SLOT_END; ++itemSlot)
+        items << GetItem(itemSlot) << ' ';
+
     uint16 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                            // guid
@@ -107,13 +109,13 @@ void Corpse::SaveToDB()
     stmt->setFloat (index++, GetPositionZ());                                         // posZ
     stmt->setFloat (index++, GetOrientation());                                       // orientation
     stmt->setUInt16(index++, GetMapId());                                             // mapId
-    stmt->setUInt32(index++, GetUInt32Value(CORPSE_FIELD_DISPLAY_ID));                // displayId
-    stmt->setString(index++, _ConcatFields(CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END));   // itemCache
+    stmt->setUInt32(index++, GetDisplayId());                                         // displayId
+    stmt->setString(index++, std::move(items).str());                                 // itemCache
     stmt->setUInt32(index++, GetUInt32Value(CORPSE_FIELD_BYTES_1));                   // bytes1
     stmt->setUInt32(index++, GetUInt32Value(CORPSE_FIELD_BYTES_2));                   // bytes2
-    stmt->setUInt32(index++, GetUInt32Value(CORPSE_FIELD_GUILD));                     // guildId
-    stmt->setUInt8 (index++, GetUInt32Value(CORPSE_FIELD_FLAGS));                     // flags
-    stmt->setUInt8 (index++, GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS));             // dynFlags
+    stmt->setUInt32(index++, GetGuildId());                                           // guildId
+    stmt->setUInt8 (index++, GetCorpseFlags());                                       // flags
+    stmt->setUInt8 (index++, GetCorpseDynamicFlags());                                // dynFlags
     stmt->setUInt32(index++, uint32(m_time));                                         // time
     stmt->setUInt8 (index++, GetType());                                              // corpseType
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
@@ -138,7 +140,7 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransact
 uint32 Corpse::GetFaction() const
 {
     // inherit faction from player race
-    uint32 const race = GetByteValue(CORPSE_FIELD_BYTES_1, 1);
+    uint32 const race = GetRace();
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
     return rEntry ? rEntry->FactionID : 0;
@@ -163,18 +165,18 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guid));
 
     SetObjectScale(1.0f);
-    SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
-    if (!_LoadIntoDataField(fields[6].GetString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END))
-    {
-        TC_LOG_ERROR("entities.player", "Corpse ({}, owner: {}) is not created, given equipment info is not valid ('{}')",
-            GetGUID().ToString(), GetOwnerGUID().ToString(), fields[6].GetString());
-    }
+    SetDisplayId(fields[5].GetUInt32());
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
+    if (items.size() == EQUIPMENT_SLOT_END)
+        for (size_t index = 0; index < EQUIPMENT_SLOT_END; ++index)
+            SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
+
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
-    SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());
-    SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt8());
-    SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt32()));
+    SetGuildId(fields[9].GetUInt32());
+    ReplaceAllCorpseFlags(CorpseFlags(fields[10].GetUInt8()));
+    ReplaceAllCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt32()));
 
     m_time = time_t(fields[12].GetUInt32());
 

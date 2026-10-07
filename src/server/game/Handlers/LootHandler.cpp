@@ -313,7 +313,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         if (loot->isLooted())
         {
             loot->clear();
-            corpse->RemoveFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
+            corpse->RemoveCorpseDynamicFlag(CORPSE_DYNFLAG_LOOTABLE);
         }
     }
     else if (lguid.IsItem())

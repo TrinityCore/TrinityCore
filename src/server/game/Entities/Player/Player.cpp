@@ -4504,8 +4504,6 @@ Corpse* Player::CreateCorpse()
     // prevent the existence of 2 corpses for one player
     SpawnCorpseBones();
 
-    uint32 _cfb1, _cfb2;
-
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
 
@@ -4517,12 +4515,6 @@ Corpse* Player::CreateCorpse()
 
     _corpseLocation.WorldRelocate(*this);
 
-    _cfb1 = ((0x00) | (GetRace() << 8) | (GetNativeGender() << 16) | (GetSkinId() << 24));
-    _cfb2 = (GetFaceId() | (GetHairStyleId() << 8) | (GetHairColorId() << 16) | (GetFacialStyle() << 24));
-
-    corpse->SetUInt32Value(CORPSE_FIELD_BYTES_1, _cfb1);
-    corpse->SetUInt32Value(CORPSE_FIELD_BYTES_2, _cfb2);
-
     uint32 flags = CORPSE_FLAG_UNK2;
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
         flags |= CORPSE_FLAG_HIDE_HELM;
@@ -4530,26 +4522,25 @@ Corpse* Player::CreateCorpse()
         flags |= CORPSE_FLAG_HIDE_CLOAK;
     if (InBattleground() && !InArena())
         flags |= CORPSE_FLAG_LOOTABLE;                      // to be able to remove insignia
-    corpse->SetUInt32Value(CORPSE_FIELD_FLAGS, flags);
 
-    corpse->SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, GetNativeDisplayId());
+    corpse->SetRace(GetRace());
+    corpse->SetSex(GetNativeGender());
+    corpse->SetSkinId(GetSkinId());
+    corpse->SetFaceId(GetFaceId());
+    corpse->SetHairStyleId(GetHairStyleId());
+    corpse->SetHairColorId(GetHairColorId());
+    corpse->SetFacialStyle(GetFacialStyle());
+    corpse->ReplaceAllCorpseFlags(CorpseFlags(flags));
+    corpse->SetDisplayId(GetNativeDisplayId());
 
-    corpse->SetUInt32Value(CORPSE_FIELD_GUILD, GetGuildId());
+    if (Group const* group = GetGroup())
+        corpse->SetPartyGUID(group->GetGUID());
 
-    uint32 iDisplayID;
-    uint32 iIventoryType;
-    uint32 _cfi;
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
-    {
+    corpse->SetGuildId(GetGuildId());
+
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         if (m_items[i])
-        {
-            iDisplayID = m_items[i]->GetDisplayId();
-            iIventoryType = m_items[i]->GetTemplate()->GetInventoryType();
-
-            _cfi = iDisplayID | (iIventoryType << 24);
-            corpse->SetUInt32Value(CORPSE_FIELD_ITEM + i, _cfi);
-        }
-    }
+            corpse->SetItem(i, m_items[i]->GetDisplayId() | int32(m_items[i]->GetTemplate()->GetInventoryType()) << 24);
 
     // register for player, but not show
     GetMap()->AddCorpse(corpse);
@@ -8074,7 +8065,7 @@ void Player::RemovedInsignia(Player* looterPlr)
         return;
 
     // Now we must make bones lootable, and send player loot
-    bones->SetFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
+    bones->SetCorpseDynamicFlag(CORPSE_DYNFLAG_LOOTABLE);
 
     // We store the level of our player in the gold field
     // We retrieve this information at Player::SendLoot()

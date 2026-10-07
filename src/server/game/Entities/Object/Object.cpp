@@ -115,14 +115,6 @@ void Object::_Create(ObjectGuid const& guid)
     m_PackGUID.Set(guid);
 }
 
-std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
-{
-    std::ostringstream ss;
-    for (uint16 index = 0; index < size; ++index)
-        ss << GetUInt32Value(index + startIndex) << ' ';
-    return ss.str();
-}
-
 void Object::AddToWorld()
 {
     if (m_inWorld)
