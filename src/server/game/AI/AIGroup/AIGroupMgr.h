@@ -979,7 +979,6 @@ struct AIGroupTarget
             uint32 Creature;
             uint32 MinDist;
             uint32 MaxDist;
-            uint32 MaxSize;
         } UnitRange;
 
         struct
@@ -992,7 +991,6 @@ struct AIGroupTarget
         {
             uint32 Creature;
             uint32 Dist;
-            uint32 MaxSize;
         } UnitDistance;
 
         struct
@@ -1005,7 +1003,6 @@ struct AIGroupTarget
             uint32 Entry;
             uint32 MinDist;
             uint32 MaxDist;
-            uint32 MaxSize;
         } GameObjectRange;
 
         struct
@@ -1018,7 +1015,6 @@ struct AIGroupTarget
         {
             uint32 Entry;
             uint32 Dist;
-            uint32 MaxSize;
         } GameObjectDistance;
 
         struct

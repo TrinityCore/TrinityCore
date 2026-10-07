@@ -626,9 +626,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetEven
                 if ((!target.UnitRange.Creature || unit->ToCreature()->GetEntry() == target.UnitRange.Creature) && baseObject->IsInRange(unit, float(target.UnitRange.MinDist), float(target.UnitRange.MaxDist)))
                     targets.push_back(unit);
             }
-
-            if (target.UnitRange.MaxSize)
-                Trinity::Containers::RandomResize(targets, target.UnitRange.MaxSize);
             break;
         }
         case AIGROUP_TARGET_CREATURE_GUID:
@@ -658,9 +655,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetEven
                     targets.push_back(unit);
 
             }
-
-            if (target.UnitDistance.MaxSize)
-                Trinity::Containers::RandomResize(targets, target.UnitDistance.MaxSize);
             break;
         }
         case AIGROUP_TARGET_STORED:
@@ -684,9 +678,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetEven
                 if ((!target.GameObjectRange.Entry || unit->ToGameObject()->GetEntry() == target.GameObjectRange.Entry) && baseObject->IsInRange(unit, float(target.GameObjectRange.MinDist), float(target.GameObjectRange.MaxDist)))
                     targets.push_back(unit);
             }
-
-            if (target.GameObjectRange.MaxSize)
-                Trinity::Containers::RandomResize(targets, target.GameObjectRange.MaxSize);
             break;
         }
         case AIGROUP_TARGET_GAMEOBJECT_GUID:
@@ -715,9 +706,6 @@ void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetEven
                 if (!target.GameObjectDistance.Entry || unit->ToGameObject()->GetEntry() == target.GameObjectDistance.Entry)
                     targets.push_back(unit);
             }
-
-            if (target.GameObjectDistance.MaxSize)
-                Trinity::Containers::RandomResize(targets, target.GameObjectDistance.MaxSize);
             break;
         }
         case AIGROUP_TARGET_INVOKER_PARTY:
