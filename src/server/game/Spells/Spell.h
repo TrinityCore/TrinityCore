@@ -460,6 +460,7 @@ class TC_GAME_API Spell
         int32 GetPowerCost() const { return m_powerCost; }
 
         bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
+        void UpdateOriginalCasterPointer();
 
         void CleanupTargetList();
 
