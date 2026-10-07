@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <initializer_list>
+#include <string_view>
 #include <unordered_map>
 
 class WorldObject;
@@ -456,6 +457,104 @@ enum AI_GROUP_ACTION
     AI_GROUP_CU_10                                  = 412,
     // ^ Custom
     AI_GROUP_MAX                                    = 413
+};
+
+// From g_groupActionsAbbr
+constexpr std::string_view AIGroupActionsAbbr[] =
+{
+    "Spawn",                          // 0
+    "Idle",                           // 1
+    "Move",                           // 2
+    "Teleport",                       // 3
+    "WRpoint",                        // 4
+    "WRadius",                        // 5
+    "WPoly",                          // 6
+    "FGUID",                          // 7
+    "FPath",                          // 8
+    "PLinear",                        // 9
+    "PCirc",                          // 10
+    "GGUID",                          // 11
+    "GArea",                          // 12
+    "Formation",                      // 13
+    "ChangeMode",                     // 14
+    "USay",                           // 15
+    "UCast",                          // 16
+    "UActivateObject",                // 17
+    "CEvent",                         // 18
+    "Despawn",                        // 19
+    "Radius",                         // 20
+    "Faction",                        // 21
+    "UFacing",                        // 22
+    "UFaceGUID",                      // 23
+    "UEmote",                         // 24
+    "MGUID",                          // 25
+    "AGUID",                          // 26
+    "UMount",                         // 27
+    "UDismount",                      // 28
+    "UUninteractible",                // 29
+    "UUninteractibleReset",           // 30
+    "UMode",                          // 31
+    "UModeReset",                     // 32
+    "UFaction",                       // 33
+    "UFactionReset",                  // 34
+    "URadius",                        // 35
+    "URadiusReset",                   // 36
+    "QuestComplete",                  // 37
+    "UQuestGiver",                    // 38
+    "UTrainer",                       // 39
+    "SPath",                          // 40
+    "PAction",                        // 41
+    "GoHome",                         // 42
+    "USayRandom",                     // 43
+    "UYell",                          // 44
+    "UYellRandom",                    // 45
+    "UMItem",                         // 46
+    "UMItemReset",                    // 47
+    "UChatEmote",                     // 48
+    "UChatEmoteRandom",               // 49
+    "UEvent",                         // 50
+    "VendorIdle",                     // 51
+    "QuestFailed",                    // 52
+    "UTriggers",                      // 53
+    "UTriggersReset",                 // 54
+    "ULeaveCombat",                   // 55
+    "IdleCombatStart",                // 56
+    "IdleCombatStop",                 // 57
+    "UImmunePC",                      // 58
+    "UImmunePCReset",                 // 59
+    "UImmuneNPC",                     // 60
+    "UImmuneNPCReset",                // 61
+    "UUnkillable",                    // 62
+    "UUnkillableReset",               // 63
+    "USpells",                        // 64
+    "USpellsReset",                   // 65
+    "AttackAllInstance",              // 66
+    "ULocalEvent",                    // 67
+    "UBLocalEvent",                   // 68
+    "UFlee",                          // 69
+    "URetreat",                       // 70
+    "OChatEmote",                     // 71
+    "OChatEmoteRandom",               // 72
+    "Avoid",                          // 73
+    "AvoidGUID",                      // 74
+    "OActivate",                      // 75
+    "UActivateOOO",                   // 76
+    "UStringID",                      // 77
+    "UStringIDReset",                 // 78
+    "PeriodicEvent",                  // 79
+    "UOItem",                         // 80
+    "UOItemReset",                    // 81
+    "URItem",                         // 82
+    "URItemReset",                    // 83
+    "USheathe",                       // 84
+    "UUnsheathe",                     // 85
+    "UCancelCast",                    // 86
+    "UCancelAura",                    // 87
+    "UFinishCast",                    // 88
+    "EmoteState",                     // 89
+    "UCallForHelp",                   // 90
+    "FlightPath",                     // 91
+    "CombatTrigger"                   // 92
 };
 
 // EnumeratedString's EnumID 598 and g_actionTriggers
