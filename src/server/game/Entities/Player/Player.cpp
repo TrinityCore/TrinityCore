@@ -4660,7 +4660,7 @@ void Player::DurabilityPointsLoss(Item* item, int32 points)
         if (pNewDurability == 0 && pOldDurability > 0 && item->IsEquipped())
             _ApplyItemMods(item, item->GetSlot(), false);
 
-        item->SetUInt32Value(ITEM_FIELD_DURABILITY, pNewDurability);
+        item->SetDurability(pNewDurability);
 
         // modify item stats _after_ restore durability to pass _ApplyItemMods internal check
         if (pNewDurability > 0 && pOldDurability == 0 && item->IsEquipped())
@@ -4781,7 +4781,7 @@ void Player::DurabilityRepair(uint16 pos, bool takeCost, float discountMod)
 
     bool isBroken = item->IsBroken();
 
-    item->SetUInt32Value(ITEM_FIELD_DURABILITY, item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
+    item->SetDurability(item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
     item->SetState(ITEM_CHANGED, this);
 
     // reapply mods for total broken and repaired item if equipped
@@ -11637,7 +11637,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
         {
             item->SetSoulboundTradeable(allowedLooters);
-            item->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, GetTotalPlayedTime());
+            item->SetCreatePlayedTime(GetTotalPlayedTime());
             AddTradeableItem(item);
 
             // save data
@@ -11714,7 +11714,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         {
             m_items[slot] = pItem;
             SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID());
-            pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
+            pItem->SetContainedIn(GetGUID());
             pItem->SetOwnerGUID(GetGUID());
 
             pItem->SetSlot(slot);
@@ -11962,7 +11962,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
 
     m_items[slot] = pItem;
     SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID());
-    pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
+    pItem->SetContainedIn(GetGUID());
     pItem->SetOwnerGUID(GetGUID());
     pItem->SetSlot(slot);
     pItem->SetContainer(nullptr);
@@ -12054,7 +12054,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
 
-        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
+        pItem->SetContainedIn(ObjectGuid::Empty);
         // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
@@ -12198,7 +12198,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         }
 
         //pItem->SetOwnerGUID(0);
-        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
+        pItem->SetContainedIn(ObjectGuid::Empty);
         pItem->SetSlot(NULL_SLOT);
         pItem->SetState(ITEM_REMOVED, this);
     }
@@ -17994,7 +17994,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     stmt->setUInt32(0, item->GetGUID().GetCounter());
                     trans->Append(stmt);
 
-                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
+                    item->RemoveItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
                 }
                 else
                 {
@@ -18012,7 +18012,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     {
                         TC_LOG_WARN("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}) with refundable flags, but without data in item_refund_instance. Removing flag.",
                             GetGUID().ToString(), GetName(), item->GetGUID().ToString());
-                        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
+                        item->RemoveItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
                     }
                 }
             }
@@ -18043,7 +18043,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 {
                     TC_LOG_WARN("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
                         GetGUID().ToString(), GetName(), item->GetGUID().ToString());
-                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
+                    item->RemoveItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
             else if (proto->GetHolidayID())
@@ -21387,7 +21387,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
         if (pProto->HasFlag(ITEM_FLAG_ITEM_PURCHASE_RECORD) && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
-            it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
+            it->SetItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);

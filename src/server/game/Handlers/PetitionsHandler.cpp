@@ -191,14 +191,12 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         return;
     }
 
-    _player->ModifyMoney(-(int32)cost);
+    _player->ModifyMoney(-int32(cost));
     Item* charter = _player->StoreNewItem(dest, charterid, true);
     if (!charter)
         return;
 
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUID().GetCounter());
-    // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
-    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
+    charter->SetPetitionId(charter->GetGUID().GetCounter());
     charter->SetState(ITEM_CHANGED, _player);
     _player->SendNewItem(charter, 1, true, false);
 
@@ -483,6 +481,13 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     data << _player->GetGUID();
     data << uint32(PETITION_SIGN_OK);
     SendPacket(&data);
+
+    // update signs count on charter
+    if (Item* item = _player->GetItemByGuid(petitionGuid))
+    {
+        item->SetPetitionNumSignatures(signs);
+        item->SetState(ITEM_CHANGED, _player);
+    }
 
     // update for owner if online
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))

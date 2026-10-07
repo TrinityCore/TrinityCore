@@ -59,6 +59,8 @@ class TC_GAME_API Bag : public Item
         std::string GetDebugInfo() const override;
 
     protected:
+        void SetBagSize(uint32 numSlots) { SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, numSlots); }
+        void SetSlot(uint32 slot, ObjectGuid guid) { SetGuidValue(CONTAINER_FIELD_SLOT_1 + slot * 2, guid); }
 
         // Bag Storage space
         Item* m_bagslot[MAX_BAG_SIZE];

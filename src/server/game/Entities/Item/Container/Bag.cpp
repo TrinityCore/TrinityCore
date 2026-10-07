@@ -83,20 +83,20 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
     if (owner)
     {
         SetOwnerGUID(owner->GetGUID());
-        SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
+        SetContainedIn(owner->GetGUID());
     }
 
-    SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
-    SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
-    SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
+    SetMaxDurability(itemProto->MaxDurability);
+    SetDurability(itemProto->MaxDurability);
+    SetCount(1);
 
     // Setting the number of Slots the Container has
-    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->GetContainerSlots());
+    SetBagSize(itemProto->GetContainerSlots());
 
     // Cleaning 20 slots
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
-        SetGuidValue(CONTAINER_FIELD_SLOT_1 + (i * 2), ObjectGuid::Empty);
+        SetSlot(i, ObjectGuid::Empty);
         m_bagslot[i] = nullptr;
     }
 
@@ -164,7 +164,7 @@ void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
     {
         m_bagslot[slot] = pItem;
         SetGuidValue(CONTAINER_FIELD_SLOT_1 + (slot * 2), pItem->GetGUID());
-        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
+        pItem->SetContainedIn(GetGUID());
         pItem->SetOwnerGUID(GetOwnerGUID());
         pItem->SetContainer(this);
         pItem->SetSlot(slot);

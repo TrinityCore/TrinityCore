@@ -275,22 +275,22 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     if (owner)
     {
         SetOwnerGUID(owner->GetGUID());
-        SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
+        SetContainedIn(owner->GetGUID());
     }
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemId);
     if (!itemProto)
         return false;
 
-    SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
-    SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
-    SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
+    SetCount(1);
+    SetMaxDurability(itemProto->MaxDurability);
+    SetDurability(itemProto->MaxDurability);
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         SetSpellCharges(i, itemProto->Effects[i].Charges);
 
-    SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+    SetExpiration(itemProto->GetDuration());
+    SetCreatePlayedTime(0);
     return true;
 }
 
@@ -322,7 +322,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
         return;
     }
 
-    SetUInt32Value(ITEM_FIELD_DURATION, GetUInt32Value(ITEM_FIELD_DURATION) - diff);
+    SetExpiration(GetUInt32Value(ITEM_FIELD_DURATION) - diff);
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
@@ -438,17 +438,17 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     bool need_save = false;                                 // need explicit save data at load fixes
     if (uint32 creator = fields[0].GetUInt32())
-        SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(creator));
+        SetCreator(ObjectGuid::Create<HighGuid::Player>(creator));
     if (uint32 giftCreator = fields[1].GetUInt32())
-        SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(giftCreator));
+        SetGiftCreator(ObjectGuid::Create<HighGuid::Player>(giftCreator));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
-    SetUInt32Value(ITEM_FIELD_DURATION, duration);
+    SetExpiration(duration);
     // update duration if need, and remove if not need
     if ((proto->GetDuration() == 0) != (duration == 0))
     {
-        SetUInt32Value(ITEM_FIELD_DURATION, proto->GetDuration());
+        SetExpiration(proto->GetDuration());
         need_save = true;
     }
 
@@ -464,11 +464,11 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         }
     }
 
-    SetUInt32Value(ITEM_FIELD_FLAGS, fields[5].GetUInt32());
+    ReplaceAllItemFlags(ItemFieldFlags(fields[5].GetUInt32()));
     // Remove bind flag for items vs NO_BIND set
     if (IsSoulBound() && proto->GetBonding() == NO_BIND)
     {
-        ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
+        RemoveItemFlag(ITEM_FIELD_FLAG_SOULBOUND);
         need_save = true;
     }
 
@@ -481,18 +481,18 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         UpdateItemSuffixFactor();
 
     uint32 durability = fields[8].GetUInt16();
-    SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
+    SetDurability(durability);
     // update max durability (and durability) if need
-    SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
+    SetMaxDurability(proto->MaxDurability);
 
     // do not overwrite durability for wrapped items
     if (durability > proto->MaxDurability && !IsWrapped())
     {
-        SetUInt32Value(ITEM_FIELD_DURABILITY, proto->MaxDurability);
+        SetDurability(proto->MaxDurability);
         need_save = true;
     }
 
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[9].GetUInt32());
+    SetCreatePlayedTime(fields[9].GetUInt32());
     SetText(fields[10].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
@@ -1080,10 +1080,10 @@ Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
     if (!newItem)
         return nullptr;
 
-    newItem->SetGuidValue(ITEM_FIELD_CREATOR, GetGuidValue(ITEM_FIELD_CREATOR));
-    newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR, GetGuidValue(ITEM_FIELD_GIFTCREATOR));
-    newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE));
-    newItem->SetUInt32Value(ITEM_FIELD_DURATION,     GetUInt32Value(ITEM_FIELD_DURATION));
+    newItem->SetCreator(GetCreator());
+    newItem->SetGiftCreator(GetGiftCreator());
+    newItem->ReplaceAllItemFlags(ItemFieldFlags(GetUInt32Value(ITEM_FIELD_FLAGS) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE)));
+    newItem->SetExpiration(GetUInt32Value(ITEM_FIELD_DURATION));
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
     if (player)
         newItem->SetItemRandomProperties(GetItemRandomPropertyId());
@@ -1206,7 +1206,7 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, Character
     if (!IsRefundable())
         return;
 
-    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
+    RemoveItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
     // Following is not applicable in the trading procedure
     if (changestate)
         SetState(ITEM_CHANGED, owner);
@@ -1236,7 +1236,7 @@ void Item::UpdatePlayedTime(Player* owner)
     {
         // No? Proceed.
         // Update the data field
-        SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, new_playtime);
+        SetCreatePlayedTime(new_playtime);
         // Flag as changed to get saved to DB
         SetState(ITEM_CHANGED, owner);
         // Speaks for itself
@@ -1261,13 +1261,13 @@ bool Item::IsRefundExpired()
 
 void Item::SetSoulboundTradeable(GuidSet const& allowedLooters)
 {
-    SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
+    SetItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
 }
 
 void Item::ClearSoulboundTradeable(Player* currentOwner)
 {
-    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
+    RemoveItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
     if (allowedGUIDs.empty())
         return;
 

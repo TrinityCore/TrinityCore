@@ -487,7 +487,7 @@ bool Guild::BankTab::SetItem(CharacterDatabaseTransaction trans, uint8 slotId, I
         stmt->setUInt32(3, item->GetGUID().GetCounter());
         trans->Append(stmt);
 
-        item->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid::Empty);
+        item->SetContainedIn(ObjectGuid::Empty);
         item->SetOwnerGUID(ObjectGuid::Empty);
         item->FSetState(ITEM_NEW);
         item->SaveToDB(trans);                                 // Not in inventory and can be saved standalone

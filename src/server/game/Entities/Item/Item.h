@@ -77,10 +77,23 @@ class TC_GAME_API Item : public Object
 
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
-        Player* GetOwner()const;
+        ObjectGuid GetContainedIn()    const { return GetGuidValue(ITEM_FIELD_CONTAINED); }
+        void SetContainedIn(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_CONTAINED, guid); }
+        ObjectGuid GetCreator()    const { return GetGuidValue(ITEM_FIELD_CREATOR); }
+        void SetCreator(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_CREATOR, guid); }
+        ObjectGuid GetGiftCreator()    const { return GetGuidValue(ITEM_FIELD_GIFTCREATOR); }
+        void SetGiftCreator(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_GIFTCREATOR, guid); }
+        Player* GetOwner() const;
+
+        void SetExpiration(uint32 expiration) { SetUInt32Value(ITEM_FIELD_DURATION, expiration); }
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
-        bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
+        bool HasItemFlag(ItemFieldFlags flag) const { return HasFlag(ITEM_FIELD_FLAGS, flag); }
+        void SetItemFlag(ItemFieldFlags flags) { SetFlag(ITEM_FIELD_FLAGS, flags); }
+        void RemoveItemFlag(ItemFieldFlags flags) { RemoveFlag(ITEM_FIELD_FLAGS, flags); }
+        void ReplaceAllItemFlags(ItemFieldFlags flags) { SetUInt32Value(ITEM_FIELD_FLAGS, flags); }
+
+        bool IsSoulBound() const { return HasItemFlag(ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
@@ -97,14 +110,16 @@ class TC_GAME_API Item : public Object
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
         Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
 
-        bool IsRefundable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE); }
-        bool IsBOPTradeable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE); }
-        bool IsWrapped() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED); }
-        bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED); }
+        bool IsRefundable() const { return HasItemFlag(ITEM_FIELD_FLAG_REFUNDABLE); }
+        bool IsBOPTradeable() const { return HasItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE); }
+        bool IsWrapped() const { return HasItemFlag(ITEM_FIELD_FLAG_WRAPPED); }
+        bool IsLocked() const { return !HasItemFlag(ITEM_FIELD_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
+        void SetDurability(uint32 durability) { SetUInt32Value(ITEM_FIELD_DURABILITY, durability); }
+        void SetMaxDurability(uint32 maxDurability) { SetUInt32Value(ITEM_FIELD_MAXDURABILITY, maxDurability); }
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
@@ -158,6 +173,7 @@ class TC_GAME_API Item : public Object
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
+        void SetCreatePlayedTime(uint32 createPlayedTime) { SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, createPlayedTime); }
 
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return GetInt32Value(ITEM_FIELD_SPELL_CHARGES + index); }
@@ -215,6 +231,9 @@ class TC_GAME_API Item : public Object
         static uint32 GetBuyPrice(ItemTemplate const* proto);
         uint32 GetSellPrice(bool forVendor = false) const;
         static uint32 GetSellPrice(ItemTemplate const* proto);
+
+        void SetPetitionId(uint32 petitionId) { SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, petitionId); }
+        void SetPetitionNumSignatures(uint32 signatures) { SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + 1, signatures); }
 
         std::string GetDebugInfo() const override;
     private:

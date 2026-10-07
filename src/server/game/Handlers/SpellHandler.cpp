@@ -275,10 +275,10 @@ void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid
     uint32 entry = fields[0].GetUInt32();
     uint32 flags = fields[1].GetUInt32();
 
-    item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Empty);
+    item->SetGiftCreator(ObjectGuid::Empty);
     item->SetEntry(entry);
-    item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
-    item->SetUInt32Value(ITEM_FIELD_MAXDURABILITY, item->GetTemplate()->MaxDurability);
+    item->ReplaceAllItemFlags(ItemFieldFlags(flags));
+    item->SetMaxDurability(item->GetTemplate()->MaxDurability);
     item->SetState(ITEM_CHANGED, GetPlayer());
 
     GetPlayer()->SaveInventoryAndGoldToDB(trans);
