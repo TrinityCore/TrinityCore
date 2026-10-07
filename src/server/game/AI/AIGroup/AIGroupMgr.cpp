@@ -315,9 +315,6 @@ void AIGroupMgr::LoadActionTriggersFromDB()
             case OnCombatTrigger:
                 // Trigger ID
                 break;
-            case OnGeneralTrigger:
-                // Trigger ID
-                break;
             case OnSpell:
             case OnSpellCast:
             case OnSpellFailed:
