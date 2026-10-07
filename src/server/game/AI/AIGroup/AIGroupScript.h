@@ -55,6 +55,7 @@ class TC_GAME_API AIGroupScript
     private:
         void InstallEvents();
         void UpdateActionSets(uint32 diff);
+        void SetCurrentRunningActionSet(uint32 actionSetId);
         void RandomizeHealthRange(ActionTriggersHolder& holder);
         void RandomizeEnergyRange(ActionTriggersHolder& holder);
         bool ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);

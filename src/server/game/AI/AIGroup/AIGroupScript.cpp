@@ -192,8 +192,8 @@ void AIGroupScript::TerminateActionSets()
         return !(sAIGroupMgr->GetActionSetFlags(actionSet.Id) & uint32(ActionSetFlags::AllowAllActionsWhileDead));
     }), mActionSets.end());
 
-    if (me && mActionSets.empty())
-        me->currentRunningActionSet = 0;
+    if (mActionSets.empty())
+        SetCurrentRunningActionSet(0);
 }
 
 uint32 AIGroupScript::GetActionDuration(ActionSetEventHolder const& action) const
@@ -420,8 +420,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 {
     if (mActionSets.empty())
     {
-        if (me)
-            me->currentRunningActionSet = 0;
+        SetCurrentRunningActionSet(0);
         return;
     }
 
@@ -439,13 +438,11 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
     if (IsActionSetPaused(*activeActionSet))
     {
-        if (me)
-            me->currentRunningActionSet = 0;
+        SetCurrentRunningActionSet(0);
         return;
     }
 
-    if (me)
-        me->currentRunningActionSet = activeActionSet->Id;
+    SetCurrentRunningActionSet(activeActionSet->Id);
 
     while (activeActionSet->CurrentAction < activeActionSet->Actions.size())
     {
@@ -510,8 +507,13 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
         return actionSet.CurrentAction >= actionSet.Actions.size();
     }), mActionSets.end());
 
+    SetCurrentRunningActionSet(mActionSets.empty() ? 0 : activeActionSetId);
+}
+
+void AIGroupScript::SetCurrentRunningActionSet(uint32 actionSetId)
+{
     if (me)
-        me->currentRunningActionSet = mActionSets.empty() ? 0 : activeActionSetId;
+        me->currentRunningActionSet = actionSetId;
 }
 
 void AIGroupScript::ReplaceActionTriggers()
