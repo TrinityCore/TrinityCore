@@ -297,7 +297,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
                         triggers.Id, triggers.Index, triggerType.Name);
                     continue;
                 }
-                if (triggers.RepeatMin == 0 && triggers.RepeatMax == 0 && !triggers.Flags & NotRepeatable)
+                if (triggers.RepeatMin == 0 && triggers.RepeatMax == 0 && !(triggers.Flags & NotRepeatable))
                 {
                     triggers.Flags |= NotRepeatable;
                     TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} has missing NotRepeatable flag.",
