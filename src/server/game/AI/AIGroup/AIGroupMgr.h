@@ -773,40 +773,40 @@ enum ActionTriggers
 {
     None                        = 0,
     OnReaction                  = 1,    // NYI // Unit detects {$Detection Type}.
-    OnEnterCombat               = 2,    // NYI // Unit enters combat.
+    OnEnterCombat               = 2,    // Unit enters combat.
     OnLeaveCombat               = 3,    // NYI // Unit leaves combat.
     OnCombatTick                = 4,    // NYI // Unit triggers this each heartbeat.
     OnHealthRange               = 5,    // NYI // Unit health is between {#Health Min} and {#Health Max}.
     OnEnergyRange               = 6,    // NYI // Unit mana is between {#Mana Min} and {#Mana Max}.
-    OnDeath                     = 7,    // NYI // Unit dies.
-    OnSpell                     = 8,    // NYI // Unit is hit by spell {Spell}.
-    OnKill                      = 9,    // NYI // Unit kills an enemy target.
-    OnSpawn                     = 10,   // NYI // Unit spawns.
-    OnEmote                     = 11,   // NYI // Unit receives emote {EmotesText}.
+    OnDeath                     = 7,    // Unit dies.
+    OnSpell                     = 8,    // Unit is hit by spell {Spell}.
+    OnKill                      = 9,    // Unit kills an enemy target.
+    OnSpawn                     = 10,   // Unit spawns.
+    OnEmote                     = 11,   // Unit receives emote {EmotesText}.
     OnMelee                     = 12,   // NYI // Unit receives a melee attack.
     OnInteract                  = 13,   // NYI // Unit is right clicked.
     OnCombatTrigger             = 14,   // NYI // Unit receives 'combat' trigger {#Trigger ID}.
     // [^ Alpha]
-    OnSpellCast                 = 15,   // NYI // Unit casts spell {Spell}.
+    OnSpellCast                 = 15,   // Unit casts spell {Spell}.
     OnPickPocket                = 16,   // NYI // Unit is pickpocketed.
     OnSkinned                   = 17,   // NYI // Unit is skinned.
-    OnCombatReturn              = 18,   // NYI // Unit returns to its home position after combat.
+    OnCombatReturn              = 18,   // Unit returns to its home position after combat.
     OnPathFailing               = 19,   // NYI // Unit fails to path to its target{#AfterSeconds}.
     OnHealthRangeRandom         = 20,   // NYI // Unit is within randomized health range {#Health Min} to {#Health Max}.
     OnEnergyRangeRandom         = 21,   // NYI // Unit is within randomized mana range {#Mana Min} to {#Mana Max}.
     // [^ 1.12.1]
     OnGeneralTrigger            = 22,   // NYI // Unit receives general trigger ID {#Trigger ID}.
-    OnDespawn                   = 23,   // NYI // Unit receives a despawn request. (Instantaneous)
-    OnSpellFailed               = 24,   // NYI // Unit fails to cast spell {Spell}.
+    OnDespawn                   = 23,   // Unit receives a despawn request. (Instantaneous)
+    OnSpellFailed               = 24,   // Unit fails to cast spell {Spell}.
     OnCharmBreak                = 25,   // NYI // Unit ceases to be charmed.
     OnPassengerControlEnd       = 26,   // NYI // Passenger in seat {#Seat Index} stops controlling it.
     OnVehicleReturn             = 27,   // NYI // Passenger in seat {#Seat Index} begins returning towards a vehicle.
     OnVehicleRide               = 28,   // NYI // Passenger in seat {#Seat Index} begins riding a vehicle.
     OnVehicleAbandon            = 29,   // NYI // Passenger in seat {#Seat Index} leaves its vehicle.
     // [^ 2.4.3]
-    OnSpellStart                = 30,   // NYI // Unit starts casting spell {Spell}.
-    OnAuraApplied               = 31,   // NYI // Unit has aura {Spell} applied.
-    OnAuraRemoved               = 32,   // NYI // Unit has aura {Spell} removed.
+    OnSpellStart                = 30,   // Unit starts casting spell {Spell}.
+    OnAuraApplied               = 31,   // Unit has aura {Spell} applied.
+    OnAuraRemoved               = 32,   // Unit has aura {Spell} removed.
     OnPassengerRide             = 33,   // NYI // Unit adds a passenger in seat {#Seat Index}.
     OnPassengerAbandon          = 34,   // NYI // Unit removes a passenger in seat {#Seat Index}.
     OnPassengerSpawn            = 35,   // NYI // Unit spawns a passenger in seat {#Seat Index}.
