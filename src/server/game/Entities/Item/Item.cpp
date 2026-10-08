@@ -526,7 +526,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
 
     _bonusData.Initialize(itemProto);
     SetCount(1);
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
+    SetMaxDurability(itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
 
     for (ItemEffectEntry const* effect : GetEffects())

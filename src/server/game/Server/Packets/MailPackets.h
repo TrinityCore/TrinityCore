@@ -112,8 +112,8 @@ namespace WorldPackets
                 int64 SendMoney = 0;
                 int64 Cod = 0;
                 std::string Target;
-                std::string Subject;
-                std::string Body;
+                String<256, Strings::NoHyperlinks> Subject;
+                String<2000, Strings::NoHyperlinks> Body;
                 std::vector<MailAttachment> Attachments;
             };
 

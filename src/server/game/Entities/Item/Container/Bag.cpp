@@ -87,7 +87,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context
         SetContainedIn(owner->GetGUID());
     }
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
+    SetMaxDurability(itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
     SetCount(1);
     SetContext(context);
