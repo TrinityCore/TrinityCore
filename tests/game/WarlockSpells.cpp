@@ -52,7 +52,7 @@ SpellScriptLoader* GetWarlockScript(char const* name)
 {
     static bool const loaded = []
     {
-        sScriptMgr->SetScriptContext("warlock_tests");
+        sScriptMgr->SetScriptContext(ScriptMgr::GetNameOfStaticContext());
         AddSC_warlock_spell_scripts();
         sScriptMgr->SwapScriptContext();
         return true;
