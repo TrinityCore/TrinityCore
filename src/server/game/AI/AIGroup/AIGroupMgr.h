@@ -1206,6 +1206,8 @@ class TC_GAME_API AIGroupMgr
         static bool IsItemValid(ActionSetEventHolder const& action);
         static bool IsBooleanValid(ActionSetEventHolder const& action);
 
+        static bool IsTriggerNotRepeatable(ActionTriggers trigger);
+
     public:
         static AIGroupMgr* Instance();
 

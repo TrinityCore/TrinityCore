@@ -270,6 +270,12 @@ void AIGroupMgr::LoadActionTriggersFromDB()
                 triggers.Id, triggers.Index, triggerType.Name, triggers.Flags);
         }
 
+        if ((triggers.Flags & NotRepeatable) && IsTriggerNotRepeatable(ActionTriggers(triggers.TriggerId)))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) with trigger {} cannot use the NotRepeatable flag.",
+                triggers.Id, triggers.Index, triggerType.Name);
+        }
+
         switch (triggers.TriggerId)
         {
             case OnReaction:
@@ -1378,6 +1384,25 @@ AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[
     { "OnChannelFinished",          true,  false },
     { "OnHealthDepleted",           false, false }
 };
+
+bool AIGroupMgr::IsTriggerNotRepeatable(ActionTriggers trigger)
+{
+    switch (trigger)
+    {
+        case OnEnterCombat:
+        case OnLeaveCombat:
+        case OnDeath:
+        case OnSpawn:
+        case OnPickPocket:
+        case OnSkinned:
+        case OnCombatReturn:
+        case OnDespawn:
+        case OnHealthDepleted:
+            return true;
+        default:
+            return false;
+    }
+}
 
 std::string AIGroupMgr::GetActionSetName(uint32 actionSetId) const
 {
