@@ -50,6 +50,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_BOND_TALENT                  = 1267028,
     SPELL_DK_BLOOD_BOND_GHOUL_HEALTH_PCT        = 1267032,
     SPELL_DK_BLOOD_BOND_PLAYER_HEAL_PCT         = 1277365,
+    SPELL_DK_BLOOD_DRAW_DEBUFF                  = 374609,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
@@ -400,6 +401,29 @@ class spell_dk_blood_bond_periodic : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_blood_bond_periodic::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 374606 - Blood Draw
+// 454871 - Blood Draw
+class spell_dk_blood_draw : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_DRAW_DEBUFF });
+    }
+
+    SpellCastResult CheckDebuff() const
+    {
+        if (GetCaster()->HasAura(SPELL_DK_BLOOD_DRAW_DEBUFF))
+            return SPELL_FAILED_DONT_REPORT;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dk_blood_draw::CheckDebuff);
     }
 };
 
@@ -1534,6 +1558,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_blooddrinker);
     RegisterSpellScript(spell_dk_blood_boil);
     RegisterSpellScript(spell_dk_blood_bond_periodic);
+    RegisterSpellScript(spell_dk_blood_draw);
     RegisterSpellScript(spell_dk_brittle);
     RegisterSpellScript(spell_dk_crimson_scourge);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
