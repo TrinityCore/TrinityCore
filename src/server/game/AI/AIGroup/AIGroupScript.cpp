@@ -266,6 +266,17 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
 
 bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid)
 {
+    AIGroupMgr::ActionSetTypeInfo const& typeInfo = AIGroupMgr::StaticActionSetTypeData[action.Type];
+
+    uint8 objectTypeMask = me ? AIGroupMgr::ObjectTypeMaskUnit : AIGroupMgr::ObjectTypeMaskObject;
+
+    if (!(AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type)) & objectTypeMask))
+    {
+        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteAction: {} entry {} cannot use action type {} ({}), action set {} index {}, skipped.",
+            me ? "Unit" : "Object", me ? me->GetEntry() : go->GetEntry(), action.Type, typeInfo.Name, action.Id, action.Index);
+        return true;
+    }
+
     AIGroupObjectVector targets;
     if (!action.StringId.empty())
     {
