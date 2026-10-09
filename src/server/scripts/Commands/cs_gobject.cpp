@@ -152,8 +152,7 @@ public:
         if (!object)
             return false;
 
-        /// @todo is it really necessary to add both the real and DB table guid here ?
-        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(spawnId)));
+        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(object->GetGameObjectData()));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), std::to_string(spawnId).c_str(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;

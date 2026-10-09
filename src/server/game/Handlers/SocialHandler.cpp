@@ -18,7 +18,6 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
-#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
