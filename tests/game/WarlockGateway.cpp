@@ -493,6 +493,45 @@ TEST_CASE("Frequent Traveler tracks the player across different gateway owners",
     fixture.visitor.SetGroup(nullptr);
 }
 
+TEST_CASE("Frequent Traveler does not grant immediate reuse to an untalented party member", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    Group group;
+    fixture.owner.SetGroup(&group, 0);
+    fixture.visitor.SetGroup(&group, 0);
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+
+    ClickGateway(source, fixture.visitor);
+
+    CHECK(fixture.visitor.HasAura(113896));
+    CHECK(fixture.visitor.HasAura(113942));
+    CHECK_FALSE(fixture.visitor.HasAura(1271712));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+    fixture.owner.SetGroup(nullptr);
+    fixture.visitor.SetGroup(nullptr);
+}
+
+TEST_CASE("Demonic Gateway remains usable by the party when its owner dies", "[Spells][Warlock][Gateway]")
+{
+    GatewayFixture fixture;
+    Group group;
+    fixture.owner.SetGroup(&group, 0);
+    fixture.visitor.SetGroup(&group, 0);
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    fixture.owner.setDeathState(DEAD);
+
+    source->AI()->UpdateAI(1000);
+    ClickGateway(source, fixture.visitor);
+
+    CHECK_FALSE(source->IsDestroyedObject());
+    CHECK(fixture.visitor.HasAura(113896));
+    CHECK(fixture.visitor.HasAura(113942));
+    fixture.owner.setDeathState(ALIVE);
+    fixture.owner.SetGroup(nullptr);
+    fixture.visitor.SetGroup(nullptr);
+}
+
 TEST_CASE("Frequent Traveler does not reset when its talent is removed and reapplied", "[Spells][Warlock][Gateway][FrequentTraveler]")
 {
     GatewayFixture fixture;
