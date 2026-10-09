@@ -68,7 +68,7 @@ namespace WorldPackets
         class BuySucceeded final : ServerPacket
         {
         public:
-            explicit BuySucceeded() : ServerPacket(SMSG_BUY_ITEM, 16 + 4 + 4 + 4 + 4) { }
+            explicit BuySucceeded() : ServerPacket(SMSG_BUY_ITEM, 8 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

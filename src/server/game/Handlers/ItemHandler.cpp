@@ -492,7 +492,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + packet.Slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(price))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry());
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0);
             return;
         }
 
