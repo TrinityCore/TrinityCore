@@ -76,6 +76,8 @@ enum WarlockSpells
     SPELL_WARLOCK_DOOM_ENERGIZE                     = 193318,
     SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
+    SPELL_WARLOCK_FREQUENT_TRAVELER                 = 1265801,
+    SPELL_WARLOCK_FREQUENT_TRAVELER_USED            = 1271712,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
@@ -828,6 +830,51 @@ class spell_warl_demonic_gateway : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_warl_demonic_gateway::CheckDestination);
         OnEffectLaunch += SpellEffectFn(spell_warl_demonic_gateway::SummonGateways, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 113896, 120729 - Demonic Gateway
+class spell_warl_demonic_gateway_travel : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } })
+            && spellInfo->GetEffect(EFFECT_3).IsEffect(SPELL_EFFECT_TRIGGER_SPELL)
+            && spellInfo->GetEffect(EFFECT_3).TriggerSpell == SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF
+            && ValidateSpellInfo({ SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF,
+                SPELL_WARLOCK_FREQUENT_TRAVELER, SPELL_WARLOCK_FREQUENT_TRAVELER_USED });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    void PreventDefaultCooldown(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleCooldown() const
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER) && !caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER_USED))
+        {
+            if (caster->CastSpell(caster, SPELL_WARLOCK_FREQUENT_TRAVELER_USED, GetSpell()) == SPELL_CAST_OK
+                && caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER_USED))
+                return;
+        }
+
+        if (caster->CastSpell(caster, SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF, GetSpell()) == SPELL_CAST_OK
+            && caster->HasAura(SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF))
+            caster->RemoveAurasDueToSpell(SPELL_WARLOCK_FREQUENT_TRAVELER_USED);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_warl_demonic_gateway_travel::PreventDefaultCooldown, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_demonic_gateway_travel::PreventDefaultCooldown, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+        AfterCast += SpellCastFn(spell_warl_demonic_gateway_travel::HandleCooldown);
     }
 };
 
@@ -2034,6 +2081,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_demonic_gateway);
+    RegisterSpellScript(spell_warl_demonic_gateway_travel);
     RegisterCreatureAI(npc_warl_demonic_gateway);
     RegisterSpellScript(spell_warl_devour_magic);
     RegisterSpellScript(spell_warl_doom);

@@ -69,6 +69,7 @@ class UnitTestDataLoader
         static void LoadAchievementTemplates();
         static void LoadItemTemplates();
         static void LoadGatewayTemplates();
+        static void BindGatewayTravelScripts();
         static void InitializeEntityGuid(BaseEntity& entity, ObjectGuid const& guid);
 
     private:

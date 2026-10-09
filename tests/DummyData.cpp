@@ -70,6 +70,12 @@
     }
 }
 
+/*static*/ void UnitTestDataLoader::BindGatewayTravelScripts()
+{
+    for (uint32 spellId : { 113896u, 120729u })
+        sObjectMgr->_spellScriptsStore.emplace(spellId, std::pair{ sObjectMgr->GetScriptId("spell_warl_demonic_gateway_travel"), true });
+}
+
 /*static*/ void UnitTestDataLoader::InitializeEntityGuid(BaseEntity& entity, ObjectGuid const& guid)
 {
     entity._Create(guid);

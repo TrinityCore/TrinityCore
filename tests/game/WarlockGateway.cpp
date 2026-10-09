@@ -82,6 +82,7 @@ struct GatewayData
             AddSC_warlock_spell_scripts();
             sScriptMgr->SwapScriptContext();
             UnitTestDataLoader::LoadGatewayTemplates();
+            UnitTestDataLoader::BindGatewayTravelScripts();
             return true;
         }();
         (void)registered;
@@ -413,4 +414,193 @@ TEST_CASE("Demonic Gateway replacement scans a populated map without removing un
     INFO("Map scan: " << count << " creatures in " << elapsed.count() << " microseconds (Debug fixture)");
     CHECK(owned->IsDestroyedObject());
     CHECK(fixture.map.GetObjectsStore().Data.Head.size() == count);
+}
+
+namespace
+{
+void ClickGateway(GatewayEndpoint* gateway, Player& player)
+{
+    gateway->AI()->OnSpellClick(&player, false);
+    player.m_Events.Update(1);
+}
+
+void ExpireGatewayAura(Player& player, uint32 spellId)
+{
+    Aura* aura = player.GetAura(spellId);
+    REQUIRE(aura);
+    aura->UpdateOwner(aura->GetDuration(), &player);
+    REQUIRE(aura->IsExpired());
+    aura->Remove(AURA_REMOVE_BY_EXPIRE);
+}
+
+GatewayEndpoint* CreateGatewayPair(GatewayFixture& fixture, Player& owner, uint32 entry)
+{
+    GatewayEndpoint* source = fixture.AddEndpoint(&owner, entry);
+    GatewayEndpoint* destination = fixture.AddEndpoint(&owner, entry == 59262 ? 59271 : 59262);
+    source->AI()->SetGUID(destination->GetGUID(), 0);
+    destination->AI()->SetGUID(source->GetGUID(), 0);
+    return source;
+}
+}
+
+TEST_CASE("Frequent Traveler allows one immediate reuse then applies the normal cooldown", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    uint32 entry = GENERATE(59262u, 59271u);
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, entry);
+    uint32 travelSpell = entry == 59262 ? 113896 : 120729;
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+
+    ClickGateway(source, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(travelSpell));
+    CHECK(fixture.owner.HasAura(1271712));
+    CHECK_FALSE(fixture.owner.HasAura(113942));
+    fixture.owner.RemoveAurasDueToSpell(travelSpell);
+    ClickGateway(source, fixture.owner);
+    CHECK(fixture.owner.HasAura(travelSpell));
+    CHECK(fixture.owner.HasAura(113942));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+    fixture.owner.RemoveAurasDueToSpell(travelSpell);
+    ClickGateway(source, fixture.owner);
+    CHECK_FALSE(fixture.owner.HasAura(travelSpell));
+    ExpireGatewayAura(fixture.owner, 113942);
+    ClickGateway(source, fixture.owner);
+    CHECK(fixture.owner.HasAura(1271712));
+    CHECK_FALSE(fixture.owner.HasAura(113942));
+}
+
+TEST_CASE("Frequent Traveler tracks the player across different gateway owners", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    Group group;
+    fixture.owner.SetGroup(&group, 0);
+    fixture.visitor.SetGroup(&group, 0);
+    GatewayEndpoint* own = CreateGatewayPair(fixture, fixture.owner, 59262);
+    GatewayEndpoint* other = CreateGatewayPair(fixture, fixture.visitor, 59271);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+
+    ClickGateway(own, fixture.owner);
+    REQUIRE(fixture.owner.HasAura(1271712));
+    ClickGateway(other, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(120729));
+    CHECK(fixture.owner.HasAura(113942));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+    CHECK_FALSE(fixture.visitor.HasAura(1271712));
+    CHECK_FALSE(fixture.visitor.HasAura(113942));
+    fixture.owner.SetGroup(nullptr);
+    fixture.visitor.SetGroup(nullptr);
+}
+
+TEST_CASE("Frequent Traveler does not reset when its talent is removed and reapplied", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    bool relearn = GENERATE(false, true);
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+    REQUIRE(fixture.owner.HasAura(1271712));
+
+    fixture.owner.RemoveAurasDueToSpell(1265801);
+    if (relearn)
+        REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(113942));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+}
+
+TEST_CASE("Frequent Traveler becomes available again after its marker expires", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+
+    ExpireGatewayAura(fixture.owner, 1271712);
+    ClickGateway(source, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(1271712));
+    CHECK_FALSE(fixture.owner.HasAura(113942));
+}
+
+TEST_CASE("Frequent Traveler falls back to the cooldown when its marker cannot be applied", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    fixture.owner.ApplySpellImmune(0, IMMUNITY_ID, 1271712, true);
+
+    ClickGateway(source, fixture.owner);
+
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+    CHECK(fixture.owner.HasAura(113942));
+    fixture.owner.ApplySpellImmune(0, IMMUNITY_ID, 1271712, false);
+}
+
+TEST_CASE("Frequent Traveler preserves its marker when the cooldown cannot be applied", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+    REQUIRE(fixture.owner.HasAura(1271712));
+    fixture.owner.ApplySpellImmune(0, IMMUNITY_ID, 113942, true);
+
+    ClickGateway(source, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(1271712));
+    CHECK_FALSE(fixture.owner.HasAura(113942));
+    fixture.owner.ApplySpellImmune(0, IMMUNITY_ID, 113942, false);
+    ClickGateway(source, fixture.owner);
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+    CHECK(fixture.owner.HasAura(113942));
+}
+
+TEST_CASE("Frequent Traveler state survives gateway replacement", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+    REQUIRE(fixture.owner.HasAura(1271712));
+    SpellInfo info = GatewaySpellInfo();
+    GatewaySpell spell{ &fixture.owner, &info, TRIGGERED_FULL_MASK };
+    spell.m_targets.SetDst(0.0f, 0.0f, 0.0f, 0.0f, 0);
+    spell.Attach("spell_warl_demonic_gateway");
+
+    spell.CallScriptEffectHandlers(EFFECT_1, SPELL_EFFECT_HANDLE_LAUNCH);
+
+    CHECK(source->IsDestroyedObject());
+    REQUIRE(fixture.owner.HasAura(1271712));
+    GatewayEndpoint* replacement = CreateGatewayPair(fixture, fixture.owner, 59271);
+    ClickGateway(replacement, fixture.owner);
+    CHECK(fixture.owner.HasAura(113942));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
+}
+
+TEST_CASE("Frequent Traveler consumes a marker restored through the aura load contract", "[Spells][Warlock][Gateway][FrequentTraveler]")
+{
+    GatewayFixture fixture;
+    GatewayEndpoint* source = CreateGatewayPair(fixture, fixture.owner, 59262);
+    REQUIRE(fixture.owner.AddAura(1265801, &fixture.owner));
+    ClickGateway(source, fixture.owner);
+    Aura* marker = fixture.owner.GetAura(1271712);
+    REQUIRE(marker);
+    REQUIRE(marker->CanBeSaved());
+    marker->UpdateOwner(30000, &fixture.owner);
+    int32 maxDuration = marker->GetMaxDuration();
+    int32 remaining = marker->GetDuration();
+    fixture.owner.RemoveAurasDueToSpell(1271712);
+    marker = fixture.owner.AddAura(1271712, &fixture.owner);
+    REQUIRE(marker);
+    SpellEffectValue amount[] = { 0.0 };
+    marker->SetLoadedState(maxDuration, remaining, 0, 0, amount);
+    REQUIRE(marker->GetDuration() == remaining);
+
+    ClickGateway(source, fixture.owner);
+
+    CHECK(fixture.owner.HasAura(113942));
+    CHECK_FALSE(fixture.owner.HasAura(1271712));
 }
