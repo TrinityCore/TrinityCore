@@ -73,13 +73,13 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterItemID);
     if (!pProto)
     {
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, 0);
         return;
     }
 
     if (!_player->HasEnoughMoney(uint64(cost)))
     {
-        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID);
+        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0);
         return;
     }
 
