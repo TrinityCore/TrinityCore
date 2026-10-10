@@ -71,11 +71,12 @@ void AIGroupMgr::LoadActionSetsFromDB()
         eventHolder.Extra2 = fields[15].GetDouble();
         eventHolder.Extra3 = fields[16].GetDouble();
         eventHolder.Extra4 = fields[17].GetDouble();
-        eventHolder.TargetType = fields[18].GetUInt8();
-        eventHolder.TargetParam1 = fields[19].GetUInt32();
-        eventHolder.TargetParam2 = fields[20].GetUInt32();
-        eventHolder.TargetParam3 = fields[21].GetUInt32();
-        eventHolder.TargetParam4 = fields[22].GetUInt32();
+        eventHolder.Flags = fields[18].GetUInt32();
+        eventHolder.TargetType = fields[19].GetUInt8();
+        eventHolder.TargetParam1 = fields[20].GetUInt32();
+        eventHolder.TargetParam2 = fields[21].GetUInt32();
+        eventHolder.TargetParam3 = fields[22].GetUInt32();
+        eventHolder.TargetParam4 = fields[23].GetUInt32();
 
         if (eventHolder.Unit && eventHolder.Unit >= uint8(AIGroupUnit::Max))
         {

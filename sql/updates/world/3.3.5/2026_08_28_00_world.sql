@@ -57,6 +57,7 @@ CREATE TABLE `action_set` (
   `Extra2` double NOT NULL DEFAULT '0',
   `Extra3` double NOT NULL DEFAULT '0',
   `Extra4` double NOT NULL DEFAULT '0',
+  `Flags` int unsigned NOT NULL DEFAULT '0',
   `TargetType` tinyint unsigned NOT NULL DEFAULT '0',
   `TargetParam1` int unsigned NOT NULL DEFAULT '0',
   `TargetParam2` int unsigned NOT NULL DEFAULT '0',

@@ -1110,7 +1110,7 @@ struct ActionSetEventHolder
 {
     ActionSetEventHolder() : Id(0), Index(0), Type(0), Unit(0), Point(0), Path(0), TimeA(0), MoveSpeed(0),
     StringId(""), TimeB(0), LinearPath(0), CircularPath(0), FlightPath(0), Extra0(0), Extra1(0), Extra2(0),
-    Extra3(0), Extra4(0), TargetType(0), TargetParam1(0), TargetParam2(0), TargetParam3(0), TargetParam4(0) { }
+    Extra3(0), Extra4(0), Flags(0), TargetType(0), TargetParam1(0), TargetParam2(0), TargetParam3(0), TargetParam4(0) { }
 
     uint32 Id;
     uint16 Index;
@@ -1130,6 +1130,7 @@ struct ActionSetEventHolder
     double Extra2;
     double Extra3;
     double Extra4;
+    uint32 Flags;
     uint8 TargetType;
     uint32 TargetParam1;
     uint32 TargetParam2;
