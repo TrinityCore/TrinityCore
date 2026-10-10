@@ -15,20 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MEMORY_H
-#define _MEMORY_H
+#ifndef TRINITY_MEMORY_H
+#define TRINITY_MEMORY_H
 
-#include "DetourAlloc.h"
+#include <memory>
 
-//  memory management
-inline void* dtCustomAlloc(size_t size, dtAllocHint /*hint*/)
+namespace Trinity
 {
-    return (void*)new unsigned char[size];
+namespace Impl
+{
+template<typename T, typename Del>
+struct unique_ptr_deleter
+{
+    using pointer = T;
+    unique_ptr_deleter(Del deleter) : _deleter(std::move(deleter)) { }
+
+    void operator()(pointer ptr) const { _deleter(ptr); }
+
+private:
+    Del _deleter;
+};
 }
 
-inline void dtCustomFree(void* ptr)
+template<typename T, typename Del>
+auto make_unique_ptr_with_deleter(T ptr, Del&& deleter)
 {
-    delete [] (unsigned char*)ptr;
+    using Deleter_t = Impl::unique_ptr_deleter<T, Del>;
+
+    return std::unique_ptr<T, Deleter_t>(ptr, Deleter_t(std::forward<Del>(deleter)));
+}
 }
 
-#endif
+#endif // TRINITY_MEMORY_H
