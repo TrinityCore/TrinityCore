@@ -1621,7 +1621,7 @@ class spell_shadowmoon_illidari_agent_illusion : public AuraScript
     {
         if (Player* target = GetTarget()->ToPlayer())
             target->CastSpell(target, target->GetNativeGender() == GENDER_MALE ?
-            SPELL_ILLIDARI_DISGUISE_MALE : SPELL_ILLIDARI_DISGUISE_FEMALE);
+            SPELL_ILLIDARI_DISGUISE_MALE : SPELL_ILLIDARI_DISGUISE_FEMALE, true);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1656,7 +1656,7 @@ class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
     {
         Unit* target = GetHitUnit();
         if (target->HasAura(uint32(GetEffectValue())))
-            target->CastSpell(target, SPELL_KILL_CREDIT_CRAZED_COLOSSUS);
+            target->CastSpell(target, SPELL_KILL_CREDIT_CRAZED_COLOSSUS, true);
     }
 
     void Register() override
@@ -1720,7 +1720,7 @@ class spell_shadowmoon_arcano_scorp_control : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId, true);
     }
 
     void Register() override

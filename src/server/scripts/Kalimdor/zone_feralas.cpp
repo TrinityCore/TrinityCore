@@ -38,7 +38,7 @@ class spell_gordunni_trap : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->CastSpell(target, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
+        target->CastSpell(target, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK, true);
     }
 
     void Register() override
