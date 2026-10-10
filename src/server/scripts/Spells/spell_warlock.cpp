@@ -1742,14 +1742,15 @@ class spell_warl_summon_sayaad : public SpellScript
         });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleSummon(SpellEffIndex effIndex)
     {
+        PreventHitDefaultEffect(effIndex);
         GetCaster()->CastSpell(nullptr, roll_chance(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warl_summon_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warl_summon_sayaad::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON_PET);
     }
 };
 
