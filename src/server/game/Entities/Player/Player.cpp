@@ -1534,6 +1534,7 @@ void Player::RegenerateRunes(uint32 diff)
         return;
 
     // Runes act as cooldowns, and they don't need to send any data
+    PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
     for (uint8 i = 0; i < MAX_RUNES; i += 2)
     {
         uint8 runeToRegen = i;
@@ -1546,8 +1547,6 @@ void Player::RegenerateRunes(uint32 diff)
             runeToRegen = i + 1;
             runeCooldown = secondRuneCd;
         }
-
-        PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES);
 
         float cdDiff = (powerTypeEntry->RegenPeace + m_unitData->PowerRegenFlatModifier[GetPowerIndex(GetPowerTypeForBaseRune(runeToRegen))]) * 0.001f * diff;
         if (runeCooldown > cdDiff)
@@ -4862,6 +4861,7 @@ void Player::UpdateRating(CombatRating cr)
             float const multiplier = GetRatingMultiplier(cr);
             float const oldVal = oldRating * multiplier;
             float const newVal = amount * multiplier;
+            int32 highestOtherRating = 0;
             switch (cr)
             {
                 case CR_HASTE_MELEE:
@@ -4870,21 +4870,32 @@ void Player::UpdateRating(CombatRating cr)
                     ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
                     ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
 
-                    // Item and aura mods increase the haste of all three combat ratings so we only have to pick one
-                    ApplyHasteRegenMod(oldVal, false);
-                    ApplyHasteRegenMod(newVal, true);
+                    highestOtherRating = std::max({ m_activePlayerData->CombatRatings[CR_HASTE_RANGED], m_activePlayerData->CombatRatings[CR_HASTE_SPELL] });
                     break;
                 case CR_HASTE_RANGED:
                     ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
                     ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+                    highestOtherRating = std::max(m_activePlayerData->CombatRatings[CR_HASTE_MELEE], m_activePlayerData->CombatRatings[CR_HASTE_SPELL]);
                     break;
                 case CR_HASTE_SPELL:
                     ApplyCastTimePercentMod(oldVal, false);
+                    ApplySpellHastePercentMod(oldVal, false);
                     ApplyCastTimePercentMod(newVal, true);
+                    ApplySpellHastePercentMod(newVal, true);
+                    highestOtherRating = std::max(m_activePlayerData->CombatRatings[CR_HASTE_MELEE], m_activePlayerData->CombatRatings[CR_HASTE_RANGED]);
                     break;
                 default:
                     break;
             }
+
+            float oldHasteRegenVal = std::max(oldRating, highestOtherRating) * multiplier;
+            float newHasteRegenVal = std::max(amount, highestOtherRating) * multiplier;
+            if (oldHasteRegenVal != newHasteRegenVal)
+            {
+                ApplyHasteRegenPercentMod(oldHasteRegenVal, false);
+                ApplyHasteRegenPercentMod(newHasteRegenVal, true);
+            }
+
             break;
         }
         case CR_AVOIDANCE:

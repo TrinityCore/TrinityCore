@@ -10893,21 +10893,29 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
     if (val > 0.f)
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), val, !apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), val, !apply);
     }
     else
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), -val, apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), -val, apply);
     }
 }
 
-void Unit::ApplyHasteRegenMod(float val, bool apply)
+void Unit::ApplySpellHastePercentMod(float val, bool apply)
+{
+    if (val > 0.f)
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), val, !apply);
+    else
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), -val, apply);
+}
+
+void Unit::ApplyHasteRegenPercentMod(float val, bool apply)
 {
     if (val > 0.f)
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), val, !apply);
-    else
+    else if (val < 0.0f)
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
+    else
+        return;
 
     for (Powers powerType : GetUsedPowerTypes())
     {
@@ -10922,8 +10930,8 @@ void Unit::ApplyHasteRegenMod(float val, bool apply)
 
         // Classic Only - Death Knight Runes use the flags of the POWER_RUNES
         if (powerType == POWER_RUNE_BLOOD || powerType == POWER_RUNE_FROST || powerType == POWER_RUNE_UNHOLY)
-            if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES))
-                regenAffectedByHaste = powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
+            if (PowerTypeEntry const* runePowerTypeEntry = sDB2Manager.GetPowerTypeEntry(POWER_RUNES))
+                regenAffectedByHaste = runePowerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste);
 
         if (regenAffectedByHaste)
             UpdatePowerRegen(powerType);
