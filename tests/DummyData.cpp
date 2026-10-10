@@ -17,6 +17,7 @@
 
 #include "DummyData.h"
 
+#include "BaseEntity.h"
 #include "DB2Stores.h"
 #include "ItemDefines.h"
 #include "ItemTemplate.h"
@@ -57,6 +58,27 @@
     ItemTemplate& t = GetItemTemplate(6948, "Hearthstone");
     const_cast<ItemSparseEntry*>(t.ExtendedData)->OverallQualityID = ITEM_QUALITY_NORMAL;
     SetItemLocale(6948, LOCALE_esMX, "Piedra de hogar");
+}
+
+/*static*/ void UnitTestDataLoader::LoadGatewayTemplates()
+{
+    for (uint32 entry : { 59262u, 59271u })
+    {
+        CreatureTemplate& creature = sObjectMgr->_creatureTemplateStore[entry];
+        creature.Entry = entry;
+        creature.ScriptID = sObjectMgr->GetScriptId("npc_warl_demonic_gateway");
+    }
+}
+
+/*static*/ void UnitTestDataLoader::BindGatewayTravelScripts()
+{
+    for (uint32 spellId : { 113896u, 120729u })
+        sObjectMgr->_spellScriptsStore.emplace(spellId, std::pair{ sObjectMgr->GetScriptId("spell_warl_demonic_gateway_travel"), true });
+}
+
+/*static*/ void UnitTestDataLoader::InitializeEntityGuid(BaseEntity& entity, ObjectGuid const& guid)
+{
+    entity._Create(guid);
 }
 
 static UnitTestDataLoader::DB2<AchievementEntry, &AchievementEntry::ID> achievements(sAchievementStore);

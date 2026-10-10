@@ -12,6 +12,8 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(tests)
 
+target_sources(tests PRIVATE ${CMAKE_SOURCE_DIR}/src/server/scripts/Spells/spell_warlock.cpp)
+
 CollectAndAddSourceFiles(
   tests
   ${CMAKE_CURRENT_SOURCE_DIR})
