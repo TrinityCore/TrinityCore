@@ -939,12 +939,12 @@ class spell_dk_grip_of_the_dead_snare : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_PERIODIC });
+        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_TALENT, SPELL_DK_GRIP_OF_THE_DEAD_SNARE });
     }
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_DK_GRIP_OF_THE_DEAD_PERIODIC);
+        return GetCaster()->HasAura(SPELL_DK_GRIP_OF_THE_DEAD_TALENT);
     }
 
     void HandleGrip(SpellEffIndex /*effIndex*/) const
