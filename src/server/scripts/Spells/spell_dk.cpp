@@ -919,7 +919,7 @@ class spell_dk_grip_of_the_dead_periodic : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_TALENT });
+        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT });
     }
 
     void HandleDummyTick(AuraEffect const* /*aurEff*/) const
