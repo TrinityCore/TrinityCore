@@ -925,10 +925,7 @@ class spell_dk_grip_of_the_dead_periodic : public AuraScript
     void HandleDummyTick(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
-            });
+            caster->CastSpell(caster, SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
