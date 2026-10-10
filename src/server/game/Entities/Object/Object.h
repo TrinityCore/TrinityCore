@@ -562,6 +562,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32  LastUsedScriptID;
 
+        // AI Group related variables
+        uint32 currentTriggersId;
+        uint32 currentRunningActionSet;
+
         // Transports
         Transport* GetTransport() const { return m_transport; }
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
