@@ -909,17 +909,17 @@ Creature* AIGroupScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid:
     return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
 }
 
-void AIGroupScript::ProcessEventsFor(ActionTriggers trigger, Unit* unit, uint32 triggerParam1, uint32 triggerParam2, GameObject* gob)
+void AIGroupScript::ProcessEventsFor(ActionTriggers trigger, WorldObject* object, uint32 triggerParam1, uint32 triggerParam2)
 {
     for (ActionTriggersHolder& holder : mEvents)
     {
         ActionTriggers triggerType = ActionTriggers(holder.TriggerId);
         if (triggerType == trigger)
-            ProcessEvent(holder, unit, triggerParam1, triggerParam2, gob);
+            ProcessEvent(holder, object, triggerParam1, triggerParam2);
     }
 }
 
-void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint32 triggerParam1, uint32 /*triggerParam2*/, GameObject* /*gob*/)
+void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, WorldObject* object, uint32 triggerParam1, uint32 /*triggerParam2*/)
 {
     if (!holder.IsTriggerActive || ((holder.Flags & NotRepeatable) && holder.IsTriggerUsed))
         return;
@@ -1007,7 +1007,7 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, Unit* unit, uint3
     if (holder.Flags & NotRepeatable)
         holder.IsTriggerUsed = true;
 
-    PerformActionSet(holder.ActionSetId, unit ? unit->GetGUID() : ObjectGuid::Empty);
+    PerformActionSet(holder.ActionSetId, object ? object->GetGUID() : ObjectGuid::Empty);
 }
 
 void AIGroupScript::RecalcTimer(ActionTriggersHolder& holder)

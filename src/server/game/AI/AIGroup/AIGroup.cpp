@@ -61,7 +61,7 @@ void AIGroup::JustDied(Unit* killer)
 
 void AIGroup::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster->ToUnit(), spellInfo->Id, 0, caster->ToGameObject());
+    GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster, spellInfo->Id);
 }
 
 void AIGroup::KilledUnit(Unit* victim)
