@@ -33,6 +33,11 @@ void AIGroup::OnActionTriggersChange(uint32 /*triggersId*/)
     GetScript()->ReplaceActionTriggers();
 }
 
+void AIGroup::MovementInform(uint32 type, uint32 id)
+{
+    GetScript()->MovementInform(type, id);
+}
+
 void AIGroup::UpdateAI(uint32 diff)
 {
     GetScript()->OnUpdate(diff);
@@ -41,11 +46,6 @@ void AIGroup::UpdateAI(uint32 diff)
         return;
 
     DoMeleeAttackIfReady();
-}
-
-void AIGroup::MovementInform(uint32 type, uint32 id)
-{
-    GetScript()->MovementInform(type, id);
 }
 
 void AIGroup::JustEngagedWith(Unit* enemy)

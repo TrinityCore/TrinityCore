@@ -47,8 +47,9 @@ class TC_GAME_API AIGroup : public CreatureAI
 
         void OnActionTriggersChange(uint32 triggersId) override;
 
-        void UpdateAI(uint32 diff) override;
         void MovementInform(uint32 type, uint32 id) override;
+
+        void UpdateAI(uint32 diff) override;
 
         // Original Action Triggers, ordered by id
 
