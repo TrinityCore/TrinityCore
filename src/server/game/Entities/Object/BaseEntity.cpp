@@ -613,14 +613,13 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer& data, CreateObjectBits flags, P
         }
         if (HasRuneState)
         {
-            float baseCd = float(player->GetRuneBaseCooldown());
             uint32 maxRunes = uint32(player->GetMaxPower(POWER_RUNES));
 
             data << uint8((1 << maxRunes) - 1);
             data << uint8(player->GetRunesState());
             data << uint32(maxRunes);
             for (uint32 i = 0; i < maxRunes; ++i)
-                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255);
+                data << uint8(player->GetRuneCooldown(i) * 255.0f);
         }
     }
 

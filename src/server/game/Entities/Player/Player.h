@@ -477,7 +477,7 @@ struct Areas
 struct Runes
 {
     std::deque<uint8> CooldownOrder;
-    uint32 Cooldown[MAX_RUNES];
+    std::array<float, MAX_RUNES> Cooldown;                  // cooldown progress [0,1] where 1 means rune is ready
     uint8 RuneState;                                        // mask of available runes
 
     void SetRuneState(uint8 index, bool set = true);
@@ -2815,9 +2815,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         UF::DeclinedNames const* GetDeclinedNames() const { return m_playerData->DeclinedNames.has_value() ? &*m_playerData->DeclinedNames : nullptr; }
         uint8 GetRunesState() const;
-        uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
-        uint32 GetRuneBaseCooldown() const;
-        void SetRuneCooldown(uint8 index, uint32 cooldown);
+        float GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
+        void SetRuneCooldown(uint8 index, float cooldown);
         void ResyncRunes() const;
         void InitRunes();
 
