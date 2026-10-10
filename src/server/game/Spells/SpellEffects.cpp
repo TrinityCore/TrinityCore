@@ -6019,7 +6019,7 @@ void Spell::EffectActivateRune()
 
         if (player->IsRuneFullyDepleted(i))
         {
-            player->SetRuneCooldown(i, 0.0f);
+            player->SetRuneCooldown(i, 1.0f);
             --count;
         }
     }

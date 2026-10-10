@@ -4569,7 +4569,6 @@ void AuraEffect::HandleModCastingSlowNoStack(AuraApplication const* aurApp, uint
     target->ApplyCastTimePercentMod(float(GetAmount()), apply);
 }
 
-
 void AuraEffect::HandleModMeleeRangedCastingSlowNoStack(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
@@ -6622,7 +6621,7 @@ void AuraEffect::HandleConvertRune(AuraApplication const* aurApp, uint8 mode, bo
             if (RuneType(GetMiscValue()) != playerTarget->GetCurrentRune(i))
                 continue;
 
-            if (G3D::fuzzyEq(playerTarget->GetRuneCooldown(i), 0.0f))
+            if (G3D::fuzzyEq(playerTarget->GetRuneCooldown(i), 1.0f))
             {
                 playerTarget->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this, GetAuraType(), GetSpellInfo());
                 --runesToConvert;

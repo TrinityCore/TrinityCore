@@ -423,8 +423,6 @@ struct Areas
 
 constexpr uint8 MAX_RUNES = 6;
 
-constexpr float RUNE_BASE_COOLDOWN = 1.0f;
-
 enum class RuneType : uint8
 {
     Blood   = 0,

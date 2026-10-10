@@ -4750,7 +4750,7 @@ void Spell::SendSpellGo()
         castData.RemainingRunes->Start = m_runesState; // runes state before
         castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
         for (uint8 i = 0; i < MAX_RUNES; ++i)
-            castData.RemainingRunes->Cooldowns.push_back((1.0f - player->GetRuneCooldown(i)) * uint32(255)); // rune cooldown passed
+            castData.RemainingRunes->Cooldowns.push_back(player->GetRuneCooldown(i) * 255.0f); // rune cooldown passed
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
@@ -5391,7 +5391,7 @@ SpellCastResult Spell::CheckRuneCost() const
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
         RuneType rune = player->GetCurrentRune(i);
-        if (G3D::fuzzyEq(player->GetRuneCooldown(i), 0.0f) && (runeCost[AsUnderlyingType(rune)] > 0))
+        if (G3D::fuzzyEq(player->GetRuneCooldown(i), 1.0f) && (runeCost[AsUnderlyingType(rune)] > 0))
             runeCost[AsUnderlyingType(rune)]--;
     }
 
@@ -5447,9 +5447,9 @@ void Spell::TakeRunePower(bool didHit)
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
         RuneType rune = player->GetCurrentRune(i);
-        if (!player->GetRuneCooldown(i) && runeCost[AsUnderlyingType(rune)] > 0)
+        if (G3D::fuzzyEq(player->GetRuneCooldown(i), 1.0f) && runeCost[AsUnderlyingType(rune)] > 0)
         {
-            player->SetRuneCooldown(i, RUNE_BASE_COOLDOWN);
+            player->SetRuneCooldown(i, 0.0f);
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
             --runeCost[AsUnderlyingType(rune)];
@@ -5464,9 +5464,9 @@ void Spell::TakeRunePower(bool didHit)
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             RuneType rune = player->GetCurrentRune(i);
-            if (G3D::fuzzyEq(player->GetRuneCooldown(i), 0.0f) && rune == RuneType::Death)
+            if (G3D::fuzzyEq(player->GetRuneCooldown(i), 1.0f) && rune == RuneType::Death)
             {
-                player->SetRuneCooldown(i, RUNE_BASE_COOLDOWN);
+                player->SetRuneCooldown(i, 0.0f);
                 player->SetLastUsedRune(rune);
                 player->SetLastUsedRuneIndex(i);
                 runeCost[AsUnderlyingType(rune)]--;

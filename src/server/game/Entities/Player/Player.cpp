@@ -1541,17 +1541,18 @@ void Player::RegenerateRunes(uint32 diff)
         float secondRuneCd = GetRuneCooldown(i + 1);
 
         // Regenerate second rune of the same type only after first rune is off the cooldown
-        if (G3D::fuzzyNe(secondRuneCd, 0.0f) && (runeCooldown > secondRuneCd || G3D::fuzzyEq(runeCooldown, 0.0f)))
+        // So if the 2nd rune is not fully recharged and the the first rune is either fully recharged or has a lower cooldown, prioritize it
+        if (G3D::fuzzyNe(secondRuneCd, 1.0f) && (runeCooldown < secondRuneCd || G3D::fuzzyEq(runeCooldown, 1.0f)))
         {
             runeToRegen = i + 1;
             runeCooldown = secondRuneCd;
         }
 
         float cdDiff = (powerTypeEntry->RegenPeace + m_unitData->PowerRegenFlatModifier[GetPowerIndex(GetPowerTypeForBaseRune(runeToRegen))]) * 0.001f * diff;
-        if (runeCooldown > cdDiff)
-            SetRuneCooldown(runeToRegen, runeCooldown - cdDiff);
+        if (G3D::fuzzyLt(runeCooldown + cdDiff, 1.0f))
+            SetRuneCooldown(runeToRegen, runeCooldown + cdDiff);
         else
-            SetRuneCooldown(runeToRegen, 0.0f);
+            SetRuneCooldown(runeToRegen, 1.0f);
     }
 }
 
@@ -25421,7 +25422,7 @@ void Player::ResyncRunes() const
 
     data.Runes.Cooldowns.reserve(MAX_RUNES);
     for (uint8 i = 0; i < MAX_RUNES; ++i)
-        data.Runes.Cooldowns.push_back((1.0f - GetRuneCooldown(i)) * uint32(255));
+        data.Runes.Cooldowns.push_back(GetRuneCooldown(i) * 255.0f);
 
     SendDirectMessage(data.Write());
 }
@@ -25457,7 +25458,7 @@ void Player::InitRunes()
     {
         SetBaseRune(i, runeSlotTypes[i]);                              // init base types
         SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
-        SetRuneCooldown(i, 0.0f);                                      // reset cooldowns
+        SetRuneCooldown(i, 1.0f);                                      // reset cooldowns
         SetRuneConvertAura(i, nullptr, SPELL_AURA_NONE, nullptr);
         m_runes->SetRuneState(i);
     }
@@ -25487,7 +25488,7 @@ Powers Player::GetPowerTypeForBaseRune(uint8 index) const
 
 bool Player::IsRuneFullyDepleted(uint8 index) const
 {
-    return G3D::fuzzyEq(GetRuneCooldown(index), RUNE_BASE_COOLDOWN);
+    return G3D::fuzzyEq(GetRuneCooldown(index), 0.0f);
 }
 
 bool Player::HasFullyDepletedRune(RuneType runeType) const
@@ -25523,7 +25524,7 @@ void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const
 void Player::SetRuneCooldown(uint8 index, float cooldown)
 {
     m_runes->_Runes[index].Cooldown = cooldown;
-    m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+    m_runes->SetRuneState(index, G3D::fuzzyEq(cooldown, 1.0f));
 }
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
