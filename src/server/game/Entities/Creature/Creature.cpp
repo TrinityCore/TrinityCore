@@ -535,6 +535,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         m_spells[i] = GetCreatureTemplate()->spells[i];
 
+    ApplyAllStaticFlags(cinfo->StaticFlags);
+
     return true;
 }
 
@@ -666,6 +668,11 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
 
     if (update)
         UpdateObjectVisibility();
+}
+
+void Creature::ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags)
+{
+    _staticFlags = flags;
 }
 
 void Creature::Update(uint32 diff)
