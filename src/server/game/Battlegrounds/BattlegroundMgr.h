@@ -83,6 +83,8 @@ namespace WorldPackets
 
 class TC_GAME_API BattlegroundMgr
 {
+    friend struct BattlegroundTestAccess;
+
     private:
         BattlegroundMgr();
         ~BattlegroundMgr();
