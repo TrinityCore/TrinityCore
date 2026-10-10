@@ -496,6 +496,9 @@ bool PetAI::CanAttack(Unit* target)
         return false;
     }
 
+    if (!me->IsValidAttackTarget(target))
+        return false;
+
     if (!me->GetCharmInfo())
     {
         TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: {}", GetDebugInfo());
