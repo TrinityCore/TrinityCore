@@ -1,10 +1,17 @@
 * [What is... Action Triggers](#what-is-action-triggers)
+* [What is... Action Triggers Name](#what-is-action-triggers-name)
+
+--------------
 
 * [Creating a New Action Trigger](#creating-a-new-action-trigger)
 
 ## What is... Action Triggers
 
 Action triggers is the base of AIGroup script, it is linked to creature using `TriggersId` in `creature_template` database table. Triggers are configured in the `action_triggers` database table and can respond to events such as spawning, entering combat, being hit by a spell, or reaching a health range. Each trigger links to an action set and can optionally filter on trigger parameters or control its chance and repeat behavior. When its condition is met, the AIGroup runs the linked action set.
+
+## What is... Action Triggers Name
+
+`action_triggers_name` is only used to store action triggers names. Currently active action triggers can be displayed by the .npc_info command if `action_triggers_name` is populated.
 
 ## Creating a New Action Trigger
 
