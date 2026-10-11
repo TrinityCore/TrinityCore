@@ -299,6 +299,12 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
         if (WorldObject* invoker = ObjectAccessor::GetWorldObject(*baseObject, invokerGuid))
             targets.push_back(invoker);
 
+    if (targets.empty() && (action.Flags & uint32(ActionFlags::AbortActionSetIfTargetIsNotFound)))
+    {
+        AbortActionSet(action.Id);
+        return true;
+    }
+
     switch (AI_GROUP_ACTION(action.Type))
     {
         case AI_GROUP_SPAWN:
@@ -503,7 +509,15 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
         activeActionSet->ActionStarted = true;
         activeActionSet->ActionTimer = GetActionDuration(action);
-        if (ExecuteAction(action, activeActionSet->InvokerGuid) ||
+        bool actionFinished = ExecuteAction(action, activeActionSet->InvokerGuid);
+        if (activeActionSet->CurrentAction >= activeActionSet->Actions.size())
+        {
+            mActionSets.erase(activeActionSet);
+            SetCurrentRunningActionSet(0);
+            return;
+        }
+
+        if (actionFinished ||
             (activeActionSet->ActionTimer == 0 && !CanActionBeInfinite(action.Type) && !IsActionWaitable(action.Type)))
         {
             activeActionSet->ActionStarted = false;
@@ -525,6 +539,16 @@ void AIGroupScript::SetCurrentRunningActionSet(uint32 actionSetId)
 {
     if (me)
         me->currentRunningActionSet = actionSetId;
+}
+
+void AIGroupScript::AbortActionSet(uint32 actionSetId)
+{
+    auto actionSet = std::find_if(mActionSets.begin(), mActionSets.end(), [actionSetId](AIGroupActiveActionSet const& activeActionSet)
+    {
+        return activeActionSet.Id == actionSetId;
+    });
+    if (actionSet != mActionSets.end())
+        actionSet->CurrentAction = actionSet->Actions.size();
 }
 
 void AIGroupScript::ReplaceActionTriggers()

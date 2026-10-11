@@ -60,6 +60,7 @@ class TC_GAME_API AIGroupScript
         void RandomizeEnergyRange(ActionTriggersHolder& holder);
         bool ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);
         void FinishActionSet(AIGroupActiveActionSet& actionSet);
+        void AbortActionSet(uint32 actionSetId);
         bool CanActionBeInfinite(uint16 action);
         bool ShouldStopMovementForAction(uint16 action);
         bool IsActionWaitable(uint16 action);

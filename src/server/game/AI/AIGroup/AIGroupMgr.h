@@ -865,7 +865,7 @@ enum class ActionFlags : uint32
     PauseIfCantFindNamedPoint                   = 0x00000800, // NYI // pause if can't find named point (otherwise skip action)
     OnlyTargetUnitsWithSharedPhase              = 0x00001000, // NYI // stringID: Only Target Units with shared phase
     CleanupAction                               = 0x00002000, // NYI // Cleanup Action (Run Once On Stop or Interrupt)
-    AbortActionSetIfTargetIsNotFound            = 0x00004000, // NYI // Abort action set if no target is found
+    AbortActionSetIfTargetIsNotFound            = 0x00004000, // Abort action set if no target is found
     DoNotChainIntoThisAction                    = 0x00008000, // NYI // Do Not Chain Into This Action (Wait For Regular AI Update)
     RandomizeTargets                            = 0x00010000, // NYI // Randomize Targets (instead of sort)
     DespawnAtEndOfPathOrOnPathFail              = 0x00020000, // NYI // Despawn At End of Path or on path fail (while animating)
