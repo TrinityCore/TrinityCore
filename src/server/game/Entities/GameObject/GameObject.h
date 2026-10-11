@@ -33,6 +33,7 @@ class TransportBase;
 class Unit;
 struct Loot;
 struct TransportAnimation;
+enum SpellTargetCheckTypes : uint8;
 enum TriggerCastFlags : uint32;
 
 namespace Vignettes
@@ -122,6 +123,11 @@ private:
 
 union GameObjectValue
 {
+    //6 GAMEOBJECT_TYPE_TRAP
+    struct
+    {
+        SpellTargetCheckTypes TargetSearcherCheckType;
+    } Trap;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
     {
@@ -169,21 +175,22 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ~GameObject();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+        void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+        void ClearValuesChangesMask() override;
 
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const;
+            UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target, bool ignoreNestedChangesMask) const;
 
         struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
         {
-            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner) { }
+            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
             GameObject const* Owner;
             UF::ObjectData::Base ObjectMask;
             UF::GameObjectData::Base GameObjectMask;
+            bool IgnoreNestedChangesMask;
 
             void operator()(Player const* player) const;
         };
@@ -198,7 +205,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         static GameObject* CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit = 0);
         static GameObject* CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
 
-        void Update(uint32 p_time) override;
+        void Update(uint32 diff) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
         GameObjectOverride const* GetGameObjectOverride() const;
@@ -206,7 +213,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
         bool IsTransport() const;
-        bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
@@ -291,7 +297,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
-        std::vector<uint32> const* GetPauseTimes() const;
+        std::span<uint32 const> GetPauseTimes() const;
         Optional<float> GetPathProgressForClient() const { return m_transportPathProgress; }
         void SetPathProgressForClient(float progress);
 
@@ -352,7 +358,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
-        bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
+        bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects) const override;
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;
 
@@ -388,6 +394,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetScriptStringId(std::string id);
         std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
+        SpawnTrackingStateData const* GetSpawnTrackingStateDataForPlayer(Player const* player) const override;
+
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }
         uint8 GetNameSetId() const;
@@ -395,21 +403,18 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetFaction() const override { return m_gameObjectData->FactionTemplate; }
         void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction); }
 
-        GameObjectModel* m_model;
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr) const;
+        std::unique_ptr<GameObjectModel> m_model;
+        Position GetRespawnPosition() const;
 
         TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
         TransportBase const* ToTransportBase() const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
+        Transport* ToTransport() { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport*>(this) : nullptr; }
+        Transport const* ToTransport() const { return GetGoType() == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT ? reinterpret_cast<Transport const*>(this) : nullptr; }
 
-        float GetStationaryX() const override { return m_stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
-        Position const& GetStationaryPosition() const { return m_stationaryPosition; }
+        Position const& GetStationaryPosition() const override { return m_stationaryPosition; }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
+        void RelocateStationaryPosition(Position const& pos) { m_stationaryPosition.Relocate(pos); }
 
         void AfterRelocation();
 

@@ -54,7 +54,7 @@ class rbac_commandscript : public CommandScript
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable rbacAccountCommandTable =
         {

@@ -102,8 +102,9 @@ bool SpellTargetSelector::operator()(Unit const* target) const
                 meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
             }
 
-            minRange = _caster->GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
-            maxRange = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
+            SpellRange range = _caster->GetSpellMinMaxRangeForTarget(target, _spellInfo);
+            minRange = range.Min + meleeRange;
+            maxRange = range.Max;
 
             rangeMod = _caster->GetCombatReach();
             rangeMod += target->GetCombatReach();
@@ -119,15 +120,12 @@ bool SpellTargetSelector::operator()(Unit const* target) const
 
     maxRange += rangeMod;
 
-    minRange *= minRange;
-    maxRange *= maxRange;
-
     if (target != _caster)
     {
-        if (_caster->GetExactDistSq(target) > maxRange)
+        if (!_caster->IsInDist(target, maxRange))
             return false;
 
-        if (minRange > 0.0f && _caster->GetExactDistSq(target) < minRange)
+        if (minRange > 0.0f && _caster->IsInDist(target, minRange))
             return false;
     }
 

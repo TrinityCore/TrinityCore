@@ -2129,23 +2129,6 @@ enum EscapeEvents
     EVENT_LUMBERING_ABOMINATION_CLEAVE
 };
 
-class HoRStartMovementEvent : public BasicEvent
-{
-    public:
-        explicit HoRStartMovementEvent(Creature* owner) : _owner(owner) { }
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-        {
-            _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = _owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                _owner->AI()->AttackStart(target);
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
 struct npc_escape_event_trash : public ScriptedAI
 {
     npc_escape_event_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -2198,7 +2181,7 @@ class npc_raging_ghoul : public CreatureScript
                 me->CastSpell(me, SPELL_RAGING_GHOUL_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s);
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2262,7 +2245,7 @@ class npc_risen_witch_doctor : public CreatureScript
                 me->CastSpell(me, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                me->m_Events.AddEvent(new HoRStartMovementEvent(me), me->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s);
 
                 npc_escape_event_trash::IsSummonedBy(summoner);
             }
@@ -2772,7 +2755,7 @@ class spell_hor_evasion : public SpellScriptLoader
             void SetDest(SpellDestination& dest)
             {
                 WorldObject* target = GetExplTargetWorldObject();
-                Position pos(*target);
+                Position pos = target->GetPosition();
                 Position home = GetCaster()->ToCreature()->GetHomePosition();
 
                 // prevent evasion outside the room
@@ -2780,7 +2763,7 @@ class spell_hor_evasion : public SpellScriptLoader
                     return;
 
                 float angle = pos.GetAbsoluteAngle(&home);
-                float dist = GetEffectInfo().CalcRadius(GetCaster());
+                float dist = GetEffectInfo().CalcRadius(GetCaster()).Max;
                 target->MovePosition(pos, dist, angle);
 
                 dest.Relocate(pos);
@@ -2829,28 +2812,6 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
         }
 };
 
-// 70698 - Quel'Delar's Will
-class spell_hor_quel_delars_will : public SpellScript
-{
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
-    }
-
-    void HandleReagent(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        // dummy spell consumes reagent, don't ignore it
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_hor_quel_delars_will::HandleReagent, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-    }
-};
-
 void AddSC_halls_of_reflection()
 {
     new at_hor_intro_start();
@@ -2877,5 +2838,4 @@ void AddSC_halls_of_reflection()
     new spell_hor_start_halls_of_reflection_quest_ae();
     new spell_hor_evasion();
     new spell_hor_gunship_cannon_fire();
-    RegisterSpellScript(spell_hor_quel_delars_will);
 }

@@ -17,28 +17,41 @@
 
 #include "RBAC.h"
 #include "AccountMgr.h"
+#include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include <sstream>
+#include <fmt/ranges.h>
 
 namespace rbac
 {
 
 std::string GetDebugPermissionString(RBACPermissionContainer const& perms)
 {
-    std::string str = "";
-    if (!perms.empty())
-    {
-        std::ostringstream o;
-        RBACPermissionContainer::const_iterator itr = perms.begin();
-        o << (*itr);
-        for (++itr; itr != perms.end(); ++itr)
-            o << ", " << uint32(*itr);
-        str = o.str();
-    }
-
-    return str;
+    return Trinity::StringFormat("{}", fmt::join(perms, ", "sv));
 }
+
+RBACPermission::RBACPermission(uint32 id, std::string const& name):
+    _id(id), _name(name), _perms()
+{
+}
+
+RBACPermission::RBACPermission(RBACPermission const& other) = default;
+RBACPermission::RBACPermission(RBACPermission&& other) noexcept = default;
+RBACPermission& RBACPermission::operator=(RBACPermission const& right) = default;
+RBACPermission& RBACPermission::operator=(RBACPermission&& right) noexcept = default;
+RBACPermission::~RBACPermission() = default;
+
+RBACData::RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel):
+    _id(id), _name(name), _realmId(realmId), _secLevel(secLevel),
+    _grantedPerms(), _deniedPerms(), _globalPerms()
+{
+}
+
+RBACData::RBACData(RBACData const& other) = default;
+RBACData::RBACData(RBACData&& other) noexcept = default;
+RBACData& RBACData::operator=(RBACData const& right) = default;
+RBACData& RBACData::operator=(RBACData&& right) noexcept = default;
+RBACData::~RBACData() = default;
 
 RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /* = 0*/)
 {

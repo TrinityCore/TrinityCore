@@ -18,82 +18,80 @@
 #ifndef TRINITYCORE_CLIENT_BUILD_INFO_H
 #define TRINITYCORE_CLIENT_BUILD_INFO_H
 
-#include "Define.h"
+#include "FourCC.h"
 #include <array>
 #include <string_view>
 #include <vector>
 
 namespace ClientBuild
 {
-inline constexpr uint32 ToFourCC(std::string_view text)
+using namespace FourCCLiterals;
+
+struct Program
 {
-    uint32 uintValue = 0;
-    for (uint8 c : text)
-    {
-        uintValue <<= 8;
-        uintValue |= c;
-    }
-    return uintValue;
-}
+    using Id = FourCC<Program>;
 
-consteval uint32 operator""_fourcc(char const* chars, std::size_t length)
+    static constexpr Id WoW             { "WoW"_fourcc };
+
+    TC_SHARED_API static bool IsValid(std::string_view program);
+};
+
+struct Platform
 {
-    if (length > sizeof(uint32))
-        throw "Text can only be max 4 characters long";
+    using Id = FourCC<Platform>;
 
-    return ToFourCC({ chars, length });
-}
+    static constexpr Id Win_x86         { "Win"_fourcc };
+    static constexpr Id Win_x64         { "Wn64"_fourcc };
+    static constexpr Id Win_arm64       { "WinA"_fourcc };
+    static constexpr Id Mac_x86         { "Mac"_fourcc };
+    static constexpr Id Mac_x64         { "Mc64"_fourcc };
+    static constexpr Id Mac_arm64       { "MacA"_fourcc };
 
-TC_SHARED_API std::array<char, 5> ToCharArray(uint32 value);
+    TC_SHARED_API static bool IsValid(std::string_view platform);
+};
 
-namespace Platform
+struct PlatformType
 {
-    inline constexpr uint32 Win_x86     = "Win"_fourcc;
-    inline constexpr uint32 Win_x64     = "Wn64"_fourcc;
-    inline constexpr uint32 Win_arm64   = "WinA"_fourcc;
-    inline constexpr uint32 Mac_x86     = "Mac"_fourcc;
-    inline constexpr uint32 Mac_x64     = "Mc64"_fourcc;
-    inline constexpr uint32 Mac_arm64   = "MacA"_fourcc;
+    using Id = FourCC<PlatformType>;
 
-    TC_SHARED_API bool IsValid(std::string_view platform);
-}
+    static constexpr Id Windows         { "Win"_fourcc };
+    static constexpr Id macOS           { "Mac"_fourcc };
 
-namespace PlatformType
+    TC_SHARED_API static bool IsValid(std::string_view platformType);
+};
+
+struct Arch
 {
-    inline constexpr uint32 Windows     = "Win"_fourcc;
-    inline constexpr uint32 macOS       = "Mac"_fourcc;
+    using Id = FourCC<Arch>;
 
-    TC_SHARED_API bool IsValid(std::string_view platformType);
-}
+    static constexpr Id x86             { "x86"_fourcc };
+    static constexpr Id x64             { "x64"_fourcc };
+    static constexpr Id Arm32           { "A32"_fourcc };
+    static constexpr Id Arm64           { "A64"_fourcc };
+    static constexpr Id WA32            { "WA32"_fourcc };
 
-namespace Arch
+    TC_SHARED_API static bool IsValid(std::string_view arch);
+};
+
+struct Type
 {
-    inline constexpr uint32 x86         = "x86"_fourcc;
-    inline constexpr uint32 x64         = "x64"_fourcc;
-    inline constexpr uint32 Arm32       = "A32"_fourcc;
-    inline constexpr uint32 Arm64       = "A64"_fourcc;
-    inline constexpr uint32 WA32        = "WA32"_fourcc;
+    using Id = FourCC<Type>;
 
-    TC_SHARED_API bool IsValid(std::string_view arch);
-}
+    static constexpr Id Retail          { "WoW"_fourcc };
+    static constexpr Id RetailChina     { "WoWC"_fourcc };
+    static constexpr Id Beta            { "WoWB"_fourcc };
+    static constexpr Id BetaRelease     { "WoWE"_fourcc };
+    static constexpr Id Ptr             { "WoWT"_fourcc };
+    static constexpr Id PtrRelease      { "WoWR"_fourcc };
 
-namespace Type
-{
-    inline constexpr uint32 Retail      = "WoW"_fourcc;
-    inline constexpr uint32 RetailChina = "WoWC"_fourcc;
-    inline constexpr uint32 Beta        = "WoWB"_fourcc;
-    inline constexpr uint32 BetaRelease = "WoWE"_fourcc;
-    inline constexpr uint32 Ptr         = "WoWT"_fourcc;
-    inline constexpr uint32 PtrRelease  = "WoWR"_fourcc;
-
-    TC_SHARED_API bool IsValid(std::string_view type);
-}
+    TC_SHARED_API static bool IsValid(std::string_view type);
+};
 
 struct VariantId
 {
-    uint32 Platform;
-    uint32 Arch;
-    uint32 Type;
+    ClientBuild::Platform::Id Platform;
+    ClientBuild::Arch::Id Arch;
+    ClientBuild::Type::Id Type;
 
     friend bool operator==(VariantId const& left, VariantId const& right) = default;
 };

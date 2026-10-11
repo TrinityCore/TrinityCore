@@ -22,6 +22,7 @@
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "PetDefines.h"
 #include "Player.h"
@@ -197,7 +198,7 @@ class spell_pet_gen_lich_pet_aura : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return (eventInfo.GetProcTarget()->GetTypeId() == TYPEID_PLAYER);
+        return eventInfo.GetActionTarget()->IsPlayer();
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -236,7 +237,7 @@ class spell_pet_gen_lich_pet_periodic_emote : public AuraScript
         // Effect of 70050 is overlapped by effect of 69683 but not instantly (69683 is a series of spell casts, takes longer to execute).
         // However, for some reason emote is not played if creature is idle and only if creature is moving or is already rooted.
         // For now it's scripted manually in script below to play emote always.
-        if (roll_chance_i(50))
+        if (roll_chance(50))
             GetTarget()->CastSpell(GetTarget(), SPELL_LICH_PET_EMOTE, true);
     }
 
@@ -265,17 +266,168 @@ class spell_pet_gen_lich_pet_focus : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()));
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pet_gen_lich_pet_focus::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71848 - Toxic Wasteling Find Target
+class spell_pet_gen_toxic_wasteling_find_target : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValueAsInt()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_find_target::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71874 - Toxic Wasteling Devour
+class spell_pet_gen_toxic_wasteling_devour : public SpellScript
+{
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_gen_toxic_wasteling_devour::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum ElwynnLambMisc
+{
+    // Spells
+    SPELL_SLEEPING_SLEEP        = 32951,
+    SPELL_SUICIDE               = 45254,
+    SPELL_ELWYNN_FOREST_WOLF    = 62701,
+
+    // Sound
+    SOUND_WOLF_HOWL             = 9036,
+};
+
+struct npc_elwynn_forest_wolf : public NullCreatureAI
+{
+    npc_elwynn_forest_wolf(Creature* creature) : NullCreatureAI(creature), _chasing(false) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (!summoner->IsCreature())
+            return;
+
+        _summonerGUID = summoner->GetGUID();
+        _ScheduleBeforeChasingEvents();
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == CHASE_MOTION_TYPE && id == _summonerGUID.GetCounter())
+            _ScheduleAfterChasingEvents();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (_chasing && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+            _ScheduleAfterChasingEvents();
+    }
+
+private:
+    void _ScheduleBeforeChasingEvents()
+    {
+        _scheduler.Schedule(1s, [this](TaskContext const& /*context*/)
+        {
+            me->PlayDistanceSound(SOUND_WOLF_HOWL);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
+        })
+        .Schedule(4s, [this](TaskContext const& /*context*/)
+        {
+            if (Creature* summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
+                if (me->Attack(summoner, false))
+                    me->GetMotionMaster()->MoveChase(summoner);
+
+            _chasing = true;
+        });
+    }
+
+    void _ScheduleAfterChasingEvents()
+    {
+        _chasing = false;
+        me->GetMotionMaster()->Clear();
+
+        _scheduler.Schedule(2s, [this](TaskContext const& /*context*/)
+        {
+            DoCastAOE(SPELL_ELWYNN_FOREST_WOLF);
+        })
+        .Schedule(4s, [this](TaskContext const& /*context*/)
+        {
+            DoCastSelf(SPELL_SLEEPING_SLEEP);
+            me->DespawnOrUnsummon(7s);
+        });
+    }
+
+    ObjectGuid _summonerGUID;
+    bool _chasing;
+    TaskScheduler _scheduler;
+};
+
+// 62701 - Elwynn Forest Wolf
+class spell_gen_elwynn_forest_wolf : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUICIDE });
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        if (Creature* target = GetHitCreature())
+        {
+            target->CastSpell(target, SPELL_SUICIDE, true);
+            target->DespawnOrUnsummon(4s);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_elwynn_forest_wolf::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 62703 - Elwynn Lamb
+class spell_gen_elwynn_lamb : public AuraScript
+{
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        // Based on WotLK Classic sniffs (3.4.3 52237).
+        if (!GetTarget()->IsOutdoors() || !roll_chance(5))
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_elwynn_lamb::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -289,4 +441,9 @@ void AddSC_generic_pet_scripts()
     RegisterSpellScript(spell_pet_gen_lich_pet_periodic_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_emote);
     RegisterSpellScript(spell_pet_gen_lich_pet_focus);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_find_target);
+    RegisterSpellScript(spell_pet_gen_toxic_wasteling_devour);
+    RegisterCreatureAI(npc_elwynn_forest_wolf);
+    RegisterSpellScript(spell_gen_elwynn_forest_wolf);
+    RegisterSpellScript(spell_gen_elwynn_lamb);
 }

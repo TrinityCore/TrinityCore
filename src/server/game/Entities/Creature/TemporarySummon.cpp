@@ -243,7 +243,14 @@ void TempSummon::InitStats(WorldObject* summoner, Milliseconds duration)
             int32 minLevel = m_unitData->ScalingLevelMin + m_unitData->ScalingLevelDelta;
             int32 maxLevel = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
             uint8 level = std::clamp<int32>(unitSummoner->GetLevel(), minLevel, maxLevel);
+            ApplyLevelScaling(unitSummoner->m_unitData->ContentTuningID, unitSummoner->m_unitData->ScalingLevelDelta);
             SetLevel(level);
+            if (!IsGuardian())
+            {
+                UpdateLevelDependantStats();
+                UpdateAttackPowerAndDamage(false);
+                UpdateAttackPowerAndDamage(true);
+            }
         }
     }
 
@@ -333,9 +340,7 @@ void TempSummon::UnSummon(uint32 msTime)
 {
     if (msTime)
     {
-        ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);
-
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(Milliseconds(msTime)));
+        m_Events.AddEventAtOffset(new ForcedDespawnDelayEvent(*this, 0s), Milliseconds(msTime));
         return;
     }
 
@@ -356,12 +361,6 @@ void TempSummon::UnSummon(uint32 msTime)
     }
 
     AddObjectToRemoveList();
-}
-
-bool ForcedUnsummonDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
-{
-    m_owner.UnSummon();
-    return true;
 }
 
 void TempSummon::RemoveFromWorld()

@@ -23,9 +23,6 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "DB2Stores.h"
-#include "Item.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
@@ -54,10 +51,13 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_DUMMY                   = 31231,
     SPELL_ROGUE_CHEATED_DEATH                       = 45181,
     SPELL_ROGUE_CHEATING_DEATH                      = 45182,
+    SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT           = 382515,
+    SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB           = 386165,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3408,
     SPELL_ROGUE_CRIPPLING_POISON_DEBUFF             = 3409,
     SPELL_ROGUE_DEADLY_POISON                       = 2823,
     SPELL_ROGUE_DEADLY_POISON_DEBUFF                = 2818,
+    SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE        = 113780,
     SPELL_ROGUE_GRAND_MELEE                         = 193358,
     SPELL_ROGUE_GRAPPLING_HOOK                      = 195457,
     SPELL_ROGUE_IMPROVED_GARROTE_AFTER_STEALTH      = 392401,
@@ -70,8 +70,11 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
+    SPELL_ROGUE_LEECHING_POISON_TALENT              = 280716,
+    SPELL_ROGUE_LEECHING_POISON_AURA                = 108211,
     SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
+    SPELL_ROGUE_NIGHT_TERRORS                       = 277953,
     SPELL_ROGUE_NUMBING_POISON                      = 5761,
     SPELL_ROGUE_NUMBING_POISON_DEBUFF               = 5760,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
@@ -82,9 +85,15 @@ enum RogueSpells
     SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
     SPELL_ROGUE_SANCTUARY                           = 98877,
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
+    SPELL_ROGUE_SHADOW_DANCE                        = 185313,
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
+    SPELL_ROGUE_SHADOWS_GRASP                       = 206760,
     SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
+    SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT             = 257505,
+    SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF               = 257506,
+    SPELL_ROGUE_SHURIKEN_STORM_DAMAGE               = 197835,
+    SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE             = 212743,
     SPELL_ROGUE_SLICE_AND_DICE                      = 315496,
     SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_SOOTHING_DARKNESS_TALENT            = 393970,
@@ -133,6 +142,20 @@ Optional<int32> GetFinishingMoveCPCost(Spell const* spell)
 bool IsFinishingMove(Spell const* spell)
 {
     return GetFinishingMoveCPCost(spell).has_value();
+}
+
+static constexpr bool IsLethalPoison(uint32 spellId)
+{
+    switch (spellId)
+    {
+        case SPELL_ROGUE_DEADLY_POISON:
+        case SPELL_ROGUE_WOUND_POISON:
+        case SPELL_ROGUE_INSTANT_POISON:
+        case SPELL_ROGUE_AMPLIFYING_POISON:
+            return true;
+        default:
+            return false;
+    }
 }
 
 // 455143 - Acrobatic Strikes
@@ -216,7 +239,7 @@ class spell_rog_backstab : public SpellScript
         if (hitUnit->isInBack(caster))
         {
             float currDamage = float(GetHitDamage());
-            float newDamage = AddPct(currDamage, float(GetEffectInfo(EFFECT_3).CalcValue(caster)));
+            float newDamage = AddPct(currDamage, GetEffectInfo(EFFECT_3).CalcValue(caster));
             SetHitDamage(newDamage);
         }
     }
@@ -259,7 +282,7 @@ class spell_rog_blade_flurry : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        _procTarget = GetTarget()->SelectNearbyTarget(eventInfo.GetProcTarget());
+        _procTarget = GetTarget()->SelectNearbyTarget(eventInfo.GetActionTarget());
         return _procTarget && eventInfo.GetDamageInfo();
     }
 
@@ -320,98 +343,105 @@ class spell_rog_cheat_death : public AuraScript
     }
 };
 
-// 2818 - Deadly Poison
-class spell_rog_deadly_poison : public SpellScript
+// 382515 - Cloaked in Shadows (attached to 1856 - Vanish)
+class spell_rog_cloaked_in_shadows : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB })
+            && ValidateSpellEffect({ { SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0 } });
+    }
+
     bool Load() override
     {
-        // at this point CastItem must already be initialized
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+        return GetCaster()->HasAuraEffect(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0);
     }
 
-    void HandleBeforeHit(SpellMissInfo missInfo)
+    void HandleCloakedInShadows() const
     {
-        if (missInfo != SPELL_MISS_NONE)
+        Unit* caster = GetCaster();
+
+        AuraEffect const* cloakedInShadows = caster->GetAuraEffect(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0);
+        if (!cloakedInShadows)
             return;
 
-        if (Unit* target = GetHitUnit())
-            // Deadly Poison
-            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x10000, 0x80000, 0), GetCaster()->GetGUID()))
-                _stackAmount = aurEff->GetBase()->GetStackAmount();
-    }
+        SpellEffectValue amount = caster->CountPctFromMaxHealth(cloakedInShadows->GetAmount());
 
-    void HandleAfterHit()
-    {
-        if (_stackAmount < 5)
-            return;
-
-        Player* player = GetCaster()->ToPlayer();
-
-        if (Unit* target = GetHitUnit())
-        {
-
-            Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-            if (item == GetCastItem())
-                item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (!item)
-                return;
-
-            // item combat enchantments
-            for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-            {
-                SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
-                if (!enchant)
-                    continue;
-
-                for (uint8 s = 0; s < 3; ++s)
-                {
-                    if (enchant->Effect[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
-                        continue;
-
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->EffectArg[s], DIFFICULTY_NONE);
-                    if (!spellInfo)
-                    {
-                        TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant {}, player (Name: {}, {}) cast unknown spell {}", enchant->ID, player->GetName(), player->GetGUID().ToString(), enchant->EffectArg[s]);
-                        continue;
-                    }
-
-                    // Proc only rogue poisons
-                    if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || spellInfo->Dispel != DISPEL_POISON)
-                        continue;
-
-                    // Do not reproc deadly
-                    if (spellInfo->SpellFamilyFlags & flag128(0x10000))
-                        continue;
-
-                    if (spellInfo->IsPositive())
-                        player->CastSpell(player, enchant->EffectArg[s], item);
-                    else
-                        player->CastSpell(target, enchant->EffectArg[s], item);
-                }
-            }
-        }
+        caster->CastSpell(caster, SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
     }
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_rog_deadly_poison::HandleBeforeHit);
-        AfterHit += SpellHitFn(spell_rog_deadly_poison::HandleAfterHit);
+        AfterCast += SpellCastFn(spell_rog_cloaked_in_shadows::HandleCloakedInShadows);
+    }
+};
+
+// 2818 - Deadly Poison
+class spell_rog_deadly_poison : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE });
     }
 
-    uint8 _stackAmount = 0;
+    void HandleInstantDamage(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (target->HasAura(GetSpellInfo()->Id, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_ROGUE_DEADLY_POISON_INSTANT_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_rog_deadly_poison::HandleInstantDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 185314 - Deepening Shadows
+class spell_rog_deepening_shadows : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHADOW_DANCE });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& procEvent)
+    {
+        if (Spell const* procSpell = procEvent.GetProcSpell())
+            return procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS) > 0;
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo) const
+    {
+        Milliseconds amount = duration_cast<Milliseconds>(-FloatSeconds(aurEff->GetAmount()) * *procInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS));
+        GetTarget()->GetSpellHistory()->ModifyChargeRecoveryTime(sSpellMgr->AssertSpellInfo(SPELL_ROGUE_SHADOW_DANCE, GetCastDifficulty())->ChargeCategoryId, amount / 10);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_deepening_shadows::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_rog_deepening_shadows::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 32645 - Envenom
 class spell_rog_envenom : public SpellScript
 {
-    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
         pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            flatMod += t5->GetAmount();
+            flatMod += t5->GetAmountAsInt();
     }
 
     void Register() override
@@ -423,12 +453,12 @@ class spell_rog_envenom : public SpellScript
 // 196819 - Eviscerate
 class spell_rog_eviscerate : public SpellScript
 {
-    void CalculateDamage(Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& flatMod, float& pctMod) const
     {
         pctMod *= GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS).value_or(0);
 
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            flatMod += t5->GetAmount();
+            flatMod += t5->GetAmountAsInt();
     }
 
     void Register() override
@@ -559,7 +589,7 @@ class spell_rog_improved_garrote_damage : public AuraScript
         });
     }
 
-    void CalculateBonus(AuraEffect const* /*aurEff*/, int32& /*amount*/, bool& /*canBeRecalculated*/)
+    void CalculateBonus(AuraEffect const* /*aurEff*/, SpellEffectValue& /*amount*/, bool& /*canBeRecalculated*/)
     {
         _pctMod = 1.0f;
         Unit* caster = GetCaster();
@@ -705,6 +735,48 @@ class spell_rog_kingsbane : public AuraScript
     }
 };
 
+// 2823 - Deadly Poison
+// 8679 - Wound Poison
+// 315584 - Instant Poison
+// 381664 - Amplifying Poison
+class spell_rog_leeching_poison : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_LEECHING_POISON_TALENT, SPELL_ROGUE_LEECHING_POISON_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_LEECHING_POISON_TALENT);
+    }
+
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_LEECHING_POISON_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        bool hasLethalPoisonActive = GetTarget()->HasAura([](Aura const* aura) -> bool
+        {
+            return IsLethalPoison(aura->GetId());
+        });
+
+        if (!hasLethalPoisonActive)
+            GetTarget()->RemoveAurasDueToSpell(SPELL_ROGUE_LEECHING_POISON_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_leeching_poison::HandleOnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_leeching_poison::HandleOnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 76806 - Mastery: Main Gauche
 class spell_rog_mastery_main_gauche : public AuraScript
 {
@@ -728,6 +800,33 @@ class spell_rog_mastery_main_gauche : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_rog_mastery_main_gauche::HandleCheckProc);
         OnEffectProc += AuraEffectProcFn(spell_rog_mastery_main_gauche::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 277953 - Night Terrors (attached to 197835 - Shuriken Storm)
+class spell_rog_night_terrors : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_ROGUE_NIGHT_TERRORS, SPELL_ROGUE_SHADOWS_GRASP });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_NIGHT_TERRORS);
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_SHADOWS_GRASP, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_night_terrors::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -874,11 +973,11 @@ class spell_rog_restless_blades : public AuraScript
     {
         if (Optional<int32> spentCP = GetFinishingMoveCPCost(procInfo.GetProcSpell()))
         {
-            int32 cdExtra = -(float(aurEff->GetAmount() * *spentCP) * 0.1f);
+            Milliseconds cdExtra = -duration_cast<Milliseconds>(FloatSeconds(aurEff->GetAmount() * *spentCP * 0.1));
 
             SpellHistory* history = GetTarget()->GetSpellHistory();
             for (uint32 spellId : Spells)
-                history->ModifyCooldown(spellId, Seconds(cdExtra), true);
+                history->ModifyCooldown(spellId, cdExtra, true);
         }
     }
 
@@ -987,7 +1086,7 @@ class spell_rog_ruthlessness : public AuraScript
         Unit* target = GetTarget();
 
         if (Optional<int32> cost = GetFinishingMoveCPCost(procInfo.GetProcSpell()))
-            if (roll_chance_i(aurEff->GetSpellEffectInfo().PointsPerResource * (*cost)))
+            if (roll_chance(aurEff->GetSpellEffectInfo().PointsPerResource * *cost))
                 target->ModifyPower(POWER_COMBO_POINTS, 1);
     }
 
@@ -1022,10 +1121,10 @@ class spell_rog_shadowstrike : public SpellScript
             if (caster->HasAura(SPELL_ROGUE_SLICE_AND_DICE))
                 if (Aura* premeditationPassive = caster->GetAura(SPELL_ROGUE_PREMEDITATION_PASSIVE))
                     if (AuraEffect const* auraEff = premeditationPassive->GetEffect(EFFECT_1))
-                        SetHitDamage(GetHitDamage() + auraEff->GetAmount());
+                        SetHitDamage(GetHitDamage() + auraEff->GetAmountAsInt());
 
             // Grant 10 seconds of slice and dice
-            int32 duration = sSpellMgr->AssertSpellInfo(SPELL_ROGUE_PREMEDITATION_PASSIVE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).CalcValue(GetCaster());
+            int32 duration = sSpellMgr->AssertSpellInfo(SPELL_ROGUE_PREMEDITATION_PASSIVE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).CalcValueAsInt(GetCaster());
 
             CastSpellExtraArgs args;
             args.TriggerFlags = TRIGGERED_FULL_MASK;
@@ -1077,6 +1176,98 @@ class spell_rog_shadow_focus : public AuraScript
     }
 };
 
+// 257505 - Shot in the Dark (attached to 1784 - Stealth and 185313 - Shadow Dance)
+class spell_rog_shot_in_the_dark : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT, SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT);
+    }
+
+    void HandleAfterCast() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_rog_shot_in_the_dark::HandleAfterCast);
+    }
+};
+
+// 257506 - Shot in the Dark (attached to 185422 - Shadow Dance and 158185 - Stealth)
+class spell_rog_shot_in_the_dark_buff : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF });
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_shot_in_the_dark_buff::HandleEffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 197835 - Shuriken Storm
+class spell_rog_shuriken_storm : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE });
+    }
+
+    void HandleEnergize(SpellEffIndex effIndex) const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_ROGUE_SHURIKEN_STORM_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, static_cast<SpellEffectValue>(GetUnitTargetCountForEffect(effIndex))  } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_rog_shuriken_storm::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 277925 - Shuriken Tornado
+class spell_rog_shuriken_tornado : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHURIKEN_STORM_DAMAGE });
+    }
+
+    void HandlePeriodicEffect(AuraEffect const* aurEff) const
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_ROGUE_SHURIKEN_STORM_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_shuriken_tornado::HandlePeriodicEffect, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 193315 - Sinister Strike
 class spell_rog_sinister_strike : public SpellScript
 {
@@ -1089,13 +1280,11 @@ class spell_rog_sinister_strike : public SpellScript
     {
         int32 damagePerCombo = GetHitDamage();
         if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
+            damagePerCombo += t5->GetAmountAsInt();
 
         int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
+        if (Optional<int32> comboPointCost = GetSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS))
+            finalDamage *= *comboPointCost;
 
         SetHitDamage(finalDamage);
     }
@@ -1176,6 +1365,31 @@ class spell_rog_stealth : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth::HandleEffectApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 381988 - Swift Slasher
+class spell_rog_swift_slasher : public AuraScript
+{
+    void CalcAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
+            amount = CalculatePct((1.0f / GetUnitOwner()->m_unitData->ModHaste - 1.0f) * 100.0f, amountHolder->GetAmount());
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_0))
+            bonus->RecalculateAmount(aurEff);
+
+        if (AuraEffect* sliceAndDice = GetUnitOwner()->GetAuraEffect(SPELL_ROGUE_SLICE_AND_DICE, EFFECT_0))
+            sliceAndDice->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_swift_slasher::CalcAmount, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_swift_slasher::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1363,7 +1577,7 @@ class spell_rog_venomous_wounds : public AuraScript
 {
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        int32 extraEnergy = aurEff->GetAmount();
+        int32 extraEnergy = aurEff->GetAmountAsInt();
         GetTarget()->ModifyPower(POWER_ENERGY, extraEnergy);
     }
 
@@ -1382,7 +1596,9 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_blackjack);
     RegisterSpellScript(spell_rog_blade_flurry);
     RegisterSpellScript(spell_rog_cheat_death);
+    RegisterSpellScript(spell_rog_cloaked_in_shadows);
     RegisterSpellScript(spell_rog_deadly_poison);
+    RegisterSpellScript(spell_rog_deepening_shadows);
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_grand_melee);
@@ -1392,7 +1608,9 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_improved_shiv);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_kingsbane);
+    RegisterSpellScript(spell_rog_leeching_poison);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
+    RegisterSpellScript(spell_rog_night_terrors);
     RegisterSpellScript(spell_rog_pickpocket);
     RegisterSpellScript(spell_rog_poisoned_knife);
     RegisterSpellScript(spell_rog_premeditation);
@@ -1404,9 +1622,14 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_ruthlessness);
     RegisterSpellScript(spell_rog_shadowstrike);
     RegisterSpellScript(spell_rog_shadow_focus);
+    RegisterSpellScript(spell_rog_shot_in_the_dark);
+    RegisterSpellScript(spell_rog_shot_in_the_dark_buff);
+    RegisterSpellScript(spell_rog_shuriken_storm);
+    RegisterSpellScript(spell_rog_shuriken_tornado);
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_soothing_darkness);
     RegisterSpellScript(spell_rog_stealth);
+    RegisterSpellScript(spell_rog_swift_slasher);
     RegisterSpellScript(spell_rog_symbols_of_death);
     RegisterSpellAndAuraScriptPair(spell_rog_tricks_of_the_trade, spell_rog_tricks_of_the_trade_aura);
     RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);

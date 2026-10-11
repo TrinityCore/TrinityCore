@@ -232,13 +232,13 @@ struct boss_skadi : public BossAI
                 instance->TriggerGameEvent(ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
                 scheduler
-                    .Schedule(Seconds(6), [this](TaskContext resetCheck)
+                    .Schedule(Seconds(6), [this](TaskContext& resetCheck)
                     {
                         if (Creature* resetTrigger = me->FindNearestCreature(NPC_TRIGGER_RESET, 200.0f))
                             resetTrigger->CastSpell(resetTrigger, SPELL_UTGARDE_PINNACLE_GUANTLET_RESET_CHECK, true);
                         resetCheck.Repeat();
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         if (Creature* grauf = instance->GetCreature(DATA_GRAUF))
                             DoCast(grauf, SPELL_RIDE_GRAUF);
@@ -265,18 +265,18 @@ struct boss_skadi : public BossAI
                 _phase = PHASE_GROUND;
 
                 scheduler
-                    .Schedule(Seconds(8), [this](TaskContext crush)
+                    .Schedule(Seconds(8), [this](TaskContext& crush)
                     {
                         DoCastVictim(SPELL_CRUSH);
                         crush.Repeat();
                     })
-                    .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
+                    .Schedule(Seconds(11), [this](TaskContext& poisonedSpear)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             DoCast(target, SPELL_POISONED_SPEAR);
                         poisonedSpear.Repeat();
                     })
-                    .Schedule(Seconds(23), [this](TaskContext whirlwind)
+                    .Schedule(Seconds(23), [this](TaskContext& whirlwind)
                     {
                         DoCast(SPELL_WHIRLWIND);
                         whirlwind.Repeat();
@@ -356,7 +356,7 @@ struct npc_grauf : public ScriptedAI
         me->SetCanFly(true);
         me->SetDisableGravity(true);
 
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
         {
             me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_INITIAL, false);
         });
@@ -371,12 +371,12 @@ struct npc_grauf : public ScriptedAI
         {
             case POINT_BREACH:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreachPoint);
                         Talk(EMOTE_ON_RANGE);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         if (RAND(POINT_LEFT, POINT_RIGHT) == POINT_LEFT)
                             me->GetMotionMaster()->MoveAlongSplineChain(POINT_LEFT, SPLINE_CHAIN_BREACH_LEFT, false);
@@ -386,38 +386,38 @@ struct npc_grauf : public ScriptedAI
                 break;
             case POINT_LEFT:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreathPointLeft);
                         Talk(EMOTE_BREATH);
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_LEFT, false);
                         DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
                         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                             skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
                     });
                 break;
             case POINT_RIGHT:
                 _scheduler
-                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    .Schedule(Milliseconds(1), [this](TaskContext const& /*context*/)
                     {
                         me->SetFacingTo(BreathPointRight);
                         Talk(EMOTE_BREATH);
                     })
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(2), [this](TaskContext const& /*context*/)
                     {
                         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_RIGHT, false);
                         DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
                         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                             skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
                     })
-                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    .Schedule(Seconds(10), [this](TaskContext const& /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
                     });
@@ -479,7 +479,7 @@ struct npc_skadi_trashAI : public ScriptedAI
                 me->SetEmoteState(me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
                 break;
             case POINT_1:
-                _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Seconds(1), [this](TaskContext const& /*context*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_2, SecondaryWavesFinalPoint);
                 });
@@ -513,12 +513,12 @@ struct npc_ymirjar_warrior : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(2), [this](TaskContext context)
+            .Schedule(Seconds(2), [this](TaskContext& context)
             {
                 DoCastVictim(SPELL_HAMSTRING);
                 context.Repeat(Seconds(11), Seconds(18));
             })
-            .Schedule(Seconds(9), [this](TaskContext context)
+            .Schedule(Seconds(9), [this](TaskContext& context)
             {
                 DoCastVictim(SPELL_STRIKE);
                 context.Repeat(Seconds(10), Seconds(13));
@@ -533,12 +533,12 @@ struct npc_ymirjar_witch_doctor : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(2), [this](TaskContext shadowBolt)
+            .Schedule(Seconds(2), [this](TaskContext& shadowBolt)
             {
                 DoCastVictim(SPELL_SHADOW_BOLT);
                 shadowBolt.Repeat();
             })
-            .Schedule(Seconds(20), Seconds(34), [this](TaskContext shrink)
+            .Schedule(Seconds(20), Seconds(34), [this](TaskContext& shrink)
             {
                 DoCastVictim(SPELL_SHRINK);
                 shrink.Repeat();
@@ -553,13 +553,13 @@ struct npc_ymirjar_harpooner : public npc_skadi_trashAI
     void ScheduleTasks() override
     {
         _scheduler
-            .Schedule(Seconds(13), [this](TaskContext net)
+            .Schedule(Seconds(13), [this](TaskContext& net)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
                     DoCast(target, SPELL_NET);
                 net.Repeat();
             })
-            .Schedule(Seconds(2), [this](TaskContext castThrow)
+            .Schedule(Seconds(2), [this](TaskContext& castThrow)
             {
                 DoCastVictim(SPELL_THROW);
                 castThrow.Repeat();

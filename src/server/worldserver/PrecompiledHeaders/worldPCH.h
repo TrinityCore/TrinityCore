@@ -21,3 +21,4 @@
 #include "Database/DatabaseEnv.h"
 #include "Configuration/Config.h"
 #include "Util.h"
+#include "RASession.h"

@@ -31,6 +31,21 @@ void CharacterDatabaseConnection::DoPrepareStatements()
         "ig.gemItemId1, ig.gemBonuses1, ig.gemContext1, ig.gemScalingLevel1, ig.gemItemId2, ig.gemBonuses2, ig.gemContext2, ig.gemScalingLevel2, ig.gemItemId3, ig.gemBonuses3, ig.gemContext3, ig.gemScalingLevel3, " \
         "im.fixedScalingLevel, im.artifactKnowledgeLevel"
 
+#define CharacterSelectEquipmentSlot(table_alias, slot_name) \
+    table_alias slot_name "EquippedItemID," table_alias slot_name "VisibleItemID," \
+    table_alias slot_name "Subclass," table_alias slot_name "InvType," \
+    table_alias slot_name "DisplayID," table_alias slot_name "DisplayEnchantID," \
+    table_alias slot_name "SecondaryItemModifiedAppearanceID," table_alias slot_name "SheatheCategory"
+
+#define CharacterSelectEquipment(table_alias) \
+    CharacterSelectEquipmentSlot(table_alias, "head") "," CharacterSelectEquipmentSlot(table_alias, "neck") "," CharacterSelectEquipmentSlot(table_alias, "shoulder") "," \
+    CharacterSelectEquipmentSlot(table_alias, "body") "," CharacterSelectEquipmentSlot(table_alias, "chest") "," CharacterSelectEquipmentSlot(table_alias, "waist") "," \
+    CharacterSelectEquipmentSlot(table_alias, "legs") "," CharacterSelectEquipmentSlot(table_alias, "feet") "," CharacterSelectEquipmentSlot(table_alias, "wrists") "," \
+    CharacterSelectEquipmentSlot(table_alias, "hands") "," CharacterSelectEquipmentSlot(table_alias, "finger1") "," CharacterSelectEquipmentSlot(table_alias, "finger2") "," \
+    CharacterSelectEquipmentSlot(table_alias, "trinket1") "," CharacterSelectEquipmentSlot(table_alias, "trinket2") "," CharacterSelectEquipmentSlot(table_alias, "back") "," \
+    CharacterSelectEquipmentSlot(table_alias, "mainHand") "," CharacterSelectEquipmentSlot(table_alias, "offHand") "," CharacterSelectEquipmentSlot(table_alias, "ranged") "," \
+    CharacterSelectEquipmentSlot(table_alias, "tabard")
+
     PrepareStatement(CHAR_DEL_POOL_QUEST_SAVE, "DELETE FROM pool_quest_save WHERE pool_id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_POOL_QUEST_SAVE, "INSERT INTO pool_quest_save (pool_id, quest_id) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM, "DELETE FROM guild_bank_item WHERE guildid = ? AND TabId = ? AND SlotId = ?", CONNECTION_ASYNC);
@@ -51,33 +66,41 @@ void CharacterDatabaseConnection::DoPrepareStatements()
                      "subject, deliver_time, expire_time, money, has_items FROM mail WHERE receiver = ? ", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_MAIL_LIST_ITEMS, "SELECT itemEntry,count FROM item_instance WHERE guid = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_ENUM, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, "
-                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
-                     "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor "
+                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level AS cpLevel, cb.guid AS cbGuid, c.slot, c.createTime, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
+                     "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor, "
+                     CharacterSelectEquipment("ceq.") " "
                      "FROM characters AS c LEFT JOIN character_pet AS cp ON c.summonedPetNumber = cp.id LEFT JOIN guild_member AS gm ON c.guid = gm.guid "
                      "LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 "
+                     "LEFT JOIN character_select_screen_equipment_cache ceq ON c.guid = ceq.guid "
                      "WHERE c.account = ? AND c.deleteInfos_Name IS NULL", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_ENUM_DECLINED_NAME, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, "
-                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
+                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level AS cpLevel, cb.guid AS cbGuid, c.slot, c.createTime, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
                      "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor, "
+                     CharacterSelectEquipment("ceq.") ", "
                      "cd.genitive "
                      "FROM characters AS c LEFT JOIN character_pet AS cp ON c.summonedPetNumber = cp.id LEFT JOIN guild_member AS gm ON c.guid = gm.guid "
                      "LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 "
+                     "LEFT JOIN character_select_screen_equipment_cache ceq ON c.guid = ceq.guid "
                      "LEFT JOIN character_declinedname AS cd ON c.guid = cd.guid "
                      "WHERE c.account = ? AND c.deleteInfos_Name IS NULL", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_ENUM_CUSTOMIZATIONS, "SELECT cc.guid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM character_customizations cc "
                      "LEFT JOIN characters c ON cc.guid = c.guid WHERE c.account = ? AND c.deleteInfos_Name IS NULL ORDER BY cc.guid, cc.chrCustomizationOptionID", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_UNDELETE_ENUM, "SELECT c.guid, c.deleteInfos_Name, c.race, c.class, c.gender, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, "
-                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
-                     "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor "
+                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level AS cpLevel, cb.guid AS cbGuid, c.slot, c.createTime, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
+                     "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor, "
+                     CharacterSelectEquipment("ceq.") " "
                      "FROM characters AS c LEFT JOIN character_pet AS cp ON c.summonedPetNumber = cp.id LEFT JOIN guild_member AS gm ON c.guid = gm.guid "
                      "LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 "
+                     "LEFT JOIN character_select_screen_equipment_cache ceq ON c.guid = ceq.guid "
                      "WHERE c.deleteInfos_Account = ? AND c.deleteInfos_Name IS NOT NULL", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_UNDELETE_ENUM_DECLINED_NAME, "SELECT c.guid, c.deleteInfos_Name, c.race, c.class, c.gender, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, "
-                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
+                     "gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level as cpLevel, cb.guid AS cbGuid, c.slot, c.createTime, c.logout_time, c.activeTalentGroup, c.lastLoginBuild, "
                      "c.personalTabardEmblemStyle, c.personalTabardEmblemColor, c.personalTabardBorderStyle, c.personalTabardBorderColor, c.personalTabardBackgroundColor, "
+                     CharacterSelectEquipment("ceq.") ", "
                      "cd.genitive "
                      "FROM characters AS c LEFT JOIN character_pet AS cp ON c.summonedPetNumber = cp.id LEFT JOIN guild_member AS gm ON c.guid = gm.guid "
                      "LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 "
+                     "LEFT JOIN character_select_screen_equipment_cache ceq ON c.guid = ceq.guid "
                      "LEFT JOIN character_declinedname AS cd ON c.guid = cd.guid "
                      "WHERE c.deleteInfos_Account = ? AND c.deleteInfos_Name IS NOT NULL", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_UNDELETE_ENUM_CUSTOMIZATIONS, "SELECT cc.guid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM character_customizations cc "
@@ -93,13 +116,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_BATTLEGROUND_RANDOM, "INSERT INTO character_battleground_random (guid) VALUES (?)", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_SEL_CHARACTER, "SELECT c.guid, account, name, race, class, gender, level, xp, money, inventorySlots, inventoryBagFlags, bagSlotFlags1, bagSlotFlags2, bagSlotFlags3, bagSlotFlags4, bagSlotFlags5, "
-                     "bankSlots, bankBagFlags, bankBagSlotFlags1, bankBagSlotFlags2, bankBagSlotFlags3, bankBagSlotFlags4, bankBagSlotFlags5, bankBagSlotFlags6, bankBagSlotFlags7, restState, playerFlags, playerFlagsEx, "
+                     "bankSlots, bankTabs, bankBagFlags, restState, playerFlags, playerFlagsEx, "
                      "position_x, position_y, position_z, map, orientation, taximask, createTime, createMode, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
                      "resettalents_time, primarySpecialization, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, summonedPetNumber, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
                      "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
                      "health, power1, power2, power3, power4, power5, power6, power7, power8, power9, power10, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, "
                      "raidDifficulty, legacyRaidDifficulty, fishingSteps, honor, honorLevel, honorRestState, honorRestBonus, numRespecs, "
-                     "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor "
+                     "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor, transmogOutfitEquippedId, transmogOutfitLocked "
                      "FROM characters c LEFT JOIN character_fishingsteps cfs ON c.guid = cfs.guid WHERE c.guid = ?", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_SEL_CHARACTER_CUSTOMIZATIONS, "SELECT chrCustomizationOptionID, chrCustomizationChoiceID FROM character_customizations WHERE guid = ? ORDER BY chrCustomizationOptionID", CONNECTION_ASYNC);
@@ -112,6 +135,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES, "SELECT quest, objective, data FROM character_queststatus_objectives WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA, "SELECT questObjectiveId FROM character_queststatus_objectives_criteria WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS, "SELECT criteriaId, counter, date FROM character_queststatus_objectives_criteria_progress WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING, "SELECT quest, objective, spawnTrackingId FROM character_queststatus_objectives_spawn_tracking WHERE guid = ?", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_DAILY, "SELECT quest, time FROM character_queststatus_daily WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUS_WEEKLY, "SELECT quest FROM character_queststatus_weekly WHERE guid = ?", CONNECTION_ASYNC);
@@ -149,6 +173,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFITS, "SELECT setguid, setindex, name, iconname, ignore_mask, appearance0, appearance1, appearance2, appearance3, appearance4, "
         "appearance5, appearance6, appearance7, appearance8, appearance9, appearance10, appearance11, appearance12, appearance13, appearance14, appearance15, appearance16, "
         "appearance17, appearance18, mainHandEnchant, offHandEnchant FROM character_transmog_outfits WHERE guid = ? ORDER BY setindex", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFIT, "SELECT transmogOutfitId, name, icon, situationsEnabled FROM character_transmog_outfit WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFIT_SITUATION, "SELECT transmogOutfitId, situationID, specID, loadoutID, equipmentSetID FROM character_transmog_outfit_situation WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFIT_SLOT, "SELECT transmogOutfitId, slot, slotOption, sheatheCategory, itemModifiedAppearanceID, appearanceDisplayType, spellItemEnchantmentID, illusionDisplayType, flags FROM character_transmog_outfit_slot WHERE guid = ? ORDER BY transmogOutfitId, slot, slotOption", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_BGDATA, "SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, queueId FROM character_battleground_data WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_GLYPHS, "SELECT talentGroup, glyphId FROM character_glyphs WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_TALENTS, "SELECT talentId, talentGroup FROM character_talent WHERE guid = ?", CONNECTION_ASYNC);
@@ -359,6 +386,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
         "appearance16, appearance17, appearance18, mainHandEnchant, offHandEnchant) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_TRANSMOG_OUTFIT, "DELETE FROM character_transmog_outfits WHERE setguid=?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_TRANSMOG_OUTFIT_2, "INSERT INTO character_transmog_outfit (guid, transmogOutfitId, name, icon, situationsEnabled) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_TRANSMOG_OUTFIT_2, "DELETE FROM character_transmog_outfit WHERE guid = ? AND transmogOutfitId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_TRANSMOG_OUTFIT_SITUATION, "INSERT INTO character_transmog_outfit_situation (guid, transmogOutfitId, situationID, specID, loadoutID, equipmentSetID) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_TRANSMOG_OUTFIT_SITUATION, "DELETE FROM character_transmog_outfit_situation WHERE guid = ? AND transmogOutfitId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_TRANSMOG_OUTFIT_SLOT, "INSERT INTO character_transmog_outfit_slot (guid, transmogOutfitId, slot, slotOption, sheatheCategory, itemModifiedAppearanceID, appearanceDisplayType, spellItemEnchantmentID, illusionDisplayType, flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_TRANSMOG_OUTFIT_SLOT, "DELETE FROM character_transmog_outfit_slot WHERE guid = ? AND transmogOutfitId = ?", CONNECTION_ASYNC);
 
     // Auras
     PrepareStatement(CHAR_INS_AURA, "INSERT INTO character_aura (guid, casterGuid, itemGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges, castItemId, castItemLevel) "
@@ -475,22 +508,24 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Player saving
     PrepareStatement(CHAR_INS_CHARACTER, "INSERT INTO characters (guid, account, name, race, class, gender, level, xp, money, inventorySlots, inventoryBagFlags, bagSlotFlags1, bagSlotFlags2, bagSlotFlags3, bagSlotFlags4, bagSlotFlags5, "
-                     "bankSlots, bankBagFlags, bankBagSlotFlags1, bankBagSlotFlags2, bankBagSlotFlags3, bankBagSlotFlags4, bankBagSlotFlags5, bankBagSlotFlags6, bankBagSlotFlags7, restState, playerFlags, playerFlagsEx, "
+                     "bankSlots, bankTabs, bankBagFlags, restState, playerFlags, playerFlagsEx, "
                      "map, instance_id, dungeonDifficulty, raidDifficulty, legacyRaidDifficulty, position_x, position_y, position_z, orientation, trans_x, trans_y, trans_z, trans_o, transguid, "
                      "taximask, createTime, createMode, cinematic, "
                      "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, primarySpecialization, "
                      "extra_flags, summonedPetNumber, at_login, "
-                     "death_expire_time, taxi_path, totalKills, "
-                     "todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, health, power1, power2, power3, "
-                     "power4, power5, power6, power7, power8, power9, power10, latency, activeTalentGroup, lootSpecId, exploredZones, equipmentCache, knownTitles, actionBars, lastLoginBuild) VALUES "
+                     "death_expire_time, taxi_path, totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, health, "
+                     "power1, power2, power3, power4, power5, power6, power7, power8, power9, power10, "
+                     "latency, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, lastLoginBuild, "
+                     "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor, transmogOutfitEquippedId, transmogOutfitLocked) VALUES "
                      "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHARACTER, "UPDATE characters SET name=?,race=?,class=?,gender=?,level=?,xp=?,money=?,inventorySlots=?,inventoryBagFlags=?,bagSlotFlags1=?,bagSlotFlags2=?,bagSlotFlags3=?,bagSlotFlags4=?,bagSlotFlags5=?,"
-                     "bankSlots=?,bankBagFlags=?,bankBagSlotFlags1=?,bankBagSlotFlags2=?,bankBagSlotFlags3=?,bankBagSlotFlags4=?,bankBagSlotFlags5=?,bankBagSlotFlags6=?,bankBagSlotFlags7=?,restState=?,playerFlags=?,playerFlagsEx=?,"
+                     "bankSlots=?,bankTabs=?,bankBagFlags=?,restState=?,playerFlags=?,playerFlagsEx=?,"
                      "map=?,instance_id=?,dungeonDifficulty=?,raidDifficulty=?,legacyRaidDifficulty=?,position_x=?,position_y=?,position_z=?,orientation=?,trans_x=?,trans_y=?,trans_z=?,trans_o=?,transguid=?,taximask=?,cinematic=?,totaltime=?,leveltime=?,rest_bonus=?,"
                      "logout_time=?,is_logout_resting=?,resettalents_cost=?,resettalents_time=?,numRespecs=?,primarySpecialization=?,extra_flags=?,summonedPetNumber=?,at_login=?,zone=?,death_expire_time=?,taxi_path=?,"
                      "totalKills=?,todayKills=?,yesterdayKills=?,chosenTitle=?,"
                      "watchedFaction=?,drunk=?,health=?,power1=?,power2=?,power3=?,power4=?,power5=?,power6=?,power7=?,power8=?,power9=?,power10=?,latency=?,activeTalentGroup=?,lootSpecId=?,exploredZones=?,"
-                     "equipmentCache=?,knownTitles=?,actionBars=?,online=?,honor=?,honorLevel=?,honorRestState=?,honorRestBonus=?,lastLoginBuild=? WHERE guid=?", CONNECTION_ASYNC);
+                     "knownTitles=?,actionBars=?,online=?,honor=?,honorLevel=?,honorRestState=?,honorRestBonus=?,lastLoginBuild=?,"
+                     "personalTabardEmblemStyle=?,personalTabardEmblemColor=?,personalTabardBorderStyle=?,personalTabardBorderColor=?,personalTabardBackgroundColor=?,transmogOutfitEquippedId=?,transmogOutfitLocked=? WHERE guid=?", CONNECTION_ASYNC);
 
     PrepareStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_REM_AT_LOGIN_FLAG, "UPDATE characters set at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
@@ -501,6 +536,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_ACCOUNT_ONLINE, "UPDATE characters SET online = 0 WHERE account = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHARACTER_CUSTOMIZATION, "INSERT INTO character_customizations (guid, chrCustomizationOptionID, chrCustomizationChoiceID) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHARACTER_CUSTOMIZATIONS, "DELETE FROM character_customizations WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_SELECT_EQUIPMENT_CACHE_CUSTOMIZATIONS, "INSERT INTO character_select_screen_equipment_cache (guid," CharacterSelectEquipment("") ") VALUES"
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_SELECT_EQUIPMENT_CACHE_CUSTOMIZATIONS, "DELETE FROM character_select_screen_equipment_cache WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_GROUP, "INSERT INTO `groups` (guid, leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raidDifficulty, legacyRaidDifficulty, masterLooterGuid, pingRestriction) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_GROUP_MEMBER, "INSERT INTO group_member (guid, memberGuid, memberFlags, subgroup, roles) VALUES(?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_GROUP_MEMBER, "DELETE FROM group_member WHERE memberGuid = ?", CONNECTION_ASYNC);
@@ -547,7 +585,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHAR_HOMEBIND, "SELECT mapId, zoneId, posX, posY, posZ, orientation FROM character_homebind WHERE guid = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ACC, "SELECT guid, name, online FROM characters WHERE account = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_CUSTOMIZE_INFO, "SELECT name, race, class, gender, at_login FROM characters WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS, "SELECT c.at_login, c.knownTitles, gm.guid FROM characters c LEFT JOIN group_member gm ON c.guid = gm.memberGuid WHERE c.guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS, "SELECT c.at_login, c.knownTitles, gm.guid, c.map FROM characters c LEFT JOIN group_member gm ON c.guid = gm.memberGuid WHERE c.guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL, "SELECT id, messageType, mailTemplateId, sender, subject, body, money, has_items FROM mail WHERE receiver = ? AND has_items <> 0 AND cod <> 0", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_SOCIAL, "SELECT DISTINCT guid FROM character_social WHERE friend = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_CHAR_OLD_CHARS, "SELECT guid, deleteInfos_Account FROM characters WHERE deleteDate IS NOT NULL AND deleteDate < ?", CONNECTION_SYNCH);
@@ -561,7 +599,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
                      "INNER JOIN character_inventory ci ON ci.guid = c.guid "
                      "INNER JOIN item_instance ii ON ii.guid = ci.item "
                      "LEFT JOIN character_inventory cb ON cb.item = ci.bag WHERE ii.itemEntry = ? LIMIT ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_SEL_MAIL_ITEMS_BY_ENTRY, "SELECT mi.item_guid, m.sender, m.receiver, cs.account, cs.name, cr.account, cr.name "
+    PrepareStatement(CHAR_SEL_MAIL_ITEMS_BY_ENTRY, "SELECT mi.item_guid, m.sender, m.receiver, cs.account AS sender_account, cs.name AS sender_name, cr.account AS receiver_account, cr.name AS receiver_name "
                      "FROM mail m INNER JOIN mail_items mi ON mi.mail_id = m.id INNER JOIN item_instance ii ON ii.guid = mi.item_guid "
                      "INNER JOIN characters cs ON cs.guid = m.sender INNER JOIN characters cr ON cr.guid = m.receiver WHERE ii.itemEntry = ? LIMIT ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_AUCTIONHOUSE_ITEM_BY_ENTRY, "SELECT ai.itemGuid, c.guid, c.account, c.name FROM auctionhouse ah INNER JOIN auction_items ai ON ah.id = ai.auctionId INNER JOIN characters c ON c.guid = ah.owner INNER JOIN item_instance ii ON ii.guid = ai.itemGuid WHERE ii.itemEntry = ? LIMIT ?", CONNECTION_SYNCH);
@@ -594,6 +632,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA, "DELETE FROM character_queststatus_objectives_criteria WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS, "DELETE FROM character_queststatus_objectives_criteria_progress WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA, "DELETE FROM character_queststatus_objectives_criteria_progress WHERE guid = ? AND criteriaId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING, "DELETE FROM character_queststatus_objectives_spawn_tracking WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID, "DELETE FROM character_social WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND, "DELETE FROM character_social WHERE friend = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT, "DELETE FROM character_achievement WHERE achievement = ? AND guid = ?", CONNECTION_ASYNC);
@@ -624,6 +663,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHAR_ACHIEVEMENTS, "DELETE FROM character_achievement WHERE guid = ? AND achievement NOT IN (456,457,458,459,460,461,462,463,464,465,466,467,1400,1402,1404,1405,1406,1407,1408,1409,1410,1411,1412,1413,1414,1415,1416,1417,1418,1419,1420,1421,1422,1423,1424,1425,1426,1427,1463,3117,3259,4078,4576,4998,4999,5000,5001,5002,5003,5004,5005,5006,5007,5008,5381,5382,5383,5384,5385,5386,5387,5388,5389,5390,5391,5392,5393,5394,5395,5396,6433,6523,6524,6743,6744,6745,6746,6747,6748,6749,6750,6751,6752,6829,6859,6860,6861,6862,6863,6864,6865,6866,6867,6868,6869,6870,6871,6872,6873)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_EQUIPMENTSETS, "DELETE FROM character_equipmentsets WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_TRANSMOG_OUTFITS, "DELETE FROM character_transmog_outfits WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_TRANSMOG_OUTFIT_BY_CHAR, "DELETE FROM character_transmog_outfit WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_TRANSMOG_OUTFIT_SITUATION_BY_CHAR, "DELETE FROM character_transmog_outfit_slot WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_TRANSMOG_OUTFIT_SLOT_BY_CHAR, "DELETE FROM character_transmog_outfit_situation WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_GUILD_EVENTLOG_BY_PLAYER, "DELETE FROM guild_eventlog WHERE PlayerGuid1 = ? OR PlayerGuid2 = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER, "DELETE FROM guild_bank_eventlog WHERE PlayerGuid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_GLYPHS, "DELETE FROM character_glyphs WHERE guid = ?", CONNECTION_ASYNC);
@@ -644,11 +686,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST, "DELETE FROM character_queststatus_objectives WHERE guid = ? AND quest = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA, "INSERT INTO character_queststatus_objectives_criteria (guid, questObjectiveId) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS, "INSERT INTO character_queststatus_objectives_criteria_progress (guid, criteriaId, counter, date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING, "REPLACE INTO character_queststatus_objectives_spawn_tracking (guid, quest, objective, spawnTrackingId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_SPAWN_TRACKING_BY_QUEST, "DELETE FROM character_queststatus_objectives_spawn_tracking WHERE guid = ? AND quest = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_QUESTSTATUS_REWARDED, "INSERT IGNORE INTO character_queststatus_rewarded (guid, quest, active) VALUES (?, ?, 1)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST, "DELETE FROM character_queststatus_rewarded WHERE guid = ? AND quest = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_FACTION_CHANGE, "UPDATE character_queststatus_rewarded SET quest = ? WHERE quest = ? AND guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE, "UPDATE character_queststatus_rewarded SET active = 1 WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST, "UPDATE character_queststatus_rewarded SET active = 0 WHERE quest = ? AND guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST, "UPDATE character_queststatus_rewarded SET active = 0 WHERE guid = ? AND quest = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INVALID_QUEST_PROGRESS_CRITERIA, "DELETE FROM character_queststatus_objectives_criteria WHERE questObjectiveId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL, "DELETE FROM character_skills WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_SKILLS, "INSERT INTO character_skills (guid, skill, value, max, professionSlot) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
@@ -659,8 +703,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_CHAR_SPELL_FAVORITE, "INSERT INTO character_spell_favorite (guid, spell) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_STATS, "DELETE FROM character_stats WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_STATS, "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, maxpower8, maxpower9, maxpower10, "
-                     "strength, agility, stamina, intellect, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, "
-                     "attackPower, rangedAttackPower, spellPower, resilience, mastery, versatility) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+                     "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, "
+                     "attackPower, rangedAttackPower, spellPower, resilience, mastery, versatility) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_PETITION_BY_OWNER, "DELETE FROM petition WHERE ownerguid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER, "DELETE FROM petition_sign WHERE ownerguid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_GLYPHS, "INSERT INTO character_glyphs VALUES(?, ?, ?)", CONNECTION_ASYNC);
@@ -673,16 +717,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_CHAR_TRAIT_ENTRIES, "INSERT INTO character_trait_entry (guid, traitConfigId, traitNodeId, traitNodeEntryId, `rank`) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_TRAIT_ENTRIES, "DELETE FROM character_trait_entry WHERE guid = ? AND traitConfigId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_TRAIT_ENTRIES_BY_CHAR, "DELETE FROM character_trait_entry WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_CHAR_TRAIT_CONFIGS, "SELECT traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, `name` FROM character_trait_config WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CHAR_TRAIT_CONFIGS, "INSERT INTO character_trait_config (guid, traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, `name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHAR_TRAIT_CONFIGS, "SELECT traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, variationId, `name` FROM character_trait_config WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHAR_TRAIT_CONFIGS, "INSERT INTO character_trait_config (guid, traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, variationId, `name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_TRAIT_CONFIGS, "DELETE FROM character_trait_config WHERE guid = ? AND traitConfigId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_TRAIT_CONFIGS_BY_CHAR, "DELETE FROM character_trait_config WHERE guid = ?", CONNECTION_ASYNC);
-
-    // Void Storage
-    PrepareStatement(CHAR_SEL_CHAR_VOID_STORAGE, "SELECT itemId, itemEntry, slot, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs FROM character_void_storage WHERE playerGuid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM, "REPLACE INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_CHAR_GUID, "DELETE FROM character_void_storage WHERE playerGuid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT, "DELETE FROM character_void_storage WHERE slot = ? AND playerGuid = ?", CONNECTION_ASYNC);
 
     // CompactUnitFrame profiles
     PrepareStatement(CHAR_SEL_CHAR_CUF_PROFILES, "SELECT id, name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset FROM character_cuf_profiles WHERE guid = ?", CONNECTION_ASYNC);
@@ -792,6 +830,19 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE, "UPDATE character_instance_lock SET expiryTime = ?, extended = 0 WHERE guid = ? AND mapId = ? AND lockId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INSTANCE, "DELETE FROM instance WHERE instanceId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_INSTANCE, "INSERT INTO instance (instanceId, data, completedEncountersMask, entranceWorldSafeLocId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+
+    PrepareStatement(CHAR_SEL_PLAYER_DATA_ELEMENTS_CHARACTER, "SELECT playerDataElementCharacterId, floatValue, int64Value FROM character_player_data_element WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_PLAYER_DATA_ELEMENTS_CHARACTER_BY_GUID, "DELETE FROM character_player_data_element WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_PLAYER_DATA_ELEMENTS_CHARACTER, "DELETE FROM character_player_data_element WHERE characterGuid = ? AND playerDataElementCharacterId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_PLAYER_DATA_ELEMENTS_CHARACTER, "INSERT INTO character_player_data_element (characterGuid, playerDataElementCharacterId, floatValue, int64Value) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_PLAYER_DATA_FLAGS_CHARACTER, "SELECT storageIndex, mask FROM character_player_data_flag WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_PLAYER_DATA_FLAGS_CHARACTER_BY_GUID, "DELETE FROM character_player_data_flag WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_PLAYER_DATA_FLAGS_CHARACTER, "DELETE FROM character_player_data_flag WHERE characterGuid = ? AND storageIndex = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_PLAYER_DATA_FLAGS_CHARACTER, "INSERT INTO character_player_data_flag (characterGuid, storageIndex, mask) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+
+    PrepareStatement(CHAR_SEL_CHARACTER_BANK_TAB_SETTINGS, "SELECT tabId, name, icon, description, depositFlags FROM character_bank_tab_settings WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_BANK_TAB_SETTINGS, "DELETE FROM character_bank_tab_settings WHERE characterGuid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_BANK_TAB_SETTINGS, "INSERT INTO character_bank_tab_settings (characterGuid, tabId, name, icon, description, depositFlags) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)

@@ -20,7 +20,9 @@
 
 #include "Define.h"
 #include "Duration.h"
+#include "Optional.h"
 #include <array>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -97,37 +99,62 @@ class TC_DATABASE_API Field
         Field();
         ~Field();
 
-        bool GetBool() const // Wrapper, actually gets integer
+        bool GetBool() const noexcept // Wrapper, actually gets integer
         {
-            return GetUInt8() == 1 ? true : false;
+            return GetUInt8() != 0;
         }
 
-        uint8 GetUInt8() const;
-        int8 GetInt8() const;
-        uint16 GetUInt16() const;
-        int16 GetInt16() const;
-        uint32 GetUInt32() const;
-        int32 GetInt32() const;
-        uint64 GetUInt64() const;
-        int64 GetInt64() const;
-        float GetFloat() const;
-        double GetDouble() const;
-        SystemTimePoint GetDate() const;
-        char const* GetCString() const;
-        std::string GetString() const;
-        std::string_view GetStringView() const;
-        std::vector<uint8> GetBinary() const;
+        uint8 GetUInt8() const noexcept;
+        int8 GetInt8() const noexcept;
+        uint16 GetUInt16() const noexcept;
+        int16 GetInt16() const noexcept;
+        uint32 GetUInt32() const noexcept;
+        int32 GetInt32() const noexcept;
+        uint64 GetUInt64() const noexcept;
+        int64 GetInt64() const noexcept;
+        float GetFloat() const noexcept;
+        double GetDouble() const noexcept;
+        SystemTimePoint GetDate() const noexcept;
+        char const* GetCString() const noexcept;
+        std::string GetString() const noexcept;
+        std::string_view GetStringView() const noexcept;
+        std::vector<uint8> GetBinary() const noexcept;
+        std::span<uint8 const> GetBinaryView() const noexcept;
         template <size_t S>
-        std::array<uint8, S> GetBinary() const
+        std::array<uint8, S> GetBinary() const noexcept
         {
             std::array<uint8, S> buf;
             GetBinarySizeChecked(buf.data(), S);
             return buf;
         }
 
-        bool IsNull() const
+        bool IsNull() const noexcept
         {
             return _value == nullptr;
+        }
+
+        Optional<uint8> GetUInt8OrNull() const noexcept;
+        Optional<int8> GetInt8OrNull() const noexcept;
+        Optional<uint16> GetUInt16OrNull() const noexcept;
+        Optional<int16> GetInt16OrNull() const noexcept;
+        Optional<uint32> GetUInt32OrNull() const noexcept;
+        Optional<int32> GetInt32OrNull() const noexcept;
+        Optional<uint64> GetUInt64OrNull() const noexcept;
+        Optional<int64> GetInt64OrNull() const noexcept;
+        Optional<float> GetFloatOrNull() const noexcept;
+        Optional<double> GetDoubleOrNull() const noexcept;
+        Optional<SystemTimePoint> GetDateOrNull() const noexcept;
+        Optional<std::string> GetStringOrNull() const noexcept;
+        Optional<std::string_view> GetStringViewOrNull() const noexcept;
+        Optional<std::vector<uint8>> GetBinaryOrNull() const noexcept;
+        Optional<std::span<uint8 const>> GetBinaryViewOrNull() const noexcept;
+        template <size_t S>
+        Optional<std::array<uint8, S>> GetBinaryOrNull() const noexcept
+        {
+            Optional<std::array<uint8, S>> buf;
+            if (!IsNull())
+                GetBinarySizeChecked(buf.emplace().data(), S);
+            return buf;
         }
 
     private:
@@ -139,7 +166,7 @@ class TC_DATABASE_API Field
         QueryResultFieldMetadata const* _meta;
         void SetMetadata(QueryResultFieldMetadata const* meta);
 
-        void GetBinarySizeChecked(uint8* buf, size_t size) const;
+        void GetBinarySizeChecked(uint8* buf, size_t size) const noexcept;
 };
 
 #endif

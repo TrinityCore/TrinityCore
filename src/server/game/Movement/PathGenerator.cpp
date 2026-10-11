@@ -22,7 +22,6 @@
 #include "DisableMgr.h"
 #include "G3DPosition.hpp"
 #include "Log.h"
-#include "MMapFactory.h"
 #include "MMapManager.h"
 #include "Map.h"
 #include "Metric.h"
@@ -32,7 +31,7 @@
 PathGenerator::PathGenerator(WorldObject const* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
     _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _useRaycast(false),
-    _startPosition(PositionToVector3(owner)), _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
+    _startPosition(PositionToVector3(owner->GetPosition())), _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
     _navMeshQuery(nullptr)
 {
     memset(_pathPolyRefs, 0, sizeof(_pathPolyRefs));
@@ -42,9 +41,9 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
     uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMapId(), _source->GetMap()->GetTerrain(), _startPosition.x, _startPosition.y);
     if (DisableMgr::IsPathfindingEnabled(_source->GetMapId()))
     {
-        MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
+        MMAP::MMapManager* mmap = MMAP::MMapManager::instance();
         _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetMapId(), _source->GetInstanceId());
-        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId);
+        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId, _source->GetInstanceId());
     }
 
     CreateFilter();

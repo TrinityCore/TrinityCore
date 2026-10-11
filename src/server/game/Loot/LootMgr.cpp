@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
@@ -109,6 +110,11 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItem const* Roll(uint16 lootMode, Player const* personalLooter = nullptr) const;
 };
 
+LootStore::LootStore(char const* name, char const* entryName, bool ratesAllowed)
+    : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed)
+{
+}
+
 LootStore::LootStore(LootStore&&) noexcept = default;
 LootStore& LootStore::operator=(LootStore&&) noexcept = default;
 LootStore::~LootStore() = default;
@@ -184,7 +190,7 @@ bool LootStore::HaveQuestLootFor(uint32 loot_id) const
 {
     // scan loot for quest items
     if (LootTemplate const* lootTemplate = Trinity::Containers::MapGetValuePtr(m_LootTemplates, loot_id))
-        return lootTemplate->HasQuestDrop(m_LootTemplates);
+        return lootTemplate->HasQuestDrop();
 
     return false;
 }
@@ -192,7 +198,7 @@ bool LootStore::HaveQuestLootFor(uint32 loot_id) const
 bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const
 {
     if (LootTemplate const* lootTemplate = Trinity::Containers::MapGetValuePtr(m_LootTemplates, loot_id))
-        if (lootTemplate->HasQuestDropForPlayer(m_LootTemplates, player))
+        if (lootTemplate->HasQuestDropForPlayer(player))
             return true;
 
     return false;
@@ -212,7 +218,7 @@ uint32 LootStore::LoadAndCollectLootIds(LootIdSet& lootIdSet)
 {
     uint32 count = LoadLootTable();
 
-    std::ranges::transform(m_LootTemplates, std::inserter(lootIdSet, lootIdSet.end()), &LootTemplateMap::value_type::first);
+    std::ranges::transform(m_LootTemplates, std::inserter(lootIdSet, lootIdSet.end()), Trinity::Containers::MapKey);
 
     return count;
 }
@@ -228,11 +234,6 @@ void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
     // all still listed ids isn't referenced
     for (uint32 lootId : lootIdSet)
         TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} isn't {} and not referenced from loot, and thus useless.", GetName(), lootId, GetEntryName());
-}
-
-void LootStore::ReportNonExistingId(uint32 lootId) const
-{
-    TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist", GetName(), lootId);
 }
 
 void LootStore::ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const
@@ -259,18 +260,20 @@ bool LootStoreItem::Roll(bool rate) const
 
             float qualityModifier = pProto && rate && QualityToRate[pProto->GetQuality()] != MAX_RATES ? sWorld->getRate(QualityToRate[pProto->GetQuality()]) : 1.0f;
 
-            return roll_chance_f(chance * qualityModifier);
+            return roll_chance(chance * qualityModifier);
         }
         case Type::Reference:
-            return roll_chance_f(chance * (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
+            return roll_chance(chance * (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
         case Type::Currency:
         {
             CurrencyTypesEntry const* currency = sCurrencyTypesStore.AssertEntry(itemid);
 
             float qualityModifier = currency && rate && QualityToRate[currency->Quality] != MAX_RATES ? sWorld->getRate(QualityToRate[currency->Quality]) : 1.0f;
 
-            return roll_chance_f(chance * qualityModifier);
+            return roll_chance(chance * qualityModifier);
         }
+        case Type::TrackingQuest:
+            return roll_chance(chance);
         default:
             break;
     }
@@ -359,6 +362,45 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             if (maxcount < mincount)                        // wrong max count
             {
                 TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped",
+                    store.GetName(), entry, type, itemid, int32(maxcount), mincount);
+                return false;
+            }
+            break;
+        }
+        case Type::TrackingQuest:
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(itemid);
+            if (!quest)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: quest does not exist - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (!quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: quest is not a tracking flag - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance == 0 && groupid == 0)                // Zero chance is allowed for grouped entries only
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: equal-chanced grouped entry, but group not defined - skipped",
+                    store.GetName(), entry, type, itemid);
+                return false;
+            }
+
+            if (chance != 0 && chance < 0.0001f)            // loot with low chance
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: low chance ({}) - skipped",
+                    store.GetName(), entry, type, itemid, chance);
+                return false;
+            }
+
+            if (mincount != 1 || maxcount)                  // wrong count
+            {
+                TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} ItemType {} Item {}: tracking quest has count other than 1 (MinCount {} MaxCount {}) - skipped",
                     store.GetName(), entry, type, itemid, int32(maxcount), mincount);
                 return false;
             }
@@ -579,6 +621,10 @@ void LootTemplate::CopyConditions(LootItem* li) const
                 if (li->type != LootItemType::Currency)
                     continue;
                 break;
+            case LootStoreItem::Type::TrackingQuest:
+                if (li->type != LootItemType::TrackingQuest)
+                    continue;
+                break;
             default:
                 break;
         }
@@ -619,6 +665,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         {
             case LootStoreItem::Type::Item:
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
                 if (!personalLooter || LootItem::AllowedForPlayer(personalLooter, *item, true))
@@ -650,14 +697,13 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 
 void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const
 {
-    auto getLootersForItem = [&personalLoot](auto&& predicate)
+    auto getLootersForItem = [&personalLoot](auto&& predicate) -> std::vector<Player*>
     {
         std::vector<Player*> lootersForItem;
         for (auto&& [looter, loot] : personalLoot)
-        {
             if (predicate(looter))
                 lootersForItem.push_back(looter);
-        }
+
         return lootersForItem;
     };
 
@@ -729,6 +775,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
                 break;
             }
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
             {
                 // Plain entries (not a reference, not grouped)
                 // Chance is already checked, just add
@@ -786,6 +833,7 @@ bool LootTemplate::HasDropForPlayer(Player const* player, uint8 groupId, bool st
         {
             case LootStoreItem::Type::Item:
             case LootStoreItem::Type::Currency:
+            case LootStoreItem::Type::TrackingQuest:
                 if (LootItem::AllowedForPlayer(player, *lootStoreItem, strictUsabilityCheck))
                     return true;                                    // active quest drop found
                 break;
@@ -812,7 +860,7 @@ bool LootTemplate::HasDropForPlayer(Player const* player, uint8 groupId, bool st
 }
 
 // True if template includes at least 1 quest drop entry
-bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) const
+bool LootTemplate::HasQuestDrop(uint8 groupId) const
 {
     if (groupId)                                            // Group reference
     {
@@ -836,10 +884,10 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
                 break;
             case LootStoreItem::Type::Reference:
             {
-                LootTemplateMap::const_iterator Referenced = store.find(item->itemid);
-                if (Referenced == store.end())
+                LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(item->itemid);
+                if (!Referenced)
                     continue;                               // Error message [should be] already printed at loading stage
-                if (Referenced->second->HasQuestDrop(store, item->groupid))
+                if (Referenced->HasQuestDrop(item->groupid))
                     return true;
                 break;
             }
@@ -857,7 +905,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
 }
 
 // True if template includes at least 1 quest drop for an active quest of the player
-bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player const* player, uint8 groupId) const
+bool LootTemplate::HasQuestDropForPlayer(Player const* player, uint8 groupId) const
 {
     if (groupId)                                            // Group reference
     {
@@ -881,10 +929,10 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
                 break;
             case LootStoreItem::Type::Reference:
             {
-                LootTemplateMap::const_iterator Referenced = store.find(item->itemid);
-                if (Referenced == store.end())
+                LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(item->itemid);
+                if (!Referenced)
                     continue;                               // Error message already printed at loading stage
-                if (Referenced->second->HasQuestDropForPlayer(store, player, item->groupid))
+                if (Referenced->HasQuestDropForPlayer(player, item->groupid))
                     return true;
                 break;
             }
@@ -1073,7 +1121,7 @@ void LoadLootTemplates_Disenchant()
     {
         uint32 lootid = disenchant->ID;
         if (!lootIdSet.contains(lootid))
-            LootTemplates_Disenchant.ReportNonExistingId(lootid);
+            LootTemplates_Disenchant.ReportNonExistingId(lootid, "ItemDisenchantLoot", lootid);
         else
             lootIdSetUsed.insert(lootid);
     }
@@ -1085,7 +1133,7 @@ void LoadLootTemplates_Disenchant()
 
         uint32 lootid = itemBonus->Value[0];
         if (!lootIdSet.contains(lootid))
-            LootTemplates_Disenchant.ReportNonExistingId(lootid);
+            LootTemplates_Disenchant.ReportNonExistingId(lootid, "ItemBonusList", itemBonus->ParentItemBonusListID);
         else
             lootIdSetUsed.insert(lootid);
     }

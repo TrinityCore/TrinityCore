@@ -145,7 +145,7 @@ struct boss_moorabi : public BossAI
             switch (eventId)
             {
                 case EVENT_GROUND_TREMOR:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_QUAKE);
                     DoCastAOE(_transformed ? SPELL_QUAKE : SPELL_GROUND_TREMOR);
                     events.Repeat(Seconds(10));

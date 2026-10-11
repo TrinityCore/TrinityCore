@@ -258,7 +258,7 @@ enum TrinityStrings
     LANG_RESET_TALENTS_ONLINE             = 213,
     LANG_RESET_TALENTS_OFFLINE            = 214,
     LANG_RESET_SPELLS                     = 215,
-    LANG_RESET_TALENTS                    = 216,
+    // unused                             = 216,
 
     LANG_RESETALL_UNKNOWN_CASE            = 217,
     LANG_RESETALL_SPELLS                  = 218,
@@ -343,7 +343,7 @@ enum TrinityStrings
     LANG_COMMAND_NPC_SHOWLOOT_MONEY       = 292,
     LANG_COMMAND_NPC_SHOWLOOT_LABEL_2     = 293,
     LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL    = 294,
-    LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2     = 295,
+    LANG_COMMAND_NPC_SHOWLOOT_TRACKING_QUEST = 295,
     LANG_COMMAND_NPC_SHOWLOOT_CURRENCY    = 296,
 
       // END
@@ -447,10 +447,10 @@ enum TrinityStrings
     LANG_COMMAND_LEARN_ALL_RECIPES_HELP   = 392,
     LANG_COMMAND_LEARN_ALL_TALENTS_HELP   = 393,
     LANG_COMMAND_LEARN_ALL_PETTALENT_HELP = 394,
-    LANG_COMMAND_BG_START_HELP            = 395, // 3.3.5 RESERVED
-    LANG_COMMAND_BG_STOP_HELP             = 396, // 3.3.5 RESERVED
-    LANG_CHANGEFACTION_NOT_ELIGIBLE_10    = 397, // 3.3.5 RESERVED
-    LANG_CHANGEFACTION_NOT_ELIGIBLE_60    = 398, // 3.3.5 RESERVED
+    LANG_COMMAND_BG_START_HELP            = 395,
+    LANG_COMMAND_BG_STOP_HELP             = 396,
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_10    = 397,
+    LANG_CHANGEFACTION_NOT_ELIGIBLE_60    = 398,
     // Room for more level 2                399 not used
 
     // level 3 chat
@@ -739,10 +739,10 @@ enum TrinityStrings
     LANG_DIST_ARENA_POINTS_END            = 746, // 3.3.5 RESERVED
     LANG_BG_DISABLED                      = 747,
     LANG_ARENA_DISABLED                   = 748,
-//                                        = 749, see LANG_PINFO_ACC_OS
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
-//                                        = 752, see LANG_PINFO_ACC_IP
+    //                                    = 749, see LANG_PINFO_ACC_OS
+    //                                    = 750,
+    //                                    = 751,
+    //                                    = 752, see LANG_PINFO_ACC_IP
     // 753-755 - free
 
     // Room for BG/ARENA                  = 773-784
@@ -762,7 +762,7 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME              = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE      = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND     = 809,
-    // unused                             = 810,
+    LANG_BANK_TAB_NAME                    = 810,
     LANG_GUILD_MASTER                     = 811,
     LANG_GUILD_OFFICER                    = 812,
     LANG_GUILD_VETERAN                    = 813,
@@ -899,7 +899,7 @@ enum TrinityStrings
     LANG_NO_PET_FOUND                     = 1123,
     LANG_WRONG_PET_TYPE                   = 1124,
     LANG_COMMAND_LEARN_PET_TALENTS        = 1125,
-    LANG_RESET_PET_TALENTS                = 1126,
+    // unused                             = 1126,
     LANG_RESET_PET_TALENTS_ONLINE         = 1127,
     LANG_TAXINODE_ENTRY_LIST_CHAT         = 1128,
     LANG_TAXINODE_ENTRY_LIST_CONSOLE      = 1129,
@@ -995,7 +995,13 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED            = 1216,
     LANG_ACCOUNT_BNET_NOT_LINKED          = 1217,
     LANG_DISALLOW_TICKETS_CONFIG          = 1218,
-    // 1219-1499 - free
+
+    // Guild list (.guild list)
+    LANG_GUILD_LIST_TITLE                 = 1219,
+    LANG_GUILD_LIST_HEADER                = 1220,
+    LANG_GUILD_LIST_ROW                   = 1221,
+    LANG_GUILD_LIST_TOTAL                 = 1222,
+    // 1223-1499 - free
 
     // Command argument parsers
     LANG_CMDPARSER_EITHER                 = 1500,
@@ -1211,7 +1217,11 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE          = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE             = 10055,
 
-    // 10056-10066 - free
+    // Deephaul Ravine
+    LANG_BG_DR_CRYSTAL_TAKEN              = 10056,
+    LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL     = 10057,
+
+    // 10058-10066 - free
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,

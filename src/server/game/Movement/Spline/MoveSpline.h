@@ -84,6 +84,7 @@ namespace Movement
         int32           point_Idx_offset;
         float           velocity;
         Optional<SpellEffectExtraData> spell_effect_extra;
+        Optional<TurnData> turn;
         Optional<AnimTierTransition> anim_tier;
 
         void init_spline(MoveSplineInitArgs const& args);
@@ -95,6 +96,7 @@ namespace Movement
         void computeFallElevation(int32 time_point, float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
+        void reinit_spline_for_next_cycle();
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
 
@@ -137,6 +139,7 @@ namespace Movement
         bool Finalized() const { return splineflags.Done; }
         bool isCyclic() const { return splineflags.Cyclic; }
         bool isFalling() const { return splineflags.Falling; }
+        bool isTurning() const { return splineflags.Turning; }
         Vector3 const& FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3::zero(); }
         Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
         int32 currentPathIdx() const;

@@ -16,149 +16,297 @@
  */
 
 /*
-Name: Boss_Anzu
-%Complete: 80%
-Comment:
-Category: Auchindoun, Sethekk Halls
-*/
+ * Timers requires to be revisited
+ * Birds-helpers are NYI
+ */
 
 #include "ScriptMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "sethekk_halls.h"
 
-enum Says
+enum AnzuTexts
 {
-    SAY_SUMMON_BROOD            = 0,
-    SAY_SPELL_BOMB              = 1
+    SAY_INTRO_1                 = 0,
+    SAY_INTRO_2                 = 1,
+    SAY_SUMMON                  = 2,
+    SAY_BOMB                    = 3
 };
 
-enum Spells
+enum AnzuSpells
 {
+    SPELL_SHADOWFORM            = 37816,
+
     SPELL_PARALYZING_SCREECH    = 40184,
     SPELL_SPELL_BOMB            = 40303,
     SPELL_CYCLONE_OF_FEATHERS   = 40321,
-    SPELL_BANISH_SELF           = 42354,
-    SPELL_FLESH_RIP             = 40199
+    SPELL_BANISH_SELF           = 42354
 };
 
-enum Events
+enum AnzuEvents
 {
     EVENT_PARALYZING_SCREECH    = 1,
-    EVENT_SPELL_BOMB            = 2,
-    EVENT_CYCLONE_OF_FEATHERS   = 3,
-    EVENT_SUMMON                = 4
+    EVENT_SPELL_BOMB,
+    EVENT_CYCLONE_OF_FEATHERS,
+
+    EVENT_SUMMON_1,
+    EVENT_SUMMON_2,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+    EVENT_INTRO_3
 };
 
-Position const PosSummonBrood[7] =
+enum AnzuPhases : uint8
 {
-    { -118.1717f, 284.5299f, 121.2287f, 2.775074f },
-    { -98.15528f, 293.4469f, 109.2385f, 0.174533f },
-    { -99.70160f, 270.1699f, 98.27389f, 6.178465f },
-    { -69.25543f, 303.0768f, 97.84479f, 5.532694f },
-    { -87.59662f, 263.5181f, 92.70478f, 1.658063f },
-    { -73.54323f, 276.6267f, 94.25807f, 2.802979f },
-    { -81.70527f, 280.8776f, 44.58830f, 0.526849f }
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_70,
+    PHASE_HEALTH_33
 };
 
+enum AnzuSpawnGroups
+{
+    SPAWN_GROUP_BROOD_1         = 406,
+    SPAWN_GROUP_BROOD_2         = 407,
+    SPAWN_GROUP_BROOD_3         = 408,
+    SPAWN_GROUP_BROOD_4         = 409,
+    SPAWN_GROUP_BROOD_5         = 410,
+    SPAWN_GROUP_BROOD_6         = 411,
+    SPAWN_GROUP_BROOD_7         = 412,
+    SPAWN_GROUP_HAWK            = 413,
+    SPAWN_GROUP_FALCON          = 414,
+    SPAWN_GROUP_EAGLE           = 415
+};
+
+enum AnzuMisc
+{
+    PATH_BROOD_1                = 1475160,
+    PATH_BROOD_2                = 1475170,
+    NPC_ANZU                    = 23035,
+    ACTION_INFORM_ANZU          = 0
+};
+
+static constexpr std::array<uint32, 7> BroodSpawnGroupsData =
+{
+    SPAWN_GROUP_BROOD_1,
+    SPAWN_GROUP_BROOD_2,
+    SPAWN_GROUP_BROOD_3,
+    SPAWN_GROUP_BROOD_4,
+    SPAWN_GROUP_BROOD_5,
+    SPAWN_GROUP_BROOD_6,
+    SPAWN_GROUP_BROOD_7
+};
+
+static constexpr std::array<uint32, 3> HelpersSpawnGroupsData =
+{
+    SPAWN_GROUP_HAWK,
+    SPAWN_GROUP_FALCON,
+    SPAWN_GROUP_EAGLE
+};
+
+// 23035 - Anzu
 struct boss_anzu : public BossAI
 {
-    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU)
-    {
-        Initialize();
-    }
+    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _phase(PHASE_NONE), _deadBroodCount(0) { }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        _under33Percent = false;
-        _under66Percent = false;
+        events.ScheduleEvent(EVENT_INTRO_1, 0s);
     }
 
     void Reset() override
     {
-        //_Reset();
-        events.Reset();
-        Initialize();
+        _Reset();
+        _phase = PHASE_NONE;
+        _deadBroodCount = 0;
+        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
-        events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
+
+        events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 15s, 25s);
+        events.ScheduleEvent(EVENT_SPELL_BOMB, 20s, 30s);
+        events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 10s, 15s);
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase < PHASE_HEALTH_70 && me->HealthBelowPctDamaged(70, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SUMMON_1, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_33 && me->HealthBelowPctDamaged(33, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SUMMON_1, 0s);
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_INFORM_ANZU)
+        {
+            _deadBroodCount++;
+
+            if (_deadBroodCount == BroodSpawnGroupsData.size())
+            {
+                me->RemoveAurasDueToSpell(SPELL_BANISH_SELF);
+                _deadBroodCount = 0;
+            }
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        for (uint32 group : BroodSpawnGroupsData)
+            me->GetMap()->SpawnGroupDespawn(group);
+
+        BossAI::EnterEvadeMode(why);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-    }
 
-    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
-        {
-            _under33Percent = true;
-            Talk(SAY_SUMMON_BROOD);
-            events.ScheduleEvent(EVENT_SUMMON, 3s);
-        }
-
-        if (me->HealthBelowPctDamaged(66, damage) && !_under66Percent)
-        {
-            _under66Percent = true;
-            Talk(SAY_SUMMON_BROOD);
-            events.ScheduleEvent(EVENT_SUMMON, 3s);
-        }
+        for (uint32 group : HelpersSpawnGroupsData)
+            me->GetMap()->SpawnGroupDespawn(group);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_INTRO_1:
+                        Talk(SAY_INTRO_1);
+                        DoCastSelf(SPELL_SHADOWFORM);
+                        events.ScheduleEvent(EVENT_INTRO_2, 5s);
+                        break;
+                    case EVENT_INTRO_2:
+                        Talk(SAY_INTRO_2);
+                        events.ScheduleEvent(EVENT_INTRO_3, 5s);
+                        break;
+                    case EVENT_INTRO_3:
+                        me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
+                        me->SetImmuneToAll(false);
+                        for (uint32 group : HelpersSpawnGroupsData)
+                            me->GetMap()->SpawnGroupSpawn(group, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
             return;
+        }
 
         events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_PARALYZING_SCREECH:
-                    DoCastVictim(SPELL_PARALYZING_SCREECH);
-                    events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 25s);
+                    DoCastSelf(SPELL_PARALYZING_SCREECH);
+                    events.Repeat(25s, 35s);
+                    break;
+                case EVENT_SPELL_BOMB:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, [](Unit const* unit) { return unit && unit->GetPowerType() == POWER_MANA; }))
+                    {
+                        DoCast(target, SPELL_SPELL_BOMB);
+                        Talk(SAY_BOMB, target);
+                    }
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_CYCLONE_OF_FEATHERS:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
-                    events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21s);
+                    events.Repeat(20s, 25s);
                     break;
-                case EVENT_SUMMON:
-                    // TODO: Add pathing for Brood of Anzu
-                    for (uint8 i = 0; i < 7; i++)
-                        me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
 
-                    DoCast(me, SPELL_BANISH_SELF);
-                    events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
+                case EVENT_SUMMON_1:
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_SUMMON);
+
+                    _deadBroodCount = 0;
+
+                    for (uint32 group : BroodSpawnGroupsData)
+                        me->GetMap()->SpawnGroupSpawn(group, true, true);
+
+                    events.ScheduleEvent(EVENT_SUMMON_2, 3s);
                     break;
-                case EVENT_SPELL_BOMB:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
-                        if (target->GetPowerType() == POWER_MANA)
-                        {
-                            DoCast(target, SPELL_SPELL_BOMB);
-                            Talk(SAY_SPELL_BOMB, target);
-                        }
-                    }
+                case EVENT_SUMMON_2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCastSelf(SPELL_BANISH_SELF);
                     break;
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 
-    private:
-        bool _under33Percent;
-        bool _under66Percent;
+private:
+    uint8 _phase;
+    uint8 _deadBroodCount;
+};
+
+// 23132 - Brood of Anzu
+struct npc_brood_of_anzu : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void JustAppeared() override
+    {
+        me->SetDisableGravity(true);
+        me->SetReactState(REACT_PASSIVE);
+
+        _scheduler.Schedule(0s, 5s, [this](TaskContext const& /*task*/)
+        {
+            me->GetMotionMaster()->MovePath(RAND(PATH_BROOD_1, PATH_BROOD_2), false);
+        });
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->SetDisableGravity(false);
+        DoZoneInCombat();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* anzu = me->FindNearestCreature(NPC_ANZU, 200.0f))
+            anzu->AI()->DoAction(ACTION_INFORM_ANZU);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        UpdateVictim();
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_boss_anzu()
 {
     RegisterSethekkHallsCreatureAI(boss_anzu);
+    RegisterSethekkHallsCreatureAI(npc_brood_of_anzu);
 }

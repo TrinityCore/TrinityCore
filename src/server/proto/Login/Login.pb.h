@@ -539,6 +539,13 @@ class TC_PROTO_API LoginForm : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::FormInputValue >*
       mutable_inputs();
 
+  // optional uint32 title_id = 5;
+  inline bool has_title_id() const;
+  inline void clear_title_id();
+  static const int kTitleIdFieldNumber = 5;
+  inline ::google::protobuf::uint32 title_id() const;
+  inline void set_title_id(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.LoginForm)
  private:
   inline void set_has_platform_id();
@@ -547,6 +554,8 @@ class TC_PROTO_API LoginForm : public ::google::protobuf::Message {
   inline void clear_has_program_id();
   inline void set_has_version();
   inline void clear_has_version();
+  inline void set_has_title_id();
+  inline void clear_has_title_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -556,6 +565,7 @@ class TC_PROTO_API LoginForm : public ::google::protobuf::Message {
   ::std::string* program_id_;
   ::std::string* version_;
   ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::FormInputValue > inputs_;
+  ::google::protobuf::uint32 title_id_;
   friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
@@ -2057,6 +2067,30 @@ inline ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::FormInput
 LoginForm::mutable_inputs() {
   // @@protoc_insertion_point(field_mutable_list:Battlenet.JSON.Login.LoginForm.inputs)
   return &inputs_;
+}
+
+// optional uint32 title_id = 5;
+inline bool LoginForm::has_title_id() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void LoginForm::set_has_title_id() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void LoginForm::clear_has_title_id() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void LoginForm::clear_title_id() {
+  title_id_ = 0u;
+  clear_has_title_id();
+}
+inline ::google::protobuf::uint32 LoginForm::title_id() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.LoginForm.title_id)
+  return title_id_;
+}
+inline void LoginForm::set_title_id(::google::protobuf::uint32 value) {
+  set_has_title_id();
+  title_id_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.LoginForm.title_id)
 }
 
 // -------------------------------------------------------------------

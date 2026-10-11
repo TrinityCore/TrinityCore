@@ -77,18 +77,22 @@ class StringTransaction;
 class TC_GAME_API PlayerDump
 {
     public:
+        PlayerDump(PlayerDump const&) = delete;
+        PlayerDump(PlayerDump&&) = delete;
+        PlayerDump& operator=(PlayerDump const&) = delete;
+        PlayerDump& operator=(PlayerDump&&) = delete;
+
         static void InitializeTables();
 
-        static void InitializeColumnDefinition();
-
     protected:
-        PlayerDump() { }
+        PlayerDump() = default;
+        ~PlayerDump() = default;
 };
 
-class TC_GAME_API PlayerDumpWriter : public PlayerDump
+class TC_GAME_API PlayerDumpWriter final : public PlayerDump
 {
     public:
-        PlayerDumpWriter() { }
+        PlayerDumpWriter();
 
         bool GetDump(ObjectGuid::LowType guid, std::string& dump);
         DumpReturn WriteDumpToFile(std::string const& file, ObjectGuid::LowType guid);
@@ -105,10 +109,10 @@ class TC_GAME_API PlayerDumpWriter : public PlayerDump
         std::set<uint64> _itemSets;
 };
 
-class TC_GAME_API PlayerDumpReader : public PlayerDump
+class TC_GAME_API PlayerDumpReader final : public PlayerDump
 {
     public:
-        PlayerDumpReader() { }
+        PlayerDumpReader() = default;
 
         DumpReturn LoadDumpFromFile(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid);
         DumpReturn LoadDumpFromString(std::string const& dump, uint32 account, std::string name, ObjectGuid::LowType guid);

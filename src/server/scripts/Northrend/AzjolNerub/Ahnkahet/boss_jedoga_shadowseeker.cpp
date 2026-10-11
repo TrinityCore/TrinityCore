@@ -441,7 +441,7 @@ struct npc_twilight_volunteer : public ScriptedAI
                     jedoga->AI()->DoAction(ACTION_SACRIFICE);
                     Talk(SAY_SACRIFICED);
 
-                    _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    _scheduler.Schedule(Seconds(3), [this](TaskContext const& /*context*/)
                     {
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
                         me->DespawnOrUnsummon(Seconds(5));

@@ -65,7 +65,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                 DoCast(SPELL_DREAD_LANDING);
                 DoCast(SPELL_KAZZARA_INTRO);
 
-                scheduler.Schedule(1s + 500ms, [this](TaskContext /*context*/)
+                scheduler.Schedule(1s + 500ms, [this](TaskContext const& /*context*/)
                 {
                     std::vector<Creature*> sunderedMobs;
                     GetCreatureListWithOptionsInGrid(sunderedMobs, me, 50.0f, { .StringId = "sundered_mob" });
@@ -78,7 +78,7 @@ struct boss_kazzara_the_hellforged : public BossAI
                     }
                 });
 
-                scheduler.Schedule(12s, [this](TaskContext /*context*/)
+                scheduler.Schedule(12s, [this](TaskContext const& /*context*/)
                 {
                     me->SetUninteractible(false);
                     me->SetImmuneToAll(false);

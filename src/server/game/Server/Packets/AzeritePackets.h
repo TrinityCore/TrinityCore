@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AzeriteItemPackets_h__
-#define AzeriteItemPackets_h__
+#ifndef TRINITYCORE_AZERITE_ITEM_PACKETS_H
+#define TRINITYCORE_AZERITE_ITEM_PACKETS_H
 
 #include "Packet.h"
 #include "ItemDefines.h"
@@ -30,7 +30,7 @@ namespace WorldPackets
         class PlayerAzeriteItemGains final : public ServerPacket
         {
         public:
-            PlayerAzeriteItemGains() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_GAINS, 16 + 8) { }
+            explicit PlayerAzeriteItemGains() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_GAINS, 16 + 8) { }
 
             WorldPacket const* Write() override;
 
@@ -41,7 +41,7 @@ namespace WorldPackets
         class AzeriteEssenceUnlockMilestone final : public ClientPacket
         {
         public:
-            AzeriteEssenceUnlockMilestone(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_UNLOCK_MILESTONE, std::move(packet)) { }
+            explicit AzeriteEssenceUnlockMilestone(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_UNLOCK_MILESTONE, std::move(packet)) { }
 
             void Read() override;
 
@@ -51,7 +51,7 @@ namespace WorldPackets
         class AzeriteEssenceActivateEssence final : public ClientPacket
         {
         public:
-            AzeriteEssenceActivateEssence(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_ACTIVATE_ESSENCE, std::move(packet)) { }
+            explicit AzeriteEssenceActivateEssence(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_ACTIVATE_ESSENCE, std::move(packet)) { }
 
             void Read() override;
 
@@ -62,7 +62,7 @@ namespace WorldPackets
         class ActivateEssenceFailed final : public ServerPacket
         {
         public:
-            ActivateEssenceFailed() : ServerPacket(SMSG_ACTIVATE_ESSENCE_FAILED, 1 + 4 + 4 + 1) { }
+            explicit ActivateEssenceFailed() : ServerPacket(SMSG_ACTIVATE_ESSENCE_FAILED, 1 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -75,7 +75,7 @@ namespace WorldPackets
         class AzeriteEmpoweredItemViewed final : public ClientPacket
         {
         public:
-            AzeriteEmpoweredItemViewed(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_VIEWED, std::move(packet)) { }
+            explicit AzeriteEmpoweredItemViewed(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_VIEWED, std::move(packet)) { }
 
             void Read() override;
 
@@ -85,7 +85,7 @@ namespace WorldPackets
         class AzeriteEmpoweredItemSelectPower final : public ClientPacket
         {
         public:
-            AzeriteEmpoweredItemSelectPower(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_SELECT_POWER, std::move(packet)) { }
+            explicit AzeriteEmpoweredItemSelectPower(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_SELECT_POWER, std::move(packet)) { }
 
             void Read() override;
 
@@ -98,7 +98,7 @@ namespace WorldPackets
         class TC_GAME_API PlayerAzeriteItemEquippedStatusChanged final : public ServerPacket
         {
         public:
-            PlayerAzeriteItemEquippedStatusChanged() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
+            explicit PlayerAzeriteItemEquippedStatusChanged() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -107,4 +107,4 @@ namespace WorldPackets
     }
 }
 
-#endif // AzeriteItemPackets_h__
+#endif // TRINITYCORE_AZERITE_ITEM_PACKETS_H

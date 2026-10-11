@@ -143,16 +143,10 @@ enum CalendarLimits
 struct TC_GAME_API CalendarInvite
 {
     public:
-        CalendarInvite(CalendarInvite const& calendarInvite, uint64 inviteId, uint64 eventId)
+        CalendarInvite(CalendarInvite const& calendarInvite, uint64 inviteId, uint64 eventId) : _inviteId(inviteId), _eventId(eventId),
+            _invitee(calendarInvite.GetInviteeGUID()), _senderGUID(calendarInvite.GetSenderGUID()), _responseTime(calendarInvite.GetResponseTime()),
+            _status(calendarInvite.GetStatus()), _rank(calendarInvite.GetRank()), _note(calendarInvite.GetNote())
         {
-            _inviteId = inviteId;
-            _eventId = eventId;
-            _invitee = calendarInvite.GetInviteeGUID();
-            _senderGUID = calendarInvite.GetSenderGUID();
-            _responseTime = calendarInvite.GetResponseTime();
-            _status = calendarInvite.GetStatus();
-            _rank = calendarInvite.GetRank();
-            _note = calendarInvite.GetNote();
         }
 
         CalendarInvite();
@@ -208,19 +202,10 @@ struct TC_GAME_API CalendarInvite
 struct TC_GAME_API CalendarEvent
 {
     public:
-        CalendarEvent(CalendarEvent const& calendarEvent, uint64 eventId)
-        {
-            _eventId = eventId;
-            _ownerGUID = calendarEvent.GetOwnerGUID();
-            _eventGuildId = calendarEvent.GetGuildId();
-            _eventType = calendarEvent.GetType();
-            _textureId = calendarEvent.GetTextureId();
-            _date = calendarEvent.GetDate();
-            _flags = calendarEvent.GetFlags();
-            _title = calendarEvent.GetTitle();
-            _description = calendarEvent.GetDescription();
-            _lockDate = calendarEvent.GetLockDate();
-        }
+        CalendarEvent(CalendarEvent const& calendarEvent, uint64 eventId) : _eventId(eventId), _ownerGUID(calendarEvent.GetOwnerGUID()),
+            _eventGuildId(calendarEvent.GetGuildId()), _eventType(calendarEvent.GetType()), _textureId(calendarEvent.GetTextureId()),
+            _date(calendarEvent.GetDate()), _flags(calendarEvent.GetFlags()), _title(calendarEvent.GetTitle()), _description(calendarEvent.GetDescription()),
+            _lockDate(calendarEvent.GetLockDate()) { }
 
         CalendarEvent(uint64 eventId, ObjectGuid ownerGUID, ObjectGuid::LowType guildId, CalendarEventType type, int32 textureId,
             time_t date, uint32 flags, std::string title, std::string description, time_t lockDate) :

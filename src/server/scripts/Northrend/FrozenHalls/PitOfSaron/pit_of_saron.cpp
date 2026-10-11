@@ -43,7 +43,7 @@ enum Events
 
 bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
 {
-    if (roll_chance_i(12))
+    if (roll_chance(12))
     {
         _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
         _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(20s, 35s)));
@@ -204,7 +204,7 @@ struct npc_pit_of_saron_icicle : public PassiveAI
     {
         _summonerGUID = summoner->GetGUID();
 
-        _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
+        _scheduler.Schedule(Milliseconds(3650), [this](TaskContext const& /*context*/)
         {
             DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
             DoCastSelf(SPELL_ICICLE_FALL_VISUAL);

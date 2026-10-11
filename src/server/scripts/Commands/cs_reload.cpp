@@ -51,18 +51,20 @@ EndScriptData */
 #include "WaypointManager.h"
 #include "World.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+using namespace Trinity::ChatCommands;
 
 class reload_commandscript : public CommandScript
 {
 public:
     reload_commandscript() : CommandScript("reload_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
-        static std::vector<ChatCommand> reloadAllCommandTable =
+        static ChatCommandTable reloadAllCommandTable =
         {
             { "achievement",                   rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT,                  true,  &HandleReloadAllAchievementCommand,              "" },
             { "area",                          rbac::RBAC_PERM_COMMAND_RELOAD_ALL_AREA,                         true,  &HandleReloadAllAreaCommand,                     "" },
@@ -76,7 +78,7 @@ public:
             { "spell",                         rbac::RBAC_PERM_COMMAND_RELOAD_ALL_SPELL,                        true,  &HandleReloadAllSpellCommand,                    "" },
             { "",                              rbac::RBAC_PERM_COMMAND_RELOAD_ALL,                              true,  &HandleReloadAllCommand,                         "" },
         };
-        static std::vector<ChatCommand> reloadCommandTable =
+        static ChatCommandTable reloadCommandTable =
         {
             { "auctions",                      rbac::RBAC_PERM_COMMAND_RELOAD_AUCTIONS,                         true,  &HandleReloadAuctionsCommand,                   "" },
             { "access_requirement",            rbac::RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT,               true,  &HandleReloadAccessRequirementCommand,          "" },
@@ -155,7 +157,6 @@ public:
             { "spell_linked_spell",            rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL,               true,  &HandleReloadSpellLinkedSpellCommand,           "" },
             { "spell_pet_auras",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS,                  true,  &HandleReloadSpellPetAurasCommand,              "" },
             { "spell_proc",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC,                       true,  &HandleReloadSpellProcsCommand,                 "" },
-            { "spell_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS,                    true,  &HandleReloadSpellScriptsCommand,               "" },
             { "spell_script_names",            rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES,               true,  &HandleReloadSpellScriptNamesCommand,           "" },
             { "spell_target_position",         rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION,            true,  &HandleReloadSpellTargetPositionCommand,        "" },
             { "spell_threats",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS,                    true,  &HandleReloadSpellThreatsCommand,               "" },
@@ -168,9 +169,9 @@ public:
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "reload",                        rbac::RBAC_PERM_COMMAND_RELOAD,                                  true,  nullptr,                                        "", reloadCommandTable },
+            { "reload",                        reloadCommandTable },
         };
         return commandTable;
     }
@@ -277,7 +278,6 @@ public:
 
         TC_LOG_INFO("misc", "Re-Loading Scripts...");
         HandleReloadEventScriptsCommand(handler, "a");
-        HandleReloadSpellScriptsCommand(handler, "a");
         HandleReloadSpellScriptNamesCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
         HandleReloadWpCommand(handler, "a");
@@ -547,6 +547,9 @@ public:
         TC_LOG_INFO("misc", "Re-Loading GameObjects for quests...");
         sObjectMgr->LoadGameObjectForQuests();
         handler->SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
+        TC_LOG_INFO("misc", "Re-Loading Criteria Lists...");
+        sCriteriaMgr->LoadCriteriaList();
+        handler->SendGlobalGMSysMessage("Criteria lists for quests reloaded.");
         sScriptMgr->NotifyScriptIDUpdate();
 
         return true;
@@ -914,26 +917,6 @@ public:
 
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB Tables 'waypoint_path' and 'waypoint_path_node' reloaded.");
-
-        return true;
-    }
-
-    static bool HandleReloadSpellScriptsCommand(ChatHandler* handler, char const* args)
-    {
-        if (sMapMgr->IsScriptScheduled())
-        {
-            handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Scripts from `spell_scripts`...");
-
-        sObjectMgr->LoadSpellScripts();
-
-        if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB table `spell_scripts` reloaded.");
 
         return true;
     }

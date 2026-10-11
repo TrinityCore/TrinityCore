@@ -112,6 +112,10 @@ class TC_GAME_API ArenaTeam
 {
     public:
         ArenaTeam();
+        ArenaTeam(ArenaTeam const&) = delete;
+        ArenaTeam(ArenaTeam&&) = delete;
+        ArenaTeam& operator=(ArenaTeam const&) = delete;
+        ArenaTeam& operator=(ArenaTeam&&) = delete;
         ~ArenaTeam();
 
         bool Create(ObjectGuid captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);

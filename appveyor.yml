@@ -4,7 +4,7 @@ clone_depth: 1
 init:
 - ps: ''
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_83_0
+  BOOST_ROOT: C:\Libraries\boost_1_85_0
   MYSQL_ROOT_DIR: C:\Program Files\MySQL\MySQL Server 8.0
   OPENSSL_ROOT_DIR: C:\OpenSSL-v32-Win64
 build_script:

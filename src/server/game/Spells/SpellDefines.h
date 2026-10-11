@@ -36,7 +36,7 @@ class Player;
 class Spell;
 class Unit;
 class WorldObject;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
 enum SpellCastResult : int32;
@@ -62,7 +62,7 @@ enum class SpellInterruptFlags : uint32
     Movement                    = 0x00000001,
     DamagePushbackPlayerOnly    = 0x00000002,
     Stun                        = 0x00000004, // useless, even spells without it get interrupted
-    Combat                      = 0x00000008,
+    Combat                      = 0x00000008, // used for both interrupting spell when entering combat and to reset auto attack timer
     DamageCancelsPlayerOnly     = 0x00000010,
     MeleeCombat                 = 0x00000020, // NYI
     Immunity                    = 0x00000040, // NYI
@@ -110,7 +110,8 @@ enum class SpellAuraInterruptFlags : uint32
     Summon                      = 0x40000000,
     LeavingCombat               = 0x80000000,
 
-    NOT_VICTIM                  = (HostileActionReceived | Damage | NonPeriodicDamage)
+    NOT_VICTIM                  = HostileActionReceived | Damage | NonPeriodicDamage,
+    AnyDamageMask               = Damage | NonPeriodicDamage | DamageCancelsScript
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags);
@@ -122,7 +123,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Swimming                                    = 0x00000002,
     NotMoving                                   = 0x00000004, // NYI
     Ground                                      = 0x00000008,
-    Transform                                   = 0x00000010, // NYI
+    Transform                                   = 0x00000010,
     Jump                                        = 0x00000020,
     ChangeSpec                                  = 0x00000040,
     AbandonVehicle                              = 0x00000080, // Implemented in Unit::_ExitVehicle
@@ -190,13 +191,39 @@ enum class SpellModOp : uint8
     MaxAuraStacks               = 37,
     ProcCooldown                = 38,
     PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2
+    MaxTargets                  = 40
 };
 
-#define MAX_SPELLMOD 40
+#define MAX_SPELLMOD 41
+
+enum class SpellPvpModifier : uint8
+{
+    HealingAndDamage            = 0,
+    PeriodicHealingAndDamage    = 1,
+    BonusCoefficient            = 2,
+
+    Points                      = 4,
+    PointsIndex0                = 5,
+    PointsIndex1                = 6,
+    PointsIndex2                = 7,
+    PointsIndex3                = 8,
+    PointsIndex4                = 9,
+};
 
 enum SpellValueMod : int32
 {
-    SPELLVALUE_BASE_POINT0,
+    SPELLVALUE_MAX_TARGETS,
+    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_DURATION,
+    SPELLVALUE_PARENT_SPELL_TARGET_COUNT,
+    SPELLVALUE_PARENT_SPELL_TARGET_INDEX,
+
+    SPELLVALUE_INT_END
+};
+
+enum SpellValueModFloat : int32
+{
+    SPELLVALUE_BASE_POINT0  = uint8(SPELLVALUE_INT_END),
     SPELLVALUE_BASE_POINT1,
     SPELLVALUE_BASE_POINT2,
     SPELLVALUE_BASE_POINT3,
@@ -231,18 +258,7 @@ enum SpellValueMod : int32
 
     SPELLVALUE_BASE_POINT_END,
 
-    SPELLVALUE_MAX_TARGETS = SPELLVALUE_BASE_POINT_END,
-    SPELLVALUE_AURA_STACK,
-    SPELLVALUE_DURATION,
-    SPELLVALUE_PARENT_SPELL_TARGET_COUNT,
-    SPELLVALUE_PARENT_SPELL_TARGET_INDEX,
-
-    SPELLVALUE_INT_END
-};
-
-enum SpellValueModFloat : int32
-{
-    SPELLVALUE_RADIUS_MOD   = uint8(SPELLVALUE_INT_END),
+    SPELLVALUE_RADIUS_MOD   = SPELLVALUE_BASE_POINT_END,
     SPELLVALUE_CRIT_CHANCE,
     SPELLVALUE_DURATION_PCT,
 };
@@ -257,13 +273,13 @@ enum TriggerCastFlags : uint32
     TRIGGERED_NONE                                  = 0x00000000,   //!< Not triggered
     TRIGGERED_IGNORE_GCD                            = 0x00000001,   //!< Will ignore GCD
     TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD          = 0x00000002,   //!< Will ignore Spell and Category cooldowns
-    TRIGGERED_IGNORE_POWER_AND_REAGENT_COST         = 0x00000004,   //!< Will ignore power and reagent cost
+    TRIGGERED_IGNORE_POWER_COST                     = 0x00000004,   //!< Will ignore power and reagent cost
     TRIGGERED_IGNORE_CAST_ITEM                      = 0x00000008,   //!< Will not take away cast item or update related achievement criteria
     TRIGGERED_IGNORE_AURA_SCALING                   = 0x00000010,   //!< Will ignore aura scaling
     TRIGGERED_IGNORE_CAST_IN_PROGRESS               = 0x00000020,   //!< Will not check if a current cast is in progress
     TRIGGERED_IGNORE_CAST_TIME                      = 0x00000040,   //!< Will always be instantly cast
     TRIGGERED_CAST_DIRECTLY                         = 0x00000080,   //!< In Spell::prepare, will be cast directly without setting containers for executed spell
-    // reuse                                        = 0x00000100,
+    TRIGGERED_IGNORE_REAGENT_COST                   = 0x00000100,   //!< Will ignore reagent cost
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //!< Will not adjust facing to target (if any)
     TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //!< Will ignore shapeshift checks
     // reuse                                        = 0x00000800,
@@ -275,11 +291,16 @@ enum TriggerCastFlags : uint32
     TRIGGERED_DONT_RESET_PERIODIC_TIMER             = 0x00020000,   //!< Will allow periodic aura timers to keep ticking (instead of resetting)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //!< Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_FULL_MASK                             = 0x0007FFFF,   //!< Used when doing CastSpell with triggered == true
+    TRIGGERED_IS_TRIGGERED_MASK                     = TRIGGERED_FULL_MASK
+                                                        & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS
+                                                            | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_IGNORE_SHAPESHIFT
+                                                            | TRIGGERED_DONT_REPORT_CAST_ERROR), //!< Will be recognized by Spell::IsTriggered as triggered
 
     // debug flags (used with .cast triggered commands)
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //!< Will ignore equipped item requirements
     TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //!< Will ignore most target checks (mostly DBC target checks)
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00200000,   //!< Will ignore caster aura states including combat requirements and death state
+    TRIGGERED_SUPPRESS_CASTER_ANIM                  = 0x00400000,   //!< Will not play cast animations on caster
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
@@ -322,12 +343,21 @@ enum SpellCastTargetFlags : uint32
     TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM
 };
 
+struct SpellRange
+{
+    float Min = 0.0f;
+    float Max = 0.0f;
+
+    constexpr SpellRange operator*(float mul) const { return { Min * mul, Max * mul }; }
+    bool operator==(SpellRange const&) const = default;
+};
+
 struct TC_GAME_API SpellDestination
 {
-    SpellDestination();
-    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
-    SpellDestination(Position const& pos);
-    SpellDestination(WorldLocation const& loc);
+    SpellDestination() { }
+    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID) : _position(mapId, x, y, z, orientation) { }
+    SpellDestination(Position const& pos) : _position(MAPID_INVALID, pos) { }
+    SpellDestination(WorldLocation const& loc) : _position(loc) { }
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
@@ -407,7 +437,7 @@ public:
     float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
 
     void Update(WorldObject* caster);
-    std::string GetTargetString() const { return m_strTarget; }
+    std::string const& GetTargetString() const { return m_strTarget; }
 
 private:
     uint32 m_targetMask;
@@ -456,6 +486,9 @@ struct TC_GAME_API CastSpellTargetArg
     Optional<SpellCastTargets> Targets; // empty optional used to signal error state
 };
 
+//! Spell effect value calculation result type.
+using SpellEffectValue = double; //!< This is a double instead of float to be able to store full range of int32
+
 struct CastSpellExtraArgsInit
 {
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
@@ -469,18 +502,18 @@ struct CastSpellExtraArgsInit
     struct SpellValueOverride
     {
         SpellValueOverride(SpellValueMod mod, int32 val) : Type(mod) { Value.I = val; }
-        SpellValueOverride(SpellValueModFloat mod, float val) : Type(mod) { Value.F = val; }
+        SpellValueOverride(SpellValueModFloat mod, SpellEffectValue val) : Type(mod) { Value.F = val; }
 
         int32 Type;
         union
         {
-            float F;
+            SpellEffectValue F;
             int32 I;
         } Value;
     };
     std::vector<SpellValueOverride> SpellValueOverrides;
     std::any CustomArg;
-    Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> ScriptResult;
+    Scripting::v2::ActionResultSetter<SpellCastResult> ScriptResult;
     bool ScriptWaitsForSpellHit = false;
 };
 
@@ -494,7 +527,7 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs(AuraEffect const* eff) { TriggerFlags = TRIGGERED_FULL_MASK; SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) { CastDifficulty = castDifficulty; }
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.emplace_back(mod, val); }
-    CastSpellExtraArgs(SpellValueModFloat mod, float val) { SpellValueOverrides.emplace_back(mod, val); }
+    CastSpellExtraArgs(SpellValueModFloat mod, SpellEffectValue val) { SpellValueOverrides.emplace_back(mod, val); }
     CastSpellExtraArgs(CastSpellExtraArgsInit&& init) : CastSpellExtraArgsInit(std::move(init)) { SetTriggeringSpell(TriggeringSpell); }
 
     CastSpellExtraArgs(CastSpellExtraArgs const& other);
@@ -513,10 +546,10 @@ struct TC_GAME_API CastSpellExtraArgs : public CastSpellExtraArgsInit
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
     CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
-    CastSpellExtraArgs& AddSpellMod(SpellValueModFloat mod, float val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
-    CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
+    CastSpellExtraArgs& AddSpellMod(SpellValueModFloat mod, SpellEffectValue val) { SpellValueOverrides.emplace_back(mod, val); return *this; }
+    CastSpellExtraArgs& AddSpellBP0(SpellEffectValue val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
     CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
-    CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult> scriptResult) { ScriptResult.emplace(std::move(scriptResult)); return *this; }
+    CastSpellExtraArgs& SetScriptResult(Scripting::v2::ActionResultSetter<SpellCastResult>&& scriptResult) { ScriptResult = std::move(scriptResult); return *this; }
     CastSpellExtraArgs& SetScriptWaitsForSpellHit(bool scriptWaitsForSpellHit) { ScriptWaitsForSpellHit = scriptWaitsForSpellHit; return *this; }
 };
 

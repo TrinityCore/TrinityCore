@@ -102,13 +102,13 @@ public:
 
         void ScheduleTasks() override
         {
-            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
+            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_SHADOWCLEAVE);
                 task.Repeat(Seconds(15), Seconds(25));
             });
 
-            scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
+            scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target,SPELL_INTANGIBLE_PRESENCE);
@@ -116,7 +116,7 @@ public:
                 task.Repeat(Seconds(25), Seconds(45));
             });
 
-            scheduler.Schedule(Seconds(30), Seconds(60), [this](TaskContext task)
+            scheduler.Schedule(Seconds(30), Seconds(60), [this](TaskContext& task)
             {
                 Talk(SAY_RANDOM);
                 task.Repeat(Seconds(30), Seconds(60));
@@ -170,7 +170,7 @@ public:
                 _phase = PHASE_MOUNTED;
                 DoCastSelf(SPELL_SPAWN_SMOKE);
 
-                scheduler.Schedule(Seconds(10), Seconds(25), [this](TaskContext task)
+                scheduler.Schedule(Seconds(10), Seconds(25), [this](TaskContext& task)
                 {
                     Unit* target = nullptr;
                     std::vector<Unit*> target_list;
@@ -191,7 +191,7 @@ public:
                     task.Repeat(Seconds(10), Seconds(25));
                 });
 
-                scheduler.Schedule(Seconds(25), Seconds(35), [this](TaskContext task)
+                scheduler.Schedule(Seconds(25), Seconds(35), [this](TaskContext& task)
                 {
                     DoCastVictim(SPELL_KNOCKDOWN);
                     task.Repeat(Seconds(25), Seconds(35));
@@ -246,7 +246,7 @@ public:
                     me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
                     Talk(SAY_MOUNT);
 
-                    scheduler.Schedule(Seconds(1), [this](TaskContext task)
+                    scheduler.Schedule(Seconds(1), [this](TaskContext& task)
                     {
                         if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                         {
@@ -341,7 +341,7 @@ public:
         {
             BossAI::JustEngagedWith(who);
 
-            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
+            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext& task)
             {
                 DoCastVictim(SPELL_KNOCKDOWN);
                 task.Repeat(Seconds(15), Seconds(25));

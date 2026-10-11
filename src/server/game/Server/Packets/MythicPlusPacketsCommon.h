@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MythicPlusPacketsCommon_h__
-#define MythicPlusPacketsCommon_h__
+#ifndef TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H
+#define TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H
 
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
@@ -32,6 +32,7 @@ namespace WorldPackets
             int32 BestRunLevel = 0;
             int32 BestRunDurationMS = 0;
             bool FinishedSuccess = false;
+            uint8 Unknown1110 = 0;
         };
 
         struct DungeonScoreSummary
@@ -50,7 +51,7 @@ namespace WorldPackets
             uint32 NativeRealmAddress = 0;
             uint32 VirtualRealmAddress = 0;
             int32 ChrSpecializationID = 0;
-            int16 RaceID = 0;
+            int8 RaceID = 0;
             int32 ItemLevel = 0;
             int32 CovenantID = 0;
             int32 SoulbindID = 0;
@@ -67,6 +68,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
+            int32 Unknown_1120 = 0;
             std::array<int32, 4> KeystoneAffixIDs;
         };
 
@@ -104,4 +106,4 @@ namespace WorldPackets
     }
 }
 
-#endif // MythicPlusPacketsCommon_h__
+#endif // TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H

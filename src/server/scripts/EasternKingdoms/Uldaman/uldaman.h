@@ -23,45 +23,65 @@
 #define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
-enum UDBossIds
-{
-    BOSS_REVELOSH               = 0,
-    BOSS_THE_LOST_DWARVES       = 1,
-    BOSS_IRONAYA                = 2,
-    BOSS_ANCIENT_STONE_KEEPER   = 3,
-    BOSS_GALGANN_FIREHAMMER     = 4,
-    BOSS_GRIMLOK                = 5,
-    BOSS_ARCHAEDAS              = 6,
-    BOSS_OBSIDIAN_SENTINEL      = 7,
-
-    MAX_ENCOUNTER
-};
+uint32 constexpr EncounterCount = 8;
 
 enum UDDataTypes
 {
-    DATA_ALTAR_DOORS                    = 1,
-    DATA_IRONAYA_DOOR                   = 3,
-    DATA_STONE_KEEPERS                  = 4,
-    DATA_MINIONS                        = 5,
-    DATA_IRONAYA_SEAL                   = 6,
+    DATA_REVELOSH                       = 0,
+    DATA_THE_LOST_DWARVES               = 1,
+    DATA_IRONAYA                        = 2,
+    DATA_ANCIENT_STONE_KEEPER           = 3,
+    DATA_GALGANN_FIREHAMMER             = 4,
+    DATA_GRIMLOK                        = 5,
+    DATA_ARCHAEDAS                      = 6,
+    DATA_OBSIDIAN_SENTINEL              = 7,
+
+    DATA_STONE_KEEPERS                  = 8,
+
+    DATA_IRONAYA_INTRO,
+    DATA_IRONAYA_SEAL_DOOR
 };
 
 enum UDCreatureIds
 {
-    NPC_REVELOSH                = 6910,
-    NPC_ANCIENT_STONE_KEEPER    = 7206,
-    NPC_GALGANN_FIREHAMMER      = 7291,
-    NPC_GRIMLOK                 = 4854,
-    NPC_OBSIDIAN_SENTINEL       = 7023,
+    NPC_REVELOSH                        = 6910,
+    NPC_ANCIENT_STONE_KEEPER            = 7206,
+    NPC_GALGANN_FIREHAMMER              = 7291,
+    NPC_GRIMLOK                         = 4854,
+    NPC_OBSIDIAN_SENTINEL               = 7023,
+    NPC_ARCHAEDAS                       = 2748,
+    NPC_STONE_KEEPER                    = 4857,
+    NPC_EARTHEN_GUARDIAN                = 7076,
+    NPC_EARTHEN_HALLSHAPER              = 7077,
+    NPC_EARTHEN_CUSTODIAN               = 7309,
+    NPC_VAULT_WARDER                    = 10120
 };
 
 enum UDGameObjectIds
 {
-    GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
-    GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
-    GO_ANCIENT_VAULT_DOOR               = 124369,
     GO_IRONAYA_SEAL_DOOR                = 124372,
     GO_KEYSTONE                         = 124371,
+    GO_TEMPLE_DOOR_TO_KEEPERS           = 124368,
+    GO_TEMPLE_DOOR_TO_ARCHAEDAS         = 124367,
+    GO_TEMPLE_DOOR_ARCHAEDAS            = 141869,
+    GO_ANCIENT_VAULT_DOOR               = 124369
+};
+
+enum UDSpawnGroups
+{
+    SPAWN_GROUP_IRONAYA                 = 334
+};
+
+enum UDActions
+{
+    ACTION_KEEPER_ACTIVATED             = 0,
+    ACTION_ARCHAEDAS_AWAKEN             = 1
+};
+
+enum UDGameEvents
+{
+    EVENT_SUB_BOSS_AGGRO                = 2228,
+    EVENT_BOSS_AGGRO                    = 2268
 };
 
 template <class AI, class T>
@@ -71,5 +91,6 @@ inline AI* GetUldamanAI(T* obj)
 }
 
 #define RegisterUldamanCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUldamanAI)
+#define RegisterUldamanGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetUldamanAI)
 
 #endif

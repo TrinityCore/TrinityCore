@@ -1,0 +1,89 @@
+SET @CGUID := 7002164;
+
+-- Creature
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+26;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID+0, 125411, 1643, 8721, 9131, '0', 0, 0, 0, 0, -395.529510498046875, 1402.3819580078125, 25.08386611938476562, 3.364221096038818359, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Watchful Raven (Area: Watcher's Wood - Difficulty: 0) CreateObject2 (Auras: 258247 - Perched)
+(@CGUID+1, 125411, 1643, 8721, 9131, '0', 0, 0, 0, 0, -440.3038330078125, 1445.123291015625, 28.1219482421875, 0.245961040258407592, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Watchful Raven (Area: Watcher's Wood - Difficulty: 0) CreateObject2 (Auras: 258247 - Perched)
+(@CGUID+2, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -524.19964599609375, 1563.6771240234375, 46.705413818359375, 5.009889602661132812, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+3, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -500.3507080078125, 1502.8975830078125, 32.77603912353515625, 5.021369457244873046, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+4, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -498.602447509765625, 1546.85595703125, 43.40726089477539062, 5.416945457458496093, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+5, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -494.447906494140625, 1505.1129150390625, 32.53137969970703125, 4.35773468017578125, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+6, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -523.36114501953125, 1542.0416259765625, 41.47319793701171875, 2.852139711380004882, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+7, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -522.0382080078125, 1546.2100830078125, 42.4900665283203125, 4.626315116882324218, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+8, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -565.625, 1523.9947509765625, 20.81819343566894531, 3.267638921737670898, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+9, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -565.73956298828125, 1521.189208984375, 20.085205078125, 3.502785444259643554, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+10, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -564.592041015625, 1527.3472900390625, 20.25368309020996093, 3.267638921737670898, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+11, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -528.45489501953125, 1533.9478759765625, 38.75738525390625, 6.129608154296875, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+12, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -488.734375, 1559.998291015625, 45.857574462890625, 5.315432071685791015, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+13, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -483.489593505859375, 1562.13720703125, 45.49582290649414062, 0.322674453258514404, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+14, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -473.0625, 1562.4444580078125, 44.20667266845703125, 3.126437187194824218, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+15, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -498.729156494140625, 1497.8211669921875, 32.52777862548828125, 5.838551521301269531, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+16, 130164, 1643, 8721, 9131, '0', 0, 0, 0, 0, -527.47222900390625, 1545.435791015625, 41.66547775268554687, 3.26763916015625, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 60257), -- Highland Boar (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+17, 61081, 1643, 8721, 9131, '0', 0, 0, 0, 0, -490.899322509765625, 1450.0103759765625, 29.81243896484375, 0, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+18, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -486.895843505859375, 1551.77783203125, 43.46945953369140625, 4.717605113983154296, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+19, 130165, 1643, 8721, 9131, '0', 0, 0, 0, 0, -503.713531494140625, 1500.1129150390625, 32.58112716674804687, 1.696999907493591308, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Highland Shoat (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+20, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -538.795166015625, 1548.079833984375, 39.4225921630859375, 4.168496131896972656, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+21, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -482.807281494140625, 1531.2882080078125, 40.38954925537109375, 4.76274871826171875, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+22, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -500.993072509765625, 1502.3177490234375, 32.73225784301757812, 5.250246047973632812, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+23, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -500.25, 1527.65283203125, 40.58196640014648437, 1.874395132064819335, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+24, 1412, 1643, 8721, 9131, '0', 0, 0, 0, 0, -534.08856201171875, 1508.782958984375, 31.49850273132324218, 2.137749910354614257, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Squirrel (Area: Watcher's Wood - Difficulty: 0) CreateObject2
+(@CGUID+25, 126805, 1643, 8721, 8721, '0', 0, 0, 0, 0, -560.6007080078125, 1603.6441650390625, 60.34164047241210937, 2.805400848388671875, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257), -- Skittish Squirrel (Area: Drustvar - Difficulty: 0) CreateObject2
+(@CGUID+26, 1412, 1643, 8721, 8721, '0', 0, 0, 0, 0, -535.85418701171875, 1590.6875, 60.8651580810546875, 2.128179311752319335, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 60257); -- Squirrel (Area: Drustvar - Difficulty: 0) CreateObject2
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+26;
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(@CGUID+0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '258247'), -- Watchful Raven - 258247 - Perched
+(@CGUID+1, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '258247'); -- Watchful Raven - 258247 - Perched
+
+-- Path for Highland Boar
+DELETE FROM `creature_formations` WHERE `leaderGUID` = @CGUID+8;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(@CGUID+8, @CGUID+8, 0, 0, 515, 0, 0),
+(@CGUID+8, @CGUID+10, 6, 0, 515, 0, 0),
+(@CGUID+8, @CGUID+9, 3, 330, 515, 0, 0);
+
+SET @MOVERGUID := @CGUID+8;
+SET @ENTRY := 130164;
+SET @PATHOFFSET := 3;
+SET @PATH := @ENTRY * 100 + @PATHOFFSET;
+DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
+(@PATH, 0, 0x0, NULL, 'Highland Boar - Formation Path');
+
+DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
+INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
+(@PATH, 0, -545.6927, 1518.8403, 28.950275, NULL, 0),
+(@PATH, 1, -539.15106, 1518.9774, 32.142254, NULL, 0),
+(@PATH, 2, -532.2917, 1521.842, 34.560753, NULL, 0),
+(@PATH, 3, -527.42365, 1525.8959, 36.77676, NULL, 0),
+(@PATH, 4, -518.0996, 1531.75, 39.647667, NULL, 0),
+(@PATH, 5, -516.4043, 1532.8145, 39.891804, NULL, 0),
+(@PATH, 6, -515.55664, 1533.3467, 40.110767, NULL, 0),
+(@PATH, 7, -515.4132, 1533.4375, 40.042885, NULL, 0),
+(@PATH, 8, -514.4336, 1535.1816, 40.300537, NULL, 0),
+(@PATH, 9, -513.94336, 1536.0537, 40.51764, NULL, 0),
+(@PATH, 10, -513.4531, 1536.9258, 40.918503, NULL, 0),
+(@PATH, 11, -512.9629, 1537.7979, 41.1212, NULL, 0),
+(@PATH, 12, -512.47266, 1538.6699, 41.749123, NULL, 0),
+(@PATH, 13, -511.4922, 1540.4141, 42.06639, NULL, 0),
+(@PATH, 14, -511.2014, 1540.9305, 42.491367, NULL, 0),
+(@PATH, 15, -507.86285, 1553.9844, 44.96353, NULL, 0),
+(@PATH, 16, -512.86115, 1565.4028, 47.33982, NULL, 0),
+(@PATH, 17, -523.8299, 1569.5555, 48.452877, NULL, 12562),
+(@PATH, 18, -514.7708, 1562.6702, 46.57647, NULL, 0),
+(@PATH, 19, -512.816, 1557.4705, 45.11532, NULL, 0),
+(@PATH, 20, -512.40454, 1549.0243, 43.700527, NULL, 0),
+(@PATH, 21, -512.1024, 1536.342, 40.965023, NULL, 0),
+(@PATH, 22, -519.4531, 1530.8733, 39.497307, NULL, 0),
+(@PATH, 23, -532.1875, 1526.1823, 35.405598, NULL, 0),
+(@PATH, 24, -540.94617, 1519.8976, 31.42989, NULL, 0),
+(@PATH, 25, -546.63715, 1519.6094, 28.49644, NULL, 0),
+(@PATH, 26, -555.3507, 1522.8091, 23.801895, NULL, 0),
+(@PATH, 27, -565.625, 1523.9948, 20.177155, NULL, 11474),
+(@PATH, 28, -557.28125, 1522.9445, 23.199211, NULL, 0),
+(@PATH, 29, -550.5643, 1521.9584, 25.371883, NULL, 0);
+
+UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid`=@MOVERGUID;
+DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
+INSERT INTO `creature_addon` (`guid`, `PathId`, `SheathState`) VALUES
+(@MOVERGUID, @PATH, 1);

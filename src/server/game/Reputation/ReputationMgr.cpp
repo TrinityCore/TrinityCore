@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationPackets.h"
@@ -126,7 +127,12 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
 int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
 {
-    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
+    return GetBaseReputation(factionEntry, _player->GetRace(), _player->GetClass());
+}
+
+int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry, uint8 race, uint8 playerClass)
+{
+    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry, race, playerClass);
     if (dataIndex < 0)
         return 0;
 
@@ -173,8 +179,7 @@ int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
     if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->rbegin())->ReactionThreshold;
 
-    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
-    if (dataIndex >= 0)
+    if (int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);  dataIndex >= 0)
         return factionEntry->ReputationMax[dataIndex];
 
     return *ReputationRankThresholds.rbegin();
@@ -208,7 +213,7 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 {
     ReputationRank rank = GetRank(factionEntry);
     if (!factionEntry->FriendshipRepID)
-        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
+        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[rank], _player->GetSession()->GetSessionDbcLocale());
 
     if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
     {
@@ -223,6 +228,11 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
 {
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
+}
+
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(uint32 factionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_forcedReactions, factionId);
 }
 
 bool ReputationMgr::IsParagonReputation(FactionEntry const* factionEntry) const
@@ -278,8 +288,7 @@ int32 ReputationMgr::GetRenownLevelThreshold(FactionEntry const* renownFactionEn
     if (!renownFactionEntry || !IsRenownReputation(renownFactionEntry))
         return 0;
 
-    int32 dataIndex = GetFactionDataIndexForRaceAndClass(renownFactionEntry);
-    if (dataIndex >= 0)
+    if (int32 dataIndex = GetFactionDataIndexForRaceAndClass(renownFactionEntry); dataIndex >= 0)
         return renownFactionEntry->ReputationMax[dataIndex];
 
     return 0;
@@ -312,14 +321,10 @@ void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, b
 
 ReputationFlags ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
 {
-    ReputationFlags flags = [&]()
-    {
-        int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
-        if (dataIndex < 0)
-            return ReputationFlags::None;
+    ReputationFlags flags = ReputationFlags::None;
 
-        return static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
-    }();
+    if (int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry); dataIndex >= 0)
+        flags |= static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
 
     if (sDB2Manager.GetParagonReputation(factionEntry->ID))
         flags |= ReputationFlags::ShowPropagated;
@@ -338,7 +343,7 @@ void ReputationMgr::SendState(FactionState const* faction)
     };
 
     if (faction)
-        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction));
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction), faction->ID);
 
     for (auto& [reputationIndex, state] : _factions)
     {
@@ -346,7 +351,7 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             state.needSend = false;
             if (!faction || state.ReputationListID != faction->ReputationListID)
-                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state));
+                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state), state.ID);
         }
     }
 
@@ -543,6 +548,8 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
             if (newRank <= REP_HOSTILE)
                 SetAtWar(&itr->second, true);
+            else if (newRank > oldRank)
+                SetAtWar(&itr->second, false);
 
             if (newRank > oldRank)
                 _sendFactionIncreased = true;
@@ -620,7 +627,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const* factionTemplateEntry)
 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
         // Never show factions of the opposing team
-        if (!(factionEntry->ReputationRaceMask[1].HasRace(_player->GetRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
+        if (!(factionEntry->ReputationRaceMask2.HasRace(_player->GetRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
             SetVisible(factionEntry);
 }
 
@@ -826,16 +833,27 @@ void ReputationMgr::UpdateRankCounters(ReputationRank old_rank, ReputationRank n
 
 int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry) const
 {
+    return GetFactionDataIndexForRaceAndClass(factionEntry, _player->GetRace(), _player->GetClass());
+}
+
+int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry, uint8 race, uint8 playerClass)
+{
     if (!factionEntry)
         return -1;
 
-    uint8 race = _player->GetRace();
-    uint32 classMask = _player->GetClassMask();
-    for (int32 i = 0; i < 4; i++)
+    std::array<Trinity::RaceMask<int32, 2> const*, 4> reputationRaceMask =
     {
-        if ((factionEntry->ReputationRaceMask[i].HasRace(race) || (factionEntry->ReputationRaceMask[i].IsEmpty() && factionEntry->ReputationClassMask[i] != 0))
-            && (factionEntry->ReputationClassMask[i] & classMask || factionEntry->ReputationClassMask[i] == 0))
+        &factionEntry->ReputationRaceMask1,
+        &factionEntry->ReputationRaceMask2,
+        &factionEntry->ReputationRaceMask3,
+        &factionEntry->ReputationRaceMask4
+    };
 
+    uint32 classMask = 1 << (playerClass - 1);
+    for (int32 i = 0; i < 4; ++i)
+    {
+        if ((reputationRaceMask[i]->IsEmpty() || reputationRaceMask[i]->HasRace(race))
+            && (factionEntry->ReputationClassMask[i] == 0 || factionEntry->ReputationClassMask[i] & classMask))
             return i;
     }
 

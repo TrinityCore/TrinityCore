@@ -207,7 +207,7 @@ struct boss_coren_direbrew : public BossAI
         _JustDied();
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.empty())
         {
             if (Group* group = players.begin()->GetSource()->GetGroup())
                 if (group->isLFGGroup())
@@ -314,7 +314,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         {
             return !me->HasUnitState(UNIT_STATE_CASTING);
         })
-            .Schedule(Seconds(2), [this](TaskContext mugChuck)
+            .Schedule(Seconds(2), [this](TaskContext& mugChuck)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
                 DoCast(target, SPELL_CHUCK_MUG);
@@ -396,12 +396,12 @@ public:
         {
             me->SetLootState(GO_READY);
             _scheduler
-                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                .Schedule(Seconds(1), [this](TaskContext const& /*context*/)
                 {
                     me->UseDoorOrButton(10000);
                     me->CastSpell(nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
                 })
-                .Schedule(Seconds(4), [this](TaskContext /*context*/)
+                .Schedule(Seconds(4), [this](TaskContext const& /*context*/)
                 {
                     if (GameObject* trap = me->GetLinkedTrap())
                     {

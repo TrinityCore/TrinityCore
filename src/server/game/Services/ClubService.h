@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ClubService_h__
-#define ClubService_h__
+#ifndef TRINITYCORE_CLUB_SERVICE_H
+#define TRINITYCORE_CLUB_SERVICE_H
 
 #include "WorldserverService.h"
-#include "api/client/v1/club_service.pb.h"
+#include "Client/api/client/v1/club_service.pb.h"
 
 namespace Battlenet::Services
 {
@@ -28,7 +28,6 @@ class ClubService : public WorldserverService<club::v1::client::ClubService>
     typedef WorldserverService<club::v1::client::ClubService> BaseService;
 
 public:
-
     ClubService(WorldSession* session);
 
     uint32 HandleGetClubType(club::v1::client::GetClubTypeRequest const* request, club::v1::client::GetClubTypeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
@@ -48,4 +47,4 @@ private:
 };
 }
 
-#endif // ClubService_h__
+#endif // TRINITYCORE_CLUB_SERVICE_H

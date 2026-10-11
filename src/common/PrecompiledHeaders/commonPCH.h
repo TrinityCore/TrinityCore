@@ -15,28 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BoundingIntervalHierarchy.h"
 #include "Common.h"
-#include "Config.h"
 #include "Define.h"
+#include "Duration.h"
 #include "Errors.h"
-#include "GitRevision.h"
 #include "Log.h"
-#include "LogMessage.h"
-#include "MapTree.h"
-#include "ModelInstance.h"
-#include "StringConvert.h"
-#include "Util.h"
-#include "VMapDefinitions.h"
 #include "WorldModel.h"
-#include <G3D/Ray.h>
+#include <boost/filesystem/directory.hpp>
 #include <G3D/Vector4.h>
+#include <openssl/evp.h>
 #include <algorithm>
-#include <cstring>
 #include <memory>
-#include <mutex>
-#include <set>
-#include <sstream>
-#include <string>
-#include <unordered_map>
 #include <vector>
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif

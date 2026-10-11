@@ -39,10 +39,12 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Language.h"
+#include "LFG.h"
 #include "Log.h"
 #include "M2Stores.h"
 #include "MapManager.h"
 #include "MovementPackets.h"
+#include "MovementTypedefs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
@@ -51,9 +53,9 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "Transport.h"
-#include "Warden.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <fstream>
 #include <limits>
 #include <map>
@@ -67,7 +69,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable debugPlayCommandTable =
         {
@@ -120,6 +122,7 @@ public:
             { "neargraveyard",      HandleDebugNearGraveyard,              rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "instancespawn",      HandleDebugInstanceSpawns,             rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "conversation",       HandleDebugConversationCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "modifiertree",       HandleDebugModifierTreeCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "wsexpression",       HandleDebugWSExpressionCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "playercondition",    HandleDebugPlayerConditionCommand,     rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
             { "pvp warmode",        HandleDebugWarModeBalanceCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
@@ -129,7 +132,6 @@ public:
             { "guidlimits",         HandleDebugGuidLimitsCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
             { "objectcount",        HandleDebugObjectCountCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
             { "questreset",         HandleDebugQuestResetCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
-            { "warden force",       HandleDebugWardenForce,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
             { "personalclone",      HandleDebugBecomePersonalClone,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No }
         };
         static ChatCommandTable commandTable =
@@ -300,7 +302,6 @@ public:
         castFailed.FailedArg1 = failArg1.value_or(-1);
         castFailed.FailedArg2 = failArg2.value_or(-1);
         handler->GetSession()->SendPacket(castFailed.Write());
-
         return true;
     }
 
@@ -325,7 +326,7 @@ public:
 
     static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, BuyResult error)
     {
-        handler->GetPlayer()->SendBuyError(error, nullptr, 0, 0);
+        handler->GetPlayer()->SendBuyError(error, nullptr, 0);
         return true;
     }
 
@@ -514,9 +515,9 @@ public:
         return true;
     }
 
-    static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
+    static bool HandleDebugUpdateWorldStateCommand(ChatHandler const* handler, int32 variable, int32 value)
     {
-        handler->GetPlayer()->SendUpdateWorldState(variable, value);
+        WorldStateMgr::SetValue(variable, value, false, handler->GetPlayer()->GetMap());
         return true;
     }
 
@@ -856,9 +857,20 @@ public:
         return true;
     }
 
-    static bool HandleDebugArenaCommand(ChatHandler* /*handler*/)
+    static bool HandleDebugArenaCommand(ChatHandler* handler, uint32 battlemasterListId)
     {
-        sBattlegroundMgr->ToggleArenaTesting();
+        bool successful = sBattlegroundMgr->ToggleArenaTesting(battlemasterListId);
+        if (!successful)
+        {
+            handler->PSendSysMessage("BattlemasterListId %u does not exist or is not an arena.", battlemasterListId);
+            handler->SetSentErrorMessage(true);
+            return true;
+        }
+
+        if (!battlemasterListId || !handler || !handler->GetSession())
+            return true;
+
+        BattlegroundMgr::QueuePlayerForArena(handler->GetSession()->GetPlayer(), 0, lfg::PLAYER_ROLE_DAMAGE);
         return true;
     }
 
@@ -993,7 +1005,7 @@ public:
                 for (auto const& pair : redirectInfo)
                 {
                     Unit* unit = ObjectAccessor::GetUnit(*target, pair.first);
-                    handler->PSendSysMessage(" |-- %02u%% to %s", pair.second, unit ? unit->GetName().c_str() : pair.first.ToString().c_str());
+                    handler->PSendSysMessage(" |-- % 2.1f%% to %s", pair.second, unit ? unit->GetName().c_str() : pair.first.ToString().c_str());
                 }
             }
         }
@@ -1013,7 +1025,7 @@ public:
                     for (auto const& innerPair : outerPair.second) // (guid, pct)
                     {
                         Unit* unit = ObjectAccessor::GetUnit(*target, innerPair.first);
-                        handler->PSendSysMessage("   |-- %02u%% to %s", innerPair.second, unit ? unit->GetName().c_str() : innerPair.first.ToString().c_str());
+                        handler->PSendSysMessage("   |-- % 2.1f%% to %s", innerPair.second, unit ? unit->GetName().c_str() : innerPair.first.ToString().c_str());
                     }
                 }
             }
@@ -1186,7 +1198,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra)
+    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint64> moveFlags)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1195,16 +1207,11 @@ public:
         if (!moveFlags)
         {
             //! Display case
-            handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), Movement::MovementFlags_ToString(target->GetUnitMovementFlags()));
         }
         else
         {
-            /// @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
-
-            if (moveFlagsExtra)
-            {
-                target->SetExtraUnitMovementFlags(*moveFlagsExtra);
-            }
+            target->SetUnitMovementFlags(MovementFlags(*moveFlags));
 
             if (target->GetTypeId() != TYPEID_PLAYER)
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
@@ -1215,7 +1222,7 @@ public:
                 target->SendMessageToSet(moveUpdate.Write(), true);
             }
 
-            handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), Movement::MovementFlags_ToString(target->GetUnitMovementFlags()));
         }
 
         return true;
@@ -1300,7 +1307,7 @@ public:
         {
             handler->PSendSysMessage("Loading all cells (mapId: %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
 
-            map->LoadAllCells();
+            map->LoadAllGrids();
 
             handler->PSendSysMessage("Cells loaded (mapId: %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
         }
@@ -1578,6 +1585,25 @@ public:
         return Conversation::CreateConversation(conversationEntry, target, *target, target->GetGUID()) != nullptr;
     }
 
+    static bool HandleDebugModifierTreeCommand(ChatHandler* handler, uint32 modifierTreeId)
+    {
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target->ModifierTreeSatisfied(modifierTreeId))
+            handler->PSendSysMessage("ModifierTree %u met", modifierTreeId);
+        else
+            handler->PSendSysMessage("ModifierTree %u not met", modifierTreeId);
+
+        return true;
+    }
+
     static bool HandleDebugWSExpressionCommand(ChatHandler* handler, uint32 expressionId)
     {
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -1594,9 +1620,9 @@ public:
             return false;
 
         if (ConditionMgr::IsMeetingWorldStateExpression(target->GetMap(), wsExpressionEntry))
-            handler->PSendSysMessage("Expression %u meet", expressionId);
+            handler->PSendSysMessage("WorldStateExpression %u met", expressionId);
         else
-            handler->PSendSysMessage("Expression %u not meet", expressionId);
+            handler->PSendSysMessage("WorldStateExpression %u not met", expressionId);
 
         return true;
     }
@@ -1640,23 +1666,6 @@ public:
         return true;
     }
 
-    static bool HandleDebugWardenForce(ChatHandler* handler, std::vector<uint16> checkIds)
-    {
-        if (checkIds.empty())
-            return false;
-
-        Warden* const warden = handler->GetSession()->GetWarden();
-        if (!warden)
-        {
-            handler->SendSysMessage("Warden system is not enabled");
-            return true;
-        }
-
-        size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
-        handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());
-        return true;
-    }
-
     static bool HandleDebugGuidLimitsCommand(ChatHandler* handler, Optional<uint32> mapId)
     {
         if (mapId)
@@ -1686,7 +1695,7 @@ public:
     static void HandleDebugGuidLimitsMap(ChatHandler* handler, Map* map)
     {
         handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Highest Guid Creature: " UI64FMTD " GameObject: " UI64FMTD,
-            map->GetId(), map->GetMapName(), map->GetInstanceId(), uint64(map->GenerateLowGuid<HighGuid::Creature>()), uint64(map->GetMaxLowGuid<HighGuid::GameObject>()));
+            map->GetId(), map->GetMapName(), map->GetInstanceId(), uint64(map->GetMaxLowGuid<HighGuid::Creature>()), uint64(map->GetMaxLowGuid<HighGuid::GameObject>()));
     }
 
     static bool HandleDebugObjectCountCommand(ChatHandler* handler, Optional<uint32> mapId)
@@ -1716,37 +1725,40 @@ public:
     class CreatureCountWorker
     {
     public:
-        CreatureCountWorker() { }
-
-        void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+        void Visit(std::unordered_map<ObjectGuid, Creature*> const& creatureMap)
         {
-            for (auto const& p : creatureMap)
-            {
-                uint32& count = creatureIds[p.second->GetEntry()];
-                ++count;
-            }
+            for (auto const& [_, creature] : creatureMap)
+                ++creatureCountsById[creature->GetEntry()];
         }
 
         template<class T>
-        void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+        static void Visit(std::unordered_map<ObjectGuid, T*> const&) { }
 
-        std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
+        std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(std::size_t count) const
         {
-            auto comp = [](std::pair<uint32, uint32> const& a, std::pair<uint32, uint32> const& b)
-            {
-                return a.second > b.second;
-            };
-            std::set<std::pair<uint32, uint32>, decltype(comp)> set(creatureIds.begin(), creatureIds.end(), comp);
+            count = std::min(count, creatureCountsById.size());
+            std::vector<std::pair<uint32, uint32>> result;
+            if (!count)
+                return result;
 
-            count = std::min(count, uint32(set.size()));
-            std::vector<std::pair<uint32, uint32>> result(count);
-            std::copy_n(set.begin(), count, result.begin());
+            result.reserve(count + 1);
+
+            for (auto const& [creatureId, creatureCount] : creatureCountsById)
+            {
+                if (result.size() >= count && result.back().second > creatureCount)
+                    continue;
+
+                auto where = std::ranges::lower_bound(result, creatureCount, std::ranges::greater(), Trinity::TupleElement<1>);
+                result.emplace(where, creatureId, creatureCount);
+                if (result.size() > count)
+                    result.pop_back();
+            }
 
             return result;
         }
 
     private:
-        std::unordered_map<uint32, uint32> creatureIds;
+        std::unordered_map<uint32, uint32> creatureCountsById;
     };
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
@@ -1763,8 +1775,8 @@ public:
 
         handler->PSendSysMessage("Top Creatures count:");
 
-        for (auto&& p : worker.GetTopCreatureCount(5))
-            handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
+        for (auto const& [creatureId, count] : worker.GetTopCreatureCount(5))
+            handler->PSendSysMessage("Entry: %u Count: %u", creatureId, count);
     }
 
     static bool HandleDebugBecomePersonalClone(ChatHandler* handler)

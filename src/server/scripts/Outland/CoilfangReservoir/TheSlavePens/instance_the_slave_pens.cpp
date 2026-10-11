@@ -20,7 +20,7 @@
 #include "InstanceScript.h"
 #include "the_slave_pens.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_AHUNE,                    DATA_AHUNE             },
     { NPC_FROZEN_CORE,              DATA_FROZEN_CORE       },
@@ -32,10 +32,9 @@ ObjectData const creatureData[] =
     { NPC_SHAMAN_BEAM_BUNNY_001,    DATA_BEAM_BUNNY_001    },
     { NPC_SHAMAN_BEAM_BUNNY_002,    DATA_BEAM_BUNNY_002    },
     { NPC_LUMA_SKYMOTHER,           DATA_LUMA_SKYMOTHER    },
-    { 0,                            0,                     }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MENNU_THE_BETRAYER, {{ 1939 }} },
     { DATA_ROKMAR_THE_CRACKLER, {{ 1941 }} },
@@ -51,55 +50,11 @@ public:
     {
         instance_the_slave_pens_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            counter = DATA_FLAMECALLER_000;
+            SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
-
-        void OnCreatureCreate(Creature* creature) override
-        {
-            InstanceScript::OnCreatureCreate(creature);
-
-            if (creature->GetEntry() == NPC_EARTHEN_RING_FLAMECALLER)
-            {
-                switch (counter)
-                {
-                    case DATA_FLAMECALLER_000:
-                        FlameCallerGUIDs[0] = creature->GetGUID();
-                        break;
-                    case DATA_FLAMECALLER_001:
-                        FlameCallerGUIDs[1] = creature->GetGUID();
-                        break;
-                    case DATA_FLAMECALLER_002:
-                        FlameCallerGUIDs[2] = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-                ++counter;
-            }
-        }
-
-        ObjectGuid GetGuidData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_FLAMECALLER_000:
-                    return FlameCallerGUIDs[0];
-                case DATA_FLAMECALLER_001:
-                    return FlameCallerGUIDs[1];
-                case DATA_FLAMECALLER_002:
-                    return FlameCallerGUIDs[2];
-                default:
-                    break;
-            }
-            return ObjectGuid::Empty;
-        }
-
-    protected:
-        ObjectGuid FlameCallerGUIDs[3];
-        uint8 counter;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

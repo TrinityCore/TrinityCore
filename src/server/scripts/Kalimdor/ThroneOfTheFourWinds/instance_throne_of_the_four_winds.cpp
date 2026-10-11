@@ -19,13 +19,12 @@
 #include "throne_of_the_four_winds.h"
 #include "InstanceScript.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_ALAKIR,   BOSS_ALAKIR   },
-    { 0,            0             } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_CONCLAVE_OF_WIND,    {{ 1035 }}  },
     { BOSS_ALAKIR,              {{ 1034 }}  }
@@ -42,7 +41,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, {});
             LoadDungeonEncounterData(encounters);
         }
     };

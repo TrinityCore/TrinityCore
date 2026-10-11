@@ -27,6 +27,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
+#include "global_extensions/field_options.pb.h"
 #include "api/client/v1/channel_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
@@ -47,6 +48,10 @@ class Field;
 class FieldOperation;
 class PresenceState;
 class ChannelState;
+class LocalizedStringMapEntry;
+class LocalizedStringMap;
+class RichPresenceParty;
+class RichPresenceDetails;
 
 enum FieldOperation_OperationType {
   FieldOperation_OperationType_SET = 0,
@@ -607,6 +612,377 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ChannelState* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API LocalizedStringMapEntry : public ::google::protobuf::Message {
+ public:
+  LocalizedStringMapEntry();
+  virtual ~LocalizedStringMapEntry();
+
+  LocalizedStringMapEntry(const LocalizedStringMapEntry& from);
+
+  inline LocalizedStringMapEntry& operator=(const LocalizedStringMapEntry& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LocalizedStringMapEntry& default_instance();
+
+  void Swap(LocalizedStringMapEntry* other);
+
+  // implements Message ----------------------------------------------
+
+  LocalizedStringMapEntry* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string locale = 1;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 1;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // optional string value = 2;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 2;
+  inline const ::std::string& value() const;
+  inline void set_value(const ::std::string& value);
+  inline void set_value(const char* value);
+  inline void set_value(const char* value, size_t size);
+  inline ::std::string* mutable_value();
+  inline ::std::string* release_value();
+  inline void set_allocated_value(::std::string* value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.LocalizedStringMapEntry)
+ private:
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_value();
+  inline void clear_has_value();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* locale_;
+  ::std::string* value_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static LocalizedStringMapEntry* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API LocalizedStringMap : public ::google::protobuf::Message {
+ public:
+  LocalizedStringMap();
+  virtual ~LocalizedStringMap();
+
+  LocalizedStringMap(const LocalizedStringMap& from);
+
+  inline LocalizedStringMap& operator=(const LocalizedStringMap& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LocalizedStringMap& default_instance();
+
+  void Swap(LocalizedStringMap* other);
+
+  // implements Message ----------------------------------------------
+
+  LocalizedStringMap* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string default_string = 1;
+  inline bool has_default_string() const;
+  inline void clear_default_string();
+  static const int kDefaultStringFieldNumber = 1;
+  inline const ::std::string& default_string() const;
+  inline void set_default_string(const ::std::string& value);
+  inline void set_default_string(const char* value);
+  inline void set_default_string(const char* value, size_t size);
+  inline ::std::string* mutable_default_string();
+  inline ::std::string* release_default_string();
+  inline void set_allocated_default_string(::std::string* default_string);
+
+  // repeated .bgs.protocol.presence.v1.LocalizedStringMapEntry localized_entry = 2;
+  inline int localized_entry_size() const;
+  inline void clear_localized_entry();
+  static const int kLocalizedEntryFieldNumber = 2;
+  inline const ::bgs::protocol::presence::v1::LocalizedStringMapEntry& localized_entry(int index) const;
+  inline ::bgs::protocol::presence::v1::LocalizedStringMapEntry* mutable_localized_entry(int index);
+  inline ::bgs::protocol::presence::v1::LocalizedStringMapEntry* add_localized_entry();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::LocalizedStringMapEntry >&
+      localized_entry() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::LocalizedStringMapEntry >*
+      mutable_localized_entry();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.LocalizedStringMap)
+ private:
+  inline void set_has_default_string();
+  inline void clear_has_default_string();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* default_string_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::LocalizedStringMapEntry > localized_entry_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static LocalizedStringMap* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RichPresenceParty : public ::google::protobuf::Message {
+ public:
+  RichPresenceParty();
+  virtual ~RichPresenceParty();
+
+  RichPresenceParty(const RichPresenceParty& from);
+
+  inline RichPresenceParty& operator=(const RichPresenceParty& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RichPresenceParty& default_instance();
+
+  void Swap(RichPresenceParty* other);
+
+  // implements Message ----------------------------------------------
+
+  RichPresenceParty* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
+
+  // optional uint32 current_size = 2;
+  inline bool has_current_size() const;
+  inline void clear_current_size();
+  static const int kCurrentSizeFieldNumber = 2;
+  inline ::google::protobuf::uint32 current_size() const;
+  inline void set_current_size(::google::protobuf::uint32 value);
+
+  // optional uint32 max_size = 3;
+  inline bool has_max_size() const;
+  inline void clear_max_size();
+  static const int kMaxSizeFieldNumber = 3;
+  inline ::google::protobuf::uint32 max_size() const;
+  inline void set_max_size(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.RichPresenceParty)
+ private:
+  inline void set_has_id();
+  inline void clear_has_id();
+  inline void set_has_current_size();
+  inline void clear_has_current_size();
+  inline void set_has_max_size();
+  inline void clear_has_max_size();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* id_;
+  ::google::protobuf::uint32 current_size_;
+  ::google::protobuf::uint32 max_size_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static RichPresenceParty* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RichPresenceDetails : public ::google::protobuf::Message {
+ public:
+  RichPresenceDetails();
+  virtual ~RichPresenceDetails();
+
+  RichPresenceDetails(const RichPresenceDetails& from);
+
+  inline RichPresenceDetails& operator=(const RichPresenceDetails& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RichPresenceDetails& default_instance();
+
+  void Swap(RichPresenceDetails* other);
+
+  // implements Message ----------------------------------------------
+
+  RichPresenceDetails* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.presence.v1.LocalizedStringMap state = 1;
+  inline bool has_state() const;
+  inline void clear_state();
+  static const int kStateFieldNumber = 1;
+  inline const ::bgs::protocol::presence::v1::LocalizedStringMap& state() const;
+  inline ::bgs::protocol::presence::v1::LocalizedStringMap* mutable_state();
+  inline ::bgs::protocol::presence::v1::LocalizedStringMap* release_state();
+  inline void set_allocated_state(::bgs::protocol::presence::v1::LocalizedStringMap* state);
+
+  // optional .bgs.protocol.presence.v1.RichPresenceParty party = 2;
+  inline bool has_party() const;
+  inline void clear_party();
+  static const int kPartyFieldNumber = 2;
+  inline const ::bgs::protocol::presence::v1::RichPresenceParty& party() const;
+  inline ::bgs::protocol::presence::v1::RichPresenceParty* mutable_party();
+  inline ::bgs::protocol::presence::v1::RichPresenceParty* release_party();
+  inline void set_allocated_party(::bgs::protocol::presence::v1::RichPresenceParty* party);
+
+  // optional string large_image_url = 3;
+  inline bool has_large_image_url() const;
+  inline void clear_large_image_url();
+  static const int kLargeImageUrlFieldNumber = 3;
+  inline const ::std::string& large_image_url() const;
+  inline void set_large_image_url(const ::std::string& value);
+  inline void set_large_image_url(const char* value);
+  inline void set_large_image_url(const char* value, size_t size);
+  inline ::std::string* mutable_large_image_url();
+  inline ::std::string* release_large_image_url();
+  inline void set_allocated_large_image_url(::std::string* large_image_url);
+
+  // optional string small_image_url = 4;
+  inline bool has_small_image_url() const;
+  inline void clear_small_image_url();
+  static const int kSmallImageUrlFieldNumber = 4;
+  inline const ::std::string& small_image_url() const;
+  inline void set_small_image_url(const ::std::string& value);
+  inline void set_small_image_url(const char* value);
+  inline void set_small_image_url(const char* value, size_t size);
+  inline ::std::string* mutable_small_image_url();
+  inline ::std::string* release_small_image_url();
+  inline void set_allocated_small_image_url(::std::string* small_image_url);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.RichPresenceDetails)
+ private:
+  inline void set_has_state();
+  inline void clear_has_state();
+  inline void set_has_party();
+  inline void clear_has_party();
+  inline void set_has_large_image_url();
+  inline void clear_has_large_image_url();
+  inline void set_has_small_image_url();
+  inline void clear_has_small_image_url();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::presence::v1::LocalizedStringMap* state_;
+  ::bgs::protocol::presence::v1::RichPresenceParty* party_;
+  ::std::string* large_image_url_;
+  ::std::string* small_image_url_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static RichPresenceDetails* default_instance_;
+};
 // ===================================================================
 
 // ===================================================================
@@ -1115,6 +1491,638 @@ inline void ChannelState::set_healing(bool value) {
   set_has_healing();
   healing_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.ChannelState.healing)
+}
+
+// -------------------------------------------------------------------
+
+// LocalizedStringMapEntry
+
+// optional string locale = 1;
+inline bool LocalizedStringMapEntry::has_locale() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void LocalizedStringMapEntry::set_has_locale() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void LocalizedStringMapEntry::clear_has_locale() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void LocalizedStringMapEntry::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& LocalizedStringMapEntry::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+  return *locale_;
+}
+inline void LocalizedStringMapEntry::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+}
+inline void LocalizedStringMapEntry::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+}
+inline void LocalizedStringMapEntry::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+}
+inline ::std::string* LocalizedStringMapEntry::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+  return locale_;
+}
+inline ::std::string* LocalizedStringMapEntry::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LocalizedStringMapEntry::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.LocalizedStringMapEntry.locale)
+}
+
+// optional string value = 2;
+inline bool LocalizedStringMapEntry::has_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void LocalizedStringMapEntry::set_has_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void LocalizedStringMapEntry::clear_has_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void LocalizedStringMapEntry::clear_value() {
+  if (value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    value_->clear();
+  }
+  clear_has_value();
+}
+inline const ::std::string& LocalizedStringMapEntry::value() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+  return *value_;
+}
+inline void LocalizedStringMapEntry::set_value(const ::std::string& value) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    value_ = new ::std::string;
+  }
+  value_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+}
+inline void LocalizedStringMapEntry::set_value(const char* value) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    value_ = new ::std::string;
+  }
+  value_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+}
+inline void LocalizedStringMapEntry::set_value(const char* value, size_t size) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    value_ = new ::std::string;
+  }
+  value_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+}
+inline ::std::string* LocalizedStringMapEntry::mutable_value() {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    value_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+  return value_;
+}
+inline ::std::string* LocalizedStringMapEntry::release_value() {
+  clear_has_value();
+  if (value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = value_;
+    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LocalizedStringMapEntry::set_allocated_value(::std::string* value) {
+  if (value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete value_;
+  }
+  if (value) {
+    set_has_value();
+    value_ = value;
+  } else {
+    clear_has_value();
+    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.LocalizedStringMapEntry.value)
+}
+
+// -------------------------------------------------------------------
+
+// LocalizedStringMap
+
+// optional string default_string = 1;
+inline bool LocalizedStringMap::has_default_string() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void LocalizedStringMap::set_has_default_string() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void LocalizedStringMap::clear_has_default_string() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void LocalizedStringMap::clear_default_string() {
+  if (default_string_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    default_string_->clear();
+  }
+  clear_has_default_string();
+}
+inline const ::std::string& LocalizedStringMap::default_string() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+  return *default_string_;
+}
+inline void LocalizedStringMap::set_default_string(const ::std::string& value) {
+  set_has_default_string();
+  if (default_string_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    default_string_ = new ::std::string;
+  }
+  default_string_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+}
+inline void LocalizedStringMap::set_default_string(const char* value) {
+  set_has_default_string();
+  if (default_string_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    default_string_ = new ::std::string;
+  }
+  default_string_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+}
+inline void LocalizedStringMap::set_default_string(const char* value, size_t size) {
+  set_has_default_string();
+  if (default_string_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    default_string_ = new ::std::string;
+  }
+  default_string_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+}
+inline ::std::string* LocalizedStringMap::mutable_default_string() {
+  set_has_default_string();
+  if (default_string_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    default_string_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+  return default_string_;
+}
+inline ::std::string* LocalizedStringMap::release_default_string() {
+  clear_has_default_string();
+  if (default_string_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = default_string_;
+    default_string_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LocalizedStringMap::set_allocated_default_string(::std::string* default_string) {
+  if (default_string_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete default_string_;
+  }
+  if (default_string) {
+    set_has_default_string();
+    default_string_ = default_string;
+  } else {
+    clear_has_default_string();
+    default_string_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.LocalizedStringMap.default_string)
+}
+
+// repeated .bgs.protocol.presence.v1.LocalizedStringMapEntry localized_entry = 2;
+inline int LocalizedStringMap::localized_entry_size() const {
+  return localized_entry_.size();
+}
+inline void LocalizedStringMap::clear_localized_entry() {
+  localized_entry_.Clear();
+}
+inline const ::bgs::protocol::presence::v1::LocalizedStringMapEntry& LocalizedStringMap::localized_entry(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.LocalizedStringMap.localized_entry)
+  return localized_entry_.Get(index);
+}
+inline ::bgs::protocol::presence::v1::LocalizedStringMapEntry* LocalizedStringMap::mutable_localized_entry(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.LocalizedStringMap.localized_entry)
+  return localized_entry_.Mutable(index);
+}
+inline ::bgs::protocol::presence::v1::LocalizedStringMapEntry* LocalizedStringMap::add_localized_entry() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.presence.v1.LocalizedStringMap.localized_entry)
+  return localized_entry_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::LocalizedStringMapEntry >&
+LocalizedStringMap::localized_entry() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.presence.v1.LocalizedStringMap.localized_entry)
+  return localized_entry_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::LocalizedStringMapEntry >*
+LocalizedStringMap::mutable_localized_entry() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.presence.v1.LocalizedStringMap.localized_entry)
+  return &localized_entry_;
+}
+
+// -------------------------------------------------------------------
+
+// RichPresenceParty
+
+// optional string id = 1;
+inline bool RichPresenceParty::has_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RichPresenceParty::set_has_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RichPresenceParty::clear_has_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RichPresenceParty::clear_id() {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_->clear();
+  }
+  clear_has_id();
+}
+inline const ::std::string& RichPresenceParty::id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceParty.id)
+  return *id_;
+}
+inline void RichPresenceParty::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.RichPresenceParty.id)
+}
+inline void RichPresenceParty::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.RichPresenceParty.id)
+}
+inline void RichPresenceParty::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.RichPresenceParty.id)
+}
+inline ::std::string* RichPresenceParty::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.RichPresenceParty.id)
+  return id_;
+}
+inline ::std::string* RichPresenceParty::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RichPresenceParty::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.RichPresenceParty.id)
+}
+
+// optional uint32 current_size = 2;
+inline bool RichPresenceParty::has_current_size() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RichPresenceParty::set_has_current_size() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RichPresenceParty::clear_has_current_size() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RichPresenceParty::clear_current_size() {
+  current_size_ = 0u;
+  clear_has_current_size();
+}
+inline ::google::protobuf::uint32 RichPresenceParty::current_size() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceParty.current_size)
+  return current_size_;
+}
+inline void RichPresenceParty::set_current_size(::google::protobuf::uint32 value) {
+  set_has_current_size();
+  current_size_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.RichPresenceParty.current_size)
+}
+
+// optional uint32 max_size = 3;
+inline bool RichPresenceParty::has_max_size() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void RichPresenceParty::set_has_max_size() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void RichPresenceParty::clear_has_max_size() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void RichPresenceParty::clear_max_size() {
+  max_size_ = 0u;
+  clear_has_max_size();
+}
+inline ::google::protobuf::uint32 RichPresenceParty::max_size() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceParty.max_size)
+  return max_size_;
+}
+inline void RichPresenceParty::set_max_size(::google::protobuf::uint32 value) {
+  set_has_max_size();
+  max_size_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.RichPresenceParty.max_size)
+}
+
+// -------------------------------------------------------------------
+
+// RichPresenceDetails
+
+// optional .bgs.protocol.presence.v1.LocalizedStringMap state = 1;
+inline bool RichPresenceDetails::has_state() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RichPresenceDetails::set_has_state() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RichPresenceDetails::clear_has_state() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RichPresenceDetails::clear_state() {
+  if (state_ != NULL) state_->::bgs::protocol::presence::v1::LocalizedStringMap::Clear();
+  clear_has_state();
+}
+inline const ::bgs::protocol::presence::v1::LocalizedStringMap& RichPresenceDetails::state() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceDetails.state)
+  return state_ != NULL ? *state_ : *default_instance_->state_;
+}
+inline ::bgs::protocol::presence::v1::LocalizedStringMap* RichPresenceDetails::mutable_state() {
+  set_has_state();
+  if (state_ == NULL) state_ = new ::bgs::protocol::presence::v1::LocalizedStringMap;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.RichPresenceDetails.state)
+  return state_;
+}
+inline ::bgs::protocol::presence::v1::LocalizedStringMap* RichPresenceDetails::release_state() {
+  clear_has_state();
+  ::bgs::protocol::presence::v1::LocalizedStringMap* temp = state_;
+  state_ = NULL;
+  return temp;
+}
+inline void RichPresenceDetails::set_allocated_state(::bgs::protocol::presence::v1::LocalizedStringMap* state) {
+  delete state_;
+  state_ = state;
+  if (state) {
+    set_has_state();
+  } else {
+    clear_has_state();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.RichPresenceDetails.state)
+}
+
+// optional .bgs.protocol.presence.v1.RichPresenceParty party = 2;
+inline bool RichPresenceDetails::has_party() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RichPresenceDetails::set_has_party() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RichPresenceDetails::clear_has_party() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RichPresenceDetails::clear_party() {
+  if (party_ != NULL) party_->::bgs::protocol::presence::v1::RichPresenceParty::Clear();
+  clear_has_party();
+}
+inline const ::bgs::protocol::presence::v1::RichPresenceParty& RichPresenceDetails::party() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceDetails.party)
+  return party_ != NULL ? *party_ : *default_instance_->party_;
+}
+inline ::bgs::protocol::presence::v1::RichPresenceParty* RichPresenceDetails::mutable_party() {
+  set_has_party();
+  if (party_ == NULL) party_ = new ::bgs::protocol::presence::v1::RichPresenceParty;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.RichPresenceDetails.party)
+  return party_;
+}
+inline ::bgs::protocol::presence::v1::RichPresenceParty* RichPresenceDetails::release_party() {
+  clear_has_party();
+  ::bgs::protocol::presence::v1::RichPresenceParty* temp = party_;
+  party_ = NULL;
+  return temp;
+}
+inline void RichPresenceDetails::set_allocated_party(::bgs::protocol::presence::v1::RichPresenceParty* party) {
+  delete party_;
+  party_ = party;
+  if (party) {
+    set_has_party();
+  } else {
+    clear_has_party();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.RichPresenceDetails.party)
+}
+
+// optional string large_image_url = 3;
+inline bool RichPresenceDetails::has_large_image_url() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void RichPresenceDetails::set_has_large_image_url() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void RichPresenceDetails::clear_has_large_image_url() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void RichPresenceDetails::clear_large_image_url() {
+  if (large_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    large_image_url_->clear();
+  }
+  clear_has_large_image_url();
+}
+inline const ::std::string& RichPresenceDetails::large_image_url() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+  return *large_image_url_;
+}
+inline void RichPresenceDetails::set_large_image_url(const ::std::string& value) {
+  set_has_large_image_url();
+  if (large_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    large_image_url_ = new ::std::string;
+  }
+  large_image_url_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+}
+inline void RichPresenceDetails::set_large_image_url(const char* value) {
+  set_has_large_image_url();
+  if (large_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    large_image_url_ = new ::std::string;
+  }
+  large_image_url_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+}
+inline void RichPresenceDetails::set_large_image_url(const char* value, size_t size) {
+  set_has_large_image_url();
+  if (large_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    large_image_url_ = new ::std::string;
+  }
+  large_image_url_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+}
+inline ::std::string* RichPresenceDetails::mutable_large_image_url() {
+  set_has_large_image_url();
+  if (large_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    large_image_url_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+  return large_image_url_;
+}
+inline ::std::string* RichPresenceDetails::release_large_image_url() {
+  clear_has_large_image_url();
+  if (large_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = large_image_url_;
+    large_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RichPresenceDetails::set_allocated_large_image_url(::std::string* large_image_url) {
+  if (large_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete large_image_url_;
+  }
+  if (large_image_url) {
+    set_has_large_image_url();
+    large_image_url_ = large_image_url;
+  } else {
+    clear_has_large_image_url();
+    large_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.RichPresenceDetails.large_image_url)
+}
+
+// optional string small_image_url = 4;
+inline bool RichPresenceDetails::has_small_image_url() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void RichPresenceDetails::set_has_small_image_url() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void RichPresenceDetails::clear_has_small_image_url() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void RichPresenceDetails::clear_small_image_url() {
+  if (small_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    small_image_url_->clear();
+  }
+  clear_has_small_image_url();
+}
+inline const ::std::string& RichPresenceDetails::small_image_url() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
+  return *small_image_url_;
+}
+inline void RichPresenceDetails::set_small_image_url(const ::std::string& value) {
+  set_has_small_image_url();
+  if (small_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    small_image_url_ = new ::std::string;
+  }
+  small_image_url_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
+}
+inline void RichPresenceDetails::set_small_image_url(const char* value) {
+  set_has_small_image_url();
+  if (small_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    small_image_url_ = new ::std::string;
+  }
+  small_image_url_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
+}
+inline void RichPresenceDetails::set_small_image_url(const char* value, size_t size) {
+  set_has_small_image_url();
+  if (small_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    small_image_url_ = new ::std::string;
+  }
+  small_image_url_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
+}
+inline ::std::string* RichPresenceDetails::mutable_small_image_url() {
+  set_has_small_image_url();
+  if (small_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    small_image_url_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
+  return small_image_url_;
+}
+inline ::std::string* RichPresenceDetails::release_small_image_url() {
+  clear_has_small_image_url();
+  if (small_image_url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = small_image_url_;
+    small_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RichPresenceDetails::set_allocated_small_image_url(::std::string* small_image_url) {
+  if (small_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete small_image_url_;
+  }
+  if (small_image_url) {
+    set_has_small_image_url();
+    small_image_url_ = small_image_url;
+  } else {
+    clear_has_small_image_url();
+    small_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.RichPresenceDetails.small_image_url)
 }
 
 // @@protoc_insertion_point(namespace_scope)

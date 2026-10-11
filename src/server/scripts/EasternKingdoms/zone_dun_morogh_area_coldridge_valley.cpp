@@ -27,6 +27,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "WaypointDefines.h"
+#include <queue>
 
 enum WoundedColdridgeMountaineer
 {
@@ -70,7 +71,7 @@ public:
                 {
                     _tapped = true;
                     _playerGUID = caster->GetGUID();
-                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToNPC(true);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     _events.ScheduleEvent(EVENT_TURN_TO_PLAYER, Seconds(2));
                 }
@@ -490,7 +491,7 @@ struct npc_joren_ironstock : public ScriptedAI
 
     void EnqueueInvader(Unit* invader, Seconds minTime = 1s, Seconds maxTime = 9s)
     {
-        _scheduler.Schedule(minTime, maxTime, [this, guid = invader->GetGUID()](TaskContext /*task*/)
+        _scheduler.Schedule(minTime, maxTime, [this, guid = invader->GetGUID()](TaskContext const& /*task*/)
         {
             _invadersToShoot.push(guid);
         });
@@ -498,7 +499,7 @@ struct npc_joren_ironstock : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, Trinity::Containers::SelectRandomContainerElement(RockjawInvaderSpawnPoints), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 18s))
             {
@@ -511,7 +512,7 @@ struct npc_joren_ironstock : public ScriptedAI
             task.Repeat(3s, 20s);
         });
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             if (!_invadersToShoot.empty())
             {
@@ -524,7 +525,7 @@ struct npc_joren_ironstock : public ScriptedAI
                     SpellCastResult result = DoCast(invader, SPELL_SHOOT);
                     if (result == SpellCastResult::SPELL_CAST_OK)
                     {
-                        if (roll_chance_i(50))
+                        if (roll_chance(50))
                             Talk(SAY_SHOOT_ROCKJAW, invader);
                     }
                     else

@@ -74,23 +74,24 @@ public:
     void SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId);
 
 protected:
-    void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
-    void ClearUpdateMask(bool remove) override;
+    void BuildValuesCreate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void BuildValuesUpdate(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
+    void ClearValuesChangesMask() override;
 
 public:
-    void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+    void BuildValuesUpdateWithFlag(UF::UpdateFieldFlag flags, ByteBuffer& data, Player const* target) const override;
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
-        UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const;
+        UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target, bool ignoreNestedChangesMask) const;
 
     struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
     {
-        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner) { }
+        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner), IgnoreNestedChangesMask(false) { }
 
         AzeriteItem const* Owner;
         UF::ObjectData::Base ObjectMask;
         UF::ItemData::Base ItemMask;
         UF::AzeriteItemData::Base AzeriteItemMask;
+        bool IgnoreNestedChangesMask;
 
         void operator()(Player const* player) const;
     };

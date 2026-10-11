@@ -29,6 +29,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "VehicleDefines.h"
+#include "advstd.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
@@ -300,7 +301,7 @@ void Garrison::Leave() const
 
 GarrisonFactionIndex Garrison::GetFaction() const
 {
-    return _owner->GetTeam() == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE;
+    return GetFaction(_owner->GetTeam());
 }
 
 std::vector<Garrison::Plot*> Garrison::GetPlots()
@@ -529,20 +530,15 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
     return nullptr;
 }
 
-void Garrison::SendInfo()
+void Garrison::BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const
 {
-    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
-    garrisonInfo.FactionIndex = GetFaction();
-    garrisonInfo.Garrisons.emplace_back();
-
-    WorldPackets::Garrison::GarrisonInfo& garrison = garrisonInfo.Garrisons.back();
     garrison.GarrTypeID = GetType();
     garrison.GarrSiteID = _siteLevel->GarrSiteID;
     garrison.GarrSiteLevelID = _siteLevel->ID;
     garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
     for (auto& p : _plots)
     {
-        Plot& plot = p.second;
+        Plot const& plot = p.second;
         garrison.Plots.push_back(&plot.PacketInfo);
         if (plot.BuildingInfo.PacketInfo)
             garrison.Buildings.push_back(&*plot.BuildingInfo.PacketInfo);
@@ -550,8 +546,6 @@ void Garrison::SendInfo()
 
     for (auto const& p : _followers)
         garrison.Followers.push_back(&p.second.PacketInfo);
-
-    _owner->SendDirectMessage(garrisonInfo.Write());
 }
 
 void Garrison::SendRemoteInfo() const
@@ -669,7 +663,7 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
     return GARRISON_SUCCESS;
 }
 
-template<class T, void(T::*SecondaryRelocate)(float,float,float,float)>
+template<class T, void(T::*SecondaryRelocate)(Position const&)>
 T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
 {
     T* spawn = new T();
@@ -679,14 +673,10 @@ T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* m
         return nullptr;
     }
 
-    float x = spawn->GetPositionX();
-    float y = spawn->GetPositionY();
-    float z = spawn->GetPositionZ();
-    float o = spawn->GetOrientation();
-    TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
+    Position globalPosition = building->GetPositionWithOffset(spawn->GetPosition());
 
-    spawn->Relocate(x, y, z, o);
-    (spawn->*SecondaryRelocate)(x, y, z, o);
+    spawn->Relocate(globalPosition);
+    (spawn->*SecondaryRelocate)(globalPosition);
 
     if (!spawn->IsPositionValid())
     {
@@ -731,7 +721,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
         {
             Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
-            if (GameObject* finalizer = GameObject::CreateGameObject(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData::fromEulerAnglesZYX(pos2.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+            if (GameObject* finalizer = GameObject::CreateGameObject(finalizeInfo->FactionInfo[faction].GameObjectId, map, pos2, QuaternionData::fromOrientation(pos2.GetOrientation()), 255, GO_STATE_READY))
             {
                 // set some spell id to make the object delete itself after use
                 finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
@@ -747,9 +737,9 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
 
     if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.SpawnMap)
     {
-        if (CellObjectGuidsMap const* cells = sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.SpawnMap, map->GetDifficultyID()))
+        if (GridObjectGuidsMap const* grids = sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.SpawnMap, map->GetDifficultyID()))
         {
-            for (auto const& [cellId, guids] : *cells)
+            for (auto const& [gridId, guids] : *grids)
             {
                 for (ObjectGuid::LowType spawnId : guids.gameobjects)
                     if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
@@ -839,8 +829,5 @@ uint32 Garrison::Follower::GetItemLevel() const
 
 bool Garrison::Follower::HasAbility(uint32 garrAbilityId) const
 {
-    return std::find_if(PacketInfo.AbilityID.begin(), PacketInfo.AbilityID.end(), [garrAbilityId](GarrAbilityEntry const* garrAbility)
-    {
-        return garrAbility->ID == garrAbilityId;
-    }) != PacketInfo.AbilityID.end();
+    return advstd::ranges::contains(PacketInfo.AbilityID, garrAbilityId, &GarrAbilityEntry::ID);
 }

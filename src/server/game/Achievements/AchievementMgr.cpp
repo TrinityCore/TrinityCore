@@ -17,11 +17,10 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
-#include "DB2HotfixGenerator.h"
-#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
-#include "Containers.h"
+#include "DB2HotfixGenerator.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -32,13 +31,13 @@
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
-#include "StringConvert.h"
 #include "ScriptMgr.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <sstream>
 
 struct VisibleAchievementCheck
 {
@@ -77,11 +76,8 @@ uint32 AchievementMgr::GetAchievementPoints() const
 
 std::vector<uint32> AchievementMgr::GetCompletedAchievementIds() const
 {
-    std::vector<uint32> achievementIds;
-    std::transform(_completedAchievements.begin(), _completedAchievements.end(), std::back_inserter(achievementIds), [](std::pair<uint32 const, CompletedAchievementData> const& achievement)
-    {
-        return achievement.first;
-    });
+    std::vector<uint32> achievementIds(_completedAchievements.size());
+    std::ranges::transform(_completedAchievements, achievementIds.begin(), Trinity::Containers::MapKey);
     return achievementIds;
 }
 
@@ -668,6 +664,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         achievementEarned.AchievementID = achievement->ID;
         achievementEarned.Time = *GameTime::GetUtcWowTime();
         achievementEarned.Time += receiver->GetSession()->GetTimezoneOffset();
+        achievementEarned.Initial = receiver->HasAtLoginFlag(AT_LOGIN_FIRST);
         receiver->SendDirectMessage(achievementEarned.Write());
     };
 
@@ -773,7 +770,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
             Criteria const* criteria = sCriteriaMgr->GetCriteria(id);
             if (!criteria)
             {
-                // we will remove not existed criteria for all guilds
+                // Remove non-existing achievements from all guilds
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria {} data removed from table `guild_achievement_progress`.", id);
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
@@ -797,7 +794,6 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
 void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt;
-    std::ostringstream guidstr;
     for (std::pair<uint32 const, CompletedAchievementData>& completedAchievement : _completedAchievements)
     {
         if (!completedAchievement.second.Changed)
@@ -812,13 +808,18 @@ void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
         stmt->setUInt64(0, _owner->GetId());
         stmt->setUInt32(1, completedAchievement.first);
         stmt->setInt64(2, completedAchievement.second.Date);
-        for (ObjectGuid memberGuid : completedAchievement.second.CompletingPlayers)
-            guidstr << memberGuid.GetCounter() << ',';
+        std::string guidstr;
+        auto completersItr = completedAchievement.second.CompletingPlayers.begin();
+        auto completersEnd = completedAchievement.second.CompletingPlayers.end();
+        if (completersItr != completersEnd)
+        {
+            Trinity::StringFormatTo(std::back_inserter(guidstr), "{}", completersItr->GetCounter());
+            while (++completersItr != completersEnd)
+                Trinity::StringFormatTo(std::back_inserter(guidstr), ",{}", completersItr->GetCounter());
+        }
 
-        stmt->setString(3, guidstr.str());
+        stmt->setString(3, std::move(guidstr));
         trans->Append(stmt);
-
-        guidstr.str("");
 
         completedAchievement.second.Changed = false;
     }
@@ -961,10 +962,9 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
             ca.CompletingPlayers.insert(referencePlayer->GetGUID());
 
         if (Group const* group = referencePlayer->GetGroup())
-            for (GroupReference const* ref = group->GetFirstMember(); ref != nullptr; ref = ref->next())
-                if (Player const* groupMember = ref->GetSource())
-                    if (groupMember->GetGuildId() == _owner->GetId())
-                        ca.CompletingPlayers.insert(groupMember->GetGUID());
+            for (GroupReference const& ref : group->GetMembers())
+                if (ref.GetSource()->GetGuildId() == _owner->GetId())
+                    ca.CompletingPlayers.insert(ref.GetSource()->GetGUID());
     }
 
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
@@ -1159,7 +1159,7 @@ void AchievementGlobalMgr::LoadAchievementScripts()
         Field* fields = result->Fetch();
 
         uint32 achievementId         = fields[0].GetUInt32();
-        std::string scriptName       = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)

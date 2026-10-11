@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemPackets_h__
-#define ItemPackets_h__
+#ifndef TRINITYCORE_ITEM_PACKETS_H
+#define TRINITYCORE_ITEM_PACKETS_H
 
 #include "Packet.h"
 #include "CraftingPacketsCommon.h"
@@ -37,7 +37,7 @@ namespace WorldPackets
         class BuyBackItem final : public ClientPacket
         {
         public:
-            BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BACK_ITEM, std::move(packet)) { }
+            explicit BuyBackItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BACK_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -48,7 +48,7 @@ namespace WorldPackets
         class BuyItem final : public ClientPacket
         {
         public:
-            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+            explicit BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -64,7 +64,7 @@ namespace WorldPackets
         class BuySucceeded final : ServerPacket
         {
         public:
-            BuySucceeded() : ServerPacket(SMSG_BUY_SUCCEEDED, 16 + 4 + 4 + 4 + 4) { }
+            explicit BuySucceeded() : ServerPacket(SMSG_BUY_SUCCEEDED, 16 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -77,7 +77,7 @@ namespace WorldPackets
         class BuyFailed final : ServerPacket
         {
         public:
-            BuyFailed() : ServerPacket(SMSG_BUY_FAILED, 16 + 4 + 1) { }
+            explicit BuyFailed() : ServerPacket(SMSG_BUY_FAILED, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -89,7 +89,7 @@ namespace WorldPackets
         class GetItemPurchaseData final : public ClientPacket
         {
         public:
-            GetItemPurchaseData(WorldPacket&& packet) : ClientPacket(CMSG_GET_ITEM_PURCHASE_DATA, std::move(packet)) { }
+            explicit GetItemPurchaseData(WorldPacket&& packet) : ClientPacket(CMSG_GET_ITEM_PURCHASE_DATA, std::move(packet)) { }
 
             void Read() override;
 
@@ -118,7 +118,7 @@ namespace WorldPackets
         class SetItemPurchaseData final : public ServerPacket
         {
         public:
-            SetItemPurchaseData() : ServerPacket(SMSG_SET_ITEM_PURCHASE_DATA, 4 + 4 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+            explicit SetItemPurchaseData() : ServerPacket(SMSG_SET_ITEM_PURCHASE_DATA, 4 + 4 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -131,7 +131,7 @@ namespace WorldPackets
         class ItemPurchaseRefund final : public ClientPacket
         {
         public:
-            ItemPurchaseRefund(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_PURCHASE_REFUND, std::move(packet)) { }
+            explicit ItemPurchaseRefund(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_PURCHASE_REFUND, std::move(packet)) { }
 
             void Read() override;
 
@@ -141,11 +141,11 @@ namespace WorldPackets
         class ItemPurchaseRefundResult final : public ServerPacket
         {
         public:
-            ItemPurchaseRefundResult() : ServerPacket(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+            explicit ItemPurchaseRefundResult() : ServerPacket(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
             ObjectGuid ItemGUID;
             Optional<ItemPurchaseContents> Contents;
         };
@@ -153,7 +153,7 @@ namespace WorldPackets
         class ItemExpirePurchaseRefund final : public ServerPacket
         {
         public:
-            ItemExpirePurchaseRefund() : ServerPacket(SMSG_ITEM_EXPIRE_PURCHASE_REFUND, 16) { }
+            explicit ItemExpirePurchaseRefund() : ServerPacket(SMSG_ITEM_EXPIRE_PURCHASE_REFUND, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -163,7 +163,7 @@ namespace WorldPackets
         class RepairItem final : public ClientPacket
         {
         public:
-            RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
+            explicit RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -175,7 +175,7 @@ namespace WorldPackets
         class SellItem final : public ClientPacket
         {
         public:
-            SellItem(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ITEM, std::move(packet)) { }
+            explicit SellItem(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -184,10 +184,20 @@ namespace WorldPackets
             uint32 Amount = 0;
         };
 
+        class SellAllJunkItems final : public ClientPacket
+        {
+        public:
+            explicit SellAllJunkItems(WorldPacket&& packet) : ClientPacket(CMSG_SELL_ALL_JUNK_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+        };
+
         class ItemTimeUpdate final : public ServerPacket
         {
         public:
-            ItemTimeUpdate() : ServerPacket(SMSG_ITEM_TIME_UPDATE, 8 + 4) { }
+            explicit ItemTimeUpdate() : ServerPacket(SMSG_ITEM_TIME_UPDATE, 8 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -198,7 +208,7 @@ namespace WorldPackets
         class SetProficiency final : public ServerPacket
         {
         public:
-            SetProficiency() : ServerPacket(SMSG_SET_PROFICIENCY, 5) { }
+            explicit SetProficiency() : ServerPacket(SMSG_SET_PROFICIENCY, 5) { }
 
             WorldPacket const* Write() override;
 
@@ -209,7 +219,7 @@ namespace WorldPackets
         class InventoryChangeFailure final : public ServerPacket
         {
         public:
-            InventoryChangeFailure() : ServerPacket(SMSG_INVENTORY_CHANGE_FAILURE, 22) { }
+            explicit InventoryChangeFailure() : ServerPacket(SMSG_INVENTORY_CHANGE_FAILURE, 22) { }
 
             WorldPacket const* Write() override;
 
@@ -226,7 +236,7 @@ namespace WorldPackets
         class SplitItem final : public ClientPacket
         {
         public:
-            SplitItem(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_ITEM, std::move(packet)) { }
+            explicit SplitItem(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -241,7 +251,7 @@ namespace WorldPackets
         class SwapInvItem final : public ClientPacket
         {
         public:
-            SwapInvItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_INV_ITEM, std::move(packet)) { }
+            explicit SwapInvItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_INV_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -253,7 +263,7 @@ namespace WorldPackets
         class SwapItem final : public ClientPacket
         {
         public:
-            SwapItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_ITEM, std::move(packet)) { }
+            explicit SwapItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -267,7 +277,7 @@ namespace WorldPackets
         class AutoEquipItem final : public ClientPacket
         {
         public:
-            AutoEquipItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM, std::move(packet)) { }
+            explicit AutoEquipItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -279,7 +289,7 @@ namespace WorldPackets
         class AutoEquipItemSlot final : public ClientPacket
         {
         public:
-            AutoEquipItemSlot(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM_SLOT, std::move(packet)) { }
+            explicit AutoEquipItemSlot(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_EQUIP_ITEM_SLOT, std::move(packet)) { }
 
             void Read() override;
 
@@ -291,7 +301,7 @@ namespace WorldPackets
         class AutoStoreBagItem final : public ClientPacket
         {
         public:
-            AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_STORE_BAG_ITEM, std::move(packet)) { }
+            explicit AutoStoreBagItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_STORE_BAG_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -304,7 +314,7 @@ namespace WorldPackets
         class DestroyItem final : public ClientPacket
         {
         public:
-            DestroyItem(WorldPacket&& packet) : ClientPacket(CMSG_DESTROY_ITEM, std::move(packet)) { }
+            explicit DestroyItem(WorldPacket&& packet) : ClientPacket(CMSG_DESTROY_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -316,7 +326,7 @@ namespace WorldPackets
         class SellResponse final : public ServerPacket
         {
         public:
-            SellResponse() : ServerPacket(SMSG_SELL_RESPONSE, 16 + 16 + 1) { }
+            explicit SellResponse() : ServerPacket(SMSG_SELL_RESPONSE, 16 + 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -335,7 +345,7 @@ namespace WorldPackets
                 DISPLAY_TYPE_ENCOUNTER_LOOT = 2
             };
 
-            ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
+            explicit ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -368,7 +378,7 @@ namespace WorldPackets
         class ReadItem final : public ClientPacket
         {
         public:
-            ReadItem(WorldPacket&& packet) : ClientPacket(CMSG_READ_ITEM, std::move(packet)) { }
+            explicit ReadItem(WorldPacket&& packet) : ClientPacket(CMSG_READ_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -379,7 +389,7 @@ namespace WorldPackets
         class ReadItemResultFailed final : public ServerPacket
         {
         public:
-            ReadItemResultFailed() : ServerPacket(SMSG_READ_ITEM_RESULT_FAILED, 16 + 1 + 4) { }
+            explicit ReadItemResultFailed() : ServerPacket(SMSG_READ_ITEM_RESULT_FAILED, 16 + 1 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -391,7 +401,7 @@ namespace WorldPackets
         class ReadItemResultOK final : public ServerPacket
         {
         public:
-            ReadItemResultOK() : ServerPacket(SMSG_READ_ITEM_RESULT_OK, 16) { }
+            explicit ReadItemResultOK() : ServerPacket(SMSG_READ_ITEM_RESULT_OK, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -401,7 +411,7 @@ namespace WorldPackets
         class WrapItem final : public ClientPacket
         {
         public:
-            WrapItem(WorldPacket&& packet) : ClientPacket(CMSG_WRAP_ITEM, std::move(packet)) { }
+            explicit WrapItem(WorldPacket&& packet) : ClientPacket(CMSG_WRAP_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -411,7 +421,7 @@ namespace WorldPackets
         class CancelTempEnchantment final : public ClientPacket
         {
         public:
-            CancelTempEnchantment(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TEMP_ENCHANTMENT, std::move(packet)) { }
+            explicit CancelTempEnchantment(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TEMP_ENCHANTMENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -421,7 +431,7 @@ namespace WorldPackets
         class ItemCooldown final : public ServerPacket
         {
         public:
-            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
+            explicit ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
 
             WorldPacket const* Write() override;
 
@@ -433,7 +443,7 @@ namespace WorldPackets
         class EnchantmentLog final : public ServerPacket
         {
         public:
-            EnchantmentLog() : ServerPacket(SMSG_ENCHANTMENT_LOG, 0) { }
+            explicit EnchantmentLog() : ServerPacket(SMSG_ENCHANTMENT_LOG, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -448,7 +458,7 @@ namespace WorldPackets
         class ItemEnchantTimeUpdate final : public ServerPacket
         {
         public:
-            ItemEnchantTimeUpdate() : ServerPacket(SMSG_ITEM_ENCHANT_TIME_UPDATE, 40) { }
+            explicit ItemEnchantTimeUpdate() : ServerPacket(SMSG_ITEM_ENCHANT_TIME_UPDATE, 40) { }
 
             WorldPacket const* Write() override;
 
@@ -461,7 +471,7 @@ namespace WorldPackets
         class UseCritterItem final : public ClientPacket
         {
         public:
-            UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
+            explicit UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -471,7 +481,7 @@ namespace WorldPackets
         class SocketGems final : public ClientPacket
         {
         public:
-            SocketGems(WorldPacket&& packet) : ClientPacket(CMSG_SOCKET_GEMS, std::move(packet)) { }
+            explicit SocketGems(WorldPacket&& packet) : ClientPacket(CMSG_SOCKET_GEMS, std::move(packet)) { }
 
             void Read() override;
 
@@ -482,7 +492,7 @@ namespace WorldPackets
         class SocketGemsSuccess final : public ServerPacket
         {
         public:
-            SocketGemsSuccess() : ServerPacket(SMSG_SOCKET_GEMS_SUCCESS, 16 + 4 * 3 + 4) { }
+            explicit SocketGemsSuccess() : ServerPacket(SMSG_SOCKET_GEMS_SUCCESS, 16 + 4 * 3 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -508,15 +518,7 @@ namespace WorldPackets
         class SortBankBags final : public ClientPacket
         {
         public:
-            SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class SortReagentBankBags final : public ClientPacket
-        {
-        public:
-            SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
+            explicit SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -524,7 +526,7 @@ namespace WorldPackets
         class BagCleanupFinished final : public ServerPacket
         {
         public:
-            BagCleanupFinished() : ServerPacket(SMSG_BAG_CLEANUP_FINISHED, 0) { }
+            explicit BagCleanupFinished() : ServerPacket(SMSG_BAG_CLEANUP_FINISHED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -532,7 +534,7 @@ namespace WorldPackets
         class RemoveNewItem final : public ClientPacket
         {
         public:
-            RemoveNewItem(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_NEW_ITEM, std::move(packet)) { }
+            explicit RemoveNewItem(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_NEW_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -542,7 +544,7 @@ namespace WorldPackets
         class InventoryFullOverflow final : public ServerPacket
         {
         public:
-            InventoryFullOverflow() : ServerPacket(SMSG_INVENTORY_FULL_OVERFLOW, 0) { }
+            explicit InventoryFullOverflow() : ServerPacket(SMSG_INVENTORY_FULL_OVERFLOW, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -604,7 +606,7 @@ namespace WorldPackets
         class AddItemPassive final : public ServerPacket
         {
         public:
-            AddItemPassive() : ServerPacket(SMSG_ADD_ITEM_PASSIVE, 4) { }
+            explicit AddItemPassive() : ServerPacket(SMSG_ADD_ITEM_PASSIVE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -614,7 +616,7 @@ namespace WorldPackets
         class RemoveItemPassive final : public ServerPacket
         {
         public:
-            RemoveItemPassive() : ServerPacket(SMSG_REMOVE_ITEM_PASSIVE, 4) { }
+            explicit RemoveItemPassive() : ServerPacket(SMSG_REMOVE_ITEM_PASSIVE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -624,7 +626,7 @@ namespace WorldPackets
         class SendItemPassives final : public ServerPacket
         {
         public:
-            SendItemPassives() : ServerPacket(SMSG_SEND_ITEM_PASSIVES, 4) { }
+            explicit SendItemPassives() : ServerPacket(SMSG_SEND_ITEM_PASSIVES, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -633,4 +635,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ItemPackets_h__
+#endif // TRINITYCORE_ITEM_PACKETS_H

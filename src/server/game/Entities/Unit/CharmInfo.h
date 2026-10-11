@@ -23,7 +23,6 @@
 
 class SpellInfo;
 class Unit;
-class WorldPacket;
 
 constexpr uint8 MAX_SPELL_CHARM         = 4;
 constexpr uint8 MAX_SPELL_VEHICLE       = 6;
@@ -107,7 +106,6 @@ struct TC_GAME_API CharmInfo
         bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE, uint8 preferredSlot = 0);
         bool RemoveSpellFromActionBar(uint32 spell_id);
         void LoadPetActionBar(const std::string& data);
-        void BuildActionBar(WorldPacket* data);
         void SetSpellAutocast(SpellInfo const* spellInfo, bool state);
         void SetActionBar(uint8 index, uint32 spellOrAction, ActiveStates type)
         {

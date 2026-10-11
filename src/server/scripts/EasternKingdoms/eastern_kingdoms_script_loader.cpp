@@ -65,6 +65,7 @@ void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
 void AddSC_instance_deadmines();             //Deadmines
+void AddSC_gilneas_chapter_1();              //Gilneas
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_instance_grim_batol();            //Grim Batol
@@ -181,6 +182,8 @@ void AddSC_boss_venoxis();
 void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
+void AddSC_zulgurub();
+void AddSC_eastern_kingdoms();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
@@ -191,7 +194,7 @@ void AddSC_duskwood();
 void AddSC_eastern_plaguelands();
 void AddSC_elwynn_forest();
 void AddSC_eversong_woods();
-//void AddSC_ghostlands();
+void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
@@ -202,6 +205,23 @@ void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
 //void AddSC_western_plaguelands();
+void AddSC_westfall();
+
+// Return to Karazhan
+void AddSC_instance_return_to_karazhan();
+void AddSC_boss_maiden_of_virtue_rtk();
+void AddSC_boss_the_curator_rtk();
+void AddSC_boss_mana_devourer();
+void AddSC_boss_shade_of_medivh();
+
+// Twilight Highlands
+void AddSC_worldboss_julak_doom();
+
+// Vashjir
+void AddSC_vashjir();
+void AddSC_abyssal_depths();
+void AddSC_worldboss_mobus();
+void AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -256,6 +276,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_nefarian();
     AddSC_instance_blackwing_lair();
     AddSC_instance_deadmines();             //Deadmines
+    AddSC_gilneas_chapter_1();              //Gilneas
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_instance_grim_batol();            //Grim Batol
@@ -372,7 +393,8 @@ void AddEasternKingdomsScripts()
     AddSC_boss_wushoolay();
     AddSC_boss_zanzil();
     AddSC_instance_zulgurub();
-
+    AddSC_zulgurub();
+    AddSC_eastern_kingdoms();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -383,7 +405,7 @@ void AddEasternKingdomsScripts()
     AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
     AddSC_eversong_woods();
-    //AddSC_ghostlands();
+    AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();
@@ -394,4 +416,21 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+    AddSC_westfall();
+
+    // Return to Karazhan
+    AddSC_instance_return_to_karazhan();
+    AddSC_boss_maiden_of_virtue_rtk();
+    AddSC_boss_the_curator_rtk();
+    AddSC_boss_mana_devourer();
+    AddSC_boss_shade_of_medivh();
+
+    // Twilight Highlands
+    AddSC_worldboss_julak_doom();
+
+    // Vashjir
+    AddSC_vashjir();
+    AddSC_abyssal_depths();
+    AddSC_worldboss_mobus();
+    AddSC_vashjir_chapter_1_defense_of_the_briny_cutter();
 }

@@ -39,9 +39,10 @@ struct TC_GAME_API LootStoreItem
 {
     enum class Type : int8
     {
-        Item        = 0,
-        Reference   = 1,
-        Currency    = 2,
+        Item            = 0,
+        Reference       = 1,
+        Currency        = 2,
+        TrackingQuest   = 3,
     };
 
     uint32 itemid;                                         // id of the item
@@ -72,8 +73,7 @@ typedef std::set<uint32> LootIdSet;
 class TC_GAME_API LootStore
 {
     public:
-        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
-            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) { }
+        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed);
 
         LootStore(LootStore const&) = delete;
         LootStore(LootStore&&) noexcept;
@@ -87,7 +87,6 @@ class TC_GAME_API LootStore
         uint32 LoadAndCollectLootIds(LootIdSet& lootIdSet);
         void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& lootIdSet) const;
-        void ReportNonExistingId(uint32 lootId) const;
         void ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const;
 
         bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.contains(loot_id); }
@@ -135,9 +134,9 @@ class TC_GAME_API LootTemplate
         // True if template includes at least 1 drop for the player
         bool HasDropForPlayer(Player const* player, uint8 groupId = 0, bool strictUsabilityCheck = false) const;
         // True if template includes at least 1 quest drop entry
-        bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
+        bool HasQuestDrop(uint8 groupId = 0) const;
         // True if template includes at least 1 quest drop for an active quest of the player
-        bool HasQuestDropForPlayer(LootTemplateMap const& store, Player const* player, uint8 groupId = 0) const;
+        bool HasQuestDropForPlayer(Player const* player, uint8 groupId = 0) const;
 
         // Checks integrity of the template
         void Verify(LootStore const& store, uint32 Id) const;

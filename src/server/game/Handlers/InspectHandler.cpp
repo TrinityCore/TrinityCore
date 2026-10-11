@@ -57,10 +57,10 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         for (std::size_t i = 0; i < pvpTalents.size(); ++i)
             inspectResult.PvpTalents[i] = pvpTalents[i];
 
-        inspectResult.TalentTraits.Level = player->GetLevel();
-        inspectResult.TalentTraits.ChrSpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
+        inspectResult.TraitsInfo.PlayerLevel = player->GetLevel();
+        inspectResult.TraitsInfo.SpecID = AsUnderlyingType(player->GetPrimarySpecialization());
         if (UF::TraitConfig const* traitConfig = player->GetTraitConfig(player->m_activePlayerData->ActiveCombatTraitConfigID))
-            inspectResult.TalentTraits.Config = WorldPackets::Traits::TraitConfig(*traitConfig);
+            inspectResult.TraitsInfo.ActiveCombatTraits = WorldPackets::Traits::TraitConfig(*traitConfig);
     }
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))

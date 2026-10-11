@@ -17,7 +17,7 @@
 
 #include "Vignette.h"
 #include "CellImpl.h"
-#include "DB2Stores.h"
+#include "DB2Structure.h"
 #include "GridNotifiersImpl.h"
 #include "VignettePackets.h"
 
@@ -33,6 +33,11 @@ void UpdatePosition(VignetteData& vignette, WorldObject const* owner)
         vignette.WMOGroupID = wmoLocation->GroupId;
         vignette.WMODoodadPlacementID = wmoLocation->UniqueId;
     }
+}
+
+void UpdateHealth(VignetteData& vignette, Unit const* owner)
+{
+    vignette.HealthPercent = float(owner->GetHealth()) / float(owner->GetMaxHealth()); // converted to percentage in lua
 }
 
 template<WorldPackets::Vignette::VignetteDataSet WorldPackets::Vignette::VignetteUpdate::* Field>
@@ -70,6 +75,7 @@ void VignetteData::FillPacket(WorldPackets::Vignette::VignetteDataSet& dataSet) 
     data.ZoneID = ZoneID;
     data.WMOGroupID = WMOGroupID;
     data.WMODoodadPlacementID = WMODoodadPlacementID;
+    data.HealthPercent = HealthPercent;
 }
 
 std::unique_ptr<VignetteData> Create(VignetteEntry const* vignetteData, WorldObject const* owner)
@@ -81,6 +87,8 @@ std::unique_ptr<VignetteData> Create(VignetteEntry const* vignetteData, WorldObj
     vignette->Data = vignetteData;
     vignette->ZoneID = owner->GetZoneId(); // not updateable
     UpdatePosition(*vignette, owner);
+    if (Unit const* unitOwner = owner->ToUnit())
+        UpdateHealth(*vignette, unitOwner);
 
     if (vignetteData->IsInfiniteAOI())
         owner->GetMap()->AddInfiniteAOIVignette(vignette.get());
@@ -93,6 +101,8 @@ std::unique_ptr<VignetteData> Create(VignetteEntry const* vignetteData, WorldObj
 void Update(VignetteData& vignette, WorldObject const* owner)
 {
     UpdatePosition(vignette, owner);
+    if (Unit const* unitOwner = owner->ToUnit())
+        UpdateHealth(vignette, unitOwner);
 
     if (vignette.Data->IsInfiniteAOI())
         vignette.NeedUpdate = true;

@@ -526,7 +526,7 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 mana = int32(aurEff->GetAmount() * std::pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
+                    SpellEffectValue mana = aurEff->GetAmount() * std::pow(2.0f, GetStackAmount()); // mana restore - bp * 2^stackamount
                     CastSpellExtraArgs args1(TRIGGERED_FULL_MASK), args2(TRIGGERED_FULL_MASK);
                     args1.AddSpellBP0(mana);
                     args2.AddSpellBP0(mana * 2);

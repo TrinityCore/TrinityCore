@@ -23,7 +23,7 @@
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
-enum Texts
+enum VorpilTexts
 {
     SAY_HELP                      = 0,
     SAY_AGGRO                     = 1,
@@ -33,7 +33,7 @@ enum Texts
     SAY_WIPE                      = 5
 };
 
-enum Spells
+enum VorpilSpells
 {
     SPELL_SHADOWBOLT_VOLLEY       = 33841,
     SPELL_BANISH                  = 38791,
@@ -64,7 +64,7 @@ enum Spells
     SPELL_INSTAKILL_SELF          = 29878
 };
 
-enum Events
+enum VorpilEvents
 {
     EVENT_HELP                    = 1,
     EVENT_SHADOWBOLT_VOLLEY,
@@ -78,6 +78,7 @@ std::array<uint32, 5> const VoidwalkerSummonSpells =
     SPELL_SUMMON_VOIDWALKER_A, SPELL_SUMMON_VOIDWALKER_B, SPELL_SUMMON_VOIDWALKER_C, SPELL_SUMMON_VOIDWALKER_D, SPELL_SUMMON_VOIDWALKER_E
 };
 
+// 18732 - Grandmaster Vorpil
 struct boss_grandmaster_vorpil : public BossAI
 {
     boss_grandmaster_vorpil(Creature* creature) : BossAI(creature, DATA_GRANDMASTER_VORPIL) { }
@@ -152,7 +153,7 @@ struct boss_grandmaster_vorpil : public BossAI
                     events.Repeat(20s, 30s);
                     break;
                 case EVENT_DRAW_SHADOWS:
-                    if (roll_chance_i(50))
+                    if (roll_chance(50))
                         Talk(SAY_DRAW);
                     DoCastSelf(SPELL_DRAW_SHADOWS);
                     events.Repeat(35s, 45s);
@@ -169,13 +170,14 @@ struct boss_grandmaster_vorpil : public BossAI
     }
 };
 
+// 19427 - Voidwalker Summoner
 struct npc_voidwalker_summoner : public ScriptedAI
 {
     npc_voidwalker_summoner(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(10s, [this](TaskContext task)
+        _scheduler.Schedule(10s, [this](TaskContext& task)
         {
             DoCastSelf(Trinity::Containers::SelectRandomContainerElement(VoidwalkerSummonSpells));
             task.Repeat(10s, 15s);
@@ -191,6 +193,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 19226 - Void Traveler
 struct npc_void_traveler : public ScriptedAI
 {
     npc_void_traveler(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -206,7 +209,7 @@ struct npc_void_traveler : public ScriptedAI
         if (Creature* vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL)))
             me->GetMotionMaster()->MoveFollow(vorpil, 0, 0);
 
-        _scheduler.Schedule(500ms, [this](TaskContext task)
+        _scheduler.Schedule(500ms, [this](TaskContext& task)
         {
             if (Creature* vorpil = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GRANDMASTER_VORPIL)))
             {
@@ -214,7 +217,7 @@ struct npc_void_traveler : public ScriptedAI
                 {
                     DoCastSelf(SPELL_SACRIFICE);
 
-                    task.Schedule(1s, [this](TaskContext /*task*/)
+                    task.Schedule(1s, [this](TaskContext const& /*task*/)
                     {
                         DoCastSelf(SPELL_EMPOWERING_SHADOWS);
                         DoCastSelf(SPELL_SHADOW_NOVA);

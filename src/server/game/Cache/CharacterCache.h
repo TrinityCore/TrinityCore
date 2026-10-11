@@ -42,6 +42,10 @@ class TC_GAME_API CharacterCache
 {
     public:
         CharacterCache();
+        CharacterCache(CharacterCache const&) = delete;
+        CharacterCache(CharacterCache&&) = delete;
+        CharacterCache& operator=(CharacterCache const&) = delete;
+        CharacterCache& operator=(CharacterCache&&) = delete;
         ~CharacterCache();
         static CharacterCache* instance();
 

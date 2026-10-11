@@ -60,7 +60,7 @@ struct arena_nagrand : ArenaScript
             }
         }
 
-        _scheduler.Schedule(1min, [&](TaskContext)
+        _scheduler.Schedule(1min, [&](TaskContext const&)
         {
             CreateObject(BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
             CreateObject(BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);

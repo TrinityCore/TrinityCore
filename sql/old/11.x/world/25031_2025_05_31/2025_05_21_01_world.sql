@@ -1,0 +1,3 @@
+DELETE FROM `achievement_reward` WHERE `ID`=40945;
+INSERT INTO `achievement_reward` (`ID`,`TitleA`,`TitleH`,`ItemID`,`Sender`,`Subject`,`Body`,`MailTemplateID`) VALUES
+(40945,0,0,236953,219226,'Undermine Crest Ascension','$n,\r\n\r\nAfter countless tests, Cuzloth and I finally uncovered the truth behind these Undermine Crests. Their power is derived from the subterranean passages of Azeroth itself! Wondrous!\r\n\r\nHowever, we also discovered that further transmutation of these crests is not possible. Don\'t worry, I will keep researching in case anything was missed.\r\n\r\nDiscovery awaits,\r\nVaskarn',0);

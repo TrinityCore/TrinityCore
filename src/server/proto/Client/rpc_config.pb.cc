@@ -28,6 +28,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* RPCMeterConfig_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RPCMeterConfig_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ProtocolAlias_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ProtocolAlias_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ServiceAliases_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ServiceAliases_reflection_ = NULL;
 
 }  // namespace
 
@@ -85,6 +91,37 @@ void protobuf_AssignDesc_rpc_5fconfig_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RPCMeterConfig));
+  ProtocolAlias_descriptor_ = file->message_type(2);
+  static const int ProtocolAlias_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ProtocolAlias, server_service_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ProtocolAlias, client_service_name_),
+  };
+  ProtocolAlias_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ProtocolAlias_descriptor_,
+      ProtocolAlias::default_instance_,
+      ProtocolAlias_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ProtocolAlias, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ProtocolAlias, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ProtocolAlias));
+  ServiceAliases_descriptor_ = file->message_type(3);
+  static const int ServiceAliases_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServiceAliases, protocol_alias_),
+  };
+  ServiceAliases_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ServiceAliases_descriptor_,
+      ServiceAliases::default_instance_,
+      ServiceAliases_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServiceAliases, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServiceAliases, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ServiceAliases));
 }
 
 namespace {
@@ -101,6 +138,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
     RPCMethodConfig_descriptor_, &RPCMethodConfig::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RPCMeterConfig_descriptor_, &RPCMeterConfig::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ProtocolAlias_descriptor_, &ProtocolAlias::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ServiceAliases_descriptor_, &ServiceAliases::default_instance());
 }
 
 }  // namespace
@@ -110,6 +151,10 @@ void protobuf_ShutdownFile_rpc_5fconfig_2eproto() {
   delete RPCMethodConfig_reflection_;
   delete RPCMeterConfig::default_instance_;
   delete RPCMeterConfig_reflection_;
+  delete ProtocolAlias::default_instance_;
+  delete ProtocolAlias_reflection_;
+  delete ServiceAliases::default_instance_;
+  delete ServiceAliases_reflection_;
 }
 
 void protobuf_AddDesc_rpc_5fconfig_2eproto() {
@@ -134,13 +179,20 @@ void protobuf_AddDesc_rpc_5fconfig_2eproto() {
     "onfig.RPCMethodConfig\022\034\n\021income_per_seco"
     "nd\030\002 \001(\r:\0011\022\027\n\017initial_balance\030\003 \001(\r\022\023\n\013"
     "cap_balance\030\004 \001(\r\022\026\n\016startup_period\030\005 \001("
-    "\002B\002H\002", 605);
+    "\002\"I\n\rProtocolAlias\022\033\n\023server_service_nam"
+    "e\030\001 \002(\t\022\033\n\023client_service_name\030\002 \002(\t\"L\n\016"
+    "ServiceAliases\022:\n\016protocol_alias\030\001 \003(\0132\""
+    ".bgs.protocol.config.ProtocolAliasB\002H\002", 758);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rpc_config.proto", &protobuf_RegisterTypes);
   RPCMethodConfig::default_instance_ = new RPCMethodConfig();
   RPCMeterConfig::default_instance_ = new RPCMeterConfig();
+  ProtocolAlias::default_instance_ = new ProtocolAlias();
+  ServiceAliases::default_instance_ = new ServiceAliases();
   RPCMethodConfig::default_instance_->InitAsDefaultInstance();
   RPCMeterConfig::default_instance_->InitAsDefaultInstance();
+  ProtocolAlias::default_instance_->InitAsDefaultInstance();
+  ServiceAliases::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_rpc_5fconfig_2eproto);
 }
 
@@ -333,6 +385,158 @@ void RPCMeterConfig::Swap(RPCMeterConfig* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = RPCMeterConfig_descriptor_;
   metadata.reflection = RPCMeterConfig_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ProtocolAlias::kServerServiceNameFieldNumber;
+const int ProtocolAlias::kClientServiceNameFieldNumber;
+#endif  // !_MSC_VER
+
+ProtocolAlias::ProtocolAlias()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.config.ProtocolAlias)
+}
+
+void ProtocolAlias::InitAsDefaultInstance() {
+}
+
+ProtocolAlias::ProtocolAlias(const ProtocolAlias& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.config.ProtocolAlias)
+}
+
+void ProtocolAlias::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  server_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  client_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ProtocolAlias::~ProtocolAlias() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.config.ProtocolAlias)
+  SharedDtor();
+}
+
+void ProtocolAlias::SharedDtor() {
+  if (server_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete server_service_name_;
+  }
+  if (client_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_service_name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void ProtocolAlias::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ProtocolAlias::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ProtocolAlias_descriptor_;
+}
+
+const ProtocolAlias& ProtocolAlias::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_rpc_5fconfig_2eproto();
+  return *default_instance_;
+}
+
+ProtocolAlias* ProtocolAlias::default_instance_ = NULL;
+
+ProtocolAlias* ProtocolAlias::New() const {
+  return new ProtocolAlias;
+}
+
+void ProtocolAlias::Swap(ProtocolAlias* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata ProtocolAlias::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ProtocolAlias_descriptor_;
+  metadata.reflection = ProtocolAlias_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ServiceAliases::kProtocolAliasFieldNumber;
+#endif  // !_MSC_VER
+
+ServiceAliases::ServiceAliases()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.config.ServiceAliases)
+}
+
+void ServiceAliases::InitAsDefaultInstance() {
+}
+
+ServiceAliases::ServiceAliases(const ServiceAliases& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.config.ServiceAliases)
+}
+
+void ServiceAliases::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ServiceAliases::~ServiceAliases() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.config.ServiceAliases)
+  SharedDtor();
+}
+
+void ServiceAliases::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void ServiceAliases::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ServiceAliases::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ServiceAliases_descriptor_;
+}
+
+const ServiceAliases& ServiceAliases::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_rpc_5fconfig_2eproto();
+  return *default_instance_;
+}
+
+ServiceAliases* ServiceAliases::default_instance_ = NULL;
+
+ServiceAliases* ServiceAliases::New() const {
+  return new ServiceAliases;
+}
+
+void ServiceAliases::Swap(ServiceAliases* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata ServiceAliases::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ServiceAliases_descriptor_;
+  metadata.reflection = ServiceAliases_reflection_;
   return metadata;
 }
 

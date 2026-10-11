@@ -16,7 +16,7 @@
  */
 
 #include "ReputationPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Reputation
 {
@@ -41,8 +41,8 @@ ByteBuffer& operator<<(ByteBuffer& data, FactionBonusData const& factionBonusDat
 
 WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 {
-    _worldPacket << uint32(Factions.size());
-    _worldPacket << uint32(Bonuses.size());
+    _worldPacket << Size<uint32>(Factions);
+    _worldPacket << Size<uint32>(Bonuses);
 
     for (FactionData const& faction : Factions)
         _worldPacket << faction;
@@ -58,17 +58,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::FactionStandi
     data << int32(factionStanding.Index);
     data << int32(factionStanding.Standing);
     data << int32(factionStanding.FactionID);
+
     return data;
 }
 
 WorldPacket const* WorldPackets::Reputation::SetFactionStanding::Write()
 {
     _worldPacket << float(BonusFromAchievementSystem);
-    _worldPacket << uint32(Faction.size());
+    _worldPacket << Size<uint32>(Faction);
     for (FactionStandingData const& factionStanding : Faction)
         _worldPacket << factionStanding;
 
-    _worldPacket.WriteBit(ShowVisual);
+    _worldPacket << Bits<1>(ShowVisual);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

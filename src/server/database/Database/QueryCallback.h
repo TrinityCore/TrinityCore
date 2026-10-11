@@ -57,4 +57,6 @@ private:
     std::queue<QueryCallbackData, std::list<QueryCallbackData>> _callbacks;
 };
 
+inline bool InvokeAsyncCallbackIfReady(QueryCallback& callback) { return callback.InvokeIfReady(); }
+
 #endif // _QUERY_CALLBACK_H

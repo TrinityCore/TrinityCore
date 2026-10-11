@@ -23,6 +23,7 @@
 
 #if defined(_DEBUG) && !defined(CASCLIB_NODEBUG)
 #define CASCLIB_DEBUG
+//#define CASCLIB_WRITE_VERIFIED_FILENAMES            // If defined, TRootHandler_WoW will save all files whose hashes are confirmed
 #endif
 
 #include "CascPort.h"
@@ -109,14 +110,13 @@ typedef struct _CASC_BUILD_FILE
 } CASC_BUILD_FILE, *PCASC_BUILD_FILE;
 
 // Information about index file
-struct CASC_INDEX
+typedef struct _CASC_INDEX
 {
     CASC_BLOB FileData;
     LPTSTR szFileName;                              // Full name of the index file
     DWORD NewSubIndex;                              // New subindex
     DWORD OldSubIndex;                              // Old subindex
-};
-typedef CASC_INDEX * PCASC_INDEX;
+} CASC_INDEX, *PCASC_INDEX;
 
 // Normalized header of the index files.
 // Both version 1 and version 2 are converted to this structure
@@ -275,6 +275,22 @@ struct TCascStorage
         return (hs != INVALID_HANDLE_VALUE &&
                 hs != NULL &&
                 hs->ClassName == CASC_MAGIC_STORAGE) ? hs : NULL;
+    }
+
+    DWORD SetProductCodeName(LPCSTR szNewCodeName, size_t nLength = 0)
+    {
+        if(szCodeName == NULL && szNewCodeName != NULL)
+        {
+            // Make sure we have the length
+            if(nLength == 0)
+                nLength = strlen(szNewCodeName);
+
+            // Allocate the code name buffer and copy from ANSI string
+            if((szCodeName = CASC_ALLOC<TCHAR>(nLength + 1)) == NULL)
+                return ERROR_NOT_ENOUGH_MEMORY;
+            CascStrCopy(szCodeName, nLength + 1, szNewCodeName, nLength);
+        }
+        return ERROR_SUCCESS;
     }
 
     // Class recognizer. Has constant value of 'CASCSTOR' (CASC_MAGIC_STORAGE)
@@ -456,7 +472,7 @@ inline void FreeCascBlob(PCASC_BLOB pBlob)
 //-----------------------------------------------------------------------------
 // Text file parsing (CascFiles.cpp)
 
-bool  InvokeProgressCallback(TCascStorage * hs, LPCSTR szMessage, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue);
+bool  InvokeProgressCallback(TCascStorage * hs, CASC_PROGRESS_MSG Message, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue);
 DWORD GetFileSpanInfo(PCASC_CKEY_ENTRY pCKeyEntry, PULONGLONG PtrContentSize, PULONGLONG PtrEncodedSize = NULL);
 DWORD FetchCascFile(TCascStorage * hs, CPATH_TYPE PathType, LPBYTE pbEKey, LPCTSTR szExtension, CASC_PATH<TCHAR> & LocalPath, PCASC_ARCHIVE_INFO pArchiveInfo = NULL);
 DWORD CheckCascBuildFileExact(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath);

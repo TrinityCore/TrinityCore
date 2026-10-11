@@ -31,13 +31,14 @@ class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT, GridRefer
         void targetObjectBuildLink()
         {
             // called from link()
-            this->getTarget()->insertFirst(this);
+            this->getTarget()->push_front(this);
             this->getTarget()->incSize();
         }
         void targetObjectDestroyLink()
         {
             // called from unlink()
-            if (this->isValid()) this->getTarget()->decSize();
+            if (this->isValid())
+                this->getTarget()->decSize();
         }
         void sourceObjectDestroyLink()
         {

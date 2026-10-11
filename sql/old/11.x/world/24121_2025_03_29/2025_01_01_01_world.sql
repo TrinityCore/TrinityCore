@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_brewfest_relay_race_intro_force_player_to_throw','spell_silithus_summon_cultist_periodic','spell_hor_quel_delars_will','spell_kaelthas_remove_weapons');

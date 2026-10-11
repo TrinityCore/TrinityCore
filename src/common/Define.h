@@ -20,7 +20,7 @@
 
 #include "CompilerDefs.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #  if !defined(__STDC_FORMAT_MACROS)
 #    define __STDC_FORMAT_MACROS
 #  endif
@@ -72,17 +72,17 @@
 #  define TRINITY_INLINE
 #endif //!COREDEBUG
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
-#else //TRINITY_COMPILER != TRINITY_COMPILER_GNU
+#else //TRINITY_COMPILER_IS_GCC
 #  define ATTR_PRINTF(F, V)
-#endif //TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#endif //TRINITY_COMPILER_IS_GCC
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
-#  if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#  if TRINITY_COMPILER_IS_MICROSOFT
 #    define TC_API_EXPORT __declspec(dllexport)
 #    define TC_API_IMPORT __declspec(dllimport)
-#  elif TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#  elif TRINITY_COMPILER_IS_GCC
 #    define TC_API_EXPORT __attribute__((visibility("default")))
 #    define TC_API_IMPORT
 #  else
@@ -111,6 +111,12 @@
 #  define TC_DATABASE_API TC_API_IMPORT
 #endif
 
+#ifdef TRINITY_API_EXPORT_NETWORK
+#  define TC_NETWORK_API TC_API_EXPORT
+#else
+#  define TC_NETWORK_API TC_API_IMPORT
+#endif
+
 #ifdef TRINITY_API_EXPORT_SHARED
 #  define TC_SHARED_API TC_API_EXPORT
 #else
@@ -121,6 +127,12 @@
 #  define TC_GAME_API TC_API_EXPORT
 #else
 #  define TC_GAME_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_MMAPS_COMMON
+#  define TC_MMAPS_COMMON_API TC_API_EXPORT
+#else
+#  define TC_MMAPS_COMMON_API TC_API_IMPORT
 #endif
 
 #define UI64FMTD "%" PRIu64

@@ -56,7 +56,7 @@ BossBoundaryData::~BossBoundaryData()
 
 DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficulty difficulty) const
 {
-    auto itr = std::find_if(DungeonEncounters.begin(), DungeonEncounters.end(), [difficulty](DungeonEncounterEntry const* dungeonEncounter)
+    auto itr = std::ranges::find_if(DungeonEncounters, [difficulty](DungeonEncounterEntry const* dungeonEncounter)
     {
         return dungeonEncounter && (dungeonEncounter->DifficultyID == 0 || Difficulty(dungeonEncounter->DifficultyID) == difficulty);
     });
@@ -64,7 +64,7 @@ DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficul
     return itr != DungeonEncounters.end() ? *itr : nullptr;
 }
 
-InstanceScript::InstanceScript(InstanceMap* map) : instance(map), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
+InstanceScript::InstanceScript(InstanceMap* map) noexcept : instance(map), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -77,9 +77,7 @@ _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatRes
 #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 }
 
-InstanceScript::~InstanceScript()
-{
-}
+InstanceScript::~InstanceScript() = default;
 
 bool InstanceScript::IsEncounterInProgress() const
 {
@@ -154,9 +152,14 @@ GameObject* InstanceScript::GetGameObject(uint32 type)
     return instance->GetGameObject(GetObjectGuid(type));
 }
 
-void InstanceScript::SetHeaders(std::string const& dataHeaders)
+void InstanceScript::SetHeaders(std::string_view dataHeaders)
 {
     headers = dataHeaders;
+}
+
+void InstanceScript::SetBossNumber(uint32 number)
+{
+    bosses.resize(number);
 }
 
 void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
@@ -166,56 +169,53 @@ void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
             bosses[entry.BossId].boundary.push_back(entry.Boundary);
 }
 
-void InstanceScript::LoadMinionData(MinionData const* data)
+void InstanceScript::LoadDoorData(std::span<DoorData const> data)
 {
-    while (data->entry)
-    {
-        if (data->bossId < bosses.size())
-            minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+    for (DoorData const& door : data)
+        if (door.bossId < bosses.size())
+            doors.emplace(std::piecewise_construct, std::forward_as_tuple(door.entry), std::forward_as_tuple(&bosses[door.bossId], door.Behavior));
 
-        ++data;
-    }
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: {} minions loaded.", uint64(minions.size()));
-}
-
-void InstanceScript::LoadDoorData(DoorData const* data)
-{
-    while (data->entry)
-    {
-        if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->Behavior)));
-
-        ++data;
-    }
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: {} doors loaded.", uint64(doors.size()));
 }
 
-void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData)
+void InstanceScript::LoadObjectData(std::span<ObjectData const> creatureData, std::span<ObjectData const> gameObjectData)
 {
-    if (creatureData)
-        LoadObjectData(creatureData, _creatureInfo);
-
-    if (gameObjectData)
-        LoadObjectData(gameObjectData, _gameObjectInfo);
+    LoadObjectData(creatureData, _creatureInfo);
+    LoadObjectData(gameObjectData, _gameObjectInfo);
 
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: {} objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
 }
 
-void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)
+void InstanceScript::LoadDungeonEncounterData(std::span<DungeonEncounterData const> encounters)
 {
-    while (data->entry)
+    for (DungeonEncounterData const& encounter : encounters)
+        LoadDungeonEncounterData(encounter.BossId, encounter.DungeonEncounterId);
+}
+
+void InstanceScript::LoadMinionData(std::span<MinionData const> data)
+{
+    for (MinionData const& minion : data)
+        if (minion.bossId < bosses.size())
+            minions.emplace(minion.entry, &bosses[minion.bossId]);
+
+    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: {} minions loaded.", uint64(minions.size()));
+}
+
+void InstanceScript::LoadObjectData(std::span<ObjectData const> data, ObjectInfoMap& objectInfo)
+{
+    for (ObjectData const& object : data)
     {
-        ASSERT(objectInfo.find(data->entry) == objectInfo.end());
-        objectInfo[data->entry] = data->type;
-        ++data;
+        bool inserted = objectInfo.emplace(object.entry, object.type).second;
+        ASSERT(inserted);
     }
 }
 
 void InstanceScript::LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds)
 {
     if (bossId < bosses.size())
-        for (std::size_t i = 0; i < MAX_DUNGEON_ENCOUNTERS_PER_BOSS; ++i)
-            bosses[bossId].DungeonEncounters[i] = sDungeonEncounterStore.LookupEntry(dungeonEncounterIds[i]);
+        for (std::size_t i = 0, j = 0; i < MAX_DUNGEON_ENCOUNTERS_PER_BOSS; ++i)
+            if (dungeonEncounterIds[i])
+                bosses[bossId].DungeonEncounters[j++] = sDungeonEncounterStore.AssertEntry(dungeonEncounterIds[i]);
 }
 
 void InstanceScript::UpdateDoorState(GameObject* door)
@@ -649,7 +649,7 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn 
 
 void InstanceScript::DoUpdateWorldState(int32 worldStateId, int32 value)
 {
-    sWorldStateMgr->SetValue(worldStateId, value, false, instance);
+    WorldStateMgr::SetValue(worldStateId, value, false, instance);
 }
 
 // Send Notify to all players in instance
@@ -736,7 +736,7 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
         ObjectGuid summonGUID = player->m_SummonSlot[itr2];
         if (!summonGUID.IsEmpty())
             if (Creature* summon = instance->GetCreature(summonGUID))
-                summon->CastSpell(player, spell, true);
+                summon->CastSpell(summon, spell, true);
     }
 
     if (!includeControlled)
@@ -746,7 +746,7 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
     {
         if (Unit* controlled = *itr2)
             if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
-                controlled->CastSpell(player, spell, true);
+                controlled->CastSpell(controlled, spell, true);
     }
 }
 
@@ -777,10 +777,10 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 
 bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
 {
-    for (std::size_t i = 0; i < bosses.size(); ++i)
-        for (std::size_t j = 0; j < bosses[i].DungeonEncounters.size(); ++j)
-            if (bosses[i].DungeonEncounters[j] && bosses[i].DungeonEncounters[j]->ID == dungeonEncounterId)
-                return bosses[i].state == DONE;
+    for (BossInfo const& boss : bosses)
+        for (DungeonEncounterEntry const* dungeonEncounter : boss.DungeonEncounters)
+            if (dungeonEncounter && dungeonEncounter->ID == dungeonEncounterId)
+                return boss.state == DONE;
 
     return false;
 }
@@ -903,20 +903,24 @@ void InstanceScript::SendBossKillCredit(uint32 encounterId)
 
 void InstanceScript::UpdateLfgEncounterState(BossInfo const* bossInfo)
 {
-    for (auto const& ref : instance->GetPlayers())
+    for (MapReference const& ref : instance->GetPlayers())
     {
-        if (Player* player = ref.GetSource())
+        if (Group* grp = ref.GetSource()->GetGroup())
         {
-            if (Group* grp = player->GetGroup())
+            if (grp->isLFGGroup())
             {
-                if (grp->isLFGGroup())
+                std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
+                auto itr = dungeonEncounterIds.begin();
+                for (DungeonEncounterEntry const* dungeonEncounter : bossInfo->DungeonEncounters)
                 {
-                    std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
-                    std::transform(bossInfo->DungeonEncounters.begin(), bossInfo->DungeonEncounters.end(), dungeonEncounterIds.begin(),
-                        [](DungeonEncounterEntry const* entry) { return entry->ID; });
-                    sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
-                    break;
+                    if (!dungeonEncounter)
+                        break;
+
+                    *itr = dungeonEncounter->ID;
+                    ++itr;
                 }
+                sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), std::span(dungeonEncounterIds.begin(), itr), instance);
+                break;
             }
         }
     }
@@ -984,7 +988,7 @@ void InstanceScript::ResetCombatResurrections()
 uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
 {
     uint32 interval = 0;
-    if (uint32 playerCount = instance->GetPlayers().getSize())
+    if (uint32 playerCount = instance->GetPlayers().size())
         interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
 
     return interval;

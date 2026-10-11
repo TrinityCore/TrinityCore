@@ -242,13 +242,14 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5fstream_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ContentChain));
   StreamMessage_descriptor_ = file->message_type(9);
-  static const int StreamMessage_offsets_[6] = {
+  static const int StreamMessage_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, author_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, content_chain_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, destroyer_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, destroyed_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, destroy_time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, author_external_network_),
   };
   StreamMessage_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -546,7 +547,7 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fstream_2eproto() {
     "ge\"\230\001\n\014ContentChain\022\017\n\007content\030\005 \001(\t\022&\n\005"
     "embed\030\006 \003(\0132\027.bgs.protocol.EmbedInfo\022<\n\007"
     "mention\030\007 \001(\0132+.bgs.protocol.club.v1.cli"
-    "ent.MentionContent\022\021\n\tedit_time\030\010 \001(\004\"\242\002"
+    "ent.MentionContent\022\021\n\tedit_time\030\010 \001(\004\"\303\002"
     "\n\rStreamMessage\022#\n\002id\030\003 \001(\0132\027.bgs.protoc"
     "ol.MessageId\022>\n\006author\030\004 \001(\0132..bgs.proto"
     "col.club.v1.client.MemberDescription\022@\n\r"
@@ -554,41 +555,42 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fclub_5fstream_2eproto() {
     "v1.client.ContentChain\022A\n\tdestroyer\030\017 \001("
     "\0132..bgs.protocol.club.v1.client.MemberDe"
     "scription\022\021\n\tdestroyed\030\020 \001(\010\022\024\n\014destroy_"
-    "time\030\021 \001(\004\"\214\003\n\rStreamMention\022\017\n\007club_id\030"
-    "\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022+\n\nmessage_id\030\003"
-    " \001(\0132\027.bgs.protocol.MessageId\022>\n\006author\030"
-    "\004 \001(\0132..bgs.protocol.club.v1.client.Memb"
-    "erDescription\022\021\n\tdestroyed\030\005 \001(\010\022.\n\nment"
-    "ion_id\030\006 \001(\0132\032.bgs.protocol.TimeSeriesId"
-    "\0221\n\tmember_id\030\007 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\022;\n\007message\030\010 \001(\0132*.bgs.proto"
-    "col.club.v1.client.StreamMessage\0227\n\tclub"
-    "_type\030\t \001(\0132$.bgs.protocol.club.v1.Uniqu"
-    "eClubType\"Z\n\nStreamView\022\017\n\007club_id\030\001 \001(\004"
-    "\022\021\n\tstream_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bg"
-    "s.protocol.ViewMarker\"=\n\025StreamAdvanceVi"
-    "ewTime\022\021\n\tstream_id\030\001 \001(\004\022\021\n\tview_time\030\002"
-    " \001(\004\"8\n\017StreamEventTime\022\021\n\tstream_id\030\001 \001"
-    "(\004\022\022\n\nevent_time\030\002 \001(\004\"a\n\021StreamMentionV"
-    "iew\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022"
-    "(\n\006marker\030\003 \001(\0132\030.bgs.protocol.ViewMarke"
-    "r\"\341\001\n\022StreamStateOptions\022-\n\tattribute\030\001 "
-    "\003(\0132\032.bgs.protocol.v2.Attribute\022\014\n\004name\030"
-    "\002 \001(\t\022\017\n\007subject\030\003 \001(\t\0229\n\006access\030\004 \001(\0132)"
-    ".bgs.protocol.club.v1.client.StreamAcces"
-    "s\022B\n\013voice_level\030\005 \001(\0162-.bgs.protocol.cl"
-    "ub.v1.client.StreamVoiceLevel\"\234\002\n\025Stream"
-    "StateAssignment\022\021\n\tstream_id\030\001 \001(\004\022-\n\tat"
-    "tribute\030\002 \003(\0132\032.bgs.protocol.v2.Attribut"
-    "e\022\014\n\004name\030\003 \001(\t\022\017\n\007subject\030\004 \001(\t\0229\n\006acce"
-    "ss\030\005 \001(\0132).bgs.protocol.club.v1.client.S"
-    "treamAccess\022#\n\033stream_subscription_remov"
-    "ed\030\006 \001(\010\022B\n\013voice_level\030\007 \001(\0162-.bgs.prot"
-    "ocol.club.v1.client.StreamVoiceLevel\"\213\001\n"
-    "\025StreamTypingIndicator\0221\n\tauthor_id\030\001 \001("
-    "\0132\036.bgs.protocol.club.v1.MemberId\0220\n\tind"
-    "icator\030\002 \001(\0162\035.bgs.protocol.TypingIndica"
-    "tor\022\r\n\005epoch\030\003 \001(\004B\002H\002", 3022);
+    "time\030\021 \001(\004\022\037\n\027author_external_network\030\022 "
+    "\001(\r\"\214\003\n\rStreamMention\022\017\n\007club_id\030\001 \001(\004\022\021"
+    "\n\tstream_id\030\002 \001(\004\022+\n\nmessage_id\030\003 \001(\0132\027."
+    "bgs.protocol.MessageId\022>\n\006author\030\004 \001(\0132."
+    ".bgs.protocol.club.v1.client.MemberDescr"
+    "iption\022\021\n\tdestroyed\030\005 \001(\010\022.\n\nmention_id\030"
+    "\006 \001(\0132\032.bgs.protocol.TimeSeriesId\0221\n\tmem"
+    "ber_id\030\007 \001(\0132\036.bgs.protocol.club.v1.Memb"
+    "erId\022;\n\007message\030\010 \001(\0132*.bgs.protocol.clu"
+    "b.v1.client.StreamMessage\0227\n\tclub_type\030\t"
+    " \001(\0132$.bgs.protocol.club.v1.UniqueClubTy"
+    "pe\"Z\n\nStreamView\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstr"
+    "eam_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bgs.proto"
+    "col.ViewMarker\"=\n\025StreamAdvanceViewTime\022"
+    "\021\n\tstream_id\030\001 \001(\004\022\021\n\tview_time\030\002 \001(\004\"8\n"
+    "\017StreamEventTime\022\021\n\tstream_id\030\001 \001(\004\022\022\n\ne"
+    "vent_time\030\002 \001(\004\"a\n\021StreamMentionView\022\017\n\007"
+    "club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022(\n\006mark"
+    "er\030\003 \001(\0132\030.bgs.protocol.ViewMarker\"\341\001\n\022S"
+    "treamStateOptions\022-\n\tattribute\030\001 \003(\0132\032.b"
+    "gs.protocol.v2.Attribute\022\014\n\004name\030\002 \001(\t\022\017"
+    "\n\007subject\030\003 \001(\t\0229\n\006access\030\004 \001(\0132).bgs.pr"
+    "otocol.club.v1.client.StreamAccess\022B\n\013vo"
+    "ice_level\030\005 \001(\0162-.bgs.protocol.club.v1.c"
+    "lient.StreamVoiceLevel\"\234\002\n\025StreamStateAs"
+    "signment\022\021\n\tstream_id\030\001 \001(\004\022-\n\tattribute"
+    "\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\022\014\n\004na"
+    "me\030\003 \001(\t\022\017\n\007subject\030\004 \001(\t\0229\n\006access\030\005 \001("
+    "\0132).bgs.protocol.club.v1.client.StreamAc"
+    "cess\022#\n\033stream_subscription_removed\030\006 \001("
+    "\010\022B\n\013voice_level\030\007 \001(\0162-.bgs.protocol.cl"
+    "ub.v1.client.StreamVoiceLevel\"\213\001\n\025Stream"
+    "TypingIndicator\0221\n\tauthor_id\030\001 \001(\0132\036.bgs"
+    ".protocol.club.v1.MemberId\0220\n\tindicator\030"
+    "\002 \001(\0162\035.bgs.protocol.TypingIndicator\022\r\n\005"
+    "epoch\030\003 \001(\004B\002H\002", 3055);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/club_stream.proto", &protobuf_RegisterTypes);
   StreamPosition::default_instance_ = new StreamPosition();
@@ -1357,6 +1359,7 @@ const int StreamMessage::kContentChainFieldNumber;
 const int StreamMessage::kDestroyerFieldNumber;
 const int StreamMessage::kDestroyedFieldNumber;
 const int StreamMessage::kDestroyTimeFieldNumber;
+const int StreamMessage::kAuthorExternalNetworkFieldNumber;
 #endif  // !_MSC_VER
 
 StreamMessage::StreamMessage()
@@ -1385,6 +1388,7 @@ void StreamMessage::SharedCtor() {
   destroyer_ = NULL;
   destroyed_ = false;
   destroy_time_ = GOOGLE_ULONGLONG(0);
+  author_external_network_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

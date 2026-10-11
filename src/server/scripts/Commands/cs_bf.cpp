@@ -36,7 +36,7 @@ class bf_commandscript : public CommandScript
 public:
     bf_commandscript() : CommandScript("bf_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable battlefieldcommandTable =
         {

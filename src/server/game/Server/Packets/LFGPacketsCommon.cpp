@@ -16,27 +16,31 @@
  */
 
 #include "LFGPacketsCommon.h"
+#include "PacketOperators.h"
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket)
+namespace WorldPackets::LFG
+{
+ByteBuffer& operator>>(ByteBuffer& data, RideTicket& ticket)
 {
     data >> ticket.RequesterGuid;
     data >> ticket.Id;
-    ticket.Type = data.read<WorldPackets::LFG::RideType>();
+    data >> As<uint32>(ticket.Type);
     data >> ticket.Time;
-    ticket.IsCrossFaction = data.ReadBit();
+    data >> Bits<1>(ticket.IsCrossFaction);
     data.ResetBitPos();
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket)
+ByteBuffer& operator<<(ByteBuffer& data, RideTicket const& ticket)
 {
     data << ticket.RequesterGuid;
     data << uint32(ticket.Id);
-    data << uint32(ticket.Type);
+    data << As<uint32>(ticket.Type);
     data << ticket.Time;
-    data.WriteBit(ticket.IsCrossFaction);
+    data << Bits<1>(ticket.IsCrossFaction);
     data.FlushBits();
 
     return data;
+}
 }

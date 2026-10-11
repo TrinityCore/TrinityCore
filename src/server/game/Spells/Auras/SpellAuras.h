@@ -18,6 +18,8 @@
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
 
+#include "DBStorageIterator.h"
+#include "IteratorPair.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "UniqueTrackablePtr.h"
@@ -46,9 +48,11 @@ class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
 class HealInfo;
+class Item;
 class ProcEventInfo;
 class Unit;
 class UnitAura;
+class WorldObject;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -61,7 +65,7 @@ class TC_GAME_API AuraApplication
         Unit* const _target;
         Aura* const _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
-        uint8 _slot;                                   // Aura slot on unit
+        uint16 _slot;                                  // Aura slot on unit
         uint16 _flags;                                 // Aura info flag
         uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
@@ -77,15 +81,16 @@ class TC_GAME_API AuraApplication
         Unit* GetTarget() const { return _target; }
         Aura* GetBase() const { return _base; }
 
-        uint8 GetSlot() const { return _slot; }
+        uint16 GetSlot() const { return _slot; }
         uint16 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS); return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcast() const { return (_flags & AFLAG_NOCASTER) != 0; }
+        bool IsSelfcast() const { return (_flags & AFLAG_SELF_CAST) != 0; }
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
         void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
+        void AddEffectToApplyEffectMask(SpellEffIndex spellEffectIndex);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
@@ -96,6 +101,50 @@ class TC_GAME_API AuraApplication
         void ClientUpdate(bool remove = false);
 
         std::string GetDebugInfo() const;
+};
+
+struct TC_GAME_API AuraCreateInfo
+{
+    friend class Aura;
+    friend class UnitAura;
+    friend class DynObjAura;
+
+    AuraCreateInfo(ObjectGuid castId, SpellInfo const* spellInfo, Difficulty castDifficulty, uint32 auraEffMask, WorldObject* owner);
+
+    AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
+    AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
+    AuraCreateInfo& SetBaseAmount(SpellEffectValue const* bp) { BaseAmount = bp; return *this; }
+    AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
+    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
+    AuraCreateInfo& SetIsRefresh(bool* isRefresh) { IsRefresh = isRefresh; return *this; }
+    AuraCreateInfo& SetStackAmount(int32 stackAmount) { StackAmount = stackAmount > 0 ? stackAmount : 1; return *this; }
+    AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
+    AuraCreateInfo& SetSpellVisual(SpellCastVisual const& spellVisual) { _spellVisual = spellVisual; return *this; }
+
+    SpellInfo const* GetSpellInfo() const { return _spellInfo; }
+    uint32 GetAuraEffectMask() const { return _auraEffectMask; }
+
+    ObjectGuid CasterGUID;
+    Unit* Caster = nullptr;
+    SpellEffectValue const* BaseAmount = nullptr;
+    ObjectGuid CastItemGUID;
+    uint32 CastItemId = 0;
+    int32 CastItemLevel = -1;
+    bool* IsRefresh = nullptr;
+    int32 StackAmount = 1;
+    bool ResetPeriodicTimer = true;
+
+private:
+    ObjectGuid _castId;
+    SpellInfo const* _spellInfo = nullptr;
+    Difficulty _castDifficulty = Difficulty(0);
+    uint32 _auraEffectMask = 0;
+    WorldObject* _owner = nullptr;
+    Optional<SpellCastVisual> _spellVisual;
+
+    uint32 _targetEffectMask = 0;
+
+    SpellCastVisual CalcSpellVisual() const;
 };
 
 // Structure representing database aura primary key fields
@@ -111,8 +160,8 @@ struct AuraKey
 
 struct AuraLoadEffectInfo
 {
-    std::array<int32, MAX_SPELL_EFFECTS> Amounts;
-    std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
+    std::array<SpellEffectValue, MAX_SPELL_EFFECTS> Amounts;
+    std::array<SpellEffectValue, MAX_SPELL_EFFECTS> BaseAmounts;
 };
 
 class TC_GAME_API Aura
@@ -127,8 +176,7 @@ class TC_GAME_API Aura
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
-        void _InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount);
-        void SaveCasterInfo(Unit* caster);
+        void _InitEffects(uint32 effMask, Unit* caster, SpellEffectValue const* baseAmount);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
@@ -141,6 +189,7 @@ class TC_GAME_API Aura
         uint32 GetCastItemId() const { return m_castItemId; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
+        void SetSpellVisual(SpellCastVisual const& spellVisual);
         Unit* GetCaster() const;
         WorldObject* GetWorldObjectCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
@@ -220,7 +269,10 @@ class TC_GAME_API Aura
         * @return Aura key.
         */
         AuraKey GenerateKey(uint32& recalculateMask) const;
-        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
+        void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint32 recalculateMask, SpellEffectValue const* amount);
+
+        // helpers for aura effects
+        bool CanPeriodicTickCrit() const;
 
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
@@ -271,7 +323,7 @@ class TC_GAME_API Aura
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
-        void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated);
+        void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier*& spellMod);
         void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance);
@@ -307,11 +359,24 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
-        AuraEffectVector const& GetAuraEffects() const { return _effects; }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect*>> GetAuraEffects()
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator(m_effects.data(), m_effects.size()),
+                DBStorageIterator(m_effects.data(), m_effects.size(), m_effects.size()));
+        }
+        Trinity::IteratorPair<DBStorageIterator<AuraEffect const*>> GetAuraEffects() const
+        {
+            return Trinity::Containers::MakeIteratorPair(
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size()),
+                DBStorageIterator<AuraEffect const*>(m_effects.data(), m_effects.size(), m_effects.size()));
+        }
+        std::size_t GetAuraEffectCount() const { return m_effects.size(); }
 
         virtual std::string GetDebugInfo() const;
 
         Trinity::unique_weak_ptr<Aura> GetWeakPtr() const { return m_scriptRef; }
+        Trinity::unique_weak_ptr<AuraEffect> GetEffectWeakPtr(SpellEffIndex index) const { return { m_scriptRef, GetEffect(index) }; }
 
         Aura(Aura const&) = delete;
         Aura(Aura&&) = delete;
@@ -331,7 +396,7 @@ class TC_GAME_API Aura
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         uint32 m_castItemId;
         int32 m_castItemLevel;
-        SpellCastVisual const m_spellVisual;
+        SpellCastVisual m_spellVisual;
         time_t const m_applyTime;
         WorldObject* const m_owner;
 
@@ -345,6 +410,7 @@ class TC_GAME_API Aura
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
+        AuraEffectVector m_effects;
         ApplicationMap m_applications;
 
         bool m_isRemoved;
@@ -359,8 +425,6 @@ class TC_GAME_API Aura
 
     private:
         std::vector<AuraApplication*> _removedApplications;
-
-        AuraEffectVector _effects;
 
         struct NoopAuraDeleter { void operator()(Aura*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Aura> m_scriptRef;

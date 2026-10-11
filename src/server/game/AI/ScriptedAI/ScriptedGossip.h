@@ -93,7 +93,7 @@ void TC_GAME_API ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB
 void TC_GAME_API AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action);
 // Using provided texts, not from DB
-void TC_GAME_API AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action, std::string popupText, uint32 popupMoney, bool coded);
+void TC_GAME_API AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action, std::string popupText, uint64 popupMoney, bool coded);
 // Uses gossip item info from DB
 void TC_GAME_API AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action);
 void TC_GAME_API SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const& guid);

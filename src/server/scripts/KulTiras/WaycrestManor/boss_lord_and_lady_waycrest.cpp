@@ -156,7 +156,7 @@ struct boss_lord_waycrest : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_LORD_WAYCREST_DUMMY_ABSORB);
-        me->GetMotionMaster()->MoveJumpWithGravity(LordWaycrestCombatPosition, 20.0f, 15.1852f);
+        me->GetMotionMaster()->MoveJump(EVENT_JUMP, LordWaycrestCombatPosition, 20.0f, 5.0f);
 
         instance->SetBossState(DATA_LORD_AND_LADY_WAYCREST, IN_PROGRESS);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

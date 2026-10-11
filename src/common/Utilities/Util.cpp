@@ -18,7 +18,6 @@
 #include "Util.h"
 #include "Common.h"
 #include "Containers.h"
-#include "IpAddress.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include <boost/core/demangle.hpp>
@@ -28,6 +27,10 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
 
 void Trinity::VerifyOsVersion()
 {
@@ -268,17 +271,6 @@ std::string TimeToHumanReadable(time_t t)
     char buf[30];
     strftime(buf, 30, "%c", &time);
     return std::string(buf);
-}
-
-/// Check if the string is a valid ip address representation
-bool IsIPAddress(char const* ipaddress)
-{
-    if (!ipaddress)
-        return false;
-
-    boost::system::error_code error;
-    Trinity::Net::make_address(ipaddress, error);
-    return !error;
 }
 
 /// create PID file
@@ -826,10 +818,10 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
     }
 
     std::string result;
-    result.reserve(arrayLen * 2);
-    auto inserter = std::back_inserter(result);
+    result.resize(arrayLen * 2);
+    auto inserter = result.data();
     for (int32 i = init; i != end; i += op)
-        Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
+        inserter = Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
 
     return result;
 }
@@ -868,6 +860,16 @@ bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 bool StringCompareLessI(std::string_view a, std::string_view b)
 {
     return std::ranges::lexicographical_compare(a, b, {}, charToLower, charToLower);
+}
+
+void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement)
+{
+    std::size_t pos = str->find(text, 0);
+    while (pos != std::string::npos)
+    {
+        str->replace(pos, text.length(), replacement);
+        pos = str->find(text, pos + replacement.length());
+    }
 }
 
 std::string Trinity::Impl::GetTypeName(std::type_info const& info)

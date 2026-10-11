@@ -15,52 +15,51 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \addtogroup u2w User to World Communication
- *  @{
- *  \file WorldSocketMgr.h
- *  \author Derex <derex101@gmail.com>
- */
-
-#ifndef __WORLDSOCKETMGR_H
-#define __WORLDSOCKETMGR_H
+#ifndef TRINITYCORE_WORLD_SOCKET_MGR_H
+#define TRINITYCORE_WORLD_SOCKET_MGR_H
 
 #include "SocketMgr.h"
+#include "WorldSocket.h"
 
-class WorldSocket;
+class WorldSocketThread final : public Trinity::Net::NetworkThread<WorldSocket, WorldSocketThread>
+{
+public:
+    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override;
+
+    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override;
+};
+
+class WorldSocketMgr;
+
+struct WorldSocketMgrTraits
+{
+    using Self = WorldSocketMgr;
+    using SocketType = WorldSocket;
+    using ThreadType = WorldSocketThread;
+};
 
 /// Manages all sockets connected to peers and network threads
-class TC_GAME_API WorldSocketMgr : public SocketMgr<WorldSocket>
+class TC_GAME_API WorldSocketMgr final : public Trinity::Net::SocketMgr<WorldSocketMgrTraits>
 {
-    typedef SocketMgr<WorldSocket> BaseSocketMgr;
-
 public:
     ~WorldSocketMgr();
 
     static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    bool StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, uint16 instancePort, int networkThreads);
+    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount) override;
 
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;
 
-    void OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex) override;
+    void OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock) override;
 
     std::size_t GetApplicationSendBufferSize() const { return _socketApplicationSendBufferSize; }
 
 protected:
     WorldSocketMgr();
 
-    NetworkThread<WorldSocket>* CreateThreads() const override;
-
 private:
-    // private, must not be called directly
-    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount) override
-    {
-        return BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount);
-    }
-
-    AsyncAcceptor* _instanceAcceptor;
     int32 _socketSystemSendBufferSize;
     int32 _socketApplicationSendBufferSize;
     bool _tcpNoDelay;
@@ -69,4 +68,3 @@ private:
 #define sWorldSocketMgr WorldSocketMgr::Instance()
 
 #endif
-/// @}

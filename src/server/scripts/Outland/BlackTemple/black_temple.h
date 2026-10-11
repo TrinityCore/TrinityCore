@@ -58,7 +58,7 @@ enum BTDataTypes
     DATA_RELIQUARY_COMBAT_TRIGGER   = 25
 };
 
-enum TriggerEmotes
+enum BTTexts
 {
     EMOTE_HIGH_WARLORD_NAJENTUS_DIED = 0,
     EMOTE_DEN_OF_MORTAL_DOOR_OPEN    = 1
@@ -132,7 +132,7 @@ enum BTGameObjectIds
     GO_ILLIDAN_MUSIC_CONTROLLER     = 185966
 };
 
-enum BlackTempleMisc
+enum BTMisc
 {
     AKAMA_INTRO                     = 1,
     AKAMA_FIGHT                     = 2,

@@ -33,7 +33,7 @@
 #define PLAYER_FLIGHT_SPEED 32.0f
 
 FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult)
 {
     _speed = speed;
     _endGridX = 0.0f;
@@ -41,7 +41,6 @@ FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed,
     _endMapId = 0;
     _preloadTargetNode = 0;
 
-    Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_IN_FLIGHT;
@@ -62,16 +61,17 @@ bool FlightPathMovementGenerator::GetResetPosition(Unit* /*owner*/, float& x, fl
     return true;
 }
 
-void FlightPathMovementGenerator::DoInitialize(Player* owner)
+bool FlightPathMovementGenerator::DoInitialize(Player* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    DoReset(owner);
+    bool returnValue = DoReset(owner);
     InitEndGridInfo();
+    return returnValue;
 }
 
-void FlightPathMovementGenerator::DoReset(Player* owner)
+bool FlightPathMovementGenerator::DoReset(Player* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -84,17 +84,16 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     if (currentNodeId == end)
     {
         TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {}", owner->GetDebugInfo());
-        return;
+        return false;
     }
 
     Movement::MoveSplineInit init(owner);
+    init.Path().reserve(end - currentNodeId + 1);
     // Providing a starting vertex since the taxi paths do not provide such
-    init.Path().push_back(G3D::Vector3(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ()));
+    init.Path().emplace_back(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ());
     for (uint32 i = currentNodeId; i != end; ++i)
-    {
-        G3D::Vector3 vertice(_path[i]->Loc.X, _path[i]->Loc.Y, _path[i]->Loc.Z);
-        init.Path().push_back(vertice);
-    }
+        init.Path().emplace_back(_path[i]->Loc.X, _path[i]->Loc.Y, _path[i]->Loc.Z);
+
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
     init.SetSmooth();
@@ -102,6 +101,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     init.SetWalk(true);
     init.SetVelocity(_speed.value_or(PLAYER_FLIGHT_SPEED));
     init.Launch();
+    return true;
 }
 
 bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)

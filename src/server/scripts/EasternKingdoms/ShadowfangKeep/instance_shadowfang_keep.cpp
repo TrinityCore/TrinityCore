@@ -19,25 +19,23 @@
 #include "shadowfang_keep.h"
 #include "InstanceScript.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_BARON_ASHBURY,        BOSS_BARON_ASHBURY          },
     { NPC_BARON_SILVERLAINE,    BOSS_BARON_SILVERLAINE      },
     { NPC_COMMANDER_SPRINGVALE, BOSS_COMMANDER_SPRINGVALE   },
     { NPC_LORD_WALDEN,          BOSS_LORD_WALDEN            },
     { NPC_LORD_GODFREY,         BOSS_LORD_GODFREY           },
-    { 0,                        0                           } // END
 };
 
-ObjectData const gameobjectData[] =
+static constexpr ObjectData gameobjectData[] =
 {
     { GO_COURTYARD_DOOR,    DATA_COURTYARD_DOOR },
     { GO_SORCERERS_DOOR,    DATA_SORCERER_GATE  },
     { GO_ARUGALS_LAIR,      DATA_ARUGAL_DOOR    },
-    { 0,                    0                   } // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { BOSS_BARON_ASHBURY,           {{ 1069 }}  },
     { BOSS_BARON_SILVERLAINE,       {{ 1070 }}  },

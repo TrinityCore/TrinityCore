@@ -34,34 +34,6 @@ enum PilgrimsBountyBuffFood
     SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415
 };
 
-class spell_pilgrims_bounty_buff_food : public AuraScript
-{
-    uint32 const _triggeredSpellId;
-
-public:
-    spell_pilgrims_bounty_buff_food(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId)
-    {
-        _handled = false;
-    }
-
-    void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
-    {
-        PreventDefaultAction();
-        if (_handled)
-            return;
-
-        _handled = true;
-        GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-
-    bool _handled;
-};
-
 enum FeastOnSpells
 {
     FEAST_ON_TURKEY                     = 61784,
@@ -87,7 +59,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
-            && ValidateSpellEffect({ { uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()), EFFECT_0 } });
+            && ValidateSpellEffect({ { uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()), EFFECT_0 } });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -125,10 +97,10 @@ class spell_pilgrims_bounty_feast_on : public SpellScript
                         .SetOriginalCaster(player->GetGUID()));
                 }
 
-        if (Aura* aura = caster->GetAura(GetEffectValue()))
+        if (Aura* aura = caster->GetAura(GetEffectValueAsInt()))
         {
             if (aura->GetStackAmount() == 1)
-                caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue());
+                caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->GetEffect(EFFECT_0).CalcValueAsInt());
             aura->ModStackAmount(-1);
         }
     }
@@ -411,14 +383,14 @@ private:
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(aurEff->GetAmount()), true);
+        target->CastSpell(target, uint32(aurEff->GetAmountAsInt()), true);
         HandlePlate(target, true);
     }
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->RemoveAurasDueToSpell(aurEff->GetAmount());
+        target->RemoveAurasDueToSpell(aurEff->GetAmountAsInt());
         HandlePlate(target, false);
     }
 
@@ -445,11 +417,6 @@ private:
 
 void AddSC_event_pilgrims_bounty()
 {
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
-    RegisterSpellScriptWithArgs(spell_pilgrims_bounty_buff_food, "spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     RegisterSpellScript(spell_pilgrims_bounty_feast_on);
     RegisterSpellScriptWithArgs(spell_pilgrims_bounty_well_fed, "spell_pilgrims_bounty_well_fed_turkey", SPELL_WELL_FED_AP_TRIGGER);
     RegisterSpellScriptWithArgs(spell_pilgrims_bounty_well_fed, "spell_pilgrims_bounty_well_fed_cranberry", SPELL_WELL_FED_ZM_TRIGGER);

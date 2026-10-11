@@ -20,7 +20,7 @@
 #include "SpellInfo.h"
 #include "the_botanica.h"
 
-enum Texts
+enum FreywinnTexts
 {
     SAY_AGGRO                  = 0,
     SAY_SLAY                   = 1,
@@ -29,7 +29,7 @@ enum Texts
     SAY_OOC_RANDOM             = 4
 };
 
-enum Spells
+enum FreywinnSpells
 {
     SPELL_TRANQUILITY          = 34550,
     SPELL_TREE_FORM            = 34551,
@@ -41,13 +41,14 @@ enum Spells
     SPELL_CANCEL_TRANQUILITY   = 34777
 };
 
-enum Events
+enum FreywinnEvents
 {
     EVENT_PLANT_SEEDLING       = 1,
     EVENT_TREE_FORM,
     EVENT_TRANQUILITY
 };
 
+// 17975 - High Botanist Freywinn
 struct boss_high_botanist_freywinn : public BossAI
 {
     boss_high_botanist_freywinn(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN), _frayersKilled(0) { }
@@ -64,17 +65,6 @@ struct boss_high_botanist_freywinn : public BossAI
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_PLANT_SEEDLING, 6s);
         events.ScheduleEvent(EVENT_TREE_FORM, 30s);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
     }
 
     // Do not despawn them
@@ -98,6 +88,17 @@ struct boss_high_botanist_freywinn : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_TREE_FORM);
             }
         }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override

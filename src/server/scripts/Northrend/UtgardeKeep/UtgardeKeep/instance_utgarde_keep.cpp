@@ -21,21 +21,13 @@
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
     { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
-    { 0,                        0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-MinionData const minionData[] =
-{
-    { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
-    { NPC_DALRONN,      DATA_SKARVALD_DALRONN },
-    { 0,                0 }
-};
-
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_PRINCE_KELESETH, {{ 2026 }} },
     { DATA_SKARVALD_DALRONN, {{ 2024 }} },
@@ -54,7 +46,6 @@ class instance_utgarde_keep : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadMinionData(minionData);
                 LoadDungeonEncounterData(encounters);
             }
 
@@ -67,27 +58,12 @@ class instance_utgarde_keep : public InstanceMapScript
                         break;
                     case NPC_SKARVALD:
                         SkarvaldGUID = creature->GetGUID();
-                        AddMinion(creature, true);
                         break;
                     case NPC_DALRONN:
                         DalronnGUID = creature->GetGUID();
-                        AddMinion(creature, true);
                         break;
                     case NPC_INGVAR:
                         IngvarGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnCreatureRemove(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_SKARVALD:
-                    case NPC_DALRONN:
-                        AddMinion(creature, false);
                         break;
                     default:
                         break;

@@ -18,7 +18,6 @@
 #include "WorldSession.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "Containers.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DB2Stores.h"
@@ -31,6 +30,7 @@
 #include "Loot.h"
 #include "LootItemStorage.h"
 #include "LootPackets.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -155,12 +155,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* member = itr->GetSource();
-                if (!member)
-                    continue;
-
+                Player* member = itr.GetSource();
                 if (!loot->HasAllowedLooter(member->GetGUID()))
                     continue;
 
@@ -180,7 +177,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
                 packet.MoneyMod = goldMod;
-                packet.SoleLooter = playersNear.size() <= 1 ? true : false;
+                packet.SoleLooter = playersNear.size() <= 1;
                 (*i)->SendDirectMessage(packet.Write());
             }
         }
@@ -237,8 +234,10 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::vector<Creature*> corpses;
     if (aeLootEnabled)
     {
-        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Trinity::CreatureListSearcher searcher(_player, corpses, check);
         Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+        if (corpses.size() > 49)
+            corpses.resize(49); // lootTarget is 50th, not in corpses vector
     }
 
     if (!corpses.empty())
@@ -301,12 +300,18 @@ void WorldSession::DoLootRelease(Loot* loot)
                 go->SetLootState(GO_JUST_DEACTIVATED);
             }
             else if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
-            {                                               // The fishing hole used once more
-                go->AddUse();                               // if the max usage is reached, will be despawned in next tick
-                if (go->GetUseCount() >= go->GetGOValue()->FishingHole.MaxOpens)
-                    go->SetLootState(GO_JUST_DEACTIVATED);
-                else
-                    go->SetLootState(GO_READY);
+            {
+                bool allOpensConsumed = false;
+                if (go->GetGOValue()->FishingHole.MaxOpens)
+                {
+                    // The fishing hole used once more
+                    go->AddUse();
+
+                    // If the max usage is reached, will be despawned in next tick
+                    allOpensConsumed = go->GetUseCount() >= go->GetGOValue()->FishingHole.MaxOpens;
+                }
+
+                go->SetLootState(allOpensConsumed ? GO_JUST_DEACTIVATED : GO_READY);
             }
             else if (go->GetGoType() != GAMEOBJECT_TYPE_GATHERING_NODE && go->IsFullyLooted())
                 go->SetLootState(GO_JUST_DEACTIVATED);

@@ -43,7 +43,7 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5frole_2eproto() {
       "api/client/v1/club_role.proto");
   GOOGLE_CHECK(file != NULL);
   ClubPrivilegeSet_descriptor_ = file->message_type(0);
-  static const int ClubPrivilegeSet_offsets_[49] = {
+  static const int ClubPrivilegeSet_offsets_[53] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_destroy_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_name_),
@@ -51,6 +51,10 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fclub_5frole_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_avatar_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_broadcast_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_privacy_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_visibility_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_timezone_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_tags_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_add_member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_kick_member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_own_member_attribute_),
@@ -182,53 +186,56 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fclub_5frole_2eproto() {
   ::bgs::protocol::protobuf_AddDesc_role_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\035api/client/v1/club_role.proto\022\033bgs.pro"
-    "tocol.club.v1.client\032\020role_types.proto\"\307"
-    "\013\n\020ClubPrivilegeSet\022\023\n\013can_destroy\030\001 \001(\010"
+    "tocol.club.v1.client\032\020role_types.proto\"\261"
+    "\014\n\020ClubPrivilegeSet\022\023\n\013can_destroy\030\001 \001(\010"
     "\022\031\n\021can_set_attribute\030\n \001(\010\022\024\n\014can_set_n"
     "ame\030\013 \001(\010\022\033\n\023can_set_description\030\014 \001(\010\022\026"
     "\n\016can_set_avatar\030\r \001(\010\022\031\n\021can_set_broadc"
     "ast\030\016 \001(\010\022\035\n\025can_set_privacy_level\030\017 \001(\010"
-    "\022\026\n\016can_add_member\030\035 \001(\010\022\027\n\017can_kick_mem"
-    "ber\030\036 \001(\010\022$\n\034can_set_own_member_attribut"
-    "e\030\037 \001(\010\022&\n\036can_set_other_member_attribut"
-    "e\030  \001(\010\022\037\n\027can_set_own_voice_state\030! \001(\010"
-    "\022\"\n\032can_set_own_presence_level\030\" \001(\010\022!\n\031"
-    "can_set_own_whisper_level\030# \001(\010\022\037\n\027can_s"
-    "et_own_member_note\030$ \001(\010\022!\n\031can_set_othe"
-    "r_member_note\030% \001(\010\022\025\n\rcan_use_voice\0302 \001"
-    "(\010\022%\n\035can_voice_mute_member_for_all\0303 \001("
-    "\010\022\032\n\022can_get_invitation\030F \001(\010\022\033\n\023can_sen"
-    "d_invitation\030G \001(\010\022!\n\031can_send_guest_inv"
-    "itation\030H \001(\010\022!\n\031can_revoke_own_invitati"
-    "on\030I \001(\010\022#\n\033can_revoke_other_invitation\030"
-    "J \001(\010\022\032\n\022can_get_suggestion\030Z \001(\010\022\032\n\022can"
-    "_suggest_member\030[ \001(\010\022\032\n\022can_approve_mem"
-    "ber\030\\ \001(\010\022\026\n\016can_get_ticket\030n \001(\010\022\031\n\021can"
-    "_create_ticket\030o \001(\010\022\032\n\022can_destroy_tick"
-    "et\030p \001(\010\022\024\n\013can_get_ban\030\202\001 \001(\010\022\024\n\013can_ad"
-    "d_ban\030\203\001 \001(\010\022\027\n\016can_remove_ban\030\204\001 \001(\010\022\032\n"
-    "\021can_create_stream\030\214\001 \001(\010\022\033\n\022can_destroy"
-    "_stream\030\215\001 \001(\010\022 \n\027can_set_stream_positio"
-    "n\030\216\001 \001(\010\022!\n\030can_set_stream_attribute\030\217\001 "
-    "\001(\010\022\034\n\023can_set_stream_name\030\220\001 \001(\010\022\037\n\026can"
-    "_set_stream_subject\030\221\001 \001(\010\022\036\n\025can_set_st"
-    "ream_access\030\222\001 \001(\010\022#\n\032can_set_stream_voi"
-    "ce_level\030\223\001 \001(\010\022\033\n\022can_create_message\030\264\001"
-    " \001(\010\022 \n\027can_destroy_own_message\030\265\001 \001(\010\022\""
-    "\n\031can_destroy_other_message\030\266\001 \001(\010\022\035\n\024ca"
-    "n_edit_own_message\030\267\001 \001(\010\022\030\n\017can_pin_mes"
-    "sage\030\270\001 \001(\010\022\030\n\017can_mention_all\030\271\001 \001(\010\022\031\n"
-    "\020can_mention_here\030\272\001 \001(\010\022\033\n\022can_mention_"
-    "member\030\273\001 \001(\010\022\031\n\020can_mention_role\030\274\001 \001(\010"
-    "\"\300\001\n\010ClubRole\022\n\n\002id\030\001 \001(\r\022&\n\005state\030\002 \001(\013"
-    "2\027.bgs.protocol.RoleState\022@\n\tprivilege\030\003"
-    " \001(\0132-.bgs.protocol.club.v1.client.ClubP"
-    "rivilegeSet\022\"\n\032always_grant_stream_acces"
-    "s\030\004 \001(\010\022\032\n\022allow_in_club_slot\030\005 \001(\010\"\233\001\n\013"
-    "ClubRoleSet\0223\n\004role\030\001 \003(\0132%.bgs.protocol"
-    ".club.v1.client.ClubRole\022\030\n\014default_role"
-    "\030\005 \003(\rB\002\020\001\022,\n$assignment_respects_relega"
-    "tion_chain\030\006 \001(\010\022\017\n\007subtype\030\007 \001(\tB\002H\002", 1917);
+    "\022 \n\030can_set_visibility_level\030\020 \001(\010\022\030\n\020ca"
+    "n_set_timezone\030\021 \001(\010\022\026\n\016can_set_locale\030\022"
+    " \001(\010\022\024\n\014can_set_tags\030\023 \001(\010\022\026\n\016can_add_me"
+    "mber\030\035 \001(\010\022\027\n\017can_kick_member\030\036 \001(\010\022$\n\034c"
+    "an_set_own_member_attribute\030\037 \001(\010\022&\n\036can"
+    "_set_other_member_attribute\030  \001(\010\022\037\n\027can"
+    "_set_own_voice_state\030! \001(\010\022\"\n\032can_set_ow"
+    "n_presence_level\030\" \001(\010\022!\n\031can_set_own_wh"
+    "isper_level\030# \001(\010\022\037\n\027can_set_own_member_"
+    "note\030$ \001(\010\022!\n\031can_set_other_member_note\030"
+    "% \001(\010\022\025\n\rcan_use_voice\0302 \001(\010\022%\n\035can_voic"
+    "e_mute_member_for_all\0303 \001(\010\022\032\n\022can_get_i"
+    "nvitation\030F \001(\010\022\033\n\023can_send_invitation\030G"
+    " \001(\010\022!\n\031can_send_guest_invitation\030H \001(\010\022"
+    "!\n\031can_revoke_own_invitation\030I \001(\010\022#\n\033ca"
+    "n_revoke_other_invitation\030J \001(\010\022\032\n\022can_g"
+    "et_suggestion\030Z \001(\010\022\032\n\022can_suggest_membe"
+    "r\030[ \001(\010\022\032\n\022can_approve_member\030\\ \001(\010\022\026\n\016c"
+    "an_get_ticket\030n \001(\010\022\031\n\021can_create_ticket"
+    "\030o \001(\010\022\032\n\022can_destroy_ticket\030p \001(\010\022\024\n\013ca"
+    "n_get_ban\030\202\001 \001(\010\022\024\n\013can_add_ban\030\203\001 \001(\010\022\027"
+    "\n\016can_remove_ban\030\204\001 \001(\010\022\032\n\021can_create_st"
+    "ream\030\214\001 \001(\010\022\033\n\022can_destroy_stream\030\215\001 \001(\010"
+    "\022 \n\027can_set_stream_position\030\216\001 \001(\010\022!\n\030ca"
+    "n_set_stream_attribute\030\217\001 \001(\010\022\034\n\023can_set"
+    "_stream_name\030\220\001 \001(\010\022\037\n\026can_set_stream_su"
+    "bject\030\221\001 \001(\010\022\036\n\025can_set_stream_access\030\222\001"
+    " \001(\010\022#\n\032can_set_stream_voice_level\030\223\001 \001("
+    "\010\022\033\n\022can_create_message\030\264\001 \001(\010\022 \n\027can_de"
+    "stroy_own_message\030\265\001 \001(\010\022\"\n\031can_destroy_"
+    "other_message\030\266\001 \001(\010\022\035\n\024can_edit_own_mes"
+    "sage\030\267\001 \001(\010\022\030\n\017can_pin_message\030\270\001 \001(\010\022\030\n"
+    "\017can_mention_all\030\271\001 \001(\010\022\031\n\020can_mention_h"
+    "ere\030\272\001 \001(\010\022\033\n\022can_mention_member\030\273\001 \001(\010\022"
+    "\031\n\020can_mention_role\030\274\001 \001(\010\"\300\001\n\010ClubRole\022"
+    "\n\n\002id\030\001 \001(\r\022&\n\005state\030\002 \001(\0132\027.bgs.protoco"
+    "l.RoleState\022@\n\tprivilege\030\003 \001(\0132-.bgs.pro"
+    "tocol.club.v1.client.ClubPrivilegeSet\022\"\n"
+    "\032always_grant_stream_access\030\004 \001(\010\022\032\n\022all"
+    "ow_in_club_slot\030\005 \001(\010\"\233\001\n\013ClubRoleSet\0223\n"
+    "\004role\030\001 \003(\0132%.bgs.protocol.club.v1.clien"
+    "t.ClubRole\022\030\n\014default_role\030\005 \003(\rB\002\020\001\022,\n$"
+    "assignment_respects_relegation_chain\030\006 \001"
+    "(\010\022\017\n\007subtype\030\007 \001(\tB\002H\002", 2023);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/club_role.proto", &protobuf_RegisterTypes);
   ClubPrivilegeSet::default_instance_ = new ClubPrivilegeSet();
@@ -256,6 +263,10 @@ const int ClubPrivilegeSet::kCanSetDescriptionFieldNumber;
 const int ClubPrivilegeSet::kCanSetAvatarFieldNumber;
 const int ClubPrivilegeSet::kCanSetBroadcastFieldNumber;
 const int ClubPrivilegeSet::kCanSetPrivacyLevelFieldNumber;
+const int ClubPrivilegeSet::kCanSetVisibilityLevelFieldNumber;
+const int ClubPrivilegeSet::kCanSetTimezoneFieldNumber;
+const int ClubPrivilegeSet::kCanSetLocaleFieldNumber;
+const int ClubPrivilegeSet::kCanSetTagsFieldNumber;
 const int ClubPrivilegeSet::kCanAddMemberFieldNumber;
 const int ClubPrivilegeSet::kCanKickMemberFieldNumber;
 const int ClubPrivilegeSet::kCanSetOwnMemberAttributeFieldNumber;
@@ -325,6 +336,10 @@ void ClubPrivilegeSet::SharedCtor() {
   can_set_avatar_ = false;
   can_set_broadcast_ = false;
   can_set_privacy_level_ = false;
+  can_set_visibility_level_ = false;
+  can_set_timezone_ = false;
+  can_set_locale_ = false;
+  can_set_tags_ = false;
   can_add_member_ = false;
   can_kick_member_ = false;
   can_set_own_member_attribute_ = false;

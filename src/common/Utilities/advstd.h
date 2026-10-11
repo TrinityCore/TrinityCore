@@ -52,14 +52,36 @@ template <typename To, typename From,
 #endif
 }
 
+// std::forward_like
+#ifdef __cpp_lib_forward_like
+#include <utility>
+namespace advstd
+{
+using std::forward_like;
+}
+#else
+namespace advstd
+{
+template <class T, class U>
+[[nodiscard]] constexpr decltype(auto) forward_like(U&& value) noexcept
+{
+    using ValueU = std::remove_reference_t<U>;
+    using ValueConstU = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, ValueU const, ValueU>;
+    return static_cast<std::conditional_t<std::is_rvalue_reference_v<T&&>, ValueConstU&&, ValueConstU&>>(value);
+}
+}
+#endif
+
 // std::ranges::contains
+#include <algorithm>
 #ifndef __cpp_lib_ranges_contains
-#include <algorithm> // for std::ranges::find
 #include <functional> // for std::ranges::equal_to, std::identity
 #include <iterator> // for std::input_iterator, std::sentinel_for, std::projected
+#endif
 
 namespace advstd::ranges
 {
+#ifndef __cpp_lib_ranges_contains
 struct Contains
 {
     template<std::input_iterator I, std::sentinel_for<I> S, class T, class Proj = std::identity>
@@ -78,7 +100,9 @@ struct Contains
         return std::ranges::find(std::move(first), last, value, proj) != last;
     }
 } inline constexpr contains;
-}
+#else
+using std::ranges::contains;
 #endif
+}
 
 #endif

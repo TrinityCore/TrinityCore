@@ -16,15 +16,20 @@
  */
 
 #include "ReferAFriendPackets.h"
+#include "PacketOperators.h"
 
-WorldPacket const* WorldPackets::RaF::RecruitAFriendFailure::Write()
+namespace WorldPackets::RaF
+{
+WorldPacket const* RecruitAFriendFailure::Write()
 {
     _worldPacket << int32(Reason);
     // Client uses this string only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S
     // but always reads it from packet
-    _worldPacket.WriteBits(Str.length(), 6);
+    _worldPacket << SizedString::BitsSize<6>(Str);
     _worldPacket.FlushBits();
-    _worldPacket.WriteString(Str);
+
+    _worldPacket << SizedString::Data(Str);
 
     return &_worldPacket;
+}
 }

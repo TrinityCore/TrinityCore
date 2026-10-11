@@ -50,6 +50,9 @@ static constexpr SecretInfo secret_info[NUM_SECRETS] =
 
 SecretOwner SecretMgr::OWNER;
 
+SecretMgr::SecretMgr() = default;
+SecretMgr::~SecretMgr() = default;
+
 /*static*/ SecretMgr* SecretMgr::instance()
 {
     static SecretMgr instance;
@@ -90,7 +93,7 @@ void SecretMgr::Initialize(SecretOwner owner)
     {
         if (secret_info[i].flags() & SECRET_FLAG_DEFER_LOAD)
             continue;
-        std::unique_lock<std::mutex> lock(_secrets[i].lock);
+        std::scoped_lock lock(_secrets[i].lock);
         AttemptLoad(Secrets(i), LOG_LEVEL_FATAL, lock);
         if (!_secrets[i].IsAvailable())
             ABORT(); // load failed
@@ -99,14 +102,14 @@ void SecretMgr::Initialize(SecretOwner owner)
 
 SecretMgr::Secret const& SecretMgr::GetSecret(Secrets i)
 {
-    std::unique_lock<std::mutex> lock(_secrets[i].lock);
+    std::scoped_lock lock(_secrets[i].lock);
 
     if (_secrets[i].state == Secret::NOT_LOADED_YET)
         AttemptLoad(i, LOG_LEVEL_ERROR, lock);
     return _secrets[i];
 }
 
-void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std::mutex> const&)
+void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::scoped_lock<std::mutex> const&)
 {
     auto const& info = secret_info[i];
     Optional<std::string> oldDigest;
@@ -200,7 +203,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                     Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(totpSecret, newSecret->ToByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
 
                 LoginDatabasePreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                updateStmt->setBinary(0, totpSecret);
+                updateStmt->setBinary(0, std::move(totpSecret));
                 updateStmt->setUInt32(1, id);
                 trans->Append(updateStmt);
             } while (result->NextRow());

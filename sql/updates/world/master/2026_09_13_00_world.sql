@@ -1,0 +1,14 @@
+-- Dragonmaw Envoy
+DELETE FROM `creature` WHERE `guid` IN (286619, 286621, 286740, 286741, 286771, 286772, 287069, 287075, 287220, 287222, 287243, 287244);
+
+-- PVP HOLIDAY (H) TP
+DELETE FROM `gameobject` WHERE `guid` IN (210911, 211153, 211266, 211275, 211399, 211521);
+
+-- Goblin Construction Worker[DND]
+DELETE FROM `creature` WHERE `guid` IN (286465, 286466, 286468, 286469, 286488, 286490, 286491, 286718, 286917, 286719, 287188, 310511, 310513, 310514, 310516, 310518, 310793, 310794, 310796, 310799, 310800, 310804, 310805, 310806, 310807, 310817, 310819, 310820, 310822, 310824, 310824, 310829);
+
+-- The Severed Head of Nefarian
+DELETE FROM `gameobject` WHERE `guid` IN (211533, 218806);
+
+-- Overlord Natoj
+UPDATE `creature` SET `zoneId`=1637, `areaId`=5170, `position_x`=1531.3350830078125, `position_y`=-4421.517578125, `position_z`=20.85962104797363281, `orientation`=2.30383467674255371, `spawntimesecs`=10, `VerifiedBuild`=69587 WHERE `guid`=310826; -- Overlord Natoj (Area: Valley of Strength - Difficulty: 0) CreateObject2 (Auras: )

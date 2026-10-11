@@ -51,7 +51,7 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     stmt->setString(0, email);
     stmt->setInt8(1, AsUnderlyingType(SrpVersion::v2));
     stmt->setBinary(2, salt);
-    stmt->setBinary(3, verifier);
+    stmt->setBinary(3, std::move(verifier));
     LoginDatabase.DirectExecute(stmt);
 
     uint32 newAccountId = GetId(email);
@@ -83,7 +83,7 @@ AccountOpResult Battlenet::AccountMgr::ChangePassword(uint32 accountId, std::str
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LOGON);
     stmt->setInt8(0, AsUnderlyingType(SrpVersion::v2));
     stmt->setBinary(1, salt);
-    stmt->setBinary(2, verifier);
+    stmt->setBinary(2, std::move(verifier));
     stmt->setUInt32(3, accountId);
     LoginDatabase.Execute(stmt);
 
@@ -160,7 +160,7 @@ AccountOpResult Battlenet::AccountMgr::UnlinkGameAccount(std::string_view gameAc
 uint32 Battlenet::AccountMgr::GetId(std::string_view username)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
-    stmt->setStringView(0, username);
+    stmt->setString(0, username);
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
         return (*result)[0].GetUInt32();
 

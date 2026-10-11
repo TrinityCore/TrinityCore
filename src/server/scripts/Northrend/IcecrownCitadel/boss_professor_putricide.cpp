@@ -33,7 +33,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
-enum Say
+enum PutricideTexts
 {
     // Festergut
     SAY_FESTERGUT_GASEOUS_BLIGHT    = 0,
@@ -56,7 +56,7 @@ enum Say
     SAY_DEATH                       = 13
 };
 
-enum Spells
+enum PutricideSpells
 {
     // Festergut
     SPELL_RELEASE_GAS_VISUAL                = 69125,
@@ -119,7 +119,7 @@ enum Spells
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
 
-enum Events
+enum PutricideEvents
 {
     // Festergut
     EVENT_FESTERGUT_DIES        = 1,
@@ -142,7 +142,7 @@ enum Events
     EVENT_PHASE_TRANSITION      = 15
 };
 
-enum Phases
+enum PutricidePhases
 {
     PHASE_NONE          = 0,
     PHASE_FESTERGUT     = 1,
@@ -152,7 +152,7 @@ enum Phases
     PHASE_COMBAT_3      = 6
 };
 
-enum Points
+enum PutricidePoints
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
@@ -219,6 +219,7 @@ private:
     Creature* _rotface;
 };
 
+// 36678 - Professor Putricide
 struct boss_professor_putricide : public BossAI
 {
     boss_professor_putricide(Creature* creature) : BossAI(creature, DATA_PROFESSOR_PUTRICIDE),
@@ -699,14 +700,14 @@ struct boss_professor_putricide : public BossAI
     }
 
 private:
-    void SetPhase(Phases newPhase)
+    void SetPhase(PutricidePhases newPhase)
     {
         _phase = newPhase;
         events.SetPhase(newPhase);
     }
 
     ObjectGuid _oozeFloodDummyGUIDs[4];
-    Phases _phase;          // external of EventMap because event phase gets reset on evade
+    PutricidePhases _phase;          // external of EventMap because event phase gets reset on evade
     float const _baseSpeed;
     uint8 _oozeFloodStage;
     bool _experimentState;
@@ -775,6 +776,7 @@ class npc_putricide_oozeAI : public ScriptedAI
         InstanceScript* _instance;
 };
 
+// 37697 - Volatile Ooze
 struct npc_volatile_ooze : public npc_putricide_oozeAI
 {
     npc_volatile_ooze(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, SPELL_OOZE_ERUPTION) { }
@@ -785,6 +787,7 @@ struct npc_volatile_ooze : public npc_putricide_oozeAI
     }
 };
 
+// 37562 - Gas Cloud
 struct npc_gas_cloud : public npc_putricide_oozeAI
 {
     npc_gas_cloud(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_GASEOUS_BLOAT_PROC, SPELL_EXPUNGED_GAS)
@@ -975,7 +978,7 @@ class spell_putricide_unstable_experiment : public SpellScript
                 break;
         }
 
-        GetCaster()->CastSpell(target, uint32(GetEffectInfo(SpellEffIndex(stage)).CalcValue()), true);
+        GetCaster()->CastSpell(target, uint32(GetEffectInfo(SpellEffIndex(stage)).CalcValueAsInt()), true);
     }
 
     void Register() override
@@ -1037,7 +1040,7 @@ class spell_putricide_choking_gas_bomb : public SpellScript
             if (spellEffectInfo.EffectIndex == skipIndex)
                 continue;
 
-            uint32 spellId = uint32(spellEffectInfo.CalcValue());
+            uint32 spellId = uint32(spellEffectInfo.CalcValueAsInt());
             GetCaster()->CastSpell(GetCaster(), spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                 .SetOriginalCaster(GetCaster()->GetGUID()));
         }
@@ -1129,7 +1132,7 @@ class spell_putricide_eat_ooze : public SpellScript
         if (!target)
             return;
 
-        if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
+        if (Aura* grow = target->GetAura(uint32(GetEffectValueAsInt())))
         {
             if (grow->GetStackAmount() < 3)
             {
@@ -1162,13 +1165,13 @@ class spell_putricide_mutated_plague : public AuraScript
         uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
         SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell, GetCastDifficulty());
 
-        int32 damage = spell->GetEffect(EFFECT_0).CalcValue(caster);
+        SpellEffectValue damage = spell->GetEffect(EFFECT_0).CalcValue(caster);
         float multiplier = 2.0f;
         if (GetTarget()->GetMap()->Is25ManRaid())
             multiplier = 3.0f;
 
-        damage *= int32(pow(multiplier, GetStackAmount()));
-        damage = int32(damage * 1.5f);
+        damage *= std::pow(multiplier, GetStackAmount());
+        damage = damage * 1.5f;
 
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
@@ -1178,13 +1181,13 @@ class spell_putricide_mutated_plague : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        uint32 healSpell = uint32(aurEff->GetSpellEffectInfo().CalcValue());
+        uint32 healSpell = uint32(aurEff->GetSpellEffectInfo().CalcValueAsInt());
         SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(healSpell, GetCastDifficulty());
 
         if (!healSpellInfo)
             return;
 
-        int32 heal = healSpellInfo->GetEffect(EFFECT_0).CalcValue() * GetStackAmount();
+        SpellEffectValue heal = healSpellInfo->GetEffect(EFFECT_0).CalcValue() * GetStackAmount();
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetOriginalCaster(GetCasterGUID());
         args.AddSpellBP0(heal);
@@ -1328,7 +1331,7 @@ class spell_putricide_mutated_transformation : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_putricide_mutated_transformation::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_putricide_mutated_transformation::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -1372,11 +1375,11 @@ class spell_putricide_clear_aura_effect_value : public SpellScript
     {
         PreventHitDefaultEffect(effIndex);
         Unit* target = GetHitUnit();
-        uint32 auraId = GetEffectValue();
+        uint32 auraId = GetEffectValueAsInt();
         target->RemoveAurasDueToSpell(auraId);
         if (m_scriptSpellId == SPELL_TEAR_GAS_CANCEL && GetSpellInfo()->GetEffects().size() >= EFFECT_1)
         {
-            uint32 auraId2 = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+            uint32 auraId2 = GetSpellInfo()->GetEffect(EFFECT_1).CalcValueAsInt();
             target->RemoveAurasDueToSpell(auraId2);
         }
     }
@@ -1393,9 +1396,9 @@ class spell_stinky_precious_decimate : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (GetHitUnit()->GetHealthPct() > float(GetEffectValue()))
+        if (GetHitUnit()->GetHealthPct() > GetEffectValue())
         {
-            uint32 newHealth = GetHitUnit()->GetMaxHealth() * uint32(GetEffectValue()) / 100;
+            uint64 newHealth = GetHitUnit()->CountPctFromMaxHealth(GetEffectValue());
             GetHitUnit()->SetHealth(newHealth);
         }
     }

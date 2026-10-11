@@ -77,7 +77,9 @@ unsigned char IntToHexChar[] = "0123456789abcdef";
 //-----------------------------------------------------------------------------
 // GetCascError/SetCascError support for non-Windows platform
 
-static DWORD dwLastError = ERROR_SUCCESS;
+#ifndef CASCLIB_PLATFORM_WINDOWS
+static __thread DWORD dwLastError = ERROR_SUCCESS;
+#endif
 
 DWORD GetCascError()
 {
@@ -92,8 +94,9 @@ void SetCascError(DWORD dwErrCode)
 {
 #ifdef CASCLIB_PLATFORM_WINDOWS
     SetLastError(dwErrCode);
-#endif
+#else
     dwLastError = dwErrCode;
+#endif
 }
 
 //-----------------------------------------------------------------------------

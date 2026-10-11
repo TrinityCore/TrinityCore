@@ -4,8 +4,14 @@
 #include "jemalloc_internal_defs.h"
 #include "jemalloc/internal/jemalloc_internal_decls.h"
 
-#ifdef JEMALLOC_UTRACE
+#if defined(JEMALLOC_UTRACE) || defined(JEMALLOC_UTRACE_LABEL)
 #include <sys/ktrace.h>
+#  if defined(JEMALLOC_UTRACE)
+#    define UTRACE_CALL(p, l) utrace(p, l)
+#  else
+#    define UTRACE_CALL(p, l) utrace("jemalloc_process", p, l)
+#    define JEMALLOC_UTRACE
+#  endif
 #endif
 
 #define JEMALLOC_NO_DEMANGLE
@@ -51,6 +57,15 @@
 #  define JEMALLOC_MADV_FREE 8
 #endif
 
+/*
+ * Can be defined at compile time, in cases, when it is known
+ * madvise(..., MADV_COLLAPSE) feature is supported, but MADV_COLLAPSE
+ * constant is not defined.
+ */
+#ifdef JEMALLOC_DEFINE_MADVISE_COLLAPSE
+#  define JEMALLOC_MADV_COLLAPSE 25
+#endif
+
 static const bool config_debug =
 #ifdef JEMALLOC_DEBUG
     true
@@ -67,6 +82,13 @@ static const bool have_dss =
     ;
 static const bool have_madvise_huge =
 #ifdef JEMALLOC_HAVE_MADVISE_HUGE
+    true
+#else
+    false
+#endif
+    ;
+static const bool have_process_madvise =
+#ifdef JEMALLOC_HAVE_PROCESS_MADVISE
     true
 #else
     false
@@ -103,6 +125,13 @@ static const bool config_prof_libgcc =
     ;
 static const bool config_prof_libunwind =
 #ifdef JEMALLOC_PROF_LIBUNWIND
+    true
+#else
+    false
+#endif
+    ;
+static const bool config_prof_frameptr =
+#ifdef JEMALLOC_PROF_FRAME_POINTER
     true
 #else
     false
@@ -180,7 +209,36 @@ static const bool config_opt_safety_checks =
 #endif
     ;
 
-#if defined(_WIN32) || defined(JEMALLOC_HAVE_SCHED_GETCPU)
+/*
+ * Extra debugging of sized deallocations too onerous to be included in the
+ * general safety checks.
+ */
+static const bool config_opt_size_checks =
+#if defined(JEMALLOC_OPT_SIZE_CHECKS) || defined(JEMALLOC_DEBUG)
+    true
+#else
+    false
+#endif
+    ;
+
+static const bool config_uaf_detection =
+#if defined(JEMALLOC_UAF_DETECTION) || defined(JEMALLOC_DEBUG)
+    true
+#else
+    false
+#endif
+    ;
+
+/* Whether or not the C++ extensions are enabled. */
+static const bool config_enable_cxx =
+#ifdef JEMALLOC_ENABLE_CXX
+    true
+#else
+    false
+#endif
+;
+
+#if defined(_WIN32) || defined(__APPLE__) || defined(JEMALLOC_HAVE_SCHED_GETCPU)
 /* Currently percpu_arena depends on sched_getcpu. */
 #define JEMALLOC_PERCPU_ARENA
 #endif
@@ -204,6 +262,21 @@ static const bool force_ivsalloc =
     ;
 static const bool have_background_thread =
 #ifdef JEMALLOC_BACKGROUND_THREAD
+    true
+#else
+    false
+#endif
+    ;
+static const bool config_high_res_timer =
+#ifdef JEMALLOC_HAVE_CLOCK_REALTIME
+    true
+#else
+    false
+#endif
+    ;
+
+static const bool have_memcntl =
+#ifdef JEMALLOC_HAVE_MEMCNTL
     true
 #else
     false

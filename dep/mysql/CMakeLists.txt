@@ -8,9 +8,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-find_package(MySQL REQUIRED COMPONENTS lib)
+set(MYSQL_MIN_VERSION_MySQL 8.0.34)
+set(MYSQL_MIN_VERSION_MariaDB 10.6.3)
+find_package(MySQL COMPONENTS lib)
 
 add_library(mysql INTERFACE)
+
+target_compile_definitions(mysql
+  INTERFACE
+    TRINITY_MYSQL_FLAVOR="${MYSQL_FLAVOR}"
+    TRINITY_REQUIRED_MYSQL_VERSION="${MYSQL_MIN_VERSION_${MYSQL_FLAVOR}}")
 
 target_link_libraries(mysql
   INTERFACE

@@ -126,7 +126,7 @@ class spell_dark_shaman_koranthal_shadow_storm : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValueAsInt(), true);
     }
 
     void Register() override

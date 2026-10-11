@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellScript.h"
 #include "the_underbog.h"
 
 enum HungarfenTexts
@@ -27,18 +33,25 @@ enum HungarfenTexts
 
 enum HungarfenSpells
 {
-    SPELL_FOUL_SPORES                = 31673,
-    SPELL_SUMMON_UNDERBOG_MUSHROOM   = 31692,
+    // Hungarfen - Combat
     SPELL_PUTRID_MUSHROOM_PRIMER     = 31693,
-    SPELL_DESPAWN_UNDERBOG_MUSHROOMS = 34874,
+    SPELL_FOUL_SPORES                = 31673,
     SPELL_ACID_GEYSER                = 38739,
 
-    SPELL_SPORE_CLOUD                = 34168,
-    SPELL_PUTRID_MUSHROOM            = 31690,
+    // Hungarfen - Combat - Misc
+    SPELL_DESPAWN_UNDERBOG_MUSHROOMS = 34874,
+
+    // Underbog Mushroom
     SPELL_SHRINK                     = 31691,
-    SPELL_GROW                       = 31698
+    SPELL_PUTRID_MUSHROOM            = 31690,
+    SPELL_GROW                       = 31698,
+    SPELL_SPORE_CLOUD                = 34168,
+
+    // Scripts
+    SPELL_SUMMON_UNDERBOG_MUSHROOM   = 31692
 };
 
+// 17770 - Hungarfen
 struct boss_hungarfen : public BossAI
 {
     boss_hungarfen(Creature* creature) : BossAI(creature, DATA_HUNGARFEN), _roared(false) { }
@@ -53,21 +66,46 @@ struct boss_hungarfen : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        _scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext task)
+
+        scheduler.Schedule(IsHeroic() ? 2500ms : 5s, [this](TaskContext& task)
         {
-            /// @todo cast here SPELL_PUTRID_MUSHROOM_PRIMER and do it in spell script
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                target->CastSpell(target, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+            DoCastSelf(SPELL_PUTRID_MUSHROOM_PRIMER);
             task.Repeat(IsHeroic() ? 2500ms : 10s);
         });
 
         if (IsHeroic())
         {
-            _scheduler.Schedule(3s, 5s, [this](TaskContext task)
+            scheduler.Schedule(3s, 5s, [this](TaskContext& task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_ACID_GEYSER);
                 task.Repeat(10s, 15s);
+            });
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_roared && me->HealthBelowPctDamaged(20, damage))
+        {
+            _roared = true;
+
+            scheduler.Schedule(0s, [this](TaskContext& task)
+            {
+                switch (task.GetRepeatCounter())
+                {
+                    case 0:
+                        Talk(EMOTE_ROARS);
+                        me->SetReactState(REACT_PASSIVE);
+                        task.Repeat(2s);
+                        break;
+                    case 1:
+                        DoCastSelf(SPELL_FOUL_SPORES);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    default:
+                        break;
+                }
             });
         }
     }
@@ -89,27 +127,14 @@ struct boss_hungarfen : public BossAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff);
-
-        if (!HealthAbovePct(20) && !_roared)
-        {
-            Talk(EMOTE_ROARS);
-            _roared = true;
-            me->SetReactState(REACT_PASSIVE);
-
-            _scheduler.Schedule(2s, [this](TaskContext /*task*/)
-            {
-                DoCastSelf(SPELL_FOUL_SPORES);
-                me->SetReactState(REACT_AGGRESSIVE);
-            });
-        }
+        scheduler.Update(diff);
     }
 
 private:
-    TaskScheduler _scheduler;
     bool _roared;
 };
 
+// 17990 - Underbog Mushroom
 struct npc_underbog_mushroom : public ScriptedAI
 {
     npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature), _counter(0) { }
@@ -121,7 +146,7 @@ struct npc_underbog_mushroom : public ScriptedAI
         DoCastSelf(SPELL_SHRINK);
         DoCastSelf(SPELL_PUTRID_MUSHROOM);
 
-        _scheduler.Schedule(1s, [this](TaskContext task)
+        _scheduler.Schedule(1s, [this](TaskContext& task)
         {
             DoCastSelf(SPELL_GROW);
 
@@ -132,11 +157,11 @@ struct npc_underbog_mushroom : public ScriptedAI
                 task.Repeat(2s);
             else
             {
-                task.Schedule(1s, [this](TaskContext task)
+                task.Schedule(1s, [this](TaskContext& task)
                 {
                     DoCastSelf(SPELL_SPORE_CLOUD);
 
-                    task.Schedule(4s, [this](TaskContext /*task*/)
+                    task.Schedule(4s, [this](TaskContext const& /*task*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_GROW);
                         me->DespawnOrUnsummon(4s);
@@ -153,11 +178,37 @@ struct npc_underbog_mushroom : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    uint32 _counter;
+    uint8 _counter;
+};
+
+// 31693 - Putrid Mushroom Primer
+class spell_hungarfen_putrid_mushroom_primer : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_UNDERBOG_MUSHROOM });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(nullptr, SPELL_SUMMON_UNDERBOG_MUSHROOM, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hungarfen_putrid_mushroom_primer::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_hungarfen_putrid_mushroom_primer::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_hungarfen()
 {
     RegisterTheUnderbogCreatureAI(boss_hungarfen);
     RegisterTheUnderbogCreatureAI(npc_underbog_mushroom);
+    RegisterSpellScript(spell_hungarfen_putrid_mushroom_primer);
 }

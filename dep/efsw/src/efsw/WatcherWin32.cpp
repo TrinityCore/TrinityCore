@@ -1,4 +1,5 @@
 #include <efsw/Debug.hpp>
+#include <efsw/FileSystem.hpp>
 #include <efsw/String.hpp>
 #include <efsw/WatcherWin32.hpp>
 
@@ -8,26 +9,52 @@
 
 namespace efsw {
 
-/// Unpacks events and passes them to a user defined callback.
-void CALLBACK WatchCallback( DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped ) {
+struct EFSW_FILE_NOTIFY_EXTENDED_INFORMATION_EX {
+	DWORD NextEntryOffset;
+	DWORD Action;
+	LARGE_INTEGER CreationTime;
+	LARGE_INTEGER LastModificationTime;
+	LARGE_INTEGER LastChangeTime;
+	LARGE_INTEGER LastAccessTime;
+	LARGE_INTEGER AllocatedLength;
+	LARGE_INTEGER FileSize;
+	DWORD FileAttributes;
+	DWORD ReparsePointTag;
+	LARGE_INTEGER FileId;
+	LARGE_INTEGER ParentFileId;
+	DWORD FileNameLength;
+	WCHAR FileName[1];
+};
 
-	if ( NULL == lpOverlapped ) {
-		return;
-	}
+typedef EFSW_FILE_NOTIFY_EXTENDED_INFORMATION_EX* EFSW_PFILE_NOTIFY_EXTENDED_INFORMATION_EX;
 
-	PFILE_NOTIFY_INFORMATION pNotify;
-	WatcherStructWin32* tWatch = (WatcherStructWin32*)lpOverlapped;
-	WatcherWin32* pWatch = tWatch->Watch;
-	size_t offset = 0;
+typedef BOOL( WINAPI* EFSW_LPREADDIRECTORYCHANGESEXW )( HANDLE hDirectory, LPVOID lpBuffer,
+												   DWORD nBufferLength, BOOL bWatchSubtree,
+												   DWORD dwNotifyFilter, LPDWORD lpBytesReturned,
+												   LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine,
+												   DWORD ReadDirectoryNotifyInformationClass );
 
-	if ( dwNumberOfBytesTransfered == 0 ) {
-		if ( nullptr != pWatch && !pWatch->StopNow ) {
-			RefreshWatch( tWatch );
-		} else {
+static EFSW_LPREADDIRECTORYCHANGESEXW pReadDirectoryChangesExW = NULL;
+
+#define EFSW_ReadDirectoryNotifyExtendedInformation 2
+
+static void initReadDirectoryChangesEx() {
+	static bool hasInit = false;
+	if ( !hasInit ) {
+		hasInit = true;
+
+		HMODULE hModule = GetModuleHandleW( L"Kernel32.dll" );
+		if ( !hModule )
 			return;
-		}
-	}
 
+		pReadDirectoryChangesExW =
+			(EFSW_LPREADDIRECTORYCHANGESEXW)GetProcAddress( hModule, "ReadDirectoryChangesExW" );
+	}
+}
+
+void WatchCallbackOld( WatcherWin32* pWatch ) {
+	PFILE_NOTIFY_INFORMATION pNotify;
+	size_t offset = 0;
 	do {
 		bool skip = false;
 
@@ -62,6 +89,96 @@ void CALLBACK WatchCallback( DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOve
 			pWatch->Watch->handleAction( pWatch, nfile, pNotify->Action );
 		}
 	} while ( pNotify->NextEntryOffset != 0 );
+}
+
+void WatchCallbackEx( WatcherWin32* pWatch ) {
+	EFSW_PFILE_NOTIFY_EXTENDED_INFORMATION_EX pNotify;
+	size_t offset = 0;
+	do {
+		bool skip = false;
+
+		pNotify = (EFSW_PFILE_NOTIFY_EXTENDED_INFORMATION_EX)&pWatch->Buffer[offset];
+		offset += pNotify->NextEntryOffset;
+		int count =
+			WideCharToMultiByte( CP_UTF8, 0, pNotify->FileName,
+								 pNotify->FileNameLength / sizeof( WCHAR ), NULL, 0, NULL, NULL );
+		if ( count == 0 )
+			continue;
+
+		std::string nfile( count, '\0' );
+
+		count = WideCharToMultiByte( CP_UTF8, 0, pNotify->FileName,
+									 pNotify->FileNameLength / sizeof( WCHAR ), &nfile[0], count,
+									 NULL, NULL );
+
+		if ( FILE_ACTION_MODIFIED == pNotify->Action ) {
+			FileInfo fifile( std::string( pWatch->DirName ) + nfile );
+
+			if ( pWatch->LastModifiedEvent.file.ModificationTime == fifile.ModificationTime &&
+				 pWatch->LastModifiedEvent.file.Size == fifile.Size &&
+				 pWatch->LastModifiedEvent.fileName == nfile ) {
+				skip = true;
+			}
+
+			pWatch->LastModifiedEvent.fileName = nfile;
+			pWatch->LastModifiedEvent.file = fifile;
+		} else if ( FILE_ACTION_RENAMED_OLD_NAME == pNotify->Action ) {
+			pWatch->OldFiles.emplace_back( nfile, pNotify->FileId );
+			skip = true;
+		} else if ( FILE_ACTION_RENAMED_NEW_NAME == pNotify->Action ) {
+			std::string oldFile;
+			LARGE_INTEGER oldFileId{};
+
+			for ( auto it = pWatch->OldFiles.begin(); it != pWatch->OldFiles.end(); ++it ) {
+				if ( it->second.QuadPart == pNotify->FileId.QuadPart ) {
+					oldFile = it->first;
+					oldFileId = it->second;
+					it = pWatch->OldFiles.erase( it );
+					break;
+				}
+			}
+
+			if ( oldFile.empty() ) {
+				pWatch->Watch->handleAction( pWatch, nfile, FILE_ACTION_ADDED );
+				skip = true;
+			} else {
+				pWatch->Watch->handleAction( pWatch, oldFile, FILE_ACTION_RENAMED_OLD_NAME );
+			}
+		}
+
+		if ( !skip ) {
+			pWatch->Watch->handleAction( pWatch, nfile, pNotify->Action );
+		}
+	} while ( pNotify->NextEntryOffset != 0 );
+}
+
+/// Unpacks events and passes them to a user defined callback.
+void CALLBACK WatchCallback( DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped ) {
+	if ( NULL == lpOverlapped ) {
+		return;
+	}
+
+	WatcherStructWin32* tWatch = (WatcherStructWin32*)lpOverlapped;
+	WatcherWin32* pWatch = tWatch->Watch;
+
+	if ( dwNumberOfBytesTransfered == 0 ) {
+		if ( nullptr != pWatch && !pWatch->StopNow ) {
+			/// Missed file actions due to buffer overflowed
+			std::string dir = pWatch->DirName;
+			FileSystem::dirRemoveSlashAtEnd( dir );
+			pWatch->Listener->handleMissedFileActions( pWatch->ID, dir );
+			RefreshWatch( tWatch );
+		} else {
+			return;
+		}
+	}
+
+	// Fork watch depending on the Windows API supported
+	if ( pWatch->Extended ) {
+		WatchCallbackEx( pWatch );
+	} else {
+		WatchCallbackOld( pWatch );
+	}
 
 	if ( !pWatch->StopNow ) {
 		RefreshWatch( tWatch );
@@ -69,17 +186,40 @@ void CALLBACK WatchCallback( DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOve
 }
 
 /// Refreshes the directory monitoring.
-bool RefreshWatch( WatcherStructWin32* pWatch ) {
-	bool bRet = ReadDirectoryChangesW( pWatch->Watch->DirHandle, pWatch->Watch->Buffer.data(),
-		pWatch->Watch->Buffer.size(), pWatch->Watch->Recursive,
-		pWatch->Watch->NotifyFilter, NULL, &pWatch->Overlapped,	NULL ) != 0;
+RefreshResult RefreshWatch( WatcherStructWin32* pWatch ) {
+	initReadDirectoryChangesEx();
+
+	bool bRet = false;
+	RefreshResult ret = RefreshResult::Failed;
+	pWatch->Watch->Extended = false;
+
+	if ( pReadDirectoryChangesExW ) {
+		bRet = pReadDirectoryChangesExW( pWatch->Watch->DirHandle, pWatch->Watch->Buffer.data(),
+									  (DWORD)pWatch->Watch->Buffer.size(), pWatch->Watch->Recursive,
+									  pWatch->Watch->NotifyFilter, NULL, &pWatch->Overlapped,
+										 NULL, EFSW_ReadDirectoryNotifyExtendedInformation ) != 0;
+		if ( bRet ) {
+			ret = RefreshResult::SucessEx;
+			pWatch->Watch->Extended = true;
+		}
+	}
+
+	if ( !bRet ) {
+		bRet = ReadDirectoryChangesW( pWatch->Watch->DirHandle, pWatch->Watch->Buffer.data(),
+									  (DWORD)pWatch->Watch->Buffer.size(), pWatch->Watch->Recursive,
+									  pWatch->Watch->NotifyFilter, NULL, &pWatch->Overlapped,
+									  NULL ) != 0;
+
+		if ( bRet )
+			ret = RefreshResult::Success;
+	}
 
 	if ( !bRet ) {
 		std::string error = std::to_string( GetLastError() );
 		Errors::Log::createLastError( Errors::WatcherFailed, error );
 	}
 
-	return bRet;
+	return ret;
 }
 
 /// Stops monitoring a directory.
@@ -91,19 +231,17 @@ void DestroyWatch( WatcherStructWin32* pWatch ) {
 		CloseHandle( pWatch->Watch->DirHandle );
 		efSAFE_DELETE_ARRAY( pWatch->Watch->DirName );
 		efSAFE_DELETE( pWatch->Watch );
+		efSAFE_DELETE( pWatch );
 	}
 }
 
 /// Starts monitoring a directory.
 WatcherStructWin32* CreateWatch( LPCWSTR szDirectory, bool recursive,
 								 DWORD bufferSize, DWORD notifyFilter, HANDLE iocp ) {
-	WatcherStructWin32* tWatch;
-	size_t ptrsize = sizeof( *tWatch );
-	tWatch = static_cast<WatcherStructWin32*>(
-		HeapAlloc( GetProcessHeap(), HEAP_ZERO_MEMORY, ptrsize ) );
-
+	WatcherStructWin32* tWatch = new WatcherStructWin32();
 	WatcherWin32* pWatch = new WatcherWin32(bufferSize);
-	tWatch->Watch = pWatch;
+	if (tWatch)
+		tWatch->Watch = pWatch;
 
 	pWatch->DirHandle = CreateFileW(
 		szDirectory, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
@@ -114,14 +252,14 @@ WatcherStructWin32* CreateWatch( LPCWSTR szDirectory, bool recursive,
 		pWatch->NotifyFilter = notifyFilter;
 		pWatch->Recursive = recursive;
 
-		if ( RefreshWatch( tWatch ) ) {
+		if ( RefreshResult::Failed != RefreshWatch( tWatch ) ) {
 			return tWatch;
 		}
 	}
 
 	CloseHandle( pWatch->DirHandle );
 	efSAFE_DELETE( pWatch->Watch );
-	HeapFree( GetProcessHeap(), 0, tWatch );
+	efSAFE_DELETE( tWatch );
 	return NULL;
 }
 

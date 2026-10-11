@@ -27,13 +27,12 @@
 #include "PhasingHandler.h"
 #include "TemporarySummon.h"
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    EncounterDoorBehavior::OpenWhenDone },
-    { 0,                    0,              EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_DRAKOS, {{ 528, 529, 2016 }} },
     { DATA_VAROS, {{ 530, 531, 2015 }} },
@@ -41,9 +40,9 @@ DungeonEncounterData const encounters[] =
     { DATA_EREGOS, {{ 534, 535, 2013 }} }
 };
 
-Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
-Position const BelgaristraszMove = { 941.453f, 1044.1f,  359.967f, 0.1984709f };
-Position const EternosMove       = { 943.202f, 1059.35f, 359.967f, 5.757278f  };
+static constexpr Position VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
+static constexpr Position BelgaristraszMove = { 941.453f, 1044.1f,  359.967f, 0.1984709f };
+static constexpr Position EternosMove       = { 943.202f, 1059.35f, 359.967f, 5.757278f  };
 
 class instance_oculus : public InstanceMapScript
 {

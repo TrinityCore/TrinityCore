@@ -23,7 +23,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _innAreaTriggerId(0), _restFlagMask(0)
+RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _restFlagMask(0)
 {
     for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
         _restBonus[i] = 0;
@@ -135,7 +135,7 @@ uint32 RestMgr::GetRestBonusFor(RestTypes restType, uint32 xp)
 
 void RestMgr::Update(time_t now)
 {
-    if (roll_chance_i(3) && _restTime > 0) // freeze update
+    if (roll_chance(3) && _restTime > 0) // freeze update
     {
         time_t timeDiff = now - _restTime;
         if (timeDiff >= 10)

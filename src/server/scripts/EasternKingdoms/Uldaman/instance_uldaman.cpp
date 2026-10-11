@@ -15,54 +15,44 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: instance_uldaman
-SD%Complete: 80%
-SDComment: Need some cosmetics updates when archeadas door are closing (Guardians Waypoints).
-SDCategory: Uldaman
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "uldaman.h"
+#include <algorithm>
 
-enum Spells
+static constexpr DoorData doorData[] =
 {
-    SPELL_ARCHAEDAS_AWAKEN      = 10347,
-    SPELL_AWAKEN_VAULT_WALKER   = 10258,
-    SPELL_FREEZE_ANIM           = 16245,
-    SPELL_MINION_FREEZE_ANIM    = 10255
+    { GO_TEMPLE_DOOR_TO_KEEPERS,    DATA_STONE_KEEPERS,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_TEMPLE_DOOR_TO_ARCHAEDAS,  DATA_STONE_KEEPERS,  EncounterDoorBehavior::OpenWhenDone          },
+    { GO_TEMPLE_DOOR_ARCHAEDAS,     DATA_ARCHAEDAS,      EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ANCIENT_VAULT_DOOR,        DATA_ARCHAEDAS,      EncounterDoorBehavior::OpenWhenDone          }
 };
 
-enum Events
+static constexpr ObjectData creatureData[] =
 {
-    EVENT_SUB_BOSS_AGGRO        = 2228
+    { NPC_ARCHAEDAS,                DATA_ARCHAEDAS                }
 };
 
-enum IronayaTalk
+static constexpr ObjectData gameObjectData[] =
 {
-    SAY_AGGRO = 0
+    { GO_IRONAYA_SEAL_DOOR,         DATA_IRONAYA_SEAL_DOOR        }
 };
 
 static constexpr DungeonEncounterData Encounters[] =
 {
-    { BOSS_REVELOSH, { { 547 } } },
-    { BOSS_THE_LOST_DWARVES, { { 548 } } },
-    { BOSS_IRONAYA, { { 549 } } },
-    { BOSS_ANCIENT_STONE_KEEPER, { { 551 } } },
-    { BOSS_GALGANN_FIREHAMMER, { { 552 } } },
-    { BOSS_GRIMLOK, { { 553 } } },
-    { BOSS_ARCHAEDAS, { { 554 } } },
-    { BOSS_OBSIDIAN_SENTINEL, { { 1887 } } },
+    { DATA_REVELOSH, { { 547 } } },
+    { DATA_THE_LOST_DWARVES, { { 548 } } },
+    { DATA_IRONAYA, { { 549 } } },
+    { DATA_ANCIENT_STONE_KEEPER, { { 551 } } },
+    { DATA_GALGANN_FIREHAMMER, { { 552 } } },
+    { DATA_GRIMLOK, { { 553 } } },
+    { DATA_ARCHAEDAS, { { 554 } } },
+    { DATA_OBSIDIAN_SENTINEL, { { 1887 } } },
 };
-
-const Position IronayaPoint = { -231.228f, 246.6135f, -49.01617f, 0.0f };
 
 class instance_uldaman : public InstanceMapScript
 {
@@ -74,290 +64,154 @@ class instance_uldaman : public InstanceMapScript
             instance_uldaman_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, gameObjectData);
+                LoadDoorData(doorData);
                 LoadDungeonEncounterData(Encounters);
 
-                ironayaActive = false;
-                altarDoorsDone = false;
-                ironayaSealDoorTimer = 27000; //animation time
-                keystoneCheck = false;
+                IronayaIntroState = 0;
             }
 
-            ObjectGuid archaedasGUID;
-            ObjectGuid ironayaGUID;
-            bool ironayaActive;
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
 
-            ObjectGuid whoWokeuiArchaedasGUID;
+                switch (creature->GetEntry())
+                {
+                    case NPC_STONE_KEEPER:
+                    {
+                        static constexpr std::array<std::string_view, 4> KeeperStringId = {{ "StoneKeeper1", "StoneKeeper2", "StoneKeeper3", "StoneKeeper4" }};
+                        auto stringId = std::ranges::find_if(KeeperStringId, [creature](std::string_view stringId) { return creature->HasStringId(stringId); });
+                        if (stringId != KeeperStringId.end())
+                            StoneKeeperGuid[std::ranges::distance(KeeperStringId.begin(), stringId)] = creature->GetGUID();
+                        break;
+                    }
+                    case NPC_EARTHEN_GUARDIAN:
+                    case NPC_EARTHEN_HALLSHAPER:
+                    case NPC_EARTHEN_CUSTODIAN:
+                    case NPC_VAULT_WARDER:
+                        ArchaedasMinionsGuidSet.insert(creature->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            ObjectGuid altarOfTheKeeperTempleDoor;
-            bool altarDoorsDone;
+            void OnCreatureRemove(Creature* creature) override
+            {
+                InstanceScript::OnCreatureRemove(creature);
 
-            ObjectGuid archaedasTempleDoor;
-            ObjectGuid ancientVaultDoor;
-            ObjectGuid ironayaSealDoor;
-
-            ObjectGuid keystoneGUID;
-
-            uint32 ironayaSealDoorTimer;
-            bool keystoneCheck;
-
-            GuidVector stoneKeepers;
-            GuidVector altarOfTheKeeperCounts;
-            GuidVector vaultWalkers;
-            GuidVector earthenGuardians;
-            GuidVector archaedasWallMinions;    // minions lined up around the wall
+                switch (creature->GetEntry())
+                {
+                    case NPC_EARTHEN_GUARDIAN:
+                    case NPC_EARTHEN_HALLSHAPER:
+                    case NPC_EARTHEN_CUSTODIAN:
+                    case NPC_VAULT_WARDER:
+                        ArchaedasMinionsGuidSet.erase(creature->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR:         // lock the door
-                        altarOfTheKeeperTempleDoor = go->GetGUID();
-
-                        if (altarDoorsDone)
-                           HandleGameObject(ObjectGuid::Empty, true, go);
-                        break;
-
-                    case GO_ARCHAEDAS_TEMPLE_DOOR:
-                        archaedasTempleDoor = go->GetGUID();
-
-                        if (altarDoorsDone)
-                            HandleGameObject(ObjectGuid::Empty, true, go);
-                        break;
-
-                    case GO_ANCIENT_VAULT_DOOR:
-                        go->SetGoState(GO_STATE_READY);
-                        go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
-                        ancientVaultDoor = go->GetGUID();
-
-                        if (GetBossState(BOSS_ARCHAEDAS) == DONE)
-                            HandleGameObject(ObjectGuid::Empty, true, go);
-                        break;
-
                     case GO_IRONAYA_SEAL_DOOR:
-                        ironayaSealDoor = go->GetGUID();
-
-                        if (ironayaActive)
+                        if (GetData(DATA_IRONAYA_INTRO) == DONE)
                             HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
-
                     case GO_KEYSTONE:
-                        keystoneGUID = go->GetGUID();
-
-                        if (ironayaActive)
+                        if (GetData(DATA_IRONAYA_INTRO) == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
                             go->SetFlag(GO_FLAG_INTERACT_COND);
                         }
                         break;
+                    default:
+                        break;
                 }
             }
 
-            void SetFrozenState(Creature* creature)
+            void OnUnitDeath(Unit* unit) override
             {
-                creature->SetFaction(FACTION_FRIENDLY);
-                creature->RemoveAllAuras();
-                creature->SetUninteractible(true);
-                creature->SetControlled(true, UNIT_STATE_ROOT);
-                creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
-            }
+                InstanceScript::OnUnitDeath(unit);
 
-            void SetDoor(ObjectGuid guid, bool open)
-            {
-                GameObject* go = instance->GetGameObject(guid);
-                if (!go)
+                Creature* creature = unit->ToCreature();
+                if (!creature)
                     return;
 
-                HandleGameObject(guid, open);
-            }
-
-            void BlockGO(ObjectGuid guid)
-            {
-                GameObject* go = instance->GetGameObject(guid);
-                if (!go)
-                    return;
-
-                go->SetFlag(GO_FLAG_INTERACT_COND);
-            }
-
-            void ActivateStoneKeepers()
-            {
-                if (GetData(DATA_ALTAR_DOORS) != DONE)
+                switch (creature->GetEntry())
                 {
-                    for (GuidVector::const_iterator i = stoneKeepers.begin(); i != stoneKeepers.end(); ++i)
+                    case NPC_REVELOSH: SetBossState(DATA_REVELOSH, DONE); break;
+                    //case ?: SetBossState(BOSS_THE_LOST_DWARVES, DONE); break;
+                    case NPC_ANCIENT_STONE_KEEPER: SetBossState(DATA_ANCIENT_STONE_KEEPER, DONE); break;
+                    case NPC_GALGANN_FIREHAMMER: SetBossState(DATA_GALGANN_FIREHAMMER, DONE); break;
+                    case NPC_GRIMLOK: SetBossState(DATA_GRIMLOK, DONE); break;
+                    case NPC_OBSIDIAN_SENTINEL: SetBossState(DATA_OBSIDIAN_SENTINEL, DONE); break;
+                    case NPC_STONE_KEEPER:
                     {
-                        Creature* target = instance->GetCreature(*i);
-                        if (!target || !target->IsAlive())
-                            continue;
-                        target->SetControlled(false, UNIT_STATE_ROOT);
-                        target->SetFaction(FACTION_MONSTER);
-                        target->SetUninteractible(false);
-                        target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
+                        for (std::size_t i = 0; i < StoneKeeperGuid.size() - 1; ++i)
+                        {
+                            if (creature->GetGUID() == StoneKeeperGuid[i])
+                            {
+                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[i + 1]))
+                                {
+                                    keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
+                                    break;
+                                }
+                            }
+                        }
 
-                        return;        // only want the first one we find
+                        if (creature->GetGUID() == StoneKeeperGuid[3])
+                            SetBossState(DATA_STONE_KEEPERS, DONE);
+                        break;
                     }
-                    // if we get this far than all four are dead so open the door
-                    SetData(DATA_ALTAR_DOORS, DONE);
-                    SetDoor(archaedasTempleDoor, true); //open next the door too
+                    default:
+                        break;
                 }
             }
 
-            void ActivateWallMinions()
+            bool SetBossState(uint32 bossId, EncounterState state) override
             {
-                Creature* archaedas = instance->GetCreature(archaedasGUID);
-                if (!archaedas)
-                    return;
-
-                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (!target || !target->IsAlive() || target->GetFaction() == FACTION_MONSTER)
-                        continue;
-                    target->SetControlled(false, UNIT_STATE_ROOT);
-                    target->SetUninteractible(false);
-                    target->SetFaction(FACTION_MONSTER);
-                    target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
-                    archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
-                    target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
-
-                    return;        // only want the first one we find
-                }
-            }
-
-            // used when Archaedas dies.  All active minions must be despawned.
-            void DeActivateMinions()
-            {
-                // first despawn any aggroed wall minions
-                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
-                        continue;
-                    target->DespawnOrUnsummon();
-                }
-
-                // Vault Walkers
-                for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
-                        continue;
-                    target->DespawnOrUnsummon();
-                }
-
-                // Earthen Guardians
-                for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
-                        continue;
-                    target->DespawnOrUnsummon();
-                }
-            }
-
-            void ActivateArchaedas(ObjectGuid target)
-            {
-                Creature* archaedas = instance->GetCreature(archaedasGUID);
-                if (!archaedas)
-                    return;
-
-                if (ObjectAccessor::GetUnit(*archaedas, target))
-                {
-                    archaedas->RemoveAura(SPELL_FREEZE_ANIM);
-                    archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
-                    archaedas->SetFaction(FACTION_TITAN);
-                    archaedas->SetUninteractible(false);
-                    whoWokeuiArchaedasGUID = target;
-                }
-            }
-
-            void ActivateIronaya()
-            {
-                Creature* ironaya = instance->GetCreature(ironayaGUID);
-                if (!ironaya)
-                    return;
-
-                ironaya->SetFaction(FACTION_TITAN);
-                ironaya->SetControlled(false, UNIT_STATE_ROOT);
-                ironaya->SetUninteractible(false);
-
-                ironaya->GetMotionMaster()->Clear();
-                ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint);
-                ironaya->SetHomePosition(IronayaPoint);
-
-                ironaya->AI()->Talk(SAY_AGGRO);
-                ironayaActive = true;
-            }
-
-            void RespawnMinions()
-            {
-                // first respawn any aggroed wall minions
-                for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (target && target->isDead())
-                    {
-                        target->Respawn();
-                        target->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(target);
-                    }
-                }
-
-                // Vault Walkers
-                for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (target && target->isDead())
-                    {
-                        target->Respawn();
-                        target->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(target);
-                    }
-                }
-
-                // Earthen Guardians
-                for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
-                {
-                    Creature* target = instance->GetCreature(*i);
-                    if (target && target->isDead())
-                    {
-                        target->Respawn();
-                        target->GetMotionMaster()->MoveTargetedHome();
-                        SetFrozenState(target);
-                    }
-                }
-            }
-            void Update(uint32 diff) override
-            {
-                if (!keystoneCheck)
-                    return;
-
-                if (ironayaSealDoorTimer <= diff)
-                {
-                    ActivateIronaya();
-
-                    SetDoor(ironayaSealDoor, true);
-                    BlockGO(keystoneGUID);
-
-                    keystoneCheck = false;
-                }
-                else
-                    ironayaSealDoorTimer -= diff;
-            }
-
-            bool SetBossState(uint32 id, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(id, state))
+                if (!InstanceScript::SetBossState(bossId, state))
                     return false;
 
-                switch (id)
+                switch (bossId)
                 {
-                    case BOSS_ARCHAEDAS:
-                        if (state == DONE) //archeadas defeat
+                    case DATA_ARCHAEDAS:
+                        if (state == FAIL)
                         {
-                            SetDoor(archaedasTempleDoor, true); //re open enter door
-                            SetDoor(ancientVaultDoor, true);
+                            for (ObjectGuid guid : ArchaedasMinionsGuidSet)
+                                if (Creature* minion = instance->GetCreature(guid))
+                                {
+                                    if (minion->isDead())
+                                        minion->Respawn();
+                                }
                         }
+                        break;
+                    case DATA_STONE_KEEPERS:
+                        if (state == FAIL)
+                        {
+                            for (std::size_t i = 0; i < StoneKeeperGuid.size() - 1; ++i)
+                            {
+                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[i]))
+                                {
+                                    if (!keeper->IsAlive())
+                                    {
+                                        StoneKeeperGuid[i].Clear();
+                                        keeper->Respawn();
+                                    }
+                                }
+                            }
+
+                            SetBossState(DATA_STONE_KEEPERS, NOT_STARTED);
+                        }
+                        break;
+                    default:
                         break;
                 }
 
@@ -368,145 +222,54 @@ class instance_uldaman : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_ALTAR_DOORS:
-                        altarDoorsDone = data == DONE;
-                        if (data == DONE)
-                            SetDoor(altarOfTheKeeperTempleDoor, true);
-                        break;
-
-                    case DATA_IRONAYA_DOOR:
-                        SetBossState(2, EncounterState(data));
-                        break;
-
-                    case DATA_STONE_KEEPERS:
-                        ActivateStoneKeepers();
-                        break;
-
-                    case DATA_MINIONS:
+                    case DATA_IRONAYA_INTRO:
+                        IronayaIntroState = data;
                         switch (data)
                         {
-                            case NOT_STARTED:
-                                if (altarDoorsDone) //if players opened the doors
-                                    SetDoor(archaedasTempleDoor, true);
-
-                                RespawnMinions();
-                                break;
-
                             case IN_PROGRESS:
-                                ActivateWallMinions();
+                                instance->SpawnGroupSpawn(SPAWN_GROUP_IRONAYA);
                                 break;
-
-                            case SPECIAL:
-                                DeActivateMinions();
+                            case DONE:
+                                HandleGameObject(ObjectGuid::Empty, true, GetGameObject(DATA_IRONAYA_SEAL_DOOR));
+                                break;
+                            default:
                                 break;
                         }
                         break;
-
-                    case DATA_IRONAYA_SEAL:
-                        keystoneCheck = true;
-                        break;
                 }
             }
-
-            void SetGuidData(uint32 type, ObjectGuid data) override
-            {
-                // Archaedas
-                if (type == 0)
-                {
-                    ActivateArchaedas (data);
-                    SetDoor(archaedasTempleDoor, false); //close when event is started
-                }
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case 4857:    // Stone Keeper
-                        SetFrozenState (creature);
-                        stoneKeepers.push_back(creature->GetGUID());
-                        break;
-
-                    case 7309:    // Earthen Custodian
-                        archaedasWallMinions.push_back(creature->GetGUID());
-                        break;
-
-                    case 7077:    // Earthen Hallshaper
-                        archaedasWallMinions.push_back(creature->GetGUID());
-                        break;
-
-                    case 7076:    // Earthen Guardian
-                        earthenGuardians.push_back(creature->GetGUID());
-                        break;
-
-                    case 7228:    // Ironaya
-                        ironayaGUID = creature->GetGUID();
-
-                        if (!ironayaActive)
-                            SetFrozenState (creature);
-                        break;
-
-                    case 10120:    // Vault Walker
-                        vaultWalkers.push_back(creature->GetGUID());
-                        break;
-
-                    case 2748:    // Archaedas
-                        archaedasGUID = creature->GetGUID();
-                        break;
-
-                }
-            }
-
-            void OnUnitDeath(Unit* unit) override
-            {
-                switch (unit->GetEntry())
-                {
-                    case NPC_REVELOSH: SetBossState(BOSS_REVELOSH, DONE); break;
-                    //case ?: SetBossState(BOSS_THE_LOST_DWARVES, DONE); break;
-                    case NPC_ANCIENT_STONE_KEEPER: SetBossState(BOSS_ANCIENT_STONE_KEEPER, DONE); break;
-                    case NPC_GALGANN_FIREHAMMER: SetBossState(BOSS_GALGANN_FIREHAMMER, DONE); break;
-                    case NPC_GRIMLOK: SetBossState(BOSS_GRIMLOK, DONE); break;
-                    case NPC_OBSIDIAN_SENTINEL: SetBossState(BOSS_OBSIDIAN_SENTINEL, DONE); break;
-                    default: break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case 0:
-                        return whoWokeuiArchaedasGUID;
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                        return vaultWalkers.at(identifier - 1);
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                        return earthenGuardians.at(identifier - 5);
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            } // end GetGuidData
 
             void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {
                     case EVENT_SUB_BOSS_AGGRO:
-                        SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
+                        if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
+                            keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
+                        break;
+                    case EVENT_BOSS_AGGRO:
+                        if (Creature* archaedas = GetCreature(DATA_ARCHAEDAS))
+                            archaedas->AI()->DoAction(ACTION_ARCHAEDAS_AWAKEN);
                         break;
                     default:
                         break;
                 }
             }
+
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_IRONAYA_INTRO:
+                        return IronayaIntroState;
+                }
+                return 0;
+            }
+
+        protected:
+            std::array<ObjectGuid, 4> StoneKeeperGuid;
+            GuidSet ArchaedasMinionsGuidSet;
+            uint32 IronayaIntroState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

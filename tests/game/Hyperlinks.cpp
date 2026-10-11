@@ -31,10 +31,7 @@ TEST_CASE("Basic link structure", "[Hyperlinks]")
         HyperlinkInfo info = ParseSingleHyperlink("|cabcdef01|HTag|h[text]|h|r");
         REQUIRE(info.ok);
         REQUIRE(info.color == 0xabcdef01);
-        REQUIRE(info.color.a == 0xab);
-        REQUIRE(info.color.r == 0xcd);
-        REQUIRE(info.color.g == 0xef);
-        REQUIRE(info.color.b == 0x01);
+        REQUIRE(info.color.data == "abcdef01"sv);
         REQUIRE(info.tag == "Tag");
         REQUIRE(info.data == "");
         REQUIRE(info.text == "text");
@@ -45,10 +42,7 @@ TEST_CASE("Basic link structure", "[Hyperlinks]")
         HyperlinkInfo info = ParseSingleHyperlink("|c12345678|Htag:data1:data2:data3:data4:data5|h[Text]|h|rtail");
         REQUIRE(info.ok);
         REQUIRE(info.color == 0x12345678);
-        REQUIRE(info.color.a == 0x12);
-        REQUIRE(info.color.r == 0x34);
-        REQUIRE(info.color.g == 0x56);
-        REQUIRE(info.color.b == 0x78);
+        REQUIRE(info.color.data == "12345678"sv);
         REQUIRE(info.tag == "tag");
         REQUIRE(info.data == "data1:data2:data3:data4:data5");
         REQUIRE(info.text == "Text");

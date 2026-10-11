@@ -146,7 +146,7 @@ struct npc_fallout_slime : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCastSelf(SPELL_DISEASE_CLOUD);
 
-        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        _scheduler.Schedule(2s, [this](TaskContext const& /*task*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
 

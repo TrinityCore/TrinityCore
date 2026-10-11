@@ -28,6 +28,11 @@ private:
     ~ArenaTeamMgr();
 
 public:
+    ArenaTeamMgr(ArenaTeamMgr const&) = delete;
+    ArenaTeamMgr(ArenaTeamMgr&&) = delete;
+    ArenaTeamMgr& operator=(ArenaTeamMgr const&) = delete;
+    ArenaTeamMgr& operator=(ArenaTeamMgr&&) = delete;
+
     static ArenaTeamMgr* instance();
 
     typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;

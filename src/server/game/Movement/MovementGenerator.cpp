@@ -26,15 +26,15 @@ MovementGenerator::~MovementGenerator()
 
 std::string MovementGenerator::GetDebugInfo() const
 {
-    return Trinity::StringFormat("Mode: {} Priority: {} Flags: {} BaseUniteState: {}",
-        Mode, Priority, Flags, BaseUnitState);
+    return Trinity::StringFormat("Priority: {} Flags: {} BaseUniteState: {}",
+        Priority, Flags, BaseUnitState);
 }
 
 void MovementGenerator::SetScriptResult(MovementStopReason reason)
 {
     if (ScriptResult)
     {
-        ScriptResult->SetResult(reason);
-        ScriptResult.reset();
+        ScriptResult.SetResult(reason);
+        ScriptResult.Reset();
     }
 }

@@ -216,7 +216,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
             instance->SetBossState(BOSS_HORSEMEN, IN_PROGRESS);
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            if (players.isEmpty()) // sanity check
+            if (players.empty()) // sanity check
                 ResetEncounter();
 
             for (Horseman boss : horsemen)

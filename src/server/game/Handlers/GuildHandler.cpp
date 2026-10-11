@@ -19,6 +19,7 @@
 #include "AchievementPackets.h"
 #include "Common.h"
 #include "GameTime.h"
+#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -33,7 +34,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& q
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGuid))
     {
-        guild->SendQueryResponse(this);
+        guild->HandleQuery(this);
         return;
     }
 
@@ -248,6 +249,8 @@ void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivat
         Guild::SendCommandResult(this, GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);
         return;
     }
+
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(packet.Banker, PlayerInteractionType::GuildBanker);
 
     guild->SendBankList(this, 0, packet.FullUpdate);
 }
@@ -586,8 +589,11 @@ void WorldSession::HandleGuildReplaceGuildMaster(WorldPackets::Guild::GuildRepla
 
 void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet)
 {
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->HandleSetNewGuildMaster(this, packet.NewMasterName, false);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_GUILD_MASTER [{}]: Target: {}", GetPlayerInfo(), packet.NewMasterName);
+
+    if (normalizePlayerName(packet.NewMasterName))
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleSetNewGuildMaster(this, packet.NewMasterName, false);
 }
 
 void WorldSession::HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet)

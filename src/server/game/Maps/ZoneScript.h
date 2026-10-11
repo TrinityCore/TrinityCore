@@ -63,7 +63,7 @@ public:
 class TC_GAME_API ZoneScript
 {
     public:
-        ZoneScript();
+        ZoneScript() noexcept;
         ZoneScript(ZoneScript const& right);
         ZoneScript(ZoneScript&& right) noexcept;
         ZoneScript& operator=(ZoneScript const& right);

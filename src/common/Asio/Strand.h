@@ -35,7 +35,7 @@ namespace Trinity
         };
 
         template<typename T>
-        inline decltype(auto) post(boost::asio::io_context::strand& strand, T&& t)
+        inline decltype(auto) post(Strand& strand, T&& t)
         {
             return boost::asio::post(strand, std::forward<T>(t));
         }

@@ -20,7 +20,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <windows.h>
+#include <Windows.h>
 #include <winsvc.h>
 
 namespace

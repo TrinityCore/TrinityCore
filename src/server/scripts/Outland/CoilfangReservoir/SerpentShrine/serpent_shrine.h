@@ -23,44 +23,65 @@
 #define SSCScriptName "instance_serpent_shrine"
 #define DataHeader "SS"
 
-enum SSWaterEventState
-{
-    WATERSTATE_NONE     = 0,
-    WATERSTATE_FRENZY   = 1,
-    WATERSTATE_SCALDING = 2
-};
+uint32 constexpr EncounterCount     = 6;
 
 enum SSBosses
 {
-    BOSS_HYDROSS_THE_UNSTABLE   = 0,
-    BOSS_THE_LURKER_BELOW       = 1,
-    BOSS_LEOTHERAS_THE_BLIND    = 2,
-    BOSS_FATHOM_LORD_KARATHRESS = 3,
-    BOSS_MOROGRIM_TIDEWALKER    = 4,
-    BOSS_LADY_VASHJ             = 5
+    BOSS_HYDROSS_THE_UNSTABLE       = 0,
+    BOSS_THE_LURKER_BELOW           = 1,
+    BOSS_LEOTHERAS_THE_BLIND        = 2,
+    BOSS_FATHOM_LORD_KARATHRESS     = 3,
+    BOSS_MOROGRIM_TIDEWALKER        = 4,
+    BOSS_LADY_VASHJ                 = 5
 };
 
 enum SSDataTypes
 {
-    DATA_CANSTARTPHASE3             = 1,
-    DATA_CARIBDIS                   = 2,
-    DATA_KARATHRESS                 = 3,
-    DATA_KARATHRESSEVENT_STARTER    = 4,
-    DATA_LADYVASHJ                  = 5,
-    DATA_SHARKKIS                   = 6,
-    DATA_SHIELDGENERATOR1           = 7,
-    DATA_SHIELDGENERATOR2           = 8,
-    DATA_SHIELDGENERATOR3           = 9,
-    DATA_SHIELDGENERATOR4           = 10,
-    DATA_THELURKERBELOW             = 11,
-    DATA_TIDALVESS                  = 12,
-    DATA_FATHOMLORDKARATHRESSEVENT  = 13,
-    DATA_LEOTHERAS                  = 14,
-    DATA_LEOTHERAS_EVENT_STARTER    = 15,
-    DATA_CONTROL_CONSOLE            = 16,
-    DATA_STRANGE_POOL               = 17,
-    DATA_WATER                      = 18,
-    DATA_TRASH                      = 19,
+    DATA_CARIBDIS                   = 6,
+    DATA_TIDALVESS,
+    DATA_SHARKKIS,
+    DATA_BRIDGE_PART_1,
+    DATA_BRIDGE_PART_2,
+    DATA_BRIDGE_PART_3,
+    DATA_SHIELD_GENERATOR_1,
+    DATA_SHIELD_GENERATOR_2,
+    DATA_SHIELD_GENERATOR_3,
+    DATA_SHIELD_GENERATOR_4,
+    DATA_KILLED_ELITES
+};
+
+enum SSCreatureIds
+{
+    NPC_COILFANG_PRIESTESS          = 21220,
+    NPC_COILFANG_SHATTERER          = 21301,
+    NPC_CARIBDIS                    = 21964,
+    NPC_TIDALVESS                   = 21965,
+    NPC_SHARKKIS                    = 21966,
+    NPC_KARATHRESS                  = 21214,
+    NPC_THE_LURKER_BELOW            = 21217,
+    NPC_LEOTHERAS_THE_BLIND         = 21215,
+    NPC_LADY_VASHJ                  = 21212
+};
+
+enum SSGameObjectIds
+{
+    GO_BRIDGE_PART_1                = 184203,
+    GO_BRIDGE_PART_2                = 184204,
+    GO_BRIDGE_PART_3                = 184205,
+    GO_SHIELD_GENERATOR_1           = 185051,
+    GO_SHIELD_GENERATOR_2           = 185052,
+    GO_SHIELD_GENERATOR_3           = 185053,
+    GO_SHIELD_GENERATOR_4           = 185054
+};
+
+enum SSEventsIds
+{
+    EVENT_RESPAWN_STRANGE_POOL      = 1
+};
+
+enum SSMisc
+{
+    MIN_KILLED_ELITES               = 30
 };
 
 template <class AI, class T>

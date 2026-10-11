@@ -27,7 +27,7 @@
 #include "ScriptMgr.h"
 #include "WorldStateMgr.h"
 
-BattlegroundScript::BattlegroundScript(BattlegroundMap* map) : battlegroundMap(map), battleground(map->GetBG())
+BattlegroundScript::BattlegroundScript(BattlegroundMap* map) noexcept : battlegroundMap(map), battleground(map->GetBG())
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     BattlegroundScriptTemplate const* scriptTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(battlegroundMap->GetId(), battlegroundMap->GetBG()->GetTypeID());
@@ -64,7 +64,7 @@ void BattlegroundScript::TriggerGameEvent(uint32 gameEventId, WorldObject* sourc
 
 void BattlegroundScript::UpdateWorldState(int32 worldStateId, int32 value, bool hidden) const
 {
-    sWorldStateMgr->SetValue(worldStateId, value, hidden, battlegroundMap);
+    WorldStateMgr::SetValue(worldStateId, value, hidden, battlegroundMap);
 }
 
 ArenaScript::ArenaScript(BattlegroundMap* map) : BattlegroundScript(map)
@@ -81,7 +81,7 @@ GameObject* ArenaScript::CreateObject(uint32 entry, float x, float y, float z, f
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: {}] for BG (map: {}) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, battlegroundMap->GetId());
 
-        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
+        rot = QuaternionData::fromOrientation(o);
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance

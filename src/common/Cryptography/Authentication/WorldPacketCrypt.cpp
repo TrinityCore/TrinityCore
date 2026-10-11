@@ -19,11 +19,11 @@
 #include <array>
 #include <cstring>
 
-WorldPacketCrypt::WorldPacketCrypt() : _clientDecrypt(false), _serverEncrypt(true), _clientCounter(0), _serverCounter(0), _initialized(false)
+WorldPacketCrypt::WorldPacketCrypt() : _clientDecrypt(false, 256), _serverEncrypt(true, 256), _clientCounter(0), _serverCounter(0), _initialized(false)
 {
 }
 
-void WorldPacketCrypt::Init(Trinity::Crypto::AES::Key const& key)
+void WorldPacketCrypt::Init(Key const& key)
 {
     _clientDecrypt.Init(key);
     _serverEncrypt.Init(key);

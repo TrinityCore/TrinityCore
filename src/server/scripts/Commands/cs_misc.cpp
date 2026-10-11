@@ -27,13 +27,12 @@
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "IpAddress.h"
 #include "IPLocation.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
 #include "Language.h"
 #include "MiscPackets.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -50,12 +49,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-// temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if TRINITY_COMPILER_IS_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -66,7 +60,7 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::span<ChatCommandBuilder const> GetCommands() const override
     {
         static ChatCommandTable commandTable =
         {
@@ -264,7 +258,7 @@ public:
 
         uint32 haveMap = TerrainInfo::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = TerrainInfo::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapManager::instance()->GetNavMesh(object->GetMapId(), object->GetInstanceId())) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -311,15 +305,10 @@ public:
             return false;
         }
 
-        if(!spell)
+        if (!spell)
             return false;
 
-        ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, target->GetMapId(), spell->Id, target->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-        AuraCreateInfo createInfo(castId, spell, target->GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, target);
-        createInfo.SetCaster(target);
-
-        Aura::TryRefreshStackOrCreate(createInfo);
-
+        target->AddAura(spell, MAX_EFFECT_MASK, target);
         return true;
     }
 
@@ -383,16 +372,6 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                // if both players are in different bgs
-                else if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
-                    _player->LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
-
-                // all's well, set bg id
-                // when porting out from the bg, it will be reset to 0
-                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure
-                // remember current position as entry point for return at bg end teleportation
-                if (!_player->GetMap()->IsBattlegroundOrArena())
-                    _player->SetBattlegroundEntryPoint();
             }
             else if (map->IsDungeon())
             {
@@ -431,6 +410,19 @@ public:
 
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
 
+            if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
+                _player->LeaveBattleground(false, true);
+
+            if (map->IsBattlegroundOrArena())
+            {
+                // all's well, set bg id
+                // when porting out from the bg, it will be reset to 0
+                _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE);
+                // remember current position as entry point for return at bg end teleportation
+                if (!_player->GetMap()->IsBattlegroundOrArena())
+                    _player->SetBattlegroundEntryPoint();
+            }
+
             // stop flight if need
             if (_player->IsInFlight())
                 _player->FinishTaxiFlight();
@@ -461,6 +453,9 @@ public:
             bool in_flight;
             if (!Player::LoadPositionFromDB(map, x, y, z, o, in_flight, targetGuid))
                 return false;
+
+            if (_player->GetBattlegroundId())
+                _player->LeaveBattleground(false, true);
 
             // stop flight if need
             if (_player->IsInFlight())
@@ -516,16 +511,6 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                // if both players are in different bgs
-                else if (target->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
-                    target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
-
-                // all's well, set bg id
-                // when porting out from the bg, it will be reset to 0
-                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE); // unsure about this
-                // remember current position as entry point for return at bg end teleportation
-                if (!target->GetMap()->IsBattlegroundOrArena())
-                    target->SetBattlegroundEntryPoint();
             }
             else if (map->IsDungeon())
             {
@@ -555,6 +540,19 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), "");
             if (handler->needReportToTarget(target))
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
+
+            if (target->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
+                target->LeaveBattleground(false, true);
+
+            if (map->IsBattlegroundOrArena())
+            {
+                // all's well, set bg id
+                // when porting out from the bg, it will be reset to 0
+                target->SetBattlegroundId(_player->GetBattlegroundId(), _player->GetBattlegroundTypeId(), BATTLEGROUND_QUEUE_NONE);
+                // remember current position as entry point for return at bg end teleportation
+                if (!target->GetMap()->IsBattlegroundOrArena())
+                    target->SetBattlegroundEntryPoint();
+            }
 
             // stop flight if need
             if (_player->IsInFlight())
@@ -962,10 +960,7 @@ public:
                 return false;
 
             if (Player* caster = handler->GetSession()->GetPlayer())
-            {
-                ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), SPELL_UNSTUCK_ID, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                Spell::SendCastResult(caster, spellInfo, { SPELL_UNSTUCK_VISUAL, 0 }, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-            }
+                caster->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_CLIENT_LOCKED_OUT).Write());
 
             return false;
         }
@@ -1158,8 +1153,14 @@ public:
         Optional<std::string_view> const& bonusListIdString, Optional<uint8> itemContextArg)
     {
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
         if (Hyperlink<::item> const* itemLinkData = std::get_if<Hyperlink<::item>>(&itemArg))
+        {
             itemId = (*itemLinkData)->Item->GetId();
+            bonusListIDs = (*itemLinkData)->ItemBonusListIDs;
+            itemContext = static_cast<ItemContext>((*itemLinkData)->Context);
+        }
         else if (uint32 const* itemIdPtr = std::get_if<uint32>(&itemArg))
             itemId = *itemIdPtr;
         else if (std::string_view const* itemNameText = std::get_if<std::string_view>(&itemArg))
@@ -1192,15 +1193,12 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
-
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonusListIdString)
             for (std::string_view token : Trinity::Tokenize(*bonusListIdString, ';', false))
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (itemContextArg)
         {
             itemContext = ItemContext(*itemContextArg);
@@ -1208,6 +1206,8 @@ public:
             {
                 std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
                 bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+                std::ranges::sort(bonusListIDs);
+                bonusListIDs.erase(std::unique(bonusListIDs.begin(), bonusListIDs.end()), bonusListIDs.end());
             }
         }
 
@@ -1732,7 +1732,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(std::max<int64>(banTime - GameTime::GetGameTime(), 0), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
@@ -1761,7 +1761,7 @@ public:
 
         // Output XI. LANG_PINFO_CHR_RACE
         raceStr  = DB2Manager::GetChrRaceName(raceid, locale);
-        classStr = DB2Manager::GetClassName(classid, locale);
+        classStr = DB2Manager::GetChrClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -1984,8 +1984,8 @@ public:
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setString(1, "");
-        stmt->setString(2, "");
+        stmt->setString(1, ""sv);
+        stmt->setString(2, ""sv);
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
@@ -2173,7 +2173,7 @@ public:
         {
             Unit::DealDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
-                handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
+                handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0, 0);
             return true;
         }
 
@@ -2199,7 +2199,7 @@ public:
             uint32 resist = dmgInfo.GetResist();
             Unit::DealDamageMods(attacker, target, damage, &absorb);
             Unit::DealDamage(attacker, target, damage, nullptr, DIRECT_DAMAGE, schoolmask, nullptr, false);
-            attacker->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 0, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
+            attacker->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 0, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0, 0);
             return true;
         }
 

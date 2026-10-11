@@ -46,6 +46,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* UnblockPlayerRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   UnblockPlayerRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* PassExternalBlockListRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  PassExternalBlockListRequest_reflection_ = NULL;
 const ::google::protobuf::ServiceDescriptor* BlockListService_descriptor_ = NULL;
 
 }  // namespace
@@ -158,6 +161,21 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnblockPlayerRequest));
+  PassExternalBlockListRequest_descriptor_ = file->message_type(7);
+  static const int PassExternalBlockListRequest_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PassExternalBlockListRequest, blocked_external_ids_),
+  };
+  PassExternalBlockListRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      PassExternalBlockListRequest_descriptor_,
+      PassExternalBlockListRequest::default_instance_,
+      PassExternalBlockListRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PassExternalBlockListRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PassExternalBlockListRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(PassExternalBlockListRequest));
   BlockListService_descriptor_ = file->service(0);
 }
 
@@ -185,6 +203,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     BlockPlayerRequest_descriptor_, &BlockPlayerRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     UnblockPlayerRequest_descriptor_, &UnblockPlayerRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    PassExternalBlockListRequest_descriptor_, &PassExternalBlockListRequest::default_instance());
 }
 
 }  // namespace
@@ -204,6 +224,8 @@ void protobuf_ShutdownFile_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() 
   delete BlockPlayerRequest_reflection_;
   delete UnblockPlayerRequest::default_instance_;
   delete UnblockPlayerRequest_reflection_;
+  delete PassExternalBlockListRequest::default_instance_;
+  delete PassExternalBlockListRequest_reflection_;
 }
 
 void protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() {
@@ -229,26 +251,31 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() {
     "BlockPlayerOptionsB\010\212\371+\0042\002\010\001\"j\n\024UnblockP"
     "layerRequest\022R\n\007options\030\002 \001(\01327.bgs.prot"
     "ocol.block_list.v1.client.UnblockPlayerO"
-    "ptionsB\010\212\371+\0042\002\010\0012\211\006\n\020BlockListService\022\200\001"
-    "\n\tSubscribe\0223.bgs.protocol.block_list.v1"
-    ".client.SubscribeRequest\0324.bgs.protocol."
-    "block_list.v1.client.SubscribeResponse\"\010"
-    "\202\371+\004\010\001\020\001\022d\n\013Unsubscribe\0225.bgs.protocol.b"
-    "lock_list.v1.client.UnsubscribeRequest\032\024"
-    ".bgs.protocol.NoData\"\010\202\371+\004\010\002\020\001\022}\n\010GetSta"
-    "te\0222.bgs.protocol.block_list.v1.client.G"
-    "etStateRequest\0323.bgs.protocol.block_list"
-    ".v1.client.GetStateResponse\"\010\202\371+\004\010\003\020\001\022d\n"
-    "\013BlockPlayer\0225.bgs.protocol.block_list.v"
+    "ptionsB\010\212\371+\0042\002\010\001\"<\n\034PassExternalBlockLis"
+    "tRequest\022\034\n\024blocked_external_ids\030\001 \003(\t2\203"
+    "\007\n\020BlockListService\022\200\001\n\tSubscribe\0223.bgs."
+    "protocol.block_list.v1.client.SubscribeR"
+    "equest\0324.bgs.protocol.block_list.v1.clie"
+    "nt.SubscribeResponse\"\010\202\371+\004\010\001\020\001\022d\n\013Unsubs"
+    "cribe\0225.bgs.protocol.block_list.v1.clien"
+    "t.UnsubscribeRequest\032\024.bgs.protocol.NoDa"
+    "ta\"\010\202\371+\004\010\002\020\001\022}\n\010GetState\0222.bgs.protocol."
+    "block_list.v1.client.GetStateRequest\0323.b"
+    "gs.protocol.block_list.v1.client.GetStat"
+    "eResponse\"\010\202\371+\004\010\003\020\001\022d\n\013BlockPlayer\0225.bgs"
+    ".protocol.block_list.v1.client.BlockPlay"
+    "erRequest\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\004\020"
+    "\001\022h\n\rUnblockPlayer\0227.bgs.protocol.block_"
+    "list.v1.client.UnblockPlayerRequest\032\024.bg"
+    "s.protocol.NoData\"\010\202\371+\004\010\005\020\001\022n\n\025BlockPlay"
+    "erForSession\0225.bgs.protocol.block_list.v"
     "1.client.BlockPlayerRequest\032\024.bgs.protoc"
-    "ol.NoData\"\010\202\371+\004\010\004\020\001\022h\n\rUnblockPlayer\0227.b"
-    "gs.protocol.block_list.v1.client.Unblock"
-    "PlayerRequest\032\024.bgs.protocol.NoData\"\010\202\371+"
-    "\004\010\005\020\001\022n\n\025BlockPlayerForSession\0225.bgs.pro"
-    "tocol.block_list.v1.client.BlockPlayerRe"
-    "quest\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\006\020\001\032M\202"
-    "\371+A\n3bnet.protocol.block_list.v1.client."
-    "BlockListService*\nblock_list\212\371+\004\020\001\030\001B\002H\002", 1360);
+    "ol.NoData\"\010\202\371+\004\010\006\020\001\022x\n\025PassExternalBlock"
+    "List\022\?.bgs.protocol.block_list.v1.client"
+    ".PassExternalBlockListRequest\032\024.bgs.prot"
+    "ocol.NoData\"\010\202\371+\004\010\007\020\001\032M\202\371+A\n3bnet.protoc"
+    "ol.block_list.v1.client.BlockListService"
+    "*\nblock_list\212\371+\004\020\001\030\001B\002H\002", 1544);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/block_list_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -258,6 +285,7 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() {
   GetStateResponse::default_instance_ = new GetStateResponse();
   BlockPlayerRequest::default_instance_ = new BlockPlayerRequest();
   UnblockPlayerRequest::default_instance_ = new UnblockPlayerRequest();
+  PassExternalBlockListRequest::default_instance_ = new PassExternalBlockListRequest();
   SubscribeRequest::default_instance_->InitAsDefaultInstance();
   SubscribeResponse::default_instance_->InitAsDefaultInstance();
   UnsubscribeRequest::default_instance_->InitAsDefaultInstance();
@@ -265,6 +293,7 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto() {
   GetStateResponse::default_instance_->InitAsDefaultInstance();
   BlockPlayerRequest::default_instance_->InitAsDefaultInstance();
   UnblockPlayerRequest::default_instance_->InitAsDefaultInstance();
+  PassExternalBlockListRequest::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto);
 }
 
@@ -782,6 +811,78 @@ void UnblockPlayerRequest::Swap(UnblockPlayerRequest* other) {
 
 // ===================================================================
 
+#ifndef _MSC_VER
+const int PassExternalBlockListRequest::kBlockedExternalIdsFieldNumber;
+#endif  // !_MSC_VER
+
+PassExternalBlockListRequest::PassExternalBlockListRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest)
+}
+
+void PassExternalBlockListRequest::InitAsDefaultInstance() {
+}
+
+PassExternalBlockListRequest::PassExternalBlockListRequest(const PassExternalBlockListRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest)
+}
+
+void PassExternalBlockListRequest::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+PassExternalBlockListRequest::~PassExternalBlockListRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.block_list.v1.client.PassExternalBlockListRequest)
+  SharedDtor();
+}
+
+void PassExternalBlockListRequest::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void PassExternalBlockListRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PassExternalBlockListRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return PassExternalBlockListRequest_descriptor_;
+}
+
+const PassExternalBlockListRequest& PassExternalBlockListRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv1_2fblock_5flist_5fservice_2eproto();
+  return *default_instance_;
+}
+
+PassExternalBlockListRequest* PassExternalBlockListRequest::default_instance_ = NULL;
+
+PassExternalBlockListRequest* PassExternalBlockListRequest::New() const {
+  return new PassExternalBlockListRequest;
+}
+
+void PassExternalBlockListRequest::Swap(PassExternalBlockListRequest* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata PassExternalBlockListRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = PassExternalBlockListRequest_descriptor_;
+  metadata.reflection = PassExternalBlockListRequest_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
 BlockListService::BlockListService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
@@ -812,6 +913,9 @@ void BlockListService::CallServerMethod(uint32 token, uint32 methodId, MessageBu
       break;
     case 6:
       ParseAndHandleBlockPlayerForSession(token, methodId, buffer);
+      break;
+    case 7:
+      ParseAndHandlePassExternalBlockList(token, methodId, buffer);
       break;
     default:
       LogInvalidMethod(methodId);
@@ -847,6 +951,11 @@ uint32 BlockListService::HandleUnblockPlayer(::bgs::protocol::block_list::v1::cl
 
 uint32 BlockListService::HandleBlockPlayerForSession(::bgs::protocol::block_list::v1::client::BlockPlayerRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
   LogUnimplementedServerMethod("BlockListService.BlockPlayerForSession", request);
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 BlockListService::HandlePassExternalBlockList(::bgs::protocol::block_list::v1::client::PassExternalBlockListRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("BlockListService.PassExternalBlockList", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
@@ -936,6 +1045,21 @@ void BlockListService::ParseAndHandleBlockPlayerForSession(uint32 token, uint32 
   std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "BlockListService.BlockPlayerForSession", ::bgs::protocol::NoData::descriptor());
   ::bgs::protocol::NoData response;
   uint32 status = HandleBlockPlayerForSession(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void BlockListService::ParseAndHandlePassExternalBlockList(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::block_list::v1::client::PassExternalBlockListRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("BlockListService.PassExternalBlockList");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("BlockListService.PassExternalBlockList", "bgs.protocol.block_list.v1.client.PassExternalBlockListRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "BlockListService.PassExternalBlockList", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandlePassExternalBlockList(&request, &response, continuation);
   if (continuation)
     continuation(this, status, &response);
 }

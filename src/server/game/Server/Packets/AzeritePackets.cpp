@@ -16,9 +16,11 @@
  */
 
 #include "AzeritePackets.h"
-#include "Util.h"
+#include "PacketOperators.h"
 
-WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemGains::Write()
+namespace WorldPackets::Azerite
+{
+WorldPacket const* PlayerAzeriteItemGains::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << uint64(XP);
@@ -26,21 +28,21 @@ WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemGains::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Azerite::AzeriteEssenceUnlockMilestone::Read()
+void AzeriteEssenceUnlockMilestone::Read()
 {
     _worldPacket >> AzeriteItemMilestonePowerID;
 }
 
-void WorldPackets::Azerite::AzeriteEssenceActivateEssence::Read()
+void AzeriteEssenceActivateEssence::Read()
 {
     _worldPacket >> AzeriteEssenceID;
     _worldPacket >> Slot;
 }
 
-WorldPacket const* WorldPackets::Azerite::ActivateEssenceFailed::Write()
+WorldPacket const* ActivateEssenceFailed::Write()
 {
-    _worldPacket.WriteBits(AsUnderlyingType(Reason), 4);
-    _worldPacket.WriteBit(Slot.has_value());
+    _worldPacket << Bits<4>(Reason);
+    _worldPacket << OptionalInit(Slot);
     _worldPacket << int32(Arg);
     _worldPacket << int32(AzeriteEssenceID);
     if (Slot)
@@ -49,12 +51,12 @@ WorldPacket const* WorldPackets::Azerite::ActivateEssenceFailed::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Azerite::AzeriteEmpoweredItemViewed::Read()
+void AzeriteEmpoweredItemViewed::Read()
 {
     _worldPacket >> ItemGUID;
 }
 
-void WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower::Read()
+void AzeriteEmpoweredItemSelectPower::Read()
 {
     _worldPacket >> ContainerSlot;
     _worldPacket >> Slot;
@@ -62,10 +64,11 @@ void WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower::Read()
     _worldPacket >> AzeritePowerID;
 }
 
-WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemEquippedStatusChanged::Write()
+WorldPacket const* PlayerAzeriteItemEquippedStatusChanged::Write()
 {
-    _worldPacket.WriteBit(IsHeartEquipped);
+    _worldPacket << Bits<1>(IsHeartEquipped);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
+}
 }

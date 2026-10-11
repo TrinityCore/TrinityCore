@@ -162,7 +162,7 @@ struct go_av_contested_object : public go_av_capturable_object
     void Reset() override
     {
         go_av_capturable_object::Reset();
-        _scheduler.Schedule(4min, [&](TaskContext)
+        _scheduler.Schedule(4min, [&](TaskContext const&)
         {
             if (ZoneScript* zonescript = me->GetZoneScript())
                 zonescript->DoAction(ACTION_AV_CAPTURE_CAPTURABLE_OBJECT, me, me);

@@ -8,28 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  TEST_SOURCES
-)
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(tests ${TEST_SOURCES})
+add_executable(tests)
+
+CollectAndAddSourceFiles(
+  tests
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(tests
   PRIVATE
     trinity-core-interface
     game
-    Catch2::Catch2)
-
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  TEST_INCLUDES)
+    Catch2::Catch2WithMain)
 
 target_include_directories(tests
-  PUBLIC
-    ${TEST_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

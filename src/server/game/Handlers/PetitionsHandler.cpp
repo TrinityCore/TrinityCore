@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Item.h"
@@ -72,13 +73,13 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterItemID);
     if (!pProto)
     {
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID, 0);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID);
         return;
     }
 
     if (!_player->HasEnoughMoney(uint64(cost)))
     {
-        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID, 0);
+        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID);
         return;
     }
 
@@ -455,10 +456,10 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         return;
     }
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(guid, PlayerInteractionType::PetitionVendor);
+
     WorldPackets::Petition::ServerPetitionShowList packet;
     packet.Unit = guid;
     packet.Price = uint32(sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD));
     SendPacket(packet.Write());
-
-    TC_LOG_DEBUG("network", "Sent SMSG_PETITION_SHOW_LIST");
 }

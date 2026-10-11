@@ -10,16 +10,24 @@ class Watcher_CAPI : public efsw::FileWatchListener {
 	efsw_watcher mWatcher;
 	efsw_pfn_fileaction_callback mFn;
 	void* mParam;
+	efsw_pfn_handle_missed_fileactions mFnMissedFa;
 
   public:
-	Watcher_CAPI( efsw_watcher watcher, efsw_pfn_fileaction_callback fn, void* param ) :
-		mWatcher( watcher ), mFn( fn ), mParam( param ) {}
+	Watcher_CAPI( efsw_watcher watcher, efsw_pfn_fileaction_callback fn, void* param,
+				  efsw_pfn_handle_missed_fileactions fnfa ) :
+		mWatcher( watcher ), mFn( fn ), mParam( param ), mFnMissedFa( fnfa ) {}
 
 	void handleFileAction( efsw::WatchID watchid, const std::string& dir,
 						   const std::string& filename, efsw::Action action,
 						   std::string oldFilename = "" ) {
 		mFn( mWatcher, watchid, dir.c_str(), filename.c_str(), (enum efsw_action)action,
 			 oldFilename.c_str(), mParam );
+	}
+
+	void handleMissedFileActions( efsw::WatchID watchid, const std::string& dir ) {
+		if ( mFnMissedFa ) {
+			mFnMissedFa( mWatcher, watchid, dir.c_str() );
+		}
 	}
 };
 
@@ -28,12 +36,12 @@ class Watcher_CAPI : public efsw::FileWatchListener {
  */
 static std::vector<Watcher_CAPI*> g_callbacks;
 
-Watcher_CAPI* find_callback( efsw_watcher watcher, efsw_pfn_fileaction_callback fn ) {
+Watcher_CAPI* find_callback( efsw_watcher watcher, efsw_pfn_fileaction_callback fn, void* param ) {
 	for ( std::vector<Watcher_CAPI*>::iterator i = g_callbacks.begin(); i != g_callbacks.end();
 		  ++i ) {
 		Watcher_CAPI* callback = *i;
 
-		if ( callback->mFn == fn && callback->mWatcher == watcher )
+		if ( callback->mFn == fn && callback->mWatcher == watcher && callback->mParam == param )
 			return *i;
 	}
 
@@ -77,25 +85,27 @@ EFSW_API void efsw_clearlasterror() {
 
 efsw_watchid efsw_addwatch( efsw_watcher watcher, const char* directory,
 							efsw_pfn_fileaction_callback callback_fn, int recursive, void* param ) {
-	return efsw_addwatch_withoptions( watcher, directory, callback_fn, recursive, 0, 0, param );
+	return efsw_addwatch_withoptions( watcher, directory, callback_fn, recursive, 0, 0, param,
+									  nullptr );
 }
 
-efsw_watchid  efsw_addwatch_withoptions(efsw_watcher watcher, const char* directory,
-										efsw_pfn_fileaction_callback callback_fn, int recursive,
-										efsw_watcher_option *options, int options_number,
-										void* param) {
-	Watcher_CAPI* callback = find_callback( watcher, callback_fn );
+efsw_watchid
+efsw_addwatch_withoptions( efsw_watcher watcher, const char* directory,
+						   efsw_pfn_fileaction_callback callback_fn, int recursive,
+						   efsw_watcher_option* options, int options_number, void* param,
+						   efsw_pfn_handle_missed_fileactions callback_fn_missed_file_actions ) {
+	Watcher_CAPI* callback = find_callback( watcher, callback_fn, param );
 
 	if ( callback == NULL ) {
-		callback = new Watcher_CAPI( watcher, callback_fn, param );
+		callback = new Watcher_CAPI( watcher, callback_fn, param, callback_fn_missed_file_actions );
 		g_callbacks.push_back( callback );
 	}
 
 	std::vector<efsw::WatcherOption> watcher_options{};
 	for ( int i = 0; i < options_number; i++ ) {
 		efsw_watcher_option* option = &options[i];
-		watcher_options.emplace_back( efsw::WatcherOption{
-			static_cast<efsw::Option>(option->option), option->value } );
+		watcher_options.emplace_back(
+			efsw::WatcherOption{ static_cast<efsw::Option>( option->option ), option->value } );
 	}
 
 	return ( (efsw::FileWatcher*)watcher )

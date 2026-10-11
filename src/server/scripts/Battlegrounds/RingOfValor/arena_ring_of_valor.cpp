@@ -153,7 +153,7 @@ struct arena_ring_of_valor : ArenaScript
         _pillarCollision = true;
         TogglePillarCollision();
 
-        _scheduler.Schedule(1min, [&](TaskContext)
+        _scheduler.Schedule(1min, [&](TaskContext const&)
         {
             CreateObject(BG_RV_OBJECT_TYPE_BUFF_1, 735.551819f, -284.794678f, 28.276682f, 0.034906f, 0.0f, 0.0f, 0.0f, 0.0f);
             CreateObject(BG_RV_OBJECT_TYPE_BUFF_2, 791.224487f, -284.794464f, 28.276682f, 2.600535f, 0.0f, 0.0f, 0.0f, 0.0f);

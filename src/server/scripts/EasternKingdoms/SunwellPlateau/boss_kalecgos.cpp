@@ -223,7 +223,7 @@ struct boss_kalecgos : public BossAI
 
     void KilledUnit(Unit* who) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance_i(50))
+        if (who->GetTypeId() == TYPEID_PLAYER && roll_chance(50))
             Talk(SAY_EVIL_SLAY);
     }
 
@@ -263,7 +263,7 @@ struct boss_kalecgos : public BossAI
             switch (eventId)
             {
                 case EVENT_ARCANE_BUFFET:
-                    if (roll_chance_i(20))
+                    if (roll_chance(20))
                         Talk(SAY_ARCANE_BUFFET);
                     DoCastAOE(SPELL_ARCANE_BUFFET);
                     events.Repeat(Seconds(8));
@@ -513,7 +513,7 @@ struct boss_sathrovarr : public BossAI
         switch (eventId)
         {
             case EVENT_SHADOWBOLT:
-                if (roll_chance_i(20))
+                if (roll_chance(20))
                     Talk(SAY_SATH_SPELL1);
                 DoCastAOE(SPELL_SHADOW_BOLT);
                 events.Repeat(Seconds(7), Seconds(10));
@@ -530,7 +530,7 @@ struct boss_sathrovarr : public BossAI
                 break;
             }
             case EVENT_CORRUPTION_STRIKE:
-                if (roll_chance_i(20))
+                if (roll_chance(20))
                     Talk(SAY_SATH_SPELL2);
                 DoCastVictim(SPELL_CORRUPTION_STRIKE);
                 events.Repeat(Seconds(13));
@@ -601,12 +601,12 @@ class spell_kalecgos_tap_check : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().CalcValue(), true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().CalcValueAsInt(), true);
     }
 
     void Register() override

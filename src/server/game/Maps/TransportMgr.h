@@ -105,13 +105,19 @@ struct TransportTemplate
     std::set<uint32> MapIds;
 };
 
-struct TC_GAME_API TransportAnimation
+struct TransportAnimation
 {
-    TransportAnimation() : TotalTime(0) { }
+    TransportAnimation();
+    ~TransportAnimation();
+
+    TransportAnimation(TransportAnimation const&) = delete;
+    TransportAnimation(TransportAnimation&&) noexcept;
+    TransportAnimation& operator=(TransportAnimation const&) = delete;
+    TransportAnimation& operator=(TransportAnimation&&) noexcept;
 
     std::map<uint32, TransportAnimationEntry const*> Path;
     std::map<uint32, TransportRotationEntry const*> Rotations;
-    uint32 TotalTime;
+    uint32 TotalTime = 0;
 
     TransportAnimationEntry const* GetPrevAnimNode(uint32 time) const;
     TransportRotationEntry const* GetPrevAnimRotation(uint32 time) const;
@@ -132,6 +138,11 @@ struct TransportSpawn
 class TC_GAME_API TransportMgr
 {
     public:
+        TransportMgr(TransportMgr const&) = delete;
+        TransportMgr(TransportMgr&&) = delete;
+        TransportMgr& operator=(TransportMgr const&) = delete;
+        TransportMgr& operator=(TransportMgr&&) = delete;
+
         static TransportMgr* instance();
 
         void Unload();
@@ -157,10 +168,6 @@ class TC_GAME_API TransportMgr
     private:
         TransportMgr();
         ~TransportMgr();
-        TransportMgr(TransportMgr const&) = delete;
-        TransportMgr(TransportMgr&&) = delete;
-        TransportMgr& operator=(TransportMgr const&) = delete;
-        TransportMgr& operator=(TransportMgr&&) = delete;
 
         // Generates and precaches a path for transport to avoid generation each time transport instance is created
         void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);

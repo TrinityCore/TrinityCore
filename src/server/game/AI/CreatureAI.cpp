@@ -17,7 +17,6 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -27,6 +26,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -42,7 +42,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId) noexcept
     : UnitAI(creature), me(creature), _boundary(nullptr),
       _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _isEngaged(false), _moveInLOSLocked(false)
 {
@@ -124,7 +124,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->IsEngaged())
         return;
 
-    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
+    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false) && (me->IsAggroGracePeriodExpired() || me->GetMap()->Instanceable()))
         me->EngageWithTarget(who);
 }
 
@@ -148,8 +148,8 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     if (me->GetTypeId() != TYPEID_UNIT || me->IsEngaged() || me->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED))
         return;
 
-    // Only alert for hostiles!
-    if (me->IsCivilian() || me->HasReactState(REACT_PASSIVE) || !me->IsHostileTo(who) || !me->_IsTargetAcceptable(who))
+    // Only alert for hostiles that can actually engage the target.
+    if (me->IsCivilian() || me->HasReactState(REACT_PASSIVE) || me->IsImmuneToPC() || !me->IsHostileTo(who) || !me->_IsTargetAcceptable(who))
         return;
 
     // Send alert sound (if any) for this creature

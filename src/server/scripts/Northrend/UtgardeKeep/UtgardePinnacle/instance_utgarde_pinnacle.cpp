@@ -26,14 +26,13 @@ BossBoundaryData const boundaries =
     { DATA_KING_YMIRON, new RectangleBoundary(340.0f, 443.0f, -412.0f, -275.0f) }
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    EncounterDoorBehavior::OpenWhenDone },
     { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           EncounterDoorBehavior::OpenWhenDone },
-    { 0,                            0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_SVALA_SORROWGRAVE,        DATA_SVALA_SORROWGRAVE      },
     { NPC_GORTOK_PALEHOOF,          DATA_GORTOK_PALEHOOF        },
@@ -46,17 +45,15 @@ ObjectData const creatureData[] =
     { NPC_PALEHOOF_ORB,             DATA_GORTOK_ORB             },
     { NPC_SVALA,                    DATA_SVALA                  },
     { NPC_GRAUF,                    DATA_GRAUF                  },
-    { 0,                            0                           } // END
 };
 
-ObjectData const gameObjectData[] =
+static constexpr ObjectData gameObjectData[] =
 {
     { GO_UTGARDE_MIRROR,            DATA_UTGARDE_MIRROR         },
     { GO_GORTOK_PALEHOOF_SPHERE,    DATA_GORTOK_PALEHOOF_SPHERE },
-    { 0,                            0                           } //END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_SVALA_SORROWGRAVE, {{ 2030 }} },
     { DATA_GORTOK_PALEHOOF, {{ 2027 }} },

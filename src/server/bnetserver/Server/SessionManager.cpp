@@ -16,27 +16,6 @@
  */
 
 #include "SessionManager.h"
-#include "DatabaseEnv.h"
-#include "Util.h"
-
-bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
-{
-    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
-        return false;
-
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
-    return true;
-}
-
-NetworkThread<Battlenet::Session>* Battlenet::SessionManager::CreateThreads() const
-{
-    return new NetworkThread<Session>[GetNetworkThreadCount()];
-}
-
-void Battlenet::SessionManager::OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
-{
-    sSessionMgr.OnSocketOpen(std::forward<boost::asio::ip::tcp::socket>(sock), threadIndex);
-}
 
 Battlenet::SessionManager& Battlenet::SessionManager::Instance()
 {

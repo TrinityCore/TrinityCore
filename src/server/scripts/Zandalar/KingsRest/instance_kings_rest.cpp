@@ -21,7 +21,7 @@
 #include "ScriptMgr.h"
 #include "kings_rest.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { BOSS_GOLDEN_SERPENT,          DATA_GOLDEN_SERPENT         },
     { BOSS_MCHIMBA_THE_EMBALMER,    DATA_MCHIMBA_THE_EMBALMER   },
@@ -29,23 +29,20 @@ ObjectData const creatureData[] =
     { BOSS_ZANAZAL_THE_WISE,        DATA_ZANAZAL_THE_WISE       },
     { BOSS_KULA_THE_BUTCHER,        DATA_KULA_THE_BUTCHER       },
     { BOSS_KING_DAZAR,              DATA_KING_DAZAR             },
-    { 0,                            0                           }  // END
 };
 
-DoorData const doorData[] =
+static constexpr DoorData doorData[] =
 {
     { GO_KINGS_REST_SERPENT_POST_DOOR,     DATA_GOLDEN_SERPENT,        EncounterDoorBehavior::OpenWhenDone          },
-    { 0,                                   0,                          EncounterDoorBehavior::OpenWhenNotInProgress }  // END
 };
 
-ObjectData const objectData[] =
+static constexpr ObjectData objectData[] =
 {
     { GO_KINGS_REST_ENTRYWAY_DOOR,      DATA_KINGS_REST_INTRO_DOOR  },
     { GO_KINGS_REST_LIQUID_GOLD_POOL,   DATA_KINGS_REST_LIQUID_POOL },
-    { 0,                                0                           }  // END
 };
 
-DungeonEncounterData const encounters[] =
+static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_GOLDEN_SERPENT,          {{ 2139 }} },
     { DATA_COUNCIL_OF_TRIBES,       {{ 2140 }} },

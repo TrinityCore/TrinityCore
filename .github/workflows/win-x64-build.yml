@@ -12,7 +12,7 @@ jobs:
       MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
       OPENSSL_ROOT_DIR: C:/libs/openssl
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
       id: strings
@@ -41,7 +41,7 @@ jobs:
 
     - name: Cache OpenSSL
       id: cache-openssl
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ env.OPENSSL_ROOT_DIR }}
         key: ${{ steps.openssl-info.outputs.cache-key }}
@@ -56,7 +56,7 @@ jobs:
         & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
 
     - name: Download and install Boost
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@v2
       id: install-boost
       with:
         boost_version: 1.84.0
@@ -84,10 +84,10 @@ jobs:
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
-        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/legacy.dll" legacy.dll
-      
+        # mysql may depend on a different version of openssl so copy its dlls first (override later with openssl's own if same version)
+        Copy-Item -Path "${{ env.MYSQL_ROOT_DIR }}/bin/*" -Include libcrypto*,libssl* -Destination .
+        Copy-Item -Path "${{ env.OPENSSL_ROOT_DIR }}/bin/*" -Include libcrypto*,libssl*,legacy* -Destination .
+
     - name: Check binaries
       run: |
         cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
@@ -95,7 +95,7 @@ jobs:
         ./worldserver --version
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
         name: TrinityCoreMasterWin64VS2022

@@ -16,14 +16,17 @@
  */
 
 #include "CollectionMgr.h"
+#include "CollectionPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Timer.h"
+#include "TransmogMgr.h"
 #include "TransmogrificationPackets.h"
 #include "WorldSession.h"
 #include <boost/dynamic_bitset.hpp>
@@ -31,6 +34,7 @@
 namespace
 {
     MountDefinitionMap FactionSpecificMounts;
+    std::vector<uint32> DefaultWarbandScenes;
 }
 
 void CollectionMgr::LoadMountDefinitions()
@@ -70,6 +74,13 @@ void CollectionMgr::LoadMountDefinitions()
     TC_LOG_INFO("server.loading", ">> Loaded {} mount definitions in {} ms", FactionSpecificMounts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void CollectionMgr::LoadWarbandSceneDefinitions()
+{
+    for (WarbandSceneEntry const* warbandScene : sWarbandSceneStore)
+        if (warbandScene->GetFlags().HasFlag(WarbandSceneFlags::AwardedAutomatically))
+            DefaultWarbandScenes.push_back(warbandScene->ID);
+}
+
 namespace
 {
     EnumFlag<ToyFlags> GetToyFlags(bool isFavourite, bool hasFanfare)
@@ -85,18 +96,40 @@ namespace
     }
 }
 
-CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances(std::make_unique<boost::dynamic_bitset<uint32>>()), _transmogIllusions(std::make_unique<boost::dynamic_bitset<uint32>>())
+CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner),
+    _appearances(std::make_unique<boost::dynamic_bitset<uint32>>()),
+    _transmogIllusions(std::make_unique<boost::dynamic_bitset<uint32>>())
 {
 }
 
-CollectionMgr::~CollectionMgr()
+CollectionMgr::~CollectionMgr() = default;
+
+void CollectionMgr::LoadCharacterData()
 {
+    LoadToys();
+    LoadHeirlooms();
+    LoadMounts();
+    LoadItemAppearances();
+    LoadTransmogIllusions();
+    LoadTransmogOutfits();
+    LoadWarbandScenes();
+}
+
+void CollectionMgr::SaveToDB(LoginDatabaseTransaction trans)
+{
+    SaveAccountToys(trans);
+    SaveAccountHeirlooms(trans);
+    SaveAccountMounts(trans);
+    SaveAccountItemAppearances(trans);
+    SaveAccountTransmogIllusions(trans);
+    SaveAccountTransmogOutfits(trans);
+    SaveAccountWarbandScenes(trans);
 }
 
 void CollectionMgr::LoadToys()
 {
-    for (auto const& t : _toys)
-        _owner->GetPlayer()->AddToy(t.first, t.second.AsUnderlyingType());
+    for (auto const& [itemId, flags] : _toys)
+        _owner->GetPlayer()->AddToy(itemId, flags.AsUnderlyingType());
 }
 
 bool CollectionMgr::AddToy(uint32 itemId, bool isFavourite, bool hasFanfare)
@@ -275,7 +308,7 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
 
     // Get heirloom offset to update only one part of dynamic field
     auto const& heirlooms = player->m_activePlayerData->Heirlooms;
-    uint32 offset = uint32(std::distance(heirlooms.begin(), std::find(heirlooms.begin(), heirlooms.end(), int32(itemId))));
+    uint32 offset = uint32(std::ranges::distance(heirlooms.begin(), std::ranges::find(heirlooms, int32(itemId))));
 
     player->SetHeirloomFlags(offset, flags);
     itr->second.flags = flags;
@@ -315,7 +348,7 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
         if (newItemId)
         {
             auto const& heirlooms = player->m_activePlayerData->Heirlooms;
-            uint32 offset = uint32(std::distance(heirlooms.begin(), std::find(heirlooms.begin(), heirlooms.end(), int32(itr->first))));
+            uint32 offset = uint32(std::ranges::distance(heirlooms.begin(), std::ranges::find(heirlooms, int32(itr->first))));
 
             player->SetHeirloom(offset, newItemId);
             player->SetHeirloomFlags(offset, 0);
@@ -337,7 +370,7 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
             }
         }
 
-        if (std::find(bonusListIDs.begin(), bonusListIDs.end(), int32(itr->second.bonusId)) == bonusListIDs.end())
+        if (!advstd::ranges::contains(bonusListIDs, int32(itr->second.bonusId)))
             item->AddBonuses(itr->second.bonusId);
     }
 }
@@ -439,6 +472,7 @@ void CollectionMgr::SendSingleMountUpdate(std::pair<uint32, MountStatusFlags> mo
     player->SendDirectMessage(mountUpdate.Write());
 }
 
+template <std::invocable<uint32> OutputAction>
 struct DynamicBitsetBlockOutputIterator
 {
     using iterator_category = std::output_iterator_tag;
@@ -447,11 +481,11 @@ struct DynamicBitsetBlockOutputIterator
     using pointer = void;
     using reference = void;
 
-    explicit DynamicBitsetBlockOutputIterator(std::function<void(uint32)>&& action) : _action(std::forward<std::function<void(uint32)>>(action)) { }
+    explicit DynamicBitsetBlockOutputIterator(OutputAction const& action) : _action(&action) { }
 
     DynamicBitsetBlockOutputIterator& operator=(uint32 value)
     {
-        _action(value);
+        std::invoke(*_action, value);
         return *this;
     }
 
@@ -460,7 +494,7 @@ struct DynamicBitsetBlockOutputIterator
     DynamicBitsetBlockOutputIterator operator++(int) { return *this; }
 
 private:
-    std::function<void(uint32)> _action;
+    OutputAction const* _action;
 };
 
 void CollectionMgr::LoadItemAppearances()
@@ -471,8 +505,8 @@ void CollectionMgr::LoadItemAppearances()
         owner->AddTransmogBlock(blockValue);
     }));
 
-    for (auto itr = _temporaryAppearances.begin(); itr != _temporaryAppearances.end(); ++itr)
-        owner->AddConditionalTransmog(itr->first);
+    for (auto const& [itemModifiedAppearanceId, _] : _temporaryAppearances)
+        owner->AddConditionalTransmog(itemModifiedAppearanceId);
 }
 
 void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearances, PreparedQueryResult favoriteAppearances)
@@ -491,14 +525,15 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 
         } while (knownAppearances->NextRow());
 
-        _appearances->init_from_block_range(blocks.begin(), blocks.end());
+        _appearances->resize(blocks.size() * 32);
+        boost::from_block_range(blocks.begin(), blocks.end(), *_appearances);
     }
 
     if (favoriteAppearances)
     {
         do
         {
-            _favoriteAppearances[favoriteAppearances->Fetch()[0].GetUInt32()] = FavoriteAppearanceState::Unchanged;
+            _favoriteAppearances[favoriteAppearances->Fetch()[0].GetUInt32()] = CollectionItemState::Unchanged;
         } while (favoriteAppearances->NextRow());
     }
 
@@ -519,7 +554,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 
     for (uint32 hiddenItem : hiddenAppearanceItems)
     {
-        ItemModifiedAppearanceEntry const* hiddenAppearance = sDB2Manager.GetItemModifiedAppearance(hiddenItem, 0);
+        ItemModifiedAppearanceEntry const* hiddenAppearance = TransmogMgr::GetDefaultItemModifiedAppearance(hiddenItem);
         ASSERT(hiddenAppearance);
         if (_appearances->size() <= hiddenAppearance->ID)
             _appearances->resize(hiddenAppearance->ID + 1);
@@ -531,7 +566,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction trans)
 {
     uint16 blockIndex = 0;
-    boost::to_block_range(*_appearances, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
+    boost::to_block_range(*_appearances, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans = trans.get()](uint32 blockValue)
     {
         if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
         {
@@ -550,43 +585,28 @@ void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction trans)
     {
         switch (itr->second)
         {
-            case FavoriteAppearanceState::New:
+            case CollectionItemState::New:
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ITEM_FAVORITE_APPEARANCE);
                 stmt->setUInt32(0, _owner->GetBattlenetAccountId());
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
-                itr->second = FavoriteAppearanceState::Unchanged;
+                itr->second = CollectionItemState::Unchanged;
                 ++itr;
                 break;
-            case FavoriteAppearanceState::Removed:
+            case CollectionItemState::Removed:
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_ITEM_FAVORITE_APPEARANCE);
                 stmt->setUInt32(0, _owner->GetBattlenetAccountId());
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
                 itr = _favoriteAppearances.erase(itr);
                 break;
-            case FavoriteAppearanceState::Unchanged:
+            case CollectionItemState::Unchanged:
+            case CollectionItemState::Changed:
                 ++itr;
                 break;
         }
     }
 }
-
-uint32 const PlayerClassByArmorSubclass[MAX_ITEM_SUBCLASS_ARMOR] =
-{
-    CLASSMASK_ALL_PLAYABLE,                                                                                                 //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
-    (1 << (CLASS_PRIEST - 1)) | (1 << (CLASS_MAGE - 1)) | (1 << (CLASS_WARLOCK - 1)),                                       //ITEM_SUBCLASS_ARMOR_CLOTH
-    (1 << (CLASS_ROGUE - 1)) | (1 << (CLASS_MONK - 1)) | (1 << (CLASS_DRUID - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)),        //ITEM_SUBCLASS_ARMOR_LEATHER
-    (1 << (CLASS_HUNTER - 1)) | (1 << (CLASS_SHAMAN - 1)),                                                                  //ITEM_SUBCLASS_ARMOR_MAIL
-    (1 << (CLASS_WARRIOR - 1)) | (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_DEATH_KNIGHT - 1)),                              //ITEM_SUBCLASS_ARMOR_PLATE
-    CLASSMASK_ALL_PLAYABLE,                                                                                                 //ITEM_SUBCLASS_ARMOR_BUCKLER
-    (1 << (CLASS_WARRIOR - 1)) | (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_SHAMAN - 1)),                                    //ITEM_SUBCLASS_ARMOR_SHIELD
-    1 << (CLASS_PALADIN - 1),                                                                                               //ITEM_SUBCLASS_ARMOR_LIBRAM
-    1 << (CLASS_DRUID - 1),                                                                                                 //ITEM_SUBCLASS_ARMOR_IDOL
-    1 << (CLASS_SHAMAN - 1),                                                                                                //ITEM_SUBCLASS_ARMOR_TOTEM
-    1 << (CLASS_DEATH_KNIGHT - 1),                                                                                          //ITEM_SUBCLASS_ARMOR_SIGIL
-    (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_SHAMAN - 1)) | (1 << (CLASS_DRUID - 1)),    //ITEM_SUBCLASS_ARMOR_RELIC
-};
 
 void CollectionMgr::AddItemAppearance(Item* item)
 {
@@ -608,7 +628,7 @@ void CollectionMgr::AddItemAppearance(Item* item)
 
 void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 0*/)
 {
-    ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(itemId, appearanceModId);
+    ItemModifiedAppearanceEntry const* itemModifiedAppearance = TransmogMgr::GetItemModifiedAppearance(itemId, appearanceModId);
     if (!CanAddAppearance(itemModifiedAppearance))
         return;
 
@@ -617,11 +637,7 @@ void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 
 
 void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
 {
-    std::vector<TransmogSetItemEntry const*> const* items = sDB2Manager.GetTransmogSetItems(transmogSetId);
-    if (!items)
-        return;
-
-    for (TransmogSetItemEntry const* item : *items)
+    for (TransmogSetItemEntry const* item : TransmogMgr::GetTransmogSetItems(transmogSetId))
     {
         ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearanceID);
         if (!itemModifiedAppearance)
@@ -633,13 +649,13 @@ void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
 
 bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
 {
-    std::vector<TransmogSetItemEntry const*> const* transmogSetItems = sDB2Manager.GetTransmogSetItems(transmogSetId);
-    if (!transmogSetItems)
+    std::span<TransmogSetItemEntry const* const> transmogSetItems = TransmogMgr::GetTransmogSetItems(transmogSetId);
+    if (transmogSetItems.empty())
         return false;
 
     std::array<int8, EQUIPMENT_SLOT_END> knownPieces;
     knownPieces.fill(-1);
-    for (TransmogSetItemEntry const* transmogSetItem : *transmogSetItems)
+    for (TransmogSetItemEntry const* transmogSetItem : transmogSetItems)
     {
         ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogSetItem->ItemModifiedAppearanceID);
         if (!itemModifiedAppearance)
@@ -658,7 +674,7 @@ bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
         knownPieces[transmogSlot] = (hasAppearance && !isTemporary) ? 1 : 0;
     }
 
-    return std::find(knownPieces.begin(), knownPieces.end(), 0) == knownPieces.end();
+    return !advstd::ranges::contains(knownPieces, 0);
 }
 
 bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const
@@ -676,12 +692,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (!itemTemplate)
         return false;
 
-    if (!_owner->GetPlayer())
-        return false;
-
-    if (_owner->GetPlayer()->CanUseItem(itemTemplate) != EQUIP_ERR_OK)
-        return false;
-
     if (itemTemplate->HasFlag(ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL) || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
         return false;
 
@@ -689,8 +699,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     {
         case ITEM_CLASS_WEAPON:
         {
-            if (!(_owner->GetPlayer()->GetWeaponProficiency() & (1 << itemTemplate->GetSubClass())))
-                return false;
             if (itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_EXOTIC ||
                 itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_EXOTIC2 ||
                 itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_MISCELLANEOUS ||
@@ -725,9 +733,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
                 default:
                     return false;
             }
-            if (itemTemplate->GetInventoryType() != INVTYPE_CLOAK)
-                if (!(PlayerClassByArmorSubclass[itemTemplate->GetSubClass()] & _owner->GetPlayer()->GetClassMask()))
-                    return false;
             break;
         }
         default:
@@ -763,19 +768,25 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _temporaryAppearances.erase(temporaryAppearance);
     }
 
-    _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
+    owner->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
 
     if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
     {
         int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
         if (transmogSlot >= 0)
-            _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmogInSlot, transmogSlot, itemModifiedAppearance->ID);
+            owner->UpdateCriteria(CriteriaType::LearnAnyTransmogInSlot, transmogSlot, itemModifiedAppearance->ID);
     }
 
-    if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
-        for (TransmogSetEntry const* set : *sets)
-            if (IsSetCompleted(set->ID))
-                _owner->GetPlayer()->UpdateCriteria(CriteriaType::CollectTransmogSetFromGroup, set->TransmogSetGroupID);
+    for (TransmogSetEntry const* set : TransmogMgr::GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
+    {
+        if (IsSetCompleted(set->ID))
+        {
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(set->TrackingQuestID))
+                owner->RewardQuest(quest, LootItemType::Item, 0, owner, false);
+
+            owner->UpdateCriteria(CriteriaType::CollectTransmogSetFromGroup, set->TransmogSetGroupID);
+        }
+    }
 }
 
 void CollectionMgr::AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
@@ -808,12 +819,12 @@ void CollectionMgr::RemoveTemporaryAppearance(Item* item)
 std::pair<bool, bool> CollectionMgr::HasItemAppearance(uint32 itemModifiedAppearanceId) const
 {
     if (itemModifiedAppearanceId < _appearances->size() && _appearances->test(itemModifiedAppearanceId))
-        return{ true, false };
+        return { true, false };
 
-    if (_temporaryAppearances.find(itemModifiedAppearanceId) != _temporaryAppearances.end())
-        return{ true,true };
+    if (_temporaryAppearances.contains(itemModifiedAppearanceId))
+        return { true, true };
 
-    return{ false,false };
+    return { false, false };
 }
 
 std::unordered_set<ObjectGuid> CollectionMgr::GetItemsProvidingTemporaryAppearance(uint32 itemModifiedAppearanceId) const
@@ -844,18 +855,18 @@ void CollectionMgr::SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, boo
     if (apply)
     {
         if (itr == _favoriteAppearances.end())
-            _favoriteAppearances[itemModifiedAppearanceId] = FavoriteAppearanceState::New;
-        else if (itr->second == FavoriteAppearanceState::Removed)
-            itr->second = FavoriteAppearanceState::Unchanged;
+            _favoriteAppearances[itemModifiedAppearanceId] = CollectionItemState::New;
+        else if (itr->second == CollectionItemState::Removed)
+            itr->second = CollectionItemState::Unchanged;
         else
             return;
     }
     else if (itr != _favoriteAppearances.end())
     {
-        if (itr->second == FavoriteAppearanceState::New)
+        if (itr->second == CollectionItemState::New)
             _favoriteAppearances.erase(itemModifiedAppearanceId);
         else
-            itr->second = FavoriteAppearanceState::Removed;
+            itr->second = CollectionItemState::Removed;
     }
     else
         return;
@@ -873,9 +884,9 @@ void CollectionMgr::SendFavoriteAppearances() const
     WorldPackets::Transmogrification::AccountTransmogUpdate accountTransmogUpdate;
     accountTransmogUpdate.IsFullUpdate = true;
     accountTransmogUpdate.FavoriteAppearances.reserve(_favoriteAppearances.size());
-    for (auto itr = _favoriteAppearances.begin(); itr != _favoriteAppearances.end(); ++itr)
-        if (itr->second != FavoriteAppearanceState::Removed)
-            accountTransmogUpdate.FavoriteAppearances.push_back(itr->first);
+    for (auto [itemModifiedAppearanceId, state] : _favoriteAppearances)
+        if (state != CollectionItemState::Removed)
+            accountTransmogUpdate.FavoriteAppearances.push_back(itemModifiedAppearanceId);
 
     _owner->SendPacket(accountTransmogUpdate.Write());
 }
@@ -905,7 +916,8 @@ void CollectionMgr::LoadAccountTransmogIllusions(PreparedQueryResult knownTransm
 
         } while (knownTransmogIllusions->NextRow());
 
-        _transmogIllusions->init_from_block_range(blocks.begin(), blocks.end());
+        _transmogIllusions->resize(blocks.size() * 32);
+        boost::from_block_range(blocks.begin(), blocks.end(), *_transmogIllusions);
     }
 
     // Static illusions known by every player
@@ -933,7 +945,7 @@ void CollectionMgr::SaveAccountTransmogIllusions(LoginDatabaseTransaction trans)
 {
     uint16 blockIndex = 0;
 
-    boost::to_block_range(*_transmogIllusions, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
+    boost::to_block_range(*_transmogIllusions, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans = trans.get()](uint32 blockValue)
     {
         if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
         {
@@ -969,4 +981,186 @@ void CollectionMgr::AddTransmogIllusion(uint32 transmogIllusionId)
 bool CollectionMgr::HasTransmogIllusion(uint32 transmogIllusionId) const
 {
     return transmogIllusionId < _transmogIllusions->size() && _transmogIllusions->test(transmogIllusionId);
+}
+
+void CollectionMgr::LoadTransmogOutfits()
+{
+    _owner->GetPlayer()->AddUnlockedTransmogOutfits(_transmogOutfits);
+}
+
+void CollectionMgr::LoadAccountTransmogOutfits(PreparedQueryResult unlockedTransmogOutfits)
+{
+    if (unlockedTransmogOutfits)
+    {
+        do
+        {
+            Field* fields = unlockedTransmogOutfits->Fetch();
+
+            int32 transmogOutfitId = fields[0].GetInt32();
+
+            if (!sTransmogOutfitEntryStore.HasRecord(transmogOutfitId))
+                continue;
+
+            _transmogOutfits.insert(transmogOutfitId);
+
+        } while (unlockedTransmogOutfits->NextRow());
+    }
+
+    for (TransmogOutfitEntryEntry const* transmogOutfitEntry : TransmogMgr::GetAutomaticallyUnlockedOutfits())
+        _transmogOutfits.insert(transmogOutfitEntry->ID);
+}
+
+void CollectionMgr::SaveAccountTransmogOutfits(LoginDatabaseTransaction trans)
+{
+    for (int32 transmogOutfitId : _transmogOutfits)
+    {
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_TRANSMOG_OUTFITS);
+        stmt->setUInt32(0, _owner->GetBattlenetAccountId());
+        stmt->setInt32(1, transmogOutfitId);
+        trans->Append(stmt);
+    }
+}
+
+void CollectionMgr::AddTransmogOutfit(int32 transmogOutfitId)
+{
+    if (_transmogOutfits.insert(transmogOutfitId).second)
+        _owner->GetPlayer()->AddUnlockedTransmogOutfit(transmogOutfitId);
+}
+
+bool CollectionMgr::HasTransmogOutfit(int32 transmogOutfitId) const
+{
+    return _transmogOutfits.contains(transmogOutfitId);
+}
+
+void CollectionMgr::LoadWarbandScenes()
+{
+    Player* owner = _owner->GetPlayer();
+    for (auto const& [warbandSceneId, _] : _warbandScenes)
+        owner->AddWarbandScenesFlag(warbandSceneId / 32, 1 << warbandSceneId % 32);
+}
+
+void CollectionMgr::LoadAccountWarbandScenes(PreparedQueryResult knownWarbandScenes)
+{
+    if (knownWarbandScenes)
+    {
+        do
+        {
+            Field* fields = knownWarbandScenes->Fetch();
+            uint32 warbandSceneId = fields[0].GetUInt32();
+            if (!sWarbandSceneStore.HasRecord(warbandSceneId))
+            {
+                _warbandScenes[warbandSceneId].State = CollectionItemState::Removed;
+                continue;
+            }
+
+            bool isFavorite = fields[1].GetBool();
+            bool hasFanfare = fields[2].GetBool();
+
+            WarbandSceneCollectionItem& warbandScene = _warbandScenes.try_emplace(warbandSceneId).first->second;
+            if (isFavorite)
+                warbandScene.Flags |= WarbandSceneCollectionFlags::Favorite;
+
+            if (hasFanfare)
+                warbandScene.Flags |= WarbandSceneCollectionFlags::HasFanfare;
+
+        } while (knownWarbandScenes->NextRow());
+    }
+
+    for (uint32 warbandSceneId : DefaultWarbandScenes)
+        if (auto [itr, isNew] = _warbandScenes.try_emplace(warbandSceneId); isNew)
+            itr->second.State = CollectionItemState::New;
+}
+
+void CollectionMgr::SaveAccountWarbandScenes(LoginDatabaseTransaction trans)
+{
+    LoginDatabasePreparedStatement* stmt;
+    for (auto itr = _warbandScenes.begin(); itr != _warbandScenes.end(); )
+    {
+        auto& [warbandSceneId, data] = *itr;
+        switch (data.State)
+        {
+            case CollectionItemState::New:
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_WARBAND_SCENE);
+                stmt->setUInt32(0, _owner->GetBattlenetAccountId());
+                stmt->setUInt32(1, warbandSceneId);
+                stmt->setBool(2, data.Flags.HasFlag(WarbandSceneCollectionFlags::Favorite));
+                stmt->setBool(3, data.Flags.HasFlag(WarbandSceneCollectionFlags::HasFanfare));
+                trans->Append(stmt);
+                data.State = CollectionItemState::Unchanged;
+                ++itr;
+                break;
+            case CollectionItemState::Changed:
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_WARBAND_SCENE);
+                stmt->setBool(0, data.Flags.HasFlag(WarbandSceneCollectionFlags::Favorite));
+                stmt->setBool(1, data.Flags.HasFlag(WarbandSceneCollectionFlags::HasFanfare));
+                stmt->setUInt32(2, _owner->GetBattlenetAccountId());
+                stmt->setUInt32(3, warbandSceneId);
+                trans->Append(stmt);
+                data.State = CollectionItemState::Unchanged;
+                ++itr;
+                break;
+            case CollectionItemState::Removed:
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_WARBAND_SCENE);
+                stmt->setUInt32(0, _owner->GetBattlenetAccountId());
+                stmt->setUInt32(1, warbandSceneId);
+                trans->Append(stmt);
+                itr = _warbandScenes.erase(itr);
+                break;
+            default:
+                ++itr;
+                break;
+        }
+    }
+}
+
+void CollectionMgr::AddWarbandScene(uint32 warbandSceneId)
+{
+    if (!sWarbandSceneStore.HasRecord(warbandSceneId))
+        return;
+
+    WarbandSceneCollectionItem& warbandScene = _warbandScenes.try_emplace(warbandSceneId).first->second;
+    warbandScene.State = CollectionItemState::New;
+
+    uint32 blockIndex = warbandSceneId / 32;
+    uint32 bitIndex = warbandSceneId % 32;
+    _owner->GetPlayer()->AddWarbandScenesFlag(blockIndex, 1 << bitIndex);
+}
+
+bool CollectionMgr::HasWarbandScene(uint32 warbandSceneId) const
+{
+    return _warbandScenes.contains(warbandSceneId);
+}
+
+void CollectionMgr::SetWarbandSceneIsFavorite(uint32 warbandSceneId, bool apply)
+{
+    WarbandSceneCollectionItem* warbandScene = Trinity::Containers::MapGetValuePtr(_warbandScenes, warbandSceneId);
+    if (!warbandScene)
+        return;
+
+    if (apply)
+        warbandScene->Flags |= WarbandSceneCollectionFlags::Favorite;
+    else
+        warbandScene->Flags &= ~WarbandSceneCollectionFlags::Favorite;
+
+    if (warbandScene->State == CollectionItemState::Unchanged)
+        warbandScene->State = CollectionItemState::Changed;
+}
+
+void CollectionMgr::SendWarbandSceneCollectionData() const
+{
+    WorldPackets::Collections::AccountItemCollectionData accountItemCollection;
+    accountItemCollection.Type = ItemCollectionType::WarbandScene;
+
+    for (auto const& [warbandSceneId, data] : _warbandScenes)
+    {
+        if (data.State == CollectionItemState::Removed)
+            continue;
+
+        WorldPackets::Collections::ItemCollectionItemData& item = accountItemCollection.Items.emplace_back();
+        item.ID = warbandSceneId;
+        item.Type = ItemCollectionType::WarbandScene;
+        item.Flags = data.Flags.AsUnderlyingType();
+    }
+
+    _owner->SendPacket(accountItemCollection.Write());
 }
