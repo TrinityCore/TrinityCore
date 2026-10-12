@@ -69,7 +69,7 @@ namespace WorldPackets
             std::string GuildVirtualRealmName;
             Trinity::RaceMask<int32, 2> RaceFilter = { 0, 0 };
             int32 ClassFilter = -1;
-            std::vector<WhoWord> Words;
+            Array<WhoWord, 4> Words;
             bool ShowEnemies = false;
             bool ShowArenaPlayers = false;
             bool ExactName = false;

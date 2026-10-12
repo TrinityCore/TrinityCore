@@ -130,7 +130,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY);
+        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromOrientation(player->GetOrientation()), 255, GO_STATE_READY);
         if (!object)
             return false;
 
@@ -152,8 +152,7 @@ public:
         if (!object)
             return false;
 
-        /// @todo is it really necessary to add both the real and DB table guid here ?
-        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(spawnId)));
+        sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(object->GetGameObjectData()));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, *objectId, objectInfo->name.c_str(), std::to_string(spawnId).c_str(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
@@ -172,7 +171,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), spawntm);
+        player->SummonGameObject(objectId, *player, QuaternionData::fromOrientation(player->GetOrientation()), spawntm);
 
         return true;
     }

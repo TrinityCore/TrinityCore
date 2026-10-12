@@ -55,6 +55,7 @@ enum class EntityFragment : uint8
     FHousingStorage_C               = 33, //  UPDATEABLE,
     FHousingFixture_C               = 34, //  UPDATEABLE,
     PlayerInitiativeComponent_C     = 37, //  UPDATEABLE, INDIRECT,
+    FWorldStateListenerData_C       = 42,
     Tag_Item                        = 200, //  TAG,
     Tag_Container                   = 201, //  TAG,
     Tag_AzeriteEmpoweredItem        = 202, //  TAG,

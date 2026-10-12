@@ -49,9 +49,6 @@ class TC_GAME_API AreaTriggerAI
         // Called on each AreaTrigger update
         virtual void OnUpdate([[maybe_unused]] uint32 diff) { }
 
-        // Called when the AreaTrigger reach splineIndex
-        virtual void OnSplineIndexReached([[maybe_unused]] int32 splineIndex) { }
-
         // Called when the AreaTrigger reach its destination
         virtual void OnDestinationReached() { }
 

@@ -235,9 +235,11 @@ namespace WorldPackets
 
             struct ClassUnlock
             {
-               int8 ClassID = 0;
-               bool HasUnlockedAchievement = false;
-               uint32 AchievementID = 0;
+                int8 ClassID = 0;
+                bool HasExpansion = false;
+                bool HasUnlockedAchievement = false;
+                bool HasEntitlement = false;
+                uint32 AchievementID = 0;
             };
 
             struct RaceUnlock
@@ -246,8 +248,10 @@ namespace WorldPackets
                 bool HasUnlockedLicense = false;
                 bool HasUnlockedAchievement = false;
                 bool HasHeritageArmorUnlockAchievement = false;
+                bool HasEntitlement = false;
                 bool HideRaceOnClient = false;
                 bool FactionBalanceDisabled = false;
+                bool DoesNotHaveAvailableClasses = false;
                 std::vector<ClassUnlock> ClassUnlocks;
             };
 

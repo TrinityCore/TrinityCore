@@ -223,6 +223,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         notify->Data.ChatChannelID = _channelId;
         //notify->Data.InstanceID = 0;
         notify->Data._ChannelFlags = _channelFlags;
+        notify->Data.UserFlags = GetPlayerFlags(guid);
         notify->Data._Channel = GetName(localeIdx);
         notify->Data.ChannelGUID = _channelGuid;
         notify->Data.Write();

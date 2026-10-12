@@ -19,8 +19,8 @@
 #define AreaTriggerDataStore_h__
 
 #include "Define.h"
+#include "FlatSet.h"
 #include "ObjectGuid.h"
-#include <set>
 
 class AreaTriggerTemplate;
 class AreaTriggerCreateProperties;
@@ -36,7 +36,7 @@ public:
     void LoadAreaTriggerTemplates();
     void LoadAreaTriggerSpawns();
 
-    std::set<ObjectGuid::LowType> const* GetAreaTriggersForMapAndCell(uint32 mapId, Difficulty difficulty, uint32 cellId) const;
+    Trinity::Containers::FlatSet<ObjectGuid::LowType> const* GetAreaTriggersForMapAndGrid(uint32 mapId, Difficulty difficulty, uint32 gridId) const;
     AreaTriggerSpawn const* GetAreaTriggerSpawn(ObjectGuid::LowType spawnId) const;
     AreaTriggerTemplate const* GetAreaTriggerTemplate(AreaTriggerId const& areaTriggerId) const;
     AreaTriggerCreateProperties const* GetAreaTriggerCreateProperties(AreaTriggerCreatePropertiesId const& areaTriggerCreatePropertiesId) const;

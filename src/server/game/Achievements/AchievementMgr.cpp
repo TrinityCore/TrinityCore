@@ -770,7 +770,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
             Criteria const* criteria = sCriteriaMgr->GetCriteria(id);
             if (!criteria)
             {
-                // we will remove not existed criteria for all guilds
+                // Remove non-existing achievements from all guilds
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria {} data removed from table `guild_achievement_progress`.", id);
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);

@@ -42,9 +42,6 @@ WorldPacket const* QueryGuildInfoResponse::Write()
         _worldPacket << uint32(Info->BorderStyle);
         _worldPacket << uint32(Info->BorderColor);
         _worldPacket << uint32(Info->BackgroundColor);
-        _worldPacket << SizedString::BitsSize<7>(Info->GuildName);
-        _worldPacket.FlushBits();
-
         for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
         {
             _worldPacket << uint32(rank.RankID);
@@ -54,6 +51,9 @@ WorldPacket const* QueryGuildInfoResponse::Write()
 
             _worldPacket << SizedString::Data(rank.RankName);
         }
+
+        _worldPacket << SizedString::BitsSize<7>(Info->GuildName);
+        _worldPacket.FlushBits();
 
         _worldPacket << SizedString::Data(Info->GuildName);
     }
@@ -87,6 +87,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GuildRosterMemberData const& rosterMemb
     data << uint8(rosterMemberData.Level);
     data << uint8(rosterMemberData.ClassID);
     data << uint8(rosterMemberData.Gender);
+    data << rosterMemberData.DungeonScore;
     data << uint64(rosterMemberData.GuildClubMemberID);
     data << uint8(rosterMemberData.RaceID);
     data << int32(rosterMemberData.TimerunningSeasonID);
@@ -96,8 +97,6 @@ ByteBuffer& operator<<(ByteBuffer& data, GuildRosterMemberData const& rosterMemb
     data << SizedString::BitsSize<8>(rosterMemberData.OfficerNote);
     data << Bits<1>(rosterMemberData.Authenticated);
     data.FlushBits();
-
-    data << rosterMemberData.DungeonScore;
 
     data << SizedString::Data(rosterMemberData.Name);
     data << SizedString::Data(rosterMemberData.Note);
@@ -112,12 +111,13 @@ WorldPacket const* GuildRoster::Write()
     _worldPacket << CreateDate;
     _worldPacket << int32(GuildFlags);
     _worldPacket << Size<uint32>(MemberData);
-    _worldPacket << SizedString::BitsSize<11>(WelcomeText);
-    _worldPacket << SizedString::BitsSize<11>(InfoText);
-    _worldPacket.FlushBits();
 
     for (GuildRosterMemberData const& member : MemberData)
         _worldPacket << member;
+
+    _worldPacket << SizedString::BitsSize<11>(WelcomeText);
+    _worldPacket << SizedString::BitsSize<11>(InfoText);
+    _worldPacket.FlushBits();
 
     _worldPacket << SizedString::Data(WelcomeText);
     _worldPacket << SizedString::Data(InfoText);
@@ -618,8 +618,6 @@ WorldPacket const* GuildBankQueryResults::Write()
     _worldPacket << int32(WithdrawalsRemaining);
     _worldPacket << Size<uint32>(TabInfo);
     _worldPacket << Size<uint32>(ItemInfo);
-    _worldPacket << Bits<1>(FullUpdate);
-    _worldPacket.FlushBits();
 
     for (GuildBankTabInfo const& tab : TabInfo)
     {
@@ -635,12 +633,12 @@ WorldPacket const* GuildBankQueryResults::Write()
     for (GuildBankItemInfo const& item : ItemInfo)
     {
         _worldPacket << int32(item.Slot);
+        _worldPacket << item.Item;
         _worldPacket << int32(item.Count);
         _worldPacket << int32(item.EnchantmentID);
         _worldPacket << int32(item.Charges);
         _worldPacket << int32(item.OnUseEnchantmentID);
         _worldPacket << int32(item.Flags);
-        _worldPacket << item.Item;
         _worldPacket << BitsSize<2>(item.SocketEnchant);
         _worldPacket << Bits<1>(item.Locked);
         _worldPacket.FlushBits();
@@ -648,6 +646,9 @@ WorldPacket const* GuildBankQueryResults::Write()
         for (Item::ItemGemData const& socketEnchant : item.SocketEnchant)
             _worldPacket << socketEnchant;
     }
+
+    _worldPacket << Bits<1>(FullUpdate);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -794,8 +795,6 @@ WorldPacket const* GuildBankLogQueryResults::Write()
 {
     _worldPacket << int32(Tab);
     _worldPacket << Size<uint32>(Entry);
-    _worldPacket << OptionalInit(WeeklyBonusMoney);
-    _worldPacket.FlushBits();
 
     for (GuildBankLogEntry const& logEntry : Entry)
     {
@@ -821,6 +820,9 @@ WorldPacket const* GuildBankLogQueryResults::Write()
         if (logEntry.OtherTab)
             _worldPacket << int8(*logEntry.OtherTab);
     }
+
+    _worldPacket << OptionalInit(WeeklyBonusMoney);
+    _worldPacket.FlushBits();
 
     if (WeeklyBonusMoney)
         _worldPacket << uint64(*WeeklyBonusMoney);

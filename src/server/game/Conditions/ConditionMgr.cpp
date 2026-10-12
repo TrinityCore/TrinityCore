@@ -3075,11 +3075,17 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->LifetimeMaxPVPRank && player->m_activePlayerData->LifetimeMaxRank != condition->LifetimeMaxPVPRank)
         return false;
 
-    if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
-        return false;
+    if (condition->MovementFlags)
+    {
+        static constexpr MovementFlags PlayerConditionSupportedMovementFlags = MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD
+            | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT
+            | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_WALKING | MOVEMENTFLAG_DISABLE_GRAVITY
+            | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_SWIMMING;
 
-    if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
-        return false;
+        MovementFlags requiredFlags = MovementFlags(condition->MovementFlags) & PlayerConditionSupportedMovementFlags;
+        if ((player->GetUnitMovementFlags() & requiredFlags) != requiredFlags)
+            return false;
+    }
 
     if (condition->WeaponSubclassMask)
     {

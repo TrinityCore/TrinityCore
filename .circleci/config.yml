@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   codestyle_and_sql:
     docker:

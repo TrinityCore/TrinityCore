@@ -4307,12 +4307,13 @@ TC_API_EXPORT EnumText EnumUtils<Emote>::ToString(Emote value)
         case EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING: return { "EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING", "EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING", "" };
         case EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND: return { "EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND", "EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND", "" };
         case EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND: return { "EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND", "EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND", "" };
+        case EMOTE_ONESHOT_OFFER_LOOP: return { "EMOTE_ONESHOT_OFFER_LOOP", "EMOTE_ONESHOT_OFFER_LOOP", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 484; }
+TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 485; }
 
 template <>
 TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
@@ -4803,6 +4804,7 @@ TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
         case 481: return EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING;
         case 482: return EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND;
         case 483: return EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND;
+        case 484: return EMOTE_ONESHOT_OFFER_LOOP;
         default: throw std::out_of_range("index");
     }
 }
@@ -5296,6 +5298,7 @@ TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
         case EMOTE_STATE_WORK_ZULAMAN_BLACKSMITTING: return 481;
         case EMOTE_STATE_WORK_ZULAMAN_HAMMERING_SOUND: return 482;
         case EMOTE_ATTACK1H_ZONE2_BREAKING_STUFF_SOUND: return 483;
+        case EMOTE_ONESHOT_OFFER_LOOP: return 484;
         default: throw std::out_of_range("value");
     }
 }

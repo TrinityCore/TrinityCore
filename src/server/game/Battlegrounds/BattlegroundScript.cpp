@@ -81,7 +81,7 @@ GameObject* ArenaScript::CreateObject(uint32 entry, float x, float y, float z, f
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: {}] for BG (map: {}) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, battlegroundMap->GetId());
 
-        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
+        rot = QuaternionData::fromOrientation(o);
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance

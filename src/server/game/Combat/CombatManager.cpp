@@ -405,7 +405,9 @@ bool CombatManager::UpdateOwnerCombatState() const
 
     if (combatState)
     {
-        _owner->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
+        // always set UNIT_FLAG_PET_IN_COMBAT even if the unit has no controlled summons
+        // This behavior is intended as retail uses this to toggle swimming for ocean floor combat
+        _owner->SetUnitFlag(UNIT_FLAG_IN_COMBAT | UNIT_FLAG_PET_IN_COMBAT);
         _owner->AtEnterCombat();
         if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtEngage(GetAnyTarget());
@@ -416,10 +418,11 @@ bool CombatManager::UpdateOwnerCombatState() const
         _owner->AtExitCombat();
         if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtDisengage();
-    }
 
-    if (Unit* master = _owner->GetCharmerOrOwner())
-        master->UpdatePetCombatState();
+        // UNIT_FLAG_PET_IN_COMBAT will be cleared if controlled summons are not in combat anymore
+        if (Unit* master = _owner->GetCharmerOrOwner())
+            master->UpdatePetCombatState();
+    }
 
     return true;
 }

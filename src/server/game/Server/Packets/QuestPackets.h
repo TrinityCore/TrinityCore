@@ -459,11 +459,12 @@ namespace WorldPackets
             std::string_view LogDescription;
             std::string_view DescriptionText;
             std::vector<ConditionalQuestText> ConditionalDescriptionText;
-            bool DisplayPopup = false;
-            bool StartCheat = false;
             bool AutoLaunched = false;
             bool FromContentPush = false;
+            bool ReplayQuest = false;
             bool ResetByScheduler = false;
+            bool StartCheat = false;
+            bool DisplayPopup = false;
         };
 
         struct QuestObjectiveCollect
@@ -800,8 +801,11 @@ namespace WorldPackets
             bool HideWarboardHeader = false;
             bool KeepOpenAfterChoice = false;
             bool ShowChoicesAsList = false;
-            bool ForceDontShowChoicesAsList = false;
+            bool HasPowerChoice = false;
             bool RequiresSelection = false;
+            bool ShowChoicesAsGrid = false;
+            bool HideAnswerArt = false;
+            bool ShowChoicesAsColumns = false;
         };
 
         class ChoiceResponse final : public ClientPacket

@@ -46,6 +46,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << int8(gossipOption.OptionFlags);
     data << uint64(gossipOption.OptionCost);
     data << uint32(gossipOption.OptionLanguage);
+    data << gossipOption.Treasure;
     data << int32(gossipOption.Flags);
     data << int32(gossipOption.OrderIndex);
     data << SizedString::BitsSize<12>(gossipOption.Text);
@@ -55,8 +56,6 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     data << OptionalInit(gossipOption.OverrideIconID);
     data << SizedCString::BitsSize<8>(gossipOption.FailureDescription);
     data.FlushBits();
-
-    data << gossipOption.Treasure;
 
     data << SizedString::Data(gossipOption.Text);
     data << SizedString::Data(gossipOption.Confirm);
@@ -77,7 +76,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestID);
     data << int32(gossipText.ContentTuningID);
     data << int32(gossipText.QuestType);
-    data << int32(gossipText.Unused1102);
+    data << int32(gossipText.QuestInfoID);
     data.append(gossipText.QuestFlags);
 
     data << Bits<1>(gossipText.Repeatable);
@@ -115,21 +114,22 @@ WorldPacket const* GossipMessage::Write()
     _worldPacket << int32(FriendshipFactionID);
     _worldPacket << Size<uint32>(GossipOptions);
     _worldPacket << Size<uint32>(GossipText);
-    _worldPacket << OptionalInit(RandomTextID);
-    _worldPacket << OptionalInit(BroadcastTextID);
-    _worldPacket.FlushBits();
 
     for (ClientGossipOptions const& options : GossipOptions)
         _worldPacket << options;
+
+    for (ClientGossipText const& text : GossipText)
+        _worldPacket << text;
+
+    _worldPacket << OptionalInit(RandomTextID);
+    _worldPacket << OptionalInit(BroadcastTextID);
+    _worldPacket.FlushBits();
 
     if (RandomTextID)
         _worldPacket << int32(*RandomTextID);
 
     if (BroadcastTextID)
         _worldPacket << int32(*BroadcastTextID);
-
-    for (ClientGossipText const& text : GossipText)
-        _worldPacket << text;
 
     return &_worldPacket;
 }
@@ -143,12 +143,11 @@ ByteBuffer& operator<<(ByteBuffer& data, VendorItem const& item)
     data << int32(item.Quantity);
     data << int32(item.ExtendedCostID);
     data << int32(item.PlayerConditionFailed);
+    data << item.Item;
     data << Bits<1>(item.Locked);
     data << Bits<1>(item.DoNotFilterOnVendor);
     data << Bits<1>(item.Refundable);
     data.FlushBits();
-
-    data << item.Item;
 
     return data;
 }

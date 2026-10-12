@@ -124,11 +124,11 @@ ByteBuffer& operator>>(ByteBuffer& buffer, CalendarAddEventInfo& addEventInfo)
     buffer >> addEventInfo.Flags;
     buffer >> Size<uint32>(addEventInfo.Invites);
 
-    buffer >> SizedString::BitsSize<8>(addEventInfo.Title);
-    buffer >> SizedString::BitsSize<11>(addEventInfo.Description);
-
     for (CalendarAddEventInviteInfo& invite : addEventInfo.Invites)
         buffer >> invite;
+
+    buffer >> SizedString::BitsSize<8>(addEventInfo.Title);
+    buffer >> SizedString::BitsSize<11>(addEventInfo.Description);
 
     buffer >> SizedString::Data(addEventInfo.Title);
     buffer >> SizedString::Data(addEventInfo.Description);
@@ -265,14 +265,14 @@ WorldPacket const* CalendarSendCalendar::Write()
     _worldPacket << Size<uint32>(Events);
     _worldPacket << Size<uint32>(RaidLockouts);
 
-    for (CalendarSendCalendarRaidLockoutInfo const& lockout : RaidLockouts)
-        _worldPacket << lockout;
-
     for (CalendarSendCalendarInviteInfo const& invite : Invites)
         _worldPacket << invite;
 
     for (CalendarSendCalendarEventInfo const& event : Events)
         _worldPacket << event;
+
+    for (CalendarSendCalendarRaidLockoutInfo const& lockout : RaidLockouts)
+        _worldPacket << lockout;
 
     return &_worldPacket;
 }
@@ -289,12 +289,13 @@ WorldPacket const* CalendarSendEvent::Write()
     _worldPacket << LockDate;
     _worldPacket << uint64(EventClubID);
     _worldPacket << Size<uint32>(Invites);
-    _worldPacket << SizedString::BitsSize<8>(EventName);
-    _worldPacket << SizedString::BitsSize<11>(Description);
-    _worldPacket.FlushBits();
 
     for (CalendarEventInviteInfo const& invite : Invites)
         _worldPacket << invite;
+
+    _worldPacket << SizedString::BitsSize<8>(EventName);
+    _worldPacket << SizedString::BitsSize<11>(Description);
+    _worldPacket.FlushBits();
 
     _worldPacket << SizedString::Data(EventName);
     _worldPacket << SizedString::Data(Description);

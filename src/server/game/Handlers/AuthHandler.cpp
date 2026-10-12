@@ -54,7 +54,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
             for (auto&& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
                 response.SuccessInfo->Templates.push_back(&templ.second);
 
-        response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo->AvailableClasses = &sObjectMgr->GetRaceClassRequirements();
 
         // TEMPORARY - prevent creating characters in uncompletable zone
         // This has the side effect of disabling Exile's Reach choice clientside without actually forcing character templates

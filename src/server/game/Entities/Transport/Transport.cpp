@@ -16,6 +16,7 @@
  */
 
 #include "Transport.h"
+#include "AreaTrigger.h"
 #include "CellImpl.h"
 #include "DB2Stores.h"
 #include "GameEventSender.h"
@@ -71,6 +72,7 @@ void TransportBase::UpdatePassengerPosition(Map* map, WorldObject* passenger, Po
             break;
         case TYPEID_AREATRIGGER:
             map->AreaTriggerRelocation(passenger->ToAreaTrigger(), x, y, z, o);
+            passenger->ToAreaTrigger()->RelocateStationaryPosition(position);
             break;
         default:
             break;
@@ -550,11 +552,11 @@ void Transport::LoadStaticPassengers()
     if (!mapId)
         return;
 
-    CellObjectGuidsMap const* cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetDifficultyID());
-    if (!cells)
+    GridObjectGuidsMap const* grids = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetDifficultyID());
+    if (!grids)
         return;
 
-    for (auto const& [cellId, guids] : *cells)
+    for (auto const& [gridId, guids] : *grids)
     {
         // GameObjects on transport
         for (ObjectGuid::LowType spawnId : guids.gameobjects)

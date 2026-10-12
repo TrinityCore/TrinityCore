@@ -135,10 +135,13 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << uint32(CommercePricePollTimeSeconds);
     _worldPacket << uint32(KioskSessionDurationMinutes);
+    _worldPacket << QuickJoinConfig;
     _worldPacket << int64(RedeemForBalanceAmount);
 
     _worldPacket << uint32(ClubsPresenceDelay);
     _worldPacket << uint32(ClubPresenceUnsubscribeDelay);
+
+    _worldPacket << Squelch;
 
     _worldPacket << int32(ContentSetID);
     _worldPacket << Size<uint32>(DisabledGameModes);
@@ -225,20 +228,17 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << Bits<1>(GlobalUserGeneratedContentMuteEnabled);
     _worldPacket << Bits<1>(AccountUserGeneratedContentIsRisky);
+    _worldPacket << Bits<1>(FriendsDisabled);
 
     _worldPacket.FlushBits();
 
-    _worldPacket << QuickJoinConfig;
+    if (EuropaTicketSystemStatus)
+        _worldPacket << *EuropaTicketSystemStatus;
 
     if (SessionAlert)
         _worldPacket << *SessionAlert;
 
     _worldPacket << SizedString::Data(Unknown1027);
-
-    _worldPacket << Squelch;
-
-    if (EuropaTicketSystemStatus)
-        _worldPacket << *EuropaTicketSystemStatus;
 
     return &_worldPacket;
 }
@@ -287,9 +287,6 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket.FlushBits();
 
-    if (EuropaTicketSystemStatus)
-        _worldPacket << *EuropaTicketSystemStatus;
-
     _worldPacket << uint32(CommercePricePollTimeSeconds);
     _worldPacket << uint32(KioskSessionDurationMinutes);
     _worldPacket << int64(RedeemForBalanceAmount);
@@ -313,6 +310,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Size<uint32>(DebugTimeEvents);
     _worldPacket << int32(MostRecentTimeEventID);
     _worldPacket << uint32(EventRealmQueues);
+
+    if (EuropaTicketSystemStatus)
+        _worldPacket << *EuropaTicketSystemStatus;
 
     if (LaunchDurationETA)
         _worldPacket << int32(*LaunchDurationETA);

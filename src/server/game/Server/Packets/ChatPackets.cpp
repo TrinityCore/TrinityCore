@@ -195,7 +195,7 @@ WorldPacket const* Chat::Write()
     _worldPacket << uint32(TargetVirtualAddress);
     _worldPacket << uint32(SenderVirtualAddress);
     _worldPacket << int32(AchievementID);
-    _worldPacket << uint16(_ChatFlags);
+    _worldPacket << uint32(_ChatFlags);
     _worldPacket << float(DisplayTime);
     _worldPacket << int32(SpellID);
     _worldPacket << SizedString::BitsSize<11>(SenderName);

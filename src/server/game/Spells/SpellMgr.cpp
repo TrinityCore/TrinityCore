@@ -1027,20 +1027,20 @@ void SpellMgr::LoadSpellLearnSpells()
         node.Active      = fields[2].GetBool();
         node.AutoLearned = false;
 
-        SpellInfo const* spellInfo = GetSpellInfo(spell_id, DIFFICULTY_NONE);
-        if (!spellInfo)
+        if (!GetSpellInfo(spell_id, DIFFICULTY_NONE))
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` does not exist.", spell_id);
             continue;
         }
 
-        if (!GetSpellInfo(node.Spell, DIFFICULTY_NONE))
+        SpellInfo const* learnedSpellInfo = GetSpellInfo(node.Spell, DIFFICULTY_NONE);
+        if (!learnedSpellInfo)
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` learning non-existing spell {}.", spell_id, node.Spell);
             continue;
         }
 
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
+        if (learnedSpellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` attempts learning talent spell {}, skipped.", spell_id, node.Spell);
             continue;
@@ -1692,7 +1692,7 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_DAMAGE] = true;
-    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK] = true;
+    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED] = true;
     isTriggerAura[SPELL_AURA_SCHOOL_ABSORB] = true; // Savage Defense untested
     isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT] = true;
     isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
@@ -1707,7 +1707,7 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_MOD_MECHANIC_RESISTANCE] = true;
     isTriggerAura[SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS] = true;
     isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE] = true;
-    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE_3] = true;
+    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE_NO_REGEN] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
     isTriggerAura[SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER] = true;
@@ -5549,6 +5549,30 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 1225827, 1279200 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, 1226033, EFFECT_0, {}, {});
+    });
+
+    // Boomstick
+    ApplySpellFix({ 1261215 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 1261193, EFFECT_1, {}, {});
+    });
+
+    // Bleak Powder
+    ApplySpellFix({ 467914, 472084 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, 467911, EFFECT_1, {}, {});
+    });
+
+    // Starfire
+    ApplySpellFix({ 194153 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Frostscythe
+    ApplySpellFix({ 207230 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

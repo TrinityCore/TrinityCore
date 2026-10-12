@@ -641,15 +641,15 @@ void Vehicle::InitMovementInfoForBase()
     uint32 vehicleFlags = GetVehicleInfo()->Flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_NO_STRAFE);
     if (vehicleFlags & VEHICLE_FLAG_NO_JUMPING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_NO_JUMPING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_TURNING);
     if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
-        _me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
+        _me->AddUnitMovementFlag(MOVEMENTFLAG_FULL_SPEED_PITCHING);
 
     _me->m_movementInfo.pitch = GetPitch();
 }
