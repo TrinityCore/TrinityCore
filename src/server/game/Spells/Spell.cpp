@@ -3225,7 +3225,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
 
             if (!hitInfo.HitAura)
             {
-                bool const resetPeriodicTimer = (m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+                bool const resetPeriodicTimer = false; //(m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
                 uint32 const allAuraEffectMask = Aura::BuildEffectMaskForOwner(m_spellInfo, MAX_EFFECT_MASK, unit);
 
                 AuraCreateInfo createInfo(m_castId, m_spellInfo, GetCastDifficulty(), allAuraEffectMask, unit);
@@ -3269,10 +3269,20 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                                     hitInfo.AuraDuration = int32(origDuration * m_originalCaster->m_unitData->ModCastingSpeed);
                             }
 
-                            if (refresh && m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+                            if (refresh && hitInfo.HitAura->HasPeriodicEffect())
                             {
-                                int32 newDuration = hitInfo.AuraDuration + hitInfo.HitAura->GetDuration();
-                                hitInfo.AuraDuration = std::min(newDuration, CalculatePct(hitInfo.AuraDuration, 130));
+                                if (m_spellInfo->HasAttribute(SPELL_ATTR13_PERIODIC_REFRESH_EXTENDS_DURATION))
+                                {
+                                    // Add up to 30% additional duration on a refreshed periodic aura
+                                    int32 newDuration = hitInfo.AuraDuration + hitInfo.HitAura->GetDuration();
+                                    hitInfo.AuraDuration = std::min(newDuration, CalculatePct(hitInfo.AuraDuration, 130));
+                                }
+                                else
+                                {
+                                    // Add the remaining time until periodic tick to the duration
+                                    int32 newDuration = hitInfo.AuraDuration + hitInfo.HitAura->GetRemainingTimeUntilPeriodicTick();
+                                    hitInfo.AuraDuration = newDuration;
+                                }
                             }
                         }
                     }

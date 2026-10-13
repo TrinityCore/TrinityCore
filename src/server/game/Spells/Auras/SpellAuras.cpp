@@ -988,6 +988,20 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
         aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
 }
 
+bool Aura::HasPeriodicEffect() const
+{
+    return std::ranges::any_of(GetAuraEffects(), [](AuraEffect const* aurEff) { return aurEff->IsPeriodic(); });
+}
+
+uint32 Aura::GetRemainingTimeUntilPeriodicTick() const
+{
+    for (AuraEffect const* aurEff : GetAuraEffects())
+        if (aurEff->IsPeriodic())
+            return aurEff->GetRemainingTimeUntilPeriodicTick();
+
+    return 0;
+}
+
 void Aura::SetCharges(uint8 charges)
 {
     if (m_procCharges == charges)

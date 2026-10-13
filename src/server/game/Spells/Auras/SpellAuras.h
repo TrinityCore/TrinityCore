@@ -225,6 +225,8 @@ class TC_GAME_API Aura
         void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
+        bool HasPeriodicEffect() const;
+        uint32 GetRemainingTimeUntilPeriodicTick() const;
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
