@@ -543,6 +543,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
                 visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_OBJECT:
+        case TYPEID_AIGROUP:
             break;
     }
 

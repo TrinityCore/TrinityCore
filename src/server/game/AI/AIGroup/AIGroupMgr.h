@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
+#include <algorithm>
 #include <initializer_list>
 #include <string_view>
 #include <unordered_map>
