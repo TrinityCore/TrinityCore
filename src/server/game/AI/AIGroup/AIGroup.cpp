@@ -16,31 +16,75 @@
  */
 
 #include "AIGroup.h"
+#include "AIGroupEntity.h"
 #include "Creature.h"
+#include "Map.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 
-AIGroup::AIGroup(Creature* creature) : CreatureAI(creature) { }
+AIGroupCreature::AIGroupCreature(Creature* creature) : CreatureAI(creature) { }
 
-void AIGroup::InitializeAI()
+AIGroup* AIGroupCreature::GetGroup() const
 {
-    GetScript()->OnInitialize(me);
+    Map* map = me->FindMap();
+    if (!map)
+        return nullptr;
+
+    if (AIGroup* group = map->GetAIGroupByMainMemberGuid(me->GetSpawnId()))
+        return group;
+
+    ObjectGuid::LowType mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(me->GetSpawnId(), AIGroupMemberType::Creature);
+    return mainMemberGuid ? map->GetAIGroupByMainMemberGuid(mainMemberGuid) : nullptr;
 }
 
-void AIGroup::OnActionTriggersChange(uint32 /*triggersId*/)
+AIGroupScript* AIGroupCreature::GetScript()
 {
+    if (AIGroup* group = GetGroup())
+    {
+        group->GetScript()->SetActor(me);
+        return group->GetScript();
+    }
+
+    if (!_scriptInitialized)
+    {
+        _script.OnInitialize(me);
+        _scriptInitialized = true;
+    }
+
+    return &_script;
+}
+
+void AIGroupCreature::InitializeAI()
+{
+    if (AIGroup* group = GetGroup())
+    {
+        group->GetScript()->SetActor(me);
+        return;
+    }
+
+    GetScript();
+}
+
+void AIGroupCreature::OnActionTriggersChange(uint32 triggersId)
+{
+    if (AIGroup* group = GetGroup())
+        group->SetTriggersId(triggersId);
+
     GetScript()->ReplaceActionTriggers();
 }
 
-void AIGroup::MovementInform(uint32 type, uint32 id)
+void AIGroupCreature::MovementInform(uint32 type, uint32 id)
 {
     GetScript()->MovementInform(type, id);
 }
 
-void AIGroup::UpdateAI(uint32 diff)
+void AIGroupCreature::UpdateAI(uint32 diff)
 {
-    GetScript()->OnUpdate(diff);
+    if (AIGroup* group = GetGroup())
+        group->GetScript()->SetActor(me);
+    else
+        GetScript()->OnUpdate(diff);
 
     if (!UpdateVictim())
         return;
@@ -48,70 +92,71 @@ void AIGroup::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-void AIGroup::JustEngagedWith(Unit* enemy)
+void AIGroupCreature::JustEngagedWith(Unit* enemy)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnEnterCombat, enemy);
 }
 
-void AIGroup::JustDied(Unit* killer)
+void AIGroupCreature::JustDied(Unit* killer)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnDeath, killer);
     GetScript()->TerminateActionSets();
 }
 
-void AIGroup::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
+void AIGroupCreature::SpellHit(WorldObject* caster, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpell, caster, spellInfo->Id);
 }
 
-void AIGroup::KilledUnit(Unit* victim)
+void AIGroupCreature::KilledUnit(Unit* victim)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnKill, victim);
 }
 
-void AIGroup::JustAppeared()
+void AIGroupCreature::JustAppeared()
 {
     CreatureAI::JustAppeared();
 
-    GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
+    if (!GetGroup())
+        GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
 }
 
-void AIGroup::ReceiveEmote(Player* player, uint32 textEmote)
+void AIGroupCreature::ReceiveEmote(Player* player, uint32 textEmote)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnEmote, player, textEmote);
 }
 
-void AIGroup::OnSpellCast(SpellInfo const* spellInfo)
+void AIGroupCreature::OnSpellCast(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellCast, nullptr, spellInfo->Id);
 }
 
-void AIGroup::JustReachedHome()
+void AIGroupCreature::JustReachedHome()
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnCombatReturn);
 }
 
-void AIGroup::OnDespawn()
+void AIGroupCreature::OnDespawn()
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnDespawn);
 }
 
-void AIGroup::OnSpellFailed(SpellInfo const* spellInfo)
+void AIGroupCreature::OnSpellFailed(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellFailed, nullptr, spellInfo->Id);
 }
 
-void AIGroup::OnSpellStart(SpellInfo const* spellInfo)
+void AIGroupCreature::OnSpellStart(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnSpellStart, nullptr, spellInfo->Id);
 }
 
-void AIGroup::OnAuraApplied(AuraApplication const* aurApp)
+void AIGroupCreature::OnAuraApplied(AuraApplication const* aurApp)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnAuraApplied, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }
 
-void AIGroup::OnAuraRemoved(AuraApplication const* aurApp)
+void AIGroupCreature::OnAuraRemoved(AuraApplication const* aurApp)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
 }

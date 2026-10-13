@@ -30,6 +30,91 @@ AIGroupMgr* AIGroupMgr::Instance()
     return &instance;
 }
 
+void AIGroupMgr::LoadAIGroupMembersFromDB()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _groupMembers.clear();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AI_GROUP_MEMBERS);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AI group members. DB table `ai_group_members` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        ObjectGuid::LowType mainMemberGuid = fields[0].GetUInt32();
+        ObjectGuid::LowType memberGuid = fields[1].GetUInt32();
+        uint8 memberType = fields[2].GetUInt8();
+        uint8 unit = fields[3].GetUInt8();
+
+        CreatureData const* mainMember = sObjectMgr->GetCreatureData(mainMemberGuid);
+        if (!mainMember)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ai_group_members` references missing main creature spawn {}. Row skipped.", mainMemberGuid);
+            continue;
+        }
+
+        AIGroupMemberType type;
+        switch (memberType)
+        {
+            case uint8(AIGroupMemberType::Creature):
+            {
+                CreatureData const* memberData = sObjectMgr->GetCreatureData(memberGuid);
+                if (!memberData)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `ai_group_members` references missing creature spawn {}. Row skipped.", memberGuid);
+                    continue;
+                }
+                if (memberData->mapId != mainMember->mapId)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `ai_group_members` assigns creature spawn {} from map {} to main member {} on map {}. Row skipped.",
+                        memberGuid, memberData->mapId, mainMemberGuid, mainMember->mapId);
+                    continue;
+                }
+                type = AIGroupMemberType::Creature;
+                break;
+            }
+            case uint8(AIGroupMemberType::GameObject):
+            {
+                GameObjectData const* memberData = sObjectMgr->GetGameObjectData(memberGuid);
+                if (!memberData)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `ai_group_members` references missing gameobject spawn {}. Row skipped.", memberGuid);
+                    continue;
+                }
+                if (memberData->mapId != mainMember->mapId)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `ai_group_members` assigns gameobject spawn {} from map {} to main member {} on map {}. Row skipped.",
+                        memberGuid, memberData->mapId, mainMemberGuid, mainMember->mapId);
+                    continue;
+                }
+                type = AIGroupMemberType::GameObject;
+                break;
+            }
+            default:
+                TC_LOG_ERROR("sql.sql", "Table `ai_group_members` has invalid member type {}. Row skipped.", memberType);
+                continue;
+        }
+
+        if (unit == uint8(AIGroupUnit::RandomUnit) || unit == uint8(AIGroupUnit::AllUnits) || unit >= uint8(AIGroupUnit::Max))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `ai_group_members` has invalid AIGroupUnit {}. Row skipped.", unit);
+            continue;
+        }
+
+        _groupMembers[mainMemberGuid].push_back({ memberGuid, type, AIGroupUnit(unit) });
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} AI group members in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void AIGroupMgr::LoadActionSetsFromDB()
 {
     uint32 oldMSTime = getMSTime();

@@ -2129,6 +2129,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading AIGroup members...");
+    sAIGroupMgr->LoadAIGroupMembersFromDB();
+
     TC_LOG_INFO("server.loading", "Loading Action Sets...");
     sAIGroupMgr->LoadActionSetsFromDB();
     sAIGroupMgr->LoadActionSetsNamesFromDB();

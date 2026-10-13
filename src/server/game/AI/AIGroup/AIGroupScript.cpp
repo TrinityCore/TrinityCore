@@ -17,6 +17,7 @@
 
 #include "AIGroup.h"
 #include "AIGroupScript.h"
+#include "AIGroupEntity.h"
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -34,6 +35,7 @@ AIGroupScript::AIGroupScript()
 {
     go = nullptr;
     me = nullptr;
+    m_group = nullptr;
 }
 
 AIGroupScript::~AIGroupScript()
@@ -52,6 +54,9 @@ void AIGroupScript::OnInitialize(WorldObject* object)
             case TYPEID_GAMEOBJECT:
                 go = object->ToGameObject();
                 break;
+            case TYPEID_AIGROUP:
+                m_group = object->ToAIGroup();
+                break;
             default:
                 return;
         }
@@ -68,12 +73,23 @@ void AIGroupScript::OnInitialize(WorldObject* object)
     InstallEvents();
 }
 
+void AIGroupScript::SetActor(WorldObject* object)
+{
+    me = object ? object->ToCreature() : nullptr;
+    go = object ? object->ToGameObject() : nullptr;
+}
+
 void AIGroupScript::GetScript()
 {
     AIGroupEventList eventList;
     if (me)
     {
         eventList = sAIGroupMgr->GetScript(me->GetCurrentTriggersId());
+        FillScript(eventList);
+    }
+    else if (m_group)
+    {
+        eventList = sAIGroupMgr->GetScript(m_group->GetTriggersId());
         FillScript(eventList);
     }
 }
@@ -266,6 +282,24 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
 
 bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid)
 {
+    AIGroupMgr::ObjectTypeMask const objectTypeMask = AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type));
+    if (!m_group || objectTypeMask == AIGroupMgr::ObjectTypeMaskAll)
+        return ExecuteActionForActor(action, invokerGuid);
+
+    bool actionFinished = true;
+    std::vector<WorldObject*> members = m_group->GetMembers(AIGroupUnit(action.Unit), objectTypeMask);
+    for (WorldObject* member : members)
+    {
+        SetActor(member);
+        actionFinished = ExecuteActionForActor(action, invokerGuid) && actionFinished;
+    }
+
+    SetActor(nullptr);
+    return actionFinished;
+}
+
+bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid)
+{
     AIGroupMgr::ActionSetTypeInfo const& typeInfo = AIGroupMgr::StaticActionSetTypeData[action.Type];
 
     uint8 objectTypeMask = me ? AIGroupMgr::ObjectTypeMaskUnit : AIGroupMgr::ObjectTypeMaskObject;
@@ -326,7 +360,16 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
         case AI_GROUP_DESPAWN:
             if (WorldObject* baseObject = GetBaseObject())
             {
-                if (Creature* creature = baseObject->ToCreature())
+                if (m_group)
+                {
+                    std::vector<WorldObject*> members = m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskAll);
+                    for (WorldObject* member : members)
+                        if (Creature* creature = member->ToCreature())
+                            creature->DespawnOrUnsummon();
+                        else if (GameObject* gameObject = member->ToGameObject())
+                            gameObject->DespawnOrUnsummon();
+                }
+                else if (Creature* creature = baseObject->ToCreature())
                     creature->DespawnOrUnsummon();
                 else if (GameObject* gameobject = baseObject->ToGameObject())
                     gameobject->DespawnOrUnsummon();
@@ -425,6 +468,18 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
 
 bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const
 {
+    if (m_group)
+    {
+        uint32 flags = sAIGroupMgr->GetActionSetFlags(actionSet.Id);
+        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+            if (Creature* creature = member->ToCreature())
+                if ((creature->IsInCombat() && (flags & uint32(ActionSetFlags::PauseForCombat))) ||
+                    (creature->IsReturningHome() && (flags & uint32(ActionSetFlags::PauseUntilAllMembersAreDoneReturning))))
+                    return true;
+
+        return false;
+    }
+
     if (!me)
         return false;
 
@@ -463,7 +518,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
     while (activeActionSet->CurrentAction < activeActionSet->Actions.size())
     {
-        ActionSetEventHolder const& action = activeActionSet->Actions[activeActionSet->CurrentAction];
+        ActionSetEventHolder action = activeActionSet->Actions[activeActionSet->CurrentAction];
 
         if (activeActionSet->ActionStarted)
         {
@@ -471,6 +526,12 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
             {
                 if (action.TimeA == 0 && action.TimeB == 0)
                 {
+                    if (m_group)
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                            if (Creature* creature = member->ToCreature())
+                                if (creature->HasUnitState(UNIT_STATE_CASTING))
+                                    return;
+
                     if (me && me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
@@ -499,7 +560,16 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
             }
 
             if (ShouldStopMovementForAction(action.Type))
-                me->GetMotionMaster()->MoveIdle();
+            {
+                if (m_group)
+                {
+                    for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                        if (Creature* creature = member->ToCreature())
+                            creature->GetMotionMaster()->MoveIdle();
+                }
+                else if (me)
+                    me->GetMotionMaster()->MoveIdle();
+            }
 
             activeActionSet->ActionTimer = 0;
             activeActionSet->ActionStarted = false;
@@ -509,7 +579,18 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
         activeActionSet->ActionStarted = true;
         activeActionSet->ActionTimer = GetActionDuration(action);
+        uint32 activeActionSetId = activeActionSet->Id;
         bool actionFinished = ExecuteAction(action, activeActionSet->InvokerGuid);
+        activeActionSet = std::find_if(mActionSets.begin(), mActionSets.end(), [activeActionSetId](AIGroupActiveActionSet const& actionSet)
+        {
+            return actionSet.Id == activeActionSetId;
+        });
+        if (activeActionSet == mActionSets.end())
+        {
+            SetCurrentRunningActionSet(0);
+            return;
+        }
+
         if (activeActionSet->CurrentAction >= activeActionSet->Actions.size())
         {
             mActionSets.erase(activeActionSet);
@@ -537,6 +618,9 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
 void AIGroupScript::SetCurrentRunningActionSet(uint32 actionSetId)
 {
+    if (m_group)
+        m_group->SetCurrentActionSet(actionSetId);
+
     if (me)
         me->currentRunningActionSet = actionSetId;
 }
@@ -573,6 +657,8 @@ WorldObject* AIGroupScript::GetBaseObject() const
         object = me;
     else if (go)
         object = go;
+    else if (m_group)
+        object = m_group;
 
     return object;
 }

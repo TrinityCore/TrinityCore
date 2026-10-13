@@ -906,6 +906,19 @@ enum class AIGroupUnit : uint8
     Max
 };
 
+enum class AIGroupMemberType : uint8
+{
+    Creature       = 1,
+    GameObject     = 2
+};
+
+struct AIGroupMemberData
+{
+    ObjectGuid::LowType MemberGuid;
+    AIGroupMemberType MemberType;
+    AIGroupUnit Unit;
+};
+
 // From g_aiMoveSpeed
 enum class MoveSpeed : uint8
 {
@@ -1192,6 +1205,7 @@ class TC_GAME_API AIGroupMgr
         AIGroupEventMap mEventMap;
         AIGroupActionSetMap mActionSetMap;
         AIGroupRandomActionSetMap mRandomActionSetMap;
+        std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
 
         static bool IsActionValid(ActionSetEventHolder const& action);
         static bool IsActionTypeValid(ActionSetEventHolder const& action);
@@ -1212,6 +1226,7 @@ class TC_GAME_API AIGroupMgr
     public:
         static AIGroupMgr* Instance();
 
+        void LoadAIGroupMembersFromDB();
         void LoadActionSetsFromDB();
         void LoadActionSetsNamesFromDB();
         void LoadRandomActionSetsFromDB();
@@ -1626,6 +1641,22 @@ class TC_GAME_API AIGroupMgr
         AIGroupEventList GetScript(uint32 triggersId);
         AIGroupActionSet GetActionSet(uint32 actionSetId);
         AIGroupRandomActionSet GetRandomActionSet(uint32 randomActionSetId);
+
+        std::vector<AIGroupMemberData> const* GetGroupMembers(ObjectGuid::LowType mainMemberGuid) const
+        {
+            auto it = _groupMembers.find(mainMemberGuid);
+            return it != _groupMembers.end() ? &it->second : nullptr;
+        }
+
+        ObjectGuid::LowType GetMainMemberGuid(ObjectGuid::LowType memberGuid, AIGroupMemberType memberType) const
+        {
+            for (auto const& [mainMemberGuid, members] : _groupMembers)
+                if (std::ranges::any_of(members, [memberGuid, memberType](AIGroupMemberData const& member)
+                    { return member.MemberGuid == memberGuid && member.MemberType == memberType; }))
+                    return mainMemberGuid;
+
+            return 0;
+        }
 };
 
 #define sAIGroupMgr AIGroupMgr::Instance()

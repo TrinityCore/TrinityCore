@@ -510,6 +510,15 @@ public:
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
         handler->PSendSysMessage(LANG_ACTION_TRIGGERS_NAME, sAIGroupMgr->GetTriggersName(target->GetCurrentTriggersId()).c_str());
         handler->PSendSysMessage(LANG_ACTION_SET_NAME, sAIGroupMgr->GetActionSetName(target->GetCurrentRunningActionSet()).c_str());
+        ObjectGuid aiGroupGuid = sAIGroupMgr->GetAIGroupGUID(target->GetSpawnId(), AIGroupMemberType::Creature);
+        if (!aiGroupGuid.IsEmpty())
+        {
+            handler->PSendSysMessage("AIGroup GUID: %s", aiGroupGuid.ToString().c_str());
+
+            AIGroupUnit aiGroupUnit = sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature);
+            if (aiGroupUnit != AIGroupUnit::Max)
+                handler->PSendSysMessage("AIGroup Unit: %u", uint8(aiGroupUnit));
+        }
         handler->PSendSysMessage(LANG_OBJECTINFO_STRINGIDS, STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Template)),
             STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Spawn)), STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Script)));
         handler->PSendSysMessage(LANG_NPCINFO_REACTSTATE, DescribeReactState(target->GetReactState()));

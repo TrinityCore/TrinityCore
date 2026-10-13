@@ -37,6 +37,7 @@
 #include <set>
 #include <unordered_map>
 
+class AIGroup;
 class Corpse;
 class Creature;
 class CreatureAI;
@@ -201,6 +202,12 @@ class TC_GAME_API Object
         static GameObject const* ToGameObject(Object const* o) { return o ? o->ToGameObject() : nullptr; }
         GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
         GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
+
+        inline bool IsAIGroup() const { return GetTypeId() == TYPEID_AIGROUP; }
+        static AIGroup* ToAIGroup(Object* o) { return o ? o->ToAIGroup() : nullptr; }
+        static AIGroup const* ToAIGroup(Object const* o) { return o ? o->ToAIGroup() : nullptr; }
+        AIGroup* ToAIGroup() { if (IsAIGroup()) return reinterpret_cast<AIGroup*>(this); else return nullptr; }
+        AIGroup const* ToAIGroup() const { if (IsAIGroup()) return reinterpret_cast<AIGroup const*>(this); else return nullptr; }
 
         inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
         static Corpse* ToCorpse(Object* o) { return o ? o->ToCorpse() : nullptr; }

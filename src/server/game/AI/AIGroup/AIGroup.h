@@ -24,18 +24,17 @@
 #include "CreatureAI.h"
 #include "GameObjectAI.h"
 
-class TC_GAME_API AIGroup : public CreatureAI
+class AIGroup;
+
+class TC_GAME_API AIGroupCreature : public CreatureAI
 {
     public:
-        ~AIGroup() { }
-        explicit AIGroup(Creature* creature);
+        ~AIGroupCreature() override = default;
+        explicit AIGroupCreature(Creature* creature);
+
+        AIGroupScript* GetScript();
 
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
-
-        AIGroupScript* GetScript()
-        {
-            return &_script;
-        }
 
         AIGroupActiveActionSetList const& GetActiveActionSets() const
         {
@@ -93,7 +92,9 @@ class TC_GAME_API AIGroup : public CreatureAI
         void OnAuraRemoved(AuraApplication const* aurApp) override;
 
     private:
+        AIGroup* GetGroup() const;
         AIGroupScript _script;
+        bool _scriptInitialized = false;
 };
 
 #endif

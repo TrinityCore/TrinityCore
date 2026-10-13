@@ -31,6 +31,7 @@ class TC_GAME_API AIGroupScript
         ~AIGroupScript();
 
         void OnInitialize(WorldObject* object);
+        void SetActor(WorldObject* object);
         void GetScript();
         void FillScript(AIGroupEventList eventList);
         static void RecalcTimer(ActionTriggersHolder& holder);
@@ -59,6 +60,7 @@ class TC_GAME_API AIGroupScript
         void RandomizeHealthRange(ActionTriggersHolder& holder);
         void RandomizeEnergyRange(ActionTriggersHolder& holder);
         bool ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);
+        bool ExecuteActionForActor(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);
         void FinishActionSet(AIGroupActiveActionSet& actionSet);
         void AbortActionSet(uint32 actionSetId);
         bool CanActionBeInfinite(uint16 action);
@@ -74,6 +76,7 @@ class TC_GAME_API AIGroupScript
 
         Creature* me;
         GameObject* go;
+        AIGroup* m_group;
 };
 
 #endif

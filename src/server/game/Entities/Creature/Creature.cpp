@@ -17,6 +17,7 @@
 
 #include "Creature.h"
 #include "AIGroupMgr.h"
+#include "AIGroupEntity.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "CombatPackets.h"
@@ -291,6 +292,7 @@ void Creature::AddToWorld()
 
         Unit::AddToWorld();
         SearchFormation();
+        GetMap()->InitializeAIGroup(this);
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
@@ -309,6 +311,9 @@ void Creature::RemoveFromWorld()
 
         if (m_formation)
             sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
+
+        if (m_spawnId)
+            GetMap()->RemoveAIGroup(m_spawnId);
 
         Unit::RemoveFromWorld();
 
@@ -881,6 +886,10 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
+
+    if (m_spawnId)
+        if (AIGroup* group = GetMap()->GetAIGroupByMainMemberGuid(m_spawnId))
+            group->Update(diff);
 }
 
 void Creature::Regenerate(Powers power)

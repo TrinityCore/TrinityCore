@@ -48,7 +48,7 @@ namespace AIRegistry
         (new CreatureAIFactory<TurretAI>("TurretAI"))->RegisterSelf();
         (new CreatureAIFactory<VehicleAI>("VehicleAI"))->RegisterSelf();
         (new CreatureAIFactory<SmartAI>("SmartAI"))->RegisterSelf();
-        (new CreatureAIFactory<AIGroup>("AIGroup"))->RegisterSelf();
+        (new CreatureAIFactory<AIGroupCreature>("AIGroup"))->RegisterSelf();
         (new CreatureAIFactory<ScheduledChangeAI, false>("ScheduledChangeAI"))->RegisterSelf();
 
         (new GameObjectAIFactory<NullGameObjectAI>("NullGameObjectAI"))->RegisterSelf();
