@@ -31,6 +31,7 @@ class TC_GAME_API AIGroupScript
         ~AIGroupScript();
 
         void OnInitialize(WorldObject* object);
+        void OnInitialize(AIGroup* group);
         void SetActor(WorldObject* object);
         void GetScript();
         void FillScript(AIGroupEventList eventList);

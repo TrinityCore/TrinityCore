@@ -23,6 +23,7 @@
 #include <vector>
 
 class Creature;
+class Map;
 
 class TC_GAME_API AIGroup
 {
@@ -32,6 +33,8 @@ class TC_GAME_API AIGroup
 
         bool Create(Creature* mainMember);
         void Update(uint32 diff);
+        void SetMap(Map* map) { _map = map; }
+        Map* GetMap() const { return _map; }
 
         ObjectGuid GetOwnerGUID() const { return ObjectGuid::Empty; }
         ObjectGuid::LowType GetMainMemberGuid() const { return _mainMemberGuid; }
@@ -47,6 +50,7 @@ class TC_GAME_API AIGroup
         ObjectGuid::LowType _mainMemberGuid = 0;
         uint32 _triggersId = 0;
         uint32 _currentActionSet = 0;
+        Map* _map = nullptr;
         AIGroupScript _script;
 };
 

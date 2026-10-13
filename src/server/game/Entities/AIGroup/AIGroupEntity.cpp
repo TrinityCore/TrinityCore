@@ -34,7 +34,6 @@ bool AIGroup::Create(Creature* mainMember)
     _mainMemberGuid = mainMember->GetSpawnId();
     _triggersId = mainMember->GetCurrentTriggersId();
 
-    _Create(ObjectGuid::Create<HighGuid::AIGroup>(_mainMemberGuid));
     SetMap(mainMember->GetMap());
     _currentActionSet = 0;
     _script.OnInitialize(this);
@@ -43,9 +42,14 @@ bool AIGroup::Create(Creature* mainMember)
 
 void AIGroup::Update(uint32 diff)
 {
-    WorldObject::Update(diff);
-    _script.SetActor(GetMap()->GetCreatureBySpawnId(_mainMemberGuid));
-    _script.OnUpdate(diff);
+    if (!GetMap())
+        return;
+
+    if (Creature* mainMember = GetMap()->GetCreatureBySpawnId(_mainMemberGuid))
+    {
+        _script.SetActor(mainMember);
+        _script.OnUpdate(diff);
+    }
 }
 
 void AIGroup::SetCurrentActionSet(uint32 actionSetId)

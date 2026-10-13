@@ -73,6 +73,22 @@ void AIGroupScript::OnInitialize(WorldObject* object)
     InstallEvents();
 }
 
+void AIGroupScript::OnInitialize(AIGroup* group)
+{
+    if (!group)
+    {
+        TC_LOG_ERROR("misc", "AIGroupScript::OnInitialize: Initialized group is NULL.");
+        return;
+    }
+
+    m_group = group;
+
+    // Load copy of script
+    GetScript();
+
+    InstallEvents();
+}
+
 void AIGroupScript::SetActor(WorldObject* object)
 {
     me = object ? object->ToCreature() : nullptr;
@@ -658,7 +674,8 @@ WorldObject* AIGroupScript::GetBaseObject() const
     else if (go)
         object = go;
     else if (m_group)
-        object = m_group;
+        if (Map* map = m_group->GetMap())
+            object = map->GetCreatureBySpawnId(m_group->GetMainMemberGuid());
 
     return object;
 }
