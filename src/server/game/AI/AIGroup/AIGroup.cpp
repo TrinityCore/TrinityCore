@@ -68,9 +68,6 @@ void AIGroupCreature::InitializeAI()
 
 void AIGroupCreature::OnActionTriggersChange(uint32 triggersId)
 {
-    if (AIGroup* group = GetGroup())
-        group->SetTriggersId(triggersId);
-
     GetScript()->ReplaceActionTriggers();
 }
 
