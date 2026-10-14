@@ -732,7 +732,7 @@ struct GameObjectTemplate
             uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
             uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ItemInteractionID;                       // 6 Item Interaction ID, References: UiItemInteraction, NoValue = 0
-            uint32 PlayerInteractionType;                   // 7 Player Interaction Type, enum { None, TradePartner, Item, Gossip, QuestGiver, Merchant, TaxiNode, Trainer, Banker, AlliedRaceDetailsGiver, GuildBanker, Registrar, Vendor, PetitionVendor, GuildTabardVendor, TalentMaster, SpecializationMaster, MailInfo, SpiritHealer, AreaSpiritHealer, Binder, Auctioneer, StableMaster, BattleMaster, Transmogrifier, LFGDungeon, VoidStorageBanker, BlackMarketAuctioneer, AdventureMap, WorldMap, GarrArchitect, GarrTradeskill, GarrMission, ShipmentCrafter, GarrRecruitment, GarrTalent, Trophy, PlayerChoice, ArtifactForge, ObliterumForge, ScrappingMachine, ContributionCollector, AzeriteRespec, IslandQueue, ItemInteraction, ChromieTime, CovenantPreview, AnimaDiversion, LegendaryCrafting, WeeklyRewards, Soulbind, CovenantSanctum, NewPlayerGuide, ItemUpgrade, AdventureJournal, Renown, AzeriteForge, PerksProgramVendor, ProfessionsCraftingOrder, Professions, ProfessionsCustomerOrder, TraitSystem, BarbersChoice, JailersTowerBuffs, MajorFactionRenown, PersonalTabardVendor, ForgeMaster, CharacterBanker, AccountBanker, ProfessionRespec, CornerstoneInteraction, RenameNeighborhood, HousingBulletinBoard, HousingPedestal, CreateGuildNeighborhood, NeighborhoodCharter, GuildRename, OpenNeighborhoodCharterConfirmation, OpenHouseFinder, TieredEntrance, }; Default: None
+            uint32 PlayerInteractionType;                   // 7 Player Interaction Type, enum { None, TradePartner, Item, Gossip, QuestGiver, Merchant, TaxiNode, Trainer, Banker, AlliedRaceDetailsGiver, GuildBanker, Registrar, Vendor, PetitionVendor, GuildTabardVendor, TalentMaster, SpecializationMaster, MailInfo, SpiritHealer, AreaSpiritHealer, Binder, Auctioneer, StableMaster, BattleMaster, Transmogrifier, LFGDungeon, VoidStorageBanker, BlackMarketAuctioneer, AdventureMap, WorldMap, GarrArchitect, GarrTradeskill, GarrMission, ShipmentCrafter, GarrRecruitment, GarrTalent, Trophy, PlayerChoice, ArtifactForge, ObliterumForge, ScrappingMachine, ContributionCollector, AzeriteRespec, IslandQueue, ItemInteraction, ChromieTime, CovenantPreview, AnimaDiversion, LegendaryCrafting, WeeklyRewards, Soulbind, CovenantSanctum, NewPlayerGuide, ItemUpgrade, AdventureJournal, Renown, AzeriteForge, PerksProgramVendor, ProfessionsCraftingOrder, Professions, ProfessionsCustomerOrder, TraitSystem, BarbersChoice, JailersTowerBuffs, MajorFactionRenown, PersonalTabardVendor, ForgeMaster, CharacterBanker, AccountBanker, ProfessionRespec, CornerstoneInteraction, RenameNeighborhood, HousingBulletinBoard, HousingPedestal, CreateGuildNeighborhood, NeighborhoodCharter, GuildRename, OpenNeighborhoodCharterConfirmation, OpenHouseFinder, TieredEntrance, RewardsShop, }; Default: None
             uint32 spell;                                   // 8 spell, References: Spell, NoValue = 0
         } UILink;
         // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
@@ -877,6 +877,14 @@ struct GameObjectTemplate
             uint32 spell;                                   // 3 spell, References: Spell, NoValue = 0
             uint32 playerCast;                              // 4 playerCast, enum { false, true, }; Default: false
         } assistAction;
+        // 65 GAMEOBJECT_TYPE_RESERVED_13A
+        struct
+        {
+        } reserved13A;
+        // 66 GAMEOBJECT_TYPE_RESERVED_13B
+        struct
+        {
+        } reserved13B;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];

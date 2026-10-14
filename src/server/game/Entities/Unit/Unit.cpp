@@ -8644,16 +8644,6 @@ int64 Unit::ModifyHealth(int64 dVal)
         gain = maxHealth - curHealth;
     }
 
-    if (dVal < 0)
-    {
-        WorldPackets::Combat::HealthUpdate packet;
-        packet.Guid = GetGUID();
-        packet.Health = GetHealth();
-
-        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
-            player->GetSession()->SendPacket(packet.Write());
-    }
-
     return gain;
 }
 

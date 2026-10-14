@@ -127,14 +127,6 @@ WorldPacket const* CancelAutoRepeat::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* HealthUpdate::Write()
-{
-    _worldPacket << Guid;
-    _worldPacket << int64(Health);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* ThreatClear::Write()
 {
     _worldPacket << UnitGUID;

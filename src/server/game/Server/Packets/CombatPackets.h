@@ -190,17 +190,6 @@ namespace WorldPackets
             ObjectGuid Guid;
         };
 
-        class HealthUpdate final : public ServerPacket
-        {
-        public:
-            explicit HealthUpdate() : ServerPacket(SMSG_HEALTH_UPDATE, 16 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-            int64 Health = 0;
-        };
-
         class ThreatClear final : public ServerPacket
         {
         public:

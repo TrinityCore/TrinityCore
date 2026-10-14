@@ -14181,7 +14181,7 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             PlayerInteractionType::AccountBanker, PlayerInteractionType::ProfessionRespec, PlayerInteractionType::CornerstoneInteraction,
             PlayerInteractionType::CreateGuildNeighborhood, PlayerInteractionType::NeighborhoodCharter, PlayerInteractionType::GuildRename,
             PlayerInteractionType::OpenNeighborhoodCharterConfirmation, PlayerInteractionType::ItemUpgrade, PlayerInteractionType::OpenHouseFinder,
-            PlayerInteractionType::PlaceholderType79
+            PlayerInteractionType::TieredEntrance, PlayerInteractionType::RewardsShop
         };
 
         PlayerInteractionType interactionType = GossipOptionNpcToInteractionType[AsUnderlyingType(gossipOptionNpc)];

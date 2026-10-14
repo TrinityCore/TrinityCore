@@ -802,15 +802,14 @@ namespace WorldPackets
         class SpellVisualLoadScreen final : public ServerPacket
         {
         public:
-            explicit SpellVisualLoadScreen(int32 spellVisualKitId, Milliseconds duration) : ServerPacket(SMSG_SPELL_VISUAL_LOAD_SCREEN, 4 + 4),
-                SpellVisualKitID(spellVisualKitId), Duration(duration) { }
+            explicit SpellVisualLoadScreen() : ServerPacket(SMSG_SPELL_VISUAL_LOAD_SCREEN, 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
             int32 SpellVisualKitID = 0;
             WorldPackets::Duration<Milliseconds, int32> Duration;
             int32 Delay = 0;
-            bool Unknown_1210 = false;
+            bool IsTransfer = false;
         };
 
         class CancelCast final : public ClientPacket
