@@ -3370,7 +3370,7 @@ void WindfuryProcEvent::Trigger(Unit* shaman, Unit* target)
     }
 
     std::ptrdiff_t attacks = 2;
-    if (AuraEffect const* unrulyWinds = shaman->GetAuraEffect(SPELL_SHAMAN_UNRULY_WINDS, EFFECT_0); roll_chance(unrulyWinds->GetAmount()))
+    if (AuraEffect const* unrulyWinds = shaman->GetAuraEffect(SPELL_SHAMAN_UNRULY_WINDS, EFFECT_0); unrulyWinds && roll_chance(unrulyWinds->GetAmount()))
         ++attacks;
 
     shaman->m_Events.AddEventAtOffset(new WindfuryProcEvent(shaman, target, attacks), Sequence.front().Delay);
