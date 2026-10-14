@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "AIGroupEntity.h"
 #include "AIGroupMgr.h"
 #include "Chat.h"
 #include "CreatureAI.h"
@@ -510,10 +511,13 @@ public:
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
         handler->PSendSysMessage(LANG_ACTION_TRIGGERS_NAME, sAIGroupMgr->GetTriggersName(target->GetCurrentTriggersId()).c_str());
         handler->PSendSysMessage(LANG_ACTION_SET_NAME, sAIGroupMgr->GetActionSetName(target->GetCurrentRunningActionSet()).c_str());
-        ObjectGuid aiGroupGuid = sAIGroupMgr->GetAIGroupGUID(target->GetSpawnId(), AIGroupMemberType::Creature);
-        if (!aiGroupGuid.IsEmpty())
+        ObjectGuid::LowType aiGroupMainMemberGuid = sAIGroupMgr->GetMainMemberGuid(target->GetSpawnId(), AIGroupMemberType::Creature);
+        if (!aiGroupMainMemberGuid)
+            aiGroupMainMemberGuid = target->GetSpawnId();
+
+        if (AIGroup* aiGroup = target->GetMap()->GetAIGroupByMainMemberGuid(aiGroupMainMemberGuid))
         {
-            handler->PSendSysMessage("AIGroup GUID: %s", aiGroupGuid.ToString().c_str());
+            handler->PSendSysMessage("AIGroup GUID: %s", aiGroup->GetGUID().ToString().c_str());
 
             AIGroupUnit aiGroupUnit = sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature);
             if (aiGroupUnit != AIGroupUnit::Max)

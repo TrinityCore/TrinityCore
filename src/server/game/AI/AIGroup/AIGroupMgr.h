@@ -1659,12 +1659,6 @@ class TC_GAME_API AIGroupMgr
             return 0;
         }
 
-        ObjectGuid GetAIGroupGUID(ObjectGuid::LowType memberGuid, AIGroupMemberType memberType) const
-        {
-            ObjectGuid::LowType mainMemberGuid = GetMainMemberGuid(memberGuid, memberType);
-            return mainMemberGuid ? ObjectGuid::Create<HighGuid::AIGroup>(mainMemberGuid) : ObjectGuid::Empty;
-        }
-
         AIGroupUnit GetAIGroupUnit(ObjectGuid::LowType memberGuid, AIGroupMemberType memberType) const
         {
             for (auto const& [mainMemberGuid, members] : _groupMembers)

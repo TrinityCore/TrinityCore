@@ -635,8 +635,10 @@ AIGroup* Map::GetAIGroupByMainMemberGuid(ObjectGuid::LowType mainMemberGuid) con
 
 void Map::InitializeAIGroup(Creature* mainMember)
 {
-    if (!mainMember || !mainMember->GetSpawnId() || _aiGroupsByMainMemberGuid.contains(mainMember->GetSpawnId()) ||
-        !sAIGroupMgr->GetGroupMembers(mainMember->GetSpawnId()))
+    if (!mainMember || !mainMember->GetSpawnId() || _aiGroupsByMainMemberGuid.contains(mainMember->GetSpawnId()))
+        return;
+
+    if (!sAIGroupMgr->GetGroupMembers(mainMember->GetSpawnId()) && mainMember->GetAIName() != "AIGroup" && !mainMember->GetNativeTriggersId())
         return;
 
     auto group = std::make_unique<AIGroup>();

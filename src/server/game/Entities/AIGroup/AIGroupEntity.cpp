@@ -32,6 +32,9 @@ bool AIGroup::Create(Creature* mainMember)
         return false;
 
     _mainMemberGuid = mainMember->GetSpawnId();
+
+    ObjectGuid::LowType lowGuid = static_cast<ObjectGuid::LowType>(_mainMemberGuid);
+    _guid = ObjectGuid::Create<HighGuid::AIGroup>(lowGuid);
     _triggersId = mainMember->GetCurrentTriggersId();
 
     SetMap(mainMember->GetMap());
