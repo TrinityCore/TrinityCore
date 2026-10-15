@@ -5214,12 +5214,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_IS_BUFF;
     });
 
-    // TODO: temporary, remove with dragonriding
-    ApplySpellFix({ 404468 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
-    });
-
     // Sigil of Flame
     ApplySpellFix({ 204598 }, [](SpellInfo* spellInfo)
     {

@@ -19101,8 +19101,9 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
         while (auraResult->NextRow());
     }
 
-    // TODO: finish dragonriding - this forces old flight mode
-    AddAura(404468, this);
+    // 404464 Skyriding and 404468 Steady Flight are the saved flight-style auras.
+    if (!HasAura(404464) && !HasAura(404468))
+        AddAura(404468, this);
 }
 
 void Player::_LoadGlyphAuras()
