@@ -203,4 +203,14 @@ void WorldSession::HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehi
         return;
 
     ValidateMovementInfo(mover, &setVehicleRecIdAck.Data.Status);
+
+    // Unit::Mount defers a vehicle mount's accessories until the client knows the player is that vehicle
+    if (Vehicle* vehicle = mover->GetVehicleKit())
+    {
+        if (vehicle->AccessoriesAwaitClientAck() && int32(vehicle->GetVehicleInfo()->ID) == setVehicleRecIdAck.VehicleRecID)
+        {
+            vehicle->SetAccessoriesAwaitClientAck(false);
+            vehicle->InstallAllAccessories(false);
+        }
+    }
 }

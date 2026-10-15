@@ -422,7 +422,16 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         _me->HandleSpellClick(accessory, seatId);
 
     /// If for some reason adding accessory to vehicle fails it will unsummon in
-    /// @VehicleJoinEvent::Abort
+    /// @VehicleJoinEvent::Abort - but a board that never got that far (the ride spell's cast failed) leaves no
+    /// join event. On a vehicle mount (player base) such an accessory is bound to nothing and would outlive the
+    /// mount: unsummon it here. Creature vehicles keep the old behaviour - some configure a non-ride spellclick
+    /// spell on purpose and keep the unseated accessory in the world.
+    if (_me->IsPlayer() && !accessory->GetVehicle() && !HasPendingEventForSeat(seatId))
+    {
+        TC_LOG_DEBUG("entities.vehicle", "Vehicle ({}, Entry {}): accessory {} failed to board seat {}, unsummoning it",
+            _me->GetGUID().ToString(), GetCreatureEntry(), accessory->GetGUID().ToString(), (int32)seatId);
+        accessory->DespawnOrUnsummon();
+    }
 }
 
 /**

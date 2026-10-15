@@ -8319,8 +8319,11 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             {
                 player->SendOnCancelExpectedVehicleRideAura();
 
-                // mounts can also have accessories
-                GetVehicleKit()->InstallAllAccessories(false);
+                // mounts can also have accessories. The client only treats the player as a vehicle once it has
+                // acked SMSG_MOVE_SET_VEHICLE_REC_ID (sent by CreateVehicleKit); a passenger seated before that ack
+                // is never attached to its seat client-side and stays where it was summoned. Install them from
+                // WorldSession::HandleMoveSetVehicleRecAck instead.
+                GetVehicleKit()->SetAccessoriesAwaitClientAck(true);
             }
         }
 
@@ -13016,7 +13019,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
             setDeathState(JUST_DIED);
         // If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
         else
-            ToTempSummon()->UnSummon(2000); // Approximation
+            // (at once when the vehicle base leaves the world: its grid may stop updating before a delayed unsummon fires)
+            ToTempSummon()->UnSummon(vehicle->GetBase()->IsDuringRemoveFromWorld() ? 0 : 2000); // Approximation
     }
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::AbandonVehicle);

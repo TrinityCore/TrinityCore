@@ -50,6 +50,10 @@ class TC_GAME_API Vehicle final : public TransportBase
         VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
         uint32 GetCreatureEntry() const { return _creatureEntry; }
 
+        /// A player's vehicle kit is a move-acked change: the accessories wait for the client's ack of the vehicle id
+        void SetAccessoriesAwaitClientAck(bool await) { _accessoriesAwaitClientAck = await; }
+        bool AccessoriesAwaitClientAck() const { return _accessoriesAwaitClientAck; }
+
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
         SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
@@ -117,6 +121,7 @@ class TC_GAME_API Vehicle final : public TransportBase
 
         uint32 _creatureEntry;                              ///< Can be different than the entry of _me in case of players
         Status _status;                                     ///< Internal variable for sanity checks
+        bool _accessoriesAwaitClientAck = false;            ///< InstallAllAccessories deferred to the client's MOVE_SET_VEHICLE_REC_ID ack
 
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
