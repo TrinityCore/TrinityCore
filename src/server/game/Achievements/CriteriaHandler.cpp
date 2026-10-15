@@ -560,6 +560,7 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::PlaceGarrisonBuilding:
         case CriteriaType::ActivateAnyGarrisonBuilding:
         case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::LearnAnyToy:
         case CriteriaType::LearnAnyTransmog:
         case CriteriaType::HonorLevelIncrease:
         case CriteriaType::PrestigeLevelIncrease:
@@ -696,6 +697,8 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::LeaveArea:
         case CriteriaType::RecruitGarrisonFollower:
         case CriteriaType::LearnHeirloom:
+        case CriteriaType::LearnToy:
+        case CriteriaType::LearnTransmog:
         case CriteriaType::ActivelyReachLevel:
         case CriteriaType::CollectTransmogSetFromGroup:
         case CriteriaType::EnterTopLevelArea:
@@ -843,8 +846,6 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::CollectGarrisonShipment:
         case CriteriaType::ItemLevelChangedForGarrisonFollower:
         case CriteriaType::LevelChangedForGarrisonFollower:
-        case CriteriaType::LearnToy:
-        case CriteriaType::LearnAnyToy:
         case CriteriaType::FindResearchObject:
         case CriteriaType::ExhaustAnyResearchSite:
         case CriteriaType::CompleteInternalCriteria:
@@ -873,7 +874,6 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::SocketAnySoulbindConduit:
         case CriteriaType::ObtainAnyItemWithCurrencyValue:
         case CriteriaType::EarnExpansionLevel:
-        case CriteriaType::LearnTransmog:
         default:
             break;                          // Not implemented yet :(
     }
@@ -1237,6 +1237,9 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::PlaceGarrisonBuilding:
         case CriteriaType::LearnHeirloom:
         case CriteriaType::LearnAnyHeirloom:
+        case CriteriaType::LearnToy:
+        case CriteriaType::LearnAnyToy:
+        case CriteriaType::LearnTransmog:
         case CriteriaType::EarnArtifactXP:
         case CriteriaType::AnyArtifactPowerRankPurchased:
         case CriteriaType::LearnAnyTransmogInSlot:
@@ -1425,6 +1428,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
         case CriteriaType::LearnAnyTransmog:
+        case CriteriaType::LearnAnyToy:
         case CriteriaType::CompleteAnyScenario:
             if (!miscValue1)
                 return false;
@@ -1548,7 +1552,12 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CriteriaType::LootItem:
         case CriteriaType::EquipItem:
         case CriteriaType::LearnHeirloom:
+        case CriteriaType::LearnToy:
             if (!miscValue1 || uint32(criteria->Entry->Asset.ItemID )!= miscValue1)
+                return false;
+            break;
+        case CriteriaType::LearnTransmog:
+            if (!miscValue1 || uint32(criteria->Entry->Asset.ItemModifiedAppearanceID) != miscValue1)
                 return false;
             break;
         case CriteriaType::RevealWorldMapOverlay:
@@ -4030,6 +4039,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!referencePlayer->GetGuildId())
                 return false;
             break;
+        case ModifierTreeType::ItemHasInventoryType: // 364
+        {
+            // miscValue1 is the item id (like MinimumItemLevel)
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+            if (!itemTemplate || itemTemplate->GetInventoryType() != reqValue)
+                return false;
+            break;
+        }
         case ModifierTreeType::PlayerMoneyIsRelOp: // 417
             switch (reqValue)
             {
@@ -4590,6 +4607,7 @@ inline bool IsCriteriaTypeStoredByAsset(CriteriaType type)
         case CriteriaType::LearnTradeskillSkillLine:
         case CriteriaType::DefeatDungeonEncounter:
         case CriteriaType::LearnToy:
+        case CriteriaType::LearnTransmog:
         case CriteriaType::LearnAnyTransmog:
             return true;
         default:
@@ -4997,9 +5015,9 @@ std::span<CriteriaType const> CriteriaMgr::GetRetroactivelyUpdateableCriteriaTyp
         //CriteriaType::AcquireGarrison, /*NYI*/
         //CriteriaType::LearnGarrisonBlueprint, /*NYI*/
         //CriteriaType::LearnGarrisonSpecialization, /*NYI*/
-        //CriteriaType::LearnToy, /*NYI*/ // Learn Toy "{Item}"
-        //CriteriaType::LearnAnyToy, /*NYI*/ // Learn Any Toy
-        //CriteriaType::LearnTransmog, /*NYI*/
+        CriteriaType::LearnToy,
+        CriteriaType::LearnAnyToy,
+        CriteriaType::LearnTransmog,
         CriteriaType::HonorLevelIncrease,
         //CriteriaType::AccountHonorLevelReached, /*NYI*/
         CriteriaType::ReachMaxLevel,

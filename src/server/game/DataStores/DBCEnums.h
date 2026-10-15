@@ -2061,7 +2061,7 @@ enum class ModifierTreeType : int32
     ItemHasContext                                                      = 361, /*NYI*/ // Item has {ItemContext}
     ItemHasItemLevelBetween                                             = 362, /*NYI*/ // Item has item level between {#Min} and {#Max}
     ItemHasContentTuningID                                              = 363, /*NYI*/ // Item has {ContentTuning} (modifier 28)
-    ItemHasInventoryType                                                = 364, /*NYI*/ // Item has inventory type
+    ItemHasInventoryType                                                = 364, // Item has inventory type
     ItemWasCraftedWithReagentInSlot                                     = 365, /*NYI*/ // Item was crafted with reagent item {Item} in slot {ModifiedCraftingReagentSlot}
     PlayerHasCompletedDungeonEncounterInDifficulty                      = 366, // Player has completed {DungeonEncounter} on {Difficulty}
     PlayerCurrencyIsRelOpFromMax                                        = 367, /*NYI*/ // Player {CurrencyTypes} is {RelOp} {#Amount} from currency limit
