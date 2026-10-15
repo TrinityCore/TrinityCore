@@ -21541,6 +21541,7 @@ void Player::_SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_AURA_STORED_LOCATION);
             stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->first);
             trans->Append(stmt);
             itr = m_storedAuraTeleportLocations.erase(itr);
             continue;
@@ -21550,6 +21551,7 @@ void Player::_SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_AURA_STORED_LOCATION);
             stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->first);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_AURA_STORED_LOCATION);
@@ -21561,6 +21563,8 @@ void Player::_SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction trans
             stmt->setFloat(5, storedLocation.Loc.GetPositionZ());
             stmt->setFloat(6, storedLocation.Loc.GetOrientation());
             trans->Append(stmt);
+
+            storedLocation.State = StoredAuraTeleportLocation::UNCHANGED;
         }
 
         ++itr;
