@@ -27,25 +27,28 @@
 
 namespace
 {
-    using AIGroupMap = std::unordered_map<ObjectGuid::LowType, std::unique_ptr<AIGroup>>;
-    std::unordered_map<Map*, AIGroupMap> AIGroupMaps;
+    using AIGroupMap = std::unordered_multimap<ObjectGuid::LowType, std::unique_ptr<AIGroup>>;
+    AIGroupMap AIGroupMaps;
 }
 
 AIGroup::AIGroup() { }
 
-AIGroup* AIGroup::GetAIGroupByMainMemberGuid(Map* map, ObjectGuid::LowType mainMemberGuid)
+AIGroup* AIGroup::GetAIGroupByMainMemberGuid(Creature* creature, ObjectGuid::LowType mainMemberGuid)
 {
-    auto mapItr = AIGroupMaps.find(map);
-    if (mapItr == AIGroupMaps.end())
+    if (!creature || !creature->GetMap())
         return nullptr;
 
-    auto groupItr = mapItr->second.find(mainMemberGuid);
-    return groupItr != mapItr->second.end() ? groupItr->second.get() : nullptr;
+    auto const [groupBegin, groupEnd] = AIGroupMaps.equal_range(mainMemberGuid);
+    for (auto groupItr = groupBegin; groupItr != groupEnd; ++groupItr)
+        if (groupItr->second->GetMap() == creature->GetMap())
+            return groupItr->second.get();
+
+    return nullptr;
 }
 
-void AIGroup::AddAIGroup(Map* map, std::unique_ptr<AIGroup> group)
+void AIGroup::AddAIGroup(std::unique_ptr<AIGroup> group)
 {
-    AIGroupMaps[map].emplace(group->GetMainMemberGuid(), std::move(group));
+    AIGroupMaps.emplace(group->GetMainMemberGuid(), std::move(group));
 }
 
 void AIGroup::AddUnitToAIGroup(Creature* unit)
@@ -53,8 +56,7 @@ void AIGroup::AddUnitToAIGroup(Creature* unit)
     if (!unit || !unit->GetSpawnId() || !unit->GetMap())
         return;
 
-    Map* map = unit->GetMap();
-    if (GetAIGroupByMainMemberGuid(map, unit->GetSpawnId()))
+    if (GetAIGroupByMainMemberGuid(unit, unit->GetSpawnId()))
         return;
 
     if (!sAIGroupMgr->GetGroupMembers(unit->GetSpawnId()) && unit->GetAIName() != "AIGroup" && !unit->GetNativeTriggersId())
@@ -66,7 +68,7 @@ void AIGroup::AddUnitToAIGroup(Creature* unit)
 
     group->GetScript()->SetActor(unit);
     group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
-    AddAIGroup(map, std::move(group));
+    AddAIGroup(std::move(group));
 }
 
 void AIGroup::RemoveUnitFromAIGroup(Creature* unit)
@@ -76,12 +78,14 @@ void AIGroup::RemoveUnitFromAIGroup(Creature* unit)
 
     Map* map = unit->GetMap();
     ObjectGuid::LowType unitGuid = unit->GetSpawnId();
-    auto mapItr = AIGroupMaps.find(map);
-    if (mapItr == AIGroupMaps.end())
-        return;
-
-    for (auto groupItr = mapItr->second.begin(); groupItr != mapItr->second.end();)
+    for (auto groupItr = AIGroupMaps.begin(); groupItr != AIGroupMaps.end();)
     {
+        if (groupItr->second->GetMap() != map)
+        {
+            ++groupItr;
+            continue;
+        }
+
         ObjectGuid::LowType mainMemberGuid = groupItr->first;
         std::vector<AIGroupMemberData> const* memberData = sAIGroupMgr->GetGroupMembers(mainMemberGuid);
         bool containsUnit = mainMemberGuid == unitGuid;
@@ -112,11 +116,8 @@ void AIGroup::RemoveUnitFromAIGroup(Creature* unit)
         if (hasRemainingMembers)
             ++groupItr;
         else
-            groupItr = mapItr->second.erase(groupItr);
+            groupItr = AIGroupMaps.erase(groupItr);
     }
-
-    if (mapItr->second.empty())
-        AIGroupMaps.erase(mapItr);
 }
 
 bool AIGroup::Create(Creature* mainMember)

@@ -27,15 +27,11 @@ AIGroupCreature::AIGroupCreature(Creature* creature) : CreatureAI(creature) { }
 
 AIGroup* AIGroupCreature::GetGroup() const
 {
-    Map* map = me->FindMap();
-    if (!map)
-        return nullptr;
-
-    if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(map, me->GetSpawnId()))
+    if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(me, me->GetSpawnId()))
         return group;
 
     ObjectGuid::LowType mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(me->GetSpawnId(), AIGroupMemberType::Creature);
-    return mainMemberGuid ? AIGroup::GetAIGroupByMainMemberGuid(map, mainMemberGuid) : nullptr;
+    return mainMemberGuid ? AIGroup::GetAIGroupByMainMemberGuid(me, mainMemberGuid) : nullptr;
 }
 
 AIGroupScript* AIGroupCreature::GetScript()

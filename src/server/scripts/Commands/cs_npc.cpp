@@ -515,7 +515,7 @@ public:
         if (!aiGroupMainMemberGuid)
             aiGroupMainMemberGuid = target->GetSpawnId();
 
-        if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(target->GetMap(), aiGroupMainMemberGuid))
+        if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(target, aiGroupMainMemberGuid))
         {
             handler->PSendSysMessage("AIGroup GUID: %s", group->GetGUID().ToString().c_str());
 
