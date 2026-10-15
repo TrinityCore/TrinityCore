@@ -41,7 +41,6 @@
 
 class Battleground;
 class BattlegroundMap;
-class AIGroup;
 class CreatureGroup;
 class GameObjectModel;
 class Group;
@@ -491,9 +490,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         GameObject* GetGameObject(ObjectGuid const& guid);
         Creature* GetCreatureBySpawnId(ObjectGuid::LowType spawnId) const;
         GameObject* GetGameObjectBySpawnId(ObjectGuid::LowType spawnId) const;
-        AIGroup* GetAIGroupByMainMemberGuid(ObjectGuid::LowType mainMemberGuid) const;
-        void InitializeAIGroup(Creature* mainMember);
-        void RemoveAIGroup(ObjectGuid::LowType mainMemberGuid);
         WorldObject* GetWorldObjectBySpawnId(SpawnObjectType type, ObjectGuid::LowType spawnId) const
         {
             switch (type)
@@ -877,7 +873,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapStoredObjectTypesContainer _objectsStore;
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
-        std::unordered_map<ObjectGuid::LowType, std::unique_ptr<AIGroup>> _aiGroupsByMainMemberGuid;
         std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;

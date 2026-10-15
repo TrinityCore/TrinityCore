@@ -292,7 +292,7 @@ void Creature::AddToWorld()
 
         Unit::AddToWorld();
         SearchFormation();
-        GetMap()->InitializeAIGroup(this);
+        AIGroup::AddUnitToAIGroup(this);
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
@@ -313,7 +313,7 @@ void Creature::RemoveFromWorld()
             sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
 
         if (m_spawnId)
-            GetMap()->RemoveAIGroup(m_spawnId);
+            AIGroup::RemoveUnitFromAIGroup(this);
 
         Unit::RemoveFromWorld();
 
@@ -888,7 +888,7 @@ void Creature::Update(uint32 diff)
     }
 
     if (m_spawnId)
-        if (AIGroup* group = GetMap()->GetAIGroupByMainMemberGuid(m_spawnId))
+        if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(GetMap(), m_spawnId))
             group->Update(diff);
 }
 

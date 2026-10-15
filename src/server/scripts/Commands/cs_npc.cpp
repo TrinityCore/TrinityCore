@@ -515,9 +515,9 @@ public:
         if (!aiGroupMainMemberGuid)
             aiGroupMainMemberGuid = target->GetSpawnId();
 
-        if (AIGroup* aiGroup = target->GetMap()->GetAIGroupByMainMemberGuid(aiGroupMainMemberGuid))
+        if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(target->GetMap(), aiGroupMainMemberGuid))
         {
-            handler->PSendSysMessage("AIGroup GUID: %s", aiGroup->GetGUID().ToString().c_str());
+            handler->PSendSysMessage("AIGroup GUID: %s", group->GetGUID().ToString().c_str());
 
             AIGroupUnit aiGroupUnit = sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature);
             if (aiGroupUnit != AIGroupUnit::Max)

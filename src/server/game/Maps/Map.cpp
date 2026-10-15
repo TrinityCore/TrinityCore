@@ -28,7 +28,6 @@
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
 #include "Group.h"
-#include "AIGroupEntity.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapInstanced.h"
@@ -625,34 +624,6 @@ template<>
 void Map::InitializeObject(GameObject* obj)
 {
     obj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
-}
-
-AIGroup* Map::GetAIGroupByMainMemberGuid(ObjectGuid::LowType mainMemberGuid) const
-{
-    auto it = _aiGroupsByMainMemberGuid.find(mainMemberGuid);
-    return it != _aiGroupsByMainMemberGuid.end() ? it->second.get() : nullptr;
-}
-
-void Map::InitializeAIGroup(Creature* mainMember)
-{
-    if (!mainMember || !mainMember->GetSpawnId() || _aiGroupsByMainMemberGuid.contains(mainMember->GetSpawnId()))
-        return;
-
-    if (!sAIGroupMgr->GetGroupMembers(mainMember->GetSpawnId()) && mainMember->GetAIName() != "AIGroup" && !mainMember->GetNativeTriggersId())
-        return;
-
-    auto group = std::make_unique<AIGroup>();
-    if (!group->Create(mainMember))
-        return;
-
-    group->GetScript()->SetActor(mainMember);
-    group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
-    _aiGroupsByMainMemberGuid.emplace(mainMember->GetSpawnId(), std::move(group));
-}
-
-void Map::RemoveAIGroup(ObjectGuid::LowType mainMemberGuid)
-{
-    _aiGroupsByMainMemberGuid.erase(mainMemberGuid);
 }
 
 template<class T>

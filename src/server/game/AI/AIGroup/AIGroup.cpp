@@ -31,11 +31,11 @@ AIGroup* AIGroupCreature::GetGroup() const
     if (!map)
         return nullptr;
 
-    if (AIGroup* group = map->GetAIGroupByMainMemberGuid(me->GetSpawnId()))
+    if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(map, me->GetSpawnId()))
         return group;
 
     ObjectGuid::LowType mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(me->GetSpawnId(), AIGroupMemberType::Creature);
-    return mainMemberGuid ? map->GetAIGroupByMainMemberGuid(mainMemberGuid) : nullptr;
+    return mainMemberGuid ? AIGroup::GetAIGroupByMainMemberGuid(map, mainMemberGuid) : nullptr;
 }
 
 AIGroupScript* AIGroupCreature::GetScript()
@@ -66,7 +66,7 @@ void AIGroupCreature::InitializeAI()
     GetScript();
 }
 
-void AIGroupCreature::OnActionTriggersChange(uint32 triggersId)
+void AIGroupCreature::OnActionTriggersChange(uint32 /*triggersId*/)
 {
     GetScript()->ReplaceActionTriggers();
 }
