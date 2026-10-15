@@ -297,10 +297,10 @@ ByteBuffer& operator<<(ByteBuffer& buffer, SpellLogMissEntry const& missEntry)
     buffer << missEntry.Victim;
     buffer << uint8(missEntry.MissReason);
     buffer << OptionalInit(missEntry.Debug);
+    buffer.FlushBits();
+
     if (missEntry.Debug)
         buffer << *missEntry.Debug;
-
-    buffer.FlushBits();
 
     return buffer;
 }

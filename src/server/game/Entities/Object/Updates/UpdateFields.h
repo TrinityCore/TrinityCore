@@ -673,7 +673,7 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<326>
     static void AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     static void FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     void ClearChangesMask();
-    bool IsQuestLogChangesMaskSkipped() const { return false; } // bandwidth savings aren't worth the cpu time
+    bool IsPartyMemberChangesMaskSkipped() const { return false; }
 };
 
 struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<2101>
@@ -2276,6 +2276,7 @@ struct PlayerInitiativeComponentData : public IsUpdateFieldStructureTag, public 
     static void AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     static void FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     void ClearChangesMask();
+    bool IsOwnerChangesMaskSkipped() const { return false; }
 };
 
 }

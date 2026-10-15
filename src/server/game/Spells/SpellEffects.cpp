@@ -449,6 +449,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //357 SPELL_EFFECT_357
     &Spell::EffectNULL,                                     //358 SPELL_EFFECT_358
     &Spell::EffectNULL,                                     //359 SPELL_EFFECT_359
+    &Spell::EffectNULL,                                     //360 SPELL_EFFECT_360
 };
 
 void Spell::EffectNULL()
@@ -1103,8 +1104,17 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
     }
 
     if (effectInfo->MiscValueB)
+    {
         if (Player* playerTarget = unitTarget->ToPlayer())
-            playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, Milliseconds(effectInfo->MiscValue)).Write());
+        {
+            WorldPackets::Spells::SpellVisualLoadScreen spellVisualLoadScreen;
+            spellVisualLoadScreen.SpellVisualKitID = effectInfo->MiscValueB;
+            spellVisualLoadScreen.Duration = Milliseconds(effectInfo->MiscValue);
+            spellVisualLoadScreen.IsTransfer = targetDest.Location.GetMapId() != playerTarget->GetMapId()
+                || (targetDest.InstanceId && *targetDest.InstanceId != playerTarget->GetInstanceId());
+            playerTarget->SendDirectMessage(spellVisualLoadScreen.Write());
+        }
+    }
 
     TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
     unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, options, m_spellInfo->Id),

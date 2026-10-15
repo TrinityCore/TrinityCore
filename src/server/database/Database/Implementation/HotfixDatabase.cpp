@@ -1360,13 +1360,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " AND locale = ?", CONNECTION_SYNCH);
 
     // PlayerDataElementAccount.db2
-    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT ID, StorageIndex, Type, Unknown1125 FROM player_data_element_account"
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT ID, StorageIndex, Type, Unknown1125, Unknown1215 FROM player_data_element_account"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT MAX(ID) + 1 FROM player_data_element_account", CONNECTION_SYNCH);
 
     // PlayerDataElementCharacter.db2
-    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT ID, StorageIndex, Type, Unknown1125 FROM player_data_element_character"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT ID, StorageIndex, Type, Unknown1125, Unknown1215"
+        " FROM player_data_element_character WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT MAX(ID) + 1 FROM player_data_element_character", CONNECTION_SYNCH);
 
     // PlayerDataFlagAccount.db2
@@ -1656,11 +1656,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_INTERRUPTS, "SELECT MAX(ID) + 1 FROM spell_interrupts", CONNECTION_SYNCH);
 
     // SpellItemEnchantment.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name, HordeName, Duration, EffectArg1, EffectArg2, EffectArg3, Flags, "
-        "EffectScalingPoints1, EffectScalingPoints2, EffectScalingPoints3, IconFileDataID, MinItemLevel, MaxItemLevel, TransmogUseConditionID, "
-        "TransmogCost, EffectPointsMin1, EffectPointsMin2, EffectPointsMin3, ItemVisual, RequiredSkillID, RequiredSkillRank, ItemLevel, Charges, "
-        "Effect1, Effect2, Effect3, ScalingClass, ScalingClassRestricted, ConditionID, MinLevel, MaxLevel FROM spell_item_enchantment"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name, HordeName, Duration, Charges, Effect1, Effect2, Effect3, EffectPointsMin1, "
+        "EffectPointsMin2, EffectPointsMin3, EffectArg1, EffectArg2, EffectArg3, Flags, EffectScalingPoints1, EffectScalingPoints2, "
+        "EffectScalingPoints3, ScalingClass, ScalingClassRestricted, ConditionID, RequiredSkillID, RequiredSkillRank, MinLevel, MaxLevel, "
+        "IconFileDataID, MinItemLevel, MaxItemLevel, TransmogUseConditionID, TransmogCost, ItemSquishEraID, ItemVisual, ItemLevel"
+        " FROM spell_item_enchantment WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT MAX(ID) + 1 FROM spell_item_enchantment", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT, "SELECT ID, Name_lang, HordeName_lang FROM spell_item_enchantment_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -1720,8 +1720,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE, "SELECT MAX(ID) + 1 FROM spell_procs_per_minute", CONNECTION_SYNCH);
 
     // SpellProcsPerMinuteMod.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD, "SELECT ID, Type, Param, Coeff, SpellProcsPerMinuteID FROM spell_procs_per_minute_mod"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD, "SELECT ID, Type, Param, Coeff, PlayerConditionID, SpellProcsPerMinuteID"
+        " FROM spell_procs_per_minute_mod WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD, "SELECT MAX(ID) + 1 FROM spell_procs_per_minute_mod", CONNECTION_SYNCH);
 
     // SpellRadius.db2
@@ -1801,7 +1801,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_SPELL_VISUAL_MISSILE, "SELECT CastOffset1, CastOffset2, CastOffset3, ImpactOffset1, ImpactOffset2, ImpactOffset3, ID, "
         "SpellVisualEffectNameID, SoundEntriesID, Attachment, DestinationAttachment, CastPositionerID, ImpactPositionerID, FollowGroundHeight, "
         "FollowGroundDropSpeed, FollowGroundApproach, Flags, SpellMissileMotionID, AnimKitID, ClutterLevel, DecayTimeAfterImpact, Unused1100, "
-        "SpellVisualMissileSetID FROM spell_visual_missile WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "MinimumSpellVisualDensityFilterType, MinimumSpellVisualDensityFilterParam, ReducedSpellVisualDensityFilterType, "
+        "ReducedSpellVisualDensityFilterParam, SpellVisualMissileSetID FROM spell_visual_missile WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_VISUAL_MISSILE, "SELECT MAX(ID) + 1 FROM spell_visual_missile", CONNECTION_SYNCH);
 
     // SpellXSpellVisual.db2
