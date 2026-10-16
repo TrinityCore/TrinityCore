@@ -30,6 +30,8 @@ void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const&
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
 #define OPENSSL_LEGACY_PROVIDER_FILENAME "legacy.dll"
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
+#define OPENSSL_LEGACY_PROVIDER_FILENAME "legacy.dylib"
 #else
 #define OPENSSL_LEGACY_PROVIDER_FILENAME "legacy.so"
 #endif
