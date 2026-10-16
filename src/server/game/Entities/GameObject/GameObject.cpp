@@ -16,6 +16,7 @@
  */
 
 #include "GameObject.h"
+#include "AIGroupEntity.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Containers.h"
@@ -224,6 +225,7 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+        AIGroup::AddUnitToAIGroup(this);
     }
 }
 
@@ -235,6 +237,7 @@ void GameObject::RemoveFromWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
+        AIGroup::RemoveUnitFromAIGroup(this);
         RemoveFromOwner();
         if (m_model)
             if (GetMap()->ContainsGameObjectModel(*m_model))

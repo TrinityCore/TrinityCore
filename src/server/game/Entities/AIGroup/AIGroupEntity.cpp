@@ -51,50 +51,68 @@ void AIGroup::AddAIGroup(std::unique_ptr<AIGroup> group)
     AIGroupMaps.emplace(group->GetMainMemberGuid(), std::move(group));
 }
 
-void AIGroup::AddUnitToAIGroup(Creature* unit)
+void AIGroup::AddUnitToAIGroup(WorldObject* unit)
 {
-    if (!unit || !unit->GetSpawnId() || !unit->GetMap())
+    Creature* creature = unit ? unit->ToCreature() : nullptr;
+    if (!creature || !creature->GetSpawnId() || !creature->GetMap())
         return;
 
-    if (GetAIGroupByMainMemberGuid(unit, unit->GetSpawnId()))
+    if (GetAIGroupByMainMemberGuid(creature, creature->GetSpawnId()))
         return;
 
-    if (!sAIGroupMgr->GetGroupMembers(unit->GetSpawnId()) && unit->GetAIName() != "AIGroup" && !unit->GetNativeTriggersId())
+    if (!sAIGroupMgr->GetGroupMembers(creature->GetSpawnId()) && creature->GetAIName() != "AIGroup" && !creature->GetNativeTriggersId())
         return;
 
     auto group = std::make_unique<AIGroup>();
-    if (!group->Create(unit))
+    if (!group->Create(creature))
         return;
 
-    group->GetScript()->SetActor(unit);
+    group->GetScript()->SetActor(creature);
     group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
     AddAIGroup(std::move(group));
 }
 
-void AIGroup::RemoveUnitFromAIGroup(Creature* unit)
+void AIGroup::RemoveUnitFromAIGroup(WorldObject* unit)
 {
-    if (!unit || !unit->GetMap() || !unit->GetSpawnId())
+    if (!unit || !unit->FindMap())
         return;
 
-    ObjectGuid::LowType mainMemberGuid = unit->GetSpawnId();
-    if (!GetAIGroupByMainMemberGuid(unit, mainMemberGuid))
-        mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(unit->GetSpawnId(), AIGroupMemberType::Creature);
+    ObjectGuid::LowType spawnId = 0;
+    AIGroupMemberType memberType;
+    Creature* creature = unit->ToCreature();
+    if (creature)
+    {
+        spawnId = creature->GetSpawnId();
+        memberType = AIGroupMemberType::Creature;
+    }
+    else if (GameObject* gameObject = unit->ToGameObject())
+    {
+        spawnId = gameObject->GetSpawnId();
+        memberType = AIGroupMemberType::GameObject;
+    }
+
+    if (!spawnId)
+        return;
+
+    ObjectGuid::LowType mainMemberGuid = spawnId;
+    if (!creature || !GetAIGroupByMainMemberGuid(creature, mainMemberGuid))
+        mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(spawnId, memberType);
 
     auto [groupBegin, groupEnd] = AIGroupMaps.equal_range(mainMemberGuid);
     for (auto groupItr = groupBegin; groupItr != groupEnd; ++groupItr)
     {
         AIGroup* group = groupItr->second.get();
-        if (group->GetMap() != unit->GetMap())
+        if (group->GetMap() != unit->FindMap())
             continue;
 
-        bool hasRemainingMembers = group->GetMainMemberGuid() != unit->GetSpawnId() &&
+        bool hasRemainingMembers = group->GetMainMemberGuid() != spawnId &&
             group->GetMap()->GetCreatureBySpawnId(group->GetMainMemberGuid());
 
         std::vector<AIGroupMemberData> const* memberData = sAIGroupMgr->GetGroupMembers(group->GetMainMemberGuid());
         if (memberData)
             for (AIGroupMemberData const& member : *memberData)
             {
-                if (member.MemberGuid == unit->GetSpawnId() && member.MemberType == AIGroupMemberType::Creature)
+                if (member.MemberGuid == spawnId && member.MemberType == memberType)
                     continue;
 
                 if (member.MemberType == AIGroupMemberType::Creature && group->GetMap()->GetCreatureBySpawnId(member.MemberGuid))
