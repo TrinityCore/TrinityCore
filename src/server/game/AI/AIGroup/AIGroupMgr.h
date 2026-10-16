@@ -1666,7 +1666,7 @@ class TC_GAME_API AIGroupMgr
                     if (member.MemberGuid == memberGuid && member.MemberType == memberType)
                         return member.Unit;
 
-            return AIGroupUnit::Max;
+            return AIGroupUnit(0);
         }
 };
 

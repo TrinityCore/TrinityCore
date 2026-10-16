@@ -516,13 +516,8 @@ public:
             aiGroupMainMemberGuid = target->GetSpawnId();
 
         if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(target, aiGroupMainMemberGuid))
-        {
             handler->PSendSysMessage("AIGroup GUID: %s", group->GetGUID().ToString().c_str());
-
-            AIGroupUnit aiGroupUnit = sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature);
-            if (aiGroupUnit != AIGroupUnit::Max)
-                handler->PSendSysMessage("AIGroup Unit: %u", uint8(aiGroupUnit));
-        }
+        handler->PSendSysMessage("AIGroup Unit: %u", uint8(sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature)));
         handler->PSendSysMessage(LANG_OBJECTINFO_STRINGIDS, STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Template)),
             STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Spawn)), STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Script)));
         handler->PSendSysMessage(LANG_NPCINFO_REACTSTATE, DescribeReactState(target->GetReactState()));
