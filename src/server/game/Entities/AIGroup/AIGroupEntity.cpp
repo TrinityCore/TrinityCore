@@ -76,47 +76,38 @@ void AIGroup::RemoveUnitFromAIGroup(Creature* unit)
     if (!unit || !unit->GetMap() || !unit->GetSpawnId())
         return;
 
-    Map* map = unit->GetMap();
-    ObjectGuid::LowType unitGuid = unit->GetSpawnId();
-    for (auto groupItr = AIGroupMaps.begin(); groupItr != AIGroupMaps.end();)
+    ObjectGuid::LowType mainMemberGuid = unit->GetSpawnId();
+    if (!GetAIGroupByMainMemberGuid(unit, mainMemberGuid))
+        mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(unit->GetSpawnId(), AIGroupMemberType::Creature);
+
+    auto [groupBegin, groupEnd] = AIGroupMaps.equal_range(mainMemberGuid);
+    for (auto groupItr = groupBegin; groupItr != groupEnd; ++groupItr)
     {
-        if (groupItr->second->GetMap() != map)
-        {
-            ++groupItr;
+        AIGroup* group = groupItr->second.get();
+        if (group->GetMap() != unit->GetMap())
             continue;
-        }
 
-        ObjectGuid::LowType mainMemberGuid = groupItr->first;
-        std::vector<AIGroupMemberData> const* memberData = sAIGroupMgr->GetGroupMembers(mainMemberGuid);
-        bool containsUnit = mainMemberGuid == unitGuid;
-        if (memberData)
-            for (AIGroupMemberData const& member : *memberData)
-                if (member.MemberType == AIGroupMemberType::Creature && member.MemberGuid == unitGuid)
-                    containsUnit = true;
+        bool hasRemainingMembers = group->GetMainMemberGuid() != unit->GetSpawnId() &&
+            group->GetMap()->GetCreatureBySpawnId(group->GetMainMemberGuid());
 
-        if (!containsUnit)
-        {
-            ++groupItr;
-            continue;
-        }
-
-        bool hasRemainingMembers = mainMemberGuid != unitGuid && map->GetCreatureBySpawnId(mainMemberGuid);
+        std::vector<AIGroupMemberData> const* memberData = sAIGroupMgr->GetGroupMembers(group->GetMainMemberGuid());
         if (memberData)
             for (AIGroupMemberData const& member : *memberData)
             {
-                if (member.MemberGuid == unitGuid)
+                if (member.MemberGuid == unit->GetSpawnId() && member.MemberType == AIGroupMemberType::Creature)
                     continue;
 
-                if (member.MemberType == AIGroupMemberType::Creature && map->GetCreatureBySpawnId(member.MemberGuid))
+                if (member.MemberType == AIGroupMemberType::Creature && group->GetMap()->GetCreatureBySpawnId(member.MemberGuid))
                     hasRemainingMembers = true;
-                else if (member.MemberType == AIGroupMemberType::GameObject && map->GetGameObjectBySpawnId(member.MemberGuid))
+                else if (member.MemberType == AIGroupMemberType::GameObject && group->GetMap()->GetGameObjectBySpawnId(member.MemberGuid))
                     hasRemainingMembers = true;
             }
 
-        if (hasRemainingMembers)
-            ++groupItr;
-        else
-            groupItr = AIGroupMaps.erase(groupItr);
+        if (!hasRemainingMembers)
+        {
+            AIGroupMaps.erase(groupItr);
+            return;
+        }
     }
 }
 

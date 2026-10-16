@@ -312,8 +312,7 @@ void Creature::RemoveFromWorld()
         if (m_formation)
             sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
 
-        if (m_spawnId)
-            AIGroup::RemoveUnitFromAIGroup(this);
+        AIGroup::RemoveUnitFromAIGroup(this);
 
         Unit::RemoveFromWorld();
 
