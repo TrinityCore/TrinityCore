@@ -159,6 +159,23 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
+        struct PowerUpdatePower
+        {
+            int32 Power = 0;
+            uint8 PowerType = 0;
+        };
+
+        class PowerUpdate final : public ServerPacket
+        {
+        public:
+            explicit PowerUpdate() : ServerPacket(SMSG_POWER_UPDATE, 8 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            PowerUpdatePower Power;
+        };
+
         class CancelAutoRepeat final : public ServerPacket
         {
         public:

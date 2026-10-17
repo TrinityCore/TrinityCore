@@ -83,6 +83,15 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
+{
+    _worldPacket << Guid.WriteAsPacked();
+    _worldPacket << uint8(Power.PowerType);
+    _worldPacket << int32(Power.Power);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 {
     _worldPacket << Guid;
