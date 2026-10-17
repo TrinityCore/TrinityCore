@@ -29,15 +29,19 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Random.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum WarlockSpells
 {
@@ -62,10 +66,18 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF            = 113942,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_GREEN        = 113896,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_PURPLE       = 120729,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_GREEN      = 113886,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_PURPLE     = 113890,
+    SPELL_WARLOCK_DEMONIC_GATEWAY_VISUAL            = 113900,
     SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
     SPELL_WARLOCK_DOOM_ENERGIZE                     = 193318,
     SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
+    SPELL_WARLOCK_FREQUENT_TRAVELER                 = 1265801,
+    SPELL_WARLOCK_FREQUENT_TRAVELER_USED            = 1271712,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
@@ -767,6 +779,172 @@ class spell_warl_demonic_circle_teleport : public AuraScript
     {
         OnEffectApply += AuraEffectApplyFn(spell_warl_demonic_circle_teleport::HandleTeleport, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
+};
+
+// 111771 - Demonic Gateway
+class spell_warl_demonic_gateway : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_GREEN, SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_PURPLE,
+            SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_GREEN, SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_PURPLE,
+            SPELL_WARLOCK_DEMONIC_GATEWAY_VISUAL, SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF });
+    }
+
+    SpellCastResult CheckDestination()
+    {
+        WorldLocation const* destination = GetExplTargetDest();
+        if (!destination || !GetCaster()->ToPlayer())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (std::abs(GetCaster()->GetPositionZ() - destination->GetPositionZ()) > 6.0f)
+            return SPELL_FAILED_NOPATH;
+
+        if (!GetCaster()->IsWithinLOS(destination->GetPositionX(), destination->GetPositionY(), destination->GetPositionZ()))
+            return SPELL_FAILED_LINE_OF_SIGHT;
+
+        return SPELL_CAST_OK;
+    }
+
+    void SummonGateways(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        std::vector<ObjectGuid> gateways;
+        for (auto const& [guid, gateway] : caster->GetMap()->GetObjectsStore().Data.Head)
+            if (!gateway->IsDestroyedObject() && (gateway->GetEntry() == 59262 || gateway->GetEntry() == 59271))
+                if (TempSummon* summon = gateway->ToTempSummon())
+                    if (summon->GetSummonerGUID() == caster->GetGUID())
+                        gateways.push_back(guid);
+
+        for (ObjectGuid const& guid : gateways)
+            if (Creature* gateway = ObjectAccessor::GetCreature(*caster, guid))
+                if (TempSummon* summon = gateway->ToTempSummon())
+                    if (summon->GetSummonerGUID() == caster->GetGUID())
+                        summon->DespawnOrUnsummon();
+
+        caster->CastSpell(caster, SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_PURPLE, true);
+        caster->CastSpell(*GetExplTargetDest(), SPELL_WARLOCK_DEMONIC_GATEWAY_SUMMON_GREEN, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warl_demonic_gateway::CheckDestination);
+        OnEffectLaunch += SpellEffectFn(spell_warl_demonic_gateway::SummonGateways, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 113896, 120729 - Demonic Gateway
+class spell_warl_demonic_gateway_travel : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } })
+            && spellInfo->GetEffect(EFFECT_3).IsEffect(SPELL_EFFECT_TRIGGER_SPELL)
+            && spellInfo->GetEffect(EFFECT_3).TriggerSpell == SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF
+            && ValidateSpellInfo({ SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF,
+                SPELL_WARLOCK_FREQUENT_TRAVELER, SPELL_WARLOCK_FREQUENT_TRAVELER_USED });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    void PreventDefaultCooldown(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleCooldown() const
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER) && !caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER_USED))
+        {
+            if (caster->CastSpell(caster, SPELL_WARLOCK_FREQUENT_TRAVELER_USED, GetSpell()) == SPELL_CAST_OK
+                && caster->HasAura(SPELL_WARLOCK_FREQUENT_TRAVELER_USED))
+                return;
+        }
+
+        if (caster->CastSpell(caster, SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF, GetSpell()) == SPELL_CAST_OK
+            && caster->HasAura(SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF))
+            caster->RemoveAurasDueToSpell(SPELL_WARLOCK_FREQUENT_TRAVELER_USED);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_warl_demonic_gateway_travel::PreventDefaultCooldown, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_demonic_gateway_travel::PreventDefaultCooldown, EFFECT_3, SPELL_EFFECT_TRIGGER_SPELL);
+        AfterCast += SpellCastFn(spell_warl_demonic_gateway_travel::HandleCooldown);
+    }
+};
+
+struct npc_warl_demonic_gateway : public ScriptedAI
+{
+    npc_warl_demonic_gateway(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetImmuneToAll(true);
+        me->SetControlled(true, UNIT_STATE_ROOT);
+        me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+        me->CastSpell(me, SPELL_WARLOCK_DEMONIC_GATEWAY_VISUAL, true);
+
+        std::list<Creature*> gateways;
+        me->GetCreatureListWithEntryInGrid(gateways, me->GetEntry() == 59262 ? 59271 : 59262, 100.0f);
+        for (Creature* gateway : gateways)
+            if (TempSummon* other = gateway->ToTempSummon())
+                if (!gateway->IsDestroyedObject() && other->GetSummonerGUID() == summoner->GetGUID()
+                    && gateway->IsAIEnabled() && gateway->AI()->GetGUID(0).IsEmpty())
+                {
+                    _otherGateway = gateway->GetGUID();
+                    gateway->AI()->SetGUID(me->GetGUID(), 0);
+                    break;
+                }
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override { _otherGateway = guid; }
+    ObjectGuid GetGUID(int32 /*id*/) const override { return _otherGateway; }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_ownerCheckTimer > diff)
+        {
+            _ownerCheckTimer -= diff;
+            return;
+        }
+
+        _ownerCheckTimer = 1000;
+        if (TempSummon* summon = me->ToTempSummon())
+            if (!ObjectAccessor::GetPlayer(*me, summon->GetSummonerGUID())
+                || !ObjectAccessor::GetCreature(*me, _otherGateway))
+                summon->DespawnOrUnsummon();
+    }
+
+    void OnSpellClick(Unit* clicker, bool /*spellClickHandled*/) override
+    {
+        Player* player = clicker->ToPlayer();
+        TempSummon* summon = me->ToTempSummon();
+        if (!player || !summon || !player->IsAlive() || !player->CanFreeMove()
+            || player->HasAura(SPELL_WARLOCK_DEMONIC_GATEWAY_DEBUFF) || !me->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+            return;
+
+        Player* owner = ObjectAccessor::GetPlayer(*me, summon->GetSummonerGUID());
+        if (!owner || (owner != player && !player->IsInSameRaidWith(owner)))
+            return;
+
+        Creature* destination = ObjectAccessor::GetCreature(*me, _otherGateway);
+        if (!destination || destination->IsDestroyedObject() || !destination->ToTempSummon()
+            || destination->ToTempSummon()->GetSummonerGUID() != summon->GetSummonerGUID())
+            return;
+
+        player->CastSpell(destination->GetPosition(), me->GetEntry() == 59262
+            ? SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_GREEN : SPELL_WARLOCK_DEMONIC_GATEWAY_JUMP_PURPLE, true);
+    }
+
+private:
+    ObjectGuid _otherGateway;
+    uint32 _ownerCheckTimer = 1000;
 };
 
 // 67518, 19505 - Devour Magic
@@ -1902,6 +2080,9 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_demonbolt);
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
+    RegisterSpellScript(spell_warl_demonic_gateway);
+    RegisterSpellScript(spell_warl_demonic_gateway_travel);
+    RegisterCreatureAI(npc_warl_demonic_gateway);
     RegisterSpellScript(spell_warl_devour_magic);
     RegisterSpellScript(spell_warl_doom);
     RegisterSpellScript(spell_warl_drain_soul);
