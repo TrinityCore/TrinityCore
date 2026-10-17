@@ -1048,6 +1048,7 @@ class TC_GAME_API Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
         void HandleEmoteCommand(Emote emoteId);
+        void PerformEmote(Emote emote);
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
