@@ -11836,9 +11836,12 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
                     m_weaponChangeTimer = spellProto->StartRecoveryTime;
 
                     GetSpellHistory()->AddGlobalCooldown(spellProto, m_weaponChangeTimer);
-                    WorldPacket data;
-                    GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_INCLUDE_GCD, cooldownSpell, 0);
-                    SendDirectMessage(&data);
+
+                    WorldPackets::Spells::SpellCooldown spellCooldown;
+                    spellCooldown.Caster = GetGUID();
+                    spellCooldown.Flags = SPELL_COOLDOWN_FLAG_INCLUDE_GCD;
+                    spellCooldown.SpellCooldowns.emplace_back(cooldownSpell, 0);
+                    SendDirectMessage(spellCooldown.Write());
                 }
             }
         }

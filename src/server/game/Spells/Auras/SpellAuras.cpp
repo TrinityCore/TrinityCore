@@ -1668,9 +1668,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             player->GetSpellHistory()->ResetCooldown(GetSpellInfo()->Id, true);
                             player->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, std::chrono::seconds(aurEff->GetAmount()));
 
-                            WorldPacket data;
-                            player->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, aurEff->GetAmount() * IN_MILLISECONDS);
-                            player->SendDirectMessage(&data);
+                            WorldPackets::Spells::SpellCooldown spellCooldown;
+                            spellCooldown.Caster = player->GetGUID();
+                            spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+                            spellCooldown.SpellCooldowns.emplace_back(GetSpellInfo()->Id, aurEff->GetAmount()* IN_MILLISECONDS);
+                            player->SendDirectMessage(spellCooldown.Write());
                         }
                         break;
                 }

@@ -42,6 +42,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 
@@ -4649,9 +4650,11 @@ class spell_gen_charmed_unit_spell_cooldown : public SpellScript
         Unit* caster = GetCaster();
         if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
-            WorldPacket data;
-            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
-            owner->SendDirectMessage(&data);
+            WorldPackets::Spells::SpellCooldown spellCooldown;
+            spellCooldown.Caster = caster->GetGUID();
+            spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+            spellCooldown.SpellCooldowns.emplace_back(GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(spellCooldown.Write());
         }
     }
 

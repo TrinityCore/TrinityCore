@@ -486,6 +486,41 @@ WorldPacket const* CooldownEvent::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* ClearCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* ModifyCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(DeltaTime);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SpellCooldownStruct const& cooldown)
+{
+    data << uint32(cooldown.SrecID);
+    data << uint32(cooldown.ForcedCooldown);
+
+    return data;
+}
+
+WorldPacket const* SpellCooldown::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint8(Flags);
+    for (SpellCooldownStruct const& cooldown : SpellCooldowns)
+        _worldPacket << cooldown;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
