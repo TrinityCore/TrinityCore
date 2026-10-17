@@ -1486,6 +1486,33 @@ class spell_dk_voracious : public SpellScript
     }
 };
 
+// 206967 - Will of the Necropolis
+class spell_dk_will_of_the_necropolis : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        Unit* target = GetTarget();
+        if (target->GetHealthPct() < GetEffectInfo(EFFECT_2).CalcValue(target))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), GetEffect(EFFECT_1)->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis::HandleAbsorb, EFFECT_0);
+    }
+};
+
 // 43265 - Death and Decay
 struct at_dk_death_and_decay : AreaTriggerAI
 {
@@ -1570,6 +1597,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_vampiric_blood);
     RegisterSpellScript(spell_dk_vestigial_shell);
     RegisterSpellScript(spell_dk_voracious);
+    RegisterSpellScript(spell_dk_will_of_the_necropolis);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
 }
