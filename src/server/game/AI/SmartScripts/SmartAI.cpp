@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointManager.h"
 
