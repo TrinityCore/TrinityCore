@@ -12574,6 +12574,16 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     player->GetSession()->SendPacket(moveKnockBack.Write());
 }
 
+// SMSG_MOVE_ADD_IMPULSE. x/y/z is the impulse vector, not a facing.
+void Unit::SendMoveAddImpulse(Player* player, float x, float y, float z)
+{
+    WorldPackets::Movement::MoveAddImpulse moveAddImpulse;
+    moveAddImpulse.MoverGUID = GetGUID();
+    moveAddImpulse.SequenceIndex = m_movementCounter++;
+    moveAddImpulse.Direction = Position(x, y, z);
+    player->GetSession()->SendPacket(moveAddImpulse.Write());
+}
+
 void Unit::KnockbackFrom(Position const& origin, float speedXY, float speedZ, float angle /*= M_PI*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     Player* player = ToPlayer();
