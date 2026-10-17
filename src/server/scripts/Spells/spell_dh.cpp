@@ -912,28 +912,6 @@ class spell_dh_deflecting_spikes : public SpellScript
     }
 };
 
-// 388111 - Demon Muzzle
-class spell_dh_demon_muzzle : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_DEMON_MUZZLE_PROC });
-    }
-
-    static void HandleProc(AuraScript const&, AuraEffect const*, ProcEventInfo const& procEvent)
-    {
-        procEvent.GetActor()->CastSpell(procEvent.GetActionTarget(), SPELL_DH_DEMON_MUZZLE_PROC, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = procEvent.GetProcSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dh_demon_muzzle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 // 213410 - Demonic (attached to 212084 - Fel Devastation and 198013 - Eye Beam)
 class spell_dh_demonic : public SpellScript
 {
@@ -2838,7 +2816,6 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
-    RegisterSpellScript(spell_dh_demon_muzzle);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demonic_appetite);
