@@ -1281,6 +1281,7 @@ class TC_GAME_API AIGroupMgr
                 case AI_GROUP_UNIT_SAY:
                 case AI_GROUP_UNIT_CAST:
                 case AI_GROUP_UNIT_ACTIVATE_OBJECT:
+                case AI_GROUP_DESPAWN:
                 case AI_GROUP_SET_RADIUS_OBSOLETE:
                 case AI_GROUP_SET_FACTION_OBSOLETE:
                 case AI_GROUP_UNIT_SET_FACING:
@@ -1566,7 +1567,6 @@ class TC_GAME_API AIGroupMgr
                     return ObjectTypeMaskObject;
                 case AI_GROUP_IDLE:
                 case AI_GROUP_GENERATE_EVENT:
-                case AI_GROUP_DESPAWN:
                 case AI_GROUP_PERIODIC_EVENT:
                 case AI_GROUP_RANDOM_ACTION_SET:
                     return ObjectTypeMaskAll;

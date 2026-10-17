@@ -303,7 +303,14 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
         return ExecuteActionForActor(action, invokerGuid);
 
     bool actionFinished = true;
-    std::vector<WorldObject*> members = m_group->GetMembers(AIGroupUnit(action.Unit), objectTypeMask);
+
+    std::vector<WorldObject*> members;
+
+    if (IsActionGroupWide(action.Type))
+        members = m_group->GetMembers(AIGroupUnit::AllUnits, objectTypeMask);
+    else
+        members = m_group->GetMembers(AIGroupUnit(action.Unit), objectTypeMask);
+
     for (WorldObject* member : members)
     {
         SetActor(member);
@@ -374,22 +381,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             me->CastSpell(targets.empty() ? nullptr : targets.front(), uint32(action.Extra2));
             return true;
         case AI_GROUP_DESPAWN:
-            if (WorldObject* baseObject = GetBaseObject())
-            {
-                if (m_group)
-                {
-                    std::vector<WorldObject*> members = m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskAll);
-                    for (WorldObject* member : members)
-                        if (Creature* creature = member->ToCreature())
-                            creature->DespawnOrUnsummon();
-                        else if (GameObject* gameObject = member->ToGameObject())
-                            gameObject->DespawnOrUnsummon();
-                }
-                else if (Creature* creature = baseObject->ToCreature())
-                    creature->DespawnOrUnsummon();
-                else if (GameObject* gameobject = baseObject->ToGameObject())
-                    gameobject->DespawnOrUnsummon();
-            }
+            me->DespawnOrUnsummon();
             return true;
         case AI_GROUP_UNIT_SET_FACING:
             me->SetFacingTo(action.Extra2);
@@ -476,6 +468,17 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
         case AI_GROUP_FOLLOW_PATH:
         case AI_GROUP_MOVETO:
         case AI_GROUP_UNIT_FINISH_CAST:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool AIGroupScript::IsActionGroupWide(uint16 action)
+{
+    switch (action)
+    {
+        case AI_GROUP_DESPAWN:
             return true;
         default:
             return false;
