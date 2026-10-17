@@ -31,6 +31,7 @@ class TC_GAME_API AIGroup
         AIGroup();
         ~AIGroup() = default;
 
+        static AIGroup* GetAIGroup(Creature* creature);
         static AIGroup* GetAIGroupByMainMemberGuid(Creature* creature, ObjectGuid::LowType mainMemberGuid);
         static void AddAIGroup(std::unique_ptr<AIGroup> group);
         static void AddUnitToAIGroup(WorldObject* unit);

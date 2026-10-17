@@ -511,11 +511,7 @@ public:
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
         handler->PSendSysMessage(LANG_ACTION_TRIGGERS_NAME, sAIGroupMgr->GetTriggersName(target->GetCurrentTriggersId()).c_str());
         handler->PSendSysMessage(LANG_ACTION_SET_NAME, sAIGroupMgr->GetActionSetName(target->GetCurrentRunningActionSet()).c_str());
-        ObjectGuid::LowType aiGroupMainMemberGuid = sAIGroupMgr->GetMainMemberGuid(target->GetSpawnId(), AIGroupMemberType::Creature);
-        if (!aiGroupMainMemberGuid)
-            aiGroupMainMemberGuid = target->GetSpawnId();
-
-        if (AIGroup* group = AIGroup::GetAIGroupByMainMemberGuid(target, aiGroupMainMemberGuid))
+        if (AIGroup* group = AIGroup::GetAIGroup(target))
             handler->PSendSysMessage("AIGroup GUID: %s", group->GetGUID().ToString().c_str());
         handler->PSendSysMessage("AIGroup Unit: %u", uint8(sAIGroupMgr->GetAIGroupUnit(target->GetSpawnId(), AIGroupMemberType::Creature)));
         handler->PSendSysMessage(LANG_OBJECTINFO_STRINGIDS, STRING_VIEW_FMT_ARG(target->GetStringId(StringIdType::Template)),

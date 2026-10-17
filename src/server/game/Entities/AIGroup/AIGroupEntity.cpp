@@ -33,6 +33,18 @@ namespace
 
 AIGroup::AIGroup() { }
 
+AIGroup* AIGroup::GetAIGroup(Creature* creature)
+{
+    if (!creature)
+        return nullptr;
+
+    if (AIGroup* group = GetAIGroupByMainMemberGuid(creature, creature->GetSpawnId()))
+        return group;
+
+    ObjectGuid::LowType mainMemberGuid = sAIGroupMgr->GetMainMemberGuid(creature->GetSpawnId(), AIGroupMemberType::Creature);
+    return mainMemberGuid ? GetAIGroupByMainMemberGuid(creature, mainMemberGuid) : nullptr;
+}
+
 AIGroup* AIGroup::GetAIGroupByMainMemberGuid(Creature* creature, ObjectGuid::LowType mainMemberGuid)
 {
     if (!creature || !creature->GetMap())
