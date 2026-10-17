@@ -5727,6 +5727,39 @@ class spell_gen_abandon_vehicle : public SpellScript
     }
 };
 
+// 404471 - Change Flight Style
+// 436854 - Switch Flight Style
+class spell_gen_switch_flight_style : public SpellScript
+{
+    static constexpr uint32 SPELL_FLIGHT_STYLE_SKYRIDING = 404464;
+    static constexpr uint32 SPELL_FLIGHT_STYLE_STEADY = 404468;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLIGHT_STYLE_SKYRIDING, SPELL_FLIGHT_STYLE_STEADY });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_FLIGHT_STYLE_SKYRIDING))
+        {
+            caster->RemoveAurasDueToSpell(SPELL_FLIGHT_STYLE_SKYRIDING);
+            caster->CastSpell(caster, SPELL_FLIGHT_STYLE_STEADY, TRIGGERED_FULL_MASK);
+        }
+        else
+        {
+            caster->RemoveAurasDueToSpell(SPELL_FLIGHT_STYLE_STEADY);
+            caster->CastSpell(caster, SPELL_FLIGHT_STYLE_SKYRIDING, TRIGGERED_FULL_MASK);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_switch_flight_style::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5924,4 +5957,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_force_phase_update);
     RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
     RegisterSpellScript(spell_gen_abandon_vehicle);
+    RegisterSpellScript(spell_gen_switch_flight_style);
 }
