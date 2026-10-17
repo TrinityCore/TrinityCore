@@ -728,7 +728,7 @@ class spell_nagrand_fire_bomb_target_summon_trigger : public SpellScript
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                casterSummon->CastSpell(summoner, SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT);
+                casterSummon->CastSpell(summoner, SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT, true);
     }
 
     void Register() override
@@ -749,7 +749,7 @@ class spell_nagrand_fire_bomb_target_summon_effect : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_FIRE_BOMB_DAMAGE_MISSILE);
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_FIRE_BOMB_DAMAGE_MISSILE, true);
     }
 
     void Register() override
@@ -771,8 +771,8 @@ class spell_nagrand_fire_bomb_damage_missile : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->CastSpell(target, SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE);
-        target->CastSpell(target, SPELL_FIRE_BOMB_FLAMES);
+        target->CastSpell(target, SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE, true);
+        target->CastSpell(target, SPELL_FIRE_BOMB_FLAMES, true);
     }
 
     void Register() override
