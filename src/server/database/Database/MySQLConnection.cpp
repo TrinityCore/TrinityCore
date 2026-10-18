@@ -54,7 +54,7 @@ struct MySQLConnection::WorkerThread
     boost::asio::executor_work_guard<Trinity::Asio::IoContextExecutor> WorkGuard;
 };
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) :
+MySQLConnection::MySQLConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags) :
 m_reconnecting(false),
 m_prepareError(false),
 m_Mysql(nullptr),

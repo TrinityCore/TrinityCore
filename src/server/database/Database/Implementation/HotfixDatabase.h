@@ -1257,7 +1257,7 @@ class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 public:
     typedef HotfixDatabaseStatements Statements;
 
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
+    HotfixDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags);
     ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements
