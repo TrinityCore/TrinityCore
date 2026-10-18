@@ -2302,6 +2302,7 @@ CREATE TABLE `characters` (
   `personalTabardBackgroundColor` int NOT NULL DEFAULT '-1',
   `transmogOutfitEquippedId` int NOT NULL DEFAULT '2',
   `transmogOutfitLocked` tinyint(1) NOT NULL DEFAULT '0',
+  `lastSummonedBattlePet` bigint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   UNIQUE KEY `idx_name` (`name`),
   KEY `idx_account` (`account`),
