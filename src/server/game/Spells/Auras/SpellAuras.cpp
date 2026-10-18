@@ -295,6 +295,8 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
                     auraData.EstimatedPoints[effect->GetEffIndex()] = effect->GetEstimatedAmount().value_or(effect->GetAmount());
         }
     }
+
+    auraData.DstLocation.Pos.Relocate(aura->GetDst());
 }
 
 void AuraApplication::ClientUpdate(bool remove)
@@ -498,6 +500,9 @@ m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(Game
     m_procCharges = CalcMaxCharges(createInfo.Caster);
     m_isUsingCharges = m_procCharges != 0;
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
+
+    if (createInfo.Dst)
+        m_dst.WorldRelocate(createInfo.Dst);
 }
 
 AuraScript* Aura::GetScriptByType(std::type_info const& type) const
