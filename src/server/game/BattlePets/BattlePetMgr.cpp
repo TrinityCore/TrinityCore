@@ -285,6 +285,9 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Flags = fields[8].GetUInt16();
                 pet.PacketInfo.Name = fields[9].GetString();
                 pet.NameTimestamp = fields[10].GetInt64();
+                // the client ignores a custom name whose timestamp is 0, so give nicknames without a stored timestamp one
+                if (!pet.PacketInfo.Name.empty() && !pet.NameTimestamp)
+                    pet.NameTimestamp = GameTime::GetGameTime();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
                 if (!fields[13].IsNull())
