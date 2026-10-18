@@ -351,7 +351,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             // AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT
             // AI_GROUP_UNIT_CALL_FOR_HELP
             // AI_GROUP_UNIT_CAST_FAILURE
-            // AI_GROUP_UNIT_CAST_RANDOM_UNIT
             // AI_GROUP_UNIT_CAST_RANDOM_PLAYER
             // AI_GROUP_UNIT_CAST_OTHER_UNIT
             // AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT
@@ -384,6 +383,9 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
                 case AI_GROUP_CIRCLE_UNIT:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskUnit;
                     selectNearestTarget = true;
+                    break;
+                case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskUnitRandom;
                     break;
                 case AI_GROUP_UNIT_ACTIVATE_OBJECT:
                     targetTypeMask = AIGroupMgr::TargetTypeMaskObject;
@@ -432,12 +434,18 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             }
             else
             {
-                if (targetTypeMask & AIGroupMgr::TargetTypeMaskUnit)
+                if (targetTypeMask & (AIGroupMgr::TargetTypeMaskUnit | AIGroupMgr::TargetTypeMaskUnitRandom))
                 {
                     std::vector<Creature*> creatures;
                     baseObject->GetCreatureListWithOptionsInGrid(creatures, searchRadius, { .StringId = action.StringId });
-                    for (Creature* creature : creatures)
-                        targets.push_back(creature);
+                    if (targetTypeMask & AIGroupMgr::TargetTypeMaskUnitRandom)
+                    {
+                        if (!creatures.empty())
+                            targets.push_back(Trinity::Containers::SelectRandomContainerElement(creatures));
+                    }
+                    else
+                        for (Creature* creature : creatures)
+                            targets.push_back(creature);
                 }
 
                 if (targetTypeMask & AIGroupMgr::TargetTypeMaskObject)
