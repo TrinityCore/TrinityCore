@@ -777,8 +777,8 @@ enum ActionTriggers
     OnEnterCombat               = 2,    // Unit enters combat.
     OnLeaveCombat               = 3,    // NYI // Unit leaves combat.
     OnCombatTick                = 4,    // NYI // Unit triggers this each heartbeat.
-    OnHealthRange               = 5,    // NYI // Unit health is between {#Health Min} and {#Health Max}.
-    OnEnergyRange               = 6,    // NYI // Unit mana is between {#Mana Min} and {#Mana Max}.
+    OnHealthRange               = 5,    // Unit health is between {#Health Min} and {#Health Max}.
+    OnEnergyRange               = 6,    // Unit mana is between {#Mana Min} and {#Mana Max}.
     OnDeath                     = 7,    // Unit dies.
     OnSpell                     = 8,    // Unit is hit by spell {Spell}.
     OnKill                      = 9,    // Unit kills an enemy target.
@@ -793,8 +793,8 @@ enum ActionTriggers
     OnSkinned                   = 17,   // NYI // Unit is skinned.
     OnCombatReturn              = 18,   // Unit returns to its home position after combat.
     OnPathFailing               = 19,   // NYI // Unit fails to path to its target{#AfterSeconds}.
-    OnHealthRangeRandom         = 20,   // NYI // Unit is within randomized health range {#Health Min} to {#Health Max}.
-    OnEnergyRangeRandom         = 21,   // NYI // Unit is within randomized mana range {#Mana Min} to {#Mana Max}.
+    OnHealthRangeRandom         = 20,   // Unit is within randomized health range {#Health Min} to {#Health Max}.
+    OnEnergyRangeRandom         = 21,   // Unit is within randomized mana range {#Mana Min} to {#Mana Max}.
     // [^ 1.12.1]
     OnGeneralTrigger            = 22,   // NYI // Unit receives general trigger ID {#Trigger ID}.
     OnDespawn                   = 23,   // Unit receives a despawn request. (Instantaneous)
