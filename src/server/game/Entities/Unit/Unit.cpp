@@ -6345,7 +6345,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         minion->ReplaceAllPvpFlags(GetPvpFlags());
 
         // FIXME: hack, speed must be set only at follow
-        if (GetTypeId() == TYPEID_PLAYER && minion->IsPet())
+        if (GetTypeId() == TYPEID_PLAYER && (minion->IsPet() || minion->GetGUID() == GetCritterGUID()))
             for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                 minion->SetSpeedRate(UnitMoveType(i), m_speed_rate[i]);
 
@@ -8981,8 +8981,14 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         ++ToPlayer()->m_forced_speed_changes[mtype];
 
         if (!IsInCombat())
+        {
             if (Pet* pet = ToPlayer()->GetPet())
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
+
+            // companions (critters, battle pets) keep up with their owner as well
+            if (Creature* companion = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, GetCritterGUID()))
+                companion->SetSpeedRate(mtype, m_speed_rate[mtype]);
+        }
     }
 
     if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved())) // unit controlled by a player.
