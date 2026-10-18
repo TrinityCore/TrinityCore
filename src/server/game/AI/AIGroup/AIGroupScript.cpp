@@ -242,6 +242,7 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
 
     switch (AI_GROUP_ACTION(action.Type))
     {
+        case AI_GROUP_MOVETO:
         case AI_GROUP_TELEPORT:
         case AI_GROUP_WANDER:
         case AI_GROUP_FOLLOW_GUID:
