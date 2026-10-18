@@ -3247,6 +3247,9 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                     .SetStackAmount(m_spellValue->AuraStackAmount)
                     .SetSpellVisual(m_SpellVisual);
 
+                if (m_targets.HasDst())
+                    createInfo.SetDst(m_targets.GetDstPos());
+
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
                     hitInfo.HitAura = aura->ToUnitAura();
