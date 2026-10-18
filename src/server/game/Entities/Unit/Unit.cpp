@@ -5504,6 +5504,13 @@ std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
     return areaTriggers;
 }
 
+std::vector<AreaTrigger*> Unit::GetAreaTriggers(std::function<bool(AreaTrigger const*)> const& predicate) const
+{
+    std::vector<AreaTrigger*> areaTriggers;
+    std::ranges::copy_if(m_areaTrigger, std::back_inserter(areaTriggers), std::ref(predicate));
+    return areaTriggers;
+}
+
 void Unit::RemoveAreaTrigger(uint32 spellId)
 {
     for (AreaTriggerList::iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end();)

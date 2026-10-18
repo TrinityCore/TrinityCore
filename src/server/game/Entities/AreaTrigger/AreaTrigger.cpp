@@ -336,7 +336,26 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     }
 
     if (caster)
+    {
         caster->_RegisterAreaTrigger(this);
+        if (spellInfo && GetCreateProperties()->MaxSummons)
+        {
+            int32 maxSummons = *GetCreateProperties()->MaxSummons;
+            if (Player* spellModOwner = caster->GetSpellModOwner())
+                spellModOwner->ApplySpellMod(spellInfo, SpellModOp::AreaTriggerMaxSummons, maxSummons, spell);
+
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers([createProperties = GetCreateProperties()](AreaTrigger const* at)
+            {
+                return at->GetCreateProperties() == createProperties;
+            });
+            if (std::ssize(areaTriggers) > maxSummons)
+            {
+                AreaTrigger* oldestAreaTriggger = std::ranges::min(areaTriggers, std::ranges::less(),
+                    [](AreaTrigger const* at) { return *at->m_areaTriggerData->CreationTime; });
+                oldestAreaTriggger->Remove();
+            }
+        }
+    }
 
     _ai->OnCreate(spell);
 
@@ -979,23 +998,30 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
 #endif
 }
 
-void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitReason exitMode)
+void AreaTrigger::HandleUnitEnterExit(std::span<Unit*> targetList, AreaTriggerExitReason exitMode)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
 
     std::vector<Unit*> enteringUnits;
 
-    for (Unit* unit : newTargetList)
+    for (Unit* unit : targetList)
     {
-        if (exitUnits.erase(unit->GetGUID()) == 0) // erase(key_type) returns number of elements erased
+        if (auto existingUnit = exitUnits.extract(unit->GetGUID()))
+            _insideUnits.insert(std::move(existingUnit)); // unit was already in areatrigger
+        else
             enteringUnits.push_back(unit);
-
-        _insideUnits.insert(unit->GetGUID());
     }
 
+    std::ptrdiff_t enteringUnitsEnd = std::ssize(enteringUnits);
+    if (GetCreateProperties()->MaxUnits)
+        enteringUnitsEnd = *GetCreateProperties()->MaxUnits - std::ssize(_insideUnits);
+
+    for (std::ptrdiff_t i = 0; i < enteringUnitsEnd; ++i)
+        _insideUnits.insert(enteringUnits[i]->GetGUID());
+
     // Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
-    for (Unit* unit : enteringUnits)
-        HandleUnitEnter(unit);
+    for (std::ptrdiff_t i = 0; i < enteringUnitsEnd; ++i)
+        HandleUnitEnter(enteringUnits[i]);
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))

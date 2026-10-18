@@ -253,7 +253,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void SearchUnitInCylinder(UF::AreaTriggerCylinder const& cylinder, std::vector<Unit*>& targetList);
         void SearchUnitInDisk(UF::AreaTriggerDisk const& disk, std::vector<Unit*>& targetList);
         void SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& boundedPlane, std::vector<Unit*>& targetList);
-        void HandleUnitEnterExit(std::vector<Unit*> const& targetList, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
+        void HandleUnitEnterExit(std::span<Unit*> targetList, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
         void HandleUnitEnter(Unit* unit);
         void HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
 
