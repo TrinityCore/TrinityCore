@@ -280,6 +280,8 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
         case AI_GROUP_UNIT_DESPAWN_STRINGID:
         case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
         case AI_GROUP_CIRCLE_UNIT:
+        case AI_GROUP_PUSH_ACTIONSET:
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
         case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
         case AI_GROUP_COMBAT_POSITION:
         case AI_GROUP_COMBAT_CHASE:
@@ -335,19 +337,116 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
     }
 
     AIGroupObjectVector targets;
+
     if (!action.StringId.empty())
     {
         if (WorldObject* baseObject = GetBaseObject())
         {
-            std::vector<Creature*> creatures;
-            baseObject->GetCreatureListWithOptionsInGrid(creatures, GetStringIdSearchRadius(action), { .StringId = action.StringId });
-            for (Creature* creature : creatures)
-                targets.push_back(creature);
+            AIGroupMgr::TargetTypeMask targetTypeMask = AIGroupMgr::TargetTypeMaskEntity;
+            bool selectNearestTarget = false;
 
-            std::vector<GameObject*> gameObjects;
-            baseObject->GetGameObjectListWithOptionsInGrid(gameObjects, GetStringIdSearchRadius(action), { .StringId = action.StringId });
-            for (GameObject* gameObject : gameObjects)
-                targets.push_back(gameObject);
+            /// @todo:
+            // AI_GROUP_UNIT_SEND_LOCAL_EVENT
+            // AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT
+            // AI_GROUP_UNIT_CALL_FOR_HELP
+            // AI_GROUP_UNIT_CAST_FAILURE
+            // AI_GROUP_UNIT_CAST_RANDOM_UNIT
+            // AI_GROUP_UNIT_CAST_RANDOM_PLAYER
+            // AI_GROUP_UNIT_CAST_OTHER_UNIT
+            // AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT
+            // AI_GROUP_PUSH_ACTIONSET
+            // AI_GROUP_COMBAT_POSITION
+            // AI_GROUP_COMBAT_CHASE
+
+            switch (AI_GROUP_ACTION(action.Type))
+            {
+                case AI_GROUP_MOVETO:
+                case AI_GROUP_TELEPORT:
+                case AI_GROUP_WANDER:
+                case AI_GROUP_AVOID:
+                case AI_GROUP_JUMP_POINT:
+                case AI_GROUP_TIER_TRANSITION_MOVETO:
+                case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskNamedPoint;
+                    selectNearestTarget = true;
+                    break;
+                case AI_GROUP_FOLLOW_GUID:
+                case AI_GROUP_GUARD_GUID:
+                case AI_GROUP_ATTACK_GUID:
+                case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
+                case AI_GROUP_UNIT_RIDE_VEHICLE:
+                case AI_GROUP_UNIT_SEND_TAP_LIST:
+                case AI_GROUP_UNIT_GET_TAP_LIST:
+                case AI_GROUP_FORCE_COMBAT:
+                case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL:
+                case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS:
+                case AI_GROUP_CIRCLE_UNIT:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskUnit;
+                    selectNearestTarget = true;
+                    break;
+                case AI_GROUP_UNIT_ACTIVATE_OBJECT:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskObject;
+                    selectNearestTarget = true;
+                    break;
+                case AI_GROUP_UNIT_CAST:
+                case AI_GROUP_UNIT_FACE_GUID:
+                case AI_GROUP_MOVETO_GUID:
+                case AI_GROUP_AVOID_GUID:
+                case AI_GROUP_JUMP_GUID:
+                case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
+                case AI_GROUP_UNIT_CAST_WITH_POINTS:
+                case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
+                    selectNearestTarget = true;
+                    break;
+                case AI_GROUP_UNIT_COMBAT_TRIGGER:
+                case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
+                case AI_GROUP_TRIGGER_ACTIONS_UNITS:
+                case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
+                case AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS:
+                case AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskUnit;
+                    break;
+                case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
+                    targetTypeMask = AIGroupMgr::TargetTypeMaskObject;
+                    break;
+                case AI_GROUP_UNIT_DESPAWN_STRINGID:
+                default:
+                    break;
+            }
+
+            float searchRadius = GetStringIdSearchRadius(action);
+
+            if (selectNearestTarget)
+            {
+                WorldObject* nearestTarget = nullptr;
+
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskUnit)
+                    nearestTarget = baseObject->FindNearestCreatureWithOptions(searchRadius, { .StringId = action.StringId });
+
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskObject && (!nearestTarget))
+                    nearestTarget = baseObject->FindNearestGameObjectWithOptions(searchRadius, { .StringId = action.StringId });
+
+                if (nearestTarget)
+                    targets.push_back(nearestTarget);
+            }
+            else
+            {
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskUnit)
+                {
+                    std::vector<Creature*> creatures;
+                    baseObject->GetCreatureListWithOptionsInGrid(creatures, searchRadius, { .StringId = action.StringId });
+                    for (Creature* creature : creatures)
+                        targets.push_back(creature);
+                }
+
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskObject)
+                {
+                    std::vector<GameObject*> gameObjects;
+                    baseObject->GetGameObjectListWithOptionsInGrid(gameObjects, searchRadius, { .StringId = action.StringId });
+                    for (GameObject* gameObject : gameObjects)
+                        targets.push_back(gameObject);
+                }
+            }
         }
     }
     else if (action.TargetType != AIGROUP_TARGET_NONE)

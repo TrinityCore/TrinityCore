@@ -1253,6 +1253,14 @@ class TC_GAME_API AIGroupMgr
             FieldExtra4        = 0x4000
         };
 
+        enum TargetTypeMask : uint8
+        {
+            TargetTypeMaskUnit          = 0x01,
+            TargetTypeMaskObject        = 0x02,
+            TargetTypeMaskNamedPoint    = 0x04,
+            TargetTypeMaskEntity        = TargetTypeMaskUnit | TargetTypeMaskObject
+        };
+
         enum ObjectTypeMask : uint8
         {
             ObjectTypeMaskUnit          = 0x01,
