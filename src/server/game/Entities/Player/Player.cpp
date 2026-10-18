@@ -17948,7 +17948,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         // "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
         // "health, power1, power2, power3, power4, power5, power6, power7, power8, power9, power10, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, "
         // "raidDifficulty, legacyRaidDifficulty, fishingSteps, honor, honorLevel, honorRestState, honorRestBonus, numRespecs, "
-        // "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor, transmogOutfitEquippedId, transmogOutfitLocked "
+        // "personalTabardEmblemStyle, personalTabardEmblemColor, personalTabardBorderStyle, personalTabardBorderColor, personalTabardBackgroundColor, transmogOutfitEquippedId, transmogOutfitLocked, lastSummonedBattlePet "
         // "FROM characters c LEFT JOIN character_fishingsteps cfs ON c.guid = cfs.guid WHERE c.guid = ?", CONNECTION_ASYNC);
 
         ObjectGuid::LowType guid;
@@ -18028,6 +18028,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         int32 personalTabardBackgroundColor;
         int32 transmogOutfitEquippedId;
         bool transmogOutfitLocked;
+        uint64 lastSummonedBattlePet;
 
         explicit PlayerLoadData(Field const* fields)
         {
@@ -18111,6 +18112,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             personalTabardBackgroundColor = fields[i++].GetInt32();
             transmogOutfitEquippedId = fields[i++].GetInt32();
             transmogOutfitLocked = fields[i++].GetBool();
+            lastSummonedBattlePet = fields[i++].GetUInt64();
         }
 
     } fields(result->Fetch());
@@ -18634,6 +18636,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SITUATION),
         holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFIT_SLOT),
         fields.transmogOutfitEquippedId, fields.transmogOutfitLocked);
+
+    // companion pet summoned at last logout, resummoned once the player is in world
+    if (fields.lastSummonedBattlePet)
+        m_temporaryUnsummonedBattlePet = ObjectGuid::Create<HighGuid::BattlePet>(fields.lastSummonedBattlePet);
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
@@ -20702,6 +20708,12 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setInt32(index++, m_playerData->PersonalTabard->BackgroundColor);
         stmt->setInt32(index++, m_activePlayerData->TransmogMetadata->TransmogOutfitID);
         stmt->setBool(index++, m_activePlayerData->TransmogMetadata->Locked);
+
+        // a companion that is temporarily dismissed (flying mount) is remembered in m_temporaryUnsummonedBattlePet
+        ObjectGuid summonedBattlePet = GetSummonedBattlePetGUID();
+        if (summonedBattlePet.IsEmpty())
+            summonedBattlePet = m_temporaryUnsummonedBattlePet;
+        stmt->setUInt64(index++, summonedBattlePet.GetCounter());
 
         // Index
         stmt->setUInt64(index, GetGUID().GetCounter());
