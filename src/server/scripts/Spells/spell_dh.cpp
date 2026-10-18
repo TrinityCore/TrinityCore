@@ -83,7 +83,6 @@ enum DemonHunterSpells
     SPELL_DH_DARKNESS_ABSORB                       = 209426,
     SPELL_DH_DEFLECTING_SPIKES                     = 321028,
     SPELL_DH_DEMON_BLADES_DMG                      = 203796,
-    SPELL_DH_DEMON_MUZZLE_PROC                     = 394933,
     SPELL_DH_DEMON_SPIKES                          = 203819,
     SPELL_DH_DEMON_SPIKES_TRIGGER                  = 203720,
     SPELL_DH_DEMONIC                               = 213410,
@@ -909,28 +908,6 @@ class spell_dh_deflecting_spikes : public SpellScript
     void Register() override
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_deflecting_spikes::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
-    }
-};
-
-// 388111 - Demon Muzzle
-class spell_dh_demon_muzzle : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_DEMON_MUZZLE_PROC });
-    }
-
-    static void HandleProc(AuraScript const&, AuraEffect const*, ProcEventInfo const& procEvent)
-    {
-        procEvent.GetActor()->CastSpell(procEvent.GetActionTarget(), SPELL_DH_DEMON_MUZZLE_PROC, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = procEvent.GetProcSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dh_demon_muzzle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2838,7 +2815,6 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
-    RegisterSpellScript(spell_dh_demon_muzzle);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demonic_appetite);
