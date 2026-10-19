@@ -434,6 +434,25 @@ class spell_warl_demonic_empowerment : public SpellScript
     }
 };
 
+// 5138 - Drain Mana
+class spell_warl_drain_mana : public AuraScript
+{
+    PrepareAuraScript(spell_warl_drain_mana);
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        int32 pct = amount;
+        amount = CalculatePct(GetUnitOwner()->GetMaxPower(POWER_MANA), pct);
+        if (Unit const* caster = GetCaster())
+            amount = std::min(amount, CalculatePct(int32(caster->GetMaxPower(POWER_MANA)), pct * 2));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_drain_mana::CalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
+    }
+};
+
 // -1120 - Drain Soul
 class spell_warl_drain_soul : public AuraScript
 {
@@ -1341,6 +1360,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_demonic_empowerment);
     RegisterSpellScript(spell_warl_demonic_pact);
+    RegisterSpellScript(spell_warl_drain_mana);
     RegisterSpellScript(spell_warl_drain_soul);
     RegisterSpellScript(spell_warl_devour_magic);
     RegisterSpellScript(spell_warl_everlasting_affliction);
