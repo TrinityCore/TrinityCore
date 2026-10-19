@@ -267,6 +267,22 @@ enum DemonHunterSpellCategories
     SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
 };
 
+// 206416 - First Blood
+class spell_dh_first_blood : public AuraScript
+{
+public:
+    ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
+    void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
+
+private:
+    void Register() override
+    {
+    }
+
+private:
+    ObjectGuid _firstTargetGUID;
+};
+
 // Called by 232893 - Felblade
 class spell_dh_army_unto_oneself : public SpellScript
 {
@@ -1483,22 +1499,6 @@ class spell_dh_fiery_brand : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_fiery_brand::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
-};
-
-// 206416 - First Blood
-class spell_dh_first_blood : public AuraScript
-{
-public:
-    ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
-    void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
-
-private:
-    void Register() override
-    {
-    }
-
-private:
-    ObjectGuid _firstTargetGUID;
 };
 
 // Called by 198013 - Eye Beam
