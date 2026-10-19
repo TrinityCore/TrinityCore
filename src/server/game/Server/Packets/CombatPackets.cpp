@@ -94,7 +94,7 @@ WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
 
 WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 {
-    _worldPacket << Guid;
+    _worldPacket << Guid.WriteAsPacked();
 
     return &_worldPacket;
 }

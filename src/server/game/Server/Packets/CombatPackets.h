@@ -183,7 +183,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            PackedGuid Guid;
+            ObjectGuid Guid;
         };
 
         class SetSheathed final : public ClientPacket
