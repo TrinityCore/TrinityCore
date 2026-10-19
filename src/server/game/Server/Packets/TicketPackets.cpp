@@ -20,6 +20,14 @@
 
 namespace WorldPackets::Ticket
 {
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHeader& header)
+{
+    data >> header.MapID;
+    data >> header.Position;
+
+    return data;
+}
+
 WorldPacket const* GMTicketSystemStatus::Write()
 {
     _worldPacket << int32(Status);
@@ -46,6 +54,95 @@ WorldPacket const* GMTicketGetTicketResponse::Write()
     _worldPacket << int32(Result);
     if (Result == GMTICKET_STATUS_HASTEXT)
         _worldPacket << Info;
+
+    return &_worldPacket;
+}
+
+void GMTicketCreate::Read()
+{
+    _worldPacket >> Header;
+    _worldPacket >> Description;
+    _worldPacket >> NeedResponse;
+    _worldPacket >> NeedMoreHelp;
+    ChatTimes.resize(_worldPacket.read<uint32>());
+
+    for (uint32& chatTime : ChatTimes)
+        _worldPacket >> chatTime;
+
+    _worldPacket >> DecompressedSize;
+
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+
+    ChatLines = { _worldPacket.contents() + pos, remainingSize };
+    _worldPacket.rpos(pos + remainingSize);
+}
+
+WorldPacket const* GMTicketCreateResponse::Write()
+{
+    _worldPacket << uint32(Result);
+
+    return &_worldPacket;
+}
+
+void GMTicketUpdateText::Read()
+{
+    _worldPacket >> Description;
+}
+
+WorldPacket const* GMTicketUpdate::Write()
+{
+    _worldPacket << uint32(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* GMTicketDeleteResponse::Write()
+{
+    _worldPacket << uint32(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* GMTicketResponse::Write()
+{
+    _worldPacket << uint32(ResponseID);
+    _worldPacket << uint32(TicketID);
+    _worldPacket << Description;
+
+    for (std::string_view const& responseText : ResponseText)
+        _worldPacket << responseText;
+
+    return &_worldPacket;
+}
+
+void GMSurveySubmit::Read()
+{
+    _worldPacket >> SurveyID;
+    for (uint32 i = 0; i < 10; ++i)
+    {
+        int32 questionId = _worldPacket.read<int32>();
+        if (!questionId)
+            break;
+
+        GMSurveyQuestion& surveyQuestion = SurveyQuestion.emplace_back();
+        surveyQuestion.QuestionID = questionId;
+        _worldPacket >> surveyQuestion.Answer;
+        _worldPacket >> surveyQuestion.AnswerComment;
+    }
+
+    _worldPacket >> Comment;
+}
+
+void GMLagReport::Read()
+{
+    _worldPacket >> LagKind;
+    _worldPacket >> Header;
+}
+
+WorldPacket const* GMTicketResolveResponse::Write()
+{
+    _worldPacket << uint8(ShowSurvey);
 
     return &_worldPacket;
 }

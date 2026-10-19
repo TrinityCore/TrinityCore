@@ -19,11 +19,20 @@
 #define TRINITYCORE_TICKET_PACKETS_H
 
 #include "Packet.h"
+#include "PacketUtilities.h"
+#include "Position.h"
+#include <span>
 
 namespace WorldPackets
 {
     namespace Ticket
     {
+        struct SupportTicketHeader
+        {
+            int32 MapID = 0;
+            TaggedPosition<::Position::XYZ> Position;
+        };
+
         class GMTicketGetSystemStatus final : public ClientPacket
         {
         public:
@@ -71,6 +80,131 @@ namespace WorldPackets
 
             int32 Result = 0;
             GMTicketInfo Info;
+        };
+
+        class GMTicketCreate final : public ClientPacket
+        {
+        public:
+            explicit GMTicketCreate(WorldPacket&& packet) : ClientPacket(CMSG_GMTICKET_CREATE, std::move(packet)) { }
+
+            void Read() override;
+
+            SupportTicketHeader Header;
+            std::string Description;
+            uint32 NeedResponse = 0;
+            bool NeedMoreHelp = false;
+            Array<uint32, 60> ChatTimes;
+            uint32 DecompressedSize = 0;
+            std::span<uint8> ChatLines; ///< Compressed Data
+        };
+
+        class GMTicketCreateResponse final : public ServerPacket
+        {
+        public:
+            explicit GMTicketCreateResponse() : ServerPacket(SMSG_GMTICKET_CREATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
+
+        class GMTicketUpdateText final : public ClientPacket
+        {
+        public:
+            explicit GMTicketUpdateText(WorldPacket&& packet) : ClientPacket(CMSG_GMTICKET_UPDATETEXT, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Description;
+        };
+
+        class GMTicketUpdate final : public ServerPacket
+        {
+        public:
+            explicit GMTicketUpdate() : ServerPacket(SMSG_GMTICKET_UPDATETEXT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
+
+        class GMTicketDelete final : public ClientPacket
+        {
+        public:
+            explicit GMTicketDelete(WorldPacket&& packet) : ClientPacket(CMSG_GMTICKET_DELETETICKET, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GMTicketDeleteResponse final : public ServerPacket
+        {
+        public:
+            explicit GMTicketDeleteResponse() : ServerPacket(SMSG_GMTICKET_DELETETICKET, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
+
+        class GMTicketResponse final : public ServerPacket
+        {
+        public:
+            explicit GMTicketResponse() : ServerPacket(SMSG_GMRESPONSE_RECEIVED, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ResponseID = 0;
+            uint32 TicketID = 0;
+            std::string_view Description;
+            std::array<std::string_view, 4> ResponseText;
+        };
+
+        struct GMSurveyQuestion
+        {
+            int32 QuestionID = 0;
+            uint8 Answer = 0;
+            std::string AnswerComment;
+        };
+
+        class GMSurveySubmit final : public ClientPacket
+        {
+        public:
+            explicit GMSurveySubmit(WorldPacket&& packet) : ClientPacket(CMSG_GMSURVEY_SUBMIT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SurveyID = 0;
+            std::vector<GMSurveyQuestion> SurveyQuestion;
+            std::string Comment;
+        };
+
+        class GMLagReport final : public ClientPacket
+        {
+        public:
+            explicit GMLagReport(WorldPacket&& packet) : ClientPacket(CMSG_GM_REPORT_LAG, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 LagKind = 0;
+            SupportTicketHeader Header;
+        };
+
+        class GMTicketResponseResolve final : public ClientPacket
+        {
+        public:
+            explicit GMTicketResponseResolve(WorldPacket&& packet) : ClientPacket(CMSG_GMRESPONSE_RESOLVE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GMTicketResolveResponse final : public ServerPacket
+        {
+        public:
+            explicit GMTicketResolveResponse() : ServerPacket(SMSG_GMRESPONSE_STATUS_UPDATE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool ShowSurvey = false;
         };
     }
 }

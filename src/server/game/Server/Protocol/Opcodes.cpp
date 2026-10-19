@@ -647,7 +647,7 @@ void OpcodeTable::Initialize()
     /*0x204*/ DEFINE_HANDLER(CMSG_DECHARGE,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x205*/ DEFINE_HANDLER(CMSG_GMTICKET_CREATE,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketCreateOpcode      );
     /*0x206*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GMTICKET_CREATE,           STATUS_NEVER);
-    /*0x207*/ DEFINE_HANDLER(CMSG_GMTICKET_UPDATETEXT,                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketUpdateOpcode      );
+    /*0x207*/ DEFINE_HANDLER(CMSG_GMTICKET_UPDATETEXT,                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketUpdateTextOpcode  );
     /*0x208*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GMTICKET_UPDATETEXT,       STATUS_NEVER);
     /*0x209*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,        STATUS_NEVER);
     /*0x20A*/ DEFINE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
@@ -1410,7 +1410,7 @@ void OpcodeTable::Initialize()
     /*0x4FF*/ DEFINE_HANDLER(CMSG_READY_FOR_ACCOUNT_DATA_TIMES,            STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleReadyForAccountDataTimes  );
     /*0x500*/ DEFINE_HANDLER(CMSG_QUERY_QUESTS_COMPLETED,                  STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleQueryQuestsCompleted      );
     /*0x501*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE, STATUS_NEVER);
-    /*0x502*/ DEFINE_HANDLER(CMSG_GM_REPORT_LAG,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReportLag                 );
+    /*0x502*/ DEFINE_HANDLER(CMSG_GM_REPORT_LAG,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMLagReport               );
     /*0x503*/ DEFINE_HANDLER(CMSG_AFK_MONITOR_INFO_REQUEST,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x504*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_AFK_MONITOR_INFO_RESPONSE, STATUS_NEVER);
     /*0x505*/ DEFINE_HANDLER(CMSG_AFK_MONITOR_INFO_CLEAR,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

@@ -415,8 +415,14 @@ namespace WorldPackets
 
     namespace Ticket
     {
+        class GMTicketCreate;
+        class GMTicketUpdateText;
+        class GMTicketDelete;
         class GMTicketGetSystemStatus;
         class GMTicketGetTicket;
+        class GMSurveySubmit;
+        class GMLagReport;
+        class GMTicketResponseResolve;
     }
 
     namespace Trade
@@ -848,14 +854,14 @@ class TC_GAME_API WorldSession
         void HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& logoutCancel);
 
         // GM Ticket opcodes
-        void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketCreateOpcode(WorldPackets::Ticket::GMTicketCreate& gmTicketCreate);
+        void HandleGMTicketUpdateTextOpcode(WorldPackets::Ticket::GMTicketUpdateText& gmTicketUpdateText);
+        void HandleGMTicketDeleteOpcode(WorldPackets::Ticket::GMTicketDelete& gmTicketDelete);
         void HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& packet);
         void HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& packet);
-        void HandleGMSurveySubmit(WorldPacket& recvPacket);
-        void HandleReportLag(WorldPacket& recvPacket);
-        void HandleGMResponseResolve(WorldPacket& recvPacket);
+        void HandleGMSurveySubmit(WorldPackets::Ticket::GMSurveySubmit& gmSurveySubmit);
+        void HandleGMLagReport(WorldPackets::Ticket::GMLagReport& gmLagReport);
+        void HandleGMResponseResolve(WorldPackets::Ticket::GMTicketResponseResolve& gmTicketResponseResolve);
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& togglePvP);
 
