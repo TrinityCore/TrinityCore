@@ -1878,6 +1878,43 @@ void Spell::EffectProficiency()
     }
 }
 
+// A safeguard variable against possible wrong set SummonPropertiesEffectValueType
+static constexpr uint32 MaxNumSummons = 50;
+
+static bool ValidateEffectValueParameters(uint32 spellId, uint32 summonPropertiesId, uint32 numSummons, Optional<int8> vehicleSeatId, Optional<uint32> rideVehicleSpellId)
+{
+    // A safeguard check to shield the player against accidentally crashing the server when the summonproperty effect value types
+    // NumUnitsMin1 or NumUnitsFailIfLess1 were set incorrectly
+    if (numSummons > MaxNumSummons)
+    {
+        TC_LOG_ERROR("spells", "EffectSummonType: EffectValueType for SummonPropertiesId {} in table `summon_properties_addon` "
+                       "would result in an high amount of summoned units ({}) for spell Id {}. Possible wrong EffectValueType chosen in database.",
+                       summonPropertiesId, numSummons, spellId);
+        return false;
+    }
+
+    // Check for a correct vehicle seat
+    if (vehicleSeatId && *vehicleSeatId < -1 || *vehicleSeatId > MAX_VEHICLE_SEATS)
+    {
+        TC_LOG_ERROR("spells", "EffectSummonType: EffectValueType for SummonPropertiesId {} in table `summon_properties_addon` "
+                               "resulted in an invalid vehicle seatId ({}) for spell Id {}. Possible wrong EffectValueType chosen in database.",
+                               summonPropertiesId, *vehicleSeatId, spellId);
+        return false;
+    }
+
+    // Check for a valid ride vehicle spell Id
+    if (rideVehicleSpellId && !sSpellMgr->GetSpellInfo(*rideVehicleSpellId, DIFFICULTY_NONE))
+    {
+        TC_LOG_ERROR("spells", "EffectSummonType: EffectValueType for SummonPropertiesId {} in table `summon_properties_addon` "
+                               "resulted in an unknown ride vehicle spell Id ({}) for spell Id {}. Possible wrong EffectValueType chosen in database or missing serverside spell.",
+                               summonPropertiesId, *rideVehicleSpellId, spellId);
+
+        return false;
+    }
+
+    return true;
+}
+
 void Spell::EffectSummonType()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
@@ -1919,36 +1956,35 @@ void Spell::EffectSummonType()
 
     TempSummon* summon = nullptr;
 
-    // determine how many units should be summoned
-    uint32 numSummons;
-
-    // some spells need to summon many units, for those spells number of summons is stored in effect value
-    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
-    // and in spell attributes, possibly we need to add a table for those)
-    // so here's a list of MiscValueB values, which is currently most generic check
-    switch (effectInfo->MiscValueB)
+    // determine how many units should be summoned and how to mount a summoned vehicle
+    uint32 numSummons = 1;
+    Optional<uint32> rideVehicleSpellId;
+    Optional<int8> vehicleSeatId;
+    SummonPropertiesEffectValueType effectValueType = sObjectMgr->GetSummonPropertiesEffectValueType(effectInfo->MiscValueB);
+    switch (effectValueType)
     {
-        case 64:
-        case 61:
-        case 1101:
-        case 66:
-        case 648:
-        case 2301:
-        case 1061:
-        case 1261:
-        case 629:
-        case 181:
-        case 715:
-        case 1562:
-        case 833:
-        case 1161:
-        case 713:
-            numSummons = std::max(GetEffectValueAsInt(), 1);
+        case SummonPropertiesEffectValueType::NumUnitsMin1:
+            numSummons = std::max(1, GetEffectValueAsInt());
+            break;
+        case SummonPropertiesEffectValueType::NumUnitsFailIfLess1:
+            if (GetEffectValueAsInt() < 1)
+                return;
+            numSummons = GetEffectValueAsInt();
+            break;
+        case SummonPropertiesEffectValueType::RideSpell:
+            rideVehicleSpellId = GetEffectValueAsInt();
+            break;
+        case SummonPropertiesEffectValueType::SeatNumber:
+            rideVehicleSpellId = VEHICLE_SPELL_RIDE_HARDCODED;
+            vehicleSeatId = GetEffectValueAsInt();
             break;
         default:
-            numSummons = 1;
             break;
     }
+
+    // Ensure that the parsed effect value types are valid
+    if (!ValidateEffectValueParameters(m_spellInfo->Id, effectInfo->MiscValueB, numSummons, vehicleSeatId, rideVehicleSpellId))
+        return;
 
     switch (properties->Control)
     {
@@ -2063,38 +2099,30 @@ void Spell::EffectSummonType()
             if (!unitCaster)
                 return;
 
-            // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
-            // to cast a ride vehicle spell on the summoned unit.
             summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
-            if (!summon || !summon->IsVehicle())
-                return;
-
-            // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-            uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
-            SpellEffectValue basePoints = effectInfo->CalcValue();
-            if (basePoints > MAX_VEHICLE_SEATS)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(basePoints, GetCastDifficulty());
-                if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                    spellId = spellInfo->Id;
-            }
-
-            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.SetTriggeringSpell(this);
-
-            // if we have small value, it indicates seat position
-            if (basePoints > 0 && basePoints < MAX_VEHICLE_SEATS)
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
-
-            unitCaster->CastSpell(summon, spellId, args);
             break;
         }
+        default:
+            break;
     }
 
     if (summon)
     {
         summon->SetCreatorGUID(caster->GetGUID());
         ExecuteLogEffectSummonObject(effectInfo->Effect, summon);
+
+        // The summon properties effect value is either a ride vehicle spell or specified a vehicle seat to enter
+        // We execute the ride vehicle cast after setting the creatorGUID so that certain unit target types may find the caster
+        if (unitCaster && rideVehicleSpellId)
+        {
+            CastSpellExtraArgs args = CastSpellExtraArgs(TRIGGERED_FULL_MASK);
+            args.SetTriggeringSpell(this);
+
+            if (vehicleSeatId.has_value())
+                args.AddSpellBP0(*vehicleSeatId);
+
+            unitCaster->CastSpell(summon, *rideVehicleSpellId, args);
+        }
     }
 }
 
