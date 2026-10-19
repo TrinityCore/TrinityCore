@@ -2202,6 +2202,27 @@ class spell_item_shadowmourne_soul_fragment : public AuraScript
     }
 };
 
+// Item 4984 - Skull of Impending Doom
+// Spell 5024 - Flee
+class spell_item_skull_of_impending_doom : public AuraScript
+{
+    void CalcHealthDrain(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = GetUnitOwner()->CountPctFromMaxHealth(12);
+    }
+
+    void CalcManaDrain(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = GetUnitOwner()->CountPctFromMaxPower(POWER_MANA, 12);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_skull_of_impending_doom::CalcHealthDrain, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_skull_of_impending_doom::CalcManaDrain, EFFECT_2, SPELL_AURA_PERIODIC_MANA_LEECH);
+    }
+};
+
 // http://www.wowhead.com/item=7734 Six Demon Bag
 // 14537 Six Demon Bag
 enum SixDemonBagSpells
@@ -4880,6 +4901,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_shadowmourne);
     RegisterSpellScript(spell_item_shadowmourne_soul_fragment);
     RegisterSpellScript(spell_item_six_demon_bag);
+    RegisterSpellScript(spell_item_skull_of_impending_doom);
     RegisterSpellScript(spell_item_swift_hand_justice_dummy);
     RegisterSpellScript(spell_item_the_eye_of_diminution);
     RegisterSpellScript(spell_item_underbelly_elixir);
