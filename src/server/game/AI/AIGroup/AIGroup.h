@@ -55,6 +55,9 @@ class TC_GAME_API AIGroupCreature : public CreatureAI
         // Unit enters combat.
         void JustEngagedWith(Unit* enemy) override;
 
+        // Unit leaves combat.
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
+
         // Unit is hit by spell {Spell}.
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override;
 

@@ -775,7 +775,7 @@ enum ActionTriggers
     None                        = 0,
     OnReaction                  = 1,    // NYI // Unit detects {$Detection Type}.
     OnEnterCombat               = 2,    // Unit enters combat.
-    OnLeaveCombat               = 3,    // NYI // Unit leaves combat.
+    OnLeaveCombat               = 3,    // Unit leaves combat.
     OnCombatTick                = 4,    // NYI // Unit triggers this each heartbeat.
     OnHealthRange               = 5,    // Unit health is between {#Health Min} and {#Health Max}.
     OnEnergyRange               = 6,    // Unit mana is between {#Mana Min} and {#Mana Max}.

@@ -1328,6 +1328,7 @@ void AIGroupScript::ProcessEvent(ActionTriggersHolder& holder, WorldObject* obje
             }
             break;
         case OnEnterCombat:
+        case OnLeaveCombat:
         case OnDeath:
         case OnSpawn:
         case OnCombatReturn:

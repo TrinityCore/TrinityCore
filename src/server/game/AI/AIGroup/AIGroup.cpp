@@ -86,6 +86,13 @@ void AIGroupCreature::JustEngagedWith(Unit* enemy)
     GetScript()->ProcessEventsFor(ActionTriggers::OnEnterCombat, enemy);
 }
 
+void AIGroupCreature::EnterEvadeMode(EvadeReason why)
+{
+    CreatureAI::EnterEvadeMode(why);
+
+    GetScript()->ProcessEventsFor(ActionTriggers::OnLeaveCombat);
+}
+
 void AIGroupCreature::JustDied(Unit* killer)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnDeath, killer);
