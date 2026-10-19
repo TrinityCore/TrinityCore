@@ -26,6 +26,7 @@
 #include "MotionMaster.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Random.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
@@ -473,20 +474,55 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
     switch (AI_GROUP_ACTION(action.Type))
     {
         case AI_GROUP_SPAWN:
+            /// @todo "Creature Display Info Index (0 = random)" param
             return true;
         case AI_GROUP_IDLE:
             return false;
+        case AI_GROUP_MOVETO:
+            /// @todo
+            return false;
+        case AI_GROUP_TELEPORT:
+            /// @todo
+            return true;
         case AI_GROUP_WANDER:
             me->GetMotionMaster()->MoveRandom(float(action.Extra1));
             return false;
+        case AI_GROUP_ATTACK_ALL:
+            /// @todo
+            return true;
+        case AI_GROUP_FOLLOW_GUID:
+            /// @todo
+            return false;
         case AI_GROUP_FOLLOW_PATH:
+            /// @todo "MoveSpeed, LinearPath, Speed Multiplier" params
             me->GetMotionMaster()->MovePath(action.Path, false);
             return false;
+        case AI_GROUP_PATROL_LINE:
+            /// @todo
+            return false;
+        case AI_GROUP_PATROL_CIRCLE:
+            /// @todo
+            return false;
+        case AI_GROUP_GUARD_GUID:
+            /// @todo
+            return false;
+        case AI_GROUP_SET_FORMATION:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_SAY:
             me->Say(action.Extra2, targets.empty() ? nullptr : targets.front());
             return true;
         case AI_GROUP_UNIT_CAST:
             me->CastSpell(targets.empty() ? nullptr : targets.front(), uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_ACTIVATE_OBJECT:
+            /// @todo "+1 (to abort actionset if it fails)" param
+            if (!targets.empty())
+                if (GameObject* object = targets.front()->ToGameObject())
+                    object->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
+            return true;
+        case AI_GROUP_GENERATE_EVENT:
+            /// @todo
             return true;
         case AI_GROUP_DESPAWN:
             me->DespawnOrUnsummon();
@@ -501,8 +537,75 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
         case AI_GROUP_UNIT_EMOTE:
             me->PerformEmote(static_cast<Emote>(action.Extra2));
             return true;
+        case AI_GROUP_MOVETO_GUID:
+            /// @todo
+            return false;
+        case AI_GROUP_ATTACK_GUID:
+            /// @todo "require path check to target(1 or 0)" param
+            if (!targets.empty())
+                if (Unit* target = targets.front()->ToUnit())
+                    me->AI()->AttackStart(target);
+            return true;
+        case AI_GROUP_UNIT_MOUNT:
+            if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(uint32(action.Extra2)))
+                me->Mount(ObjectMgr::ChooseDisplayId(cInfo));
+            return true;
+        case AI_GROUP_UNIT_DISMOUNT:
+            me->Dismount();
+            return true;
+        case AI_GROUP_UNIT_UNINTERACTIBLE:
+            if (action.Extra2)
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            else
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            return true;
+        case AI_GROUP_UNIT_UNINTERACTIBLE_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_MODE:
+            /// @todo "Options (Change Mode)" param
+            me->UpdateEntry(uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_MODE_RESET:
+            me->UpdateEntry(me->GetOriginalEntry());
+            return true;
+        case AI_GROUP_UNIT_FACTION:
+            me->SetFaction(uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_FACTION_RESET:
+            if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(me->GetEntry()))
+                me->SetFaction(cInfo->faction);
+            return true;
+        case AI_GROUP_UNIT_RADIUS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_RADIUS_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_QUEST_COMPLETE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_QUESTGIVER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_TRAINER:
+            /// @todo
+            return true;
+        case AI_GROUP_SPLINE_PATH:
+            /// @todo
+            return false;
+        case AI_GROUP_RETURN_HOME:
+            /// @todo "TimeA, MoveSpeed" params
+            me->GetMotionMaster()->MoveTargetedHome();
+            return false;
+        case AI_GROUP_UNIT_SAY_RANDOM:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_YELL:
             me->Yell(action.Extra2, targets.empty() ? nullptr : targets.front());
+            return true;
+        case AI_GROUP_UNIT_YELL_RANDOM:
+            /// @todo
             return true;
         case AI_GROUP_UNIT_CHAT_EMOTE:
             me->TextEmote(action.Extra2, targets.empty() ? nullptr : targets.front());
@@ -512,6 +615,18 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             return true;
         case AI_GROUP_UNIT_TRIGGERS_RESET:
             me->ResetTriggersId();
+            return true;
+        case AI_GROUP_UNIT_SHEATHE:
+            me->SetSheath(SHEATH_STATE_UNARMED);
+            return true;
+        case AI_GROUP_UNIT_UNSHEATHE:
+            me->SetSheath(SHEATH_STATE_MELEE);
+            return true;
+        case AI_GROUP_UNIT_CANCEL_CAST:
+            me->InterruptNonMeleeSpells(true, uint32(action.Extra2), true);
+            return true;
+        case AI_GROUP_UNIT_CANCEL_AURA:
+            me->RemoveAurasDueToSpell(uint32(action.Extra2));
             return true;
         case AI_GROUP_UNIT_FINISH_CAST:
             return false;
