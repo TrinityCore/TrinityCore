@@ -2378,18 +2378,8 @@ class spell_dh_soul_immolation : public AuraScript
             .TriggeringAura = aurEff
         });
 
-        switch (aurEff->GetTickNumber())
-        {
-            case 1:
-            case 3:
-            case 5:
-            {
-                spell_dh_shattered_souls_base_lesser::CreateFragments(target, target, 1);
-                break;
-            }
-            default:
-                break;
-        }
+        if (aurEff->GetTickNumber() % 2 == 1)
+            spell_dh_shattered_souls_base_lesser::CreateFragments(target, target, 1);
     }
 
     void Register() override
