@@ -1894,7 +1894,7 @@ static bool ValidateEffectValueParameters(uint32 spellId, uint32 summonPropertie
     }
 
     // Check for a correct vehicle seat
-    if (vehicleSeatId && *vehicleSeatId < -1 || *vehicleSeatId > MAX_VEHICLE_SEATS)
+    if (vehicleSeatId && (*vehicleSeatId < -1 || *vehicleSeatId > MAX_VEHICLE_SEATS))
     {
         TC_LOG_ERROR("spells", "EffectSummonType: EffectValueType for SummonPropertiesId {} in table `summon_properties_addon` "
                                "resulted in an invalid vehicle seatId ({}) for spell Id {}. Possible wrong EffectValueType chosen in database.",
