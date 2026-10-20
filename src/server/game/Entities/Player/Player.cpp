@@ -30748,11 +30748,11 @@ void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
     SendDirectMessage(raidGroupOnly.Write());
 }
 
-uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
+int32 Player::DoRandomRoll(int32 minimum, int32 maximum)
 {
     ASSERT(maximum <= 1000000);
 
-    uint32 roll = urand(minimum, maximum);
+    int32 roll = irand(minimum, maximum);
 
     WorldPackets::Misc::RandomRoll randomRoll;
     randomRoll.Min = minimum;

@@ -3685,6 +3685,49 @@ void ObjectMgr::LoadVehicleSeatAddon()
     TC_LOG_INFO("server.loading", ">> Loaded {} Vehicle Seat Addon entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadSummonPropertiesAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT SummonPropertiesId, EffectValueType from summon_properties_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 summon properties addon entries. DB table `summon_properties_addon` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 summonPropertiesId = fields[0].GetUInt32();
+        SummonPropertiesEffectValueType parameter = static_cast<SummonPropertiesEffectValueType>(fields[1].GetUInt8());
+
+        // Ensure the parameter is within defined bounds
+        if (parameter == SummonPropertiesEffectValueType::None || parameter > SummonPropertiesEffectValueType::NumUnitsFailIfLess1)
+        {
+            TC_LOG_ERROR("sql.sql", "Invalid EffectValueType speficied for SummonPropertiesId: {} in `summon_properties_addon`, skipped.", summonPropertiesId);
+            continue;
+        }
+
+        // Ensure that the spell exists
+        SummonPropertiesEntry const* summonPropertiesEntry = sSummonPropertiesStore.LookupEntry(summonPropertiesId);
+        if (!summonPropertiesEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "SummonPropertiesId: {} in `summon_properties_addon` does not exist in DB2 files, skipped.", summonPropertiesId);
+            continue;
+        }
+
+        _summonPropertiesAddonStore[summonPropertiesId] = parameter;
+        ++count;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} SummonProperties addon records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();
@@ -10524,6 +10567,18 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
     return Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
+}
+
+/// Returns the value type which determines how the effect value of a SPELL_EFFECT_SUMMON spell effect is interpreted by a SummonProperties record
+/// @param summonPropertiesId The SummonProperties db2 record Id of the database entry
+/// @return The effect value type for the given summon property record, None when no database entry has been set
+SummonPropertiesEffectValueType ObjectMgr::GetSummonPropertiesEffectValueType(uint32 summonPropertiesId) const
+{
+    auto itr = _summonPropertiesAddonStore.find(summonPropertiesId);
+    if (itr == _summonPropertiesAddonStore.end())
+        return SummonPropertiesEffectValueType::None;
+
+    return itr->second;
 }
 
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
