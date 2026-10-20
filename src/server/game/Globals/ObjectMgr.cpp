@@ -7057,7 +7057,7 @@ AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
 {
-    AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR32(mapid, difficulty));
+    AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR64(mapid, difficulty));
     if (itr != _accessRequirementStore.end())
         return itr->second.get();
     return nullptr;
@@ -7222,7 +7222,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         uint32 mapid = fields[0].GetUInt32();
         uint8 difficulty = fields[1].GetUInt8();
-        uint32 requirement_ID = MAKE_PAIR64(mapid, difficulty);
+        uint64 requirement_ID = MAKE_PAIR64(mapid, difficulty);
 
         auto& ar = _accessRequirementStore[requirement_ID];
         ar = std::make_unique<AccessRequirement>();
@@ -10215,7 +10215,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 DungeonEncounterList const* ObjectMgr::GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const
 {
-    auto itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
+    auto itr = _dungeonEncounterStore.find(MAKE_PAIR64(mapId, difficulty));
     if (itr != _dungeonEncounterStore.end())
         return &itr->second;
     return nullptr;
