@@ -607,8 +607,28 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
         case AI_GROUP_UNIT_YELL_RANDOM:
             /// @todo
             return true;
+        case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
+            /// @todo "Default item: (0 = no, 1 = yes)" param
+            me->SetVirtualItem(0, uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_RESET_ITEM_MAINHAND:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_CHAT_EMOTE:
             me->TextEmote(action.Extra2, targets.empty() ? nullptr : targets.front());
+            return true;
+        case AI_GROUP_UNIT_CHAT_EMOTE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_GENERATE_EVENT:
+            /// @todo
+            return true;
+        case AI_GROUP_QUEST_FAILED:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_LEAVE_COMBAT:
+            if (me->IsInCombat())
+                me->AI()->EnterEvadeMode();
             return true;
         case AI_GROUP_UNIT_TRIGGERS:
             me->SetTriggersId(action.Extra2);

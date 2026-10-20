@@ -77,7 +77,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_SAY_RANDOM                        = 43,    // NYI // Unit(s) say something random
     AI_GROUP_UNIT_YELL                              = 44,    // Unit(s) yell something
     AI_GROUP_UNIT_YELL_RANDOM                       = 45,    // NYI // Unit(s) yell something random
-    AI_GROUP_UNIT_SET_ITEM_MAINHAND                 = 46,    // NYI // Set the item in the mainhand slot for unit(s)
+    AI_GROUP_UNIT_SET_ITEM_MAINHAND                 = 46,    // Set the item in the mainhand slot for unit(s)
     AI_GROUP_UNIT_RESET_ITEM_MAINHAND               = 47,    // NYI // Reset the item in the mainhand slot for unit(s)
     AI_GROUP_UNIT_CHAT_EMOTE                        = 48,    // Unit(s) chat emote something
     AI_GROUP_UNIT_CHAT_EMOTE_RANDOM                 = 49,    // NYI // Unit(s) chat emote something random
@@ -86,7 +86,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_QUEST_FAILED                           = 52,    // NYI // Escort quest actions failed
     AI_GROUP_UNIT_TRIGGERS                          = 53,    // Change action triggers for unit(s)
     AI_GROUP_UNIT_TRIGGERS_RESET                    = 54,    // Reset action triggers for unit(s)
-    AI_GROUP_UNIT_LEAVE_COMBAT                      = 55,    // NYI // Leave combat (combat action only)
+    AI_GROUP_UNIT_LEAVE_COMBAT                      = 55,    // Leave combat (combat action only)
     AI_GROUP_IDLE_COMBAT_START                      = 56,    // NYI // Idle until group goes into combat
     AI_GROUP_IDLE_COMBAT_STOP                       = 57,    // NYI // Idle until group returns from combat
     AI_GROUP_UNIT_IMMUNEPC                          = 58,    // NYI // Set "ImmunePC" flag for unit(s)
