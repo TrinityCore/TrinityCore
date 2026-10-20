@@ -112,22 +112,19 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
 
     std::set<uint32> sentMaps;
 
-    ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
-    for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
+    for (auto [key, resetTime] : sInstanceSaveMgr->GetResetTimeMap())
     {
-        uint32 mapId = PAIR32_LOPART(itr->first);
-        if (sentMaps.find(mapId) != sentMaps.end())
+        uint32 mapId = key.first;
+        if (!sentMaps.insert(mapId).second)
             continue;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         if (!mapEntry || !mapEntry->IsRaid())
             continue;
 
-        sentMaps.insert(mapId);
-
         WorldPackets::Calendar::CalendarSendCalendarRaidResetInfo& reset = packet.RaidResets.emplace_back();
         reset.MapID = mapId;
-        reset.Duration = itr->second - currTime;
+        reset.Duration = resetTime - currTime;
         reset.Offset = 0; // Never seen anything else in sniffs - still unknown
     }
 

@@ -6156,8 +6156,8 @@ void ObjectMgr::LoadInstanceEncounters()
                 continue;
         }
 
-        DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, dungeonEncounter->Difficulty)];
-        encounters.emplace_back(std::make_unique<DungeonEncounter>(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
+        DungeonEncounterList& encounters = _dungeonEncounterStore[{ dungeonEncounter->MapID, Difficulty(dungeonEncounter->Difficulty) }];
+        encounters.emplace_back(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon);
         ++count;
     } while (result->NextRow());
 
@@ -7057,10 +7057,7 @@ AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
 {
-    AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR32(mapid, difficulty));
-    if (itr != _accessRequirementStore.end())
-        return itr->second.get();
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, { mapid, difficulty });
 }
 
 bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
@@ -7218,24 +7215,30 @@ void ObjectMgr::LoadAccessRequirements()
     {
         Field* fields = result->Fetch();
 
-        ++count;
-
         uint32 mapid = fields[0].GetUInt32();
-        uint8 difficulty = fields[1].GetUInt8();
-        uint32 requirement_ID = MAKE_PAIR64(mapid, difficulty);
+        if (!sMapStore.LookupEntry(mapid))
+        {
+            TC_LOG_ERROR("sql.sql", "Map {} referenced in `access_requirement` does not exist, skipped.", mapid);
+            continue;
+        }
 
-        auto& ar = _accessRequirementStore[requirement_ID];
-        ar = std::make_unique<AccessRequirement>();
+        Difficulty difficulty = Difficulty(fields[1].GetUInt8());
+        if (!GetMapDifficultyData(mapid, difficulty))
+        {
+            TC_LOG_ERROR("sql.sql", "Map {} referenced in `access_requirement` does not have difficulty {}, skipped", mapid, difficulty);
+            continue;
+        }
 
-        ar->levelMin = fields[2].GetUInt8();
-        ar->levelMax = fields[3].GetUInt8();
-        ar->item_level = fields[4].GetUInt16();
-        ar->item = fields[5].GetUInt32();
-        ar->item2 = fields[6].GetUInt32();
-        ar->quest_A = fields[7].GetUInt32();
-        ar->quest_H = fields[8].GetUInt32();
-        ar->achievement = fields[9].GetUInt32();
-        ar->questFailedText = fields[10].GetString();
+        AccessRequirement* ar = &_accessRequirementStore[{ mapid, difficulty }];
+        ar->levelMin            = fields[2].GetUInt8();
+        ar->levelMax            = fields[3].GetUInt8();
+        ar->item_level          = fields[4].GetUInt16();
+        ar->item                = fields[5].GetUInt32();
+        ar->item2               = fields[6].GetUInt32();
+        ar->quest_A             = fields[7].GetUInt32();
+        ar->quest_H             = fields[8].GetUInt32();
+        ar->achievement         = fields[9].GetUInt32();
+        ar->questFailedText     = fields[10].GetString();
 
         if (ar->item)
         {
@@ -7283,6 +7286,7 @@ void ObjectMgr::LoadAccessRequirements()
                 ar->achievement = 0;
             }
         }
+        ++count;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} access requirement definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -10213,12 +10217,13 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return nullptr;
 }
 
-DungeonEncounterList const* ObjectMgr::GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const
+std::span<DungeonEncounter const> ObjectMgr::GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const
 {
-    auto itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
+    std::span<DungeonEncounter const> result;
+    auto itr = _dungeonEncounterStore.find({ mapId, difficulty });
     if (itr != _dungeonEncounterStore.end())
-        return &itr->second;
-    return nullptr;
+        result = itr->second;
+    return result;
 }
 
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const

@@ -738,21 +738,17 @@ void InstanceScript::SendEncounterUnit(EncounterFrameType type, Unit const* unit
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
-    DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
-    if (!encounters)
-        return;
-
     uint32 dungeonId = 0;
 
-    for (auto const& encounter : *encounters)
+    for (DungeonEncounter const& encounter : sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID()))
     {
-        if (encounter->creditType == type && encounter->creditEntry == creditEntry)
+        if (encounter.creditType == type && encounter.creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->Bit;
-            if (encounter->lastEncounterDungeon)
+            completedEncounters |= 1 << encounter.dbcEntry->Bit;
+            if (encounter.lastEncounterDungeon)
             {
-                dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance {} (instanceId {}) completed encounter {}. Credit Dungeon: {}", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name[0], dungeonId);
+                dungeonId = encounter.lastEncounterDungeon;
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance {} (instanceId {}) completed encounter {}. Credit Dungeon: {}", instance->GetMapName(), instance->GetInstanceId(), encounter.dbcEntry->Name[0], dungeonId);
                 break;
             }
         }

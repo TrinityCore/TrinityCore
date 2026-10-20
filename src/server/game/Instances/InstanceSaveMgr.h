@@ -18,15 +18,13 @@
 #ifndef _INSTANCESAVEMGR_H
 #define _INSTANCESAVEMGR_H
 
+#include "Define.h"
+#include "DBCEnums.h"
+#include "Hash.h"
 #include <list>
 #include <map>
 #include <mutex>
 #include <unordered_map>
-
-#include "Define.h"
-#include "DatabaseEnvFwd.h"
-#include "DBCEnums.h"
-#include "ObjectDefines.h"
 
 struct InstanceTemplate;
 struct MapEntry;
@@ -144,7 +142,7 @@ class TC_GAME_API InstanceSave
         std::mutex _playerListLock;
 };
 
-typedef std::unordered_map<uint64 /*PAIR64(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+typedef std::unordered_map<std::pair<uint32, Difficulty>, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
 class TC_GAME_API InstanceSaveManager
 {
@@ -182,7 +180,7 @@ class TC_GAME_API InstanceSaveManager
         void LoadResetTimes();
         time_t GetResetTimeFor(uint32 mapid, Difficulty d) const
         {
-            ResetTimeByMapDifficultyMap::const_iterator itr  = m_resetTimeByMapDifficulty.find(MAKE_PAIR64(mapid, d));
+            ResetTimeByMapDifficultyMap::const_iterator itr = m_resetTimeByMapDifficulty.find({ mapid, d });
             return itr != m_resetTimeByMapDifficulty.end() ? itr->second : 0;
         }
         time_t GetSubsequentResetTime(uint32 mapid, Difficulty difficulty, time_t resetTime) const;
@@ -190,7 +188,7 @@ class TC_GAME_API InstanceSaveManager
         // Use this on startup when initializing reset times
         void InitializeResetTimeFor(uint32 mapid, Difficulty d, time_t t)
         {
-            m_resetTimeByMapDifficulty[MAKE_PAIR64(mapid, d)] = t;
+            m_resetTimeByMapDifficulty[{ mapid, d }] = t;
         }
 
         // Use this only when updating existing reset times

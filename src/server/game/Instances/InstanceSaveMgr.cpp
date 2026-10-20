@@ -307,13 +307,12 @@ void InstanceSaveManager::LoadResetTimes()
     // get the current reset times for normal instances (these may need to be updated)
     // these are only kept in memory for InstanceSaves that are loaded later
     // resettime = 0 in the DB for raid/heroic instances so those are skipped
-    typedef std::pair<uint32 /*PAIR32(map, difficulty)*/, time_t> ResetTimeMapDiffType;
+    struct ResetTimeMapDiffType { uint32 mapId; Difficulty difficulty; time_t resetTime; };
     typedef std::map<uint32, ResetTimeMapDiffType> InstResetTimeMapDiffType;
     InstResetTimeMapDiffType instResetTime;
 
     // index instance ids by map/difficulty pairs for fast reset warning send
-    typedef std::multimap<uint32 /*PAIR32(map, difficulty)*/, uint32 /*instanceid*/ > ResetTimeMapDiffInstances;
-    typedef std::pair<ResetTimeMapDiffInstances::const_iterator, ResetTimeMapDiffInstances::const_iterator> ResetTimeMapDiffInstancesBounds;
+    typedef std::multimap<std::pair<uint32, Difficulty>, uint32 /*instanceid*/ > ResetTimeMapDiffInstances;
     ResetTimeMapDiffInstances mapDiffResetInstances;
 
     if (QueryResult result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance ORDER BY id ASC"))
@@ -330,18 +329,18 @@ void InstanceSaveManager::LoadResetTimes()
             if (time_t resettime = time_t(fields[3].GetUInt64()))
             {
                 uint32 mapid = fields[1].GetUInt16();
-                uint32 difficulty = fields[2].GetUInt8();
+                Difficulty difficulty = Difficulty(fields[2].GetUInt8());
 
-                instResetTime[instanceId] = ResetTimeMapDiffType(MAKE_PAIR32(mapid, difficulty), resettime);
-                mapDiffResetInstances.insert(ResetTimeMapDiffInstances::value_type(MAKE_PAIR32(mapid, difficulty), instanceId));
+                instResetTime[instanceId] = { .mapId = mapid, .difficulty = difficulty, .resetTime = resettime };
+                mapDiffResetInstances.emplace(std::piecewise_construct, std::forward_as_tuple(mapid, difficulty), std::forward_as_tuple(instanceId));
             }
         }
         while (result->NextRow());
 
         // schedule the reset times
-        for (InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
-            if (itr->second.second > now)
-                ScheduleReset(true, itr->second.second, InstResetEvent(0, PAIR32_LOPART(itr->second.first), Difficulty(PAIR32_HIPART(itr->second.first)), itr->first));
+        for (auto const& [instanceId, resetTimeData] : instResetTime)
+            if (resetTimeData.resetTime > now)
+                ScheduleReset(true, resetTimeData.resetTime, InstResetEvent(0, resetTimeData.mapId, resetTimeData.difficulty, instanceId));
     }
 
     // load the global respawn times for raid/heroic instances
@@ -433,9 +432,8 @@ void InstanceSaveManager::LoadResetTimes()
 
         ScheduleReset(true, t - ResetTimeDelay[type-1], InstResetEvent(type, mapid, difficulty, 0));
 
-        ResetTimeMapDiffInstancesBounds range = mapDiffResetInstances.equal_range(MAKE_PAIR32(mapid, difficulty));
-        for (; range.first != range.second; ++range.first)
-            ScheduleReset(true, t - ResetTimeDelay[type-1], InstResetEvent(type, mapid, difficulty, range.first->second));
+        for (auto const& [_, instanceId] : Trinity::Containers::MapEqualRange(mapDiffResetInstances, { mapid, difficulty }))
+            ScheduleReset(true, t - ResetTimeDelay[type-1], InstResetEvent(type, mapid, difficulty, instanceId));
     }
 }
 
@@ -458,7 +456,7 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
 
 void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
 {
-    ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid, d));
+    ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find({ mapid, d });
     ASSERT(itr != m_resetTimeByMapDifficulty.end());
     itr->second = t;
 }
