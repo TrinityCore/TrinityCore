@@ -138,6 +138,7 @@ namespace WorldPackets
             uint32 ClubsPresenceDelay                    = 0;
             uint32 ClubPresenceUnsubscribeDelay          = 0; ///< Timer for updating club presence when communities ui frame is hidden
             uint32 KioskSessionDurationMinutes           = 0;
+            int32 AgeVerificationRestrictionState        = 0;
             int32 ContentSetID                           = 0; ///< Currently active Classic season
             int16 MaxPlayerGuidLookupsPerRequest         = 50;
             int16 NameLookupTelemetryInterval            = 600;

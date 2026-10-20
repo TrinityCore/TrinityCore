@@ -3247,6 +3247,9 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                     .SetStackAmount(m_spellValue->AuraStackAmount)
                     .SetSpellVisual(m_SpellVisual);
 
+                if (m_targets.HasDst())
+                    createInfo.SetDst(m_targets.GetDstPos());
+
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
                     hitInfo.HitAura = aura->ToUnitAura();
@@ -4743,11 +4746,7 @@ void Spell::SendSpellStart()
             castData.RemainingRunes->Start = m_runesState; // runes state before
             castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown());
-                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
+                castData.RemainingRunes->Cooldowns.push_back(player->GetRuneCooldown(i) * 255.0f); // rune cooldown passed
         }
         else
         {
@@ -4846,11 +4845,7 @@ void Spell::SendSpellGo()
         castData.RemainingRunes->Start = m_runesState; // runes state before
         castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
         for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-        {
-            // float casts ensure the division is performed on floats as we need float result
-            float baseCd = float(player->GetRuneBaseCooldown());
-            castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-        }
+            castData.RemainingRunes->Cooldowns.push_back(player->GetRuneCooldown(i) * 255.0f); // rune cooldown passed
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
@@ -5559,11 +5554,7 @@ SpellCastResult Spell::CheckRuneCost() const
     if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return SPELL_CAST_OK;
 
-    int32 readyRunes = 0;
-    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-        if (player->GetRuneCooldown(i) == 0)
-            ++readyRunes;
-
+    int32 readyRunes = std::popcount(player->GetRunesState());
     if (readyRunes < runeCost)
         return SPELL_FAILED_NO_POWER;                       // not sure if result code is correct
 
@@ -5586,11 +5577,11 @@ void Spell::TakeRunePower(bool didHit)
         return totalCost + (cost.Power == POWER_RUNES ? cost.Amount : 0);
     });
 
-    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES) && runeCost > 0; ++i)
     {
-        if (!player->GetRuneCooldown(i) && runeCost > 0)
+        if (m_runesState & (1u << i))
         {
-            player->SetRuneCooldown(i, player->GetRuneBaseCooldown());
+            player->SetRuneCooldown(i, 0.0f);
             --runeCost;
         }
     }
@@ -5606,7 +5597,7 @@ void Spell::RefundRunePower()
     // restore old rune state
     for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
         if (m_runesState & (1 << i))
-            player->SetRuneCooldown(i, 0);
+            player->SetRuneCooldown(i, 1.0f);
 }
 
 void Spell::TakeReagents()

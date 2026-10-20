@@ -326,7 +326,7 @@ public:
 
     static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, BuyResult error)
     {
-        handler->GetPlayer()->SendBuyError(error, nullptr, 0, 0);
+        handler->GetPlayer()->SendBuyError(error, nullptr, 0);
         return true;
     }
 

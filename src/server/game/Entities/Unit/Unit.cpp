@@ -3456,6 +3456,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
                 *oldItemLevel = createInfo.CastItemLevel;
             }
 
+            if (createInfo.Dst)
+                foundAura->m_dst.WorldRelocate(createInfo.Dst);
+
             // try to increase stack amount
             foundAura->ModStackAmount(createInfo.StackAmount, AURA_REMOVE_BY_DEFAULT, createInfo.ResetPeriodicTimer);
             return foundAura;
@@ -5498,6 +5501,13 @@ std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
         if ((*i)->GetSpellId() == spellId)
             areaTriggers.push_back(*i);
 
+    return areaTriggers;
+}
+
+std::vector<AreaTrigger*> Unit::GetAreaTriggers(std::function<bool(AreaTrigger const*)> const& predicate) const
+{
+    std::vector<AreaTrigger*> areaTriggers;
+    std::ranges::copy_if(m_areaTrigger, std::back_inserter(areaTriggers), std::ref(predicate));
     return areaTriggers;
 }
 
@@ -8642,16 +8652,6 @@ int64 Unit::ModifyHealth(int64 dVal)
     {
         SetHealth(maxHealth);
         gain = maxHealth - curHealth;
-    }
-
-    if (dVal < 0)
-    {
-        WorldPackets::Combat::HealthUpdate packet;
-        packet.Guid = GetGUID();
-        packet.Health = GetHealth();
-
-        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
-            player->GetSession()->SendPacket(packet.Write());
     }
 
     return gain;

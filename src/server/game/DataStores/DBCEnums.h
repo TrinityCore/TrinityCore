@@ -2303,7 +2303,8 @@ enum class PlayerInteractionType : int32
     GuildRename                         = 76,
     OpenNeighborhoodCharterConfirmation = 77,
     OpenHouseFinder                     = 78,
-    PlaceholderType79                   = 79,
+    TieredEntrance                      = 79,
+    RewardsShop                         = 80,
 };
 
 enum class PowerTypeFlags : int32
@@ -3295,6 +3296,18 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_TIME_EVENT_PASSED,
 
     WSE_FUNCTION_MAX,
+};
+
+enum class SummonPropertiesEffectValueType: uint8
+{
+    None                = 0,
+    Health              = 1, // NYI
+    NumUnitsMin1        = 2, // Implemented in Spell::EffectSummonType
+    SeatNumber          = 3, // Implemented in Spell::EffectSummonType
+    RideSpell           = 4, // Implemented in Spell::EffectSummonType
+    CreatureLevel       = 5, // NYI
+    MaxSummonsTotemSlot = 6, // NYI
+    NumUnitsFailIfLess1 = 7  // Implemented in Spell::EffectSummonType
 };
 
 #endif

@@ -73,13 +73,13 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterItemID);
     if (!pProto)
     {
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID, 0);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID);
         return;
     }
 
     if (!_player->HasEnoughMoney(uint64(cost)))
     {
-        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID, 0);
+        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID);
         return;
     }
 
@@ -142,10 +142,9 @@ void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
 
     for (Signature const& signature : petition->Signatures)
     {
-        WorldPackets::Petition::ServerPetitionShowSignatures::PetitionSignature signaturePkt;
+        WorldPackets::Petition::ServerPetitionShowSignatures::PetitionSignature& signaturePkt = signaturesPacket.Signatures.emplace_back();
         signaturePkt.Signer = signature.second;
         signaturePkt.Choice = 0;
-        signaturesPacket.Signatures.push_back(signaturePkt);
     }
 
     sendTo->SendDirectMessage(signaturesPacket.Write());

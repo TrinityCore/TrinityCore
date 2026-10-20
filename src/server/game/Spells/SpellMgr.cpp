@@ -1027,20 +1027,20 @@ void SpellMgr::LoadSpellLearnSpells()
         node.Active      = fields[2].GetBool();
         node.AutoLearned = false;
 
-        SpellInfo const* spellInfo = GetSpellInfo(spell_id, DIFFICULTY_NONE);
-        if (!spellInfo)
+        if (!GetSpellInfo(spell_id, DIFFICULTY_NONE))
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` does not exist.", spell_id);
             continue;
         }
 
-        if (!GetSpellInfo(node.Spell, DIFFICULTY_NONE))
+        SpellInfo const* learnedSpellInfo = GetSpellInfo(node.Spell, DIFFICULTY_NONE);
+        if (!learnedSpellInfo)
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` learning non-existing spell {}.", spell_id, node.Spell);
             continue;
         }
 
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
+        if (learnedSpellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
         {
             TC_LOG_ERROR("sql.sql", "The spell {} listed in `spell_learn_spell` attempts learning talent spell {}, skipped.", spell_id, node.Spell);
             continue;
@@ -5567,6 +5567,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 194153 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Frostscythe
+    ApplySpellFix({ 207230 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

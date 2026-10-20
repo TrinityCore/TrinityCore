@@ -857,7 +857,7 @@ WorldPacket const* SpellVisualLoadScreen::Write()
     _worldPacket << int32(SpellVisualKitID);
     _worldPacket << Duration;
     _worldPacket << int32(Delay);
-    _worldPacket << Bits<1>(Unknown_1210);
+    _worldPacket << Bits<1>(IsTransfer);
 
     return &_worldPacket;
 }

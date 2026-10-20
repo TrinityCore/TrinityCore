@@ -1703,6 +1703,7 @@ enum SpellEffects
     SPELL_EFFECT_357                                = 357, // MiscValue[0] = ItemBonusList
     SPELL_EFFECT_358                                = 358, // MiscValue[0] = ItemBonusList
     SPELL_EFFECT_359                                = 359,
+    SPELL_EFFECT_360                                = 360,
     TOTAL_SPELL_EFFECTS
 };
 
@@ -3225,9 +3226,11 @@ enum GameobjectTypes : uint8
     GAMEOBJECT_TYPE_PERKS_PROGRAM_CHEST         = 62,
     GAMEOBJECT_TYPE_FUTURE_PATCH                = 63,
     GAMEOBJECT_TYPE_ASSIST_ACTION               = 64,
+    GAMEOBJECT_TYPE_RESERVED_13A                = 65,
+    GAMEOBJECT_TYPE_RESERVED_13B                = 66,
 };
 
-#define MAX_GAMEOBJECT_TYPE                  65             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  67             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  35             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -8771,6 +8774,8 @@ enum class GameError : uint32
     ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1240,
     ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1241,
     ERR_RESTRICTED_ACCOUNT_LFG_LIST_CLASS_TRIAL                     = 1242,
+    ERR_AGE_RESTRICTED_MAIL_MINOR                                   = 1243,
+    ERR_AGE_RESTRICTED_MAIL_UNVERIFIED                              = 1244,
 };
 
 enum class MountResult : uint32
