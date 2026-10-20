@@ -232,6 +232,12 @@ void AIGroupMgr::LoadActionSetsNamesFromDB()
         set.Priority = fields[2].GetUInt8();
         set.Name = fields[3].GetString();
 
+        if (mActionSetMap.find(set.Id) == mActionSetMap.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set_name` (Id: {}) has no corresponding entry in `action_set`, skipped.", set.Id);
+            continue;
+        }
+
         if (set.Flags & ~uint32(ActionSetFlags::ActionSetFlagsAll))
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set_name` (Id: {}) has invalid Flags ({}).",
@@ -495,6 +501,12 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
 
         uint32 Id = fields[0].GetUInt32();
         std::string Name = fields[1].GetString();
+
+        if (mEventMap.find(Id) == mEventMap.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_triggers_name` (Id: {}) has no corresponding entry in `action_triggers`, skipped.", Id);
+            continue;
+        }
 
         _actionTriggerNames[Id] = std::move(Name);
         ++count;
