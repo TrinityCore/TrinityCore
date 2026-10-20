@@ -99,13 +99,12 @@ uint32 MySQLConnection::Open()
 
     int port = 0;
     char const* unix_socket = nullptr;
-    // Connection info is shared by all connections of a pool, so don't rewrite "." in it.
     std::string host = m_connectionInfo.host;
     //unsigned int timeout = 10;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
     //mysql_options(mysqlInit, MYSQL_OPT_READ_TIMEOUT, (char const*)&timeout);
-    if (m_connectionInfo.host != ".")
+    if (host != ".")
     {
         port = Trinity::StringTo<int32>(m_connectionInfo.port_or_socket).value_or(0);
     }
