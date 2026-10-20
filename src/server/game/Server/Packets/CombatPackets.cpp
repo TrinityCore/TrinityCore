@@ -23,6 +23,14 @@ void WorldPackets::Combat::AttackSwing::Read()
     _worldPacket >> Victim;
 }
 
+WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
+{
+    _worldPacket << Bits<3>(Reason);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Combat::AttackStart::Write()
 {
     _worldPacket << Attacker;
@@ -84,10 +92,10 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
+WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 {
-    _worldPacket.WriteBits(AsUnderlyingType(Reason), 3);
-    _worldPacket.FlushBits();
+    _worldPacket << Guid;
+
     return &_worldPacket;
 }
 
@@ -115,13 +123,6 @@ void WorldPackets::Combat::SetSheathed::Read()
 {
     _worldPacket >> CurrentSheathState;
     Animate = _worldPacket.ReadBit();
-}
-
-WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
-{
-    _worldPacket << Guid;
-
-    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Combat::HealthUpdate::Write()

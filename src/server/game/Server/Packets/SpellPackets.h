@@ -673,7 +673,7 @@ namespace WorldPackets
         class ClearTarget final : public ServerPacket
         {
         public:
-            ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 8) { }
+            ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 16) { }
 
             WorldPacket const* Write() override;
 

@@ -671,8 +671,8 @@ class spell_item_decahedral_dwarven_dice : public SpellScript
     {
         GetCaster()->TextEmote(TEXT_DECAHEDRAL_DWARVEN_DICE, GetHitUnit());
 
-        static uint32 const minimum = 1;
-        static uint32 const maximum = 100;
+        static constexpr int32 minimum = 1;
+        static constexpr int32 maximum = 100;
 
         GetCaster()->ToPlayer()->DoRandomRoll(minimum, maximum);
     }
@@ -2428,8 +2428,8 @@ class spell_item_worn_troll_dice : public SpellScript
     {
         GetCaster()->TextEmote(TEXT_WORN_TROLL_DICE, GetHitUnit());
 
-        static uint32 const minimum = 1;
-        static uint32 const maximum = 6;
+        static constexpr int32 minimum = 1;
+        static constexpr int32 maximum = 6;
 
         // roll twice
         GetCaster()->ToPlayer()->DoRandomRoll(minimum, maximum);
