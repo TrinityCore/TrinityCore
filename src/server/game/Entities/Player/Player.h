@@ -2731,7 +2731,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendCinematicStart(uint32 CinematicSequenceId) const;
         void SendMovieStart(uint32 movieId);
 
-        uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
+        int32 DoRandomRoll(int32 minimum, int32 maximum);
         uint8 GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEntry) const;
 
         void UpdateItemLevelAreaBasedScaling();

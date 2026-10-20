@@ -142,10 +142,9 @@ void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
 
     for (Signature const& signature : petition->Signatures)
     {
-        WorldPackets::Petition::ServerPetitionShowSignatures::PetitionSignature signaturePkt;
+        WorldPackets::Petition::ServerPetitionShowSignatures::PetitionSignature& signaturePkt = signaturesPacket.Signatures.emplace_back();
         signaturePkt.Signer = signature.second;
         signaturePkt.Choice = 0;
-        signaturesPacket.Signatures.push_back(signaturePkt);
     }
 
     sendTo->SendDirectMessage(signaturesPacket.Write());
