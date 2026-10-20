@@ -728,7 +728,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_INSTANCE, "INSERT INTO instance (instanceId, data, completedEncountersMask, entranceWorldSafeLocId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
-CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)
+CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)
 {
 }
 

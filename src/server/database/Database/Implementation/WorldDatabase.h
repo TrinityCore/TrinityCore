@@ -95,7 +95,7 @@ class TC_DATABASE_API WorldDatabaseConnection : public MySQLConnection
 public:
     typedef WorldDatabaseStatements Statements;
 
-    WorldDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
+    WorldDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags);
     ~WorldDatabaseConnection();
 
     //- Loads database type specific prepared statements

@@ -367,7 +367,13 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.reserve(9);
 
     // CLI Client connection info
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     args.emplace_back("-h" + host);
+#else
+    // "." means unix socket, change to "localhost" to match what the unix mysql CLI client expects
+    args.emplace_back("-h" + (host == "." ? "localhost"s : host));
+#endif
+
     args.emplace_back("-u" + user);
 
     if (!password.empty())
@@ -383,9 +389,9 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
 #else
 
-    if (!std::isdigit(port_or_socket[0]))
+    if (host == ".")
     {
-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
+        // not a port: port_or_socket is the socket path
         args.emplace_back("-P0");
         args.emplace_back("--protocol=SOCKET");
         args.emplace_back("-S" + port_or_socket);

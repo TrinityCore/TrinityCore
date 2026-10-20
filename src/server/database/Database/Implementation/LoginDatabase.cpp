@@ -193,7 +193,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
         "ON DUPLICATE KEY UPDATE illusionMask = illusionMask | VALUES(illusionMask)", CONNECTION_ASYNC);
 }
 
-LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)
+LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)
 {
 }
 
