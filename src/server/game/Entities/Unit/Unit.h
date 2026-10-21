@@ -316,7 +316,7 @@ struct PlayerMovementPendingChange
 {
     PlayerMovementPendingChange();
 
-    uint32 movementCounter = 0;
+    int32 movementCounter = 0;
     MovementChangeType movementChangeType = MovementChangeType::INVALID;
     uint32 time;
 

@@ -317,6 +317,7 @@ namespace WorldPackets
         class ClientPlayerMovement;
         class WorldPortResponse;
         class MoveTeleportAck;
+        class MovementSpeedAck;
     }
 
     namespace NPC
@@ -822,7 +823,7 @@ class TC_GAME_API WorldSession
         void HandleRequestHonorStats(WorldPackets::Inspect::RequestHonorStats& request);
         void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
 
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
+        void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
