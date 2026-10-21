@@ -129,6 +129,7 @@ enum DemonHunterSpells
     SPELL_DH_FIERY_BRAND_DEBUFF_RANK_2             = 207771,
     SPELL_DH_FIRST_BLOOD                           = 206416,
     SPELL_DH_FLAME_CRASH                           = 227322,
+    SPELL_DH_FOCUSED_RAY                           = 1240203,
     SPELL_DH_FRAILTY                               = 224509,
     SPELL_DH_FURIOUS_GAZE                          = 343311,
     SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
@@ -1409,6 +1410,35 @@ class spell_dh_fiery_brand : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_fiery_brand::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 1240203 - Focused Ray (attached to 1213649 - Void Ray)
+class spell_dh_focused_ray : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DH_FOCUSED_RAY, EFFECT_1 } });
+    }
+
+    void HandleDamage(SpellEffIndex effIndex)
+    {
+        Aura const* focusedRay = GetCaster()->GetAura(SPELL_DH_FOCUSED_RAY);
+        if (!focusedRay)
+            return;
+
+        AuraEffect const* damageIncreased = focusedRay->GetEffect(EFFECT_0);
+        AuraEffect const* minTargets = focusedRay->GetEffect(EFFECT_1);
+        if (!minTargets || !damageIncreased)
+            return;
+
+        if (GetUnitTargetCountForEffect(effIndex) >= minTargets->GetAmountAsInt())
+            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), damageIncreased->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_focused_ray::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2834,6 +2864,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_fiery_brand);
+    RegisterSpellScript(spell_dh_focused_ray);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
     RegisterSpellScript(spell_dh_inner_demon);
