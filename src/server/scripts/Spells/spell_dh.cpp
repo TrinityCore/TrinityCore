@@ -2624,6 +2624,11 @@ struct at_dh_the_hunt : public AreaTriggerAI
         }
     }
 
+    void OnRemove() override
+    {
+        unitsEntered = 0;
+    }
+
 private:
     uint8 unitsEntered = 0;
 };
