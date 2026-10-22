@@ -93,7 +93,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     }
 
     WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(guidlow));
-    SetPhaseMask(caster->GetPhaseMask(), false);
+    CopyPhaseFrom(caster, false);
 
     SetEntry(spell->Id);
     SetObjectScale(1.0f);

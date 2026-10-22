@@ -4667,7 +4667,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 
-        bones->SetPhaseMask(corpse->GetPhaseMask(), false);
+        bones->CopyPhaseFrom(corpse, false);
 
         AddCorpse(bones);
 

@@ -456,7 +456,7 @@ public:
             target->GetClosePoint(x, y, z, _player->GetCombatReach(), 1.0f);
 
             _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAbsoluteAngle(target), TELE_TO_GM_MODE);
-            _player->SetPhaseMask(target->GetPhaseMask(), true);
+            _player->CopyPhaseFrom(target, true);
         }
         else
         {
@@ -585,7 +585,7 @@ public:
             float x, y, z;
             _player->GetClosePoint(x, y, z, target->GetCombatReach());
             target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation());
-            target->SetPhaseMask(_player->GetPhaseMask(), true);
+            target->CopyPhaseFrom(_player, true);
         }
         else
         {

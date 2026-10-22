@@ -81,12 +81,13 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     }
 
     Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guidlow));
-    SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
     SetOwnerGUID(owner->GetGUID());
 
     _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
+
+    CopyPhaseFrom(owner);
 
     return true;
 }
