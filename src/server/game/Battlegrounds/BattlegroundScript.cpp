@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "WorldStateMgr.h"
 
@@ -87,7 +88,7 @@ GameObject* ArenaScript::CreateObject(uint32 entry, float x, float y, float z, f
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
-    GameObject* go = GameObject::CreateGameObject(entry, battlegroundMap, Position(x, y, z, o), rot, 255, goState);
+    GameObject* go = GameObject::CreateGameObject(entry, battlegroundMap, Position(x, y, z, o), rot, InitialPhaseShift(), 255, goState);
     if (!go)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
@@ -115,7 +116,7 @@ Creature* ArenaScript::CreateCreature(uint32 entry, float x, float y, float z, f
 
     Position pos = { x, y, z, o };
 
-    Creature* creature = Creature::CreateCreature(entry, battlegroundMap, pos);
+    Creature* creature = Creature::CreateCreature(entry, battlegroundMap, pos, InitialPhaseShift());
     if (!creature)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: {}) for BG (map: {}, instance id: {})!",

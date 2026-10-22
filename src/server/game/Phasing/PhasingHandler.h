@@ -28,6 +28,7 @@ class PhaseShift;
 class Player;
 class TerrainInfo;
 class WorldObject;
+struct SpawnData;
 namespace WorldPackets
 {
     namespace Party
@@ -35,6 +36,23 @@ namespace WorldPackets
         struct PartyMemberPhaseStates;
     }
 }
+
+struct InitialPhaseShift
+{
+    explicit constexpr InitialPhaseShift() : FromDb(nullptr), Source(NONE) { }
+    explicit constexpr InitialPhaseShift(SpawnData const* fromDb) : FromDb(fromDb), Source(FROM_DB) { }
+    explicit constexpr InitialPhaseShift(WorldObject const* fromObject) : FromObject(fromObject), Source(FROM_OBJECT) { }
+
+    constexpr InitialPhaseShift& operator=(SpawnData const* fromDb) { FromDb = fromDb; Source = FROM_DB; return *this; }
+    constexpr InitialPhaseShift& operator=(WorldObject const* fromObject) { FromObject = fromObject; Source = FROM_OBJECT; return *this; }
+
+    union
+    {
+        SpawnData const* FromDb;
+        WorldObject const* FromObject;
+    };
+    enum { NONE, FROM_DB, FROM_OBJECT } Source;
+};
 
 class TC_GAME_API PhasingHandler
 {
@@ -60,6 +78,7 @@ public:
 
     static PhaseShift const& GetEmptyPhaseShift();
     static PhaseShift const& GetAlwaysVisiblePhaseShift();
+    static void InitPhaseShift(WorldObject* object, InitialPhaseShift const& initialPhaseShift);
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
     static void InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
