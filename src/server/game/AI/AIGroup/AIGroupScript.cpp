@@ -315,13 +315,18 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
     else
         members = m_group->GetMembers(AIGroupUnit(action.Unit), objectTypeMask);
 
+    WorldObject* const previousActor = me ? static_cast<WorldObject*>(me) : static_cast<WorldObject*>(go);
+
+    if (members.empty() && me && action.Unit == uint8(AIGroupUnit::RandomUnit) && !sAIGroupMgr->GetGroupMembers(m_group->GetMainMemberGuid()))
+        members.push_back(me);
+
     for (WorldObject* member : members)
     {
         SetActor(member);
         actionFinished = ExecuteActionForActor(action, invokerGuid) && actionFinished;
     }
 
-    SetActor(nullptr);
+    SetActor(previousActor);
     return actionFinished;
 }
 
@@ -630,6 +635,10 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             if (me->IsInCombat())
                 me->AI()->EnterEvadeMode();
             return true;
+        case AI_GROUP_IDLE_COMBAT_START:
+            return false;
+        case AI_GROUP_IDLE_COMBAT_STOP:
+            return false;
         case AI_GROUP_UNIT_TRIGGERS:
             me->SetTriggersId(action.Extra2);
             return true;
@@ -710,6 +719,8 @@ bool AIGroupScript::IsActionWaitable(uint16 action)
     {
         case AI_GROUP_FOLLOW_PATH:
         case AI_GROUP_MOVETO:
+        case AI_GROUP_IDLE_COMBAT_START:
+        case AI_GROUP_IDLE_COMBAT_STOP:
         case AI_GROUP_UNIT_FINISH_CAST:
             return true;
         default:
@@ -784,6 +795,57 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
         if (activeActionSet->ActionStarted)
         {
+            if (action.Type == AI_GROUP_IDLE_COMBAT_START)
+            {
+                if (action.TimeA == 0 && action.TimeB == 0)
+                {
+                    if (m_group)
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                            if (Creature* creature = member->ToCreature())
+                                if (!creature->IsInCombat())
+                                    return;
+
+                    if (me && !me->IsInCombat())
+                        return;
+                }
+                else if (activeActionSet->ActionTimer > diff)
+                {
+                    activeActionSet->ActionTimer -= diff;
+                    return;
+                }
+
+                activeActionSet->ActionTimer = 0;
+                activeActionSet->ActionStarted = false;
+                ++activeActionSet->CurrentAction;
+                continue;
+            }
+
+            // This will not work for summoned creatures, see CreatureAI::EnterEvadeMode. UNIT_STATE_EVADE is not applied, so IsInEvadeMode returns false
+            if (action.Type == AI_GROUP_IDLE_COMBAT_STOP)
+            {
+                if (action.TimeA == 0 && action.TimeB == 0)
+                {
+                    if (m_group)
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                            if (Creature* creature = member->ToCreature())
+                                if (creature->IsInCombat() || creature->IsInEvadeMode())
+                                    return;
+
+                    if (me && (me->IsInCombat() || me->IsInEvadeMode()))
+                        return;
+                }
+                else if (activeActionSet->ActionTimer > diff)
+                {
+                    activeActionSet->ActionTimer -= diff;
+                    return;
+                }
+
+                activeActionSet->ActionTimer = 0;
+                activeActionSet->ActionStarted = false;
+                ++activeActionSet->CurrentAction;
+                continue;
+            }
+
             if (action.Type == AI_GROUP_UNIT_FINISH_CAST)
             {
                 if (action.TimeA == 0 && action.TimeB == 0)

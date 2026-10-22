@@ -87,8 +87,8 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_TRIGGERS                          = 53,    // Change action triggers for unit(s)
     AI_GROUP_UNIT_TRIGGERS_RESET                    = 54,    // Reset action triggers for unit(s)
     AI_GROUP_UNIT_LEAVE_COMBAT                      = 55,    // Leave combat (combat action only)
-    AI_GROUP_IDLE_COMBAT_START                      = 56,    // NYI // Idle until group goes into combat
-    AI_GROUP_IDLE_COMBAT_STOP                       = 57,    // NYI // Idle until group returns from combat
+    AI_GROUP_IDLE_COMBAT_START                      = 56,    // Idle until group goes into combat
+    AI_GROUP_IDLE_COMBAT_STOP                       = 57,    // Idle until group returns from combat
     AI_GROUP_UNIT_IMMUNEPC                          = 58,    // NYI // Set "ImmunePC" flag for unit(s)
     AI_GROUP_UNIT_IMMUNEPC_RESET                    = 59,    // NYI // Reset "ImmunePC" flag for unit(s)
     AI_GROUP_UNIT_IMMUNENPC                         = 60,    // NYI // Set "ImmuneNPC" flag for unit(s)
