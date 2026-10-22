@@ -262,6 +262,7 @@ enum DemonHunterSpells
     SPELL_DH_VOIDBLADE_DAMAGE                      = 1245414,
     SPELL_DH_VOIDGLARE_BOON_ENERGIZE               = 1241922,
     SPELL_DH_VOIDGLARE_BOON_TALENT                 = 1240202,
+    SPELL_DH_VOIDSTEP                              = 1223157,
     SPELL_DH_VOID_METAMORPHOSIS_BUFF               = 1217607,
     SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
@@ -1500,7 +1501,7 @@ class spell_dh_hungering_slash : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_DAMAGE, SPELL_DH_HUNGERING_SLASH_ENERGIZE });
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_DAMAGE, SPELL_DH_HUNGERING_SLASH_ENERGIZE, SPELL_DH_VOIDSTEP });
     }
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
@@ -1510,6 +1511,7 @@ class spell_dh_hungering_slash : public AuraScript
         args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
         args.TriggeringAura = aurEff;
 
+        target->CastSpell(target, SPELL_DH_VOIDSTEP, args);
         target->CastSpell(target->GetPosition(), SPELL_DH_HUNGERING_SLASH_DAMAGE, args);
         target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENERGIZE, args);
     }
