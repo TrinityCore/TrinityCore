@@ -150,6 +150,7 @@ namespace UF
 
 class TC_GAME_API BaseEntity
 {
+    friend class UnitTestDataLoader;
         ObjectGuid m_guid;
 
     public:
