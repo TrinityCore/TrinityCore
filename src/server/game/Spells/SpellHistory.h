@@ -64,6 +64,14 @@ public:
     typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
 
+    enum class ReadyStatus : uint8
+    {
+        Ready,
+        NotReady,
+        NotReadyOnHold,
+        SchoolLocked
+    };
+
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
 
     template<class OwnerType>
@@ -76,7 +84,8 @@ public:
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+
+    ReadyStatus IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     template<class OwnerType>
     void WritePacket(WorldPacket& packet) const;
     void WritePacket(WorldPackets::Spells::InitialSpells* initialSpells) const;
@@ -122,7 +131,6 @@ public:
     void ResetAllCooldowns();
     bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
-    bool HasCooldownOnHold(uint32 spellId) const;
     uint32 GetRemainingCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
