@@ -631,6 +631,12 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
         case AI_GROUP_QUEST_FAILED:
             /// @todo
             return true;
+        case AI_GROUP_UNIT_TRIGGERS:
+            me->SetTriggersId(action.Extra2);
+            return true;
+        case AI_GROUP_UNIT_TRIGGERS_RESET:
+            me->ResetTriggersId();
+            return true;
         case AI_GROUP_UNIT_LEAVE_COMBAT:
             if (me->IsInCombat())
                 me->AI()->EnterEvadeMode();
@@ -639,12 +645,6 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             return false;
         case AI_GROUP_IDLE_COMBAT_STOP:
             return false;
-        case AI_GROUP_UNIT_TRIGGERS:
-            me->SetTriggersId(action.Extra2);
-            return true;
-        case AI_GROUP_UNIT_TRIGGERS_RESET:
-            me->ResetTriggersId();
-            return true;
         case AI_GROUP_UNIT_SHEATHE:
             me->SetSheath(SHEATH_STATE_UNARMED);
             return true;
