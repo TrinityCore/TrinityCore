@@ -645,6 +645,89 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             return false;
         case AI_GROUP_IDLE_COMBAT_STOP:
             return false;
+        case AI_GROUP_UNIT_IMMUNEPC:
+            me->SetImmuneToPC(static_cast<bool>(action.Extra2), true);
+            return true;
+        case AI_GROUP_UNIT_IMMUNEPC_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_IMMUNENPC:
+            me->SetImmuneToNPC(static_cast<bool>(action.Extra2), true);
+            return true;
+        case AI_GROUP_UNIT_IMMUNENPC_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_UNKILLABLE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_UNKILLABLE_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SPELLS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SPELLS_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_ATTACK_ALL_INSTANCE:
+            me->AI()->DoZoneInCombat();
+            return true;
+        case AI_GROUP_UNIT_SEND_LOCAL_EVENT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_FLEE:
+            /// @todo "TimeA" param
+            me->DoFleeToGetAssistance();
+            return true;
+        case AI_GROUP_UNIT_RETREAT:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_CHAT_EMOTE:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_AVOID:
+            /// @todo
+            return false;
+        case AI_GROUP_AVOID_GUID:
+            /// @todo
+            return false;
+        case AI_GROUP_OBJECT_ACTIVATE:
+            go->ActivateObject(GameObjectActions(uint32(action.Extra2)), go);
+            return true;
+        case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
+            for (WorldObject* target : targets)
+                if (GameObject* gameObject = target->ToGameObject())
+                    gameObject->ActivateObject(GameObjectActions(uint32(action.Extra2)), me);
+            return true;
+        case AI_GROUP_UNIT_STRINGID:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_STRINGID_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_PERIODIC_EVENT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
+            /// @todo "Default item: (0 = no, 1 = yes)" param
+            me->SetVirtualItem(1, uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_RESET_ITEM_OFFHAND:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SET_ITEM_RANGED:
+            /// @todo "Default item: (0 = no, 1 = yes)" param
+            me->SetVirtualItem(2, uint32(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_RESET_ITEM_RANGED:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_SHEATHE:
             me->SetSheath(SHEATH_STATE_UNARMED);
             return true;
@@ -659,6 +742,18 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             return true;
         case AI_GROUP_UNIT_FINISH_CAST:
             return false;
+        case AI_GROUP_EMOTE_STATE:
+            /// @todo
+            return false;
+        case AI_GROUP_UNIT_CALL_FOR_HELP:
+            /// @todo
+            return true;
+        case AI_GROUP_FLIGHT_PATH:
+            /// @todo
+            return false;
+        case AI_GROUP_UNIT_COMBAT_TRIGGER:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_WHISPER:
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
