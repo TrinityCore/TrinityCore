@@ -1946,6 +1946,7 @@ class TC_GAME_API WorldSession
         AsyncCallbackProcessor<SQLQueryHolderCallback> _queryHolderProcessor;
 
     friend class World;
+    friend struct WorldSessionTestAccess;
     protected:
         class DosProtection
         {
