@@ -680,7 +680,8 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
             return true;
         case AI_GROUP_UNIT_FLEE:
             /// @todo "TimeA" param
-            me->DoFleeToGetAssistance();
+            if (me->IsInCombat())
+                me->DoFleeToGetAssistance();
             return true;
         case AI_GROUP_UNIT_RETREAT:
             /// @todo
@@ -754,13 +755,113 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
         case AI_GROUP_UNIT_COMBAT_TRIGGER:
             /// @todo
             return true;
+        case AI_GROUP_UNIT_GOSSIP:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_KILL_CREDIT:
+            for (WorldObject* target : targets)
+                if (Player* player = target->ToPlayer())
+                    player->KilledMonsterCredit(uint32(action.Extra2));
+            return true;
         case AI_GROUP_UNIT_WHISPER:
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
                     me->Whisper(action.Extra2, player);
             return true;
+        case AI_GROUP_UNIT_WHISPER_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_LOOT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_LOOT_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_XP:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_XP_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PVP_ENABLING:
+            if (action.Extra2)
+                me->SetPvpFlag(UNIT_BYTE2_FLAG_PVP);
+            else
+                me->RemovePvpFlag(UNIT_BYTE2_FLAG_PVP);
+            return true;
+        case AI_GROUP_UNIT_PVP_ENABLING_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PLAY_MUSIC:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PLAY_SOUND:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SET_LOOT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_FLOATING:
+            me->SetDisableGravity(static_cast<bool>(action.Extra2));
+            return true;
+        case AI_GROUP_UNIT_FLOATING_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_PLAY_MUSIC:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_PLAY_SOUND:
+            /// @todo
+            return true;
+        case AI_GROUP_SPAWN_FORCED:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_UNSHEATHE_RANGE:
+            me->SetSheath(SHEATH_STATE_RANGED);
+            return true;
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_YELL_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_IGNORE_COMBAT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_IGNORE_COMBAT_RESET:
+            /// @todo
+            return true;
         case AI_GROUP_RANDOM_ACTION_SET:
             PerformRandomActionSet(uint32(action.Extra2), invokerGuid);
+            return true;
+        case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
+            if (!targets.empty())
+                if (Player* player = targets.front()->ToPlayer())
+                    player->KilledMonsterCredit(uint32(action.Extra2));
             return true;
         default:
             return true;

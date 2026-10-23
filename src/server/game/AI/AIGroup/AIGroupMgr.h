@@ -127,24 +127,24 @@ enum AI_GROUP_ACTION
     // ^ Alpha Build 3368
     // Below created from descriptions
     AI_GROUP_UNIT_GOSSIP                            = 93,    // NYI // Unit(s) become a gossip
-    AI_GROUP_UNIT_KILL_CREDIT                       = 94,    // NYI // Unit(s) assign kill credit
-    AI_GROUP_UNIT_WHISPER                           = 95,    // NYI // Unit(s) whisper to a player
+    AI_GROUP_UNIT_KILL_CREDIT                       = 94,    // Unit(s) assign kill credit
+    AI_GROUP_UNIT_WHISPER                           = 95,    // Unit(s) whisper to a player
     AI_GROUP_UNIT_WHISPER_RANDOM                    = 96,    // NYI // Unit(s) whisper to a player something random
     AI_GROUP_UNIT_NO_LOOT                           = 97,    // NYI // Set "No Loot" flag for unit(s) in the group
     AI_GROUP_UNIT_NO_LOOT_RESET                     = 98,    // NYI // Reset "No Loot" flag for unit(s) in the group
     AI_GROUP_UNIT_NO_XP                             = 99,    // NYI // Set "No XP" flag for unit(s) in the group
     AI_GROUP_UNIT_NO_XP_RESET                       = 100,   // NYI // Reset "No XP" flag for unit(s) in the group
-    AI_GROUP_UNIT_PVP_ENABLING                      = 101,   // NYI // Set "PVP" flag for unit(s) in the group
+    AI_GROUP_UNIT_PVP_ENABLING                      = 101,   // Set "PVP" flag for unit(s) in the group
     AI_GROUP_UNIT_PVP_ENABLING_RESET                = 102,   // NYI // Reset "PVP" flag for unit(s) in the group
     AI_GROUP_UNIT_PLAY_MUSIC                        = 103,   // NYI // Unit(s) play music
     AI_GROUP_UNIT_PLAY_SOUND                        = 104,   // NYI // Unit(s) play a sound
     AI_GROUP_UNIT_SET_LOOT                          = 105,   // NYI // Set the loot for a unit
-    AI_GROUP_UNIT_FLOATING                          = 106,   // NYI // Set "Floating" flag for unit(s) in the group
+    AI_GROUP_UNIT_FLOATING                          = 106,   // Set "Floating" flag for unit(s) in the group
     AI_GROUP_UNIT_FLOATING_RESET                    = 107,   // NYI // Reset "Floating" flag for unit(s) in the group
     AI_GROUP_OBJECT_PLAY_MUSIC                      = 108,   // NYI // Object(s) play music
     AI_GROUP_OBJECT_PLAY_SOUND                      = 109,   // NYI // Object(s) play a sound
     AI_GROUP_SPAWN_FORCED                           = 110,   // NYI // Spawn (forced)
-    AI_GROUP_UNIT_UNSHEATHE_RANGE                   = 111,   // NYI // Unit(s) unsheathe their range weapons
+    AI_GROUP_UNIT_UNSHEATHE_RANGE                   = 111,   // Unit(s) unsheathe their range weapons
     AI_GROUP_UNIT_CHAT_EMOTE_ZONE                   = 112,   // NYI // Unit(s) chat emote something to the zone
     AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM            = 113,   // NYI // Unit(s) chat emote something random to the zone
     AI_GROUP_UNIT_YELL_ZONE                         = 114,   // NYI // Unit(s) yell something to the zone
@@ -218,7 +218,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_TIER_TRANSITION_MOVETO                 = 180,   // NYI // Tier Transition Move To
     AI_GROUP_TIER_TRANSITION_MOVETO_GUID            = 181,   // NYI // Tier Transition Move To a Unit or Game Object
     AI_GROUP_TIER_TRANSITION_FOLLOW_PATH            = 182,   // NYI // Tier Transition Follow Path
-    AI_GROUP_UNIT_KILL_CREDIT_PLAYER                = 183,   // NYI // Unit(s) assign kill credit to player
+    AI_GROUP_UNIT_KILL_CREDIT_PLAYER                = 183,   // Unit(s) assign kill credit to player
     AI_GROUP_SUSPEND_TRIGGER_ACTION                 = 184,   // NYI // Suspend Trigger action (creature action only)
     AI_GROUP_UNIT_VEHICLE_RECORD                    = 185,   // NYI // Unit(s) change their vehicle record ID
     AI_GROUP_UNIT_VEHICLE_RECORD_RESET              = 186,   // NYI // Unit(s) reset their vehicle record ID
