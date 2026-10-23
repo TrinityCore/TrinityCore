@@ -448,6 +448,7 @@ class TC_GAME_API Spell
         uint64 GetDelayMoment() const { return m_delayMoment; }
         uint64 CalculateDelayMomentForDst() const;
         void RecalculateDelayMomentForDst();
+        void OnClientTrajectoryUpdate();
         uint8 GetRuneState() const { return m_runesState; }
         void SetRuneState(uint8 value) { m_runesState = value; }
 
@@ -520,6 +521,7 @@ class TC_GAME_API Spell
         uint64 m_delayStart;                                // time of spell delay start, filled by event handler, zero = just started
         uint64 m_delayMoment;                               // moment of next delay call, used internally
         bool m_immediateHandled;                            // were immediate actions handled? (used by delayed spells only)
+        bool _waitedForClientTrajectory;                    // cast time trajectory spells wait for CMSG_UPDATE_MISSILE_TRAJECTORY before launching
 
         // These vars are used in both delayed spell system and modified immediate spell system
         bool m_referencedFromCurrentSpell;                  // mark as references to prevent deleted and access by dead pointers
