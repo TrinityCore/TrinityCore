@@ -94,8 +94,9 @@ enum ShamanSpells
     SPELL_SHAMAN_GHOST_WOLF                     = 2645,
     SPELL_SHAMAN_HAILSTORM_BUFF                 = 334196,
     SPELL_SHAMAN_HAILSTORM_TALENT               = 334195,
-    SPELL_SHAMAN_HEALING_RAIN_VISUAL            = 147490,
     SPELL_SHAMAN_HEALING_RAIN                   = 73920,
+    SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA       = 1307888,
+    SPELL_SHAMAN_HEALING_RAIN_AT                = 1298679,
     SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ICE_STRIKE_OVERRIDE_AURA       = 466469,
     SPELL_SHAMAN_ICE_STRIKE_PROC                = 466467,
@@ -177,11 +178,6 @@ enum ShamanSpells
 enum ShamanSpellLabels
 {
     SPELL_LABEL_SHAMAN_WINDFURY_TOTEM           = 1038,
-};
-
-enum MiscNpcs
-{
-    NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400
 };
 
 struct spell_sha_maelstrom_weapon_base
@@ -604,35 +600,6 @@ class spell_sha_deluge : public SpellScript
     void Register() override
     {
         CalcHealing += SpellCalcHealingFn(spell_sha_deluge::CalculateHealingBonus);
-    }
-};
-
-namespace HealingRain
-{
-Position GetHealingRainPosition(Aura const* healingRain);
-}
-
-// 200075 - Deluge (attached to 73920 - Healing Rain)
-class spell_sha_deluge_healing_rain : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_DELUGE_TALENT, SPELL_SHAMAN_DELUGE_AURA });
-    }
-
-    bool Load() override
-    {
-        return GetUnitOwner()->HasAura(SPELL_SHAMAN_DELUGE_TALENT);
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
-    {
-        GetCaster()->CastSpell(HealingRain::GetHealingRainPosition(GetAura()), SPELL_SHAMAN_DELUGE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_deluge_healing_rain::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1337,76 +1304,62 @@ class spell_sha_hailstorm : public AuraScript
     }
 };
 
-// 73920 - Healing Rain (Aura)
-class spell_sha_healing_rain_aura : public AuraScript
+// 1298679 - Healing Rain
+struct at_sha_healing_rain : AreaTriggerAI
 {
-public:
-    void SetVisualDummy(TempSummon const* summon)
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
     {
-        _visualDummy = summon->GetGUID();
-        _dest = summon->GetPosition();
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_SHAMAN_HEALING_RAIN_AT))
+            {
+                other->SetDuration(0);
+                caster->RemoveAurasDueToSpell(SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA);
+            }
+    }
+};
+
+// 73920 - Healing Rain (Aura)
+class spell_sha_healing_rain : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_HEAL, SPELL_SHAMAN_HEALING_RAIN_AT });
     }
 
-    Position GetPosition() const { return _dest; }
-
-private:
-    void HandleEffectPeriodic(AuraEffect const* aurEff) const
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
-        GetTarget()->CastSpell(_dest, SPELL_SHAMAN_HEALING_RAIN_HEAL, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_FULL_MASK,
-            .TriggeringAura = aurEff
+        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_SHAMAN_HEALING_RAIN_AT))
+            GetTarget()->CastSpell(at->GetPosition(), SPELL_SHAMAN_HEALING_RAIN_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 1298679 - Healing Rain
+class spell_sha_healing_rain_areatrigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA });
+    }
+
+    void HandleHit(SpellMissInfo /*missInfo*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
         });
     }
 
-    void HandleEffecRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        if (Creature* summon = ObjectAccessor::GetCreature(*GetTarget(), _visualDummy))
-            summon->DespawnOrUnsummon();
-    }
-
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_sha_healing_rain_aura::HandleEffecRemoved, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_aura::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-    }
-
-    ObjectGuid _visualDummy;
-    Position _dest;
-};
-
-Position HealingRain::GetHealingRainPosition(Aura const* healingRain)
-{
-    if (spell_sha_healing_rain_aura const* script = healingRain->GetScript<spell_sha_healing_rain_aura>())
-        return script->GetPosition();
-
-    return healingRain->GetUnitOwner()->GetPosition();
-}
-
-// 73920 - Healing Rain
-class spell_sha_healing_rain : public SpellScript
-{
-    void InitializeVisualStalker() const
-    {
-        if (Aura* aura = GetHitAura())
-        {
-            if (WorldLocation const* dest = GetExplTargetDest())
-            {
-                Milliseconds duration = Milliseconds(GetSpellInfo()->CalcDuration(GetOriginalCaster()));
-                TempSummon* summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN_INVISIBLE_STALKER, *dest, nullptr, duration, GetOriginalCaster());
-                if (!summon)
-                    return;
-
-                summon->CastSpell(summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
-
-                if (spell_sha_healing_rain_aura* script = aura->GetScript<spell_sha_healing_rain_aura>())
-                    script->SetVisualDummy(summon);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_sha_healing_rain::InitializeVisualStalker);
+        BeforeHit += BeforeSpellHitFn(spell_sha_healing_rain_areatrigger::HandleHit);
     }
 };
 
@@ -3486,7 +3439,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_crash_lightning);
     RegisterSpellScript(spell_sha_deeply_rooted_elements);
     RegisterSpellScript(spell_sha_deluge);
-    RegisterSpellScript(spell_sha_deluge_healing_rain);
     RegisterSpellScript(spell_sha_doom_winds);
     RegisterSpellScript(spell_sha_doom_winds_legendary);
     RegisterSpellScript(spell_sha_downpour);
@@ -3506,7 +3458,9 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterSpellScript(spell_sha_flametongue_weapon_aura);
     RegisterSpellScript(spell_sha_hailstorm);
-    RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
+    RegisterAreaTriggerAI(at_sha_healing_rain);
+    RegisterSpellScript(spell_sha_healing_rain);
+    RegisterSpellScript(spell_sha_healing_rain_areatrigger);
     RegisterSpellScript(spell_sha_healing_rain_target_limit);
     RegisterSpellScript(spell_sha_healing_stream_totem_heal);
     RegisterSpellScript(spell_sha_hot_hand);
