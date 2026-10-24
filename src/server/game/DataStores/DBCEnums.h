@@ -3298,4 +3298,16 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_MAX,
 };
 
+enum class SummonPropertiesEffectValueType: uint8
+{
+    None                = 0,
+    Health              = 1, // NYI
+    NumUnitsMin1        = 2, // Implemented in Spell::EffectSummonType
+    SeatNumber          = 3, // Implemented in Spell::EffectSummonType
+    RideSpell           = 4, // Implemented in Spell::EffectSummonType
+    CreatureLevel       = 5, // NYI
+    MaxSummonsTotemSlot = 6, // NYI
+    NumUnitsFailIfLess1 = 7  // Implemented in Spell::EffectSummonType
+};
+
 #endif

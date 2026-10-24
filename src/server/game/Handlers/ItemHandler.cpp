@@ -1184,24 +1184,6 @@ void WorldSession::HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& pack
     GetPlayer()->RefundItem(item);
 }
 
-bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
-{
-    // bankerGUID parameter is optional, set to 0 by default.
-    if (!bankerGUID)
-        bankerGUID = _player->PlayerTalkClass->GetInteractionData().SourceGuid;
-
-    bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == _player->PlayerTalkClass->GetInteractionData().SourceGuid);
-
-    if (!isUsingBankCommand)
-    {
-        Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(bankerGUID, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
-        if (!creature)
-            return false;
-    }
-
-    return true;
-}
-
 void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useCritterItem)
 {
     Item* item = _player->GetItemByGuid(useCritterItem.ItemGuid);
