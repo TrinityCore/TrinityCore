@@ -103,6 +103,8 @@ enum DemonHunterSpells
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
     SPELL_DH_EYE_OF_LEOTHERAS_DMG                  = 206650,
     SPELL_DH_FEAST_OF_SOULS                        = 207697,
+    SPELL_DH_FEAST_OF_SOULS_DEVOURER_BUFF          = 1232310,
+    SPELL_DH_FEAST_OF_SOULS_DEVOURER_TALENT        = 1237270,
     SPELL_DH_FEAST_OF_SOULS_PERIODIC_HEAL          = 207693,
     SPELL_DH_FEED_THE_DEMON                        = 218612,
     SPELL_DH_FEL_BARRAGE                           = 211053,
@@ -1263,6 +1265,34 @@ class spell_dh_feast_of_souls : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_dh_feast_of_souls::HandleHeal);
+    }
+};
+
+// 1237270 - Feast of Souls (attached to 1223628 - Consume Soul)
+class spell_dh_feast_of_souls_devourer : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FEAST_OF_SOULS_DEVOURER_TALENT, SPELL_DH_FEAST_OF_SOULS_DEVOURER_BUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_FEAST_OF_SOULS_DEVOURER_TALENT);
+    }
+
+    void HandleCharge(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_FEAST_OF_SOULS_DEVOURER_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_feast_of_souls_devourer::HandleCharge, EFFECT_0, SPELL_EFFECT_ENERGIZE);
     }
 };
 
@@ -2828,6 +2858,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
+    RegisterSpellScript(spell_dh_feast_of_souls_devourer);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
     RegisterSpellScript(spell_dh_felblade);
