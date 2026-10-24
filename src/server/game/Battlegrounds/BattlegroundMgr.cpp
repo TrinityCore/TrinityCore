@@ -324,19 +324,18 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
     // the client-instanceIds are unique for each battleground-type
     // the instance-id just needs to be as low as possible, beginning with 1
     // the following works, because std::set is default ordered with "<"
-    // the optimalization would be to use as bitmask std::vector<uint32> - but that would only make code unreadable
 
     BattlegroundClientIdsContainer& clientIds = bgDataStore[bgTypeId].m_ClientBattlegroundIds[bracket_id];
-    uint32 lastId = 0;
-    for (BattlegroundClientIdsContainer::const_iterator itr = clientIds.begin(); itr != clientIds.end();)
+    uint32 nextId = 1;
+    for (uint32 id : clientIds)
     {
-        if ((++lastId) != *itr)                             //if there is a gap between the ids, we will break..
+        if (nextId != id)
             break;
-        lastId = *itr;
+        ++nextId;
     }
 
-    clientIds.insert(++lastId);
-    return lastId;
+    clientIds.insert(nextId);
+    return nextId;
 }
 
 // create a new battleground that will really be used to play
@@ -368,7 +367,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
 
     bg->SetBracket(bracketEntry);
     bg->SetInstanceID(sMapMgr->GenerateInstanceId());
-    bg->SetClientInstanceID(CreateClientVisibleInstanceId(BattlegroundTypeId(queueId.BattlemasterListId), bracketEntry->GetBracketId()));
+    bg->SetClientInstanceID(CreateClientVisibleInstanceId(bgTypeId, bracketEntry->GetBracketId()));
     // reset the new bg (set status to status_wait_queue from status_none)
     // this shouldn't be needed anymore as a new Battleground instance is created each time. But some bg sub classes still depend on it.
     bg->Reset();
