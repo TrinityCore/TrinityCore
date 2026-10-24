@@ -251,6 +251,9 @@ public:
 
     Optional<int32> SpellForVisuals;
 
+    Optional<int32> MaxSummons;                             ///< Maximum number of areatriggers that can be summoned with these properties
+    Optional<int32> MaxUnits;                               ///< Maximum number of units that count as being inside the areatrigger
+
     int32 PositionalSoundKitId = 0;
 
     uint32 TimeToTargetScale = 0;

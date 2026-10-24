@@ -140,6 +140,16 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
+        class CancelAutoRepeat final : public ServerPacket
+        {
+        public:
+            explicit CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
         struct PowerUpdatePower
         {
             PowerUpdatePower(int32 power, uint8 powerType) : Power(power), PowerType(powerType) { }
@@ -178,27 +188,6 @@ namespace WorldPackets
 
             int32 CurrentSheathState = 0;
             bool Animate = true;
-        };
-
-        class CancelAutoRepeat final : public ServerPacket
-        {
-        public:
-            explicit CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-        };
-
-        class HealthUpdate final : public ServerPacket
-        {
-        public:
-            explicit HealthUpdate() : ServerPacket(SMSG_HEALTH_UPDATE, 16 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-            int64 Health = 0;
         };
 
         class ThreatClear final : public ServerPacket

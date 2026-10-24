@@ -1319,6 +1319,7 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 357 SPELL_EFFECT_357
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 358 SPELL_EFFECT_358
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 359 SPELL_EFFECT_359
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 360 SPELL_EFFECT_360
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -4365,6 +4366,9 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
 
     for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
     {
+        if (mod->PlayerConditionID && (!caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), mod->PlayerConditionID)))
+            continue;
+
         switch (mod->Type)
         {
             case SPELL_PPM_MOD_HASTE:

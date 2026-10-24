@@ -142,6 +142,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(ClubPresenceUnsubscribeDelay);
 
     _worldPacket << Squelch;
+    _worldPacket << int32(AgeVerificationRestrictionState);
 
     _worldPacket << int32(ContentSetID);
     _worldPacket << Size<uint32>(DisabledGameModes);
