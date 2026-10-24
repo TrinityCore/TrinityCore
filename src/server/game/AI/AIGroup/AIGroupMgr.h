@@ -157,10 +157,10 @@ enum AI_GROUP_ACTION
     AI_GROUP_OBJECT_PLAY_SOUND_ZONE                 = 121,   // NYI // Object(s) play a sound to the zone
     AI_GROUP_UNIT_IGNORE_COMBAT                     = 122,   // NYI // Set "Ignore combat" flag for unit(s)
     AI_GROUP_UNIT_IGNORE_COMBAT_RESET               = 123,   // NYI // Reset "Ignore combat" flag for unit(s)
-    AI_GROUP_RANDOM_ACTION_SET                      = 124,   // NYI // Perform a random set of actions
+    AI_GROUP_RANDOM_ACTION_SET                      = 124,   // Perform a random set of actions
     AI_GROUP_RESTART_ACTIONS_WSE                    = 125,   // NYI // Restart the current actions if world state expression is true
     AI_GROUP_ABORT_ACTION_SET_WSE                   = 126,   // NYI // Abort action set if world state expression is true
-    AI_GROUP_UNIT_BOSS_EMOTE                        = 127,   // NYI // Unit(s) boss emote something
+    AI_GROUP_UNIT_BOSS_EMOTE                        = 127,   // Unit(s) boss emote something
     AI_GROUP_UNIT_BOSS_EMOTE_ZONE                   = 128,   // NYI // Unit(s) boss emote something to the zone
     AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC        = 129,   // NYI // Trigger actions on nearest unit in combat
     // ^ 1.12.1
@@ -175,20 +175,20 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_SAY_ZONE                          = 138,   // NYI // Unit(s) say something to the zone
     AI_GROUP_UNIT_SAY_ZONE_RANDOM                   = 139,   // NYI // Unit(s) say something random to the zone
     AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF             = 140,   // NYI // Unit(s) send a local event to self (if outside of combat)
-    AI_GROUP_UNIT_SESSILE                           = 141,   // NYI // Set "Sessile" flag for unit(s)
+    AI_GROUP_UNIT_SESSILE                           = 141,   // Set "Sessile" flag for unit(s)
     AI_GROUP_UNIT_SESSILE_RESET                     = 142,   // NYI // Reset "Sessile" flag for unit(s)
     AI_GROUP_UNIT_RAID_LOCK                         = 143,   // NYI // Set "RAID_LOCK_ON_DEATH" flag for unit(s)
     AI_GROUP_UNIT_RAID_LOCK_RESET                   = 144,   // NYI // Reset "RAID_LOCK_ON_DEATH" flag for unit(s)
-    AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER       = 145,   // NYI // Quest complete for triggering player
-    AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER        = 146,   // NYI // Quest cleared for triggering player
+    AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER       = 145,   // Quest complete for triggering player
+    AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER        = 146,   // Quest cleared for triggering player
     AI_GROUP_UNIT_CHAT_PARTY                        = 147,   // NYI // Unit(s) chat to a player's party
     AI_GROUP_UNIT_CLEAR_COOLDOWNS                   = 148,   // NYI // Unit(s) clear cooldowns
-    AI_GROUP_UNIT_PLAY_TARGETED_SOUND               = 149,   // NYI // Unit(s) play a targeted sound
-    AI_GROUP_UNIT_PLAY_TARGETED_MUSIC               = 150,   // NYI // Unit(s) play targeted music
+    AI_GROUP_UNIT_PLAY_TARGETED_SOUND               = 149,   // Unit(s) play a targeted sound
+    AI_GROUP_UNIT_PLAY_TARGETED_MUSIC               = 150,   // Unit(s) play targeted music
     AI_GROUP_UNIT_RESET_INITIAL_SPELL_COOLDOWNS     = 151,   // NYI // Unit(s) reset initial spell cooldowns
     AI_GROUP_UNIT_NO_MELEE                          = 152,   // NYI // Set "No Melee" flag for unit(s) in the group
     AI_GROUP_UNIT_NO_MELEE_RESET                    = 153,   // NYI // Reset "No Melee" flag for unit(s) in the group
-    AI_GROUP_FALL_TO_THE_GROUND                     = 154,   // NYI // Fall to the ground
+    AI_GROUP_FALL_TO_THE_GROUND                     = 154,   // Fall to the ground
     AI_GROUP_UNIT_UPDATE_INTERACTION                = 155,   // NYI // Unit(s) update interaction
     AI_GROUP_UNIT_BOSS_WHISPER                      = 156,   // NYI // Unit(s) boss whispers someone
     AI_GROUP_UNIT_BOSS_WHISPER_RANDOM               = 157,   // NYI // Unit(s) boss whispers someone randomly
@@ -196,10 +196,10 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_DONT_CLEAR_TAP                    = 159,   // NYI // Unit(s) don't clear tap when leaving combat
     AI_GROUP_UNIT_KILL_CREDIT_TAP                   = 160,   // NYI // Unit(s) assign kill credit to tap list
     AI_GROUP_UNIT_CAST_WITH_POINTS                  = 161,   // NYI // Unit(s) cast a spell with points
-    AI_GROUP_UNIT_RIDE_VEHICLE                      = 162,   // NYI // Unit(s) ride a vehicle
-    AI_GROUP_UNIT_ABANDON_VEHICLE                   = 163,   // NYI // Unit(s) abandon their vehicles
+    AI_GROUP_UNIT_RIDE_VEHICLE                      = 162,   // Unit(s) ride a vehicle
+    AI_GROUP_UNIT_ABANDON_VEHICLE                   = 163,   // Unit(s) abandon their vehicles
     AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS   = 164,   // NYI // Vehicle(s) recall or respawn each passenger
-    AI_GROUP_PLAY_MOVIE                             = 165,   // NYI // Target player plays a movie file
+    AI_GROUP_PLAY_MOVIE                             = 165,   // Target player plays a movie file
     // ^ 2.4.3
     AI_GROUP_JUMP_POINT                             = 166,   // NYI // Jump to a point
     AI_GROUP_JUMP_GUID                              = 167,   // NYI // Jump to an object or unit

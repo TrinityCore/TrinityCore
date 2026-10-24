@@ -858,6 +858,148 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
         case AI_GROUP_RANDOM_ACTION_SET:
             PerformRandomActionSet(uint32(action.Extra2), invokerGuid);
             return true;
+        case AI_GROUP_RESTART_ACTIONS_WSE:
+            /// @todo
+            return true;
+        case AI_GROUP_ABORT_ACTION_SET_WSE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_BOSS_EMOTE:
+            me->TextEmote(action.Extra2, targets.empty() ? nullptr : targets.front(), true);
+            return true;
+        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CAST_FAILURE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_REPUTATION:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_REPUTATION_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_SPLINE_PATH_LOOP:
+            /// @todo
+            return false;
+        case AI_GROUP_UNIT_VENDOR:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_RESET_VENDOR_LISTS:
+            /// @todo
+            return true;
+        case AI_GROUP_TRIGGER_ACTIONS_UNITS:
+            /// @todo
+            return true;
+        case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SAY_ZONE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SESSILE:
+            me->SetControlled(static_cast<bool>(action.Extra2), UNIT_STATE_ROOT);
+            return true;
+        case AI_GROUP_UNIT_SESSILE_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_RAID_LOCK:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_RAID_LOCK_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER:
+            if (!targets.empty())
+                if (Player* player = targets.front()->ToPlayer())
+                    player->AreaExploredOrEventHappens(uint32(action.Extra2));
+            return true;
+        case AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER:
+            /// @todo Make it work like in command and spell effect
+            if (!targets.empty())
+            {
+                if (Player* player = targets.front()->ToPlayer())
+                {
+                    player->RemoveActiveQuest(uint32(action.Extra2), false);
+                    player->RemoveRewardedQuest(uint32(action.Extra2));
+                }
+            }
+            return true;
+        case AI_GROUP_UNIT_CHAT_PARTY:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CLEAR_COOLDOWNS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
+            if (!targets.empty())
+                if (Player* player = targets.front()->ToPlayer())
+                    player->PlayDirectSound(uint32(action.Extra2), player);
+            return true;
+        case AI_GROUP_UNIT_PLAY_TARGETED_MUSIC:
+            if (!targets.empty())
+                if (Player* player = targets.front()->ToPlayer())
+                    player->PlayDirectMusic(uint32(action.Extra2), player);
+            return true;
+        case AI_GROUP_UNIT_RESET_INITIAL_SPELL_COOLDOWNS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_MELEE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_MELEE_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_FALL_TO_THE_GROUND:
+            me->GetMotionMaster()->MoveFall();
+            return true;
+        case AI_GROUP_UNIT_UPDATE_INTERACTION:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_BOSS_WHISPER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_MOVE_RELATIVE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_DONT_CLEAR_TAP:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_KILL_CREDIT_TAP:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CAST_WITH_POINTS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_RIDE_VEHICLE:
+            if (!targets.empty())
+                me->CastSpell(targets.front(), uint32(action.Extra2), CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_FULL_MASK)
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, int32(action.Extra3)));
+            return true;
+        case AI_GROUP_UNIT_ABANDON_VEHICLE:
+            me->ExitVehicle();
+            return true;
+        case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
+            /// @todo
+            return true;
+        case AI_GROUP_PLAY_MOVIE:
+            if (!targets.empty())
+                if (Player* player = targets.front()->ToPlayer())
+                    player->SendMovieStart(uint32(action.Extra2));
+            return true;
         case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
