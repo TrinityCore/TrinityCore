@@ -530,9 +530,6 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
         return false;
     }
 
-    if (!IsSpellValid(action))
-        return false;
-
     if (!IsBroadcastTextValid(action))
         return false;
 
@@ -598,6 +595,56 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid action type {}, skipped.",
             action.Id, action.Index, action.Type);
         return false;
+    }
+
+    switch (AI_GROUP_ACTION(action.Type))
+    {
+        case AI_GROUP_UNIT_CAST:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CANCEL_CAST:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CANCEL_AURA:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_FAILURE:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_WITH_POINTS:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_RIDE_VEHICLE:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_INTERACT_SPELL:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_OTHER_UNIT:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        default:
+            return true;
     }
 
     switch (AI_GROUP_ACTION(action.Type))
@@ -824,30 +871,13 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
     }
 }
 
-bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (!sSpellMgr->GetSpellInfo(entry))
     {
-        case AI_GROUP_UNIT_CAST:
-        case AI_GROUP_UNIT_CANCEL_CAST:
-        case AI_GROUP_UNIT_CANCEL_AURA:
-        case AI_GROUP_UNIT_CAST_FAILURE:
-        case AI_GROUP_UNIT_CAST_WITH_POINTS:
-        case AI_GROUP_UNIT_RIDE_VEHICLE:
-        case AI_GROUP_UNIT_INTERACT_SPELL:
-        case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
-        case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
-        case AI_GROUP_UNIT_CAST_OTHER_UNIT:
-        case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
-            if (!sSpellMgr->GetSpellInfo(uint32(action.Extra2)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent spell {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;
