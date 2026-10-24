@@ -496,12 +496,10 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
 {
-    return bgTypeId == BATTLEGROUND_AA
-            || bgTypeId == BATTLEGROUND_BE
-            || bgTypeId == BATTLEGROUND_NA
-            || bgTypeId == BATTLEGROUND_DS
-            || bgTypeId == BATTLEGROUND_RV
-            || bgTypeId == BATTLEGROUND_RL;
+    if (BattlemasterListEntry const* entry = sBattlemasterListStore.LookupEntry(bgTypeId))
+        return entry->GetType() == BattlemasterType::Arena;
+
+    return false;
 }
 
 bool BattlegroundMgr::IsRandomBattleground(uint32 battlemasterListId)
