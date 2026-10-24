@@ -137,6 +137,7 @@ enum DemonHunterSpells
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
+    SPELL_DH_GLIDE_KNOCKBACK_ENHANCED              = 1266494,
     SPELL_DH_HAVOC_MASTERY                         = 185164,
     SPELL_DH_ILLIDANS_GRASP                        = 205630,
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
@@ -260,6 +261,7 @@ enum DemonHunterSpells
     SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
     SPELL_DH_WAVE_OF_DEBILITATION_SLOW             = 453263,
+    SPELL_DH_WINGS_OF_WRATH                        = 1266493
 };
 
 enum DemonHunterSpellCategories
@@ -1807,7 +1809,7 @@ class spell_dh_glide : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
+        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_KNOCKBACK_ENHANCED, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH, SPELL_DH_WINGS_OF_WRATH });
     }
 
     SpellCastResult CheckCast()
@@ -1828,8 +1830,11 @@ class spell_dh_glide : public SpellScript
         if (!caster)
             return;
 
-        caster->CastSpell(caster, SPELL_DH_GLIDE_KNOCKBACK, true);
-        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, true);
+        caster->CastSpell(caster, caster->HasAura(SPELL_DH_WINGS_OF_WRATH) ? SPELL_DH_GLIDE_KNOCKBACK_ENHANCED : SPELL_DH_GLIDE_KNOCKBACK, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 250ms);
         caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty()), 0, nullptr, false, 250ms);
