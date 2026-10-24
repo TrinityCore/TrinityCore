@@ -479,7 +479,44 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, Ob
     switch (AI_GROUP_ACTION(action.Type))
     {
         case AI_GROUP_SPAWN:
-            /// @todo "Creature Display Info Index (0 = random)" param
+            /// @todo: TimeA param. Apparently it handles spawn time (0 - infinite)
+            /// @todo: This action is quite tricky, it is unknown how exactly it is used and what is the purpose of it. But it
+            /// definitely should not be executed in OnSpawn because OnSpawn is called after creature is created
+            if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(me->GetEntry()))
+            {
+                CreatureDisplayInfoIndex displayIndex = static_cast<CreatureDisplayInfoIndex>(action.Extra2);
+
+                uint32 displayId = 0;
+
+                if (displayIndex == CreatureDisplayInfoIndex::Random)
+                    displayId = ObjectMgr::ChooseDisplayId(creatureInfo);
+                else
+                {
+                    switch (displayIndex)
+                    {
+                        case CreatureDisplayInfoIndex::Index1:
+                            displayId = creatureInfo->Modelid1;
+                            break;
+                        case CreatureDisplayInfoIndex::Index2:
+                            displayId = creatureInfo->Modelid2;
+                            break;
+                        case CreatureDisplayInfoIndex::Index3:
+                            displayId = creatureInfo->Modelid3;
+                            break;
+                        case CreatureDisplayInfoIndex::Index4:
+                            displayId = creatureInfo->Modelid4;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (displayId)
+                    me->SetDisplayId(displayId);
+                else
+                    TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Creature Display Info Index {}, but creature has no model with that index, skipped.",
+                        action.Id, action.Index, action.Type, action.Extra2);
+            }
             return true;
         case AI_GROUP_IDLE:
             return false;

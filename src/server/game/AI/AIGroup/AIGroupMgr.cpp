@@ -599,7 +599,24 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
 
     switch (AI_GROUP_ACTION(action.Type))
     {
+        case AI_GROUP_SPAWN:
+            if (std::isnan(action.Extra2) ||
+                action.Extra2 < static_cast<uint8>(CreatureDisplayInfoIndex::Min) ||
+                action.Extra2 > static_cast<uint8>(CreatureDisplayInfoIndex::Max) ||
+                action.Extra2 != static_cast<uint8>(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Creature Display Info Index {} (must be between 0 and 4), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_MOVETO:
+            if (!IsRadiusValid(action, action.Extra0))
+                return false;
+            break;
         case AI_GROUP_UNIT_CAST:
+            if (!IsRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
@@ -1156,6 +1173,18 @@ bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action)
             break;
         default:
             break;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsRadiusValid(ActionSetEventHolder const& action, double radius)
+{
+    if (radius < 0 || radius > 500)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid radius {} (must be between 0 and 500), skipped.",
+            action.Id, action.Index, action.Type, radius);
+        return false;
     }
 
     return true;

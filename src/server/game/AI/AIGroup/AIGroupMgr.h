@@ -929,6 +929,18 @@ enum class MoveSpeed : uint8
     Max
 };
 
+enum class CreatureDisplayInfoIndex : uint8
+{
+    Random             = 0,
+    Index1             = 1,
+    Index2             = 2,
+    Index3             = 3,
+    Index4             = 4,
+
+    Min             = Random,
+    Max             = Index4
+};
+
 // Custom
 enum AIGroupTargetType : uint8
 {
@@ -1221,6 +1233,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsZoneValid(ActionSetEventHolder const& action);
         static bool IsItemValid(ActionSetEventHolder const& action);
         static bool IsBooleanValid(ActionSetEventHolder const& action);
+        static bool IsRadiusValid(ActionSetEventHolder const& action, double radius);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 
