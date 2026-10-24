@@ -52,6 +52,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "WorldStateMgr.h"
+#include <cmath>
 
 class spell_gen_absorb0_hitlimit1 : public AuraScript
 {
@@ -5727,6 +5728,61 @@ class spell_gen_abandon_vehicle : public SpellScript
     }
 };
 
+// 374763 - Lift Off
+// 372610 - Skyward Ascent
+// 372608 - Surge Forward
+// Thrust is SMSG_MOVE_ADD_IMPULSE.
+class spell_gen_skyriding_impulse : public SpellScript
+{
+    static constexpr float LIFT_OFF_VERTICAL = 45.0f;
+    static constexpr float SKYWARD_ASCENT_HORIZONTAL = 12.25f;
+    static constexpr float SKYWARD_ASCENT_VERTICAL = 49.0f;
+    static constexpr float SURGE_FORWARD_SPEED = 18.0f;
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Player* mover = Object::ToPlayer(caster->GetUnitBeingMoved());
+        if (!mover)
+            return;
+
+        float horizontal = 0.0f;
+        float vertical = 0.0f;
+        float orientation = caster->GetOrientation();
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_LIFT_OFF:
+                vertical = LIFT_OFF_VERTICAL;
+                break;
+            case SPELL_SKYWARD_ASCENT:
+                horizontal = SKYWARD_ASCENT_HORIZONTAL;
+                vertical = SKYWARD_ASCENT_VERTICAL;
+                break;
+            case SPELL_SURGE_FORWARD:
+            {
+                // Surge Forward follows the full look direction, pitch included.
+                float pitch = caster->m_movementInfo.pitch;
+                horizontal = std::cos(pitch) * SURGE_FORWARD_SPEED;
+                vertical = std::sin(pitch) * SURGE_FORWARD_SPEED;
+                break;
+            }
+            default:
+                return;
+        }
+
+        caster->SendMoveAddImpulse(mover, std::cos(orientation) * horizontal, std::sin(orientation) * horizontal, vertical);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_skyriding_impulse::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    static constexpr uint32 SPELL_LIFT_OFF = 374763;
+    static constexpr uint32 SPELL_SKYWARD_ASCENT = 372610;
+    static constexpr uint32 SPELL_SURGE_FORWARD = 372608;
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5924,4 +5980,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_force_phase_update);
     RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
     RegisterSpellScript(spell_gen_abandon_vehicle);
+    RegisterSpellScript(spell_gen_skyriding_impulse);
 }
