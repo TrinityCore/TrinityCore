@@ -73,13 +73,13 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterItemID);
     if (!pProto)
     {
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, charterItemID);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, 0);
         return;
     }
 
     if (!_player->HasEnoughMoney(uint64(cost)))
     {
-        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, charterItemID);
+        _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0);
         return;
     }
 
@@ -303,8 +303,6 @@ void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition
 {
     TC_LOG_DEBUG("network", "Petition {} declined by {}", packet.PetitionGUID.ToString(), _player->GetGUID().ToString());
 
-    // Disabled because packet isn't handled by the client in any way
-    /*
     Petition const* petition = sPetitionMgr->GetPetition(packet.PetitionGUID);
     if (!petition)
         return;
@@ -312,11 +310,10 @@ void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition
     // petition owner online
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(petition->OwnerGuid))
     {
-        WorldPackets::Petition::PetitionDeclined packet;
-        packet.Decliner = _player->GetGUID();
-        owner->SendDirectMessage(packet.Write());
+        WorldPackets::Petition::PetitionDeclined petitionDeclined;
+        petitionDeclined.Decliner = _player->GetGUID();
+        owner->SendDirectMessage(petitionDeclined.Write());
     }
-    */
 }
 
 void WorldSession::HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet)

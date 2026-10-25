@@ -512,14 +512,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     else
         m_originalCasterGUID = m_caster->GetGUID();
 
-    if (m_originalCasterGUID == m_caster->GetGUID())
-        m_originalCaster = m_caster->ToUnit();
-    else
-    {
-        m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
-        if (m_originalCaster && !m_originalCaster->IsInWorld())
-            m_originalCaster = nullptr;
-    }
+    UpdateOriginalCasterPointer();
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
@@ -761,7 +754,7 @@ void Spell::SelectSpellTargets()
                             case TARGET_SELECT_CATEGORY_NEARBY:
                             case TARGET_SELECT_CATEGORY_CONE:
                             case TARGET_SELECT_CATEGORY_AREA:
-                            case TARGET_SELECT_CATEGORY_LINE:
+                            case TARGET_SELECT_CATEGORY_RECT:
                                 return true;
                             default:
                                 break;
@@ -967,7 +960,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, 
 
             SelectImplicitTrajTargets(spellEffectInfo, targetType);
             break;
-        case TARGET_SELECT_CATEGORY_LINE:
+        case TARGET_SELECT_CATEGORY_RECT:
             SelectImplicitLineTargets(spellEffectInfo, targetType, targetIndex, effectMask);
             break;
         case TARGET_SELECT_CATEGORY_DEFAULT:
@@ -1967,6 +1960,7 @@ void Spell::SelectImplicitLineTargets(SpellEffectInfo const& spellEffectInfo, Sp
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
     Position const* dst = nullptr;
+    SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
     switch (targetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1974,6 +1968,7 @@ void Spell::SelectImplicitLineTargets(SpellEffectInfo const& spellEffectInfo, Sp
             break;
         case TARGET_REFERENCE_TYPE_DEST:
             dst = m_targets.GetDstPos();
+            radius.Max = std::min(radius.Max, m_caster->GetExactDist2d(dst));
             break;
         case TARGET_REFERENCE_TYPE_CASTER:
             dst = m_caster;
@@ -1987,11 +1982,10 @@ void Spell::SelectImplicitLineTargets(SpellEffectInfo const& spellEffectInfo, Sp
     }
 
     ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions.get();
-    SpellRange radius = spellEffectInfo.CalcRadius(m_caster, targetIndex) * m_spellValue->RadiusMod;
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(m_spellInfo, spellEffectInfo, objectType, condList))
     {
-        Trinity::WorldObjectSpellLineTargetCheck check(m_caster, dst, m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
+        Trinity::WorldObjectSpellLineTargetCheck check(m_caster, dst, m_spellInfo->Width ? m_spellInfo->Width / 2.0f : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, radius.Max);
 
@@ -3657,6 +3651,9 @@ void Spell::cancel(SpellCastResult result /*= SPELL_FAILED_INTERRUPTED*/, Option
     SetReferencedFromCurrent(false);
     if (m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = nullptr;
+
+    // update original caster pointer to prevent access to non-existed already object (grid unload)
+    UpdateOriginalCasterPointer();
 
     // originalcaster handles gameobjects/dynobjects for gob caster
     if (m_originalCaster)
@@ -8090,7 +8087,7 @@ Optional<int32> Spell::GetPowerTypeCostAmount(Powers power) const
     return itr->Amount;
 }
 
-bool Spell::UpdatePointers()
+void Spell::UpdateOriginalCasterPointer()
 {
     if (m_originalCasterGUID == m_caster->GetGUID())
         m_originalCaster = m_caster->ToUnit();
@@ -8100,6 +8097,11 @@ bool Spell::UpdatePointers()
         if (m_originalCaster && !m_originalCaster->IsInWorld())
             m_originalCaster = nullptr;
     }
+}
+
+bool Spell::UpdatePointers()
+{
+    UpdateOriginalCasterPointer();
 
     if (!m_focusObjectGUID.IsEmpty())
         focusObject = ObjectAccessor::GetGameObject(*m_caster, m_focusObjectGUID);
@@ -9501,7 +9503,7 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
     if (!_position.HasInLine(target, target->GetCombatReach(), _lineWidth))
         return false;
 
-    return WorldObjectSpellTargetCheck::operator ()(target);
+    return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }
 
 void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf /*= nullptr*/)
