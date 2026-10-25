@@ -1048,9 +1048,14 @@ class spell_dh_desperate_instincts : public AuraScript
 
     void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
     {
+        AuraEffect const* healthLimit = GetEffect(EFFECT_0);
+        AuraEffect const* damageReduction = GetEffect(EFFECT_1);
+        if (!damageReduction || !healthLimit)
+            return;
+
         Unit* target = GetTarget();
-        if (target->GetHealthPct() < GetEffectInfo(EFFECT_0).CalcValue(target))
-            absorbAmount = CalculatePct(dmgInfo.GetDamage(), GetEffect(EFFECT_1)->GetAmount());
+        if (target->HealthBelowPct(healthLimit->GetAmount()))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReduction->GetAmount());
     }
 
     void Register() override
