@@ -1433,7 +1433,7 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
 
 uint32 Item::GetEnchantRequiredLevel() const
 {
-    uint32 level = 0;
+    int32 level = 0;
 
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)

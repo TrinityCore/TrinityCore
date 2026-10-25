@@ -154,7 +154,7 @@ void RequestPartyMemberStats::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, PartyMemberPhase const& phase)
 {
-    data << uint32(phase.Flags);
+    data << uint8(phase.Flags);
     data << uint16(phase.Id);
 
     return data;
@@ -491,7 +491,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
     data << uint8(playerInfo.Subgroup);
     data << uint8(playerInfo.Flags);
     data << uint8(playerInfo.RolesAssigned);
-    data << uint8(playerInfo.RolesUnk_1210);
+    data << uint8(playerInfo.RolesDesired);
     data << uint8(playerInfo.Class);
     data << uint8(playerInfo.FactionGroup);
     data << playerInfo.Leaver;

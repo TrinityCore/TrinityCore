@@ -411,19 +411,7 @@ class spell_pri_angelic_feather_trigger : public SpellScript
 // Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
 struct areatrigger_pri_angelic_feather : AreaTriggerAI
 {
-    areatrigger_pri_angelic_feather(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    // Called when the AreaTrigger has just been initialized, just before added to map
-    void OnInitialize() override
-    {
-        if (Unit* caster = at->GetCaster())
-        {
-            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
-
-            if (areaTriggers.size() >= 3)
-                areaTriggers.front()->SetDuration(0);
-        }
-    }
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
     {

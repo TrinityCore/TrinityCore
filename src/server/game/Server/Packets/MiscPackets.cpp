@@ -445,7 +445,7 @@ WorldPacket const* EnableBarberShop::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
-    data << uint32(phaseShiftDataPhase.PhaseFlags);
+    data << uint8(phaseShiftDataPhase.PhaseFlags);
     data << uint16(phaseShiftDataPhase.Id);
 
     return data;
