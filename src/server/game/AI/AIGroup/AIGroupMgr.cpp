@@ -791,12 +791,141 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
         case AI_GROUP_UNIT_GENERATE_EVENT:
             /// @todo Extra2 field
             break;
+        case AI_GROUP_UNIT_TRIGGERS:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_LEAVE_COMBAT:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_IMMUNEPC:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_IMMUNENPC:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_UNKILLABLE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SPELLS:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_SEND_LOCAL_EVENT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_BROADCAST_LOCAL_EVENT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_OBJECT_CHAT_EMOTE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_AVOID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsApproachDistValid(action, action.Extra1))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_AVOID_GUID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsApproachDistValid(action, action.Extra1))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_ACTIVATE:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_STRINGID:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_STRINGID_RESET:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_PERIODIC_EVENT:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
+            if (!IsItemValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_ITEM_RANGED:
+            if (!IsItemValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra3))
+                return false;
+            break;
         case AI_GROUP_UNIT_CANCEL_CAST:
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
         case AI_GROUP_UNIT_CANCEL_AURA:
             if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_EMOTE_STATE:
+            if (!IsEmoteValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CALL_FOR_HELP:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_FLIGHT_PATH:
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_COMBAT_TRIGGER:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_GOSSIP:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_KILL_CREDIT:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_WHISPER:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_WHISPER_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_NO_LOOT:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_NO_XP:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PVP_ENABLING:
+            if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_SPAWN_FORCED:
