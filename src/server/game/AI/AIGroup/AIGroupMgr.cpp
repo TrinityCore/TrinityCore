@@ -611,11 +611,11 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             }
             break;
         case AI_GROUP_MOVETO:
-            if (!IsRadiusValid(action, action.Extra0))
+            if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST:
-            if (!IsRadiusValid(action, action.Extra0))
+            if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
@@ -1189,7 +1189,7 @@ bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action)
     return true;
 }
 
-bool AIGroupMgr::IsRadiusValid(ActionSetEventHolder const& action, double radius)
+bool AIGroupMgr::IsSearchRadiusValid(ActionSetEventHolder const& action, double radius)
 {
     if (radius < 0 || radius > 500)
     {
