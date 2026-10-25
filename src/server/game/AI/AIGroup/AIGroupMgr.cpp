@@ -18,6 +18,7 @@
 #include "AIGroupMgr.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
