@@ -1224,16 +1224,19 @@ class TC_GAME_API AIGroupMgr
         static bool IsActionTypeValid(ActionSetEventHolder const& action);
         static void LogUselessActionParams(ActionSetEventHolder const& action);
         static bool IsSpellValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsBroadcastTextValid(ActionSetEventHolder const& action);
+        static bool IsBroadcastTextValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsCreatureValid(ActionSetEventHolder const& action);
         static bool IsAnimTierValid(ActionSetEventHolder const& action);
-        static bool IsEmoteValid(ActionSetEventHolder const& action);
+        static bool IsEmoteValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsSoundValid(ActionSetEventHolder const& action);
         static bool IsQuestValid(ActionSetEventHolder const& action);
         static bool IsZoneValid(ActionSetEventHolder const& action);
         static bool IsItemValid(ActionSetEventHolder const& action);
-        static bool IsBooleanValid(ActionSetEventHolder const& action);
+        static bool IsBooleanValid(ActionSetEventHolder const& action, double value);
         static bool IsSearchRadiusValid(ActionSetEventHolder const& action, double radius);
+        static bool IsApproachDistValid(ActionSetEventHolder const& action, double distance);
+        static bool IsSpellScriptValid(ActionSetEventHolder const& action, double script);
+        static bool IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 
