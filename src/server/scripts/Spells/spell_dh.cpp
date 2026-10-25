@@ -114,9 +114,9 @@ enum DemonHunterSpells
     SPELL_DH_FEL_FLAME_FORTIFICATION_TALENT        = 389705,
     SPELL_DH_FEL_FLAME_FORTIFICATION_MOD_DAMAGE    = 393009,
     SPELL_DH_FEL_RUSH                              = 195072,
-    SPELL_DH_FEL_RUSH_DMG                          = 192611,
-    SPELL_DH_FEL_RUSH_GROUND                       = 197922,
-    SPELL_DH_FEL_RUSH_WATER_AIR                    = 197923,
+    SPELL_DH_FEL_RUSH_DAMAGE                       = 192611,
+    SPELL_DH_FEL_RUSH_WATER_GROUND                 = 197922,
+    SPELL_DH_FEL_RUSH_AIR                          = 197923,
     SPELL_DH_FELBLADE                              = 232893,
     SPELL_DH_FELBLADE_CHARGE                       = 213241,
     SPELL_DH_FELBLADE_COOLDOWN_RESET_PROC_HAVOC    = 236167,
@@ -1324,12 +1324,110 @@ class spell_dh_fel_flame_fortification : public AuraScript
     }
 };
 
+// 195072 - Fel Rush
+class spell_dh_fel_rush : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FEL_RUSH_WATER_GROUND, SPELL_DH_FEL_RUSH_AIR, SPELL_DH_FEL_RUSH_DAMAGE, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_GLIDE, SPELL_DH_RAIN_FROM_ABOVE });
+    }
+
+    SpellCastResult CheckCast() const
+    {
+        if (GetCaster()->HasUnitState(UNIT_STATE_ROOT))
+            return SPELL_FAILED_ROOTED;
+        return SPELL_CAST_OK;
+    }
+
+    void Rush(uint32 rushSpell) const
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs castArgs = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+        caster->CastSpell(caster->GetPositionWithOffset({ float(GetEffectValue()), 0.0f, 0.0f, 0.0f }), SPELL_DH_FEL_RUSH_DAMAGE, castArgs);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 1s);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_GLIDE, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_RAIN_FROM_ABOVE, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->CastSpell(caster, rushSpell, castArgs);
+    }
+
+    void HandleWaterGroundRush(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster->IsFalling() || caster->IsInWater())
+            Rush(SPELL_DH_FEL_RUSH_WATER_GROUND);
+    }
+
+    void HandleAirRush(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetCaster()->IsFalling())
+            Rush(SPELL_DH_FEL_RUSH_AIR);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dh_fel_rush::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush::HandleWaterGroundRush, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush::HandleAirRush, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 197922 Fel Rush
+// 197923 Fel Rush
+class spell_dh_fel_rush_aura : public AuraScript
+{
+    void CalcMovementAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        amount += 100;
+    }
+
+    void CalcImmunityAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        amount -= 100;
+    }
+
+    void ChangeRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->SetSpeed(MOVE_RUN_BACK, GetTarget()->GetSpeed(MOVE_RUN));
+    }
+
+    void RestoreRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->UpdateSpeed(MOVE_RUN_BACK);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcMovementAmount, EFFECT_1, SPELL_AURA_MOD_SPEED_NO_CONTROL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcMovementAmount, EFFECT_3, SPELL_AURA_MOD_MINIMUM_SPEED);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcImmunityAmount, EFFECT_ALL, SPELL_AURA_MECHANIC_IMMUNITY);
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_fel_rush_aura::ChangeRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_dh_fel_rush_aura::RestoreRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 346123 - Fel Rush
+class spell_dh_fel_rush_knockback : public SpellScript
+{
+    void HandleKnockback(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->KnockbackFrom(GetCaster()->GetPosition(), 0.0f, 0.0f);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dh_fel_rush_knockback::HandleKnockback, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 232893 - Felblade
 class spell_dh_felblade : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_FELBLADE_CHARGE });
+        return ValidateSpellInfo({ SPELL_DH_FELBLADE_CHARGE, SPELL_DH_FELBLADE_DAMAGE });
     }
 
     void HandleCharge(SpellEffIndex /*effIndex*/) const
@@ -2830,6 +2928,9 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_feast_of_souls);
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
+    RegisterSpellScript(spell_dh_fel_rush);
+    RegisterSpellScript(spell_dh_fel_rush_aura);
+    RegisterSpellScript(spell_dh_fel_rush_knockback);
     RegisterSpellScript(spell_dh_felblade);
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
