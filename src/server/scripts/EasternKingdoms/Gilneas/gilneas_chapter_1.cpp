@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "gilneas.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -69,37 +70,6 @@ namespace Scripts::EasternKingdoms::Gilneas::Chapter1
         static constexpr uint32 PointDoorExit = 4;
     }
 
-// The knock summons land on the door's trigger 35374 inside the house, and there is no
-// navmesh route out through the door frame. Retail creates the citizen with a fixed spline
-// out of the house (the same for every summon at the same door) ending on the door's First
-// marker 35830; the Rampaging Worgen leaves the same way. The five west-side doors were not
-// observed and go straight from the trigger to the marker in front of them.
-struct EvacuationDoor
-{
-    Position Trigger;
-    std::vector<Position> Exit;
-    bool HasNearMarker; // the citizen runs on to a Near marker 35010 before the Far marker 35011
-};
-
-static std::array<EvacuationDoor, 14> const EvacuationDoors =
-{{
-    { { -1573.93f, 1381.87f, 36.99f }, { { -1571.10f, 1383.26f, 36.99f }, { -1570.84f, 1384.08f, 37.00f }, { -1570.27f, 1384.89f, 37.00f }, { -1569.99f, 1386.06f, 36.36f }, { -1569.60f, 1387.68f, 36.41f } }, true },
-    { { -1566.31f, 1413.51f, 36.64f }, { { -1565.56f, 1413.15f, 36.64f }, { -1564.25f, 1410.68f, 36.64f }, { -1562.61f, 1410.14f, 36.64f }, { -1561.41f, 1410.00f, 36.05f }, { -1561.02f, 1409.96f, 36.03f }, { -1559.24f, 1409.76f, 35.97f } }, true },
-    { { -1533.91f, 1447.53f, 36.64f }, { { -1534.16f, 1447.38f, 36.64f }, { -1536.50f, 1445.92f, 36.64f }, { -1537.03f, 1444.28f, 36.64f }, { -1537.21f, 1443.08f, 36.00f }, { -1537.43f, 1441.55f, 35.98f }, { -1537.60f, 1440.43f, 35.97f } }, false },
-    { { -1516.33f, 1375.24f, 36.53f }, { { -1516.12f, 1374.76f, 36.53f }, { -1515.00f, 1372.10f, 36.53f }, { -1513.36f, 1371.57f, 36.53f }, { -1512.19f, 1371.46f, 35.99f }, { -1511.78f, 1371.42f, 36.00f }, { -1508.22f, 1371.37f, 36.00f }, { -1506.77f, 1371.35f, 35.56f } }, false },
-    { { -1490.54f, 1367.53f, 36.53f }, { { -1491.98f, 1369.91f, 36.53f }, { -1492.25f, 1370.35f, 36.53f } }, true },
-    { { -1459.78f, 1447.69f, 36.64f }, { { -1460.54f, 1447.27f, 36.64f }, { -1462.97f, 1445.92f, 36.64f }, { -1463.50f, 1444.28f, 36.64f }, { -1463.67f, 1443.09f, 36.00f }, { -1463.85f, 1441.79f, 35.98f }, { -1463.95f, 1441.07f, 35.98f } }, true },
-    { { -1425.08f, 1409.70f, 36.78f }, { { -1422.31f, 1411.31f, 36.79f }, { -1421.92f, 1412.21f, 36.79f }, { -1421.58f, 1412.98f, 36.79f }, { -1421.45f, 1414.15f, 36.00f }, { -1421.33f, 1415.59f, 36.00f }, { -1421.35f, 1416.15f, 35.56f }, { -1421.13f, 1417.47f, 35.56f } }, true },
-    { { -1423.91f, 1432.49f, 36.41f }, { { -1424.02f, 1432.78f, 36.41f }, { -1425.08f, 1435.50f, 36.41f }, { -1426.72f, 1435.39f, 36.42f }, { -1427.91f, 1435.30f, 35.80f }, { -1428.31f, 1435.28f, 35.76f }, { -1428.84f, 1435.50f, 35.77f }, { -1431.40f, 1436.61f, 35.91f }, { -1432.41f, 1437.04f, 35.85f } }, true },
-    { { -1391.25f, 1399.27f, 36.41f }, { { -1392.84f, 1402.06f, 36.41f }, { -1393.74f, 1402.46f, 36.42f }, { -1394.52f, 1402.79f, 36.42f }, { -1395.29f, 1402.92f, 36.11f }, { -1395.95f, 1403.03f, 35.92f }, { -1396.41f, 1403.11f, 35.95f }, { -1397.94f, 1403.38f, 35.95f } }, true },
-    // west side, not observed: straight out to the First marker
-    { { -1545.37f, 1306.57f, 36.50f }, { { -1551.71f, 1308.93f, 35.96f } }, false },
-    { { -1587.82f, 1356.02f, 36.61f }, { { -1583.44f, 1363.10f, 35.74f } }, false },
-    { { -1531.89f, 1318.65f, 36.66f }, { { -1530.54f, 1326.66f, 35.64f } }, false },
-    { { -1579.76f, 1339.98f, 36.61f }, { { -1571.86f, 1335.84f, 35.70f } }, false },
-    { { -1489.31f, 1330.34f, 36.57f }, { { -1487.21f, 1338.23f, 35.64f } }, false }
-}};
-
 EvacuationDoor const* FindEvacuationDoor(Position const& pos)
 {
     for (EvacuationDoor const& door : EvacuationDoors)
@@ -134,7 +104,9 @@ struct npc_frightened_citizen : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
 
         _door = FindEvacuationDoor(me->GetPosition());
-        if (_door)
+        if (_door && _door->Exit.empty())
+            OnArrivedAtFirstStalker();
+        else if (_door)
             LaunchDoorExit(me, *_door);
         else if (Creature* stalkerNear = me->FindNearestCreature(Creatures::EvacuationStalkerFirst, 20.0f))
             me->GetMotionMaster()->MovePoint(Points::PointStalkerFirst, stalkerNear->GetPosition(), true);
@@ -167,7 +139,7 @@ struct npc_frightened_citizen : public ScriptedAI
         }
     }
 
-    // Retail says the line (and its talk / cower emote) on arrival, then gives the credit and runs on 1.2 s later
+    // The citizen says the line (and its talk / cower emote) on arrival, then gives the credit and runs on 1.2 s later
     void OnArrivedAtFirstStalker()
     {
         Talk(Texts::FrightenedCitizen::SayFrightenedCitizenRescue, GetSummoner());
@@ -194,8 +166,10 @@ struct npc_frightened_citizen : public ScriptedAI
                         if (Player* player = summoner->ToPlayer())
                             player->KilledMonsterCredit(Creatures::EvacuationStalkerFirst);
 
-                    // 2 of the 9 observed doors have no Near marker: those citizens run straight to the Far one
-                    if (_door && !_door->HasNearMarker)
+                    // 5 of the 13 doors with an exit have no Near marker: those citizens run straight to the Far one
+                    if (_door && _door->Exit.empty())
+                        me->DespawnOrUnsummon();
+                    else if (_door && !_door->HasNearMarker)
                         _events.ScheduleEvent(Events::EvacuateTheMerchantSquare::MoveToFarStalker, 1ms);
                     else if (Creature* stalker = me->FindNearestCreature(Creatures::EvacuationStalkerFar, 50.0f))
                         me->GetMotionMaster()->MovePoint(Points::PointStalkerFar, stalker->GetPosition(), true);
@@ -263,7 +237,10 @@ struct npc_rampaging_worgen_evacuation : public ScriptedAI
             switch (eventId)
             {
                 case Events::EvacuateTheMerchantSquare::WorgenLeaveHouse:
-                    if (_door)
+                    // shut in behind the same door as the citizen
+                    if (_door && _door->Exit.empty())
+                        me->DespawnOrUnsummon();
+                    else if (_door)
                         LaunchDoorExit(me, *_door);
                     else
                         _events.ScheduleEvent(Events::EvacuateTheMerchantSquare::WorgenHunt, 1ms);
