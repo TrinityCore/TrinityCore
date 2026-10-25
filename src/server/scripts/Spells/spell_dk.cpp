@@ -1604,9 +1604,14 @@ class spell_dk_will_of_the_necropolis : public AuraScript
 
     void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
     {
+        AuraEffect const* damageReduction = GetEffect(EFFECT_1);
+        AuraEffect const* healthLimit = GetEffect(EFFECT_2);
+        if (!damageReduction || !healthLimit)
+            return;
+
         Unit* target = GetTarget();
-        if (target->GetHealthPct() < GetEffectInfo(EFFECT_2).CalcValue(target))
-            absorbAmount = CalculatePct(dmgInfo.GetDamage(), GetEffect(EFFECT_1)->GetAmount());
+        if (target->HealthBelowPct(healthLimit->GetAmount()))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReduction->GetAmount());
     }
 
     void Register() override
