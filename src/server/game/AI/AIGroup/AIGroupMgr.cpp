@@ -628,6 +628,17 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
+        case AI_GROUP_SPAWN_FORCED:
+            if (std::isnan(action.Extra2) ||
+                action.Extra2 < static_cast<uint8>(CreatureDisplayInfoIndex::Min) ||
+                action.Extra2 > static_cast<uint8>(CreatureDisplayInfoIndex::Max) ||
+                action.Extra2 != static_cast<uint8>(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Creature Display Info Index {} (must be between 0 and 4), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
         case AI_GROUP_UNIT_CAST_FAILURE:
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
