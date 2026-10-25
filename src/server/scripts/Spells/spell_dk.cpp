@@ -600,7 +600,7 @@ class spell_dk_death_and_decay : public AuraScript
     void HandleDummyTick(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
+            caster->CastSpell(GetAura()->GetDst(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
     }
 
     void Register() override
