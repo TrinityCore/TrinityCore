@@ -1239,6 +1239,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsApproachDistValid(ActionSetEventHolder const& action, double distance);
         static bool IsSpellScriptValid(ActionSetEventHolder const& action, double script);
         static bool IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier);
+        static bool IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 

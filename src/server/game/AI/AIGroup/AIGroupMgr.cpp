@@ -692,7 +692,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
         case AI_GROUP_UNIT_ACTIVATE_OBJECT:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsGameObjectActionValid(action, action.Extra2))
+                return false;
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
@@ -848,12 +849,14 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
                 return false;
             break;
         case AI_GROUP_OBJECT_ACTIVATE:
-            /// @todo Extra2 field
+            if (!IsGameObjectActionValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_ACTIVATE_OBJECTS:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsGameObjectActionValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_STRINGID:
             /// @todo Extra2 field
@@ -1440,6 +1443,20 @@ bool AIGroupMgr::IsSpeedMultiplierValid(ActionSetEventHolder const& action, doub
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Speed Multiplier {} (must be between 0 and 10), skipped.",
             action.Id, action.Index, action.Type, multiplier);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction)
+{
+    GameObjectActions parsedAction = static_cast<GameObjectActions>(static_cast<uint32>(gameObjectAction));
+
+    if (!GameObject::IsGameObjectActionAllowed(parsedAction))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Game Object Action {}, skipped.",
+            action.Id, action.Index, action.Type, static_cast<uint32>(parsedAction));
         return false;
     }
 
