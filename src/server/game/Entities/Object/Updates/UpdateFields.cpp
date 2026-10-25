@@ -2633,7 +2633,7 @@ void PlayerData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player c
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
-    bool noQuestLogChangesMask = data.WriteBit(IsQuestLogChangesMaskSkipped());
+    bool noPartyMemberChangesMask = data.WriteBit(IsPartyMemberChangesMaskSkipped());
     if (changesMask[0])
     {
         if (changesMask[1])
@@ -2716,7 +2716,7 @@ void PlayerData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player c
             {
                 if (QuestSessionQuestLog.HasChanged(i) || ignoreNestedChangesMask)
                 {
-                    if (noQuestLogChangesMask)
+                    if (noPartyMemberChangesMask)
                         QuestSessionQuestLog[i].WriteCreate(data, receiver, owner);
                     else
                         QuestSessionQuestLog[i].WriteUpdate(ignoreNestedChangesMask, data, receiver, owner);
@@ -2819,7 +2819,10 @@ void PlayerData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player c
         }
         if (changesMask[25])
         {
-            WriteMapFieldUpdate(QuestLogQuestIdToIndex, ignoreNestedChangesMask, data, receiver, owner);
+            if (noPartyMemberChangesMask)
+                WriteMapFieldCreate(QuestLogQuestIdToIndex, data, receiver, owner);
+            else
+                WriteMapFieldUpdate(QuestLogQuestIdToIndex, ignoreNestedChangesMask, data, receiver, owner);
         }
         if (changesMask[26])
         {
@@ -2945,7 +2948,7 @@ void PlayerData::WriteUpdate(Mask const& changesMask, ByteBuffer& data, Player c
         {
             if (changesMask[54 + i])
             {
-                if (noQuestLogChangesMask)
+                if (noPartyMemberChangesMask)
                     QuestLog[i].WriteCreate(data, receiver, owner);
                 else
                     QuestLog[i].WriteUpdate(ignoreNestedChangesMask, data, receiver, owner);
@@ -10280,6 +10283,7 @@ void PlayerInitiativeComponentData::WriteUpdate(Mask const& changesMask, ByteBuf
 {
     data.WriteBits(changesMask.GetBlock(0), 6);
 
+    bool noOwnerChangesMask = data.WriteBit(IsOwnerChangesMaskSkipped());
     if (changesMask[0])
     {
         if (changesMask[1])
@@ -10330,7 +10334,10 @@ void PlayerInitiativeComponentData::WriteUpdate(Mask const& changesMask, ByteBuf
         }
         if (changesMask[5])
         {
-            WriteSetFieldUpdate(Houses, ignoreNestedChangesMask, data, receiver, owner);
+            if (noOwnerChangesMask)
+                WriteSetFieldCreate(Houses, data, receiver, owner);
+            else
+                WriteSetFieldUpdate(Houses, ignoreNestedChangesMask, data, receiver, owner);
         }
     }
 }

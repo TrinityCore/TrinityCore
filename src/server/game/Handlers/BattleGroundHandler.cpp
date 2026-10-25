@@ -323,9 +323,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
 
     uint32 mapId = bgTemplate->MapIDs.front();
 
-    // BGTemplateId returns BATTLEGROUND_AA when it is arena queue.
-    // Do instance id search as there is no AA bg instances.
-    Battleground* bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId == BATTLEGROUND_AA ? BATTLEGROUND_TYPE_NONE : bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId);
     if (!bg && battlefieldPort.AcceptedInvite)
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT {} Slot: {}, Unk: {}, Time: {}, AcceptedInvite: {}. Cant find BG with id {}!",
@@ -472,7 +470,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
             continue;
         if (ginfo.IsInvitedToBGInstanceGUID)
         {
-            bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+            bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId);
             if (!bg)
                 continue;
 
