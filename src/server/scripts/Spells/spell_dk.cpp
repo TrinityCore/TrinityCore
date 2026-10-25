@@ -1617,7 +1617,7 @@ struct at_dk_death_and_decay : AreaTriggerAI
             unit->RemoveAurasDueToSpell(SPELL_DK_SANGUINE_GROUND);
         }
 
-        unit->RemoveAurasDueToSpell(SPELL_DK_GRIP_OF_THE_DEAD_SNARE);
+        unit->RemoveAurasDueToSpell(SPELL_DK_GRIP_OF_THE_DEAD_SNARE, at->GetCasterGuid());
     }
 };
 
