@@ -18289,7 +18289,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     {
         Battleground* currentBg = nullptr;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, m_bgData.queueId);
 
         player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
@@ -25669,7 +25669,7 @@ Battleground* Player::GetBattleground() const
     if (GetBattlegroundId() == 0)
         return nullptr;
 
-    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.queueId);
 }
 
 uint32 Player::GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const
