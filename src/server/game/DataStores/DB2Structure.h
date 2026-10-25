@@ -3359,6 +3359,7 @@ struct PlayerDataElementAccountEntry
     int32 StorageIndex;
     int32 Type;
     int32 Unknown1125;
+    int32 Unknown1215;
 
     PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
 };
@@ -3369,6 +3370,7 @@ struct PlayerDataElementCharacterEntry
     int32 StorageIndex;
     int32 Type;
     int32 Unknown1125;
+    int32 Unknown1215;
 
     PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
 };
@@ -3977,26 +3979,27 @@ struct SpellItemEnchantmentEntry
     LocalizedString Name;
     LocalizedString HordeName;
     int32 Duration;
+    int32 Charges;
+    std::array<int32, MAX_ITEM_ENCHANTMENT_EFFECTS> Effect;
+    std::array<int32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectPointsMin;
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectArg;
     int32 Flags;
     std::array<float, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectScalingPoints;
-    uint32 IconFileDataID;
+    int32 ScalingClass;
+    int32 ScalingClassRestricted;
+    int32 ConditionID;
+    int32 RequiredSkillID;
+    int32 RequiredSkillRank;
+    int32 MinLevel;
+    int32 MaxLevel;
+    int32 IconFileDataID;
     int32 MinItemLevel;
     int32 MaxItemLevel;
-    uint32 TransmogUseConditionID;
-    uint32 TransmogCost;
-    std::array<int16, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectPointsMin;
+    int32 TransmogUseConditionID;
+    int32 TransmogCost;
+    int32 ItemSquishEraID;
     uint16 ItemVisual;
-    uint16 RequiredSkillID;
-    uint16 RequiredSkillRank;
     uint16 ItemLevel;
-    uint8 Charges;
-    std::array<uint8, MAX_ITEM_ENCHANTMENT_EFFECTS> Effect;
-    int8 ScalingClass;
-    int8 ScalingClassRestricted;
-    uint8 ConditionID;
-    uint8 MinLevel;
-    uint8 MaxLevel;
 
     EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
@@ -4115,6 +4118,7 @@ struct SpellProcsPerMinuteModEntry
     int32 Type;
     int32 Param;
     float Coeff;
+    int32 PlayerConditionID;
     uint32 SpellProcsPerMinuteID;
 };
 
@@ -4295,6 +4299,10 @@ struct SpellVisualMissileEntry
     int32 ClutterLevel;
     int32 DecayTimeAfterImpact;
     uint16 Unused1100;
+    int32 MinimumSpellVisualDensityFilterType;
+    int32 MinimumSpellVisualDensityFilterParam;
+    int32 ReducedSpellVisualDensityFilterType;
+    int32 ReducedSpellVisualDensityFilterParam;
     uint32 SpellVisualMissileSetID;
 };
 

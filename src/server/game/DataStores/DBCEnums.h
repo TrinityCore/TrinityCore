@@ -274,14 +274,15 @@ enum class BattlemasterType : int32
 
 enum class BattlemasterListFlags : uint32
 {
-    InternalOnly                = 0x01,
-    RatedOnly                   = 0x02, // Only set for rated battlegrounds
-    ObsoleteDoNotList           = 0x04,
-    ShowInWarGames              = 0x08,
-    ShowInPvpBattlegroundList   = 0x10,
-    IsBrawl                     = 0x20,
-    IsFactional                 = 0x40,
-    IsEpic                      = 0x80
+    InternalOnly                = 0x0001,
+    RatedOnly                   = 0x0002, // Only set for rated battlegrounds
+    IsSoloShuffle               = 0x0004,
+    ShowInWarGames              = 0x0008,
+    ShowInPvpBattlegroundList   = 0x0010,
+    IsBrawl                     = 0x0020,
+    IsFactional                 = 0x0040,
+    IsEpic                      = 0x0080,
+    IsSoloRBG                   = 0x0200
 };
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
@@ -2303,7 +2304,8 @@ enum class PlayerInteractionType : int32
     GuildRename                         = 76,
     OpenNeighborhoodCharterConfirmation = 77,
     OpenHouseFinder                     = 78,
-    PlaceholderType79                   = 79,
+    TieredEntrance                      = 79,
+    RewardsShop                         = 80,
 };
 
 enum class PowerTypeFlags : int32
@@ -3295,6 +3297,18 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_TIME_EVENT_PASSED,
 
     WSE_FUNCTION_MAX,
+};
+
+enum class SummonPropertiesEffectValueType: uint8
+{
+    None                = 0,
+    Health              = 1, // NYI
+    NumUnitsMin1        = 2, // Implemented in Spell::EffectSummonType
+    SeatNumber          = 3, // Implemented in Spell::EffectSummonType
+    RideSpell           = 4, // Implemented in Spell::EffectSummonType
+    CreatureLevel       = 5, // NYI
+    MaxSummonsTotemSlot = 6, // NYI
+    NumUnitsFailIfLess1 = 7  // Implemented in Spell::EffectSummonType
 };
 
 #endif
