@@ -27,6 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include <G3D/Vector3.h>
 
 namespace Scripts::EasternKingdoms::Gilneas::Chapter1
 {
