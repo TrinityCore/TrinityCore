@@ -530,9 +530,6 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
         return false;
     }
 
-    if (!IsCreatureValid(action))
-        return false;
-
     if (!IsAnimTierValid(action))
         return false;
 
@@ -543,9 +540,6 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
         return false;
 
     if (!IsZoneValid(action))
-        return false;
-
-    if (!IsItemValid(action))
         return false;
 
     return true;
@@ -725,6 +719,77 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
                 return false;
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
+            break;
+        case AI_GROUP_ATTACK_GUID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_MOUNT:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_UNINTERACTIBLE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_MODE:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_UNIT_FACTION:
+            if (!IsFactionValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_RADIUS:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_QUESTGIVER:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_TRAINER:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_SPLINE_PATH:
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SAY_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
+            if (!IsItemValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_EMOTE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_EMOTE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_GENERATE_EVENT:
+            /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_CANCEL_CAST:
             if (!IsSpellValid(action, uint32(action.Extra2)))
@@ -1029,25 +1094,25 @@ bool AIGroupMgr::IsBroadcastTextValid(ActionSetEventHolder const& action, uint32
     return true;
 }
 
-bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsRandomTextValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (entry)
     {
-        case AI_GROUP_UNIT_MOUNT:
-        case AI_GROUP_UNIT_MODE:
-        case AI_GROUP_UNIT_KILL_CREDIT:
-        case AI_GROUP_UNIT_KILL_CREDIT_TAP:
-        case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
-        case AI_GROUP_UNIT_DEFAULT_MOUNT:
-            if (!sObjectMgr->GetCreatureTemplate(uint32(action.Extra2)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses Random Text {} (currently not supported), skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action, uint32 entry)
+{
+    if (!sObjectMgr->GetCreatureTemplate(entry))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent creature entry {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;
@@ -1168,22 +1233,25 @@ bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action)
     return true;
 }
 
-bool AIGroupMgr::IsItemValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsItemValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (!sItemStore.LookupEntry(entry))
     {
-        case AI_GROUP_UNIT_SET_ITEM_MAINHAND:
-        case AI_GROUP_UNIT_SET_ITEM_OFFHAND:
-        case AI_GROUP_UNIT_SET_ITEM_RANGED:
-            if (!sItemStore.LookupEntry(uint32(action.Extra2)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Item {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent item {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsFactionValid(ActionSetEventHolder const& action, uint32 entry)
+{
+    if (!sFactionStore.LookupEntry(entry))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent faction {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;

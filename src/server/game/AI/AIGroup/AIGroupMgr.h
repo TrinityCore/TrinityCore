@@ -1225,13 +1225,15 @@ class TC_GAME_API AIGroupMgr
         static void LogUselessActionParams(ActionSetEventHolder const& action);
         static bool IsSpellValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsBroadcastTextValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsCreatureValid(ActionSetEventHolder const& action);
+        static bool IsRandomTextValid(ActionSetEventHolder const& action, uint32 entry);
+        static bool IsCreatureValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsAnimTierValid(ActionSetEventHolder const& action);
         static bool IsEmoteValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsSoundValid(ActionSetEventHolder const& action);
         static bool IsQuestValid(ActionSetEventHolder const& action);
         static bool IsZoneValid(ActionSetEventHolder const& action);
-        static bool IsItemValid(ActionSetEventHolder const& action);
+        static bool IsItemValid(ActionSetEventHolder const& action, uint32 entry);
+        static bool IsFactionValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsBooleanValid(ActionSetEventHolder const& action, double value);
         static bool IsSearchRadiusValid(ActionSetEventHolder const& action, double radius);
         static bool IsApproachDistValid(ActionSetEventHolder const& action, double distance);
