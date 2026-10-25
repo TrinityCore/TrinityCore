@@ -143,7 +143,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_FLOATING_RESET                    = 107,   // NYI // Reset "Floating" flag for unit(s) in the group
     AI_GROUP_OBJECT_PLAY_MUSIC                      = 108,   // NYI // Object(s) play music
     AI_GROUP_OBJECT_PLAY_SOUND                      = 109,   // NYI // Object(s) play a sound
-    AI_GROUP_SPAWN_FORCED                           = 110,   // NYI // Spawn (forced)
+    AI_GROUP_SPAWN_FORCED                           = 110,   // Spawn (forced)
     AI_GROUP_UNIT_UNSHEATHE_RANGE                   = 111,   // Unit(s) unsheathe their range weapons
     AI_GROUP_UNIT_CHAT_EMOTE_ZONE                   = 112,   // NYI // Unit(s) chat emote something to the zone
     AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM            = 113,   // NYI // Unit(s) chat emote something random to the zone
