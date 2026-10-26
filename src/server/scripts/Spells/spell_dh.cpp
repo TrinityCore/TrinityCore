@@ -1374,40 +1374,6 @@ class spell_dh_fel_rush : public SpellScript
     }
 };
 
-// 197922 Fel Rush
-// 197923 Fel Rush
-class spell_dh_fel_rush_aura : public AuraScript
-{
-    void CalcMovementAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
-    {
-        amount += 100;
-    }
-
-    void CalcImmunityAmount(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
-    {
-        amount -= 100;
-    }
-
-    void ChangeRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        GetTarget()->SetSpeed(MOVE_RUN_BACK, GetTarget()->GetSpeed(MOVE_RUN));
-    }
-
-    void RestoreRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
-    {
-        GetTarget()->UpdateSpeed(MOVE_RUN_BACK);
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcMovementAmount, EFFECT_1, SPELL_AURA_MOD_SPEED_NO_CONTROL);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcMovementAmount, EFFECT_3, SPELL_AURA_MOD_MINIMUM_SPEED);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_fel_rush_aura::CalcImmunityAmount, EFFECT_ALL, SPELL_AURA_MECHANIC_IMMUNITY);
-        AfterEffectApply += AuraEffectApplyFn(spell_dh_fel_rush_aura::ChangeRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectApplyFn(spell_dh_fel_rush_aura::RestoreRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 346123 - Fel Rush
 class spell_dh_fel_rush_knockback : public SpellScript
 {
@@ -2929,7 +2895,6 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_fel_devastation);
     RegisterSpellScript(spell_dh_fel_flame_fortification);
     RegisterSpellScript(spell_dh_fel_rush);
-    RegisterSpellScript(spell_dh_fel_rush_aura);
     RegisterSpellScript(spell_dh_fel_rush_knockback);
     RegisterSpellScript(spell_dh_felblade);
     RegisterSpellScript(spell_dh_felblade_charge);
