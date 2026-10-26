@@ -1151,7 +1151,7 @@ class spell_sha_encasing_cold : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_ENCASING_GOLD });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_ENCASING_GOLD, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
