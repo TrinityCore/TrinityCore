@@ -326,7 +326,7 @@ public:
 
     static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, BuyResult error)
     {
-        handler->GetPlayer()->SendBuyError(error, nullptr, 0, 0);
+        handler->GetPlayer()->SendBuyError(error, nullptr, 0);
         return true;
     }
 
@@ -1101,11 +1101,9 @@ public:
         Map* map = handler->GetPlayer()->GetMap();
         Position pos = { x, y, z, o };
 
-        Creature* v = Creature::CreateCreature(entry, map, pos, *id);
+        Creature* v = Creature::CreateCreature(entry, map, pos, InitialPhaseShift(handler->GetPlayer()), *id);
         if (!v)
             return false;
-
-        PhasingHandler::InheritPhaseShift(v, handler->GetPlayer());
 
         map->AddToMap(v);
 

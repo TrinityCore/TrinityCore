@@ -1,0 +1,3 @@
+DELETE FROM `areatrigger_create_properties` WHERE `Id`=5167 AND `IsCustom`=0;
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `PositionalSoundKitId`, `TimeToTargetScale`, `Speed`, `SpeedIsTime`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `Roll`, `Pitch`, `Yaw`, `TargetRoll`, `TargetPitch`, `TargetYaw`, `ScriptName`, `VerifiedBuild`) VALUES
+(5167, 0, 9899, 0, 16, 0, 0, 0, 0, -1, 0, 39, NULL, 0, 30000, 8, 0, 0, 3.5, 3.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 370.01, 'at_amalgam_of_souls_swirling_scythe', 69933);

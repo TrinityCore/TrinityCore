@@ -91,16 +91,6 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         request.MinLevel, request.MaxLevel, request.Name, request.VirtualRealmName, request.Guild, request.GuildVirtualRealmName,
         request.RaceFilter.RawValue[1], request.RaceFilter.RawValue[0], request.ClassFilter, whoRequest.Areas.size(), request.Words.size());
 
-    // zones count, client limit = 10 (2.0.10)
-    // can't be received from real client or broken packet
-    if (whoRequest.Areas.size() > 10)
-        return;
-
-    // user entered strings count, client limit=4 (checked on 2.0.10)
-    // can't be received from real client or broken packet
-    if (request.Words.size() > 4)
-        return;
-
     /// @todo: handle following packet values
     /// VirtualRealmNames
     /// ShowEnemies
@@ -159,7 +149,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
                 continue;
 
         // check if target's level is in level range
-        uint8 lvl = target.GetLevel();
+        int32 lvl = target.GetLevel();
         if (lvl < request.MinLevel || lvl > request.MaxLevel)
             continue;
 
@@ -172,10 +162,8 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
             continue;
 
         if (!whoRequest.Areas.empty())
-        {
-            if (std::find(whoRequest.Areas.begin(), whoRequest.Areas.end(), int32(target.GetZoneId())) == whoRequest.Areas.end())
+            if (std::ranges::find(whoRequest.Areas, int32(target.GetZoneId())) == whoRequest.Areas.end())
                 continue;
-        }
 
         std::wstring const& wTargetName = target.GetWidePlayerName();
         if (!(wPlayerName.empty() || wTargetName.find(wPlayerName) != std::wstring::npos))

@@ -342,7 +342,6 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraFlatModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraFlatModifiersGroup[i][BASE_PCT_EXCLUDE_CREATE] = 100.0f;
         m_auraFlatModifiersGroup[i][TOTAL_VALUE] = 0.0f;
         m_auraPctModifiersGroup[i][BASE_PCT] = 1.0f;
         m_auraPctModifiersGroup[i][TOTAL_PCT] = 1.0f;
@@ -363,7 +362,6 @@ Unit::Unit(bool isWorldObject) :
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
 
-    m_createStats = { };
     m_floatStatPosBuff = { };
     m_floatStatNegBuff = { };
 
@@ -1117,42 +1115,45 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel
         {
             if (victim != attacker && (!spellProto || !(spellProto->HasAttribute(SPELL_ATTR6_NO_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))))
             {
-                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                for (uint32 i = CURRENT_GENERIC_SPELL; i <= CURRENT_CHANNELED_SPELL; ++i)
                 {
-                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    if (Spell* spell = victim->m_currentSpells[i])
                     {
-                        auto isCastInterrupted = [&]()
+                        if (spell->getState() == SPELL_STATE_PREPARING)
                         {
-                            if (!damageTaken)
-                                return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
+                            auto isCastInterrupted = [&]()
+                            {
+                                if (!damageTaken)
+                                    return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
+                                    return true;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
-                                return true;
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
+                                    return true;
 
-                            return false;
-                        };
-
-                        auto isCastDelayed = [&]()
-                        {
-                            if (!damageTaken)
                                 return false;
+                            };
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
-                                return true;
+                            auto isCastDelayed = [&]()
+                            {
+                                if (!damageTaken)
+                                    return false;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
+                                    return true;
 
-                            return false;
-                        };
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
+                                    return true;
 
-                        if (isCastInterrupted())
-                            victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
-                        else if (isCastDelayed())
-                            spell->Delayed();
+                                return false;
+                            };
+
+                            if (isCastInterrupted())
+                                victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
+                            else if (isCastDelayed())
+                                spell->Delayed();
+                        }
                     }
                 }
 
@@ -1862,22 +1863,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
 
     victimResistance = std::max(victimResistance, 0.0f);
 
-    // level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
-    // gameobject caster -- should it have level based resistance?
-    if (caster && caster->GetTypeId() != TYPEID_GAMEOBJECT && (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL)))
-        victimResistance += std::max((float(victim->GetLevelForTarget(caster)) - float(caster->GetLevelForTarget(victim))) * 5.0f, 0.0f);
-
-    static uint32 const bossLevel = 83;
-    static float const bossResistanceConstant = 510.0f;
-    uint32 level = caster ? victim->GetLevelForTarget(caster) : victim->GetLevel();
-    float resistanceConstant = 0.0f;
-
-    if (level == bossLevel)
-        resistanceConstant = bossResistanceConstant;
-    else
-        resistanceConstant = level * 5.0f;
-
-    return victimResistance / (victimResistance + resistanceConstant);
+    return victimResistance;
 }
 
 /*static*/ void Unit::CalcAbsorbResist(DamageInfo& damageInfo, Spell* spell /*= nullptr*/)
@@ -3031,10 +3017,10 @@ void Unit::_UpdateAutoRepeatSpell()
 
     // check "realtime" interrupts
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-    if ((isMoving() && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckMovement() != SPELL_CAST_OK) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo->Id == 75))
+    if ((isMoving() && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckMovement() != SPELL_CAST_OK) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo->IsAutoShot()))
     {
         // cancel wand shoot
-        if (autoRepeatSpellInfo->Id != 75)
+        if (!autoRepeatSpellInfo->IsAutoShot())
             InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
         return;
     }
@@ -3046,7 +3032,7 @@ void Unit::_UpdateAutoRepeatSpell()
         SpellCastResult result = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckCast(true);
         if (result != SPELL_CAST_OK)
         {
-            if (autoRepeatSpellInfo->Id != 75)
+            if (!autoRepeatSpellInfo->IsAutoShot())
                 InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
             else if (GetTypeId() == TYPEID_PLAYER)
                 Spell::SendCastResult(ToPlayer(), autoRepeatSpellInfo, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_SpellVisual, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_castId, result);
@@ -3108,7 +3094,7 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
             if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
             {
                 // break autorepeat if not Auto Shot
-                if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
+                if (!m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->IsAutoShot())
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
             }
             if (pSpell->GetCastTime() > 0)
@@ -3130,7 +3116,7 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
 
                 // it also does break autorepeat if not Auto Shot
                 if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
-                    m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
+                    !m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->IsAutoShot())
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 
                 AddUnitState(UNIT_STATE_CASTING);
@@ -3144,7 +3130,7 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
                 m_currentSpells[CSpellType]->setState(SPELL_STATE_FINISHED);
 
             // only Auto Shoot does not break anything
-            if (pSpell->GetSpellInfo()->Id != 75)
+            if (!pSpell->GetSpellInfo()->IsAutoShot())
             {
                 // generic autorepeats break generic non-delayed and channeled non-delayed spells
                 InterruptSpell(CURRENT_GENERIC_SPELL, false);
@@ -3254,8 +3240,10 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled /*= false*/,
     if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
     {
-        if ((!isAutoshoot || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)) &&
-            (!skipChanneledAllowingActions || !m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)))
+        SpellInfo const* channeledSpellInfo = m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo;
+
+        if ((!isAutoshoot || !channeledSpellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS) || channeledSpellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::Action | SpellAuraInterruptFlags::ActionDelayed)) &&
+            (!skipChanneledAllowingActions || !channeledSpellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL)))
             return true;
     }
     // autorepeat spells may be finished or delayed, but they are still considered cast
@@ -3470,6 +3458,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
                 int32* oldItemLevel = const_cast<int32*>(&foundAura->m_castItemLevel);
                 *oldItemLevel = createInfo.CastItemLevel;
             }
+
+            if (createInfo.Dst)
+                foundAura->m_dst.WorldRelocate(createInfo.Dst);
 
             // try to increase stack amount
             foundAura->ModStackAmount(createInfo.StackAmount, AURA_REMOVE_BY_DEFAULT, createInfo.ResetPeriodicTimer);
@@ -4298,7 +4289,7 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* s
             && spell->GetSpellInfo()->HasChannelInterruptFlag(flag)
             && (!source || spell->GetSpellInfo()->Id != source->Id)
             && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo(), true, source))
-            InterruptNonMeleeSpells(false);
+            InterruptSpell(CURRENT_CHANNELED_SPELL, false, false);
 
     UpdateInterruptMask();
 }
@@ -5253,29 +5244,17 @@ void Unit::UpdateStatBuffMod(Stats stat)
 {
     float modPos = 0.0f;
     float modNeg = 0.0f;
-    float factor = 0.0f;
 
     UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // includes value from items and enchantments
-    float modValue = GetFlatModifierValue(unitMod, BASE_VALUE);
-    if (modValue > 0.f)
-        modPos += modValue;
-    else
-        modNeg += modValue;
-
     if (IsGuardian())
     {
-        modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+        float modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
         if (modValue > 0.f)
             modPos += modValue;
         else
             modNeg += modValue;
     }
-
-    // SPELL_AURA_MOD_STAT_BONUS_PCT only affects BASE_VALUE
-    modPos = CalculatePct(modPos, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    modNeg = CalculatePct(modNeg, std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
 
     modPos += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
         {
@@ -5291,25 +5270,35 @@ void Unit::UpdateStatBuffMod(Stats stat)
             return false;
         });
 
-    factor = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
-                return true;
-            return false;
-        });
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    float baseModFromPct = baseValue - GetFlatModifierValue(unitMod, BASE_VALUE);
 
-    factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
-        {
-            if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
-                return true;
-            return false;
-        });
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    float totalModFromPct = totalValue * GetPctModifierValue(unitMod, TOTAL_PCT) - totalValue;
+    float modsFromPct = baseModFromPct + totalModFromPct;
 
-    modPos *= factor;
-    modNeg *= factor;
+    // recalculate stat bonuses not applied by auras
+    float nonAuraMod = totalValue;
+    nonAuraMod -= modPos; // remove positive auras
+    nonAuraMod -= modNeg; // remove negative auras
 
-    m_floatStatPosBuff[stat] = modPos;
-    m_floatStatNegBuff[stat] = modNeg;
+    // add item stat bonuses to positive
+    if (nonAuraMod > 0.f)
+        modPos += nonAuraMod;
+    else
+        modNeg += nonAuraMod;
+
+    // add pct mods
+    if (modsFromPct > 0.f)
+        modPos += modsFromPct;
+    else
+        modNeg += modsFromPct;
+
+    m_floatStatPosBuff[stat] = std::round(modPos);
+    m_floatStatNegBuff[stat] = std::round(modNeg);
 
     UpdateStatBuffModForClient(stat);
 }
@@ -5318,6 +5307,18 @@ void Unit::UpdateStatBuffModForClient(Stats stat)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatPosBuff, stat), int32(m_floatStatPosBuff[stat]));
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StatNegBuff, stat), int32(m_floatStatNegBuff[stat]));
+}
+
+void Unit::SetCreateStat(Stats stat, float val)
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    SetStatFlatModifier(unitMod, BASE_VALUE, val);
+}
+
+float Unit::GetCreateStat(Stats stat) const
+{
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
+    return GetFlatModifierValue(unitMod, BASE_VALUE);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -5408,21 +5409,13 @@ void Unit::AddGameObject(GameObject* gameObj)
         ToCreature()->AI()->JustSummonedGameobject(gameObj);
 }
 
-void Unit::RemoveGameObject(GameObject* gameObj, bool del)
+void Unit::RemoveGameObjectImpl(GameObject* gameObj, bool del)
 {
-    if (!gameObj || gameObj->GetOwnerGUID() != GetGUID())
-        return;
-
     gameObj->SetOwnerGUID(ObjectGuid::Empty);
 
-    for (uint8 i = 0; i < MAX_GAMEOBJECT_SLOT; ++i)
-    {
-        if (m_ObjectSlot[i] == gameObj->GetGUID())
-        {
-            m_ObjectSlot[i].Clear();
-            break;
-        }
-    }
+    auto objectSlotItr = std::ranges::find(m_ObjectSlot, gameObj->GetGUID());
+    if (objectSlotItr != std::ranges::end(m_ObjectSlot))
+        objectSlotItr->Clear();
 
     // GO created by some spell
     if (uint32 spellid = gameObj->GetSpellId())
@@ -5436,8 +5429,6 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
             GetSpellHistory()->SendCooldownEvent(createBySpell);
     }
 
-    m_gameObj.remove(gameObj);
-
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled())
         ToCreature()->AI()->SummonedGameobjectDespawn(gameObj);
 
@@ -5448,27 +5439,30 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
     }
 }
 
+void Unit::RemoveGameObject(GameObject* gameObj, bool del)
+{
+    if (!gameObj || gameObj->GetOwnerGUID() != GetGUID())
+        return;
+
+    RemoveGameObjectImpl(gameObj, del);
+
+    m_gameObj.remove(gameObj);
+}
+
 void Unit::RemoveGameObject(uint32 spellid, bool del)
 {
     if (m_gameObj.empty())
         return;
-    GameObjectList::iterator i, next;
-    for (i = m_gameObj.begin(); i != m_gameObj.end(); i = next)
+
+    for (auto i = m_gameObj.begin(); i != m_gameObj.end(); )
     {
-        next = i;
         if (spellid == 0 || (*i)->GetSpellId() == spellid)
         {
-            (*i)->SetOwnerGUID(ObjectGuid::Empty);
-            if (del)
-            {
-                (*i)->SetRespawnTime(0);
-                (*i)->Delete();
-            }
-
-            next = m_gameObj.erase(i);
+            RemoveGameObjectImpl(*i, del);
+            i = m_gameObj.erase(i);
         }
         else
-            ++next;
+            ++i;
     }
 }
 
@@ -5477,11 +5471,9 @@ void Unit::RemoveAllGameObjects()
     // remove references to unit
     while (!m_gameObj.empty())
     {
-        GameObjectList::iterator i = m_gameObj.begin();
-        (*i)->SetOwnerGUID(ObjectGuid::Empty);
-        (*i)->SetRespawnTime(0);
-        (*i)->Delete();
-        m_gameObj.erase(i);
+        GameObject* gameObj = m_gameObj.front();
+        m_gameObj.pop_front();
+        RemoveGameObjectImpl(gameObj, true);
     }
 }
 
@@ -5512,6 +5504,13 @@ std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
         if ((*i)->GetSpellId() == spellId)
             areaTriggers.push_back(*i);
 
+    return areaTriggers;
+}
+
+std::vector<AreaTrigger*> Unit::GetAreaTriggers(std::function<bool(AreaTrigger const*)> const& predicate) const
+{
+    std::vector<AreaTrigger*> areaTriggers;
+    std::ranges::copy_if(m_areaTrigger, std::back_inserter(areaTriggers), std::ref(predicate));
     return areaTriggers;
 }
 
@@ -8658,16 +8657,6 @@ int64 Unit::ModifyHealth(int64 dVal)
         gain = maxHealth - curHealth;
     }
 
-    if (dVal < 0)
-    {
-        WorldPackets::Combat::HealthUpdate packet;
-        packet.Guid = GetGUID();
-        packet.Health = GetHealth();
-
-        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
-            player->GetSession()->SendPacket(packet.Write());
-    }
-
     return gain;
 }
 
@@ -8944,9 +8933,21 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     }
 
     // Apply strongest slow aura mod to speed
-    float slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
-    if (slow)
-        AddPct(speed, slow);
+    switch (mtype)
+    {
+        case MOVE_WALK:
+        case MOVE_RUN:
+        case MOVE_RUN_BACK:
+        case MOVE_SWIM:
+        case MOVE_FLIGHT:
+        {
+            if (float slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED))
+                AddPct(speed, slow);
+            break;
+        }
+        default:
+            break;
+    }
 
     if (float minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {
@@ -9643,7 +9644,6 @@ void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifie
     switch (modifierType)
     {
         case BASE_VALUE:
-        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraFlatModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -9898,18 +9898,18 @@ void Unit::UpdateAllDamagePctDoneMods()
 
 float Unit::GetTotalStatValue(Stats stat) const
 {
-    float createStat = GetCreateStat(stat); // retrieved early to workaround a GCC false positive warning about out of bounds array access (conversion to UnitMods confuses it)
-
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
-    // value = ((base_value * base_pct) + total_value) * total_pct
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
-    value += createStat;
-    value *= GetPctModifierValue(unitMod, BASE_PCT);
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
-    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    // value = (base_value * base_pct) * total_pct + total_value * total_pct
+    float baseValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    baseValue *= GetPctModifierValue(unitMod, BASE_PCT);
+    baseValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    return value;
+    float totalValue = GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    AddPct(totalValue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_STAT_BONUS_PCT, stat));
+    totalValue *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    return baseValue + totalValue;
 }
 
 float Unit::GetTotalAuraModValue(UnitMods unitMod) const
@@ -9920,7 +9920,7 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
         return 0.0f;
     }
 
-    float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
@@ -9972,7 +9972,7 @@ void Unit::UpdateResistances(uint32 school)
     {
         UnitMods unitMod = UnitMods(UNIT_MOD_RESISTANCE_START + school);
 
-        float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
+        float value = GetFlatModifierValue(unitMod, BASE_VALUE);
         value *= GetPctModifierValue(unitMod, BASE_PCT);
 
         float baseValue = value;
@@ -11077,15 +11077,35 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
     if (val > 0.f)
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), val, !apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), val, !apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), val, !apply);
     }
     else
     {
         ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), -val, apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), -val, apply);
-        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeedNeg), -val, apply);
     }
+}
+
+void Unit::ApplySpellHastePercentMod(float val, bool apply)
+{
+    if (val > 0.f)
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), val, !apply);
+    else
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), -val, apply);
+}
+
+void Unit::ApplyHasteRegenPercentMod(float val, bool apply)
+{
+    if (val > 0.f)
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), val, !apply);
+    else if (val < 0.0f)
+        ApplyPercentModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHasteRegen), -val, apply);
+    else
+        return;
+
+    if (Player* player = ToPlayer())
+        for (Powers power : GetPowerTypes())
+            if (sDB2Manager.GetPowerTypeEntry(power)->GetFlags().HasFlag(PowerTypeFlags::RegenAffectedByHaste))
+                player->UpdatePowerRegen(power);
 }
 
 void Unit::UpdateAuraForGroup()
@@ -13432,7 +13452,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/, bool updatePlayHoverAnim /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -13469,7 +13489,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         SendMessageToSet(packet.Write(), true);
     }
 
-    if (!GetVehicle())
+    if (updatePlayHoverAnim && !GetVehicle())
     {
         if (IsAlive())
         {
@@ -14292,6 +14312,25 @@ void Unit::RemoveInertia(int32 id)
         updateRemoveInertia.Status = &m_movementInfo;
         updateRemoveInertia.InertiaID = id;
         SendMessageToSet(updateRemoveInertia.Write(), true);
+    }
+}
+
+void Unit::SetGravityModifier(float gravityModifier)
+{
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetGravityModifier setGravityModifier;
+        setGravityModifier.MoverGUID = GetGUID();
+        setGravityModifier.SequenceIndex = m_movementCounter++;
+        setGravityModifier.GravityModifier = gravityModifier;
+        movingPlayer->SendDirectMessage(setGravityModifier.Write());
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateSetGravityModifier updateSetGravityModifier;
+        updateSetGravityModifier.Status = &m_movementInfo;
+        updateSetGravityModifier.GravityModifier = gravityModifier;
+        SendMessageToSet(updateSetGravityModifier.Write(), true);
     }
 }
 

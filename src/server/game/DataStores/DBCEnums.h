@@ -196,11 +196,13 @@ enum class AreaTriggerShapeType : int8
 {
     Sphere                         = 0,
     Box                            = 1,
-    Unk                            = 2,
+    Quad2D                         = 2,
     Polygon                        = 3,
     Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
+    Script                         = 5,
+    FromUnit                       = 6,
+    Disk                           = 7,
+    BoundedPlane                   = 8,
     Max
 };
 
@@ -272,14 +274,15 @@ enum class BattlemasterType : int32
 
 enum class BattlemasterListFlags : uint32
 {
-    InternalOnly                = 0x01,
-    RatedOnly                   = 0x02, // Only set for rated battlegrounds
-    ObsoleteDoNotList           = 0x04,
-    ShowInWarGames              = 0x08,
-    ShowInPvpBattlegroundList   = 0x10,
-    IsBrawl                     = 0x20,
-    IsFactional                 = 0x40,
-    IsEpic                      = 0x80
+    InternalOnly                = 0x0001,
+    RatedOnly                   = 0x0002, // Only set for rated battlegrounds
+    IsSoloShuffle               = 0x0004,
+    ShowInWarGames              = 0x0008,
+    ShowInPvpBattlegroundList   = 0x0010,
+    IsBrawl                     = 0x0020,
+    IsFactional                 = 0x0040,
+    IsEpic                      = 0x0080,
+    IsSoloRBG                   = 0x0200
 };
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
@@ -346,31 +349,31 @@ enum class ChatChannelRuleset : int32
 
 enum class ChrRacesFlag : int32
 {
-    NPCOnly                                     = 0x000001,
-    DoNotComponentFeet                          = 0x000002,
-    CanMount                                    = 0x000004,
-    HasBald                                     = 0x000008,
-    BindToStartingArea                          = 0x000010,
-    AlternateForm                               = 0x000020,
-    CanMountSelf                                = 0x000040,
-    ForceToHDModelIfAvailable                   = 0x000080,
-    ExaltedWithAllVendors                       = 0x000100,
-    NotSelectable                               = 0x000200,
-    ReputationBonus                             = 0x000400,
-    UseLoincloth                                = 0x000800,
-    RestBonus                                   = 0x001000,
-    NoStartKits                                 = 0x002000,
-    NoStartingWeapon                            = 0x004000,
-    DontRedeemAccountLicenses                   = 0x008000,
-    SkinVariationIsHairColor                    = 0x010000,
-    UsePandarenRingForComponentingTexture       = 0x020000,
-    IgnoreForAssetManifestComponentInfoParsing  = 0x040000,
-    IsAlliedRace                                = 0x080000,
-    VoidVendorDiscount                          = 0x100000,
-    DAMMComponentNoMaleGeneration               = 0x200000,
-    DAMMComponentNoFemaleGeneration             = 0x400000,
-    NoAssociatedFactionReputationInRaceChange   = 0x800000,
-    InternalOnly                                = 0x100000,
+    NPCOnly                                     = 0x0000001,
+    DoNotComponentFeet                          = 0x0000002,
+    CanMount                                    = 0x0000004,
+    HasBald                                     = 0x0000008,
+    BindToStartingArea                          = 0x0000010,
+    AlternateForm                               = 0x0000020,
+    CanMountSelf                                = 0x0000040,
+    ForceToHDModelIfAvailable                   = 0x0000080,
+    ExaltedWithAllVendors                       = 0x0000100,
+    NotSelectable                               = 0x0000200,
+    ReputationBonus                             = 0x0000400,
+    UseLoincloth                                = 0x0000800,
+    RestBonus                                   = 0x0001000,
+    NoStartKits                                 = 0x0002000,
+    NoStartingWeapon                            = 0x0004000,
+    DontRedeemAccountLicenses                   = 0x0008000,
+    SkinVariationIsHairColor                    = 0x0010000,
+    UsePandarenRingForComponentingTexture       = 0x0020000,
+    IgnoreForAssetManifestComponentInfoParsing  = 0x0040000,
+    IsAlliedRace                                = 0x0080000,
+    VoidVendorDiscount                          = 0x0100000,
+    DAMMComponentNoMaleGeneration               = 0x0200000,
+    DAMMComponentNoFemaleGeneration             = 0x0400000,
+    NoAssociatedFactionReputationInRaceChange   = 0x0800000,
+    InternalOnly                                = 0x1000000,
 };
 
 DEFINE_ENUM_FLAG(ChrRacesFlag);
@@ -1271,11 +1274,14 @@ enum ItemBonusType
     ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
     ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22,
     ITEM_BONUS_ITEM_EFFECT_ID                   = 23,
+    ITEM_BONUS_OVERRIDE_CANT_UNEQUIP_IN_COMBAT  = 24, /*NYI*/
     ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25, /*NYI*/
     ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
     ITEM_BONUS_ICON_FILE_DATA_ID                = 28,
+    ITEM_BONUS_MAX_UPGRADE_SEQUENCE_VALUE       = 29, /*NYI*/
     ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
+    ITEM_BONUS_OVERRIDE_NO_CREATOR              = 32, /*NYI*/
     ITEM_BONUS_UPGRADE_SEQUENCE_VALUE           = 33, /*NYI*/
     ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34, /*NYI*/
     ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
@@ -1283,6 +1289,7 @@ enum ItemBonusType
     ITEM_BONUS_ITEM_CONVERSION                  = 37, /*NYI*/
     ITEM_BONUS_ITEM_HISTORY_SLOT                = 38, /*NYI*/
     ITEM_BONUS_OVERRIDE_CAN_SALVAGE             = 39,
+    ITEM_BONUS_SALVAGE_LOOT_ID                  = 40, /*NYI*/
     ITEM_BONUS_OVERRIDE_CAN_RECRAFT             = 41,
     ITEM_BONUS_ITEM_LEVEL_BASE                  = 42,
     ITEM_BONUS_PVP_ITEM_LEVEL_BASE              = 43,
@@ -1294,6 +1301,8 @@ enum ItemBonusType
     ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL     = 49,
     ITEM_BONUS_ITEM_BONUS_LIST                  = 50,
     ITEM_BONUS_SCALING_CONFIG                   = 51,
+    ITEM_BONUS_CRAFTED_ITEM_LEVEL               = 52,
+    ITEM_BONUS_SCALING_ITEM_LEVEL_BONUS         = 53,             // Applied only when ItemScalingConfig is used
 };
 
 enum class ItemCollectionType : uint8
@@ -2295,23 +2304,29 @@ enum class PlayerInteractionType : int32
     GuildRename                         = 76,
     OpenNeighborhoodCharterConfirmation = 77,
     OpenHouseFinder                     = 78,
-    PlaceholderType79                   = 79,
+    TieredEntrance                      = 79,
+    RewardsShop                         = 80,
 };
 
-enum class PowerTypeFlags : int16
+enum class PowerTypeFlags : int32
 {
-    StopRegenWhileCasting         = 0x0001, // NYI
-    UseRegenInterrupt             = 0x0002,
-    FillFractionalPowerOnEnergize = 0x0008, // NYI
-    NoClientPrediction            = 0x0010, // NYI
-    UnitsUseDefaultPowerOnInit    = 0x0020,
-    NotSetToDefaultOnResurrect    = 0x0040, // NYI
-    IsUsedByNPCs                  = 0x0080,
-    ContinueRegenWhileFatigued    = 0x0200, // NYI
-    RegenAffectedByHaste          = 0x0400, // NYI
-    SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxOnInitialLogIn        = 0x2000,
-    AllowCostModsForPlayers       = 0x4000  // NYI
+    StopRegenWhileCasting               = 0x00000001, // NYI
+    UseRegenInterrupt                   = 0x00000002,
+    ClearFractionalPowerOnLeaveCombat   = 0x00000004, // NYI (unused)
+    FillFractionalPowerOnEnergize       = 0x00000008, // NYI
+    NoClientPrediction                  = 0x00000010, // clientside
+    UnitsUseDefaultPowerOnInit          = 0x00000020,
+    NotSetToDefaultOnResurrect          = 0x00000040,
+    IsUsedByNPCs                        = 0x00000080,
+    CostHiddenOnTooltip                 = 0x00000100, // clientside
+    ContinueRegenWhileFatigued          = 0x00000200, // NYI
+    RegenAffectedByHaste                = 0x00000400,
+    SetToDefaultAfterRegenInterrupt     = 0x00000800, // NYI (unused)
+    SetToMaxOnLevelUp                   = 0x00001000,
+    SetToMaxOnInitialLogIn              = 0x00002000,
+    SetToMaxOnResurrect                 = 0x00004000,
+    AlwaysSecret                        = 0x00008000, // clientside
+    NeverSecret                         = 0x00010000  // clientside
 };
 
 DEFINE_ENUM_FLAG(PowerTypeFlags);
@@ -3282,6 +3297,18 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_TIME_EVENT_PASSED,
 
     WSE_FUNCTION_MAX,
+};
+
+enum class SummonPropertiesEffectValueType: uint8
+{
+    None                = 0,
+    Health              = 1, // NYI
+    NumUnitsMin1        = 2, // Implemented in Spell::EffectSummonType
+    SeatNumber          = 3, // Implemented in Spell::EffectSummonType
+    RideSpell           = 4, // Implemented in Spell::EffectSummonType
+    CreatureLevel       = 5, // NYI
+    MaxSummonsTotemSlot = 6, // NYI
+    NumUnitsFailIfLess1 = 7  // Implemented in Spell::EffectSummonType
 };
 
 #endif

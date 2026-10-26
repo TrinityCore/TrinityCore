@@ -217,8 +217,8 @@ WorldPacket const* LFGUpdateStatus::Write()
     for (ObjectGuid const& suspendedPlayer : SuspendedPlayers)
         _worldPacket << suspendedPlayer;
 
-    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(NotifyUI);
+    _worldPacket << Bits<1>(IsParty);
     _worldPacket << Bits<1>(Joined);
     _worldPacket << Bits<1>(LfgJoined);
     _worldPacket << Bits<1>(Queued);
@@ -389,13 +389,14 @@ WorldPacket const* LFGProposalUpdate::Write()
     _worldPacket << uint32(EncounterMask);
     _worldPacket << Size<uint32>(Players);
     _worldPacket << uint8(PromisedShortageRolePriority);
+
+    for (LFGProposalUpdatePlayer const& player : Players)
+        _worldPacket << player;
+
     _worldPacket << Bits<1>(ValidCompletedMask);
     _worldPacket << Bits<1>(ProposalSilent);
     _worldPacket << Bits<1>(FailedByMyParty);
     _worldPacket.FlushBits();
-
-    for (LFGProposalUpdatePlayer const& player : Players)
-        _worldPacket << player;
 
     return &_worldPacket;
 }

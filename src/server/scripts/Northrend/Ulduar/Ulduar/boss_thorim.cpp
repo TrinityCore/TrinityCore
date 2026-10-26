@@ -2088,7 +2088,7 @@ class spell_thorim_aura_of_celerity : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_thorim_aura_of_celerity::AfterRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_thorim_aura_of_celerity::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_RANGED_CASTING_HASTE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

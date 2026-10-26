@@ -544,6 +544,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetName(creatureInfo->Name);                              // at normal entry always
 
     SetModCastingSpeed(1.0f);
+    SetModCastingSpeedNeg(1.0f);
     SetModSpellHaste(1.0f);
     SetModHaste(1.0f);
     SetModRangedHaste(1.0f);
@@ -1099,16 +1100,11 @@ void Creature::Motion_Initialize()
     GetMotionMaster()->Initialize();
 }
 
-bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Position const& pos, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/, bool dynamic)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, InitialPhaseShift const& phaseShift, uint32 entry, Position const& pos, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/, bool dynamic)
 {
     ASSERT(map);
     SetMap(map);
-
-    if (data)
-    {
-        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
-        PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
-    }
+    PhasingHandler::InitPhaseShift(this, phaseShift);
 
     // Set if this creature can handle dynamic spawns
     if (!dynamic)
@@ -1202,7 +1198,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     return true;
 }
 
-Creature* Creature::CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId /*= 0*/)
+Creature* Creature::CreateCreature(uint32 entry, Map* map, Position const& pos, InitialPhaseShift const& phaseShift, uint32 vehId /*= 0*/)
 {
     CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cInfo)
@@ -1215,7 +1211,7 @@ Creature* Creature::CreateCreature(uint32 entry, Map* map, Position const& pos, 
         lowGuid = map->GenerateLowGuid<HighGuid::Creature>();
 
     Creature* creature = new Creature();
-    if (!creature->Create(lowGuid, map, entry, pos, nullptr, vehId))
+    if (!creature->Create(lowGuid, map, phaseShift, entry, pos, nullptr, vehId))
     {
         delete creature;
         return nullptr;
@@ -1899,7 +1895,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
     m_wanderDistance = data->wander_distance;
     m_respawnDelay = data->spawntimesecs;
 
-    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, data->id, data->spawnPoint, data, 0U , !m_respawnCompatibilityMode))
+    if (!Create(map->GenerateLowGuid<HighGuid::Creature>(), map, InitialPhaseShift(data), data->id, data->spawnPoint, data, 0U, !m_respawnCompatibilityMode))
         return false;
 
     //We should set first home position, because then AI calls home movement
@@ -2172,17 +2168,14 @@ float Creature::GetAttackDistance(Unit const* player) const
     float maxRadius = 45.0f * aggroRate;
     float minRadius = 5.0f * aggroRate;
 
-    int32 expansionMaxLevel = int32(GetMaxLevelForExpansion(GetCreatureTemplate()->RequiredExpansion));
+    int32 expansionMaxLevel = int32(GetMaxLevelForExpansion(GetCreatureDifficulty()->GetHealthScalingExpansion()));
     int32 playerLevel = player->GetLevelForTarget(this);
     int32 creatureLevel = GetLevelForTarget(player);
-    int32 levelDifference = creatureLevel - playerLevel;
 
-    // The aggro radius for creatures with equal level as the player is 20 yards.
+    // The aggro radius for creatures with equal level as the player is 15 yards.
     // The combatreach should not get taken into account for the distance so we drop it from the range (see Supremus as expample)
-    float baseAggroDistance = 20.0f - GetCombatReach();
-
-    // + - 1 yard for each level difference between player and creature
-    float aggroRadius = baseAggroDistance + float(levelDifference);
+    float baseAggroDistance = 15.0f - GetCombatReach();
+    float aggroRadius = baseAggroDistance;
 
     // detect range auras
     if (uint32(creatureLevel + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -2196,6 +2189,8 @@ float Creature::GetAttackDistance(Unit const* player) const
     // The following code is used for blizzlike behaviour such as skippable bosses
     if (creatureLevel > expansionMaxLevel)
         aggroRadius = baseAggroDistance + float(expansionMaxLevel - playerLevel);
+    else // + - 1 yard for each level difference between player and creature
+        aggroRadius += float(creatureLevel - playerLevel);
 
     // Make sure that we wont go over the total range limits
     if (aggroRadius > maxRadius)
@@ -2928,12 +2923,20 @@ Position Creature::GetRespawnPosition(float* dist) const
 void Creature::InitializeMovementCapabilities()
 {
     SetHover(GetMovementTemplate().IsHoverInitiallyEnabled());
-    SetDisableGravity(IsFloating());
-    SetControlled(IsSessile(), UNIT_STATE_ROOT);
 
-    // If an amphibious creatures was swimming while engaged, disable swimming again
-    if (IsAmphibious() && !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_CAN_SWIM))
-        RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
+    // CREATURE_STATIC_FLAG_FLOATING disables gravity and plays hover anim
+    UpdateFloatingMovementFlags();
+
+    // CREATURE_STATIC_FLAG_SESSILE disables gravity and applies root
+    UpdateSessileMovementFlags();
+
+    if (CanOnlySwimIfTargetSwims())
+    {
+        SetUnitFlag2(UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS);
+        SetSwim(false);
+    }
+    else
+        RemoveUnitFlag2(UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS);
 
     UpdateMovementCapabilities();
 }
@@ -2950,12 +2953,66 @@ void Creature::UpdateMovementCapabilities()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    // Some Amphibious creatures toggle swimming while engaged
-    if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM) && IsEngaged())
-        if (!CanOnlySwimIfTargetSwims() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
-            SetUnitFlag(UNIT_FLAG_CAN_SWIM);
+    if (HasUnitFlag2(UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS))
+        if (GetVictim() && GetVictim()->IsInWater() && !GetVictim()->IsOnOceanFloor())
+            RemoveUnitFlag2(UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS);
 
-    SetSwim(IsInWater() && CanSwim());
+    if (IsInWater() && CanSwim())
+        SetSwim(true);
+    else if (!IsInWater()) // We do not want to disable swimming again when a creature is in water - may to lead some nasty bugs
+        SetSwim(false);
+}
+
+void Creature::SetFloating(bool floating)
+{
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_FLOATING, floating);
+    UpdateFloatingMovementFlags();
+}
+
+void Creature::UpdateFloatingMovementFlags()
+{
+    if (IsFloating())
+        SetDisableGravity(true, false);
+    else
+    {
+        if (IsSessile() ||
+            HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_DISABLE_GRAVITY))
+            return;
+
+        SetDisableGravity(false, false);
+    }
+}
+
+void Creature::SetSessile(bool sessile)
+{
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_SESSILE, sessile);
+    UpdateSessileMovementFlags();
+}
+
+void Creature::UpdateSessileMovementFlags()
+{
+    if (IsSessile())
+    {
+        SetControlled(true, UNIT_STATE_ROOT);
+        SetDisableGravity(true, false, false);
+    }
+    else
+    {
+        if (!HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY))
+            return;
+
+        if (!HasAuraType(SPELL_AURA_MOD_ROOT))
+            SetControlled(false, UNIT_STATE_ROOT);
+
+        if (IsFloating() ||
+            HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY) ||
+            HasAuraType(SPELL_AURA_DISABLE_GRAVITY))
+            return;
+
+        SetDisableGravity(false, false, false);
+    }
 }
 
 CreatureMovementData const& Creature::GetMovementTemplate() const

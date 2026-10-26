@@ -120,6 +120,7 @@ struct TC_GAME_API AuraCreateInfo
     AuraCreateInfo& SetStackAmount(int32 stackAmount) { StackAmount = stackAmount > 0 ? stackAmount : 1; return *this; }
     AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
     AuraCreateInfo& SetSpellVisual(SpellCastVisual const& spellVisual) { _spellVisual = spellVisual; return *this; }
+    AuraCreateInfo& SetDst(WorldLocation const* dst) { Dst = dst; return *this; }
 
     SpellInfo const* GetSpellInfo() const { return _spellInfo; }
     uint32 GetAuraEffectMask() const { return _auraEffectMask; }
@@ -133,6 +134,7 @@ struct TC_GAME_API AuraCreateInfo
     bool* IsRefresh = nullptr;
     int32 StackAmount = 1;
     bool ResetPeriodicTimer = true;
+    WorldLocation const* Dst = nullptr;
 
 private:
     ObjectGuid _castId;
@@ -240,6 +242,8 @@ class TC_GAME_API Aura
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
         uint32 CalcMaxStackAmount() const;
         bool IsUsingStacks() const;
+
+        WorldLocation const& GetDst() const { return m_dst; }
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
@@ -409,6 +413,8 @@ class TC_GAME_API Aura
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
+
+        WorldLocation m_dst;
 
         AuraEffectVector m_effects;
         ApplicationMap m_applications;

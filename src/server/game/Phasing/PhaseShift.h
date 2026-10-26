@@ -41,7 +41,7 @@ enum class PhaseShiftFlags : uint32
     NoCosmetic      = 0x10  // This flag ignores shared cosmetic phases (two players that both have shared cosmetic phase but no other phase cannot see each other)
 };
 
-enum class PhaseFlags : uint16
+enum class PhaseFlags : uint8
 {
     None        = 0x0,
     Cosmetic    = 0x1,

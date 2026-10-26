@@ -432,19 +432,9 @@ class spell_amalgam_of_souls_soul_burst : public SpellScript
 
 // 195254 - Swirling Scythe
 // ID - 5167
-/* THIS AREATRIGGER SHOULD ROTATE, BUT IT DOESNT, BECAUSE ROLLPITCHYAW IS NYI */
 struct at_amalgam_of_souls_swirling_scythe : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
-
-    void OnInitialize() override
-    {
-        Position destPos = at->GetPosition();
-        PathGenerator path(at);
-        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
-
-        at->InitSplines(path.GetPath());
-    }
 
     void OnUnitEnter(Unit* unit) override
     {

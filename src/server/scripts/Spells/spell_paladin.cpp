@@ -75,6 +75,7 @@ enum PaladinSpells
     SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
     SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
     SPELL_PALADIN_EXECUTIONERS_WILL              = 406940,
+    SPELL_PALADIN_EXPURGATION                    = 383346,
     SPELL_PALADIN_EYE_FOR_AN_EYE_TRIGGERED       = 205202,
     SPELL_PALADIN_FINAL_STAND                    = 204077,
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
@@ -93,6 +94,8 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY         = 114871,
     SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY        = 114852,
     SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL  = 114862,
+    SPELL_PALADIN_HOLY_RITUAL_HEAL               = 199423,
+    SPELL_PALADIN_HOLY_RITUAL_TALENT             = 199422,
     SPELL_PALADIN_HOLY_SHOCK                     = 20473,
     SPELL_PALADIN_HOLY_SHOCK_DAMAGE              = 25912,
     SPELL_PALADIN_HOLY_SHOCK_HEALING             = 25914,
@@ -101,6 +104,8 @@ enum PaladinSpells
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988, // Serverside
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
+    SPELL_PALADIN_JUDGMENT_OF_JUSTICE_TALENT     = 403495,
+    SPELL_PALADIN_JUDGMENT_OF_JUSTICE            = 408383,
     SPELL_PALADIN_JUDGMENT_RANK_3                = 315867,
     SPELL_PALADIN_LIGHT_HAMMER_COSMETIC          = 122257,
     SPELL_PALADIN_LIGHT_HAMMER_DAMAGE            = 114919,
@@ -798,6 +803,25 @@ class spell_pal_execution_sentence_aura : public AuraScript
     }
 };
 
+// 383344 - Expurgation
+class spell_pal_expurgation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_EXPURGATION });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_EXPURGATION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_expurgation::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 205191 - Eye for an Eye
 class spell_pal_eye_for_an_eye : public AuraScript
 {
@@ -1067,6 +1091,40 @@ class spell_pal_judgment : public SpellScript
     }
 };
 
+// 403495 - Judgment of Justice (attached to 20271 - Judgment)
+class spell_pal_judgment_of_justice : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_JUDGMENT_OF_JUSTICE_TALENT, SPELL_PALADIN_JUDGMENT_OF_JUSTICE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_APPLY_AURA);
+    }
+
+    void PreventSpeed(WorldObject*& target) const
+    {
+        if (!GetCaster()->HasAura(SPELL_PALADIN_JUDGMENT_OF_JUSTICE_TALENT))
+            target = nullptr;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->HasAura(SPELL_PALADIN_JUDGMENT_OF_JUSTICE_TALENT))
+            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_OF_JUSTICE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pal_judgment_of_justice::PreventSpeed, EFFECT_1, TARGET_UNIT_CASTER);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_judgment_of_justice::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 215661 - Justicar's Vengeance
 class spell_pal_justicars_vengeance : public SpellScript
 {
@@ -1170,6 +1228,33 @@ class spell_pal_holy_prism_selector : public SpellScript
 private:
     std::list<WorldObject*> _sharedTargets;
     ObjectGuid _targetGUID;
+};
+
+// 199422 - Holy Ritual (attached to 6940 - Blessing of Sacrifice and 1022 - Blessing of Protection)
+class spell_pal_holy_ritual : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_RITUAL_TALENT,SPELL_PALADIN_HOLY_RITUAL_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PALADIN_HOLY_RITUAL_TALENT);
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_RITUAL_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_ritual::HandleHeal, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
 // 20473 - Holy Shock
@@ -1856,6 +1941,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_storm);
     RegisterSpellAndAuraScriptPair(spell_pal_eternal_flame, spell_pal_eternal_flame_aura);
     RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
+    RegisterSpellScript(spell_pal_expurgation);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_final_verdict);
     RegisterSpellScript(spell_pal_fist_of_justice);
@@ -1866,9 +1952,11 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_infusion_of_light);
     RegisterSpellScript(spell_pal_moment_of_glory);
     RegisterSpellScript(spell_pal_judgment);
+    RegisterSpellScript(spell_pal_judgment_of_justice);
     RegisterSpellScript(spell_pal_justicars_vengeance);
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
+    RegisterSpellScript(spell_pal_holy_ritual);
     RegisterSpellScript(spell_pal_holy_shock);
     RegisterSpellScript(spell_pal_holy_shock_damage_visual);
     RegisterSpellScript(spell_pal_holy_shock_heal_visual);

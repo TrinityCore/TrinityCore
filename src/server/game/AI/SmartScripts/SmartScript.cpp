@@ -1317,7 +1317,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 Position pos = target->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
-                QuaternionData rot = QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+                QuaternionData rot = QuaternionData::fromOrientation(pos.GetOrientation());
                 GameObject* summon = summoner->SummonGameObject(e.action.summonGO.entry, pos, rot, Seconds(e.action.summonGO.despawnTime), GOSummonType(e.action.summonGO.summonType));
                 if (e.action.summonGO.storedTargetId && summon)
                     AddToStoredTargetList({ summon }, e.action.summonGO.storedTargetId);
@@ -1326,7 +1326,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            QuaternionData rot = QuaternionData::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
+            QuaternionData rot = QuaternionData::fromOrientation(e.target.o);
             GameObject* summon = summoner->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, Seconds(e.action.summonGO.despawnTime), GOSummonType(e.action.summonGO.summonType));
             if (e.action.summonGO.storedTargetId && summon)
                 AddToStoredTargetList({ summon }, e.action.summonGO.storedTargetId);

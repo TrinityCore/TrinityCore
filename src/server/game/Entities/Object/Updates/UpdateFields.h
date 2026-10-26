@@ -673,7 +673,7 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<326>
     static void AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     static void FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     void ClearChangesMask();
-    bool IsQuestLogChangesMaskSkipped() const { return false; } // bandwidth savings aren't worth the cpu time
+    bool IsPartyMemberChangesMaskSkipped() const { return false; }
 };
 
 struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<2101>
@@ -1594,7 +1594,7 @@ struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<33>
     void ClearChangesMask();
 };
 
-struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+struct OverrideCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 {
     UpdateField<bool, 0, 1> OverrideActive;
     UpdateField<uint32, 0, 2> StartTimeOffset;
@@ -1612,7 +1612,7 @@ struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
     UpdateField<bool, 0, 1> IsDecay;
     OptionalUpdateField<int16, 0, 2> AnimationDataID;
     UpdateField<uint32, 0, 3> AnimKitID;
-    UpdateField<uint32, 0, 4> AnimProgress;
+    UpdateField<uint32, 0, 4> ServerTime;
 
     using OwnerObject = AreaTrigger;
     void WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const;
@@ -1646,7 +1646,7 @@ struct AreaTriggerActionSetPeriodModifier : public IsUpdateFieldStructureTag, pu
 
 struct AreaTriggerSplineCalculator : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
-    UpdateField<bool, 0, 1> Catmullrom;
+    UpdateField<bool, 0, 1> Linear;
     DynamicUpdateField<TaggedPosition<Position::XYZ>, 0, 2> Points;
 
     using OwnerObject = AreaTrigger;
@@ -1749,10 +1749,12 @@ struct AreaTriggerDisk : public IsUpdateFieldStructureTag, public HasChangesMask
     void ClearChangesMask();
 };
 
-struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    UpdateField<TaggedPosition<Position::XY>, 0, 1> Extents;
-    UpdateField<TaggedPosition<Position::XY>, 0, 2> ExtentsTarget;
+    UpdateField<float, 0, 1> ExtentsY;
+    UpdateField<float, 0, 2> ExtentsZ;
+    UpdateField<float, 0, 3> ExtentsTargetY;
+    UpdateField<float, 0, 4> ExtentsTargetZ;
 
     using OwnerObject = AreaTrigger;
     void WriteCreate(ByteBuffer& data, Player const* receiver, AreaTrigger const* owner) const;
@@ -1762,19 +1764,19 @@ struct AreaTriggerBoundedPlane : public IsUpdateFieldStructureTag, public HasCha
 
 struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask<39>
 {
-    UpdateField<UF::ScaleCurve, 0, 1> OverrideScaleCurve;
-    UpdateField<UF::ScaleCurve, 0, 2> ExtraScaleCurve;
-    UpdateField<UF::ScaleCurve, 0, 3> OverrideMoveCurveX;
-    UpdateField<UF::ScaleCurve, 0, 4> OverrideMoveCurveY;
-    UpdateField<UF::ScaleCurve, 0, 5> OverrideMoveCurveZ;
-    UpdateField<UF::ScaleCurve, 0, 6> Unk1205Curve;
+    UpdateField<UF::OverrideCurve, 0, 1> OverrideScaleCurve;
+    UpdateField<UF::OverrideCurve, 0, 2> ExtraScaleCurve;
+    UpdateField<UF::OverrideCurve, 0, 3> OverrideMoveCurveX;
+    UpdateField<UF::OverrideCurve, 0, 4> OverrideMoveCurveY;
+    UpdateField<UF::OverrideCurve, 0, 5> OverrideMoveCurveZ;
+    UpdateField<UF::OverrideCurve, 0, 6> OverrideShapeCurve;
     UpdateField<ObjectGuid, 0, 7> Caster;
     UpdateField<uint32, 0, 8> Duration;
     UpdateField<uint32, 0, 9> TimeToTarget;
     UpdateField<uint32, 0, 10> TimeToTargetScale;
     UpdateField<uint32, 0, 11> TimeToTargetExtraScale;
     UpdateField<uint32, 0, 12> TimeToTargetPos;                                 // Linked to m_overrideMoveCurve
-    UpdateField<uint32, 0, 13> TimeToTargetUnk1205Curve;                        // Linked to m_unk1205Curve
+    UpdateField<uint32, 0, 13> TimeToTargetShape;                               // Linked to m_overrideShapeCurve
     UpdateField<int32, 0, 14> SpellID;
     UpdateField<int32, 0, 15> SpellForVisuals;
     UpdateField<UF::SpellCastVisual, 0, 16> SpellVisual;
@@ -2274,6 +2276,7 @@ struct PlayerInitiativeComponentData : public IsUpdateFieldStructureTag, public 
     static void AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     static void FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags);
     void ClearChangesMask();
+    bool IsOwnerChangesMaskSkipped() const { return false; }
 };
 
 }

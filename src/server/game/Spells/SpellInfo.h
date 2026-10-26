@@ -47,7 +47,7 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CONE,
     TARGET_SELECT_CATEGORY_AREA,
     TARGET_SELECT_CATEGORY_TRAJ,
-    TARGET_SELECT_CATEGORY_LINE
+    TARGET_SELECT_CATEGORY_RECT
 };
 
 enum SpellTargetReferenceTypes
@@ -512,6 +512,7 @@ class TC_GAME_API SpellInfo
         bool IsChanneled() const;
         bool IsMoveAllowedChannel() const;
         bool IsNextMeleeSwingSpell() const;
+        bool IsAutoShot() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
         bool IsEmpowerSpell() const;

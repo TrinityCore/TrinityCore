@@ -104,6 +104,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << BitsSize<6>(auraData.Points);
     data << BitsSize<6>(auraData.EstimatedPoints);
     data << OptionalInit(auraData.ContentTuning);
+    data.FlushBits();
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
@@ -856,7 +857,7 @@ WorldPacket const* SpellVisualLoadScreen::Write()
     _worldPacket << int32(SpellVisualKitID);
     _worldPacket << Duration;
     _worldPacket << int32(Delay);
-    _worldPacket << Bits<1>(Unknown_1210);
+    _worldPacket << Bits<1>(IsTransfer);
 
     return &_worldPacket;
 }
@@ -869,8 +870,8 @@ void CancelCast::Read()
 
 void OpenItem::Read()
 {
-    _worldPacket >> Slot
-                 >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellChannelStartInterruptImmunities const& interruptImmunities)
@@ -1037,7 +1038,7 @@ WorldPacket const* MirrorImageComponentedData::Write()
     _worldPacket << GuildGUID;
     _worldPacket << Size<uint32>(ItemDisplayID);
     _worldPacket << int32(SpellVisualKitID);
-    _worldPacket << int32(Unused_1115);
+    _worldPacket << float(DisplayScale);
 
     for (Character::ChrCustomizationChoice const& customization : Customizations)
         _worldPacket << customization;

@@ -323,9 +323,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
 
     uint32 mapId = bgTemplate->MapIDs.front();
 
-    // BGTemplateId returns BATTLEGROUND_AA when it is arena queue.
-    // Do instance id search as there is no AA bg instances.
-    Battleground* bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId == BATTLEGROUND_AA ? BATTLEGROUND_TYPE_NONE : bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId);
     if (!bg && battlefieldPort.AcceptedInvite)
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT {} Slot: {}, Unk: {}, Time: {}, AcceptedInvite: {}. Cant find BG with id {}!",
@@ -412,18 +410,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPackets::Battleground::Battl
     }
     else // leave queue
     {
-        // if player leaves rated arena match before match start, it is counted as he played but he lost
-        if (bgQueue.GetQueueId().Rated && ginfo.IsInvitedToBGInstanceGUID)
-        {
-            ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ginfo.Team);
-            if (at)
-            {
-                TC_LOG_DEBUG("bg.battleground", "UPDATING memberLost's personal arena rating for {} by opponents rating: {}, because he has left queue!", _player->GetGUID().ToString(), ginfo.OpponentsTeamRating);
-                at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
-                at->SaveToDB();
-            }
-        }
-
         WorldPackets::Battleground::BattlefieldStatusNone battlefieldStatus;
         battlefieldStatus.Ticket = battlefieldPort.Ticket;
         SendPacket(battlefieldStatus.Write());
@@ -484,7 +470,7 @@ void WorldSession::HandleRequestBattlefieldStatusOpcode(WorldPackets::Battlegrou
             continue;
         if (ginfo.IsInvitedToBGInstanceGUID)
         {
-            bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+            bg = sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId);
             if (!bg)
                 continue;
 

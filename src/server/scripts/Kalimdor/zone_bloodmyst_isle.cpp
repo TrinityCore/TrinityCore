@@ -246,9 +246,8 @@ public:
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
-                    if (!BeamList.empty())
-                        for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                            (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
+                    for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
+                        (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
@@ -256,11 +255,8 @@ public:
                     me->InterruptNonMeleeSpells(true, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
-                    if (!creatureList.empty())
-                    {
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                            (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
-                    }
+                    for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 default:
@@ -300,6 +296,7 @@ public:
         {
             _phase = PHASE_NONE;
             _moveTimer = 0;
+            _eventStarterGuid.Clear();
         }
 
         void OnQuestAccept(Player* player, Quest const* quest) override
@@ -334,8 +331,9 @@ public:
 
         void Reset() override
         {
-            me->SetCanDualWield(true);
             Initialize();
+            me->SetCanDualWield(true);
+
             _events.Reset();
             _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
             _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
@@ -438,7 +436,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromOrientation(ExplosivesPos[0][i].GetOrientation()), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -535,7 +533,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromOrientation(ExplosivesPos[1][i].GetOrientation()), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             if (Player* player = GetPlayerForEscort())

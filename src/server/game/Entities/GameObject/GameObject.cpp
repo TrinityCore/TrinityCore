@@ -121,12 +121,18 @@ bool QuaternionData::isUnit() const
 
 void QuaternionData::toEulerAnglesZYX(float& Z, float& Y, float& X) const
 {
-    G3D::Matrix3(G3D::Quat(x, y, z, w)).toEulerAnglesZYX(Z, Y, X);
+    G3D::Quat(x, y, z, w).toYPRAngles(Z, Y, X);
 }
 
 QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
 {
-    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(Z, Y, X));
+    G3D::Quat quat = G3D::Quat::fromYPRAngles(Z, Y, X);
+    return QuaternionData(quat.x, quat.y, quat.z, quat.w);
+}
+
+QuaternionData QuaternionData::fromOrientation(float orientation)
+{
+    G3D::Quat quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), orientation);
     return QuaternionData(quat.x, quat.y, quat.z, quat.w);
 }
 
@@ -976,7 +982,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit, bool dynamic, ObjectGuid::LowType spawnid)
+bool GameObject::Create(uint32 entry, Map* map, InitialPhaseShift const& phaseShift, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit, bool dynamic, ObjectGuid::LowType spawnid)
 {
     ASSERT(map);
     SetMap(map);
@@ -993,6 +999,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     if (!dynamic)
         SetRespawnCompatibilityMode();
 
+    PhasingHandler::InitPhaseShift(this, phaseShift);
     UpdatePositionData();
 
     SetZoneScript();
@@ -1232,7 +1239,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     if (uint32 linkedEntry = GetGOInfo()->GetLinkedGameObjectEntry())
     {
-        if (GameObject* linkedGo = GameObject::CreateGameObject(linkedEntry, map, pos, rotation, 255, GO_STATE_READY))
+        if (GameObject* linkedGo = GameObject::CreateGameObject(linkedEntry, map, pos, rotation, phaseShift, 255, GO_STATE_READY))
         {
             SetLinkedTrap(linkedGo);
             if (!map->AddToMap(linkedGo))
@@ -1255,14 +1262,14 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     return true;
 }
 
-GameObject* GameObject::CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit /*= 0*/)
+GameObject* GameObject::CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, InitialPhaseShift const& phaseShift, uint32 animProgress, GOState goState, uint32 artKit /*= 0*/)
 {
     GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goInfo)
         return nullptr;
 
     GameObject* go = new GameObject();
-    if (!go->Create(entry, map, pos, rotation, animProgress, goState, artKit, false, 0))
+    if (!go->Create(entry, map, phaseShift, pos, rotation, animProgress, goState, artKit, false, 0))
     {
         delete go;
         return nullptr;
@@ -2016,11 +2023,8 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     m_spawnId = spawnId;
     m_respawnCompatibilityMode = ((data->spawnGroupData->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) != 0);
-    if (!Create(entry, map, data->spawnPoint, data->rotation, animprogress, go_state, artKit, !m_respawnCompatibilityMode, spawnId))
+    if (!Create(entry, map, InitialPhaseShift(data), data->spawnPoint, data->rotation, animprogress, go_state, artKit, !m_respawnCompatibilityMode, spawnId))
         return false;
-
-    PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
-    PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
 
     // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this gameobject
     if (data && data->spawnTrackingQuestObjectives.size() == 1)
@@ -3730,7 +3734,7 @@ void GameObject::SetParentRotation(QuaternionData const& rotation)
 
 void GameObject::SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+    QuaternionData quat = QuaternionData::fromEulerAnglesZYX(z_rot, y_rot, x_rot);
     SetLocalRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
@@ -3746,7 +3750,7 @@ QuaternionData GameObject::GetWorldRotation() const
 
         G3D::Quat resultRotation = localRotationQuat * worldRotationQuat;
 
-        return QuaternionData(resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w);
+        localRotation = { resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w };
     }
     return localRotation;
 }

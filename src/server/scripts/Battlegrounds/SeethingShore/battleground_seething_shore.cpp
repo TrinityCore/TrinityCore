@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -797,7 +798,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
         if (!groundDummy)
             return;
 
-        QuaternionData const rot = QuaternionData::fromEulerAnglesZYX(groundDummy->GetOrientation(), 0.f, 0.f);
+        QuaternionData const rot = QuaternionData::fromOrientation(groundDummy->GetOrientation());
         uint8 const action = urand(0, 3);
         switch (action)
         {
@@ -805,7 +806,7 @@ struct npc_bg_seething_shore_air_supplies_drop : ScriptedAI
             case 1:
             case 2:
                 // pretty sure some serverside spell is used, and we could drop this whole switch
-                if (GameObject* buff = GameObject::CreateGameObject(SeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, 255, GO_STATE_READY))
+                if (GameObject* buff = GameObject::CreateGameObject(SeethingShore::GameObjects::Buffs[action], groundDummy->GetMap(), groundDummy->GetPosition(), rot, InitialPhaseShift(), 255, GO_STATE_READY))
                 {
                     buff->SetSpawnedByDefault(false);
                     buff->SetRespawnTime(300); // this is equal to the haste rune buff area trigger

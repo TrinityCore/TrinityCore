@@ -155,17 +155,16 @@ typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmune
 
 enum UnitModifierFlatType
 {
-    BASE_VALUE = 0,
-    BASE_PCT_EXCLUDE_CREATE = 1,    // percent modifier affecting all stat values from auras and gear but not player base for level
-    TOTAL_VALUE = 2,
-    MODIFIER_TYPE_FLAT_END = 3
+    BASE_VALUE = 0,                // flat value containing only fixed create stats, e.g. player_classlevelstats
+    TOTAL_VALUE = 1,               // flat value containing flat modfiers from gear and auras
+    MODIFIER_TYPE_FLAT_END
 };
 
 enum UnitModifierPctType
 {
-    BASE_PCT = 0,
-    TOTAL_PCT = 1,
-    MODIFIER_TYPE_PCT_END = 2
+    BASE_PCT = 0,                  // percent modifier affecting only BASE_VALUE
+    TOTAL_PCT = 1,                 // percent modifier affecting BASE_VALUE and TOTAL_VALUE
+    MODIFIER_TYPE_PCT_END
 };
 
 enum WeaponDamageRange
@@ -847,8 +846,11 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateAttackTimeField(WeaponAttackType att);
         void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
+        void ApplySpellHastePercentMod(float val, bool apply);
+        void ApplyHasteRegenPercentMod(float val, bool apply);
 
         void SetModCastingSpeed(float castingSpeed) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeed), castingSpeed); }
+        void SetModCastingSpeedNeg(float castingSpeedNeg) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModCastingSpeedNeg), castingSpeedNeg); }
         void SetModSpellHaste(float spellHaste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModSpellHaste), spellHaste); }
         void SetModHaste(float haste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModHaste), haste); }
         void SetModRangedHaste(float rangedHaste) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ModRangedHaste), rangedHaste); }
@@ -1163,7 +1165,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool updateAnimTier = true);
+        bool SetDisableGravity(bool disable, bool updateAnimTier = true, bool updatePlayHoverAnim = true);
         bool SetFall(bool enable);
         bool SetSwim(bool enable);
         bool SetCanFly(bool enable);
@@ -1192,6 +1194,8 @@ class TC_GAME_API Unit : public WorldObject
 
         void ApplyInertia(int32 id, Milliseconds duration);
         void RemoveInertia(int32 id);
+
+        void SetGravityModifier(float gravityModifier);
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = true, uint32 movementId = EVENT_FACE);
@@ -1426,7 +1430,7 @@ class TC_GAME_API Unit : public WorldObject
         void InitStatBuffMods();
         void UpdateStatBuffMod(Stats stat);
         void UpdateStatBuffModForClient(Stats stat);
-        void SetCreateStat(Stats stat, float val) { m_createStats[stat] = val; }
+        void SetCreateStat(Stats stat, float val);
         void SetCreateHealth(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseHealth), val); }
         uint32 GetCreateHealth() const { return m_unitData->BaseHealth; }
         void SetCreateMana(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseMana), val); }
@@ -1434,7 +1438,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual int32 GetCreatePowerValue(Powers power) const;
         float GetPosStat(Stats stat) const { return m_unitData->StatPosBuff[stat]; }
         float GetNegStat(Stats stat) const { return m_unitData->StatNegBuff[stat]; }
-        float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
+        float GetCreateStat(Stats stat) const;
 
         uint32 GetChannelSpellId() const { return m_unitData->ChannelData->SpellID; }
         void SetChannelSpellId(uint32 channelSpellId)
@@ -1659,6 +1663,7 @@ class TC_GAME_API Unit : public WorldObject
         void _UnregisterAreaTrigger(AreaTrigger* areaTrigger);
         AreaTrigger* GetAreaTrigger(uint32 spellId) const;
         std::vector<AreaTrigger*> GetAreaTriggers(uint32 spellId) const;
+        std::vector<AreaTrigger*> GetAreaTriggers(std::function<bool(AreaTrigger const*)> const& predicate) const;
 
         enum class AreaTriggerRemoveReason : uint8
         {
@@ -1907,7 +1912,6 @@ class TC_GAME_API Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        std::array<float, MAX_STATS> m_createStats;
         std::array<float, MAX_STATS> m_floatStatPosBuff;
         std::array<float, MAX_STATS> m_floatStatNegBuff;
 
@@ -1923,6 +1927,7 @@ class TC_GAME_API Unit : public WorldObject
         DynObjectList m_dynObj;
 
         typedef std::list<GameObject*> GameObjectList;
+        void RemoveGameObjectImpl(GameObject* gameObj, bool del);
         GameObjectList m_gameObj;
 
         typedef std::vector<AreaTrigger*> AreaTriggerList;

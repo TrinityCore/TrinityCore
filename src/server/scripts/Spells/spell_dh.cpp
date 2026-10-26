@@ -66,6 +66,7 @@ enum DemonHunterSpells
     SPELL_DH_COLLECTIVE_ANGUISH_EYE_BEAM_DAMAGE    = 391058,
     SPELL_DH_COLLECTIVE_ANGUISH_FEL_DEVASTATION    = 393831,
     SPELL_DH_CONSUME_ENERGIZE                      = 1261710,
+    SPELL_DH_CONSUME_MAGIC                         = 1277738,
     SPELL_DH_CONSUME_SOUL_DEVOURER                 = 1223423,
     SPELL_DH_CONSUME_SOUL_HAVOC_DEMON              = 228556,
     SPELL_DH_CONSUME_SOUL_HAVOC_LESSER             = 228542,
@@ -82,7 +83,6 @@ enum DemonHunterSpells
     SPELL_DH_DARKNESS_ABSORB                       = 209426,
     SPELL_DH_DEFLECTING_SPIKES                     = 321028,
     SPELL_DH_DEMON_BLADES_DMG                      = 203796,
-    SPELL_DH_DEMON_MUZZLE_PROC                     = 394933,
     SPELL_DH_DEMON_SPIKES                          = 203819,
     SPELL_DH_DEMON_SPIKES_TRIGGER                  = 203720,
     SPELL_DH_DEMONIC                               = 213410,
@@ -243,6 +243,7 @@ enum DemonHunterSpells
     SPELL_DH_SPIRIT_BOMB_VISUAL                    = 218678,
     SPELL_DH_STUDENT_OF_SUFFERING_TALENT           = 452412,
     SPELL_DH_STUDENT_OF_SUFFERING_AURA             = 453239,
+    SPELL_DH_SWALLOWED_ANGER                       = 320313,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
     SPELL_DH_THROW_GLAIVE                          = 185123,
@@ -907,28 +908,6 @@ class spell_dh_deflecting_spikes : public SpellScript
     void Register() override
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_deflecting_spikes::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
-    }
-};
-
-// 388111 - Demon Muzzle
-class spell_dh_demon_muzzle : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_DEMON_MUZZLE_PROC });
-    }
-
-    static void HandleProc(AuraScript const&, AuraEffect const*, ProcEventInfo const& procEvent)
-    {
-        procEvent.GetActor()->CastSpell(procEvent.GetActionTarget(), SPELL_DH_DEMON_MUZZLE_PROC, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = procEvent.GetProcSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dh_demon_muzzle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2475,6 +2454,30 @@ class spell_dh_soul_sigils : public AuraScript
     }
 };
 
+// 320313 - Swallowed Anger (attached to 278326 - Consume Magic)
+class spell_dh_swallowed_anger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CONSUME_MAGIC, SPELL_DH_SWALLOWED_ANGER });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_SWALLOWED_ANGER);
+    }
+
+    void OnSuccessfulDispel(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_CONSUME_MAGIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectSuccessfulDispel += SpellEffectFn(spell_dh_swallowed_anger::OnSuccessfulDispel, EFFECT_ALL, SPELL_EFFECT_DISPEL);
+    }
+};
+
 // 202138 - Sigil of Chains
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
@@ -2812,7 +2815,6 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
-    RegisterSpellScript(spell_dh_demon_muzzle);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demonic_appetite);
@@ -2873,6 +2875,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
     RegisterSpellScript(spell_dh_soul_sigils);
     RegisterSpellScript(spell_dh_student_of_suffering);
+    RegisterSpellScript(spell_dh_swallowed_anger);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);

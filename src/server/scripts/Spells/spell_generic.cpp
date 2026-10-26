@@ -2146,7 +2146,6 @@ class spell_gen_increase_stats_buff : public SpellScript
 
 enum GenericLifebloom
 {
-    SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL        = 43422,
     SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
     SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
     SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
@@ -5162,6 +5161,7 @@ enum BloodlustExhaustionSpell : uint32
 // 256740 - Drums of the Maelstrom
 // 309658 - Drums of Deathly Ferocity
 // 381301 - Feral Hide Drums
+// 466904 - Harrier's Cry
 class spell_gen_bloodlust : public SpellScript
 {
 public:
@@ -5797,7 +5797,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_increase_stats_buff, "spell_pri_power_word_fortitude");
     RegisterSpellScriptWithArgs(spell_gen_increase_stats_buff, "spell_pri_shadow_protection");
     RegisterSpellScript(spell_gen_interrupt);
-    RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);
@@ -5902,6 +5901,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_sha_heroism", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_mage_time_warp", SPELL_MAGE_TEMPORAL_DISPLACEMENT);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
+    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_harriers_cry", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScript(spell_gen_spirit_heal_aoe);

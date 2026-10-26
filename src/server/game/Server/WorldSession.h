@@ -560,6 +560,7 @@ namespace WorldPackets
         class MoveRemoveMovementForceAck;
         class MoveApplyInertiaAck;
         class MoveRemoveInertiaAck;
+        class MoveForceGravityModifierChangeAck;
         class MoveInitActiveMoverComplete;
     }
 
@@ -1240,8 +1241,8 @@ class TC_GAME_API WorldSession
         void LogUnprocessedTail(WorldPacket const* packet);
 
         void HandleCharEnum(CharacterDatabaseQueryHolder const& holder);
-        void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
-        void HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
+        void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& enumCharacters);
+        void HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& enumCharacters);
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
@@ -1314,6 +1315,8 @@ class TC_GAME_API WorldSession
         // Inertia
         void HandleMoveApplyInertiaAck(WorldPackets::Movement::MoveApplyInertiaAck& moveApplyInertiaAck);
         void HandleMoveRemoveInertiaAck(WorldPackets::Movement::MoveRemoveInertiaAck& moveRemoveInertiaAck);
+
+        void HandleMoveForceGravityModifierChangeAck(WorldPackets::Movement::MoveForceGravityModifierChangeAck& moveForceGravityModifierChangeAck);
 
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
@@ -1480,7 +1483,6 @@ class TC_GAME_API WorldSession
         void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& taxiRequestEarlyLanding);
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::TabardVendorActivate const& tabardVendorActivate);
-        void HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowList(WorldPackets::Petition::PetitionShowList& packet);
@@ -1528,6 +1530,7 @@ class TC_GAME_API WorldSession
         void HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::AuctionSetFavoriteItem& setFavoriteItem);
 
         // Bank
+        void HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate);
         void HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet);
         void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
         void HandleBuyBankTab(WorldPackets::Bank::BuyBankTab const& buyBankTab);

@@ -868,7 +868,7 @@ class spell_warr_frenzied_enrage : public SpellScript
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_FRENZIED_ENRAGE })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
-            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MELEE_SLOW)
+            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_MELEE_RANGED_CASTING_HASTE)
             && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_INCREASE_SPEED);
     }
 

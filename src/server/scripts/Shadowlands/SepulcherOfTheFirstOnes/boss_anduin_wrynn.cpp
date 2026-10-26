@@ -1210,7 +1210,7 @@ struct boss_anduin_wrynn : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         DoAction(ACTION_MOVE_NPCS_ON_PLATFORM);
 
-        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLootSpawnPosition, QuaternionData::fromEulerAnglesZYX(-225.0f, 0.0f, 0.0f), 7_days))
+        if (GameObject* chest = me->SummonGameObject(GAMEOBJECT_ANDUIN_CHEST_LOOT, ChestLootSpawnPosition, QuaternionData::fromOrientation(-225.0f), 7_days))
         {
             chest->SetGoState(GO_STATE_ACTIVE);
             chest->SetSpellVisualId(SPELL_VISUAL_CHEST_LOOT, ObjectGuid::Empty);

@@ -2697,7 +2697,7 @@ void ObjectMgr::LoadGameObjects()
         if (!data.rotation.isUnit())
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only", guid, data.id);
-            data.rotation = QuaternionData::fromEulerAnglesZYX(data.spawnPoint.GetOrientation(), 0.0f, 0.0f);
+            data.rotation = QuaternionData::fromOrientation(data.spawnPoint.GetOrientation());
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))
@@ -3683,6 +3683,49 @@ void ObjectMgr::LoadVehicleSeatAddon()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} Vehicle Seat Addon entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadSummonPropertiesAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT SummonPropertiesId, EffectValueType from summon_properties_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 summon properties addon entries. DB table `summon_properties_addon` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 summonPropertiesId = fields[0].GetUInt32();
+        SummonPropertiesEffectValueType parameter = static_cast<SummonPropertiesEffectValueType>(fields[1].GetUInt8());
+
+        // Ensure the parameter is within defined bounds
+        if (parameter == SummonPropertiesEffectValueType::None || parameter > SummonPropertiesEffectValueType::NumUnitsFailIfLess1)
+        {
+            TC_LOG_ERROR("sql.sql", "Invalid EffectValueType speficied for SummonPropertiesId: {} in `summon_properties_addon`, skipped.", summonPropertiesId);
+            continue;
+        }
+
+        // Ensure that the spell exists
+        SummonPropertiesEntry const* summonPropertiesEntry = sSummonPropertiesStore.LookupEntry(summonPropertiesId);
+        if (!summonPropertiesEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "SummonPropertiesId: {} in `summon_properties_addon` does not exist in DB2 files, skipped.", summonPropertiesId);
+            continue;
+        }
+
+        _summonPropertiesAddonStore[summonPropertiesId] = parameter;
+        ++count;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} SummonProperties addon records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPetLevelInfo()
@@ -6367,7 +6410,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->expire_time    = fields[5].GetInt64();
         m->deliver_time   = 0;
         m->COD            = fields[6].GetUInt64();
-        m->checked        = fields[7].GetUInt8();
+        m->checked        = fields[7].GetUInt32();
         m->mailTemplateId = fields[8].GetInt16();
 
         // Delete or return mail
@@ -6377,7 +6420,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             m->items.swap(itemsCache[m->messageID]);
 
             // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
-            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
+            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED | MAIL_CHECK_MASK_NOT_RETURNABLE)))
             {
                 CharacterDatabaseTransaction nonTransactional(nullptr);
                 // mail open and then not returned
@@ -7037,7 +7080,7 @@ AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
 {
-    return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, MAKE_PAIR64(mapid, difficulty));
+    return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, { mapid, difficulty });
 }
 
 bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
@@ -7197,9 +7240,7 @@ void ObjectMgr::LoadAccessRequirements()
             continue;
         }
 
-        uint64 requirement_ID = MAKE_PAIR64(mapid, difficulty);
-
-        AccessRequirement* ar = &_accessRequirementStore[requirement_ID];
+        AccessRequirement* ar = &_accessRequirementStore[{ mapid, difficulty }];
         ar->levelMin            = fields[2].GetUInt8();
         ar->levelMax            = fields[3].GetUInt8();
         ar->item                = fields[4].GetUInt32();
@@ -10524,6 +10565,18 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
     return Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
+}
+
+/// Returns the value type which determines how the effect value of a SPELL_EFFECT_SUMMON spell effect is interpreted by a SummonProperties record
+/// @param summonPropertiesId The SummonProperties db2 record Id of the database entry
+/// @return The effect value type for the given summon property record, None when no database entry has been set
+SummonPropertiesEffectValueType ObjectMgr::GetSummonPropertiesEffectValueType(uint32 summonPropertiesId) const
+{
+    auto itr = _summonPropertiesAddonStore.find(summonPropertiesId);
+    if (itr == _summonPropertiesAddonStore.end())
+        return SummonPropertiesEffectValueType::None;
+
+    return itr->second;
 }
 
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
