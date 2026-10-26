@@ -1227,7 +1227,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsBroadcastTextValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsRandomTextValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsCreatureValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsAnimTierValid(ActionSetEventHolder const& action);
+        static bool IsAnimTierValid(ActionSetEventHolder const& action, double value);
         static bool IsEmoteValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsSoundValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsQuestValid(ActionSetEventHolder const& action, uint32 entry);

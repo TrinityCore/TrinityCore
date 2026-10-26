@@ -531,9 +531,6 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
         return false;
     }
 
-    if (!IsAnimTierValid(action))
-        return false;
-
     return true;
 }
 
@@ -1121,6 +1118,68 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
+        case AI_GROUP_UNIT_SET_ANIMATION_TIER:
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SEND_TAP_LIST:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_UNIT_GET_TAP_LIST:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_UNIT_HOVER_HEIGHT:
+            if (action.Extra1 < 0 || action.Extra1 > 50)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Height {} (must be between 0 and 50), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra1);
+                return false;
+            }
+            break;
+        case AI_GROUP_TIER_TRANSITION_LAND:
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_TIER_TRANSITION_TAKE_OFF:
+            if (action.Extra1 < 1 || action.Extra1 > 100)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Vertical Distance {} (must be between 1 and 100), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra1);
+                return false;
+            }
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_TIER_TRANSITION_MOVETO:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsApproachDistValid(action, action.Extra1))
+                return false;
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_TIER_TRANSITION_FOLLOW_PATH:
+            if (!IsAnimTierValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
         case AI_GROUP_UNIT_INTERACT_SPELL:
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
@@ -1417,24 +1476,13 @@ bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action, uint32 entr
     return true;
 }
 
-bool AIGroupMgr::IsAnimTierValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsAnimTierValid(ActionSetEventHolder const& action, double value)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (value < 0 || value >= static_cast<double>(AnimTier::Max) || std::floor(value) != value)
     {
-        case AI_GROUP_TIER_TRANSITION_LAND:
-        case AI_GROUP_TIER_TRANSITION_TAKE_OFF:
-        case AI_GROUP_TIER_TRANSITION_MOVETO:
-        case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
-        case AI_GROUP_TIER_TRANSITION_FOLLOW_PATH:
-            if (action.Extra2 >= uint8(AnimTier::Max))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid anim tier {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Anim Tier {}, skipped.",
+            action.Id, action.Index, action.Type, value);
+        return false;
     }
 
     return true;
