@@ -936,9 +936,7 @@ enum class CreatureDisplayInfoIndex : uint8
     Index2             = 2,
     Index3             = 3,
     Index4             = 4,
-
-    Min             = Random,
-    Max             = Index4
+    Max
 };
 
 // Custom
@@ -1240,6 +1238,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsSpellScriptValid(ActionSetEventHolder const& action, double script);
         static bool IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier);
         static bool IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction);
+        static bool IsDisplayIndexValid(ActionSetEventHolder const& action, double index);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 
