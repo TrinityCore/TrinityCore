@@ -857,7 +857,7 @@ WorldPacket const* SpellVisualLoadScreen::Write()
     _worldPacket << int32(SpellVisualKitID);
     _worldPacket << Duration;
     _worldPacket << int32(Delay);
-    _worldPacket << Bits<1>(Unknown_1210);
+    _worldPacket << Bits<1>(IsTransfer);
 
     return &_worldPacket;
 }
@@ -870,8 +870,8 @@ void CancelCast::Read()
 
 void OpenItem::Read()
 {
-    _worldPacket >> Slot
-                 >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellChannelStartInterruptImmunities const& interruptImmunities)

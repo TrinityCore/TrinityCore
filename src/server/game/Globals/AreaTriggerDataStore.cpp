@@ -170,7 +170,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
         "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, "
-        "PositionalSoundKitId, TimeToTargetScale, Speed, SpeedIsTime, "
+        "MaxSummons, MaxUnits, PositionalSoundKitId, TimeToTargetScale, Speed, SpeedIsTime, "
         "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, "
         "Roll, Pitch, Yaw, TargetRoll, TargetPitch, TargetYaw, ScriptName FROM `areatrigger_create_properties`"))
     {
@@ -178,7 +178,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (Id)(IsCustom)(AreaTriggerId)(IsAreatriggerCustom)(Flags)
                 (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)
-                (PositionalSoundKitId)(TimeToTargetScale)(Speed)(SpeedIsTime)
+                (MaxSummons)(MaxUnits)(PositionalSoundKitId)(TimeToTargetScale)(Speed)(SpeedIsTime)
                 (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)
                 (Roll)(Pitch)(Yaw)(TargetRoll)(TargetPitch)(TargetYaw)(ScriptName)
             ) fields { *areatriggerCreateProperties };
@@ -238,6 +238,22 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                     TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid SpellForVisual {}, set to none.", createPropertiesId.Id, uint32(createPropertiesId.IsCustom), *createProperties.SpellForVisuals);
                     createProperties.SpellForVisuals.reset();
                 }
+            }
+
+            createProperties.MaxSummons            = fields.MaxSummons().GetInt32OrNull();
+            if (createProperties.MaxSummons && *createProperties.MaxSummons < 1)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid MaxSummons {} (must be NULL or greater than 0), set to none.",
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), *createProperties.MaxSummons);
+                createProperties.MaxSummons.reset();
+            }
+
+            createProperties.MaxUnits              = fields.MaxUnits().GetInt32OrNull();
+            if (createProperties.MaxUnits && *createProperties.MaxSummons < 1)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid MaxUnits {} (must be NULL or greater than 0), set to none.",
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), *createProperties.MaxUnits);
+                createProperties.MaxUnits.reset();
             }
 
             createProperties.PositionalSoundKitId  = fields.PositionalSoundKitId().GetInt32();

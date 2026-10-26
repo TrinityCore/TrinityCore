@@ -1115,42 +1115,45 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit const* excludeCasterChannel
         {
             if (victim != attacker && (!spellProto || !(spellProto->HasAttribute(SPELL_ATTR6_NO_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK) || spellProto->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))))
             {
-                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                for (uint32 i = CURRENT_GENERIC_SPELL; i <= CURRENT_CHANNELED_SPELL; ++i)
                 {
-                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    if (Spell* spell = victim->m_currentSpells[i])
                     {
-                        auto isCastInterrupted = [&]()
+                        if (spell->getState() == SPELL_STATE_PREPARING)
                         {
-                            if (!damageTaken)
-                                return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
+                            auto isCastInterrupted = [&]()
+                            {
+                                if (!damageTaken)
+                                    return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
+                                    return true;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
-                                return true;
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels))
+                                    return true;
 
-                            return false;
-                        };
-
-                        auto isCastDelayed = [&]()
-                        {
-                            if (!damageTaken)
                                 return false;
+                            };
 
-                            if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
-                                return true;
+                            auto isCastDelayed = [&]()
+                            {
+                                if (!damageTaken)
+                                    return false;
 
-                            if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
-                                return true;
+                                if (victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly))
+                                    return true;
 
-                            return false;
-                        };
+                                if (spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushback))
+                                    return true;
 
-                        if (isCastInterrupted())
-                            victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
-                        else if (isCastDelayed())
-                            spell->Delayed();
+                                return false;
+                            };
+
+                            if (isCastInterrupted())
+                                victim->InterruptSpell(CURRENT_GENERIC_SPELL, false, false);
+                            else if (isCastDelayed())
+                                spell->Delayed();
+                        }
                     }
                 }
 
@@ -3456,6 +3459,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
                 *oldItemLevel = createInfo.CastItemLevel;
             }
 
+            if (createInfo.Dst)
+                foundAura->m_dst.WorldRelocate(createInfo.Dst);
+
             // try to increase stack amount
             foundAura->ModStackAmount(createInfo.StackAmount, AURA_REMOVE_BY_DEFAULT, createInfo.ResetPeriodicTimer);
             return foundAura;
@@ -5498,6 +5504,13 @@ std::vector<AreaTrigger*> Unit::GetAreaTriggers(uint32 spellId) const
         if ((*i)->GetSpellId() == spellId)
             areaTriggers.push_back(*i);
 
+    return areaTriggers;
+}
+
+std::vector<AreaTrigger*> Unit::GetAreaTriggers(std::function<bool(AreaTrigger const*)> const& predicate) const
+{
+    std::vector<AreaTrigger*> areaTriggers;
+    std::ranges::copy_if(m_areaTrigger, std::back_inserter(areaTriggers), std::ref(predicate));
     return areaTriggers;
 }
 
@@ -8644,16 +8657,6 @@ int64 Unit::ModifyHealth(int64 dVal)
         gain = maxHealth - curHealth;
     }
 
-    if (dVal < 0)
-    {
-        WorldPackets::Combat::HealthUpdate packet;
-        packet.Guid = GetGUID();
-        packet.Health = GetHealth();
-
-        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
-            player->GetSession()->SendPacket(packet.Write());
-    }
-
     return gain;
 }
 
@@ -8930,9 +8933,21 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     }
 
     // Apply strongest slow aura mod to speed
-    float slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
-    if (slow)
-        AddPct(speed, slow);
+    switch (mtype)
+    {
+        case MOVE_WALK:
+        case MOVE_RUN:
+        case MOVE_RUN_BACK:
+        case MOVE_SWIM:
+        case MOVE_FLIGHT:
+        {
+            if (float slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED))
+                AddPct(speed, slow);
+            break;
+        }
+        default:
+            break;
+    }
 
     if (float minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {

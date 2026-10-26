@@ -152,7 +152,7 @@ namespace WorldPackets
 
         struct PartyMemberPhase
         {
-            uint32 Flags = 0u;
+            uint8 Flags = 0u;
             uint16 Id = 0u;
         };
 
@@ -532,7 +532,7 @@ namespace WorldPackets
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
-            uint8 RolesUnk_1210 = 0u;   // forces role displayed to be tank if this field contains tank role and RolesAssigned is dps
+            uint8 RolesDesired = 0u;
             uint8 FactionGroup = 0u;
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
