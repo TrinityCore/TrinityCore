@@ -534,15 +534,6 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     if (!IsAnimTierValid(action))
         return false;
 
-    if (!IsSoundValid(action))
-        return false;
-
-    if (!IsQuestValid(action))
-        return false;
-
-    if (!IsZoneValid(action))
-        return false;
-
     return true;
 }
 
@@ -932,6 +923,29 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
+        case AI_GROUP_UNIT_PLAY_MUSIC:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_SOUND:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_LOOT:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_FLOATING:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_PLAY_MUSIC:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_PLAY_SOUND:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
         case AI_GROUP_SPAWN_FORCED:
             if (std::isnan(action.Extra2) ||
                 action.Extra2 < static_cast<uint8>(CreatureDisplayInfoIndex::Min) ||
@@ -943,8 +957,160 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
                 return false;
             }
             break;
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_ZONE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_CHAT_EMOTE_ZONE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_IGNORE_COMBAT:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_RANDOM_ACTION_SET:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_RESTART_ACTIONS_WSE:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_ABORT_ACTION_SET_WSE:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_BOSS_EMOTE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra3 field
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
         case AI_GROUP_UNIT_CAST_FAILURE:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_NO_REPUTATION:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_SPLINE_PATH_LOOP:
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_VENDOR:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_TRIGGER_ACTIONS_UNITS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_SAY_ZONE:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SEND_LOCAL_EVENT_SELF:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_SESSILE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_RAID_LOCK:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER:
+            if (!IsQuestValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER:
+            if (!IsQuestValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_PARTY:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_TARGETED_MUSIC:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_WITH_POINTS:
@@ -1286,81 +1452,37 @@ bool AIGroupMgr::IsEmoteValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsSoundValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsSoundValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (!sSoundEntriesStore.LookupEntry(entry))
     {
-        case AI_GROUP_UNIT_PLAY_SOUND:
-        case AI_GROUP_OBJECT_PLAY_SOUND:
-        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
-        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
-        case AI_GROUP_UNIT_PLAY_TARGETED_SOUND:
-        case AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT:
-        case AI_GROUP_UNIT_PLAY_MUSIC:
-        case AI_GROUP_OBJECT_PLAY_MUSIC:
-        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
-        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
-        case AI_GROUP_UNIT_PLAY_TARGETED_MUSIC:
-            if (!sSoundEntriesStore.LookupEntry(uint32(action.Extra2)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent sound {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent sound {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;
 }
 
-bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (!sObjectMgr->GetQuestTemplate(entry))
     {
-        case AI_GROUP_QUEST_COMPLETE_TRIGGERING_PLAYER:
-        case AI_GROUP_QUEST_CLEARED_TRIGGERING_PLAYER:
-        case AI_GROUP_UNIT_START_QUEST:
-            if (!sObjectMgr->GetQuestTemplate(uint32(action.Extra2)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra2));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent quest {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;
 }
 
-bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action, uint32 entry)
 {
-    switch (AI_GROUP_ACTION(action.Type))
+    if (entry != 0 && !sAreaTableStore.LookupEntry(entry))
     {
-        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE:
-        case AI_GROUP_UNIT_CHAT_EMOTE_ZONE_RANDOM:
-        case AI_GROUP_UNIT_YELL_ZONE:
-        case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
-        case AI_GROUP_UNIT_PLAY_MUSIC_ZONE:
-        case AI_GROUP_UNIT_PLAY_SOUND_ZONE:
-        case AI_GROUP_OBJECT_PLAY_MUSIC_ZONE:
-        case AI_GROUP_OBJECT_PLAY_SOUND_ZONE:
-        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
-        case AI_GROUP_UNIT_SAY_ZONE:
-        case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
-        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE:
-            if (uint32(action.Extra4) != 0 && !sAreaTableStore.LookupEntry(uint32(action.Extra4)))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
-                    action.Id, action.Index, action.Type, uint32(action.Extra4));
-                return false;
-            }
-            break;
-        default:
-            break;
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent zone {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
     }
 
     return true;
