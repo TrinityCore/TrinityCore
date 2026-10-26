@@ -75,6 +75,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_BLAST_OVERLOAD       = 120588,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_ELEMENTAL_WEAPONS_BUFF         = 408390,
+    SPELL_SHAMAN_ENCASING_GOLD                  = 1258862,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_ENHANCED_ELEMENTS              = 77223,
     SPELL_SHAMAN_FERAL_LUNGE                    = 196884,
@@ -1139,6 +1140,25 @@ class spell_sha_elemental_weapons : public AuraScript
     {
         OnHeartbeat += AuraHeartbeatFn(spell_sha_elemental_weapons::CheckEnchantments);
         AfterEffectRemove += AuraEffectRemoveFn(spell_sha_elemental_weapons::RemoveAllBuffs, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 462762 - Encasing Cold
+class spell_sha_encasing_cold : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ENCASING_GOLD });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_SHAMAN_ENCASING_GOLD, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_sha_encasing_cold::HandleProc);
     }
 };
 
@@ -3499,6 +3519,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_elemental_weapons);
+    RegisterSpellScript(spell_sha_encasing_cold);
     RegisterSpellScript(spell_sha_feral_lunge);
     RegisterSpellScript(spell_sha_feral_lunge_damage);
     RegisterSpellScript(spell_sha_fire_nova);
