@@ -1106,7 +1106,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra3 field
             break;
         case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
-            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
                 return false;
             /// @todo Extra3 field
             break;
