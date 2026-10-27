@@ -166,7 +166,7 @@ void AIGroupScript::MovementInform(uint32 type, uint32 id)
         if (activeActionSet->CurrentAction >= activeActionSet->Actions.size() || !activeActionSet->ActionStarted)
             return;
 
-        ActionSetEventHolder const& action = activeActionSet->Actions[activeActionSet->CurrentAction];
+        ActionSetActionHolder const& action = activeActionSet->Actions[activeActionSet->CurrentAction];
         if (action.Type != AI_GROUP_FOLLOW_PATH)
             return;
 
@@ -229,7 +229,7 @@ void AIGroupScript::TerminateActionSets()
         SetCurrentRunningActionSet(0);
 }
 
-uint32 AIGroupScript::GetActionDuration(ActionSetEventHolder const& action) const
+uint32 AIGroupScript::GetActionDuration(ActionSetActionHolder const& action) const
 {
     if (action.TimeB > action.TimeA)
         return urand(action.TimeA, action.TimeB);
@@ -237,7 +237,7 @@ uint32 AIGroupScript::GetActionDuration(ActionSetEventHolder const& action) cons
     return action.TimeA;
 }
 
-float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action) const
+float AIGroupScript::GetStringIdSearchRadius(ActionSetActionHolder const& action) const
 {
     double searchRadius = 0;
 
@@ -300,7 +300,7 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetEventHolder const& action)
     return searchRadius == 0 ? 100.0f : float(searchRadius);
 }
 
-bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid)
+bool AIGroupScript::ExecuteAction(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid)
 {
     AIGroupMgr::ObjectTypeMask const objectTypeMask = AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type));
     if (!m_group || objectTypeMask == AIGroupMgr::ObjectTypeMaskAll)
@@ -330,7 +330,7 @@ bool AIGroupScript::ExecuteAction(ActionSetEventHolder const& action, ObjectGuid
     return actionFinished;
 }
 
-bool AIGroupScript::ExecuteActionForActor(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid)
+bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid)
 {
     AIGroupMgr::ActionSetTypeInfo const& typeInfo = AIGroupMgr::StaticActionSetTypeData[action.Type];
 
@@ -1203,7 +1203,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
 
     while (activeActionSet->CurrentAction < activeActionSet->Actions.size())
     {
-        ActionSetEventHolder action = activeActionSet->Actions[activeActionSet->CurrentAction];
+        ActionSetActionHolder action = activeActionSet->Actions[activeActionSet->CurrentAction];
 
         if (activeActionSet->ActionStarted)
         {
@@ -1411,7 +1411,7 @@ void AIGroupScript::GetWorldObjectsInDist(AIGroupObjectVector& objects, float di
     Cell::VisitAllObjects(object, searcher, distance);
 }
 
-void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetEventHolder const& action, WorldObject* invoker /*= nullptr*/) const
+void AIGroupScript::GetActionTargets(AIGroupObjectVector& targets, ActionSetActionHolder const& action, WorldObject* invoker /*= nullptr*/) const
 {
     WorldObject* scriptTrigger = nullptr;
     if (invoker)

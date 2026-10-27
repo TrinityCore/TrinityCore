@@ -135,70 +135,70 @@ void AIGroupMgr::LoadActionSetsFromDB()
 
     do
     {
-        ActionSetEventHolder eventHolder;
+        ActionSetActionHolder actionHolder;
 
         Field* fields = result->Fetch();
 
-        eventHolder.Id = fields[0].GetUInt32();
-        eventHolder.Index = fields[1].GetUInt16();
-        eventHolder.Type = fields[2].GetUInt16();
-        eventHolder.Unit = fields[3].GetUInt8();
-        eventHolder.Point = fields[4].GetUInt32();
-        eventHolder.Path = fields[5].GetUInt32();
-        eventHolder.TimeA = fields[6].GetUInt32();
-        eventHolder.MoveSpeed = fields[7].GetUInt8();
-        eventHolder.StringId = fields[8].GetString();
-        eventHolder.TimeB = fields[9].GetUInt32();
-        eventHolder.LinearPath = fields[10].GetBool();
-        eventHolder.CircularPath = fields[11].GetBool();
-        eventHolder.FlightPath = fields[12].GetBool();
-        eventHolder.Extra0 = fields[13].GetDouble();
-        eventHolder.Extra1 = fields[14].GetDouble();
-        eventHolder.Extra2 = fields[15].GetDouble();
-        eventHolder.Extra3 = fields[16].GetDouble();
-        eventHolder.Extra4 = fields[17].GetDouble();
-        eventHolder.Flags = fields[18].GetUInt32();
-        eventHolder.TargetType = fields[19].GetUInt8();
-        eventHolder.TargetParam1 = fields[20].GetUInt32();
-        eventHolder.TargetParam2 = fields[21].GetUInt32();
-        eventHolder.TargetParam3 = fields[22].GetUInt32();
-        eventHolder.TargetParam4 = fields[23].GetUInt32();
+        actionHolder.Id = fields[0].GetUInt32();
+        actionHolder.Index = fields[1].GetUInt16();
+        actionHolder.Type = fields[2].GetUInt16();
+        actionHolder.Unit = fields[3].GetUInt8();
+        actionHolder.Point = fields[4].GetUInt32();
+        actionHolder.Path = fields[5].GetUInt32();
+        actionHolder.TimeA = fields[6].GetUInt32();
+        actionHolder.MoveSpeed = fields[7].GetUInt8();
+        actionHolder.StringId = fields[8].GetString();
+        actionHolder.TimeB = fields[9].GetUInt32();
+        actionHolder.LinearPath = fields[10].GetBool();
+        actionHolder.CircularPath = fields[11].GetBool();
+        actionHolder.FlightPath = fields[12].GetBool();
+        actionHolder.Extra0 = fields[13].GetDouble();
+        actionHolder.Extra1 = fields[14].GetDouble();
+        actionHolder.Extra2 = fields[15].GetDouble();
+        actionHolder.Extra3 = fields[16].GetDouble();
+        actionHolder.Extra4 = fields[17].GetDouble();
+        actionHolder.Flags = fields[18].GetUInt32();
+        actionHolder.TargetType = fields[19].GetUInt8();
+        actionHolder.TargetParam1 = fields[20].GetUInt32();
+        actionHolder.TargetParam2 = fields[21].GetUInt32();
+        actionHolder.TargetParam3 = fields[22].GetUInt32();
+        actionHolder.TargetParam4 = fields[23].GetUInt32();
 
-        if (eventHolder.Unit && eventHolder.Unit >= uint8(AIGroupUnit::Max))
+        if (actionHolder.Unit && actionHolder.Unit >= uint8(AIGroupUnit::Max))
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Unit ({}), skipped.",
-                eventHolder.Id, eventHolder.Index, eventHolder.Unit);
+                actionHolder.Id, actionHolder.Index, actionHolder.Unit);
             continue;
         }
 
-        if (eventHolder.Path && !sWaypointMgr->GetPath(eventHolder.Path))
+        if (actionHolder.Path && !sWaypointMgr->GetPath(actionHolder.Path))
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Path ({}), skipped.",
-                eventHolder.Id, eventHolder.Index, eventHolder.Path);
+                actionHolder.Id, actionHolder.Index, actionHolder.Path);
             continue;
         }
 
-        if (eventHolder.TimeB && eventHolder.TimeA > eventHolder.TimeB)
+        if (actionHolder.TimeB && actionHolder.TimeA > actionHolder.TimeB)
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid TimeA ({}), greater than TimeB ({}), skipped.",
-                eventHolder.Id, eventHolder.Index, eventHolder.TimeA, eventHolder.TimeB);
+                actionHolder.Id, actionHolder.Index, actionHolder.TimeA, actionHolder.TimeB);
             continue;
         }
 
-        if (eventHolder.MoveSpeed >= uint8(MoveSpeed::Max))
+        if (actionHolder.MoveSpeed >= uint8(MoveSpeed::Max))
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid MoveSpeed ({}), skipped.",
-                eventHolder.Id, eventHolder.Index, eventHolder.MoveSpeed);
+                actionHolder.Id, actionHolder.Index, actionHolder.MoveSpeed);
             continue;
         }
 
-        if (!IsActionValid(eventHolder))
+        if (!IsActionValid(actionHolder))
             continue;
 
-        AIGroupActionSet& actionSet = mActionSetMap[eventHolder.Id];
+        AIGroupActionSet& actionSet = mActionSetMap[actionHolder.Id];
         if (actionSet.empty())
             ++count;
-        actionSet.push_back(eventHolder);
+        actionSet.push_back(actionHolder);
     }
     while (result->NextRow());
 
@@ -517,7 +517,7 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
     TC_LOG_INFO("server.loading", ">> Loaded {} action trigger names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsActionValid(ActionSetActionHolder const& action)
 {
     if (!IsActionTypeValid(action))
         return false;
@@ -534,7 +534,7 @@ bool AIGroupMgr::IsActionValid(ActionSetEventHolder const& action)
     return true;
 }
 
-void AIGroupMgr::LogUselessActionParams(ActionSetEventHolder const& action)
+void AIGroupMgr::LogUselessActionParams(ActionSetActionHolder const& action)
 {
     ActionSetTypeInfo const& typeInfo = StaticActionSetTypeData[action.Type];
 
@@ -562,7 +562,7 @@ void AIGroupMgr::LogUselessActionParams(ActionSetEventHolder const& action)
     LogIfUseless(typeInfo.HasExtra4, action.Extra4 != 0, "Extra4", action.Extra4);
 }
 
-bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
+bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
 {
     if (action.Type >= AI_GROUP_MAX)
     {
@@ -1603,7 +1603,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
     }
 }
 
-bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsSpellValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sSpellMgr->GetSpellInfo(entry))
     {
@@ -1615,7 +1615,7 @@ bool AIGroupMgr::IsSpellValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsBroadcastTextValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsBroadcastTextValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sObjectMgr->GetBroadcastText(entry))
     {
@@ -1627,7 +1627,7 @@ bool AIGroupMgr::IsBroadcastTextValid(ActionSetEventHolder const& action, uint32
     return true;
 }
 
-bool AIGroupMgr::IsRandomTextValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsRandomTextValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (entry)
     {
@@ -1639,7 +1639,7 @@ bool AIGroupMgr::IsRandomTextValid(ActionSetEventHolder const& action, uint32 en
     return true;
 }
 
-bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsCreatureValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sObjectMgr->GetCreatureTemplate(entry))
     {
@@ -1651,7 +1651,7 @@ bool AIGroupMgr::IsCreatureValid(ActionSetEventHolder const& action, uint32 entr
     return true;
 }
 
-bool AIGroupMgr::IsAnimTierValid(ActionSetEventHolder const& action, double value)
+bool AIGroupMgr::IsAnimTierValid(ActionSetActionHolder const& action, double value)
 {
     if (value < 0 || value >= static_cast<double>(AnimTier::Max) || std::floor(value) != value)
     {
@@ -1663,7 +1663,7 @@ bool AIGroupMgr::IsAnimTierValid(ActionSetEventHolder const& action, double valu
     return true;
 }
 
-bool AIGroupMgr::IsEmoteValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsEmoteValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sEmotesStore.LookupEntry(entry))
     {
@@ -1675,7 +1675,7 @@ bool AIGroupMgr::IsEmoteValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsSoundValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsSoundValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sSoundEntriesStore.LookupEntry(entry))
     {
@@ -1687,7 +1687,7 @@ bool AIGroupMgr::IsSoundValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsQuestValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sObjectMgr->GetQuestTemplate(entry))
     {
@@ -1699,7 +1699,7 @@ bool AIGroupMgr::IsQuestValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsZoneValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (entry != 0 && !sAreaTableStore.LookupEntry(entry))
     {
@@ -1711,7 +1711,7 @@ bool AIGroupMgr::IsZoneValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsItemValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsItemValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sItemStore.LookupEntry(entry))
     {
@@ -1723,7 +1723,7 @@ bool AIGroupMgr::IsItemValid(ActionSetEventHolder const& action, uint32 entry)
     return true;
 }
 
-bool AIGroupMgr::IsFactionValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsFactionValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (!sFactionStore.LookupEntry(entry))
     {
@@ -1735,7 +1735,7 @@ bool AIGroupMgr::IsFactionValid(ActionSetEventHolder const& action, uint32 entry
     return true;
 }
 
-bool AIGroupMgr::IsAnimKitValid(ActionSetEventHolder const& action, uint32 entry)
+bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, uint32 entry)
 {
     if (entry)
     {
@@ -1747,7 +1747,7 @@ bool AIGroupMgr::IsAnimKitValid(ActionSetEventHolder const& action, uint32 entry
     return true;
 }
 
-bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action, double value)
+bool AIGroupMgr::IsBooleanValid(ActionSetActionHolder const& action, double value)
 {
     if (value != 0 && value != 1)
     {
@@ -1759,7 +1759,7 @@ bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action, double value
     return true;
 }
 
-bool AIGroupMgr::IsSearchRadiusValid(ActionSetEventHolder const& action, double radius)
+bool AIGroupMgr::IsSearchRadiusValid(ActionSetActionHolder const& action, double radius)
 {
     if (radius < 0 || radius > 500)
     {
@@ -1771,7 +1771,7 @@ bool AIGroupMgr::IsSearchRadiusValid(ActionSetEventHolder const& action, double 
     return true;
 }
 
-bool AIGroupMgr::IsApproachDistValid(ActionSetEventHolder const& action, double distance)
+bool AIGroupMgr::IsApproachDistValid(ActionSetActionHolder const& action, double distance)
 {
     if (distance < 0 || distance > 50)
     {
@@ -1783,7 +1783,7 @@ bool AIGroupMgr::IsApproachDistValid(ActionSetEventHolder const& action, double 
     return true;
 }
 
-bool AIGroupMgr::IsSpellScriptValid(ActionSetEventHolder const& action, double script)
+bool AIGroupMgr::IsSpellScriptValid(ActionSetActionHolder const& action, double script)
 {
     if (script)
     {
@@ -1795,7 +1795,7 @@ bool AIGroupMgr::IsSpellScriptValid(ActionSetEventHolder const& action, double s
     return true;
 }
 
-bool AIGroupMgr::IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier)
+bool AIGroupMgr::IsSpeedMultiplierValid(ActionSetActionHolder const& action, double multiplier)
 {
     if (multiplier < 0 || multiplier > 10)
     {
@@ -1807,7 +1807,7 @@ bool AIGroupMgr::IsSpeedMultiplierValid(ActionSetEventHolder const& action, doub
     return true;
 }
 
-bool AIGroupMgr::IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction)
+bool AIGroupMgr::IsGameObjectActionValid(ActionSetActionHolder const& action, double gameObjectAction)
 {
     GameObjectActions parsedAction = static_cast<GameObjectActions>(static_cast<uint32>(gameObjectAction));
 
@@ -1821,7 +1821,7 @@ bool AIGroupMgr::IsGameObjectActionValid(ActionSetEventHolder const& action, dou
     return true;
 }
 
-bool AIGroupMgr::IsDisplayIndexValid(ActionSetEventHolder const& action, double index)
+bool AIGroupMgr::IsDisplayIndexValid(ActionSetActionHolder const& action, double index)
 {
     if (index < 0 || index >= static_cast<double>(CreatureDisplayInfoIndex::Max) || std::floor(index) != index)
     {
@@ -1833,7 +1833,7 @@ bool AIGroupMgr::IsDisplayIndexValid(ActionSetEventHolder const& action, double 
     return true;
 }
 
-bool AIGroupMgr::IsSeatIndexValid(ActionSetEventHolder const& action, double index)
+bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double index)
 {
     if (index < 0 || index >= MAX_VEHICLE_SEATS || std::floor(index) != index)
     {

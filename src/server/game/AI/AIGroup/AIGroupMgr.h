@@ -1130,9 +1130,9 @@ struct ActionTriggersHolder
     bool IsTriggerUsed;
 };
 
-struct ActionSetEventHolder
+struct ActionSetActionHolder
 {
-    ActionSetEventHolder() : Id(0), Index(0), Type(0), Unit(0), Point(0), Path(0), TimeA(0), MoveSpeed(0),
+    ActionSetActionHolder() : Id(0), Index(0), Type(0), Unit(0), Point(0), Path(0), TimeA(0), MoveSpeed(0),
     StringId(""), TimeB(0), LinearPath(0), CircularPath(0), FlightPath(0), Extra0(0), Extra1(0), Extra2(0),
     Extra3(0), Extra4(0), Flags(0), TargetType(0), TargetParam1(0), TargetParam2(0), TargetParam3(0), TargetParam4(0) { }
 
@@ -1184,7 +1184,7 @@ struct RandomActionSetHolder
 
 typedef std::vector<ActionTriggersHolder> AIGroupEventList;
 typedef std::unordered_map<uint32, AIGroupEventList> AIGroupEventMap;
-typedef std::vector<ActionSetEventHolder> AIGroupActionSet;
+typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
 typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
 typedef std::unordered_map<uint32, AIGroupRandomActionSet> AIGroupRandomActionSetMap;
@@ -1218,29 +1218,29 @@ class TC_GAME_API AIGroupMgr
         AIGroupRandomActionSetMap mRandomActionSetMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
 
-        static bool IsActionValid(ActionSetEventHolder const& action);
-        static bool IsActionTypeValid(ActionSetEventHolder const& action);
-        static void LogUselessActionParams(ActionSetEventHolder const& action);
-        static bool IsSpellValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsBroadcastTextValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsRandomTextValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsCreatureValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsAnimTierValid(ActionSetEventHolder const& action, double value);
-        static bool IsEmoteValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsSoundValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsQuestValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsZoneValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsItemValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsFactionValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsAnimKitValid(ActionSetEventHolder const& action, uint32 entry);
-        static bool IsBooleanValid(ActionSetEventHolder const& action, double value);
-        static bool IsSearchRadiusValid(ActionSetEventHolder const& action, double radius);
-        static bool IsApproachDistValid(ActionSetEventHolder const& action, double distance);
-        static bool IsSpellScriptValid(ActionSetEventHolder const& action, double script);
-        static bool IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier);
-        static bool IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction);
-        static bool IsDisplayIndexValid(ActionSetEventHolder const& action, double index);
-        static bool IsSeatIndexValid(ActionSetEventHolder const& action, double index);
+        static bool IsActionValid(ActionSetActionHolder const& action);
+        static bool IsActionTypeValid(ActionSetActionHolder const& action);
+        static void LogUselessActionParams(ActionSetActionHolder const& action);
+        static bool IsSpellValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsBroadcastTextValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsRandomTextValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsCreatureValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsAnimTierValid(ActionSetActionHolder const& action, double value);
+        static bool IsEmoteValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsSoundValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsQuestValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsZoneValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsItemValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsFactionValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsAnimKitValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsBooleanValid(ActionSetActionHolder const& action, double value);
+        static bool IsSearchRadiusValid(ActionSetActionHolder const& action, double radius);
+        static bool IsApproachDistValid(ActionSetActionHolder const& action, double distance);
+        static bool IsSpellScriptValid(ActionSetActionHolder const& action, double script);
+        static bool IsSpeedMultiplierValid(ActionSetActionHolder const& action, double multiplier);
+        static bool IsGameObjectActionValid(ActionSetActionHolder const& action, double gameObjectAction);
+        static bool IsDisplayIndexValid(ActionSetActionHolder const& action, double index);
+        static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 

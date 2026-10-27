@@ -47,7 +47,7 @@ class TC_GAME_API AIGroupScript
         void ProcessEvent(ActionTriggersHolder& holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
         void ProcessEventsFor(ActionTriggers holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
 
-        void GetActionTargets(AIGroupObjectVector& targets, ActionSetEventHolder const& action, WorldObject* invoker = nullptr) const;
+        void GetActionTargets(AIGroupObjectVector& targets, ActionSetActionHolder const& action, WorldObject* invoker = nullptr) const;
         GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
         Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
 
@@ -60,8 +60,8 @@ class TC_GAME_API AIGroupScript
         void SetCurrentRunningActionSet(uint32 actionSetId);
         void RandomizeHealthRange(ActionTriggersHolder& holder);
         void RandomizeEnergyRange(ActionTriggersHolder& holder);
-        bool ExecuteAction(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);
-        bool ExecuteActionForActor(ActionSetEventHolder const& action, ObjectGuid const& invokerGuid);
+        bool ExecuteAction(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid);
+        bool ExecuteActionForActor(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid);
         void FinishActionSet(AIGroupActiveActionSet& actionSet);
         void AbortActionSet(uint32 actionSetId);
         bool CanActionBeInfinite(uint16 action);
@@ -69,8 +69,8 @@ class TC_GAME_API AIGroupScript
         bool IsActionWaitable(uint16 action);
         bool IsActionGroupWide(uint16 action);
         bool IsActionSetPaused(AIGroupActiveActionSet const& actionSet) const;
-        uint32 GetActionDuration(ActionSetEventHolder const& action) const;
-        float GetStringIdSearchRadius(ActionSetEventHolder const& action) const;
+        uint32 GetActionDuration(ActionSetActionHolder const& action) const;
+        float GetStringIdSearchRadius(ActionSetActionHolder const& action) const;
 
         AIGroupEventList mInstallEvents;
         AIGroupEventList mEvents;
