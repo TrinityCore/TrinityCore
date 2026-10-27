@@ -3526,7 +3526,7 @@ void SpellInfo::_LoadImmunityInfo()
                     case 42292: // PvP trinket
                     case 59752: // Every Man for Himself
                         mechanicImmunityMask |= IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED);
+                        immuneInfo.AuraTypeImmune.insert(SPELL_AURA_SPEED_LIMIT_MAX);
                         removeEffectsWithMechanic = true;
                         break;
                     case 34471: // The Beast Within
