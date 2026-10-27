@@ -3434,7 +3434,7 @@ class spell_sha_windveil : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_WINDVEIL });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_WINDVEIL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
