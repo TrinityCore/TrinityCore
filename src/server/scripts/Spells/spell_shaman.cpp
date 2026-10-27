@@ -172,7 +172,8 @@ enum ShamanSpells
     SPELL_SHAMAN_WINDFURY_VISUAL_3              = 466443,
     SPELL_SHAMAN_WIND_RUSH                      = 192082,
     SPELL_SHAMAN_WINDSTRIKE_DAMAGE_MAIN_HAND    = 115357,
-    SPELL_SHAMAN_WINDSTRIKE_DAMAGE_OFF_HAND     = 115360
+    SPELL_SHAMAN_WINDSTRIKE_DAMAGE_OFF_HAND     = 115360,
+    SPELL_SHAMAN_WINDVEIL                       = 355634
 };
 
 enum ShamanSpellLabels
@@ -3425,6 +3426,25 @@ class spell_sha_windfury_weapon_proc : public AuraScript
     }
 };
 
+// 355630 - Windveil
+class spell_sha_windveil : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_WINDVEIL });
+    }
+
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_WINDVEIL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_sha_windveil::HandleProc);
+    }
+};
+
 // 462767 - Arctic Snowstorm
 // 36797 - AreatriggerId
 struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
@@ -3594,6 +3614,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_voltaic_blaze_talent);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_windfury_weapon_proc);
+    RegisterSpellScript(spell_sha_windveil);
     RegisterAreaTriggerAI(areatrigger_sha_arctic_snowstorm);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }
