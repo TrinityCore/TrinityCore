@@ -8802,12 +8802,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     float main_speed_mod  = 0.0f;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
+    float min_speed       = 0.01f;
+    float max_speed       = 100.0f;
 
     switch (mtype)
     {
         // Only apply debuffs
         case MOVE_FLIGHT_BACK:
-        case MOVE_RUN_BACK:
         case MOVE_SWIM_BACK:
             break;
         case MOVE_WALK:
@@ -8824,7 +8825,21 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS);
+                stack_bonus     += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED_NO_CONTROL) / 100.0f;
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK) / 100.0f;
+            }
+            break;
+        }
+        case MOVE_RUN_BACK:
+        {
+            main_speed_mod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_BACKWARD_SPEED);
+            if (float uncontrolled = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED_NO_CONTROL))
+            {
+                // backwards uncontrolled movement has the same speed as forward movement
+                stack_bonus *= IsControlledByPlayer()
+                    ? playerBaseMoveSpeed[MOVE_RUN] / playerBaseMoveSpeed[MOVE_RUN_BACK]
+                    : baseMoveSpeed[MOVE_RUN] / baseMoveSpeed[MOVE_RUN_BACK];
+                stack_bonus += uncontrolled / 100.0f;
             }
             break;
         }
@@ -8835,32 +8850,18 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
         }
         case MOVE_FLIGHT:
         {
-            if (GetTypeId() == TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
-            {
-                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
-
-                // for some spells this mod is applied on vehicle owner
-                float owner_speed_mod = 0.0f;
-
-                if (Unit* owner = GetCharmer())
-                    owner_speed_mod = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-
-                main_speed_mod = std::max(main_speed_mod, owner_speed_mod);
-            }
-            else if (IsMounted())
+            if (IsMounted())
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED_ALWAYS);
+                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED_NOT_STACK) / 100.0f;
             }
-            else             // Use not mount (shapeshift for example) auras (should stack)
-                main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) + GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-
-            non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK) / 100.0f;
-
-            // Update speed for vehicle if available
-            if (GetTypeId() == TYPEID_PLAYER && GetVehicle())
-                GetVehicleBase()->UpdateSpeed(MOVE_FLIGHT);
+            else
+            {
+                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED_ALWAYS);
+                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED_NOT_STACK) / 100.0f;
+            }
             break;
         }
         default:
@@ -8883,9 +8884,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             if (GetTypeId() == TYPEID_UNIT)
                 speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
 
-            // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
-            /// @todo possible affect only on MOVE_RUN
-            if (float normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
+            if (float max_speed_aura = GetMaxPositiveAuraModifier(SPELL_AURA_SPEED_LIMIT_MAX))
             {
                 if (Creature* creature = ToCreature())
                     if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(creature->GetCreatureTemplate()->CreatureImmunitiesId))
@@ -8893,20 +8892,16 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
                             break;
 
                 // Use speed from aura
-                float max_speed = normalization / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
-                if (speed > max_speed)
-                    speed = max_speed;
+                max_speed = max_speed_aura / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
             }
 
-            if (mtype == MOVE_RUN)
+            if (float min_speed_aura = GetMaxPositiveAuraModifier(SPELL_AURA_SPEED_LIMIT_MIN_PCT))
             {
-                // force minimum speed rate @ aura 437 SPELL_AURA_MOD_MINIMUM_SPEED_RATE
-                if (float minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED_RATE))
-                {
-                    float minSpeed = minSpeedMod / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
-                    if (speed < minSpeed)
-                        speed = minSpeed;
-                }
+                float baseMinSpeed = 1.0f;
+                if (!GetOwnerGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
+                    baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
+
+                min_speed = CalculatePct(baseMinSpeed, min_speed_aura);
             }
             break;
         }
@@ -8949,16 +8944,19 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
             break;
     }
 
-    if (float minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
+    switch (mtype)
     {
-        float baseMinSpeed = 1.0f;
-        if (!GetOwnerGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
-            baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
-
-        float min_speed = CalculatePct(baseMinSpeed, minSpeedMod);
-        if (speed < min_speed)
-            speed = min_speed;
+        case MOVE_WALK:
+        case MOVE_RUN:
+        case MOVE_RUN_BACK:
+            if (float overrideSpeed = GetMaxPositiveAuraModifier(SPELL_AURA_SET_SPEED))
+                speed = overrideSpeed / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
+            break;
+        default:
+            break;
     }
+
+    speed = std::clamp(speed, min_speed, max_speed);
 
     SetSpeedRate(mtype, speed);
 }

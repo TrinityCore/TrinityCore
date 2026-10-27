@@ -339,7 +339,7 @@ void WorldSession::HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::Canc
     if (!mover || mover->GetGUID() != cancelModSpeedNoControlAuras.TargetGUID)
         return;
 
-    _player->RemoveAurasByType(SPELL_AURA_MOD_SPEED_NO_CONTROL, [](AuraApplication const* aurApp)
+    _player->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_SPEED_NO_CONTROL, [](AuraApplication const* aurApp)
     {
         SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
         return !spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();

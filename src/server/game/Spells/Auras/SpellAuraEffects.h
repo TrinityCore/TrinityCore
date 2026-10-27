@@ -212,12 +212,14 @@ class TC_GAME_API AuraEffect
         void HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  modify speed
         void HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModIncreaseBackwardSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModIncreaseUncontrolled(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSpeedLimit(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSetSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMovementForceMagnitude(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAdvFlyingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  immunity
