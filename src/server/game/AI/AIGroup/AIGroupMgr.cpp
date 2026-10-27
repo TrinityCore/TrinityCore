@@ -1379,6 +1379,16 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
         case AI_GROUP_PLAYER_ACTION:
         case AI_GROUP_VENDOR_IDLE_OBSOLETE:
             // ^ Officially unused \ obsolete \ reused \ not yet implemented
+        case AI_GROUP_UNIT_START_LOOPING_ANIM_KIT:
+        case AI_GROUP_UNIT_STOP_LOOPING_ANIM_KIT:
+        case AI_GROUP_UNIT_PLAY_ONESHOT_ANIM_KIT:
+        case AI_GROUP_UNIT_SET_MOVEMENT_ANIM_KIT:
+        case AI_GROUP_UNIT_SET_MELEE_ANIM_KIT:
+        case AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC:
+        case AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC_RESET:
+        case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY:
+        case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY_RESET:
+            // ^ 3.3.5a (actions were added to client but were used only in next expansion)
         case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
         case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
         case AI_GROUP_UNIT_CAST_OTHER_UNIT:
