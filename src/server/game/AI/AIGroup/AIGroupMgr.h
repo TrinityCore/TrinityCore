@@ -819,6 +819,27 @@ enum ActionTriggers
     OnChannelFinished           = 39,   // NYI // Unit finishes channeling spell {Spell}.
     OnHealthDepleted            = 40,   // NYI // Unit reaches 0 health (or 1 if unkillable).
     // [^ 7.3.2]
+    OnReserved1                 = 41,
+    OnReserved2                 = 42,
+    OnReserved3                 = 43,
+    OnReserved4                 = 44,
+    OnReserved5                 = 45,
+    OnReserved6                 = 46,
+    OnReserved7                 = 47,
+    OnReserved8                 = 48,
+    OnReserved9                 = 49,
+    OnReserved10                = 50,
+    OnReserved11                = 51,
+    OnReserved12                = 52,
+    OnReserved13                = 53,
+    OnReserved14                = 54,
+    OnReserved15                = 55,
+    OnReserved16                = 56,
+    OnReserved17                = 57,
+    OnReserved18                = 58,
+    OnReserved19                = 59,
+    OnReserved20                = 60,
+    // ^ Reserved for official triggers
     Max
 };
 
@@ -1243,6 +1264,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
+        static bool IsTriggerAllowed(ActionTriggers trigger);
 
     public:
         static AIGroupMgr* Instance();

@@ -341,7 +341,7 @@ void AIGroupMgr::LoadActionTriggersFromDB()
         triggers.RepeatMin = fields[9].GetUInt32();
         triggers.RepeatMax = fields[10].GetUInt32();
 
-        if (triggers.TriggerId >= ActionTriggers::Max)
+        if (!IsTriggerAllowed(static_cast<ActionTriggers>(triggers.TriggerId)))
         {
             TC_LOG_ERROR("sql.sql", "Table `action_triggers` (Id: {}, Index: {}) has invalid TriggerId ({}), skipped.",
                 triggers.Id, triggers.Index, triggers.TriggerId);
@@ -2509,7 +2509,27 @@ AIGroupMgr::ActionTriggerTypeInfo const AIGroupMgr::StaticActionTriggerTypeData[
     { "OnChannelStart",             true,  false },
     { "OnChannelInterrupted",       true,  false },
     { "OnChannelFinished",          true,  false },
-    { "OnHealthDepleted",           false, false }
+    { "OnHealthDepleted",           false, false },
+    { "OnReserved1",                false, false },
+    { "OnReserved2",                false, false },
+    { "OnReserved3",                false, false },
+    { "OnReserved4",                false, false },
+    { "OnReserved5",                false, false },
+    { "OnReserved6",                false, false },
+    { "OnReserved7",                false, false },
+    { "OnReserved8",                false, false },
+    { "OnReserved9",                false, false },
+    { "OnReserved10",               false, false },
+    { "OnReserved11",               false, false },
+    { "OnReserved12",               false, false },
+    { "OnReserved13",               false, false },
+    { "OnReserved14",               false, false },
+    { "OnReserved15",               false, false },
+    { "OnReserved16",               false, false },
+    { "OnReserved17",               false, false },
+    { "OnReserved18",               false, false },
+    { "OnReserved19",               false, false },
+    { "OnReserved20",               false, false }
 };
 
 bool AIGroupMgr::IsTriggerNotRepeatable(ActionTriggers trigger)
@@ -2525,6 +2545,51 @@ bool AIGroupMgr::IsTriggerNotRepeatable(ActionTriggers trigger)
         case OnCombatReturn:
         case OnDespawn:
         case OnHealthDepleted:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool AIGroupMgr::IsTriggerAllowed(ActionTriggers trigger)
+{
+    switch (trigger)
+    {
+        case OnReaction:
+        case OnEnterCombat:
+        case OnLeaveCombat:
+        case OnCombatTick:
+        case OnHealthRange:
+        case OnEnergyRange:
+        case OnDeath:
+        case OnSpell:
+        case OnKill:
+        case OnSpawn:
+        case OnEmote:
+        case OnMelee:
+        case OnInteract:
+        case OnCombatTrigger:
+        case OnSpellCast:
+        case OnPickPocket:
+        case OnSkinned:
+        case OnCombatReturn:
+        case OnPathFailing:
+        case OnHealthRangeRandom:
+        case OnEnergyRangeRandom:
+        case OnGeneralTrigger:
+        case OnDespawn:
+        case OnSpellFailed:
+        case OnCharmBreak:
+        case OnPassengerControlEnd:
+        case OnVehicleReturn:
+        case OnVehicleRide:
+        case OnVehicleAbandon:
+        case OnSpellStart:
+        case OnAuraApplied:
+        case OnAuraRemoved:
+        case OnPassengerRide:
+        case OnPassengerAbandon:
+        case OnPassengerSpawn:
             return true;
         default:
             return false;

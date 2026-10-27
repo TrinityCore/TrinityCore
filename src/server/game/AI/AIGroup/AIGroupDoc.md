@@ -17,9 +17,10 @@ Action triggers is the base of AIGroup script, it is linked to creature using `T
 
 To create a new action trigger, follow these steps:
 
-1. Add a new action trigger to the `ActionTriggers` enum, starting with 'On'.
+1. Add a new action trigger starting with 'On' to the `ActionTriggers` enum, placing it at the end of the enum (e.g., `OnQuestTaken`).
 2. If your trigger is not repeatable, add it to `IsTriggerNotRepeatable`.
-3. Add your trigger to `AIGroupMgr::ActionTriggerTypeInfo`. The first parameter is the name of your trigger. If your trigger uses TriggerParam1, set the second parameter to 'true', otherwise 'false'. If your trigger uses TriggerParam2, set the third parameter to 'true', otherwise 'false'.
-4. Add the appropriate callback in `AIGroup.cpp` and call `GetScript()->ProcessEventsFor(...)`.
-5. Implement trigger behavior in `AIGroupScript::ProcessEvent`.
-6. If parameters need validation, add the checks to the `AIGroupMgr::LoadActionTriggersFromDB`.
+3. Add your trigger to `IsTriggerAllowed`.
+4. Add your trigger to `AIGroupMgr::ActionTriggerTypeInfo`. The first parameter is the name of your trigger. If your trigger uses TriggerParam1, set the second parameter to 'true', otherwise 'false'. If your trigger uses TriggerParam2, set the third parameter to 'true', otherwise 'false'.
+5. Add the appropriate callback in `AIGroup.cpp` and call `GetScript()->ProcessEventsFor(...)`.
+6. Implement trigger behavior in `AIGroupScript::ProcessEvent`.
+7. If parameters need validation, add the checks to the `AIGroupMgr::LoadActionTriggersFromDB`.
