@@ -1096,13 +1096,100 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             if (!IsSoundValid(action, uint32(action.Extra2)))
                 return false;
             break;
-        case AI_GROUP_UNIT_CAST_WITH_POINTS:
-            if (!IsSpellValid(action, uint32(action.Extra2)))
+        case AI_GROUP_UNIT_NO_MELEE:
+            if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
-        case AI_GROUP_UNIT_RIDE_VEHICLE:
+        case AI_GROUP_UNIT_BOSS_WHISPER:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_UNIT_BOSS_WHISPER_RANDOM:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_MOVE_RELATIVE:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            /// @todo Extra2 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_KILL_CREDIT_TAP:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CAST_WITH_POINTS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_UNIT_RIDE_VEHICLE:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+                return false;
+            break;
+        case AI_GROUP_VEHICLE_RECALL_OR_RESPAWN_PASSENGERS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra1 field
+            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+                return false;
+            break;
+        case AI_GROUP_PLAY_MOVIE:
+            if (!sMovieStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent movie {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_JUMP_POINT:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            if (!IsSearchRadiusValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_JUMP_GUID:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            if (!IsSearchRadiusValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_MOVETO_THEN_JUMP:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra1 field
+            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+                return false;
+            break;
+        case AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsSeatIndexValid(action, uint32(action.Extra3)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_FATAL_FALL_DISTANCE:
+            /// @todo Extra1 field
             break;
         case AI_GROUP_UNIT_SET_ANIMATION_TIER:
             if (!IsAnimTierValid(action, action.Extra2))
@@ -1166,9 +1253,101 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetEventHolder const& action)
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
             break;
+        case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_VEHICLE_RECORD:
+            if (!sVehicleStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent VehicleId {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_UNIT_IMMUNITIES:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_SAY_PLAYER:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_PLAYER:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
+        case AI_GROUP_UNIT_START_QUEST:
+            if (!IsQuestValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SAY_PLAYER_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_PLAYER_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_START_LOOPING_ANIM_KIT:
+            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PLAY_ONESHOT_ANIM_KIT:
+            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_MOVEMENT_ANIM_KIT:
+            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_MELEE_ANIM_KIT:
+            if (!IsAnimKitValid(action, uint32(action.Extra2)))
+                return false;
+            break;
         case AI_GROUP_UNIT_INTERACT_SPELL:
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
+            break;
+        case AI_GROUP_UNIT_INTERACT_SPELL_CONDITION:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_FACE_ANGLE_RELATIVE:
+            /// @todo Extra2 field ?
+            break;
+        case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY:
+            if (action.Extra2 < 1 || action.Extra2 > 255 || std::floor(action.Extra2) != action.Extra2)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid value {} (must be between 1 and 255), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_UNIT_NO_THREAT_FEEDBACK:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_EMOTE_PLAYER:
+            if (!IsEmoteValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SET_QUEST_LOOT:
+            /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
             if (!IsSpellValid(action, uint32(action.Extra2)))
@@ -1546,6 +1725,18 @@ bool AIGroupMgr::IsFactionValid(ActionSetEventHolder const& action, uint32 entry
     return true;
 }
 
+bool AIGroupMgr::IsAnimKitValid(ActionSetEventHolder const& action, uint32 entry)
+{
+    if (entry)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses AnimKitId {} (master only), skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
+    }
+
+    return true;
+}
+
 bool AIGroupMgr::IsBooleanValid(ActionSetEventHolder const& action, double value)
 {
     if (value != 0 && value != 1)
@@ -1626,6 +1817,18 @@ bool AIGroupMgr::IsDisplayIndexValid(ActionSetEventHolder const& action, double 
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Display Index {} (must be between 0 and 4), skipped.",
             action.Id, action.Index, action.Type, index);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsSeatIndexValid(ActionSetEventHolder const& action, double index)
+{
+    if (index < 0 || index >= MAX_VEHICLE_SEATS || std::floor(index) != index)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
+            action.Id, action.Index, action.Type, index, MAX_VEHICLE_SEATS);
         return false;
     }
 

@@ -1232,6 +1232,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsZoneValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsItemValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsFactionValid(ActionSetEventHolder const& action, uint32 entry);
+        static bool IsAnimKitValid(ActionSetEventHolder const& action, uint32 entry);
         static bool IsBooleanValid(ActionSetEventHolder const& action, double value);
         static bool IsSearchRadiusValid(ActionSetEventHolder const& action, double radius);
         static bool IsApproachDistValid(ActionSetEventHolder const& action, double distance);
@@ -1239,6 +1240,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsSpeedMultiplierValid(ActionSetEventHolder const& action, double multiplier);
         static bool IsGameObjectActionValid(ActionSetEventHolder const& action, double gameObjectAction);
         static bool IsDisplayIndexValid(ActionSetEventHolder const& action, double index);
+        static bool IsSeatIndexValid(ActionSetEventHolder const& action, double index);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
 
