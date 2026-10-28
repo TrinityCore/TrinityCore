@@ -1074,10 +1074,134 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 if (Player* player = targets.front()->ToPlayer())
                     player->SendMovieStart(uint32(action.Extra2));
             return true;
+        case AI_GROUP_JUMP_POINT:
+            /// @todo
+            return false;
+        case AI_GROUP_JUMP_GUID:
+            /// @todo
+            return false;
+        case AI_GROUP_MOVETO_THEN_JUMP:
+            /// @todo
+            return false;
+        case AI_GROUP_VEHICLE_RECALL_LIVING_PASSENGERS:
+            /// @todo
+            return true;
+        case AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_FATAL_FALL_DISTANCE:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_FATAL_FALL_DISTANCE_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SET_ANIMATION_TIER:
+            me->SetAnimTier(AnimTier(uint8(action.Extra2)));
+            return true;
+        case AI_GROUP_UNIT_SEND_TAP_LIST:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_GET_TAP_LIST:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_HOVER_HEIGHT:
+            me->SetHoverHeight(float(action.Extra1));
+            return true;
+        case AI_GROUP_UNIT_HOVER_HEIGHT_RESET:
+            if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(me->GetEntry()))
+                me->SetHoverHeight(cInfo->HoverHeight);
+            return true;
+        case AI_GROUP_TIER_TRANSITION_LAND:
+            /// @todo
+            return true;
+        case AI_GROUP_TIER_TRANSITION_TAKE_OFF:
+            /// @todo
+            return true;
+        case AI_GROUP_TIER_TRANSITION_MOVETO:
+            /// @todo
+            return true;
+        case AI_GROUP_TIER_TRANSITION_MOVETO_GUID:
+            /// @todo
+            return true;
+        case AI_GROUP_TIER_TRANSITION_FOLLOW_PATH:
+            /// @todo
+            return true;
         case AI_GROUP_UNIT_KILL_CREDIT_PLAYER:
             if (!targets.empty())
                 if (Player* player = targets.front()->ToPlayer())
                     player->KilledMonsterCredit(uint32(action.Extra2));
+            return true;
+        case AI_GROUP_SUSPEND_TRIGGER_ACTION:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_VEHICLE_RECORD:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_VEHICLE_RECORD_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_IMMUNITIES:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_IMMUNITIES_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_SEND_CONTENT_ALERT:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SAY_PLAYER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_YELL_PLAYER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_START_QUEST:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SAY_PLAYER_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_YELL_PLAYER_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_INTERACT_SPELL:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_INTERACT_SPELL_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_INTERACT_SPELL_CONDITION:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_INTERACT_SPELL_CONDITION_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_FACE_ANGLE_RELATIVE:
+        {
+            int32 angleOffsetDeg = (int32)action.Extra2;
+            float angleOffsetRad = (float)angleOffsetDeg * (float)M_PI / 180.f;
+            float currentOrientation = me->GetOrientation();
+            float newOrientation = Position::NormalizeOrientation(currentOrientation + angleOffsetRad);
+            me->SetFacingTo(newOrientation);
+            return true;
+        }
+        case AI_GROUP_UNIT_NO_THREAT_FEEDBACK:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_NO_THREAT_FEEDBACK_RESET:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_CHAT_EMOTE_PLAYER_RANDOM:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_EMOTE_PLAYER:
+            /// @todo
+            return true;
+        case AI_GROUP_UNIT_SET_QUEST_LOOT:
+            /// @todo
             return true;
         default:
             return true;

@@ -208,11 +208,11 @@ enum AI_GROUP_ACTION
     AI_GROUP_VEHICLE_RESPAWN_ALL_PASSENGERS         = 170,   // NYI // Vehicle(s) respawn all passengers
     AI_GROUP_UNIT_FATAL_FALL_DISTANCE               = 171,   // NYI // Unit(s) Set fatal fall distance
     AI_GROUP_UNIT_FATAL_FALL_DISTANCE_RESET         = 172,   // NYI // Unit(s) Reset fatal fall distance
-    AI_GROUP_UNIT_SET_ANIMATION_TIER                = 173,   // NYI // Unit(s) Set Animation/Movement Tier
+    AI_GROUP_UNIT_SET_ANIMATION_TIER                = 173,   // Unit(s) Set Animation/Movement Tier
     AI_GROUP_UNIT_SEND_TAP_LIST                     = 174,   // NYI // Unit(s) send their tap list to another unit
     AI_GROUP_UNIT_GET_TAP_LIST                      = 175,   // NYI // Unit(s) get their tap list from another unit
-    AI_GROUP_UNIT_HOVER_HEIGHT                      = 176,   // NYI // Unit(s) set their hover height
-    AI_GROUP_UNIT_HOVER_HEIGHT_RESET                = 177,   // NYI // Unit(s) Reset their hover height
+    AI_GROUP_UNIT_HOVER_HEIGHT                      = 176,   // Unit(s) set their hover height
+    AI_GROUP_UNIT_HOVER_HEIGHT_RESET                = 177,   // Unit(s) Reset their hover height
     AI_GROUP_TIER_TRANSITION_LAND                   = 178,   // NYI // Tier Transition Land
     AI_GROUP_TIER_TRANSITION_TAKE_OFF               = 179,   // NYI // Tier Transition Take off
     AI_GROUP_TIER_TRANSITION_MOVETO                 = 180,   // NYI // Tier Transition Move To
@@ -241,7 +241,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_UNIT_INTERACT_SPELL_CONDITION_RESET    = 203,   // NYI, Cata+? // Reset InteractSpellCondition for unit(s) in the group
     AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC        = 204,   // Cata+ // Set "No NPC damage below 85%" flag for unit(s)
     AI_GROUP_UNIT_NO_NPC_DAMAGE_BELOW_85_PTC_RESET  = 205,   // Cata+ // Reset "No NPC damage below 85%" flag for unit(s)
-    AI_GROUP_UNIT_FACE_ANGLE_RELATIVE               = 206,   // NYI // Unit(s) face angle relative to current
+    AI_GROUP_UNIT_FACE_ANGLE_RELATIVE               = 206,   // Unit(s) face angle relative to current
     AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY         = 207,   // Cata+ // Unit(s) sets his boss unit frames priority
     AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY_RESET   = 208,   // Cata+ // Unit(s) resets his boss unit frames priority
     AI_GROUP_UNIT_NO_THREAT_FEEDBACK                = 209,   // NYI // Set "No Threat Feedback" flag for unit(s)
