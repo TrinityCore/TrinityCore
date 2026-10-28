@@ -732,14 +732,14 @@ enum class CriteriaType : int16
     CollectGarrisonShipment                        = 182, /*NYI*/ // Garrison Shipment of type "{CharShipmentContainer}" collected
     ItemLevelChangedForGarrisonFollower            = 183, /*NYI*/ // Garrison Follower: Item Level Changed
     LevelChangedForGarrisonFollower                = 184, /*NYI*/ // Garrison Follower: Level Changed
-    LearnToy                                       = 185, /*NYI*/ // Learn Toy "{Item}"
-    LearnAnyToy                                    = 186, /*NYI*/ // Learn Any Toy
+    LearnToy                                       = 185, // Learn Toy "{Item}"
+    LearnAnyToy                                    = 186, // Learn Any Toy
     QualityUpgradedForGarrisonFollower             = 187, /*NYI*/ // Garrison Follower: Quality Upgraded
     LearnHeirloom                                  = 188, // Learn Heirloom "{Item}"
     LearnAnyHeirloom                               = 189, // Learn Any Heirloom
     EarnArtifactXP                                 = 190, // Earn Artifact XP
     AnyArtifactPowerRankPurchased                  = 191, // Artifact Power Ranks Purchased
-    LearnTransmog                                  = 192, /*NYI*/ // Learn Transmog "{ItemModifiedAppearance}"
+    LearnTransmog                                  = 192, // Learn Transmog "{ItemModifiedAppearance}"
     LearnAnyTransmog                               = 193, // Learn Any Transmog
     HonorLevelIncrease                             = 194, // (Player) honor level increase
     PrestigeLevelIncrease                          = 195, /*NYI*/ // (Player) prestige level increase
