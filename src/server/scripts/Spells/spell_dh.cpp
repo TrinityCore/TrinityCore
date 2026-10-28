@@ -1331,7 +1331,7 @@ class spell_dh_fel_rush : public SpellScript
     {
         auto itr = std::ranges::find_if(rushSpellInfo->GetEffects(), [](SpellEffectInfo const& spellEffectInfo)
         {
-            return spellEffectInfo.IsAura(SPELL_AURA_MOD_MINIMUM_SPEED_RATE);
+            return spellEffectInfo.IsAura(SPELL_AURA_SET_SPEED);
         });
         return itr != rushSpellInfo->GetEffects().end() ? &*itr : nullptr;
     }
@@ -1399,7 +1399,7 @@ class spell_dh_fel_rush_air : public AuraScript
     {
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_9 } })
             && spellInfo->GetEffect(EFFECT_5).IsAura(SPELL_AURA_DISABLE_GRAVITY)
-            && spellInfo->GetEffect(EFFECT_9).IsAura(SPELL_AURA_MOD_MINIMUM_SPEED_RATE);
+            && spellInfo->GetEffect(EFFECT_9).IsAura(SPELL_AURA_SET_SPEED);
     }
 
     void PreventGravityRestore(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1416,7 +1416,7 @@ class spell_dh_fel_rush_air : public AuraScript
     {
         // restore gravity after speed, otherwise caster starts falling with rush speed
         OnEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_air::PreventGravityRestore, EFFECT_5, SPELL_AURA_DISABLE_GRAVITY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_air::RestoreGravity, EFFECT_9, SPELL_AURA_MOD_MINIMUM_SPEED_RATE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_air::RestoreGravity, EFFECT_9, SPELL_AURA_SET_SPEED, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
