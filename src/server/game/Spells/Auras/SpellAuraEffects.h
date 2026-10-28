@@ -218,7 +218,8 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseUncontrolled(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraSpeedLimit(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSpeedLimitMax(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSpeedLimitMin(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMovementForceMagnitude(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAdvFlyingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
