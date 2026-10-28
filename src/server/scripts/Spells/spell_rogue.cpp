@@ -158,28 +158,6 @@ static constexpr bool IsLethalPoison(uint32 spellId)
     }
 }
 
-// 455143 - Acrobatic Strikes
-class spell_rog_acrobatic_strikes : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ROGUE_ACROBATIC_STRIKES_PROC });
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
-    {
-        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_ACROBATIC_STRIKES_PROC, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_rog_acrobatic_strikes::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 // Called by 2094 - Blind
 class spell_rog_airborne_irritant : public SpellScript
 {
@@ -1589,7 +1567,6 @@ class spell_rog_venomous_wounds : public AuraScript
 
 void AddSC_rogue_spell_scripts()
 {
-    RegisterSpellScript(spell_rog_acrobatic_strikes);
     RegisterSpellScript(spell_rog_airborne_irritant);
     RegisterSpellScript(spell_rog_airborne_irritant_target_selection);
     RegisterSpellScript(spell_rog_backstab);
