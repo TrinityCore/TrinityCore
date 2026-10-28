@@ -1392,7 +1392,7 @@ class spell_dh_fel_rush : public SpellScript
     }
 };
 
-// 346123 - Fel Rush
+// 197923 - Fel Rush
 class spell_dh_fel_rush_air : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
