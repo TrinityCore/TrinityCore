@@ -1254,7 +1254,9 @@ class TC_GAME_API AIGroupMgr
         static bool IsItemValid(ActionSetActionHolder const& action, uint32 entry);
         static bool IsFactionValid(ActionSetActionHolder const& action, uint32 entry);
         static bool IsAnimKitValid(ActionSetActionHolder const& action, uint32 entry);
+        static bool IsDungeonEncounterValid(ActionSetActionHolder const& action, uint32 entry);
         static bool IsBooleanValid(ActionSetActionHolder const& action, double value);
+        static bool IsPercentValid(ActionSetActionHolder const& action, double percent);
         static bool IsSearchRadiusValid(ActionSetActionHolder const& action, double radius);
         static bool IsApproachDistValid(ActionSetActionHolder const& action, double distance);
         static bool IsSpellScriptValid(ActionSetActionHolder const& action, double script);

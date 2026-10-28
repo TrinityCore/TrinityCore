@@ -1350,15 +1350,58 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_UNIT_CAST_RANDOM_UNIT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_RANDOM_PLAYER:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_OTHER_UNIT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_MOVE_CIRCLE_RELATIVE:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            /// @todo Extra2 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_ABORT_ACTION_SET_COMBAT_CONDITION_TRUE:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_FORCE_COMBAT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsPercentValid(action, action.Extra1))
+                return false;
+            /// @todo Extra2 field
+            if (!IsPercentValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+        case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_NO_MELEE_APPROACH:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_RAID_LOCK_TAP_LIST:
+            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CANNOT_TURN:
+            if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
         case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
@@ -1747,12 +1790,36 @@ bool AIGroupMgr::IsAnimKitValid(ActionSetActionHolder const& action, uint32 entr
     return true;
 }
 
+bool AIGroupMgr::IsDungeonEncounterValid(ActionSetActionHolder const& action, uint32 entry)
+{
+    if (!sDungeonEncounterStore.LookupEntry(entry))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Dungeon Encounter {}, skipped.",
+            action.Id, action.Index, action.Type, entry);
+        return false;
+    }
+
+    return true;
+}
+
 bool AIGroupMgr::IsBooleanValid(ActionSetActionHolder const& action, double value)
 {
     if (value != 0 && value != 1)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid boolean value {}, skipped.",
             action.Id, action.Index, action.Type, value);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsPercentValid(ActionSetActionHolder const& action, double percent)
+{
+    if (percent < 0 || percent > 100)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid percent value {}, skipped.",
+            action.Id, action.Index, action.Type, percent);
         return false;
     }
 
