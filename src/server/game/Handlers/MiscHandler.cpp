@@ -1227,3 +1227,10 @@ void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags c
 {
     _player->SetCurrencyFlagsFromClient(setCurrenctFlags.CurrencyID, setCurrenctFlags.Flags);
 }
+
+void WorldSession::HandleRequestMythicPlusSeasonData(WorldPackets::Misc::RequestMythicPlusSeasonData& /*request*/)
+{
+    WorldPackets::Misc::MythicPlusSeasonData seasonData;
+    seasonData.IsMythicPlusActive = sWorld->getBoolConfig(CONFIG_MYTHIC_PLUS_ENABLED);
+    SendPacket(seasonData.Write());
+}

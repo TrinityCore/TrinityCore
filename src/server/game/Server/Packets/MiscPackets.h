@@ -1044,6 +1044,24 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             WarbandSceneCollectionContainer const* WarbandScenes = nullptr;
         };
+
+        class RequestMythicPlusSeasonData final : public ClientPacket
+        {
+        public:
+            explicit RequestMythicPlusSeasonData(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_MYTHIC_PLUS_SEASON_DATA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class MythicPlusSeasonData final : public ServerPacket
+        {
+        public:
+            explicit MythicPlusSeasonData() : ServerPacket(SMSG_MYTHIC_PLUS_SEASON_DATA) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsMythicPlusActive = false;
+        };
     }
 }
 

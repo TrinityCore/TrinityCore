@@ -849,4 +849,12 @@ WorldPacket const* AccountWarbandSceneUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* MythicPlusSeasonData::Write()
+{
+    _worldPacket << Bits<1>(IsMythicPlusActive);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
 }

@@ -1228,6 +1228,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     // Send PVPSeason
     {
         WorldPackets::Battleground::SeasonInfo seasonInfo;
+        seasonInfo.MythicPlusDisplaySeasonID = sWorld->getIntConfig(CONFIG_MYTHIC_PLUS_DISPLAY_SEASON_ID);
+        seasonInfo.MythicPlusMilestoneSeasonID = sWorld->getIntConfig(CONFIG_MYTHIC_PLUS_MILESTONE_SEASON_ID);
         seasonInfo.PreviousArenaSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
 
         if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
