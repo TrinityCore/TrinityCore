@@ -27,7 +27,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
-namespace Scripts::KhazAlgar::HallsOfAwakening
+namespace Scripts::KhazAlgar::HallOfAwakening
 {
 namespace Creatures
 {
@@ -46,30 +46,20 @@ public:
 
     void OnCreate(Unit* creator) override
     {
-        Creature* dawnObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = Creatures::DawnStairs, .StringId = "CloneTarget", .IgnorePhases = true });
-        if (!dawnObject)
-            return;
+        if (Creature* dawnObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = Creatures::DawnStairs, .StringId = "CloneTarget", .IgnorePhases = true }))
+            dawnObject->SummonPersonalClone(DawnInitCloneSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
 
-        Creature* foremanUzjaxObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = Creatures::ForemanUzjaxStairs, .StringId = "CloneTarget", .IgnorePhases = true });
-        if (!foremanUzjaxObject)
-            return;
-
-        TempSummon* dawnClone = dawnObject->SummonPersonalClone(DawnInitCloneSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!dawnClone)
-            return;
-
-        TempSummon* foremanUzjaxClone = foremanUzjaxObject->SummonPersonalClone(ForemasterUjaxInitCloneSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!foremanUzjaxClone)
-            return;
+        if (Creature* foremanUzjaxObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = Creatures::ForemanUzjaxStairs, .StringId = "CloneTarget", .IgnorePhases = true }))
+            foremanUzjaxObject->SummonPersonalClone(ForemasterUjaxInitCloneSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
 
         conversation->Start();
     }
 };
 }
 
-void AddSC_zone_halls_of_awakening()
+void AddSC_zone_hall_of_awakening()
 {
-    using namespace Scripts::KhazAlgar::HallsOfAwakening;
+    using namespace Scripts::KhazAlgar::HallOfAwakening;
 
     // Conversations
     RegisterConversationAI(conversation_quest_who_am_i);
