@@ -1388,6 +1388,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsPercentValid(action, action.Extra3))
                 return false;
             /// @todo Extra4 field
+            break;
         case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT:
             if (!IsBooleanValid(action, action.Extra2))
                 return false;
