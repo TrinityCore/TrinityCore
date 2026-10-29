@@ -3517,7 +3517,7 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
 
 void AuraEffect::HandleAuraSpeedLimitMax(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -3528,7 +3528,7 @@ void AuraEffect::HandleAuraSpeedLimitMax(AuraApplication const* aurApp, uint8 mo
 
 void AuraEffect::HandleAuraSpeedLimitMin(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -3541,7 +3541,7 @@ void AuraEffect::HandleAuraSpeedLimitMin(AuraApplication const* aurApp, uint8 mo
 
 void AuraEffect::HandleAuraSetSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
