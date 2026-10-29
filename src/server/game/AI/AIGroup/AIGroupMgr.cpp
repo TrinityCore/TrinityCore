@@ -1415,6 +1415,87 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
+        case AI_GROUP_UNIT_PREFER_NPCS_ENEMIES:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_FACTION:
+            if (!IsFactionValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_KIT:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            break;
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_UNIT_PERFORM_SPELL_VISUAL_ACTIONS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            /// @todo Extra3 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_STRINGID:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_OBJECT_STRINGID_RESET:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_DESPAWN_PERSISTENT_AURA_OBJECTS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_UNIT_DEFAULT_MOUNT:
+            if (!IsCreatureValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_CLEAR_BOSS_EMOTES_ZONE:
+            if (!IsZoneValid(action, uint32(action.Extra4)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_INTERACT_WHILE_HOSTILE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_MODEL_HIGHLIGHT_SUPPRESSION:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_FOLLOW_TAXI_PATH:
+            /// @todo Extra2 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_FOLLOW_TAXI_PATH_RELATIVE:
+            /// @todo Extra0 field
+            /// @todo Extra1 field
+            /// @todo Extra2 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_START_DUNGEON_ENCOUNTER:
+            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_END_DUNGEON_ENCOUNTER:
+            if (!IsDungeonEncounterValid(action, uint32(action.Extra2)))
+                return false;
+            if (!IsBooleanValid(action, action.Extra4))
+                return false;
+            break;
         case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
             if (!IsSpellValid(action, uint32(action.Extra2)))
                 return false;
