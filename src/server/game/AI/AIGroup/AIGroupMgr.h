@@ -960,6 +960,14 @@ enum class MoveCircleOptions : uint8
     MoveCircleOptionsAll  = (TimeoutReturn | CounterClockwise | RandomDirection | HighResolution)
 };
 
+enum class CircleUnitOptions : uint8
+{
+    CounterClockwise      = 0x001,
+    RandomDirection       = 0x002,
+
+    CircleUnitOptionsAll  = (CounterClockwise | RandomDirection)
+};
+
 enum class SparringOptions : uint8
 {
     IgnoreFaction      = 0x001,
@@ -967,6 +975,14 @@ enum class SparringOptions : uint8
     LockTarget         = 0x004,
 
     SparringOptionsAll = (IgnoreFaction | Bidirectional | LockTarget)
+};
+
+enum class TurnInPlaceOptions : uint8
+{
+    Right              = 0,
+    Left               = 1,
+    Random             = 2,
+    Max
 };
 
 enum class CreatureDisplayInfoIndex : uint8

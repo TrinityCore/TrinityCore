@@ -1390,8 +1390,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsPercentValid(action, action.Extra1))
                 return false;
             /// @todo Extra2 field
-            if (!IsPercentValid(action, action.Extra3))
-                return false;
+            /// @todo Extra3 field
             if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(SparringOptions::SparringOptionsAll)))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Sparring Options {}, skipped.",
@@ -1496,8 +1495,192 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             if (!IsBooleanValid(action, action.Extra4))
                 return false;
             break;
+        case AI_GROUP_UNIT_WILD_BATTLEPET_LEVEL:
+            if (action.Extra2 < 1 || action.Extra2 > 25 || !IsIntegerDouble(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Level value {} (must be between 1 and 25), skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            break;
+        case AI_GROUP_UNIT_TRACK_PLAYER_STAT:
+            /// @todo Extra2 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_UNIT_CANNOT_PENETRATE_WATER:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_DESPAWN_STRINGID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_UNIT_TREAT_UNIT_AS_RAID_UNIT:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_DESPAWN_SUMMONED_AREA_TRIGGERS:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            break;
+        case AI_GROUP_UNIT_ADD_PERMANENT_WORLD_EFFECT:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_REMOVE_PERMANENT_WORLD_EFFECT:
+            /// @todo Extra2 field
+            break;
         case AI_GROUP_UNIT_CAST_WITH_POINTS_OTHER_UNIT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
             if (!IsSpellValid(action, uint32(action.Extra2)))
+                return false;
+            /// @todo Extra3 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_CIRCLE_UNIT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra1 field
+            if (!IsIntegerDouble(action.Extra2) || (static_cast<uint32>(action.Extra2) & ~static_cast<uint32>(CircleUnitOptions::CircleUnitOptionsAll)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Circle Unit Options {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_RUN_SPELL_SCRIPT:
+            if (!IsSpellScriptValid(action, action.Extra2))
+                return false;
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_TURN_IN_PLACE_DEGREES:
+            if (action.Extra2 < 0 || action.Extra2 >= static_cast<int>(TurnInPlaceOptions::Max) || !IsIntegerDouble(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Turn In Place Option {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            if (!IsPercentValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field ?
+            break;
+        case AI_GROUP_TURN_IN_PLACE_TIMED:
+            if (action.Extra2 < 0 || action.Extra2 >= static_cast<int>(TurnInPlaceOptions::Max) || !IsIntegerDouble(action.Extra2))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Turn In Place Option {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            if (!IsPercentValid(action, action.Extra3))
+                return false;
+            break;
+        case AI_GROUP_UNIT_PREFER_UNENGAGED_TARGETS:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_GENERATE_SPAWNGROUP_EVENT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_PUSH_ACTIONSET:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsApproachDistValid(action, action.Extra1))
+                return false;
+            if (!IsSpellScriptValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_TRIGGER_ACTIONS_ON_SELF:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_EJECT_PASSENGER:
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_PERFORM_ACTIONSET:
+            /// @todo Extra2 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_UNIT_TRIGGER_SPELL_CATEGORY_COOLDOWN:
+            if (!sSpellCategoryStore.LookupEntry(uint32(action.Extra2)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses non-existent Spell Category {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra2);
+                return false;
+            }
+            /// @todo Extra3 field
+            break;
+        case AI_GROUP_UNIT_PLAY_SOUND_ON_ITSELF_SPEAKERBOT:
+            if (!IsSoundValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_GUID:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            if (!IsApproachDistValid(action, action.Extra1))
+                return false;
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_MOVE_ON_PATH_GRAPH_MULTIPLE_POINTS:
+            /// @todo Extra2 field
+            if (!IsSpeedMultiplierValid(action, action.Extra3))
+                return false;
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_UNIT_NEVER_EVADE:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_DONT_LEAVE_COMBAT:
+            if (!IsBooleanValid(action, action.Extra2))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SAY_GAME_REGION:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_SAY_GAME_REGION_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_GAME_REGION:
+            if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_UNIT_YELL_GAME_REGION_RANDOM:
+            if (!IsRandomTextValid(action, uint32(action.Extra2)))
+                return false;
+            break;
+        case AI_GROUP_COMBAT_POSITION:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra1 field
+            /// @todo Extra2 field
+            /// @todo Extra4 field
+            break;
+        case AI_GROUP_COMBAT_CHASE:
+            if (!IsSearchRadiusValid(action, action.Extra0))
+                return false;
+            /// @todo Extra1 field
+            /// @todo Extra2 field
+            break;
+        case AI_GROUP_UNIT_DONT_DISMISS_ON_FLYING_MOUNT:
+            if (!IsBooleanValid(action, action.Extra2))
                 return false;
             break;
         default:
@@ -1908,7 +2091,7 @@ bool AIGroupMgr::IsBooleanValid(ActionSetActionHolder const& action, double valu
 
 bool AIGroupMgr::IsPercentValid(ActionSetActionHolder const& action, double percent)
 {
-    if (percent < 0 || percent > 100)
+    if (percent < 1 || percent > 100)
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid percent value {}, skipped.",
             action.Id, action.Index, action.Type, percent);
