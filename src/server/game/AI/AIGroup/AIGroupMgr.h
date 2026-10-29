@@ -950,6 +950,25 @@ enum class MoveSpeed : uint8
     Max
 };
 
+enum class MoveCircleOptions : uint8
+{
+    TimeoutReturn         = 0x001,
+    CounterClockwise      = 0x002,
+    RandomDirection       = 0x004,
+    HighResolution        = 0x008,
+
+    MoveCircleOptionsAll  = (TimeoutReturn | CounterClockwise | RandomDirection | HighResolution)
+};
+
+enum class SparringOptions : uint8
+{
+    IgnoreFaction      = 0x001,
+    Bidirectional      = 0x002,
+    LockTarget         = 0x004,
+
+    SparringOptionsAll = (IgnoreFaction | Bidirectional | LockTarget)
+};
+
 enum class CreatureDisplayInfoIndex : uint8
 {
     Random             = 0,
@@ -1264,6 +1283,8 @@ class TC_GAME_API AIGroupMgr
         static bool IsGameObjectActionValid(ActionSetActionHolder const& action, double gameObjectAction);
         static bool IsDisplayIndexValid(ActionSetActionHolder const& action, double index);
         static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
+
+        static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
         static bool IsTriggerAllowed(ActionTriggers trigger);

@@ -1323,7 +1323,7 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field ?
             break;
         case AI_GROUP_UNIT_BOSS_UNIT_FRAMES_PRIORITY:
-            if (action.Extra2 < 1 || action.Extra2 > 255 || std::floor(action.Extra2) != action.Extra2)
+            if (action.Extra2 < 1 || action.Extra2 > 255 || !IsIntegerDouble(action.Extra2))
             {
                 TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid value {} (must be between 1 and 255), skipped.",
                     action.Id, action.Index, action.Type, action.Extra2);
@@ -1374,7 +1374,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             if (!IsSpeedMultiplierValid(action, action.Extra3))
                 return false;
-            /// @todo Extra4 field
+            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(MoveCircleOptions::MoveCircleOptionsAll)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Move Circle Options {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra4);
+                return false;
+            }
             break;
         case AI_GROUP_ABORT_ACTION_SET_COMBAT_CONDITION_TRUE:
             /// @todo Extra2 field
@@ -1387,7 +1392,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             if (!IsPercentValid(action, action.Extra3))
                 return false;
-            /// @todo Extra4 field
+            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(SparringOptions::SparringOptionsAll)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid Sparring Options {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra4);
+                return false;
+            }
             break;
         case AI_GROUP_UNIT_UNTARGETABLE_BY_CLIENT:
             if (!IsBooleanValid(action, action.Extra2))
@@ -1697,7 +1707,7 @@ bool AIGroupMgr::IsCreatureValid(ActionSetActionHolder const& action, uint32 ent
 
 bool AIGroupMgr::IsAnimTierValid(ActionSetActionHolder const& action, double value)
 {
-    if (value < 0 || value >= static_cast<double>(AnimTier::Max) || std::floor(value) != value)
+    if (value < 0 || value >= static_cast<double>(AnimTier::Max) || !IsIntegerDouble(value))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Anim Tier {}, skipped.",
             action.Id, action.Index, action.Type, value);
@@ -1891,7 +1901,7 @@ bool AIGroupMgr::IsGameObjectActionValid(ActionSetActionHolder const& action, do
 
 bool AIGroupMgr::IsDisplayIndexValid(ActionSetActionHolder const& action, double index)
 {
-    if (index < 0 || index >= static_cast<double>(CreatureDisplayInfoIndex::Max) || std::floor(index) != index)
+    if (index < 0 || index >= static_cast<double>(CreatureDisplayInfoIndex::Max) || !IsIntegerDouble(index))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Display Index {} (must be between 0 and 4), skipped.",
             action.Id, action.Index, action.Type, index);
@@ -1903,7 +1913,7 @@ bool AIGroupMgr::IsDisplayIndexValid(ActionSetActionHolder const& action, double
 
 bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double index)
 {
-    if (index < 0 || index >= MAX_VEHICLE_SEATS || std::floor(index) != index)
+    if (index < 0 || index >= MAX_VEHICLE_SEATS || !IsIntegerDouble(index))
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
             action.Id, action.Index, action.Type, index, MAX_VEHICLE_SEATS);
