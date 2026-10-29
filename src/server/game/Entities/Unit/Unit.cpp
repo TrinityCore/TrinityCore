@@ -9133,11 +9133,11 @@ void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpd
         switch (speedType)
         {
             case ADV_FLYING_BANKING_RATE:
-                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE, flightCapabilityEntry->BankingRateMin, flightCapabilityEntry->BankingRateMax, SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE);
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_BANKING_RATE, DegToRad(flightCapabilityEntry->BankingRateMin), DegToRad(flightCapabilityEntry->BankingRateMax), SPELL_AURA_MOD_ADV_FLYING_BANKING_RATE);
             case ADV_FLYING_PITCHING_RATE_DOWN:
-                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN, flightCapabilityEntry->PitchingRateDownMin, flightCapabilityEntry->PitchingRateDownMax, SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN);
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_DOWN, DegToRad(flightCapabilityEntry->PitchingRateDownMin), DegToRad(flightCapabilityEntry->PitchingRateDownMax), SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_DOWN);
             case ADV_FLYING_PITCHING_RATE_UP:
-                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP, flightCapabilityEntry->PitchingRateUpMin, flightCapabilityEntry->PitchingRateUpMax, SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP);
+                return std::tuple(SMSG_MOVE_SET_ADV_FLYING_PITCHING_RATE_UP, DegToRad(flightCapabilityEntry->PitchingRateUpMin), DegToRad(flightCapabilityEntry->PitchingRateUpMax), SPELL_AURA_MOD_ADV_FLYING_PITCHING_RATE_UP);
             case ADV_FLYING_TURN_VELOCITY_THRESHOLD:
                 return std::tuple(SMSG_MOVE_SET_ADV_FLYING_TURN_VELOCITY_THRESHOLD, flightCapabilityEntry->TurnVelocityThresholdMin, flightCapabilityEntry->TurnVelocityThresholdMax, SPELL_AURA_NONE);
             default:
