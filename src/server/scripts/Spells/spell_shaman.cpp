@@ -1325,22 +1325,6 @@ class spell_sha_hailstorm : public AuraScript
     }
 };
 
-// 1298679 - Healing Rain
-struct at_sha_healing_rain : AreaTriggerAI
-{
-    using AreaTriggerAI::AreaTriggerAI;
-
-    void OnInitialize() override
-    {
-        if (Unit* caster = at->GetCaster())
-            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_SHAMAN_HEALING_RAIN_AT))
-            {
-                other->SetDuration(0);
-                caster->RemoveAurasDueToSpell(SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA);
-            }
-    }
-};
-
 // 73920 - Healing Rain (Aura)
 class spell_sha_healing_rain : public AuraScript
 {
@@ -1369,10 +1353,15 @@ class spell_sha_healing_rain_areatrigger : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA });
     }
 
-    void HandleHit(SpellMissInfo /*missInfo*/) const
+    void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         caster->CastSpell(caster, SPELL_SHAMAN_HEALING_RAIN_ACTIVE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, GetSpellInfo()->CalcDuration(GetCaster()) } }
+        });
+        caster->CastSpell(*GetHitDest(), SPELL_SHAMAN_HEALING_RAIN_HEAL, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -1380,7 +1369,7 @@ class spell_sha_healing_rain_areatrigger : public SpellScript
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_sha_healing_rain_areatrigger::HandleHit);
+        OnEffectLaunch += SpellEffectFn(spell_sha_healing_rain_areatrigger::HandleHit, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
 
@@ -3499,7 +3488,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterSpellScript(spell_sha_flametongue_weapon_aura);
     RegisterSpellScript(spell_sha_hailstorm);
-    RegisterAreaTriggerAI(at_sha_healing_rain);
     RegisterSpellScript(spell_sha_healing_rain);
     RegisterSpellScript(spell_sha_healing_rain_areatrigger);
     RegisterSpellScript(spell_sha_healing_rain_target_limit);
