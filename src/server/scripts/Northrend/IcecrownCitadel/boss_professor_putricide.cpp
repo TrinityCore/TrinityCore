@@ -223,7 +223,7 @@ private:
 struct boss_professor_putricide : public BossAI
 {
     boss_professor_putricide(Creature* creature) : BossAI(creature, DATA_PROFESSOR_PUTRICIDE),
-        _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
+        _baseSpeed(creature->GetSpeed(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
     {
         _phase = PHASE_NONE;
         _oozeFloodStage = 0;
@@ -373,21 +373,18 @@ struct boss_professor_putricide : public BossAI
         {
             case POINT_FESTERGUT:
                 instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS); // needed here for delayed gate close
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                 DoAction(ACTION_FESTERGUT_GAS);
                 if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FESTERGUT)))
                     festergut->CastSpell(festergut, SPELL_GASEOUS_BLIGHT_LARGE, CastSpellExtraArgs().SetOriginalCaster(festergut->GetGUID()));
                 break;
             case POINT_ROTFACE:
                 instance->SetBossState(DATA_ROTFACE, IN_PROGRESS);   // needed here for delayed gate close
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                 DoAction(ACTION_ROTFACE_OOZE);
                 events.ScheduleEvent(EVENT_ROTFACE_OOZE_FLOOD, 25s, 0, PHASE_ROTFACE);
                 break;
             case POINT_TABLE:
                 // stop attack
                 me->GetMotionMaster()->MoveIdle();
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                 if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_PUTRICIDE_TABLE)))
                     me->SetFacingToObject(table);
                 // operating on new phase already
@@ -422,8 +419,7 @@ struct boss_professor_putricide : public BossAI
         {
             case ACTION_FESTERGUT_COMBAT:
                 SetPhase(PHASE_FESTERGUT);
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
-                me->GetMotionMaster()->MovePoint(POINT_FESTERGUT, festergutWatchPos);
+                me->GetMotionMaster()->MovePoint(POINT_FESTERGUT, festergutWatchPos, true, {}, _baseSpeed * 2.0f);
                 me->SetReactState(REACT_PASSIVE);
                 EngagementStart(nullptr);
                 if (IsHeroic())
@@ -438,8 +434,7 @@ struct boss_professor_putricide : public BossAI
                 break;
             case ACTION_ROTFACE_COMBAT:
                 SetPhase(PHASE_ROTFACE);
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
-                me->GetMotionMaster()->MovePoint(POINT_ROTFACE, rotfaceWatchPos);
+                me->GetMotionMaster()->MovePoint(POINT_ROTFACE, rotfaceWatchPos, true, { }, _baseSpeed * 2.0f);
                 me->SetReactState(REACT_PASSIVE);
                 EngagementStart(nullptr);
                 _oozeFloodStage = 0;
@@ -480,7 +475,6 @@ struct boss_professor_putricide : public BossAI
                 events.ScheduleEvent(EVENT_ROTFACE_DIES, 4500ms, 0, PHASE_ROTFACE);
                 break;
             case ACTION_CHANGE_PHASE:
-                me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                 events.DelayEvents(30s);
                 me->AttackStop();
                 if (!IsHeroic())
@@ -516,7 +510,7 @@ struct boss_professor_putricide : public BossAI
                         for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                             (*itr)->CastSpell(*itr, SPELL_GAS_VARIABLE, true);
                     }
-                    me->GetMotionMaster()->MovePoint(POINT_TABLE, tablePos);
+                    me->GetMotionMaster()->MovePoint(POINT_TABLE, tablePos, true, { }, _baseSpeed * 2.0f);
                 }
                 switch (_phase)
                 {

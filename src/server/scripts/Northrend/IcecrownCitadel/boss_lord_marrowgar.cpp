@@ -135,7 +135,7 @@ struct boss_lord_marrowgar : public BossAI
     boss_lord_marrowgar(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR)
     {
         _boneStormDuration = RAID_MODE(20s, 30s, 20s, 30s);
-        _baseSpeed = creature->GetSpeedRate(MOVE_RUN);
+        _baseSpeed = creature->GetSpeed(MOVE_RUN);
         _coldflameLastPos.Relocate(creature);
         _boneSlice = false;
     }
@@ -143,7 +143,6 @@ struct boss_lord_marrowgar : public BossAI
     void Reset() override
     {
         _Reset();
-        me->SetSpeedRate(MOVE_RUN, _baseSpeed);
         me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
         me->RemoveAurasDueToSpell(SPELL_BERSERK);
         events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
@@ -224,7 +223,6 @@ struct boss_lord_marrowgar : public BossAI
                 case EVENT_BONE_STORM_BEGIN:
                     if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                         pStorm->SetDuration(int32(_boneStormDuration.count()));
-                    me->SetSpeedRate(MOVE_RUN, _baseSpeed*3.0f);
                     Talk(SAY_BONE_STORM);
                     events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration + 1ms);
                     [[fallthrough]];
@@ -235,7 +233,7 @@ struct boss_lord_marrowgar : public BossAI
                     if (!unit)
                         unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                     if (unit)
-                        me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, *unit);
+                        me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, *unit, true, {}, _baseSpeed * 4.0f);
                     break;
                 }
                 case EVENT_BONE_STORM_END:
@@ -250,7 +248,6 @@ struct boss_lord_marrowgar : public BossAI
                     }))
                         me->GetMotionMaster()->Remove(movement);
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
-                    me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                     events.CancelEvent(EVENT_BONE_STORM_MOVE);
                     events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);
                     if (!IsHeroic())
