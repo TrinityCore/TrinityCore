@@ -334,11 +334,20 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
 {
     AIGroupMgr::ActionSetTypeInfo const& typeInfo = AIGroupMgr::StaticActionSetTypeData[action.Type];
 
+    AIGroupMgr::ObjectTypeMask mask = AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type));
+
+    if (mask == static_cast<AIGroupMgr::ObjectTypeMask>(0))
+    {
+        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: {} entry {} uses action type {} ({}) without ObjectTypeMask, action set {} index {}, skipped.",
+            me ? "Unit" : "Object", me ? me->GetEntry() : go->GetEntry(), action.Type, typeInfo.Name, action.Id, action.Index);
+        return true;
+    }
+
     uint8 objectTypeMask = me ? AIGroupMgr::ObjectTypeMaskUnit : AIGroupMgr::ObjectTypeMaskObject;
 
-    if (!(AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type)) & objectTypeMask))
+    if (!(mask & objectTypeMask))
     {
-        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteAction: {} entry {} cannot use action type {} ({}), action set {} index {}, skipped.",
+        TC_LOG_ERROR("sql.sql", "AIGroupScript::ExecuteActionForActor: {} entry {} cannot use action type {} ({}), action set {} index {}, skipped.",
             me ? "Unit" : "Object", me ? me->GetEntry() : go->GetEntry(), action.Type, typeInfo.Name, action.Id, action.Index);
         return true;
     }

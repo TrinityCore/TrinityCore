@@ -4,6 +4,7 @@
 --------------
 
 * [Creating a New Action Trigger](#creating-a-new-action-trigger)
+* [Creating a New Action](#creating-a-new-action)
 
 ## What is... Action Triggers
 
@@ -24,3 +25,28 @@ To create a new action trigger, follow these steps:
 5. Add the appropriate callback in `AIGroup.cpp` and call `GetScript()->ProcessEventsFor(...)`.
 6. Implement trigger behavior in `AIGroupScript::ProcessEvent`.
 7. If parameters need validation, add the checks to the `AIGroupMgr::LoadActionTriggersFromDB`.
+
+## Creating a New Action
+
+To create a new action, follow these steps:
+
+1. Add a new action to the `AI_GROUP_ACTION` enum using the last available AI_GROUP_CU_ slot (retain the CU_ prefix). Follow the standard naming conventions:
+   - Unit-specific actions: Add the `UNIT_` prefix (e.g., `AI_GROUP_CU_UNIT_DISPLAYID`).
+   - Object-specific actions: Add the `OBJECT_` prefix (e.g., `AI_GROUP_CU_OBJECT_DISPLAYID`).
+   - Groupwide or main actor actions: Do not add a `UNIT_` or `OBJECT_` prefix (e.g., `AI_GROUP_CU_DISPLAYID`).
+2. Add a short description explaining what your action does:
+   - Unit actions: Mention that it applies to units (e.g. `Change display for unit(s)`).
+   - Object actions: Mention that it applies to objects (e.g. `Change display for object(s)`).
+   - Groupwide or main actor actions: Do not include a target mention (e.g. `Change display`).
+3. Add your action to `AIGroupMgr::GetObjectTypeMask`. If the action is used by units only, specify `ObjectTypeMaskUnit`; if by objects only, specify `ObjectTypeMaskObject`; if by both units and objects, specify `ObjectTypeMaskAll`. This is needed for runtime validation to prevent game objects from executing unit-only actions and units from executing object-only actions.<br>
+**IMPORTANT:** Skipping this step will cause AIGroup to throw an error during action execution, as executing an action without a type mask or with the wrong type mask may lead to unexpected behavior or crashes.
+4. Add your action to the end of `AIGroupMgr::StaticActionSetTypeData` and specify which parameters it uses. The full list of parameters is specified in the `ActionTypeField` enum. This is required to throw an error if fields unused by the action are populated.<br>
+**IMPORTANT:** If your action uses no fields, it requires an empty row, like the one below:
+
+```cpp
+    { "AI_GROUP_FALL_TO_THE_GROUND", {  } },
+```
+
+5. If needed, validate `extra` parameters in `IsActionTypeValid`. All other parameters are validated automatically and do not require any changes.
+6. Implement the action behavior in `AIGroupScript::ExecuteActionForActor`. If your action uses the `StringId` field, ensure you also add your action to the section where `StringId` target selection is handled. Additionally, add your action to `AIGroupScript::GetStringIdSearchRadius`.<br>
+**IMPORTANT:** By default, the action targets both creatures and game objects with the specified `StringId` within a 100-yard range.
