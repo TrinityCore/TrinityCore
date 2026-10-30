@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <algorithm>
+#include <cmath>
 #include <initializer_list>
 #include <string_view>
 #include <unordered_map>
@@ -993,6 +994,18 @@ enum class CreatureDisplayInfoIndex : uint8
     Index3             = 3,
     Index4             = 4,
     Max
+};
+
+// First flag and enum name comes from Alpha client
+enum class AIActionUnitModeFlag : uint8
+{
+    UpdateUnitLevel         = 0x001,    // NYI
+    OnlyChangeModel         = 0x002,    // NYI (There's no action to change unit model, so this should be handled in UpdateEntry without updating entry...)
+    NoFactionUpdate         = 0x004,    // NYI (For example in quest Inoculation, Nestlewood Owlkin doesn't update faction)
+    NoReactStateUpdate      = 0x008,    // NYI (This one actually should not exist. Needed because react state should not be updated at all)
+    NoFlagsUpdate           = 0x010,    // NYI (This one actually should not exist. Needed because unit flags should not be removed at all)
+
+    AIActionUnitModeFlagAll = (UpdateUnitLevel | OnlyChangeModel | NoFactionUpdate | NoReactStateUpdate | NoFlagsUpdate)
 };
 
 // Custom

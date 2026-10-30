@@ -720,7 +720,12 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_MODE:
             if (!IsCreatureValid(action, uint32(action.Extra2)))
                 return false;
-            /// @todo Extra4 field
+            if (!IsIntegerDouble(action.Extra4) || (static_cast<uint32>(action.Extra4) & ~static_cast<uint32>(AIActionUnitModeFlag::AIActionUnitModeFlagAll)))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} has invalid AIActionUnitModeFlag {}, skipped.",
+                    action.Id, action.Index, action.Type, action.Extra4);
+                return false;
+            }
             break;
         case AI_GROUP_UNIT_FACTION:
             if (!IsFactionValid(action, uint32(action.Extra2)))
