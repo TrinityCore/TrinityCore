@@ -2265,6 +2265,7 @@ CREATE TABLE `characters` (
   `transguid` bigint unsigned NOT NULL DEFAULT '0',
   `extra_flags` smallint unsigned NOT NULL DEFAULT '0',
   `summonedPetNumber` int unsigned NOT NULL DEFAULT '0',
+  `lastSummonedBattlePet` bigint NOT NULL DEFAULT '0',
   `at_login` smallint unsigned NOT NULL DEFAULT '0',
   `zone` smallint unsigned NOT NULL DEFAULT '0',
   `death_expire_time` bigint NOT NULL DEFAULT '0',
@@ -2307,7 +2308,6 @@ CREATE TABLE `characters` (
   `personalTabardBackgroundColor` int NOT NULL DEFAULT '-1',
   `transmogOutfitEquippedId` int NOT NULL DEFAULT '2',
   `transmogOutfitLocked` tinyint(1) NOT NULL DEFAULT '0',
-  `lastSummonedBattlePet` bigint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   UNIQUE KEY `idx_name` (`name`),
   KEY `idx_account` (`account`),
@@ -4112,7 +4112,7 @@ INSERT INTO `updates` VALUES
 ('2026_09_12_00_characters.sql','A476229E4CCA5553050524484DD685FDCCDF91EF','RELEASED','2026-09-11 23:59:59',0),
 ('2026_10_05_00_characters.sql','9F10D43D4FBD253308862806066A8CEDAE7E5965','RELEASED','2026-10-05 11:57:42',0),
 ('2026_10_18_00_characters.sql','CF46EA66D3466053F9DDCB88A3CCC38B5C8171CF','RELEASED','2026-10-15 20:32:35',0),
-('2026_10_31_00_characters.sql','4F1CA31466FB8066C8BAF891464B9ECB8BA592D1','RELEASED','2026-10-17 23:59:59',0);
+('2026_10_31_00_characters.sql','73AB199A504B5DB3C98A8EA56F7E2D1916633117','RELEASED','2026-10-17 23:59:59',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
