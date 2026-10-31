@@ -131,7 +131,9 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL {}, learn spell id is: {}", packet.TrainerGUID.ToString(), packet.SpellID);
 
-    Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
+    // trainers like the mage portal trainers only have UNIT_NPC_FLAG_GOSSIP and open the trainer window through a gossip option,
+    // the interaction data check below ensures the trainer window was opened for this npc
+    Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_GOSSIP, UNIT_NPC_FLAG_2_NONE);
     if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - {} not found or you can not interact with him.", packet.TrainerGUID.ToString());
