@@ -267,7 +267,7 @@ class spell_fjord_mindless_abomination_ping_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MINDLESS_ABOMINATION_CONTROL);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MINDLESS_ABOMINATION_CONTROL, true);
     }
 
     void Register() override
@@ -502,7 +502,7 @@ class spell_fjord_the_cleansing_mirror_image_script_effect : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA, true);
     }
 
     void Register() override
@@ -525,7 +525,7 @@ class spell_fjord_the_cleansing_on_death_cast_on_master : public SpellScript
     {
         if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
             if (Unit* summoner = casterSummon->GetSummonerUnit())
-                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
     }
 
     void Register() override
@@ -801,7 +801,7 @@ class spell_fjord_worg_disguise : public AuraScript
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_WORG_DISGUISE_DUMMY);
+        GetTarget()->CastSpell(GetTarget(), SPELL_WORG_DISGUISE_DUMMY, true);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -1135,7 +1135,7 @@ class spell_storm_peaks_bear_flank_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL, true);
     }
 
     void Register() override
@@ -1349,8 +1349,8 @@ class spell_storm_peaks_contact_brann : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_DESPAWN_BRANN);
-        caster->CastSpell(caster, SPELL_CONTACT_BRANN);
+        caster->CastSpell(caster, SPELL_DESPAWN_BRANN, true);
+        caster->CastSpell(caster, SPELL_CONTACT_BRANN, true);
     }
 
     void Register() override

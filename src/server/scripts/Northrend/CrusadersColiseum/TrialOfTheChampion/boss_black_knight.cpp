@@ -393,7 +393,7 @@ class spell_black_knight_ghoul_explode : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectInfo(EFFECT_0).CalcValue()));
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectInfo(EFFECT_0).CalcValue()), true);
     }
 
     void Register() override
@@ -415,7 +415,7 @@ class spell_black_knight_ghoul_explode_risen_ghoul : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
     }
 
     void Register() override
