@@ -16,6 +16,8 @@ CollectAndAddSourceFiles(
   tests
   ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_sources(tests PRIVATE ${CMAKE_SOURCE_DIR}/src/server/scripts/Spells/spell_warlock.cpp)
+
 target_link_libraries(tests
   PRIVATE
     trinity-core-interface
