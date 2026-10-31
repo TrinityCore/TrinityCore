@@ -2434,20 +2434,16 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::GarrisonTierEqualOrGreaterThan: // 126
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset) || garrison->GetSiteLevel()->GarrLevel < reqValue)
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
+            if (!garrisonInfo || garrisonInfo->GarrSiteLevel->GarrLevel < reqValue)
                 return false;
             break;
         }
         case ModifierTreeType::GarrisonFollowersWithLevelEqualOrGreaterThan: // 127
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
-                GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
-                return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= secondaryAsset;
+                return follower.FollowerEntry->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= secondaryAsset;
             });
             if (followerCount < reqValue)
                 return false;
@@ -2455,13 +2451,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowersWithQualityEqualOrGreaterThan: // 128
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
-                GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
-                return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.Quality >= secondaryAsset;
+                return follower.FollowerEntry->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.Quality >= secondaryAsset;
             });
             if (followerCount < reqValue)
                 return false;
@@ -2469,13 +2461,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerWithAbilityAtLevelEqualOrGreaterThan: // 129
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
-                GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
-                return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility(secondaryAsset);
+                return follower.FollowerEntry->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility(secondaryAsset);
             });
             if (followerCount < 1)
                 return false;
@@ -2483,16 +2471,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerWithTraitAtLevelEqualOrGreaterThan: // 130
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
             GarrAbilityEntry const* traitEntry = sGarrAbilityStore.LookupEntry(secondaryAsset);
             if (!traitEntry || !(traitEntry->Flags & GARRISON_ABILITY_FLAG_TRAIT))
                 return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
-                GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
-                return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility(secondaryAsset);
+                return follower.FollowerEntry->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel >= reqValue && follower.HasAbility(secondaryAsset);
             });
             if (followerCount < 1)
                 return false;
@@ -2500,15 +2484,17 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerWithAbilityAssignedToBuilding: // 131
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(tertiaryAsset));
+            if (!garrisonInfo)
                 return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
+
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
             {
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
+
+                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);
             });
             if (followerCount < 1)
                 return false;
@@ -2516,18 +2502,23 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerWithTraitAssignedToBuilding: // 132
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(tertiaryAsset));
+            if (!garrisonInfo)
                 return false;
+
             GarrAbilityEntry const* traitEntry = sGarrAbilityStore.LookupEntry(reqValue);
             if (!traitEntry || !(traitEntry->Flags & GARRISON_ABILITY_FLAG_TRAIT))
                 return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
+
+                return followerBuilding->BuildingType == secondaryAsset
+                    && follower.HasAbility(reqValue)
+                    && follower.FollowerEntry->GarrTypeID == tertiaryAsset
+                    && followerBuilding->GarrTypeID == tertiaryAsset;
             });
             if (followerCount < 1)
                 return false;
@@ -2535,10 +2526,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerWithLevelAssignedToBuilding: // 133
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
             {
                 if (follower.PacketInfo.FollowerLevel < reqValue)
                     return false;
@@ -2553,16 +2541,17 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonBuildingWithLevelEqualOrGreaterThan: // 134
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(tertiaryAsset));
+            if (!garrisonInfo)
                 return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 if (!plot->BuildingInfo.PacketInfo)
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != secondaryAsset)
+                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != secondaryAsset || building->GarrTypeID != tertiaryAsset)
                     continue;
 
                 return true;
@@ -2571,10 +2560,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::HasBlueprintForGarrisonBuilding: // 135
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
+            if (!garrisonInfo)
                 return false;
-            if (!garrison->HasBlueprint(reqValue))
+
+            // TODO: should we also check for GarrisonType here? There is only one type that has blueprints, buildings etc.
+            if (!referencePlayer->GetGarrison()->HasBlueprint(reqValue))
                 return false;
             break;
         }
@@ -2582,12 +2573,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false; // OBSOLETE
         case ModifierTreeType::AllGarrisonPlotsAreFull: // 137
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(reqValue))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(reqValue));
+            if (!garrisonInfo)
                 return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
                 if (!plot->BuildingInfo.PacketInfo)
                     return false;
+
             break;
         }
         case ModifierTreeType::PlayerIsInOwnGarrison: // 138
@@ -2601,10 +2594,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(reqValue);
             if (!building)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
-                return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 if (!plot->BuildingInfo.PacketInfo || plot->BuildingInfo.PacketInfo->GarrBuildingID != reqValue)
                     continue;
@@ -2617,16 +2608,17 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::GarrisonBuildingLevelEqual: // 142
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(tertiaryAsset));
+            if (!garrisonInfo)
                 return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 if (!plot->BuildingInfo.PacketInfo)
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != reqValue)
+                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != reqValue || building->GarrTypeID != tertiaryAsset)
                     continue;
 
                 return true;
@@ -2635,12 +2627,13 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerHasAbility: // 143
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
+            if (!garrisonInfo)
                 return false;
+
             if (miscValue1)
             {
-                Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                Garrison::Follower const* follower = referencePlayer->GetGarrison()->GetFollower(miscValue1);
                 if (!follower)
                     return false;
                 if (!follower->HasAbility(reqValue))
@@ -2648,9 +2641,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             }
             else
             {
-                uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+                uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
                 {
-                    return follower.HasAbility(reqValue);
+                    return follower.HasAbility(reqValue) && follower.FollowerEntry->GarrTypeID == static_cast<int8>(secondaryAsset);
                 });
                 if (followerCount < 1)
                     return false;
@@ -2662,20 +2655,22 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             GarrAbilityEntry const* traitEntry = sGarrAbilityStore.LookupEntry(reqValue);
             if (!traitEntry || !(traitEntry->Flags & GARRISON_ABILITY_FLAG_TRAIT))
                 return false;
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset))
+
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
+            if (!garrisonInfo)
                 return false;
+
             if (miscValue1)
             {
-                Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                Garrison::Follower const* follower = referencePlayer->GetGarrison()->GetFollower(miscValue1);
                 if (!follower || !follower->HasAbility(reqValue))
                     return false;
             }
             else
             {
-                uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+                uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
                 {
-                    return follower.HasAbility(reqValue);
+                    return follower.HasAbility(reqValue) && follower.FollowerEntry->GarrTypeID == static_cast<int8>(secondaryAsset);
                 });
                 if (followerCount < 1)
                     return false;
@@ -2684,20 +2679,21 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerQualityEqual: // 145
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GARRISON_TYPE_GARRISON)
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(GARRISON_TYPE_GARRISON);
+            if (!garrisonInfo)
                 return false;
+
             if (miscValue1)
             {
-                Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                Garrison::Follower const* follower = referencePlayer->GetGarrison()->GetFollower(miscValue1);
                 if (!follower || follower->PacketInfo.Quality < reqValue)
                     return false;
             }
             else
             {
-                uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+                uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue](Garrison::Follower const& follower)
                 {
-                    return follower.PacketInfo.Quality >= reqValue;
+                    return follower.PacketInfo.Quality >= reqValue && follower.FollowerEntry->GarrTypeID == GARRISON_TYPE_GARRISON;
                 });
                 if (followerCount < 1)
                     return false;
@@ -2706,18 +2702,15 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerLevelEqual: // 146
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset))
-                return false;
             if (miscValue1)
             {
-                Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                Garrison::Follower const* follower = referencePlayer->GetGarrison()->GetFollower(miscValue1);
                 if (!follower || follower->PacketInfo.FollowerLevel != reqValue)
                     return false;
             }
             else
             {
-                uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+                uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue](Garrison::Follower const& follower)
                 {
                     return follower.PacketInfo.FollowerLevel == reqValue;
                 });
@@ -2733,10 +2726,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!miscValue1)
                 return false;
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 if (!plot->BuildingInfo.PacketInfo || plot->BuildingInfo.PacketInfo->GarrBuildingID != miscValue1)
                     continue;
@@ -2751,10 +2742,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonPlotInstanceHasBuildingThatIsReadyToActivate: // 150
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            Garrison::Plot const* plot = garrison->GetPlot(reqValue);
+            Garrison::Plot const* plot = referencePlayer->GetGarrison()->GetPlot(reqValue);
             if (!plot)
                 return false;
             if (!plot->BuildingInfo.CanActivate() || !plot->BuildingInfo.PacketInfo || plot->BuildingInfo.PacketInfo->Active)
@@ -2799,10 +2787,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false; // OBSOLETE
         case ModifierTreeType::HasGarrisonFollower: // 157
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue](Garrison::Follower const& follower)
             {
                 return follower.PacketInfo.GarrFollowerID == reqValue;
             });
@@ -2842,10 +2827,11 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::AllGarrisonPlotsFilledWithBuildingsWithLevelEqualOrGreater: // 166
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(reqValue))
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(reqValue));
+            if (!garrisonInfo)
                 return false;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 if (!plot->BuildingInfo.PacketInfo)
                     return false;
@@ -2861,10 +2847,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             if (!miscValue1)
                 return false;
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([miscValue1, reqValue](Garrison::Follower const& follower)
+
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([miscValue1, reqValue](Garrison::Follower const& follower)
             {
                 return follower.PacketInfo.GarrFollowerID == miscValue1 && follower.GetItemLevel() >= reqValue;
             });
@@ -2874,10 +2858,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerCountWithItemLevelEqualOrGreaterThan: // 169
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
                 GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
                 return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.GetItemLevel() >= secondaryAsset;
@@ -2888,8 +2869,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonTierEqual: // 170
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(secondaryAsset) || garrison->GetSiteLevel()->GarrLevel != reqValue)
+            Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
+            if (!garrisonInfo || garrisonInfo->GarrSiteLevel->GarrLevel != reqValue)
                 return false;
             break;
         }
@@ -2916,10 +2897,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerCountWithLevelEqualOrGreaterThan: // 175
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(tertiaryAsset))
-                return false;
-            uint32 followerCount = garrison->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
                 GarrFollowerEntry const* garrFollower = sGarrFollowerStore.AssertEntry(follower.PacketInfo.GarrFollowerID);
                 return garrFollower->GarrFollowerTypeID == tertiaryAsset && follower.PacketInfo.FollowerLevel == secondaryAsset;
@@ -2930,10 +2908,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerIsInBuilding: // 176
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue, secondaryAsset](Garrison::Follower const& follower)
             {
                 return follower.PacketInfo.GarrFollowerID == reqValue && follower.PacketInfo.CurrentBuildingID == secondaryAsset;
             });
@@ -2945,11 +2920,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::GarrisonPlotInstanceCountEqualOrGreaterThan: // 178
         {
-            Garrison* garrison = referencePlayer->GetGarrison();
-            if (!garrison || garrison->GetType() != GarrisonType(reqValue))
-                return false;
             uint32 plotCount = 0;
-            for (Garrison::Plot const* plot : garrison->GetPlots())
+            for (Garrison::Plot const* plot : referencePlayer->GetGarrison()->GetPlots())
             {
                 GarrPlotInstanceEntry const* garrPlotInstance = sGarrPlotInstanceStore.LookupEntry(plot->PacketInfo.GarrPlotInstanceID);
                 if (!garrPlotInstance || garrPlotInstance->GarrPlotID != secondaryAsset)
@@ -2968,10 +2940,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::HasActiveGarrisonFollower: // 181
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue](Garrison::Follower const& follower)
             {
                 return follower.PacketInfo.GarrFollowerID == reqValue && !(follower.PacketInfo.FollowerStatus & FOLLOWER_STATUS_INACTIVE);
             });
@@ -2996,10 +2965,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerCountWithInactiveWithItemLevelEqualOrGreaterThan: // 184
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([secondaryAsset, tertiaryAsset](Garrison::Follower const& follower)
             {
                 GarrFollowerEntry const* garrFollower = sGarrFollowerStore.LookupEntry(follower.PacketInfo.GarrFollowerID);
                 if (!garrFollower)
@@ -3012,10 +2978,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::GarrisonFollowerIsOnAMission: // 185
         {
-            Garrison const* garrison = referencePlayer->GetGarrison();
-            if (!garrison)
-                return false;
-            uint32 followerCount = garrison->CountFollowers([reqValue](Garrison::Follower const& follower)
+            uint32 followerCount = referencePlayer->GetGarrison()->CountFollowers([reqValue](Garrison::Follower const& follower)
             {
                 return follower.PacketInfo.GarrFollowerID == reqValue && follower.PacketInfo.CurrentMissionID != 0;
             });
