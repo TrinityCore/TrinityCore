@@ -140,6 +140,10 @@ enum DemonHunterSpells
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
     SPELL_DH_HAVOC_MASTERY                         = 185164,
+    SPELL_DH_HUNGERING_SLASH_DAMAGE                = 1239127,
+    SPELL_DH_HUNGERING_SLASH_ENABLER               = 1239525,
+    SPELL_DH_HUNGERING_SLASH_ENERGIZE              = 1239507,
+    SPELL_DH_HUNGERING_SLASH_TALENT                = 1239519,
     SPELL_DH_ILLIDANS_GRASP                        = 205630,
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
     SPELL_DH_ILLIDANS_GRASP_JUMP_DEST              = 208175,
@@ -250,16 +254,19 @@ enum DemonHunterSpells
     SPELL_DH_SWALLOWED_ANGER                       = 320313,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
+    SPELL_DH_THE_HUNT                              = 1246167,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
     SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
+    SPELL_DH_VOIDBLADE                             = 1245412,
     SPELL_DH_VOIDBLADE_CHARGE                      = 1241285,
     SPELL_DH_VOIDBLADE_DAMAGE                      = 1245414,
     SPELL_DH_VOIDGLARE_BOON_ENERGIZE               = 1241922,
     SPELL_DH_VOIDGLARE_BOON_TALENT                 = 1240202,
+    SPELL_DH_VOIDSTEP                              = 1223157,
     SPELL_DH_VOID_METAMORPHOSIS_BUFF               = 1217607,
     SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
@@ -1518,6 +1525,108 @@ struct at_dh_glaive_tempest : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+};
+
+// 1239123 - Hungering Slash
+class spell_dh_hungering_slash : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_DAMAGE, SPELL_DH_HUNGERING_SLASH_ENERGIZE, SPELL_DH_VOIDSTEP });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringAura = aurEff;
+
+        target->CastSpell(target, SPELL_DH_VOIDSTEP, args);
+        target->CastSpell(target->GetPosition(), SPELL_DH_HUNGERING_SLASH_DAMAGE, args);
+        target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENERGIZE, args);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_hungering_slash::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1239127 - Hungering Slash
+class spell_dh_hungering_slash_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_dh_shattered_souls_base_lesser::Validate();
+    }
+
+    void HandleSoulFragments() const
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), urand(1, 2));
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dh_hungering_slash_damage::HandleSoulFragments);
+    }
+};
+
+// 1239519 - Hungering Slash (attached to 1246167 - The Hunt and 1245412 - Voidblade)
+class spell_dh_hungering_slash_enabler : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER, SPELL_DH_VOIDBLADE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
+    }
+
+    void HandleEnabler(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_HUNGERING_SLASH_ENABLER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DH_VOIDBLADE)
+            OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_dh_hungering_slash_enabler_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER, SPELL_DH_THE_HUNT });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
+    }
+
+    void HandleEnabler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENABLER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DH_THE_HUNT)
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dh_hungering_slash_enabler_aura::HandleEnabler, EFFECT_3, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // Called by 162264 - Metamorphosis
@@ -2895,6 +3004,9 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_fiery_brand);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
+    RegisterSpellScript(spell_dh_hungering_slash);
+    RegisterSpellScript(spell_dh_hungering_slash_damage);
+    RegisterSpellAndAuraScriptPair(spell_dh_hungering_slash_enabler, spell_dh_hungering_slash_enabler_aura);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
