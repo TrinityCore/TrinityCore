@@ -1094,7 +1094,7 @@ namespace WorldPackets
 
             BrawlInfoData BrawlInfo;
             SpecialEventInfoData SpecialEventInfo;
-        }; 
+        };
     }
 }
 
