@@ -25,6 +25,8 @@
 #include <string_view>
 
 struct ItemTemplate;
+class BaseEntity;
+class ObjectGuid;
 
 class UnitTestDataLoader
 {
@@ -66,6 +68,8 @@ class UnitTestDataLoader
 
         static void LoadAchievementTemplates();
         static void LoadItemTemplates();
+        static void LoadGatewayTemplates();
+        static void InitializeEntityGuid(BaseEntity& entity, ObjectGuid const& guid);
 
     private:
         static ItemTemplate& GetItemTemplate(uint32 id, std::string_view name);
