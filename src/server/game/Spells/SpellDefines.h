@@ -187,7 +187,7 @@ enum class SpellModOp : uint8
     PointsIndex4                = 33,
     PowerCost1                  = 34, // Used when SpellPowerEntry::PowerIndex == 1
     ChainJumpDistance           = 35,
-    AreaTriggerMaxSummons       = 36, // NYI
+    AreaTriggerMaxSummons       = 36,
     MaxAuraStacks               = 37,
     ProcCooldown                = 38,
     PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2

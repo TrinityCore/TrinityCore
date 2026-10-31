@@ -2927,7 +2927,7 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
     }
 
     // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
-    if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
+    if (!player->IsLoading() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
         return TRANSFER_ABORT_ZONE_IN_COMBAT;
 
     if (i_instanceLock)

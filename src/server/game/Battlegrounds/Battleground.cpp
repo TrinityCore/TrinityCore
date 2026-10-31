@@ -62,20 +62,19 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
 {
     ASSERT(_battlegroundTemplate, "Nonexisting Battleground Template passed to battleground ctor!");
 
+    m_QueueID           = BATTLEGROUND_QUEUE_NONE;
     m_InstanceID        = 0;
     m_Status            = STATUS_NONE;
     m_ClientInstanceID  = 0;
     m_EndTime           = 0;
     m_InvitedAlliance   = 0;
     m_InvitedHorde      = 0;
-    m_ArenaType         = 0;
     _winnerTeamId       = PVP_TEAM_NEUTRAL;
     m_StartTime         = 0;
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
     m_Events            = 0;
     m_StartDelayTime    = 0;
-    m_IsRated           = false;
     m_InBGFreeSlotQueue = false;
     m_SetDeleteThis     = false;
 
@@ -960,8 +959,8 @@ void Battleground::StartBattleground()
     // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
     sBattlegroundMgr->AddBattleground(this);
 
-    if (m_IsRated)
-        TC_LOG_DEBUG("bg.arena", "Arena match type: {} started.", m_ArenaType);
+    if (isRated())
+        TC_LOG_DEBUG("bg.arena", "Arena match type: {} started.", GetArenaType());
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
@@ -1160,7 +1159,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 // This method should be called only once ... it adds pointer to queue
 void Battleground::AddToBGFreeSlotQueue()
 {
-    if (!m_InBGFreeSlotQueue && isBattleground())
+    if (!m_InBGFreeSlotQueue && isBattleground() && !isRated())
     {
         sBattlegroundMgr->AddToBGFreeSlotQueue(this);
         m_InBGFreeSlotQueue = true;
@@ -1172,7 +1171,7 @@ void Battleground::RemoveFromBGFreeSlotQueue()
 {
     if (m_InBGFreeSlotQueue)
     {
-        sBattlegroundMgr->RemoveFromBGFreeSlotQueue(GetMapId(), m_InstanceID);
+        sBattlegroundMgr->RemoveFromBGFreeSlotQueue(this);
         m_InBGFreeSlotQueue = false;
     }
 }
