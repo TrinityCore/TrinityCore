@@ -1228,9 +1228,15 @@ void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags c
     _player->SetCurrencyFlagsFromClient(setCurrenctFlags.CurrencyID, setCurrenctFlags.Flags);
 }
 
-void WorldSession::HandleRequestMythicPlusSeasonData(WorldPackets::Misc::RequestMythicPlusSeasonData& /*request*/)
+void WorldSession::HandleRequestMythicPlusSeasonData(WorldPackets::Misc::RequestMythicPlusSeasonData& /*requestMythicPlusSeasonData*/)
 {
     WorldPackets::Misc::MythicPlusSeasonData seasonData;
     seasonData.IsMythicPlusActive = sWorld->getBoolConfig(CONFIG_MYTHIC_PLUS_ENABLED);
     SendPacket(seasonData.Write());
+}
+
+void WorldSession::HandleRequestScheduledPvpInfo(WorldPackets::Misc::RequestScheduledPvpInfo const& /*requestScheduledPvpInfo*/)
+{
+    WorldPackets::Misc::RequestScheduledPvpInfoResponse requestScheduledPvpInfoResponse;
+    SendPacket(requestScheduledPvpInfoResponse.Write());
 }

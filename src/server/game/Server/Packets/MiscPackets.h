@@ -1062,6 +1062,39 @@ namespace WorldPackets
 
             bool IsMythicPlusActive = false;
         };
+
+        class RequestScheduledPvpInfo final : public ClientPacket
+        {
+        public:
+            explicit RequestScheduledPvpInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_SCHEDULED_PVP_INFO, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct BrawlInfoData
+        {
+            int32 PvpBrawlID = 0;
+            int32 Time = 0;
+            bool Started = false;
+        };
+
+        struct SpecialEventInfoData
+        {
+            int32 PvpBrawlID = 0;
+            int32 AchievementId = 0;
+            bool CanQueue = false;
+        };
+
+        class RequestScheduledPvpInfoResponse final : public ServerPacket
+        {
+        public:
+            explicit RequestScheduledPvpInfoResponse() : ServerPacket(SMSG_REQUEST_SCHEDULED_PVP_INFO_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            BrawlInfoData BrawlInfo;
+            SpecialEventInfoData SpecialEventInfo;
+        }; 
     }
 }
 
