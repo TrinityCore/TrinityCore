@@ -109,47 +109,43 @@ struct boss_patchwerk : public BossAI
                 // Move everything to SPELL_HATEFUL_STRIKE_PRIMER spell script
                 case EVENT_HATEFUL:
                 {
-                    // Hateful Strike targets the highest non-MT threat in melee range on 10man
-                    // and the higher HP target out of the two highest non-MT threats in melee range on 25man
-                    ThreatReference* secondThreat = nullptr;
-                    ThreatReference* thirdThreat = nullptr;
-
-                    ThreatManager& mgr = me->GetThreatManager();
-                    Unit* currentVictim = mgr.GetCurrentVictim();
-                    auto list = mgr.GetModifiableThreatList();
-                    auto it = list.begin(), end = list.end();
-                    if (it == end)
+                    // Hateful Strike only hits targets in melee range, never the current victim unless nobody else is there:
+                    // 10man: the highest threat target in melee range
+                    // 25man: the one with more health of the two highest threat targets in melee range
+                    // Out of range targets are skipped, not picked, so they can't make the strike fail.
+                    Unit* currentVictim = me->GetVictim();
+                    size_t const maxCandidates = Is25ManRaid() ? 2 : 1;
+                    std::vector<Unit*> candidates;
+                    for (ThreatReference const* ref : me->GetThreatManager().GetSortedThreatList())
                     {
-                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                        return;
+                        Unit* target = ref->GetVictim();
+                        if (target == currentVictim || !ref->IsAvailable() || !me->IsWithinMeleeRange(target))
+                            continue;
+
+                        candidates.push_back(target);
+                        if (candidates.size() == maxCandidates)
+                            break;
                     }
 
-                    if ((*it)->GetVictim() != currentVictim)
-                        secondThreat = *it;
-                    if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
-                    {
-                        if ((*it)->GetVictim() != currentVictim)
-                            (secondThreat ? thirdThreat : secondThreat) = *it;
-                        if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
-                            thirdThreat = *it;
-                    }
-
-                    Unit* pHatefulTarget = nullptr;
-                    if (!secondThreat)
-                        pHatefulTarget = currentVictim;
-                    else if (!thirdThreat)
-                        pHatefulTarget = secondThreat->GetVictim();
-                    else
-                        pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
-
-                    // add threat to highest threat targets
+                    // add threat to the current victim and the candidates
                     AddThreat(currentVictim, HATEFUL_THREAT_AMT);
-                    if (secondThreat)
-                        secondThreat->AddThreat(HATEFUL_THREAT_AMT);
-                    if (thirdThreat)
-                        thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
+                    for (Unit* candidate : candidates)
+                        AddThreat(candidate, HATEFUL_THREAT_AMT);
 
-                    DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
+                    Unit* hatefulTarget = nullptr;
+                    if (candidates.empty())
+                    {
+                        // nobody else in melee range: the current victim takes it (no strike if it is out of range too)
+                        if (me->IsWithinMeleeRange(currentVictim))
+                            hatefulTarget = currentVictim;
+                    }
+                    else if (candidates.size() == 1 || candidates[0]->GetHealth() >= candidates[1]->GetHealth())
+                        hatefulTarget = candidates[0];
+                    else
+                        hatefulTarget = candidates[1];
+
+                    if (hatefulTarget)
+                        DoCast(hatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
                     events.Repeat(1200ms);
                     break;
