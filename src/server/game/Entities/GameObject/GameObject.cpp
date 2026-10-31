@@ -16,6 +16,7 @@
  */
 
 #include "GameObject.h"
+#include "AIGroupEntity.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Containers.h"
@@ -224,6 +225,7 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+        AIGroup::AddUnitToAIGroup(this);
     }
 }
 
@@ -235,6 +237,7 @@ void GameObject::RemoveFromWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
+        AIGroup::RemoveUnitFromAIGroup(this);
         RemoveFromOwner();
         if (m_model)
             if (GetMap()->ContainsGameObjectModel(*m_model))
@@ -1571,6 +1574,41 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
         default:
             TC_LOG_ERROR("spell", "Spell {} has unhandled action {} in effect {}", spellId, int32(action), effectIndex);
             break;
+    }
+}
+
+bool GameObject::IsGameObjectActionAllowed(GameObjectActions action)
+{
+    switch (action)
+    {
+        // Below from Alpha
+        case GameObjectActions::None:
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+        case GameObjectActions::Disturb:
+        case GameObjectActions::Unlock:
+        case GameObjectActions::Lock:
+        case GameObjectActions::Open:
+        case GameObjectActions::OpenAndUnlock:
+        case GameObjectActions::Close:
+        case GameObjectActions::ToggleOpen:
+        case GameObjectActions::Destroy:
+        case GameObjectActions::Rebuild:
+        case GameObjectActions::Despawn:
+        // Below guessed
+        case GameObjectActions::MakeInert:
+        case GameObjectActions::MakeActive:
+        case GameObjectActions::CloseAndLock:
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::SetTapList:
+            return true;
+        default:
+            return false;
     }
 }
 
