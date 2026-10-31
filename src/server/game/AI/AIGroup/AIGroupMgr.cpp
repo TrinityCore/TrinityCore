@@ -195,6 +195,9 @@ void AIGroupMgr::LoadActionSetsFromDB()
         if (!IsActionValid(actionHolder))
             continue;
 
+        if (!IsActionFlagsValid(actionHolder))
+            continue;
+
         AIGroupActionSet& actionSet = mActionSetMap[actionHolder.Id];
         if (actionSet.empty())
             ++count;
@@ -2187,6 +2190,88 @@ bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double in
     }
 
     return true;
+}
+
+bool AIGroupMgr::IsActionFlagsValid(ActionSetActionHolder const& action)
+{
+    /// @todo: Not sure if this is handled correctly, maybe we should go with an list of actions instead of path-only actions
+    if (!ActionHasPath(action) && (action.Flags & static_cast<uint32>(ActionFlags::PathFlagsMask)) != 0)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a movement flag on non-movement action type ({}), skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    if (!ActionHasStringId(action) && (action.Flags & static_cast<uint32>(ActionFlags::StringIdFlagsMask)) != 0)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has a flag requiring a StringId, but action type ({}) has no StringId field, skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    if (!ActionHasNamedPoint(action) && (action.Flags & static_cast<uint32>(ActionFlags::PauseIfCantFindNamedPoint)) != 0)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses PauseIfCantFindNamedPoint flag on action type ({}) which has no named point, skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    if (!ActionHasChatOutput(action) && (action.Flags & static_cast<uint32>(ActionFlags::HideChatOutput)) != 0)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) uses HideChatOutput flag on action type ({}) which is not a chat action, skipped.",
+            action.Id, action.Index, action.Type);
+        return false;
+    }
+
+    if ((action.Flags & static_cast<uint32>(ActionFlags::SteeringConflict)) == (static_cast<uint32>(ActionFlags::SteeringConflict)))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has conflicting AI Steering flags enabled simultaneously, skipped.",
+            action.Id, action.Index);
+        return false;
+    }
+
+    /// @todo: More flags validation?
+
+    return true;
+}
+
+bool AIGroupMgr::ActionHasPath(ActionSetActionHolder const& action)
+{
+    return StaticActionSetTypeData[action.Type].HasPath;
+}
+
+bool AIGroupMgr::ActionHasStringId(ActionSetActionHolder const& action)
+{
+    return StaticActionSetTypeData[action.Type].HasStringId;
+}
+
+bool AIGroupMgr::ActionHasNamedPoint(ActionSetActionHolder const& action)
+{
+    return StaticActionSetTypeData[action.Type].HasPoint;
+}
+
+bool AIGroupMgr::ActionHasChatOutput(ActionSetActionHolder const& action)
+{
+    switch (action.Type)
+    {
+        case AI_GROUP_UNIT_SAY:
+        case AI_GROUP_UNIT_SAY_RANDOM:
+        case AI_GROUP_UNIT_YELL:
+        case AI_GROUP_UNIT_YELL_RANDOM:
+        case AI_GROUP_UNIT_YELL_ZONE:
+        case AI_GROUP_UNIT_YELL_ZONE_RANDOM:
+        case AI_GROUP_UNIT_BOSS_EMOTE:
+        case AI_GROUP_UNIT_BOSS_EMOTE_ZONE:
+        case AI_GROUP_UNIT_SAY_ZONE:
+        case AI_GROUP_UNIT_SAY_ZONE_RANDOM:
+        case AI_GROUP_UNIT_SAY_PLAYER:
+        case AI_GROUP_UNIT_SAY_PLAYER_RANDOM:
+        case AI_GROUP_UNIT_YELL_PLAYER:
+        case AI_GROUP_UNIT_YELL_PLAYER_RANDOM:
+            return true;
+        default:
+            return false;
+    }
 }
 
 AIGroupMgr::ObjectTypeMask AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION action)

@@ -896,8 +896,16 @@ enum class ActionFlags : uint32
     DisableAISteering                           = 0x00080000, // NYI // Disable AI Steering (Don't Avoid Obstacles - client side)
     InterruptAnyChargeOrJumpCharge              = 0x00100000, // NYI // Interrupt any Charge or Jump Charge
     AutoDismount                                = 0x00200000, // NYI // Auto-Dismount
-    AlsoSuppressGreetingsOnGossipPanelOpen      = 0x00400000  // NYI // Also suppress greetings on gossip panel open
+    AlsoSuppressGreetingsOnGossipPanelOpen      = 0x00400000, // NYI // Also suppress greetings on gossip panel open
+
+    PathFlagsMask                               = MovementHurry | MovementNoPathing | MovementNoPathSmoothing |
+                                                  MovementCheckForDoors | MovementMoveBackwards | MovementDisableCompression |
+                                                  DespawnAtEndOfPathOrOnPathFail | EnableAISteering | DisableAISteering,
+    StringIdFlagsMask                           = OnlyTargetUnitsAndObjectsWithSameCreator | OnlyTargetUnitsWithSharedPhase,
+    SteeringConflict                            = EnableAISteering | DisableAISteering
 };
+
+DEFINE_ENUM_FLAG(ActionFlags);
 
 // EnumeratedString's EnumID 909. Shown in Action Set editor (Priority: Medium)
 enum class ActionSetPriorityType : uint8
@@ -1314,6 +1322,12 @@ class TC_GAME_API AIGroupMgr
         static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
+
+        static bool IsActionFlagsValid(ActionSetActionHolder const& action);
+        static bool ActionHasPath(ActionSetActionHolder const& action);
+        static bool ActionHasStringId(ActionSetActionHolder const& action);
+        static bool ActionHasNamedPoint(ActionSetActionHolder const& action);
+        static bool ActionHasChatOutput(ActionSetActionHolder const& action);
 
         static bool IsTriggerNotRepeatable(ActionTriggers trigger);
         static bool IsTriggerAllowed(ActionTriggers trigger);
