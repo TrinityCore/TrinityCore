@@ -13094,11 +13094,11 @@ void Player::SendEquipError(InventoryResult msg, Item const* item1 /*= nullptr*/
     SendDirectMessage(failure.Write());
 }
 
-void Player::SendBuyError(BuyResult msg, Creature const* creature, uint32 item) const
+void Player::SendBuyError(BuyResult msg, Creature const* creature, uint32 vendorslot) const
 {
     WorldPackets::Item::BuyFailed packet;
     packet.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
-    packet.Muid = item;
+    packet.Muid = vendorslot + 1;
     packet.Reason = msg;
     SendDirectMessage(packet.Write());
 }
@@ -18291,7 +18291,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     {
         Battleground* currentBg = nullptr;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, m_bgData.queueId);
 
         player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
@@ -19018,7 +19018,9 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
     /*
                     0         1      2           3                4           5           6            7           8              9          10             11
-    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges, castItemId, castItemLevel FROM character_aura WHERE guid = ?
+    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, difficulty, stackCount, maxDuration, remainTime, remainCharges, castItemId, castItemLevel,
+                         12            13            14            15            16
+           dstLocationMapId, dstLocationX, dstLocationY, dstLocationZ, dstLocationO FROM character_aura WHERE guid = ?
     */
     if (auraResult)
     {
@@ -19045,6 +19047,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             uint8 remainCharges = fields[9].GetUInt8();
             uint32 castItemId = fields[10].GetUInt32();
             int32 castItemLevel = fields[11].GetInt32();
+            WorldLocation dst(fields[12].GetInt32(), fields[13].GetFloat(), fields[14].GetFloat(), fields[15].GetFloat(), fields[16].GetFloat());
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId, difficulty);
             if (!spellInfo)
@@ -19081,6 +19084,10 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             else
                 remainCharges = 0;
 
+            if ((dst.GetMapId() != MAPID_INVALID && !sMapStore.HasRecord(dst.GetMapId()))
+                || !Trinity::IsValidMapCoord(dst.GetPositionX(), dst.GetPositionY(), dst.GetPositionZ(), dst.GetOrientation()))
+                dst = WorldLocation();
+
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
             AuraCreateInfo createInfo(castId, spellInfo, difficulty, key.EffectMask, this);
@@ -19088,7 +19095,8 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
                 .SetCasterGUID(casterGuid)
                 .SetBaseAmount(info.BaseAmounts.data())
                 .SetCastItem(itemGuid, castItemId, castItemLevel)
-                .SetStackAmount(stackCount);
+                .SetStackAmount(stackCount)
+                .SetDst(&dst);
 
             if (Aura* aura = Aura::TryCreate(createInfo))
             {
@@ -20949,6 +20957,11 @@ void Player::_SaveAuras(CharacterDatabaseTransaction trans)
         stmt->setUInt8(index++, aura->GetCharges());
         stmt->setUInt32(index++, aura->GetCastItemId());
         stmt->setInt32(index++, aura->GetCastItemLevel());
+        stmt->setInt32(index++, aura->GetDst().GetMapId());
+        stmt->setFloat(index++, aura->GetDst().GetPositionX());
+        stmt->setFloat(index++, aura->GetDst().GetPositionY());
+        stmt->setFloat(index++, aura->GetDst().GetPositionZ());
+        stmt->setFloat(index++, aura->GetDst().GetOrientation());
         trans->Append(stmt);
 
         for (AuraEffect const* effect : aura->GetAuraEffects())
@@ -23510,7 +23523,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     CurrencyTypesEntry const* proto = sCurrencyTypesStore.LookupEntry(currency);
     if (!proto)
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, currency);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, vendorSlot);
         return false;
     }
 
@@ -23519,20 +23532,20 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     {
         TC_LOG_DEBUG("network", "Player::BuyCurrencyFromVendorSlot: Vendor ({}) not found or player '{}' ({}) can't interact with him.",
             vendorGuid.ToString(), GetName(), GetGUID().ToString());
-        SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, nullptr, currency);
+        SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, nullptr, vendorSlot);
         return false;
     }
 
     VendorItemData const* vItems = creature->GetVendorItems();
     if (!vItems || vItems->Empty())
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorSlot);
         return false;
     }
 
     if (vendorSlot >= vItems->GetItemCount())
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorSlot);
         return false;
     }
 
@@ -23540,7 +23553,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     // store diff item (cheating)
     if (!crItem || crItem->item != currency || crItem->Type != ITEM_VENDOR_TYPE_CURRENCY)
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorSlot);
         return false;
     }
 
@@ -23575,7 +23588,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
             price = uint64(iece->Money * count); //it should not exceed MAX_MONEY_AMOUNT
             if (!HasEnoughMoney(price))
             {
-                SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, currency);
+                SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, vendorSlot);
                 return false;
             }
         }
@@ -23597,7 +23610,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
             CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->CurrencyID[i]);
             if (!entry)
             {
-                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency); // Find correct error
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorSlot); // Find correct error
                 return false;
             }
 
@@ -23624,7 +23637,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
 
         if (iece->MinFactionID && uint32(GetReputationRank(iece->MinFactionID)) < iece->RequiredAchievement)
         {
-            SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, currency);
+            SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, vendorSlot);
             return false;
         }
 
@@ -23642,7 +23655,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     }
     else // currencies have no price defined, can only be bought with ExtendedCost
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, currency);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, vendorSlot);
         return false;
     }
 
@@ -23691,13 +23704,13 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
     if (!pProto)
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, vendorslot);
         return false;
     }
 
     if (!(pProto->GetAllowableClass() & GetClassMask()) && pProto->GetBonding() == BIND_ON_ACQUIRE && !IsGameMaster())
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, vendorslot);
         return false;
     }
 
@@ -23709,7 +23722,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     {
         TC_LOG_DEBUG("network", "Player::BuyItemFromVendorSlot: Vendor ({}) not found or player '{}' ({}) can't interact with him.",
             vendorguid.ToString(), GetName(), GetGUID().ToString());
-        SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, nullptr, item);
+        SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, nullptr, vendorslot);
         return false;
     }
 
@@ -23717,20 +23730,20 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     {
         TC_LOG_DEBUG("condition", "Player::BuyItemFromVendorSlot: Player '{}' ({}) doesn't meed conditions for creature (Entry: {}, Item: {})",
             GetName(), GetGUID().ToString(), creature->GetEntry(), item);
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorslot);
         return false;
     }
 
     VendorItemData const* vItems = creature->GetVendorItems();
     if (!vItems || vItems->Empty())
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorslot);
         return false;
     }
 
     if (vendorslot >= vItems->GetItemCount())
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorslot);
         return false;
     }
 
@@ -23738,7 +23751,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     // store diff item (cheating)
     if (!crItem || crItem->item != item)
     {
-        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorslot);
         return false;
     }
 
@@ -23753,14 +23766,14 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     {
         if (creature->GetVendorItemCurrentCount(crItem) < count)
         {
-            SendBuyError(BUY_ERR_ITEM_ALREADY_SOLD, creature, item);
+            SendBuyError(BUY_ERR_ITEM_ALREADY_SOLD, creature, vendorslot);
             return false;
         }
     }
 
     if (pProto->GetRequiredReputationFaction() && (uint32(GetReputationRank(pProto->GetRequiredReputationFaction())) < pProto->GetRequiredReputationRank()))
     {
-        SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item);
+        SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, vendorslot);
         return false;
     }
 
@@ -23799,7 +23812,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->CurrencyID[i]);
             if (!entry)
             {
-                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item);
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, vendorslot);
                 return false;
             }
 
@@ -23825,7 +23838,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         if (iece->MinFactionID && int32(GetReputationRank(iece->MinFactionID)) < iece->MinReputation)
         {
-            SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item);
+            SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, vendorslot);
             return false;
         }
 
@@ -23867,7 +23880,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         if (!HasEnoughMoney(price))
         {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item);
+            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, vendorslot);
             return false;
         }
     }
@@ -25668,7 +25681,7 @@ Battleground* Player::GetBattleground() const
     if (GetBattlegroundId() == 0)
         return nullptr;
 
-    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.queueId);
 }
 
 uint32 Player::GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const
@@ -30747,11 +30760,11 @@ void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
     SendDirectMessage(raidGroupOnly.Write());
 }
 
-uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
+int32 Player::DoRandomRoll(int32 minimum, int32 maximum)
 {
     ASSERT(maximum <= 1000000);
 
-    uint32 roll = urand(minimum, maximum);
+    int32 roll = irand(minimum, maximum);
 
     WorldPackets::Misc::RandomRoll randomRoll;
     randomRoll.Min = minimum;
