@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
     env:
       CMAKE_BUILD_TYPE: RelWithDebInfo
-      MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
+      MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.4
       OPENSSL_ROOT_DIR: C:/libs/openssl
     steps:
     - uses: actions/checkout@v7
