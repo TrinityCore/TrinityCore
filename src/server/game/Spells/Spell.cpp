@@ -551,6 +551,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_fromClient = false;
+    _waitedForClientTrajectory = false;
     m_selfContainer = nullptr;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
@@ -953,6 +954,13 @@ void Spell::RecalculateDelayMomentForDst()
 {
     m_delayMoment = CalculateDelayMomentForDst();
     m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
+}
+
+void Spell::OnClientTrajectoryUpdate()
+{
+    // the final aim arrived, launch now if we were waiting for it
+    if (_waitedForClientTrajectory && m_spellState == SPELL_STATE_PREPARING)
+        m_timer = 0;
 }
 
 void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effectMask)
@@ -3886,6 +3894,16 @@ void Spell::update(uint32 difftime)
                     m_timer = 0;
                 else
                     m_timer -= difftime;
+            }
+
+            // trajectory spells with cast time (Plague Barrel of Wintergrasp Catapult) must launch with the final aim the client sends
+            // in CMSG_UPDATE_MISSILE_TRAJECTORY when its own cast bar ends, otherwise the missile keeps the aim of the cast start and
+            // the caster's client draws it towards (0, 0, 0)
+            if (m_timer == 0 && m_fromClient && m_casttime > 0 && m_targets.HasTraj() && !_waitedForClientTrajectory)
+            {
+                _waitedForClientTrajectory = true;
+                m_timer = 1000; // launch anyway if the client never sends it
+                break;
             }
 
             if (m_timer == 0 && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat())
