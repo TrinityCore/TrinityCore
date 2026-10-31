@@ -144,6 +144,8 @@ enum DemonHunterSpells
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
     SPELL_DH_ILLIDANS_GRASP_JUMP_DEST              = 208175,
     SPELL_DH_IMMOLATION_AURA                       = 258920,
+    SPELL_DH_INFERNAL_ARMOR_TALENT                 = 320331,
+    SPELL_DH_INFERNAL_ARMOR_DAMAGE                 = 320334,
     SPELL_DH_INNER_DEMON_BUFF                      = 390145,
     SPELL_DH_INNER_DEMON_DAMAGE                    = 390137,
     SPELL_DH_INNER_DEMON_TALENT                    = 389693,
@@ -1518,6 +1520,30 @@ struct at_dh_glaive_tempest : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+};
+
+// 320331 - Infernal Armor (attached to 1241937 - Soul Immolation and 258920 - Immolation Aura)
+class spell_dh_infernal_armor : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_INFERNAL_ARMOR_DAMAGE, SPELL_DH_INFERNAL_ARMOR_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_INFERNAL_ARMOR_TALENT);
+    }
+
+    static void HandleInfernalArmor(AuraScript const&, ProcEventInfo const& procEvent)
+    {
+        procEvent.GetActionTarget()->CastSpell(procEvent.GetActor(), SPELL_DH_INFERNAL_ARMOR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_infernal_armor::HandleInfernalArmor);
+    }
 };
 
 // Called by 162264 - Metamorphosis
@@ -2895,6 +2921,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_fiery_brand);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
+    RegisterSpellScript(spell_dh_infernal_armor);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
