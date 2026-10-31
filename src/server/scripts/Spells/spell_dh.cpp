@@ -177,6 +177,7 @@ enum DemonHunterSpells
     SPELL_DH_NEMESIS_UNDEAD                        = 208614,
     SPELL_DH_PAINBRINGER_DUMMY                     = 225413,
     SPELL_DH_PAINBRINGER_STACK                     = 212988,
+    SPELL_DH_PREDATORS_THIRST                      = 1215617,
     SPELL_DH_RAIN_FROM_ABOVE                       = 206803,
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
@@ -270,6 +271,35 @@ enum DemonHunterSpellCategories
 {
     SPELL_CATEGORY_DH_EYE_BEAM      = 1582,
     SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
+};
+
+struct spell_dh_shattered_souls_base_lesser
+{
+    static constexpr std::array<DemonHunterSpells, 2> DevourerSpells = { SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_LEFT };
+    static constexpr std::array<DemonHunterSpells, 2> HavocSpells = { SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT };
+    static constexpr std::array<DemonHunterSpells, 2> VengeanceSpells = { SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT, SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT };
+
+    static bool Validate()
+    {
+        return SpellScriptBase::ValidateSpellInfo(DevourerSpells)
+            && SpellScriptBase::ValidateSpellInfo(HavocSpells)
+            && SpellScriptBase::ValidateSpellInfo(VengeanceSpells);
+    }
+
+    static void CreateFragments(Unit* source, Unit* dh, int32 count)
+    {
+        std::span<DemonHunterSpells const> spells = HavocSpells;
+        if (Player* player = dh->ToPlayer())
+        {
+            if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterDevourer)
+                spells = DevourerSpells;
+            else if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterVengeance)
+                spells = VengeanceSpells;
+        }
+
+        for (int32 i = 0; i < count; ++i)
+            source->CastSpell(dh, Trinity::Containers::SelectRandomContainerElement(spells), TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
 };
 
 // Called by 232893 - Felblade
@@ -608,6 +638,25 @@ class spell_dh_collective_anguish_eye_beam : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_collective_anguish_eye_beam::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 473662 - Consume
+class spell_dh_consume : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_PREDATORS_THIRST });
+    }
+
+    void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), GetCaster()->HasAura(SPELL_DH_PREDATORS_THIRST) ? 2 : 1);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_consume::HandleSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1061,35 +1110,6 @@ class spell_dh_demon_spikes : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_demon_spikes::HandleArmor, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-struct spell_dh_shattered_souls_base_lesser
-{
-    static constexpr std::array<DemonHunterSpells, 2> DevourerSpells = { SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_DEVOURER_LESSER_LEFT };
-    static constexpr std::array<DemonHunterSpells, 2> HavocSpells = { SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT };
-    static constexpr std::array<DemonHunterSpells, 2> VengeanceSpells = { SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT, SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT };
-
-    static bool Validate()
-    {
-        return SpellScriptBase::ValidateSpellInfo(DevourerSpells)
-            && SpellScriptBase::ValidateSpellInfo(HavocSpells)
-            && SpellScriptBase::ValidateSpellInfo(VengeanceSpells);
-    }
-
-    static void CreateFragments(Unit* source, Unit* dh, int32 count)
-    {
-        std::span<DemonHunterSpells const> spells = HavocSpells;
-        if (Player* player = dh->ToPlayer())
-        {
-            if (player->GetPrimarySpecialization() == ChrSpecialization::DemonHunterDevourer)
-                spells = DevourerSpells;
-            else if (player->GetPrimarySpecialization() ==  ChrSpecialization::DemonHunterVengeance)
-                spells = VengeanceSpells;
-        }
-
-        for (int32 i = 0; i < count; ++i)
-            source->CastSpell(dh, Trinity::Containers::SelectRandomContainerElement(spells), TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
@@ -2863,6 +2883,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_charred_warblades);
     RegisterSpellScript(spell_dh_collective_anguish);
     RegisterSpellScript(spell_dh_collective_anguish_eye_beam);
+    RegisterSpellScript(spell_dh_consume);
     RegisterSpellScript(spell_dh_consume_energize);
     RegisterSpellScript(spell_dh_consume_soul_vengeance_lesser);
     RegisterSpellScript(spell_dh_critical_chaos);
