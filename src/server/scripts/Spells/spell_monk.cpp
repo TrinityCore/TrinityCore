@@ -49,6 +49,7 @@ enum MonkSpells
     SPELL_MONK_POWER_STRIKE_PROC                        = 129914,
     SPELL_MONK_POWER_STRIKE_ENERGIZE                    = 121283,
     SPELL_MONK_PRESSURE_POINTS                          = 450432,
+    SPELL_MONK_PRESSURE_POINTS_DISPEL                   = 457389,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_NO_FEATHER_FALL                          = 79636,
@@ -337,7 +338,7 @@ class spell_monk_pressure_points : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MONK_PRESSURE_POINTS })
+        return ValidateSpellInfo({ SPELL_MONK_PRESSURE_POINTS, SPELL_MONK_PRESSURE_POINTS_DISPEL })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
             && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DISPEL);
     }
@@ -352,9 +353,18 @@ class spell_monk_pressure_points : public SpellScript
         target = nullptr;
     }
 
+    void HandleDispel(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_PRESSURE_POINTS_DISPEL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
     void Register() override
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_monk_pressure_points::PreventDispel, EFFECT_2, TARGET_UNIT_TARGET_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_monk_pressure_points::HandleDispel, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
