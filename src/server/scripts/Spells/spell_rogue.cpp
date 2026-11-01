@@ -1587,6 +1587,20 @@ class spell_rog_venomous_wounds : public AuraScript
     }
 };
 
+// 1259486 - Zero In
+class spell_rog_zero_in_proc : public AuraScript
+{
+    void RemoveStack(ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetAura()->Remove();
+    }
+
+    void Register() override
+    {
+        AfterProc += AuraProcFn(spell_rog_zero_in_proc::RemoveStack);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_acrobatic_strikes);
@@ -1638,4 +1652,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_vanish);
     RegisterSpellScript(spell_rog_vanish_aura);
     RegisterSpellScript(spell_rog_venomous_wounds);
+    RegisterSpellScript(spell_rog_zero_in_proc);
 }
