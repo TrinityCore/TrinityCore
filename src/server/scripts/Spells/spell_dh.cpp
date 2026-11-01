@@ -183,11 +183,13 @@ enum DemonHunterSpells
     SPELL_DH_RAZOR_SPIKES                          = 210003,
     SPELL_DH_REAP                                  = 1226019,
     SPELL_DH_REAP_DAMAGE                           = 1225823,
+    SPELL_DH_REAP_ENERGIZE                         = 1261679,
     SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
     SPELL_DH_RETALIATION_TALENT                    = 389729,
     SPELL_DH_RETALIATION_PROC                      = 391160,
+    SPELL_DH_SCYTHES_EMBRACE                       = 1246558,
     SPELL_DH_SEVER                                 = 235964,
     SPELL_DH_SHATTERED_RESTORATION                 = 389824,
     SPELL_DH_SHATTER_SOUL                          = 210038,
@@ -2018,6 +2020,33 @@ class spell_dh_retaliation : public AuraScript
     }
 };
 
+// 1246558 - Scythe's Embrace (attached to 1226019 - Reap)
+class spell_dh_scythes_embrace : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SCYTHES_EMBRACE, SPELL_DH_REAP_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_SCYTHES_EMBRACE);
+    }
+
+    void HandleEnergize() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_REAP_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_scythes_embrace::HandleEnergize);
+    }
+};
+
 // 388116 - Shattered Destiny
 class spell_dh_shattered_destiny : public AuraScript
 {
@@ -2912,6 +2941,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
+    RegisterSpellScript(spell_dh_scythes_embrace);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_shattered_restoration);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_havoc", SPELL_DH_SHATTERED_SOULS_HAVOC);
