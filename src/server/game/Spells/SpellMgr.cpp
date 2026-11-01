@@ -3947,6 +3947,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Without this auras 35173 and 35174 triggers no spell and are removed after first tick
+    ApplySpellFix({
+        35158, // Reflective Magic Shield
+        35159  // Reflective Damage Shield
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 0;
+    });
+
     ApplySpellFix({
         37851, // Tag Greater Felfire Diemetradon
         37918  // Arcano-pince

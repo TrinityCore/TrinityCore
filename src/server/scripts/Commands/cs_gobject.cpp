@@ -130,11 +130,9 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromOrientation(player->GetOrientation()), 255, GO_STATE_READY);
+        GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, *player, QuaternionData::fromOrientation(player->GetOrientation()), InitialPhaseShift(player), 255, GO_STATE_READY);
         if (!object)
             return false;
-
-        PhasingHandler::InheritPhaseShift(object, player);
 
         if (spawnTimeSecs)
             object->SetRespawnTime(*spawnTimeSecs);

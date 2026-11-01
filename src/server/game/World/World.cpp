@@ -1634,6 +1634,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Vehicle Seat Addon Data...");
     sObjectMgr->LoadVehicleSeatAddon();                         // must be after loading DBC
 
+    TC_LOG_INFO("server.loading", "Loading Summon Properties Addon Data...");
+    sObjectMgr->LoadSummonPropertiesAddon();                    // must be after loading DBC
+
     TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
