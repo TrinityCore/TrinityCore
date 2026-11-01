@@ -971,7 +971,7 @@ enum SpellAttr14 : uint32
     SPELL_ATTR14_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr14
     SPELL_ATTR14_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr14
     SPELL_ATTR14_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr14
-    SPELL_ATTR14_AURA_IS_PRIVATE                                        = 0x00100000, // TITLE Aura is private DESCRIPTION Clientside attribue that prevents the aura from being accessed by addons (but is still visible in UI)
+    SPELL_ATTR14_AURA_IS_PRIVATE                                    = 0x00100000, // TITLE Aura is private DESCRIPTION Clientside attribue that prevents the aura from being accessed by addons (but is still visible in UI)
     SPELL_ATTR14_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr14
     SPELL_ATTR14_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr14
     SPELL_ATTR14_UNK23                           = 0x00800000, // TITLE Unknown attribute 23@Attr14
@@ -998,7 +998,7 @@ enum SpellAttr15 : uint32
     SPELL_ATTR15_UNK7                            = 0x00000080, // TITLE Unknown attribute 7@Attr15
     SPELL_ATTR15_UNK8                            = 0x00000100, // TITLE Unknown attribute 8@Attr15
     SPELL_ATTR15_UNK9                            = 0x00000200, // TITLE Unknown attribute 9@Attr15
-    SPELL_ATTR15_UNK10                           = 0x00000400, // TITLE Unknown attribute 10@Attr15
+    SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS                  = 0x00000400, // TITLE Aura has separate stack durations
     SPELL_ATTR15_UNK11                           = 0x00000800, // TITLE Unknown attribute 11@Attr15
     SPELL_ATTR15_UNK12                           = 0x00001000, // TITLE Unknown attribute 12@Attr15
     SPELL_ATTR15_UNK13                           = 0x00002000, // TITLE Unknown attribute 13@Attr15

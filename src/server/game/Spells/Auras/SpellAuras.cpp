@@ -497,6 +497,9 @@ m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(Game
 
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
     m_duration = m_maxDuration;
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS))
+        m_stackDropTimes.insert({ .DropTime = GameTime::Now() + Milliseconds(m_maxDuration), .StackAmount = m_stackAmount });
+
     m_procCharges = CalcMaxCharges(createInfo.Caster);
     m_isUsingCharges = m_procCharges != 0;
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
@@ -865,6 +868,17 @@ void Aura::Update(uint32 diff, Unit* caster)
         if (m_duration < 0)
             m_duration = 0;
 
+        if (!IsExpired() && !m_stackDropTimes.empty())
+        {
+            TimePoint now = GameTime::Now();
+            auto itr = m_stackDropTimes.begin();
+            while (itr != m_stackDropTimes.end() && itr->DropTime <= now)
+            {
+                ModStackAmount(-itr->StackAmount, AURA_REMOVE_BY_EXPIRE); // erases from m_stackDropTimes
+                itr = m_stackDropTimes.begin();
+            }
+        }
+
         // handle manaPerSecond/manaPerSecondPerLevel
         if (m_timeCla)
         {
@@ -951,6 +965,9 @@ void Aura::SetDuration(int32 duration, bool withMods)
                 modOwner->ApplySpellMod(GetSpellInfo(), SpellModOp::Duration, duration);
 
     m_duration = duration;
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS))
+        SetLastStackDuration(duration);
+
     SetNeedClientUpdateForTargets();
 }
 
@@ -994,6 +1011,42 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
     Unit* caster = GetCaster();
     for (AuraEffect* aurEff : GetAuraEffects())
         aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
+}
+
+void Aura::AddStackDropTime(TimePoint dropTime, int32 stacks)
+{
+    auto [itr, isNew] = m_stackDropTimes.insert({ .DropTime = dropTime, .StackAmount = stacks });
+    if (!isNew)
+        itr->StackAmount += stacks;
+}
+
+void Aura::RemoveStackDropTime(int32 stacksToRemove)
+{
+    do
+    {
+        auto oldestStacksItr = m_stackDropTimes.begin();
+        if (stacksToRemove < oldestStacksItr->StackAmount)
+        {
+            oldestStacksItr->StackAmount -= stacksToRemove;
+            stacksToRemove = 0;
+        }
+        else
+        {
+            stacksToRemove -= oldestStacksItr->StackAmount;
+            m_stackDropTimes.erase(oldestStacksItr);
+        }
+    } while (stacksToRemove > 0);
+}
+
+void Aura::SetLastStackDuration(int32 duration)
+{
+    if (m_stackDropTimes.empty())
+        return;
+
+    auto latestStacksItr = m_stackDropTimes.begin() + (std::ssize(m_stackDropTimes) - 1);
+    int32 stackAmount = latestStacksItr->StackAmount;
+    m_stackDropTimes.erase(latestStacksItr);
+    AddStackDropTime(GameTime::Now() + Milliseconds(duration), stackAmount);
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -1097,7 +1150,8 @@ uint32 Aura::CalcMaxStackAmount() const
 
 bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
-    int32 stackAmount = m_stackAmount + num;
+    int32 oldStackAmount = m_stackAmount;
+    int32 stackAmount = oldStackAmount + num;
     int32 maxStackAmount = int32(CalcMaxStackAmount());
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
@@ -1116,10 +1170,23 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         return true;
     }
 
-    bool refresh = stackAmount >= GetStackAmount() && (m_spellInfo->StackAmount || (!m_spellInfo->HasAttribute(SPELL_ATTR1_AURA_UNIQUE) && !m_spellInfo->HasAttribute(SPELL_ATTR5_AURA_UNIQUE_PER_CASTER)));
+    bool refresh = stackAmount >= oldStackAmount && (m_spellInfo->StackAmount || (!m_spellInfo->HasAttribute(SPELL_ATTR1_AURA_UNIQUE) && !m_spellInfo->HasAttribute(SPELL_ATTR5_AURA_UNIQUE_PER_CASTER)));
 
     // Update stack amount
     SetStackAmount(stackAmount);
+
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR15_AURA_HAS_SEPARATE_STACK_DURATIONS))
+    {
+        if (num > 0)
+        {
+            AddStackDropTime(GameTime::Now() + Milliseconds(m_maxDuration), std::clamp(num, 1, maxStackAmount));
+            int32 overflowStacks = oldStackAmount + num - stackAmount;
+            if (overflowStacks > 0)
+                RemoveStackDropTime(overflowStacks);
+        }
+        else
+            RemoveStackDropTime(-num);
+    }
 
     if (refresh)
     {
