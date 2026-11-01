@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 
 namespace Scripts::EasternKingdoms::Vashjir::AbyssalDepths
 {
@@ -28,7 +27,6 @@ namespace Spells
 {
     static constexpr uint32 SummonVashjirWhirlpoolVehicleTrigger = 82905;
     static constexpr uint32 RideVehicleHardcoded                 = 46598;
-    static constexpr uint32 TeleportUnderWhirlpool               = 82903;
 }
 
 namespace Creatures
@@ -39,6 +37,7 @@ namespace Creatures
 namespace Paths
 {
     static constexpr uint32 PathUnderWhirlpool = 4437300;
+    static constexpr uint32 PathUnderWhirlpoolFinalNode = 4;
 }
 
 // 6200 - Abyssal Depths Whirlpool Entrance
@@ -49,6 +48,10 @@ public:
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
+        // The trigger volume stays active for the whole ride. A second summon restarts the path.
+        if (player->GetVehicle())
+            return true;
+
         // cast from nearby worldtrigger
         if (Creature* worldTrigger = player->FindNearestCreature(Creatures::WorldTrigger, 100.0f))
             worldTrigger->CastSpell(player, Spells::SummonVashjirWhirlpoolVehicleTrigger);
@@ -71,17 +74,16 @@ struct npc_abyssal_depths_whirlpool_vehicle : public ScriptedAI
             _scheduler.Schedule(3s + 500ms, [this](TaskContext const& /*task*/)
             {
                 me->SetAIAnimKitId(822);
-                me->CastSpell(nullptr, Spells::TeleportUnderWhirlpool, CastSpellExtraArgsInit{
-                    .TriggerFlags = TRIGGERED_IGNORE_SET_FACING
-                });
+                // The vehicle travels the full path. Teleporting it (82903) updates the passenger on the server only.
                 me->GetMotionMaster()->MovePath(Paths::PathUnderWhirlpool, false);
             });
         }
     }
 
-    void OnSpellCast(SpellInfo const* spellInfo) override
+    void MovementInform(uint32 type, uint32 id) override
     {
-        if (spellInfo->Id == Spells::TeleportUnderWhirlpool)
+        // Last node of path 4437300. Despawning earlier leaves the passenger following a removed vehicle.
+        if (type == WAYPOINT_MOTION_TYPE && id == Paths::PathUnderWhirlpoolFinalNode)
             me->DespawnOrUnsummon();
     }
 
