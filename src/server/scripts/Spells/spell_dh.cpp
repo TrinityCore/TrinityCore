@@ -100,6 +100,8 @@ enum DemonHunterSpells
     SPELL_DH_ENDURING_TORMENT_BUFF                 = 453314,
     SPELL_DH_ERADICATE_DAMAGE                      = 1225827,
     SPELL_DH_ERADICATE_DAMAGE_METAMORPHOSIS        = 1279200,
+    SPELL_DH_ERADICATE_ENABLER                     = 1239524,
+    SPELL_DH_ERADICATE_TALENT                      = 1226033,
     SPELL_DH_ESSENCE_BREAK_DEBUFF                  = 320338,
     SPELL_DH_EYE_BEAM                              = 198013,
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
@@ -1304,6 +1306,34 @@ class spell_dh_eradicate : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_eradicate::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1238488 - Moment of Craving (attached to 473728 - Void Ray)
+class spell_dh_eradicate_enabler : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_ERADICATE_TALENT, SPELL_DH_ERADICATE_ENABLER });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_ERADICATE_TALENT);
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_ERADICATE_ENABLER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_eradicate_enabler::HandleAfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2886,6 +2916,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_enduring_torment);
     RegisterSpellScript(spell_dh_enduring_torment_buff);
     RegisterSpellScript(spell_dh_eradicate);
+    RegisterSpellScript(spell_dh_eradicate_enabler);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
