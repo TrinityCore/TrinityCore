@@ -33,7 +33,6 @@
 
 enum RogueSpells
 {
-    SPELL_ROGUE_ACROBATIC_STRIKES_PROC              = 455144,
     SPELL_ROGUE_ADRENALINE_RUSH                     = 13750,
     SPELL_ROGUE_AIRBORNE_IRRITANT                   = 200733,
     SPELL_ROGUE_AMPLIFYING_POISON                   = 381664,
