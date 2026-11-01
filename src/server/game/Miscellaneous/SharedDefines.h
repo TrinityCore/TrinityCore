@@ -3090,9 +3090,9 @@ enum Targets
     TARGET_UNIT_RECT_CASTER                     = 130,
     TARGET_DEST_SUMMONER                        = 131,
     TARGET_DEST_TARGET_ALLY                     = 132,
-    TARGET_UNIT_LINE_CASTER_TO_DEST_ALLY        = 133,
-    TARGET_UNIT_LINE_CASTER_TO_DEST_ENEMY       = 134,
-    TARGET_UNIT_LINE_CASTER_TO_DEST             = 135,
+    TARGET_UNIT_RECT_CASTER_TO_DEST_ALLY        = 133,
+    TARGET_UNIT_RECT_CASTER_TO_DEST_ENEMY       = 134,
+    TARGET_UNIT_RECT_CASTER_TO_DEST             = 135,
     TARGET_UNIT_CONE_CASTER_TO_DEST_ALLY        = 136,
     TARGET_DEST_CASTER_MOVEMENT_DIRECTION       = 137,
     TARGET_DEST_DEST_GROUND                     = 138,
@@ -6954,9 +6954,9 @@ enum BattlegroundTypeId : uint32
     BATTLEGROUND_SS_VS_TM       = 789,      // Southshore vs. Tarren Mill
     BATTLEGROUND_SMALL_D        = 803,      // Small Battleground D
     BATTLEGROUND_BRH            = 808,      // Black Rook Hold Arena
-    // 809 = "New Nagrand Arena (Legion)"
+    BATTLEGROUND_NA_NEW         = 809,      // New Nagrand Arena (Legion)
     BATTLEGROUND_AF             = 816,      // Ashamane's Fall
-    // 844 = "New Blade's Edge Arena (Legion)"
+    BATTLEGROUND_BE_NEW         = 844,      // New Blade's Edge Arena (Legion)
     BATTLEGROUND_BRAWL_TBG      = 846,      // Brawl - The Battle for Gilneas (Old City Map)
     BATTLEGROUND_BRAWL_ABW      = 847,      // Brawl - Arathi Basin Winter
     // 848 = "AI Test - Arathi Basin"

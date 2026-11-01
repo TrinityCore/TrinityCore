@@ -1384,6 +1384,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->ResummonPetTemporaryUnSummonedIfAny();
+    pCurrChar->ResummonBattlePetTemporaryUnSummonedIfAny();
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasPlayerFlag(PLAYER_FLAGS_RESTING))
