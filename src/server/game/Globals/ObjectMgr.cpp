@@ -10562,6 +10562,50 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return nullptr;
 }
 
+uint32 ObjectMgr::GetMountVehicleCreature(uint32 mountId) const
+{
+    auto itr = _mountVehicleByMountId.find(mountId);
+    if (itr == _mountVehicleByMountId.end())
+        return 0;
+
+    return itr->second;
+}
+
+void ObjectMgr::LoadMountVehicles()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _mountVehicleByMountId.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT MountId, VehicleCreatureId FROM mount_vehicle");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 mount vehicles. DB table `mount_vehicle` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 mountId = fields[0].GetUInt32();
+        uint32 creatureId = fields[1].GetUInt32();
+
+        CreatureTemplate const* creatureInfo = GetCreatureTemplate(creatureId);
+        if (!creatureInfo || !creatureInfo->VehicleId)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mount_vehicle` mount {} points at creature {} which has no VehicleId. Skipped.", mountId, creatureId);
+            continue;
+        }
+
+        _mountVehicleByMountId[mountId] = creatureId;
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} mount vehicles in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
     return Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });

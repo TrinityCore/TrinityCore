@@ -1185,6 +1185,9 @@ class TC_GAME_API ObjectMgr
 
         VehicleTemplate const* GetVehicleTemplate(Vehicle* veh) const;
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
+        // Mount.db2 id -> creature_template entry whose VehicleId the client should use.
+        // Newer mount spells keep a stale creature in EffectMiscValue.
+        uint32 GetMountVehicleCreature(uint32 mountId) const;
 
         void LoadQuests();
         void LoadQuestStartersAndEnders();
@@ -1262,6 +1265,7 @@ class TC_GAME_API ObjectMgr
         void LoadInstanceTemplate();
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
+        void LoadMountVehicles();
         void LoadVehicleTemplate();
         void LoadVehicleAccessories();
         void LoadVehicleSeatAddon();
@@ -1749,6 +1753,7 @@ class TC_GAME_API ObjectMgr
         SpellScriptsContainer _spellScriptsStore;
 
         std::unordered_map<uint32, VehicleTemplate> _vehicleTemplateStore;
+        std::unordered_map<uint32, uint32> _mountVehicleByMountId;
         VehicleAccessoryTemplateContainer _vehicleTemplateAccessoryStore;
         VehicleAccessoryContainer _vehicleAccessoryStore;
 

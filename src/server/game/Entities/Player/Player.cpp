@@ -6340,8 +6340,24 @@ void Player::UpdateZoneAndAreaId()
 
 void Player::UpdateIndoorsOutdoorsAuras()
 {
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
-        RemoveAurasWithAttribute(IsOutdoors() ? SPELL_ATTR0_ONLY_INDOORS : SPELL_ATTR0_ONLY_OUTDOORS);
+    if (!sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
+        return;
+
+    SpellAttr0 const flags = IsOutdoors() ? SPELL_ATTR0_ONLY_INDOORS : SPELL_ATTR0_ONLY_OUTDOORS;
+    RemoveAppliedAuras([this, flags](AuraApplication const* aurApp)
+    {
+        Aura const* aura = aurApp->GetBase();
+        if (!aura->GetSpellInfo()->HasAttribute(flags))
+            return false;
+
+        // A ride aura cast by a passenger (a mount vendor) has to survive this check.
+        // Stripping it ejects them. The mount aura itself is self-cast and still drops.
+        if (Unit* caster = aura->GetCaster())
+            if (caster->GetVehicleBase() == this)
+                return false;
+
+        return true;
+    });
 }
 
 void Player::UpdateTavernRestingState()
