@@ -241,6 +241,7 @@ enum DemonHunterSpells
     SPELL_DH_SOUL_FRAGMENTS_DEVOURER_COUNTER       = 1245577,
     SPELL_DH_SOUL_FRAGMENTS_DAMAGE_TAKEN_TRACKER   = 210788,
     SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF              = 391172,
+    SPELL_DH_SOUL_IMMOLATION                       = 1241937,
     SPELL_DH_SOUL_RENDING                          = 204909,
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
     SPELL_DH_SPIRIT_BOMB_HEAL                      = 227255,
@@ -2512,6 +2513,25 @@ class spell_dh_soul_sigils : public AuraScript
     }
 };
 
+// 1246556 - Spontaneous Immolation
+class spell_dh_spontaneous_immolation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_IMMOLATION });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SOUL_IMMOLATION, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_spontaneous_immolation::HandleProc);
+    }
+};
+
 // 320313 - Swallowed Anger (attached to 278326 - Consume Magic)
 class spell_dh_swallowed_anger : public SpellScript
 {
@@ -2941,6 +2961,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_soul_furnace);
     RegisterSpellScript(spell_dh_soul_furnace_conduit);
     RegisterSpellScript(spell_dh_soul_sigils);
+    RegisterSpellScript(spell_dh_spontaneous_immolation);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_swallowed_anger);
     RegisterSpellScript(spell_dh_tactical_retreat);
