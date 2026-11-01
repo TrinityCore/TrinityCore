@@ -95,6 +95,7 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_DMG                   = 208645,
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
+    SPELL_DH_DEVOURERS_BITE                        = 1241532,
     SPELL_DH_ELYSIAN_DECREE                        = 306830,
     SPELL_DH_ELYSIAN_DECREE_AOE                    = 307046,
     SPELL_DH_ENDURING_TORMENT_BUFF                 = 453314,
@@ -1151,6 +1152,25 @@ class spell_dh_demon_spikes : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_demon_spikes::HandleArmor, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1240201 - Devourer's Bite
+class spell_dh_devourers_bite : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEVOURERS_BITE });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_DH_DEVOURERS_BITE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_devourers_bite::HandleProc);
     }
 };
 
@@ -2881,6 +2901,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_demonic_appetite);
     RegisterSpellScript(spell_dh_demonic_appetite_energize);
     RegisterSpellScript(spell_dh_demon_spikes);
+    RegisterSpellScript(spell_dh_devourers_bite);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
     RegisterAreaTriggerAI(at_dh_elysian_decree);
     RegisterSpellScript(spell_dh_enduring_torment);
