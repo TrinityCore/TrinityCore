@@ -272,6 +272,22 @@ enum DemonHunterSpellCategories
     SPELL_CATEGORY_DH_BLADE_DANCE   = 1640
 };
 
+// 206416 - First Blood
+class spell_dh_first_blood : public AuraScript
+{
+public:
+    ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
+    void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
+
+private:
+    void Register() override
+    {
+    }
+
+private:
+    ObjectGuid _firstTargetGUID;
+};
+
 // Called by 232893 - Felblade
 class spell_dh_army_unto_oneself : public SpellScript
 {
@@ -296,6 +312,80 @@ class spell_dh_army_unto_oneself : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_dh_army_unto_oneself::ApplyBladeWard);
+    }
+};
+
+// 188499 - Blade Dance
+// 210152 - Death Sweep
+class spell_dh_blade_dance : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
+    }
+
+    void DecideFirstTarget(std::list<WorldObject*>& targetList)
+    {
+        if (targetList.empty())
+            return;
+
+        Aura* aura = GetCaster()->GetAura(SPELL_DH_FIRST_BLOOD);
+        if (!aura)
+            return;
+
+        ObjectGuid firstTargetGUID = ObjectGuid::Empty;
+        ObjectGuid selectedTarget = GetCaster()->GetTarget();
+
+        // Prefer the selected target if he is one of the enemies
+        if (targetList.size() > 1 && !selectedTarget.IsEmpty())
+        {
+            auto it = std::find_if(targetList.begin(), targetList.end(), [selectedTarget](WorldObject* object)
+            {
+                return object->GetGUID() == selectedTarget;
+            });
+            if (it != targetList.end())
+                firstTargetGUID = (*it)->GetGUID();
+        }
+
+        if (firstTargetGUID.IsEmpty())
+            firstTargetGUID = targetList.front()->GetGUID();
+
+        if (spell_dh_first_blood* script = aura->GetScript<spell_dh_first_blood>())
+            script->SetFirstTarget(firstTargetGUID);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dh_blade_dance::DecideFirstTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+// 199552 - Blade Dance
+// 200685 - Blade Dance
+// 210153 - Death Sweep
+// 210155 - Death Sweep
+class spell_dh_blade_dance_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
+    }
+
+    void HandleHitTarget()
+    {
+        int32 damage = GetHitDamage();
+
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_DH_FIRST_BLOOD, EFFECT_0))
+            if (spell_dh_first_blood* script = aurEff->GetBase()->GetScript<spell_dh_first_blood>())
+                if (GetHitUnit()->GetGUID() == script->GetFirstTarget())
+                    AddPct(damage, aurEff->GetAmount());
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dh_blade_dance_damage::HandleHitTarget);
     }
 };
 
@@ -1443,22 +1533,6 @@ class spell_dh_fiery_brand : public SpellScript
     }
 };
 
-// 206416 - First Blood
-class spell_dh_first_blood : public AuraScript
-{
-public:
-    ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
-    void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
-
-private:
-    void Register() override
-    {
-    }
-
-private:
-    ObjectGuid _firstTargetGUID;
-};
-
 // Called by 198013 - Eye Beam
 class spell_dh_furious_gaze : public AuraScript
 {
@@ -1518,6 +1592,84 @@ struct at_dh_glaive_tempest : AreaTriggerAI
 
 private:
     TaskScheduler _scheduler;
+};
+
+// 131347 - Glide
+class spell_dh_glide : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsMounted() || caster->GetVehicleBase())
+            return SPELL_FAILED_DONT_REPORT;
+
+        if (!caster->IsFalling())
+            return SPELL_FAILED_NOT_ON_GROUND;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleCast()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_DH_GLIDE_KNOCKBACK, true);
+        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, true);
+
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty()), 0, nullptr, false, 250ms);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dh_glide::CheckCast);
+        BeforeCast += SpellCastFn(spell_dh_glide::HandleCast);
+    }
+};
+
+// 131347 - Glide
+class spell_dh_glide_AuraScript : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE_DURATION });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_DH_GLIDE_DURATION);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 197154 - Glide
+class spell_dh_glide_timer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_DH_GLIDE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // Called by 162264 - Metamorphosis
@@ -1756,158 +1908,6 @@ class spell_dh_painbringer_reduce_damage : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dh_painbringer_reduce_damage::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dh_painbringer_reduce_damage::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 188499 - Blade Dance
-// 210152 - Death Sweep
-class spell_dh_blade_dance : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
-    }
-
-    void DecideFirstTarget(std::list<WorldObject*>& targetList)
-    {
-        if (targetList.empty())
-            return;
-
-        Aura* aura = GetCaster()->GetAura(SPELL_DH_FIRST_BLOOD);
-        if (!aura)
-            return;
-
-        ObjectGuid firstTargetGUID = ObjectGuid::Empty;
-        ObjectGuid selectedTarget = GetCaster()->GetTarget();
-
-        // Prefer the selected target if he is one of the enemies
-        if (targetList.size() > 1 && !selectedTarget.IsEmpty())
-        {
-            auto it = std::find_if(targetList.begin(), targetList.end(), [selectedTarget](WorldObject* object)
-            {
-                return object->GetGUID() == selectedTarget;
-            });
-            if (it != targetList.end())
-                firstTargetGUID = (*it)->GetGUID();
-        }
-
-        if (firstTargetGUID.IsEmpty())
-            firstTargetGUID = targetList.front()->GetGUID();
-
-        if (spell_dh_first_blood* script = aura->GetScript<spell_dh_first_blood>())
-            script->SetFirstTarget(firstTargetGUID);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dh_blade_dance::DecideFirstTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-    }
-};
-
-// 199552 - Blade Dance
-// 200685 - Blade Dance
-// 210153 - Death Sweep
-// 210155 - Death Sweep
-class spell_dh_blade_dance_damage : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
-    }
-
-    void HandleHitTarget()
-    {
-        int32 damage = GetHitDamage();
-
-        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_DH_FIRST_BLOOD, EFFECT_0))
-            if (spell_dh_first_blood* script = aurEff->GetBase()->GetScript<spell_dh_first_blood>())
-                if (GetHitUnit()->GetGUID() == script->GetFirstTarget())
-                    AddPct(damage, aurEff->GetAmount());
-
-        SetHitDamage(damage);
-    }
-
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_dh_blade_dance_damage::HandleHitTarget);
-    }
-};
-
-// 131347 - Glide
-class spell_dh_glide : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
-    }
-
-    SpellCastResult CheckCast()
-    {
-        Unit* caster = GetCaster();
-        if (caster->IsMounted() || caster->GetVehicleBase())
-            return SPELL_FAILED_DONT_REPORT;
-
-        if (!caster->IsFalling())
-            return SPELL_FAILED_NOT_ON_GROUND;
-
-        return SPELL_CAST_OK;
-    }
-
-    void HandleCast()
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (!caster)
-            return;
-
-        caster->CastSpell(caster, SPELL_DH_GLIDE_KNOCKBACK, true);
-        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, true);
-
-        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 250ms);
-        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty()), 0, nullptr, false, 250ms);
-    }
-
-    void Register() override
-    {
-        OnCheckCast += SpellCheckCastFn(spell_dh_glide::CheckCast);
-        BeforeCast += SpellCastFn(spell_dh_glide::HandleCast);
-    }
-};
-
-// 131347 - Glide
-class spell_dh_glide_AuraScript : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE_DURATION });
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->RemoveAura(SPELL_DH_GLIDE_DURATION);
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 197154 - Glide
-class spell_dh_glide_timer : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE });
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->RemoveAura(SPELL_DH_GLIDE);
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2299,6 +2299,42 @@ class spell_dh_shift : public SpellScript
     }
 };
 
+// 389711 - Soulmonger
+class spell_dh_soulmonger : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DH_SOULMONGER_ABSORB, EFFECT_0 } });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActionTarget()->HealthAbovePctHealed(100, eventInfo.GetHealInfo()->GetHeal());
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* target = eventInfo.GetActionTarget();
+        SpellEffectValue amount = eventInfo.GetHealInfo()->GetHeal();
+        if (AuraEffect const* existingAbsorb = target->GetAuraEffect(SPELL_DH_SOULMONGER_ABSORB, EFFECT_0))
+            amount += existingAbsorb->GetAmount();
+
+        amount = std::min(amount, SpellEffectValue(target->CountPctFromMaxHealth(aurEff->GetAmount())));
+
+        target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dh_soulmonger::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dh_soulmonger::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 207407 - Soul Carver
 class spell_dh_soul_carver : public SpellScript
 {
@@ -2416,42 +2452,6 @@ class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
 
 private:
     std::vector<uint32> _damagePerSecond;
-};
-
-// 389711 - Soulmonger
-class spell_dh_soulmonger : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect({ { SPELL_DH_SOULMONGER_ABSORB, EFFECT_0 } });
-    }
-
-    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
-    {
-        return eventInfo.GetActionTarget()->HealthAbovePctHealed(100, eventInfo.GetHealInfo()->GetHeal());
-    }
-
-    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
-    {
-        Unit* target = eventInfo.GetActionTarget();
-        SpellEffectValue amount = eventInfo.GetHealInfo()->GetHeal();
-        if (AuraEffect const* existingAbsorb = target->GetAuraEffect(SPELL_DH_SOULMONGER_ABSORB, EFFECT_0))
-            amount += existingAbsorb->GetAmount();
-
-        amount = std::min(amount, SpellEffectValue(target->CountPctFromMaxHealth(aurEff->GetAmount())));
-
-        target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff,
-            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
-        });
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_dh_soulmonger::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_dh_soulmonger::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
 };
 
 // 391166 - Soul Furnace
@@ -2852,6 +2852,8 @@ class spell_dh_wave_of_debilitation : public AuraScript
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_army_unto_oneself);
+    RegisterSpellScript(spell_dh_blade_dance);
+    RegisterSpellScript(spell_dh_blade_dance_damage);
     RegisterSpellScript(spell_dh_burn_it_out);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
@@ -2893,8 +2895,11 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_charge);
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_fiery_brand);
+    RegisterSpellScript(spell_dh_first_blood);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
+    RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
+    RegisterSpellScript(spell_dh_glide_timer);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
@@ -2933,6 +2938,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dh_soul_carver, spell_dh_soul_carver_aura);
     RegisterSpellScript(spell_dh_soul_cleanse);
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
+    RegisterSpellScript(spell_dh_soul_furnace);
+    RegisterSpellScript(spell_dh_soul_furnace_conduit);
     RegisterSpellScript(spell_dh_soul_sigils);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_swallowed_anger);
@@ -2952,30 +2959,4 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_silence);
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_misery);
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_spite);
-
-    // Havoc
-
-    /* Spells & Auras */
-
-    /* Auras */
-
-    RegisterSpellScript(spell_dh_first_blood);
-
-    /* AreaTrigger */
-
-    /* Spells */
-
-    RegisterSpellScript(spell_dh_blade_dance);
-    RegisterSpellScript(spell_dh_blade_dance_damage);
-
-    // Vengeance
-    RegisterSpellScript(spell_dh_soul_furnace);
-
-    // Vengeance & Havoc
-
-    RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
-    RegisterSpellScript(spell_dh_glide_timer);
-
-    // Soulbind conduits
-    RegisterSpellScript(spell_dh_soul_furnace_conduit);
 }
