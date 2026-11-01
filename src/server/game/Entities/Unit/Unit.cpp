@@ -6952,8 +6952,16 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
 
-    // Pet damage?
-    if (GetTypeId() == TYPEID_UNIT && !IsPet())
+    if (IsPet() || IsSummon() || IsGuardian())
+    {
+        if (Unit* owner = GetOwner())
+        {
+            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE);
+            for (AuraEffect const* aurEff : modSummonDamageAuras)
+                AddPct(DoneTotalMod, aurEff->GetAmount());
+        }
+    }
+    else if (GetTypeId() == TYPEID_UNIT)
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->Classification);
 
     // Versatility
@@ -8120,6 +8128,16 @@ int32 Unit::MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType a
         // melee attack
         for (AuraEffect const* autoAttackDamage : GetAuraEffectsByType(SPELL_AURA_MOD_AUTOATTACK_DAMAGE))
             AddPct(DoneTotalMod, autoAttackDamage->GetAmount());
+    }
+
+    if (IsPet() || IsSummon() || IsGuardian())
+    {
+        if (Unit* owner = GetOwner())
+        {
+            Unit::AuraEffectList const& modSummonDamageAuras = owner->GetAuraEffectsByType(SPELL_AURA_MOD_SUMMON_DAMAGE_PCT_DONE);
+            for (AuraEffect const* aurEff : modSummonDamageAuras)
+                AddPct(DoneTotalMod, aurEff->GetAmount());
+        }
     }
 
     DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
