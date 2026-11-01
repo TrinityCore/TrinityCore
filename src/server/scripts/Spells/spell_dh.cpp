@@ -240,6 +240,7 @@ enum DemonHunterSpells
     SPELL_DH_SOUL_FRAGMENT_DEVOURER                = 1223412,
     SPELL_DH_SOUL_FRAGMENTS_DEVOURER_COUNTER       = 1245577,
     SPELL_DH_SOUL_FRAGMENTS_DAMAGE_TAKEN_TRACKER   = 210788,
+    SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF              = 391172,
     SPELL_DH_SOUL_RENDING                          = 204909,
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
     SPELL_DH_SPIRIT_BOMB_HEAL                      = 227255,
@@ -2453,6 +2454,29 @@ private:
     std::vector<uint32> _damagePerSecond;
 };
 
+// 391166 - Soul Furnace
+class spell_dh_soul_furnace : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF });
+    }
+
+    void CalculateSpellMod(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == GetAura()->CalcMaxStackAmount())
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF, true);
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_soul_furnace::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 // 339424 - Soul Furnace
 class spell_dh_soul_furnace_conduit : public AuraScript
 {
@@ -2914,6 +2938,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dh_soul_carver, spell_dh_soul_carver_aura);
     RegisterSpellScript(spell_dh_soul_cleanse);
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
+    RegisterSpellScript(spell_dh_soul_furnace);
     RegisterSpellScript(spell_dh_soul_furnace_conduit);
     RegisterSpellScript(spell_dh_soul_sigils);
     RegisterSpellScript(spell_dh_student_of_suffering);
