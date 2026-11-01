@@ -1014,7 +1014,7 @@ void AreaTrigger::HandleUnitEnterExit(std::span<Unit*> targetList, AreaTriggerEx
 
     std::ptrdiff_t enteringUnitsEnd = std::ssize(enteringUnits);
     if (GetCreateProperties()->MaxUnits)
-        enteringUnitsEnd = *GetCreateProperties()->MaxUnits - std::ssize(_insideUnits);
+        enteringUnitsEnd = std::min(*GetCreateProperties()->MaxUnits - std::ssize(_insideUnits), enteringUnitsEnd);
 
     for (std::ptrdiff_t i = 0; i < enteringUnitsEnd; ++i)
         _insideUnits.insert(enteringUnits[i]->GetGUID());

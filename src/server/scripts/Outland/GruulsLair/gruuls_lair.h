@@ -31,21 +31,9 @@ enum GLEncounters
     DATA_GRUUL                  = 1
 };
 
-enum GLDataTypes
-{
-    DATA_KROSH_FIREHAND,
-    DATA_OLM_THE_SUMMONER,
-    DATA_KIGGLER_THE_CRAZED,
-    DATA_BLINDEYE_THE_SEER
-};
-
 enum GLCreatureIds
 {
-    NPC_MAULGAR                 = 18831,
-    NPC_KROSH_FIREHAND          = 18832,
-    NPC_OLM_THE_SUMMONER        = 18834,
-    NPC_KIGGLER_THE_CRAZED      = 18835,
-    NPC_BLINDEYE_THE_SEER       = 18836
+    NPC_MAULGAR                 = 18831
 };
 
 enum GLGameObjectIds
