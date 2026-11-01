@@ -2455,33 +2455,6 @@ private:
     std::vector<uint32> _damagePerSecond;
 };
 
-// 1241937 - Soul Immolation
-class spell_dh_soul_immolation : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return spell_dh_shattered_souls_base_lesser::Validate()
-            && ValidateSpellInfo({ SPELL_DH_SOUL_IMMOLATION_ENERGIZE });
-    }
-
-    void HandlePeriodic(AuraEffect const* aurEff) const
-    {
-        Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_DH_SOUL_IMMOLATION_ENERGIZE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
-
-        if (aurEff->GetTickNumber() % 2 == 1)
-            spell_dh_shattered_souls_base_lesser::CreateFragments(target, target, 1);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_soul_immolation::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 // 391166 - Soul Furnace
 class spell_dh_soul_furnace : public AuraScript
 {
@@ -2523,6 +2496,33 @@ class spell_dh_soul_furnace_conduit : public AuraScript
     void Register() override
     {
         DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_dh_soul_furnace_conduit::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1241937 - Soul Immolation
+class spell_dh_soul_immolation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_dh_shattered_souls_base_lesser::Validate()
+            && ValidateSpellInfo({ SPELL_DH_SOUL_IMMOLATION_ENERGIZE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_SOUL_IMMOLATION_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+
+        if (aurEff->GetTickNumber() % 2 == 1)
+            spell_dh_shattered_souls_base_lesser::CreateFragments(target, target, 1);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_soul_immolation::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
