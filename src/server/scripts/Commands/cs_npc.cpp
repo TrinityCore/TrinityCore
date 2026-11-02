@@ -144,11 +144,10 @@ public:
             return true;
         }
 
-        Creature* creature = Creature::CreateCreature(id, map, chr->GetPosition());
+        Creature* creature = Creature::CreateCreature(id, map, chr->GetPosition(), InitialPhaseShift(chr));
         if (!creature)
             return false;
 
-        PhasingHandler::InheritPhaseShift(creature, chr);
         creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();

@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 
 BossBoundaryData const boundaries =
@@ -101,7 +102,7 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromOrientation(pos.GetOrientation()), 255, GO_STATE_READY))
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromOrientation(pos.GetOrientation()), InitialPhaseShift(), 255, GO_STATE_READY))
                 instance->AddToMap(go);
         }
 

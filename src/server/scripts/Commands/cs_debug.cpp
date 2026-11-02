@@ -1101,11 +1101,9 @@ public:
         Map* map = handler->GetPlayer()->GetMap();
         Position pos = { x, y, z, o };
 
-        Creature* v = Creature::CreateCreature(entry, map, pos, *id);
+        Creature* v = Creature::CreateCreature(entry, map, pos, InitialPhaseShift(handler->GetPlayer()), *id);
         if (!v)
             return false;
-
-        PhasingHandler::InheritPhaseShift(v, handler->GetPlayer());
 
         map->AddToMap(v);
 
