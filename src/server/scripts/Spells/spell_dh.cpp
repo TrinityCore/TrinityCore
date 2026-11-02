@@ -1575,25 +1575,35 @@ class spell_dh_focused_ray : public SpellScript
         return ValidateSpellEffect({ { SPELL_DH_FOCUSED_RAY, EFFECT_1 } });
     }
 
-    void HandleDamage(SpellEffIndex effIndex)
+    bool Load() override
     {
         Aura const* focusedRay = GetCaster()->GetAura(SPELL_DH_FOCUSED_RAY);
         if (!focusedRay)
-            return;
+            return false;
 
-        AuraEffect const* damageIncreased = focusedRay->GetEffect(EFFECT_0);
-        AuraEffect const* minTargets = focusedRay->GetEffect(EFFECT_1);
-        if (!minTargets || !damageIncreased)
-            return;
+        AuraEffect const* damageBonus = focusedRay->GetEffect(EFFECT_0);
+        AuraEffect const* maxTargets = focusedRay->GetEffect(EFFECT_1);
+        if (!maxTargets || !damageBonus)
+            return false;
 
-        if (GetUnitTargetCountForEffect(effIndex) >= minTargets->GetAmountAsInt())
-            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), damageIncreased->GetAmount()));
+        _damageBonus = damageBonus->GetAmount();
+        _maxTargets = maxTargets->GetAmountAsInt();
+        return true;
+    }
+
+    void HandleDamage(SpellEffectInfo const& effectInfo, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (GetUnitTargetCountForEffect(effectInfo.EffectIndex) <= _maxTargets)
+            AddPct(pctMod, _damageBonus);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dh_focused_ray::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        CalcDamage += SpellCalcDamageFn(spell_dh_focused_ray::HandleDamage);
     }
+
+    SpellEffectValue _damageBonus = 0.0;
+    int64 _maxTargets = 0;
 };
 
 // Called by 198013 - Eye Beam
