@@ -22,6 +22,8 @@
 #include <string>
 #include <unordered_map>
 
+class WorldObject;
+
 struct NamedPoint
 {
     uint32 Id;
