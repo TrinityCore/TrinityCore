@@ -50,6 +50,7 @@
 #include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "NamedPointMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -12945,6 +12946,18 @@ void Unit::UpdateHeight(float newZ)
     Relocate(GetPositionX(), GetPositionY(), newZ);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers();
+}
+
+void Unit::TeleportToNamedPoint(uint32 id)
+{
+    if (const NamedPoint* point = GetNamedPoint(id))
+        NearTeleportTo(point->PositionX, point->PositionY, point->PositionZ, point->Orientation);
+}
+
+void Unit::TeleportToNamedPoint(std::string const& stringId, float maxRange)
+{
+    if (const NamedPoint* point = FindNearestNamedPoint(stringId, maxRange))
+        NearTeleportTo(point->PositionX, point->PositionY, point->PositionZ, point->Orientation);
 }
 
 PlayerMovementPendingChange& Unit::PeakFirstPendingMovementChange()

@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "NamedPointMgr.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -353,6 +354,7 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
     }
 
     AIGroupObjectVector targets;
+    NamedPoint const* namedPoint = nullptr;
 
     if (!action.StringId.empty())
     {
@@ -444,6 +446,11 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
                 if (targetTypeMask & AIGroupMgr::TargetTypeMaskObject && (!nearestTarget))
                     nearestTarget = baseObject->FindNearestGameObjectWithOptions(searchRadius, { .StringId = action.StringId });
 
+                /// @todo: StringId field for actions with Point field was added later (doesn't exist in Alpha)
+                /// It is unclear how exactly named point selection should be handled, this is temporary implementation
+                if (targetTypeMask & AIGroupMgr::TargetTypeMaskNamedPoint)
+                    namedPoint = baseObject->FindNearestNamedPoint(action.StringId, searchRadius);
+
                 if (nearestTarget)
                     targets.push_back(nearestTarget);
             }
@@ -534,7 +541,10 @@ bool AIGroupScript::ExecuteActionForActor(ActionSetActionHolder const& action, O
             /// @todo
             return false;
         case AI_GROUP_TELEPORT:
-            /// @todo
+            if (namedPoint)
+                me->TeleportToNamedPoint(namedPoint->Id);
+            else if (action.Point)
+                me->TeleportToNamedPoint(action.Point);
             return true;
         case AI_GROUP_WANDER:
             me->GetMotionMaster()->MoveRandom(float(action.Extra1));

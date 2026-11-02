@@ -34,6 +34,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_SEL_RANDOM_ACTION_SET, "SELECT Id, `Index`, Probability, ActionSetId FROM random_action_set ORDER BY Id, `Index`", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_ACTION_TRIGGERS, "SELECT Id, `Index`, Chance, Flags, CombatCondition, TriggerId, TriggerParam1, TriggerParam2, ActionSetID, RepeatMin, RepeatMax FROM action_triggers ORDER BY Id, `Index`", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_ACTION_TRIGGERS_NAME, "SELECT Id, `Name` FROM action_triggers_name ORDER BY Id", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_NAMED_POINT, "SELECT Id, PositionX, PositionY, PositionZ, Orientation, StringId, `Name` FROM named_point", CONNECTION_SYNCH);
     PrepareStatement(WORLD_DEL_GAMEOBJECT, "DELETE FROM gameobject WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_EVENT_GAMEOBJECT, "DELETE FROM game_event_gameobject WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_INS_GRAVEYARD_ZONE, "INSERT INTO graveyard_zone (ID, GhostZone, Faction) VALUES (?, ?, ?)", CONNECTION_ASYNC);

@@ -20,6 +20,7 @@
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "Log.h"
+#include "NamedPointMgr.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Timer.h"
@@ -168,6 +169,13 @@ void AIGroupMgr::LoadActionSetsFromDB()
         {
             TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Unit ({}), skipped.",
                 actionHolder.Id, actionHolder.Index, actionHolder.Unit);
+            continue;
+        }
+
+        if (actionHolder.Point && !sNamedPointMgr->GetNamedPoint(actionHolder.Point))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) has invalid Point ({}), skipped.",
+                actionHolder.Id, actionHolder.Index, actionHolder.Point);
             continue;
         }
 
@@ -578,6 +586,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_MOVETO:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             if (!IsApproachDistValid(action, action.Extra1))
@@ -588,6 +598,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_TELEPORT:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             break;
@@ -820,6 +832,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_AVOID:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             if (!IsApproachDistValid(action, action.Extra1))
@@ -1159,6 +1173,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             }
             break;
         case AI_GROUP_JUMP_POINT:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             /// @todo Extra0 field
             /// @todo Extra1 field
             if (!IsSearchRadiusValid(action, action.Extra2))
@@ -1235,6 +1251,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             break;
         case AI_GROUP_TIER_TRANSITION_MOVETO:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             if (!IsAnimTierValid(action, action.Extra2))
@@ -1597,6 +1615,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra2 field
             break;
         case AI_GROUP_MOVE_ON_PATH_GRAPH_TO_POINT:
+            if (!IsPointOrStringIdFilled(action))
+                return false;
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
             if (!IsApproachDistValid(action, action.Extra1))
@@ -2186,6 +2206,18 @@ bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double in
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
             action.Id, action.Index, action.Type, index, MAX_VEHICLE_SEATS);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsPointOrStringIdFilled(ActionSetActionHolder const& action)
+{
+    if (!action.Point && action.StringId.empty())
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} requires either Point or StringId, skipped.",
+            action.Id, action.Index, action.Type);
         return false;
     }
 

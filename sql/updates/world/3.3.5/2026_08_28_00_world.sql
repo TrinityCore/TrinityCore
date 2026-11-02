@@ -85,6 +85,18 @@ CREATE TABLE `ai_group_members` (
   PRIMARY KEY (`MemberGUID`,`MemberType`,`AIGroupUnit`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `named_point`;
+CREATE TABLE `named_point` (
+  `Id` int unsigned NOT NULL ,
+  `PositionX` float NOT NULL DEFAULT '0',
+  `PositionY` float NOT NULL DEFAULT '0',
+  `PositionZ` float NOT NULL DEFAULT '0',
+  `Orientation` float DEFAULT NULL,
+  `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `Name` char(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DELETE FROM `trinity_string` WHERE `entry` IN (5081,5082);
 INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (5081,'Current Active Action Triggers: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),

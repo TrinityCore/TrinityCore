@@ -31,6 +31,7 @@
 #include "MiscPackets.h"
 #include "MovementInfo.h"
 #include "MovementPackets.h"
+#include "NamedPointMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -2169,6 +2170,16 @@ Player* WorldObject::SelectNearestPlayer(float distance) const
     Cell::VisitWorldObjects(this, searcher, distance);
 
     return target;
+}
+
+const NamedPoint* WorldObject::GetNamedPoint(uint32 id) const
+{
+    return sNamedPointMgr->GetNamedPoint(id);
+}
+
+const NamedPoint* WorldObject::FindNearestNamedPoint(const std::string& stringId, float maxRange) const
+{
+    return sNamedPointMgr->FindNearestNamedPoint(this, stringId, maxRange);
 }
 
 ObjectGuid WorldObject::GetCharmerOrOwnerOrOwnGUID() const

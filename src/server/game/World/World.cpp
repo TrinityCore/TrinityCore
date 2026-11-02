@@ -61,6 +61,7 @@
 #include "Memory.h"
 #include "Metric.h"
 #include "MMapFactory.h"
+#include "NamedPointMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -2128,6 +2129,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Named Points...");
+    sNamedPointMgr->LoadNamedPoints();
 
     TC_LOG_INFO("server.loading", "Loading AIGroup members...");
     sAIGroupMgr->LoadAIGroupMembersFromDB();

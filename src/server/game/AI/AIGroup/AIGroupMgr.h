@@ -35,7 +35,7 @@ enum AI_GROUP_ACTION
     AI_GROUP_SPAWN                                  = 0,     // NYI // Spawn
     AI_GROUP_IDLE                                   = 1,     // Idle
     AI_GROUP_MOVETO                                 = 2,     // NYI // Move within distance of a point
-    AI_GROUP_TELEPORT                               = 3,     // NYI // Teleport to a point in the world
+    AI_GROUP_TELEPORT                               = 3,     // Teleport to a point in the world
     AI_GROUP_WANDER                                 = 4,     // Wander
     AI_GROUP_ATTACK_ALL                             = 5,     // NYI // Attack all players within a given radius; old AI_GROUP_WANDER_SPAWNRELATIVE_OBSOLETE
     AI_GROUP_WANDER_AREA                            = 6,     // Wander a convex poly area (not yet implemented)
@@ -1320,6 +1320,7 @@ class TC_GAME_API AIGroupMgr
         static bool IsGameObjectActionValid(ActionSetActionHolder const& action, double gameObjectAction);
         static bool IsDisplayIndexValid(ActionSetActionHolder const& action, double index);
         static bool IsSeatIndexValid(ActionSetActionHolder const& action, double index);
+        static bool IsPointOrStringIdFilled(ActionSetActionHolder const& action);
 
         static bool IsIntegerDouble(double value) { return std::floor(value) == value; }
 

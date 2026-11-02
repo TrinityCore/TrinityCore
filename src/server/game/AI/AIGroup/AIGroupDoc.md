@@ -1,3 +1,4 @@
+* [TO-DO List](#to-do-list)
 * [What is... Action Triggers](#what-is-action-triggers)
 * [What is... Action Triggers Name](#what-is-action-triggers-name)
 
@@ -5,6 +6,10 @@
 
 * [Creating a New Action Trigger](#creating-a-new-action-trigger)
 * [Creating a New Action](#creating-a-new-action)
+
+## TO-DO List
+
+* 'debug named point' command. It should spawn visible only to GM creatures on every named point within a given radius(by default 100)
 
 ## What is... Action Triggers
 
