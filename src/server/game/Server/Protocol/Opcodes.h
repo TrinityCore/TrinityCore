@@ -2078,6 +2078,7 @@ enum OpcodeServer : uint32
     SMSG_PERKS_PROGRAM_RESULT                                       = 0x630002,
     SMSG_PERKS_PROGRAM_VENDOR_UPDATE                                = 0x630000,
     SMSG_PETITION_ALREADY_SIGNED                                    = 0x450037,
+    SMSG_PETITION_DECLINED                                          = 0x4501F7,
     SMSG_PETITION_RENAME_GUILD_RESPONSE                             = 0x510042,
     SMSG_PETITION_SHOW_LIST                                         = 0x45016A,
     SMSG_PETITION_SHOW_SIGNATURES                                   = 0x45016B,

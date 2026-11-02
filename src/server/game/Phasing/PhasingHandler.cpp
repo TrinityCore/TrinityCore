@@ -531,6 +531,23 @@ PhaseShift const& PhasingHandler::GetAlwaysVisiblePhaseShift()
     return AlwaysVisible;
 }
 
+void PhasingHandler::InitPhaseShift(WorldObject* object, InitialPhaseShift const& initialPhaseShift)
+{
+    switch (initialPhaseShift.Source)
+    {
+        case InitialPhaseShift::FROM_DB:
+            InitDbPhaseShift(object->GetPhaseShift(), initialPhaseShift.FromDb->phaseUseFlags, initialPhaseShift.FromDb->phaseId, initialPhaseShift.FromDb->phaseGroup);
+            InitDbVisibleMapId(object->GetPhaseShift(), initialPhaseShift.FromDb->terrainSwapMap);
+            break;
+        case InitialPhaseShift::FROM_OBJECT:
+            InheritPhaseShift(object, initialPhaseShift.FromObject);
+            break;
+        case InitialPhaseShift::NONE:
+        default:
+            break;
+    }
+}
+
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
 {
     phaseShift.ClearPhases();
