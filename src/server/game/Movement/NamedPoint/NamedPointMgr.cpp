@@ -19,6 +19,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Object.h"
 #include "Log.h"
+#include "Timer.h"
 
 NamedPointMgr* NamedPointMgr::Instance()
 {
