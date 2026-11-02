@@ -781,7 +781,7 @@ class spell_dh_critical_chaos : public AuraScript
     }
 };
 
-// 1226019 - Reap
+// 1245453 - Cull
 class spell_dh_cull : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2051,7 +2051,7 @@ class spell_dh_retaliation : public AuraScript
     }
 };
 
-// 1246558 - Scythe's Embrace (attached to 1226019 - Reap)
+// 1246558 - Scythe's Embrace (attached to 1226019 - Reap, 1225826 - Eradicate, 1245453 - Cull)
 class spell_dh_scythes_embrace : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
