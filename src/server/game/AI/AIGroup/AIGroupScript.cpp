@@ -138,7 +138,6 @@ void AIGroupScript::FillScript(AIGroupEventList eventList)
             RandomizeHealthRange(mEvents.back());
         else if (mEvents.back().TriggerId == OnEnergyRangeRandom)
             RandomizeEnergyRange(mEvents.back());
-        RecalcTimer(mEvents.back());
     }
 }
 

@@ -1184,7 +1184,7 @@ struct ActionTriggersHolder
 {
     ActionTriggersHolder() : Id(0), Index(0), Chance(0), Flags(0), CombatCondition(-1), TriggerId(0),
     TriggerParam1(0), TriggerParam2(0), ActionSetId(0), RepeatMin(0), RepeatMax(0),
-    RepeatTimer(0), HealthRangeMin(0), HealthRangeMax(0), EnergyRangeMin(0), EnergyRangeMax(0), IsTriggerActive(false), IsTriggerUsed(false) { }
+    RepeatTimer(0), HealthRangeMin(0), HealthRangeMax(0), EnergyRangeMin(0), EnergyRangeMax(0), IsTriggerActive(true), IsTriggerUsed(false) { }
 
     uint32 Id;
     uint16 Index;
