@@ -1591,7 +1591,7 @@ class spell_dh_focused_ray : public SpellScript
         return true;
     }
 
-    void HandleDamage(SpellEffectInfo const& effectInfo, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    void HandleDamage(SpellEffectInfo const& effectInfo, Unit const* /*victim*/, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
     {
         if (GetUnitTargetCountForEffect(effectInfo.EffectIndex) <= _maxTargets)
             AddPct(pctMod, _damageBonus);
