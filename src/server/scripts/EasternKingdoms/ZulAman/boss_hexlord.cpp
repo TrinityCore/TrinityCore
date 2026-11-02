@@ -18,7 +18,6 @@
 /*
  * SAY_BERSERK is NYI, is it used?
  * Combat timers requires to be revisited, mainly player class abilities, half of timers are guessed
- * Move spell script of spell 43421 to this file
  * Currently we generate random companions after every wipe, doubt it is correct
  */
 
@@ -143,6 +142,7 @@ enum MalacrassSpells
     SPELL_COLD_STARE              = 43593,
 
     // Scripts
+    SPELL_LIFEBLOOM_FINAL_HEAL    = 43422,
     SPELL_UNSTABLE_AFFL_DISPEL    = 43523,
     SPELL_SIPHON_SOUL_EFFECT      = 43501,
     SPELL_MARK_OF_BLOOD_HEAL      = 61607,
@@ -880,6 +880,28 @@ struct at_malacrass_hex_sphere : public AreaTriggerAI
     }
 };
 
+// 43421 - Lifebloom
+class spell_malacrass_lifebloom : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIFEBLOOM_FINAL_HEAL });
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
+
+        GetTarget()->CastSpell(nullptr, SPELL_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_malacrass_lifebloom::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 43498 - Siphon Soul
 class spell_malacrass_siphon_soul : public SpellScript
 {
@@ -890,13 +912,20 @@ class spell_malacrass_siphon_soul : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        // This is wrong, full list of targets is sent to client
-        Trinity::Containers::RandomResize(targets, 1);
+        if (targets.empty())
+            return;
+
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+        _selectedTargetGuid = target->GetGUID();
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
+
+        if (target->GetGUID() != _selectedTargetGuid)
+            return;
 
         if (Creature* caster = GetCaster()->ToCreature())
         {
@@ -910,6 +939,9 @@ class spell_malacrass_siphon_soul : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malacrass_siphon_soul::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_malacrass_siphon_soul::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    ObjectGuid _selectedTargetGuid;
 };
 
 // 43522 - Unstable Affliction
@@ -1025,6 +1057,7 @@ void AddSC_boss_hex_lord_malacrass()
     RegisterZulAmanCreatureAI(boss_koragg);
     RegisterZulAmanCreatureAI(npc_malacrass_blood_worm);
     RegisterAreaTriggerAI(at_malacrass_hex_sphere);
+    RegisterSpellScript(spell_malacrass_lifebloom);
     RegisterSpellScript(spell_malacrass_siphon_soul);
     RegisterSpellScript(spell_malacrass_unstable_affliction);
     RegisterSpellScript(spell_malacrass_mind_control);

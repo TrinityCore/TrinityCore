@@ -221,7 +221,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellInfo, uint8 effI
         case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
-        case TARGET_SELECT_CATEGORY_LINE: // AREA
+        case TARGET_SELECT_CATEGORY_RECT: // AREA
             return _area;
         case TARGET_SELECT_CATEGORY_AREA: // AREA
             if (targetInfo.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)

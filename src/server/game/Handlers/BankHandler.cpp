@@ -27,40 +27,22 @@
 #include "NPCPackets.h"
 #include "Player.h"
 
-void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet)
+bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
 {
-    TC_LOG_DEBUG("network", "STORAGE: receive bag = {}, slot = {}", packet.Bag, packet.Slot);
+    // bankerGUID parameter is optional, set to 0 by default.
+    if (!bankerGUID)
+        bankerGUID = _player->PlayerTalkClass->GetInteractionData().SourceGuid;
 
-    if (!CanUseBank())
+    bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == _player->PlayerTalkClass->GetInteractionData().SourceGuid);
+
+    if (!isUsingBankCommand)
     {
-        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid);
-        return;
+        Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(bankerGUID, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
+        if (!creature)
+            return false;
     }
 
-    if (packet.BankType != BankType::Character)
-        return;
-
-    Item* item = _player->GetItemByPos(packet.Bag, packet.Slot);
-    if (!item)
-        return;
-
-    ItemPosCountVec dest;
-    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
-    if (msg != EQUIP_ERR_OK)
-    {
-        _player->SendEquipError(msg, item, nullptr);
-        return;
-    }
-
-    if (dest.size() == 1 && dest[0].pos == item->GetPos())
-    {
-        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
-        return;
-    }
-
-    _player->RemoveItem(packet.Bag, packet.Slot, true);
-    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
-    _player->BankItem(dest, item, true);
+    return true;
 }
 
 void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate)
@@ -102,6 +84,42 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate
     SendShowBank(bankerActivate.Banker, bankerActivate.InteractionType);
 }
 
+void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& packet)
+{
+    TC_LOG_DEBUG("network", "STORAGE: receive bag = {}, slot = {}", packet.Bag, packet.Slot);
+
+    if (!CanUseBank())
+    {
+        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid);
+        return;
+    }
+
+    if (packet.BankType != BankType::Character)
+        return;
+
+    Item* item = _player->GetItemByPos(packet.Bag, packet.Slot);
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
+    if (msg != EQUIP_ERR_OK)
+    {
+        _player->SendEquipError(msg, item, nullptr);
+        return;
+    }
+
+    if (dest.size() == 1 && dest[0].pos == item->GetPos())
+    {
+        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
+        return;
+    }
+
+    _player->RemoveItem(packet.Bag, packet.Slot, true);
+    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+    _player->BankItem(dest, item, true);
+}
+
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet)
 {
     TC_LOG_DEBUG("network", "STORAGE: receive bag = {}, slot = {}", packet.Bag, packet.Slot);
@@ -129,7 +147,6 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
         _player->RemoveItem(packet.Bag, packet.Slot, true);
         if (Item const* storedItem = _player->StoreItem(dest, item, true))
             _player->ItemAddedQuestCheck(storedItem->GetEntry(), storedItem->GetCount());
-
     }
     else                                                                // moving from inventory to bank
     {
