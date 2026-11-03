@@ -145,6 +145,7 @@ enum DemonHunterSpells
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
     SPELL_DH_HAVOC_MASTERY                         = 185164,
+    SPELL_DH_HUNGERING_SLASH                       = 1239123,
     SPELL_DH_HUNGERING_SLASH_DAMAGE                = 1239127,
     SPELL_DH_HUNGERING_SLASH_ENABLER               = 1239525,
     SPELL_DH_HUNGERING_SLASH_ENERGIZE              = 1239507,
@@ -193,6 +194,8 @@ enum DemonHunterSpells
     SPELL_DH_REAP                                  = 1226019,
     SPELL_DH_REAP_DAMAGE                           = 1225823,
     SPELL_DH_REAP_ENERGIZE                         = 1261679,
+    SPELL_DH_REAPERS_TOLL                          = 1245470,
+    SPELL_DH_REAPERS_TOLL_ENABLER                  = 1245523,
     SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
@@ -1784,11 +1787,19 @@ class spell_dh_glide_timer : public AuraScript
 };
 
 // 1239123 - Hungering Slash
+// 1245470 - Reaper's Toll
 class spell_dh_hungering_slash : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_DAMAGE, SPELL_DH_HUNGERING_SLASH_ENERGIZE, SPELL_DH_VOIDSTEP });
+        return ValidateSpellInfo
+        ({
+            SPELL_DH_HUNGERING_SLASH_DAMAGE,
+            SPELL_DH_HUNGERING_SLASH_ENERGIZE,
+            SPELL_DH_VOIDSTEP,
+            SPELL_DH_HUNGERING_SLASH_ENABLER,
+            SPELL_DH_REAPERS_TOLL_ENABLER
+        });
     }
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
@@ -1801,6 +1812,18 @@ class spell_dh_hungering_slash : public AuraScript
         target->CastSpell(target, SPELL_DH_VOIDSTEP, args);
         target->CastSpell(target->GetPosition(), SPELL_DH_HUNGERING_SLASH_DAMAGE, args);
         target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENERGIZE, args);
+
+        switch (GetId())
+        {
+            case SPELL_DH_HUNGERING_SLASH:
+                target->RemoveAurasDueToSpell(SPELL_DH_HUNGERING_SLASH_ENABLER);
+                break;
+            case SPELL_DH_REAPERS_TOLL:
+                target->RemoveAurasDueToSpell(SPELL_DH_REAPERS_TOLL_ENABLER);
+                break;
+            default:
+                break;
+        }
     }
 
     void Register() override
@@ -1817,23 +1840,27 @@ class spell_dh_hungering_slash_damage : public SpellScript
         return spell_dh_shattered_souls_base_lesser::Validate();
     }
 
-    void HandleSoulFragments() const
+    void HandleSoulFragments(SpellEffIndex effIndex) const
     {
-        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), urand(1, 2));
+        // fragments are spawned only once
+        if (GetUnitTargetIndexForEffect(GetHitUnit()->GetGUID(), effIndex) == 0)
+            spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), urand(1, 2));
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_dh_hungering_slash_damage::HandleSoulFragments);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_damage::HandleSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
 // 1239519 - Hungering Slash (attached to 1246167 - The Hunt and 1245412 - Voidblade)
 class spell_dh_hungering_slash_enabler : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER, SPELL_DH_VOIDBLADE });
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY;
     }
 
     bool Load() override
@@ -1852,36 +1879,7 @@ class spell_dh_hungering_slash_enabler : public SpellScript
 
     void Register() override
     {
-        if (m_scriptSpellId == SPELL_DH_VOIDBLADE)
-            OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-class spell_dh_hungering_slash_enabler_aura : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER, SPELL_DH_THE_HUNT });
-    }
-
-    bool Load() override
-    {
-        return GetUnitOwner()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
-    }
-
-    void HandleEnabler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
-    {
-        Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENABLER, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
-    }
-
-    void Register() override
-    {
-        if (m_scriptSpellId == SPELL_DH_THE_HUNT)
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dh_hungering_slash_enabler_aura::HandleEnabler, EFFECT_3, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_ANY);
     }
 };
 
@@ -2143,6 +2141,36 @@ class spell_dh_reap : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_reap::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1239519 - Hungering Slash (attached to 1259431 - Predator's Wake and 1245483 - Pierce the Veil)
+class spell_dh_reapers_toll_enabler : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_REAPERS_TOLL_ENABLER })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY;
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
+    }
+
+    void HandleEnabler(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_REAPERS_TOLL_ENABLER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_reapers_toll_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_ANY);
     }
 };
 
@@ -3012,6 +3040,7 @@ class spell_dh_violent_transformation : public AuraScript
 };
 
 // 1245412 - Voidblade
+// 1245483 - Pierce the Veil
 class spell_dh_voidblade : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -3191,7 +3220,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_glide_timer);
     RegisterSpellScript(spell_dh_hungering_slash);
     RegisterSpellScript(spell_dh_hungering_slash_damage);
-    RegisterSpellAndAuraScriptPair(spell_dh_hungering_slash_enabler, spell_dh_hungering_slash_enabler_aura);
+    RegisterSpellScript(spell_dh_hungering_slash_enabler);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
@@ -3201,6 +3230,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
     RegisterSpellScript(spell_dh_reap);
+    RegisterSpellScript(spell_dh_reapers_toll_enabler);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
