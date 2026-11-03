@@ -57,10 +57,14 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (184124, 7, 0, 'His memories... are not... for you...', 14, 0, 100, 0, 0, 203213, 226960, 0, 'Sentinel Talondras to Player');
 
 -- Conversation
-DELETE FROM `conversation_actors` WHERE `ConversationId`=19467 AND `Idx`=0;
+DELETE FROM `conversation_actors` WHERE (`Idx`=0 AND `ConversationId` = 19467);
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
-(19467, 85312, 0, 0, 184124, 0, 0, 0, 52106);
+(19467, 85312, 9004417, 0, 0, 0, 0, 0, 52106); -- Full: 0x20422D3260B3CF000000BB0000525DAA Creature/0 R4235/S187 Map: 2451 (Uldaman: Legacy of Tyr) Entry: 184124 Low: 5397930
 
 DELETE FROM `conversation_template` WHERE `Id` =19467;
 INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
 (19467, 49652, 0, 52106);
+
+DELETE FROM `conversation_line_template` WHERE `Id` = 49652;
+INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `ChatType`, `VerifiedBuild`) VALUES
+(49652, 0, 0, 0, 1, 52106);
