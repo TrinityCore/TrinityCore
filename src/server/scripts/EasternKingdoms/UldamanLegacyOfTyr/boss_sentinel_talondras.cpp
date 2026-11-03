@@ -429,7 +429,7 @@ struct at_sentinel_talondras_intro : AreaTriggerAI
         if (!player)
             return;
 
-        Conversation::CreateConversation(Texts::ConversationIntro, player, player->GetPosition(), ObjectGuid::Empty);
+        Conversation::CreateConversation(Texts::ConversationIntro, unit, unit->GetPosition(), ObjectGuid::Empty);
         at->Remove();
     }
 };
