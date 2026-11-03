@@ -16,6 +16,7 @@
  */
 
 #include "AIGroupEntity.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
@@ -207,11 +208,8 @@ std::vector<WorldObject*> AIGroup::GetMembers(AIGroupUnit unit, AIGroupMemberTyp
         }
     }
 
-    if (unit == AIGroupUnit::RandomUnit && members.size() > 1)
-    {
-        WorldObject* selected = members[urand(0, uint32(members.size() - 1))];
-        members.assign(1, selected);
-    }
+    if (unit == AIGroupUnit::RandomUnit)
+        Trinity::Containers::RandomResize(members, 1);
 
     return members;
 }
