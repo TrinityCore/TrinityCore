@@ -146,6 +146,13 @@ void DeclinePetition::Read()
     _worldPacket >> PetitionGUID;
 }
 
+WorldPacket const* PetitionDeclined::Write()
+{
+    _worldPacket << Decliner;
+
+    return &_worldPacket;
+}
+
 void TurnInPetition::Read()
 {
     _worldPacket >> Item;
