@@ -706,6 +706,7 @@ class TC_GAME_API Spell
         Optional<int32> GetPowerTypeCostAmount(Powers power) const;
 
         bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
+        void UpdateOriginalCasterPointer();
 
         void CleanupTargetList();
 

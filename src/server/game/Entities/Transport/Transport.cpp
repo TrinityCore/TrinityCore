@@ -341,9 +341,6 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
         return nullptr;
     }
 
-    PhasingHandler::InitDbPhaseShift(creature->GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
-    PhasingHandler::InitDbVisibleMapId(creature->GetPhaseShift(), data->terrainSwapMap);
-
     if (!map->AddToMap(creature))
     {
         delete creature;
@@ -380,9 +377,6 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
         delete go;
         return nullptr;
     }
-
-    PhasingHandler::InitDbPhaseShift(go->GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
-    PhasingHandler::InitDbVisibleMapId(go->GetPhaseShift(), data->terrainSwapMap);
 
     if (!map->AddToMap(go))
     {
@@ -448,6 +442,10 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         }
     }
 
+    InitialPhaseShift phase(this);
+    if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
+        phase = summoner;
+
     TempSummon* summon = nullptr;
     switch (mask)
     {
@@ -470,18 +468,11 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
 
     Position globalPosition = GetPositionWithOffset(pos);
 
-    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, globalPosition, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, phase, entry, globalPosition, nullptr, vehId))
     {
         delete summon;
         return nullptr;
     }
-
-    WorldObject* phaseShiftOwner = this;
-    if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
-        phaseShiftOwner = summoner;
-
-    if (phaseShiftOwner)
-        PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
 
     summon->SetCreatedBySpell(spellId);
 

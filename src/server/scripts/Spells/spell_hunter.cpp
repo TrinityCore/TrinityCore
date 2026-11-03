@@ -1393,7 +1393,7 @@ class spell_hun_scouts_instincts : public SpellScript
     {
         return ValidateSpellInfo({ SPELL_HUNTER_SCOUTS_INSTINCTS })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
-            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_MINIMUM_SPEED);
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_SPEED_LIMIT_MIN_PCT);
     }
 
     bool Load() override
