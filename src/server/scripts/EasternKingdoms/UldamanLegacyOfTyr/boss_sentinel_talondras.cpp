@@ -176,7 +176,7 @@ struct boss_sentinel_talondras : public BossAI
                 }
                 case Events::CheckEnergy:
                 {
-                    if (me->GetPower(me->GetPowerType()) >= 76)
+                    if (me->GetPower(me->GetPowerType()) == 76)
                         Talk(Texts::EnergyWarning);
                     else if (me->GetPower(me->GetPowerType()) >= 100)
                     {
