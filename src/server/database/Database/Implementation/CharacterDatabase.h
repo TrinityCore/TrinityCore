@@ -681,7 +681,7 @@ class TC_DATABASE_API CharacterDatabaseConnection : public MySQLConnection
 public:
     typedef CharacterDatabaseStatements Statements;
 
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags);
+    CharacterDatabaseConnection(MySQLConnectionInfo const& connInfo, ConnectionFlags connectionFlags);
     ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements

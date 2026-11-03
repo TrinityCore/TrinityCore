@@ -7080,7 +7080,7 @@ AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
 {
-    return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, MAKE_PAIR64(mapid, difficulty));
+    return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, { mapid, difficulty });
 }
 
 bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
@@ -7240,9 +7240,7 @@ void ObjectMgr::LoadAccessRequirements()
             continue;
         }
 
-        uint64 requirement_ID = MAKE_PAIR64(mapid, difficulty);
-
-        AccessRequirement* ar = &_accessRequirementStore[requirement_ID];
+        AccessRequirement* ar = &_accessRequirementStore[{ mapid, difficulty }];
         ar->levelMin            = fields[2].GetUInt8();
         ar->levelMax            = fields[3].GetUInt8();
         ar->item                = fields[4].GetUInt32();

@@ -985,7 +985,7 @@ class TC_GAME_API ObjectMgr
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
-        typedef std::unordered_map<uint64, AccessRequirement> AccessRequirementContainer;
+        typedef std::unordered_map<std::pair<uint32, Difficulty>, AccessRequirement> AccessRequirementContainer;
 
         typedef std::set<uint32> EventContainer;
         typedef std::unordered_map<uint32, uint32> EventScriptContainer;

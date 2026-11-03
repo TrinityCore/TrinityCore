@@ -108,7 +108,7 @@ enum GuildRankRights
     GR_RIGHT_OFFCHATSPEAK               = 0x00000008,
     GR_RIGHT_INVITE                     = 0x00000010,
     GR_RIGHT_REMOVE                     = 0x00000020,
-    GR_RIGHT_ROSTER                     = 0x00000040,
+    GR_RIGHT_LEAVE                      = 0x00000040,
     GR_RIGHT_PROMOTE                    = 0x00000080,
     GR_RIGHT_DEMOTE                     = 0x00000100,
     GR_RIGHT_UNK_200                    = 0x00000200,
@@ -811,7 +811,7 @@ class TC_GAME_API Guild
         void SendEventBankMoneyChanged() const;
         void SendEventMOTD(WorldSession* session, bool broadcast = false) const;
         void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false) const;
-        void SendEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false) const;
+        void SendEventPlayerLeft(Member const* leaver, Member const* remover = nullptr, bool isRemoved = false) const;
         void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false) const;
 
         // Load from DB

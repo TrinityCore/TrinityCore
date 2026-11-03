@@ -515,7 +515,7 @@ class spell_edna_refracting_beam_instakill : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_edna_refracting_beam_instakill::FilterTargets, EFFECT_2, TARGET_UNIT_LINE_CASTER_TO_DEST);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_edna_refracting_beam_instakill::FilterTargets, EFFECT_2, TARGET_UNIT_RECT_CASTER_TO_DEST);
     }
 };
 
