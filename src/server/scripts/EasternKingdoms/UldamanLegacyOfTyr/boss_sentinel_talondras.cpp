@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "Conversation.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
