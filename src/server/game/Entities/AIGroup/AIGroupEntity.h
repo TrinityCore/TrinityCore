@@ -36,7 +36,7 @@ class TC_GAME_API AIGroup
         static void AddAIGroup(std::unique_ptr<AIGroup> group);
         static void AddUnitToAIGroup(WorldObject* unit);
         static void RemoveUnitFromAIGroup(WorldObject* unit);
-        bool Create(Creature* mainMember);
+        bool Create(WorldObject* mainMember);
         void Update(uint32 diff);
         void SetMap(Map* map) { _map = map; }
         Map* GetMap() const { return _map; }

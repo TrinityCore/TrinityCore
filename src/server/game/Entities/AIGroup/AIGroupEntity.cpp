@@ -66,21 +66,32 @@ void AIGroup::AddAIGroup(std::unique_ptr<AIGroup> group)
 
 void AIGroup::AddUnitToAIGroup(WorldObject* unit)
 {
-    Creature* creature = unit ? unit->ToCreature() : nullptr;
-    if (!creature || !creature->GetSpawnId() || !creature->GetMap())
+    if (!unit || !unit->GetMap())
         return;
 
-    if (GetAIGroupByMainMemberGuid(creature, creature->GetSpawnId()))
+    Creature* creature = unit->ToCreature();
+    GameObject* gameObject = unit->ToGameObject();
+    if (!creature && !gameObject)
         return;
 
-    if (!sAIGroupMgr->GetGroupMembers(creature->GetSpawnId()) && creature->GetAIName() != "AIGroup" && !creature->GetNativeTriggersId())
+    ObjectGuid::LowType spawnId = creature ? creature->GetSpawnId() : gameObject->GetSpawnId();
+    if (!spawnId)
+        return;
+
+    auto const [groupBegin, groupEnd] = AIGroupMaps.equal_range(spawnId);
+    for (auto groupItr = groupBegin; groupItr != groupEnd; ++groupItr)
+        if (groupItr->second->GetMap() == unit->GetMap())
+            return;
+
+    bool hasAIGroupAI = (creature && creature->GetAIName() == "AIGroup") || (gameObject && gameObject->GetAIName() == "AIGroup");
+    if (!sAIGroupMgr->GetGroupMembers(spawnId) && !hasAIGroupAI && (!creature || !creature->GetNativeTriggersId()))
         return;
 
     auto group = std::make_unique<AIGroup>();
-    if (!group->Create(creature))
+    if (!group->Create(unit))
         return;
 
-    group->GetScript()->SetActor(creature);
+    group->GetScript()->SetActor(unit);
     group->GetScript()->ProcessEventsFor(ActionTriggers::OnSpawn);
     AddAIGroup(std::move(group));
 }
@@ -142,16 +153,24 @@ void AIGroup::RemoveUnitFromAIGroup(WorldObject* unit)
     }
 }
 
-bool AIGroup::Create(Creature* mainMember)
+bool AIGroup::Create(WorldObject* mainMember)
 {
-    if (!mainMember || !mainMember->GetSpawnId() || !mainMember->GetMap())
+    if (!mainMember || !mainMember->GetMap())
         return false;
 
-    _mainMemberGuid = mainMember->GetSpawnId();
+    Creature* creature = mainMember->ToCreature();
+    GameObject* gameObject = mainMember->ToGameObject();
+    if (!creature && !gameObject)
+        return false;
+
+    _mainMemberGuid = creature ? creature->GetSpawnId() : gameObject->GetSpawnId();
+    if (!_mainMemberGuid)
+        return false;
 
     ObjectGuid::LowType lowGuid = static_cast<ObjectGuid::LowType>(_mainMemberGuid);
     _guid = ObjectGuid::Create<HighGuid::AIGroup>(lowGuid);
-    _triggersId = mainMember->GetCurrentTriggersId();
+    if (creature)
+        _triggersId = creature->GetCurrentTriggersId();
 
     SetMap(mainMember->GetMap());
     _currentActionSet = 0;
