@@ -21,6 +21,7 @@
 #include "Conversation.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
