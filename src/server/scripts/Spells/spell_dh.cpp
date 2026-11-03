@@ -1900,7 +1900,8 @@ class spell_dh_infernal_armor : public AuraScript
 
     static void HandleInfernalArmor(AuraScript const&, ProcEventInfo const& procEvent)
     {
-        procEvent.GetActionTarget()->CastSpell(procEvent.GetActor(), SPELL_DH_INFERNAL_ARMOR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        if (Unit* attacker = procEvent.GetActor())
+            procEvent.GetActionTarget()->CastSpell(attacker, SPELL_DH_INFERNAL_ARMOR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
