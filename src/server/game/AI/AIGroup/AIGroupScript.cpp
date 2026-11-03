@@ -302,18 +302,18 @@ float AIGroupScript::GetStringIdSearchRadius(ActionSetActionHolder const& action
 
 bool AIGroupScript::ExecuteAction(ActionSetActionHolder const& action, ObjectGuid const& invokerGuid)
 {
-    AIGroupMgr::ObjectTypeMask const objectTypeMask = AIGroupMgr::GetObjectTypeMask(AI_GROUP_ACTION(action.Type));
-    if (!m_group || objectTypeMask == AIGroupMgr::ObjectTypeMaskAll)
+    if (!m_group)
         return ExecuteActionForActor(action, invokerGuid);
 
     bool actionFinished = true;
 
     std::vector<WorldObject*> members;
+    AIGroupMemberType const memberType = me ? AIGroupMemberType::Creature : AIGroupMemberType::GameObject;
 
     if (IsActionGroupWide(action.Type))
-        members = m_group->GetMembers(AIGroupUnit::AllUnits, objectTypeMask);
+        members = m_group->GetMembers(AIGroupUnit::AllUnits, memberType);
     else
-        members = m_group->GetMembers(AIGroupUnit(action.Unit), objectTypeMask);
+        members = m_group->GetMembers(AIGroupUnit(action.Unit), memberType);
 
     WorldObject* const previousActor = me ? static_cast<WorldObject*>(me) : static_cast<WorldObject*>(go);
 
@@ -1298,7 +1298,7 @@ bool AIGroupScript::IsActionSetPaused(AIGroupActiveActionSet const& actionSet) c
     if (m_group)
     {
         uint32 flags = sAIGroupMgr->GetActionSetFlags(actionSet.Id);
-        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
             if (Creature* creature = member->ToCreature())
                 if ((creature->IsInCombat() && (flags & uint32(ActionSetFlags::PauseForCombat))) ||
                     (creature->IsReturningHome() && (flags & uint32(ActionSetFlags::PauseUntilAllMembersAreDoneReturning))))
@@ -1354,7 +1354,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 if (action.TimeA == 0 && action.TimeB == 0)
                 {
                     if (m_group)
-                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                             if (Creature* creature = member->ToCreature())
                                 if (!creature->IsInCombat())
                                     return;
@@ -1380,7 +1380,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 if (action.TimeA == 0 && action.TimeB == 0)
                 {
                     if (m_group)
-                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                             if (Creature* creature = member->ToCreature())
                                 if (creature->IsInCombat() || creature->IsInEvadeMode())
                                     return;
@@ -1405,7 +1405,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
                 if (action.TimeA == 0 && action.TimeB == 0)
                 {
                     if (m_group)
-                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                        for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                             if (Creature* creature = member->ToCreature())
                                 if (creature->HasUnitState(UNIT_STATE_CASTING))
                                     return;
@@ -1441,7 +1441,7 @@ void AIGroupScript::UpdateActionSets(uint32 diff)
             {
                 if (m_group)
                 {
-                    for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMgr::ObjectTypeMaskUnit))
+                    for (WorldObject* member : m_group->GetMembers(AIGroupUnit::AllUnits, AIGroupMemberType::Creature))
                         if (Creature* creature = member->ToCreature())
                             creature->GetMotionMaster()->MoveIdle();
                 }

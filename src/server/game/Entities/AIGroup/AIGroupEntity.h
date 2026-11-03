@@ -47,7 +47,7 @@ class TC_GAME_API AIGroup
         uint32 GetCurrentActionSet() const { return _currentActionSet; }
         AIGroupScript* GetScript() { return &_script; }
         void SetTriggersId(uint32 triggersId);
-        std::vector<WorldObject*> GetMembers(AIGroupUnit unit, AIGroupMgr::ObjectTypeMask typeMask) const;
+        std::vector<WorldObject*> GetMembers(AIGroupUnit unit, AIGroupMemberType memberType) const;
 
         void SetCurrentActionSet(uint32 actionSetId);
 

@@ -180,7 +180,7 @@ void AIGroup::SetTriggersId(uint32 triggersId)
     _triggersId = triggersId;
 }
 
-std::vector<WorldObject*> AIGroup::GetMembers(AIGroupUnit unit, AIGroupMgr::ObjectTypeMask typeMask) const
+std::vector<WorldObject*> AIGroup::GetMembers(AIGroupUnit unit, AIGroupMemberType memberType) const
 {
     std::vector<WorldObject*> members;
     std::vector<AIGroupMemberData> const* memberData = sAIGroupMgr->GetGroupMembers(_mainMemberGuid);
@@ -192,13 +192,19 @@ std::vector<WorldObject*> AIGroup::GetMembers(AIGroupUnit unit, AIGroupMgr::Obje
         if (unit != AIGroupUnit::AllUnits && unit != AIGroupUnit::RandomUnit && member.Unit != unit)
             continue;
 
-        if ((typeMask & AIGroupMgr::ObjectTypeMaskUnit) && member.MemberType == AIGroupMemberType::Creature)
+        if (member.MemberType != memberType)
+            continue;
+
+        if (memberType == AIGroupMemberType::Creature)
+        {
             if (Creature* creature = GetMap()->GetCreatureBySpawnId(member.MemberGuid))
                 members.push_back(creature);
-
-        if ((typeMask & AIGroupMgr::ObjectTypeMaskObject) && member.MemberType == AIGroupMemberType::GameObject)
+        }
+        else
+        {
             if (GameObject* gameObject = GetMap()->GetGameObjectBySpawnId(member.MemberGuid))
                 members.push_back(gameObject);
+        }
     }
 
     if (unit == AIGroupUnit::RandomUnit && members.size() > 1)
