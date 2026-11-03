@@ -22,9 +22,9 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "uldaman_legacy_of_tyr.h"
 
