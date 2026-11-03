@@ -3187,8 +3187,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_focused_ray);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
-    RegisterSpellScript(spell_dh_glide_timer);
     RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
+    RegisterSpellScript(spell_dh_glide_timer);
     RegisterSpellScript(spell_dh_hungering_slash);
     RegisterSpellScript(spell_dh_hungering_slash_damage);
     RegisterSpellAndAuraScriptPair(spell_dh_hungering_slash_enabler, spell_dh_hungering_slash_enabler_aura);
