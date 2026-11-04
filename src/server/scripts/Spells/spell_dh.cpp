@@ -2127,35 +2127,42 @@ class spell_dh_never_say_die : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_DUMMY)
+            && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_DUMMY);
     }
 
-    void UpdatePeriodic(AuraEffect const* /*aurEff*/) const
+    void CalcDamageBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
     {
-        Unit* target = GetTarget();
-        AuraEffect* damageMod = GetEffect(EFFECT_0);
-        AuraEffect* healthThreshold = GetEffect(EFFECT_2);
-        AuraEffect* leechMod = GetEffect(EFFECT_1);
-        AuraEffect* damageSpells = GetEffect(EFFECT_3);
-        AuraEffect* periodicDamageSpells = GetEffect(EFFECT_4);
-        AuraEffect* leech = GetEffect(EFFECT_5);
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* damageValueHolder = GetEffect(EFFECT_0))
+                amount = GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? damageValueHolder->GetAmount() : 0.0f;
+    }
 
-        if (target->GetHealthPct() >= healthThreshold->GetAmount())
-        {
-            damageSpells->ChangeAmount(damageMod->GetAmount());
-            periodicDamageSpells->ChangeAmount(damageMod->GetAmount());
-            leech->ChangeAmount(-leechMod->GetAmount());
-        }
-        else if (target->GetHealthPct() < healthThreshold->GetAmount())
-        {
-            damageSpells->ChangeAmount(-damageMod->GetAmount());
-            periodicDamageSpells->ChangeAmount(-damageMod->GetAmount());
-            leech->ChangeAmount(leechMod->GetAmount());
-        }
+    void CalcLeechBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* leechValueHolder = GetEffect(EFFECT_1))
+                amount = !GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? leechValueHolder->GetAmount() : 0.0f;
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* damageMod = GetEffect(EFFECT_3))
+            damageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* periodicDamageMod = GetEffect(EFFECT_4))
+            periodicDamageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* leech = GetEffect(EFFECT_5))
+            leech->RecalculateAmount(aurEff);
     }
 
     void Register() override
     {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcLeechBuff, EFFECT_5, SPELL_AURA_MOD_LEECH);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_never_say_die::UpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
