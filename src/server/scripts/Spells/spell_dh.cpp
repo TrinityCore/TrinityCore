@@ -1184,14 +1184,14 @@ class spell_dh_devourers_bite : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_DEVOURERS_BITE });
     }
 
-    void HandleProc(ProcEventInfo const& eventInfo) const
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_DH_DEVOURERS_BITE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_dh_devourers_bite::HandleProc);
+        OnEffectProc += AuraEffectProcFn(spell_dh_devourers_bite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
