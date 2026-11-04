@@ -2122,6 +2122,51 @@ class spell_dh_monster_rising : public AuraScript
     }
 };
 
+// 427794 - Never Say Die
+class spell_dh_never_say_die : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_DUMMY)
+            && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_DUMMY);
+    }
+
+    void CalcDamageBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* damageValueHolder = GetEffect(EFFECT_0))
+                amount = GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? damageValueHolder->GetAmount() : 0.0f;
+    }
+
+    void CalcLeechBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* leechValueHolder = GetEffect(EFFECT_1))
+                amount = !GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? leechValueHolder->GetAmount() : 0.0f;
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* damageMod = GetEffect(EFFECT_3))
+            damageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* periodicDamageMod = GetEffect(EFFECT_4))
+            periodicDamageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* leech = GetEffect(EFFECT_5))
+            leech->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcLeechBuff, EFFECT_5, SPELL_AURA_MOD_LEECH);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_never_say_die::UpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 207387 - Painbringer
 class spell_dh_painbringer : public AuraScript
 {
@@ -3289,6 +3334,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_last_resort);
     RegisterSpellScript(spell_dh_moment_of_craving);
     RegisterSpellScript(spell_dh_monster_rising);
+    RegisterSpellScript(spell_dh_never_say_die);
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
     RegisterSpellScript(spell_dh_reap);
