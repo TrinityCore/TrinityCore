@@ -870,8 +870,8 @@ void CancelCast::Read()
 
 void OpenItem::Read()
 {
-    _worldPacket >> Slot
-                 >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellChannelStartInterruptImmunities const& interruptImmunities)
