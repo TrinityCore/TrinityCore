@@ -738,7 +738,7 @@ class spell_dh_consume : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_PREDATORS_THIRST, SPELL_DH_SHATTERED_SOULS_DEVOURER });
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEVOURER });
     }
 
     void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
