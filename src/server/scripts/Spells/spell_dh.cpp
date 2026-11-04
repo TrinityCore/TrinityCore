@@ -1945,6 +1945,44 @@ class spell_dh_hungering_slash_enabler : public SpellScript
     }
 };
 
+// 258920 - Immolation Aura
+// 427912 - Immolation Aura
+// 427913 - Immolation Aura
+// 427914 - Immolation Aura
+// 427915 - Immolation Aura
+// 258922 - Immolation Aura (periodic tick)
+// 427908 - Immolation Aura (periodic tick)
+// 427910 - Immolation Aura (periodic tick)
+// 427911 - Immolation Aura (periodic tick)
+// 427916 - Immolation Aura (periodic tick)
+class spell_dh_immolation_aura_energize : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE)
+            && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_ENERGIZE);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    template <ChrSpecialization Spec>
+    void PreventEffect(WorldObject*& target) const
+    {
+        if (GetCaster()->ToPlayer()->GetPrimarySpecialization() != Spec)
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_immolation_aura_energize::PreventEffect<ChrSpecialization::DemonHunterHavoc>, EFFECT_1, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_immolation_aura_energize::PreventEffect<ChrSpecialization::DemonHunterVengeance>, EFFECT_2, TARGET_UNIT_CASTER);
+    }
+};
+
 // 320331 - Infernal Armor (attached to 1241937 - Soul Immolation and 258920 - Immolation Aura)
 class spell_dh_infernal_armor : public AuraScript
 {
@@ -3355,6 +3393,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_hungering_slash);
     RegisterSpellScript(spell_dh_hungering_slash_damage);
     RegisterSpellScript(spell_dh_hungering_slash_enabler);
+    RegisterSpellScript(spell_dh_immolation_aura_energize);
     RegisterSpellScript(spell_dh_infernal_armor);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
