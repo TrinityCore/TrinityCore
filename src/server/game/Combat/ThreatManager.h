@@ -77,6 +77,16 @@ struct CompareThreatLessThan
     bool operator()(ThreatReference const* a, ThreatReference const* b) const;
 };
 
+enum class ThreatListClientUpdateFlags : uint8
+{
+    None                = 0x0,
+    UpdateNeeded        = 0x1,
+    ForceHighestUpdate  = 0x2,
+    ClearNeeded         = 0x4
+};
+
+DEFINE_ENUM_FLAG(ThreatListClientUpdateFlags);
+
 // Please check Game/Combat/ThreatManager.h for documentation on how this class works!
 class TC_GAME_API ThreatManager
 {
@@ -200,8 +210,7 @@ class TC_GAME_API ThreatManager
         void PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref);
         void PurgeThreatListRef(ObjectGuid const& guid);
 
-        bool _needClientUpdate;
-        bool _needThreatClearUpdate;
+        EnumFlag<ThreatListClientUpdateFlags> _updateFlags;
         uint32 _updateTimer;
         std::unique_ptr<Heap> _sortedThreatList;
         std::unordered_map<ObjectGuid, ThreatReference*> _myThreatListEntries;
