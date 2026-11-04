@@ -175,7 +175,6 @@ enum DemonHunterSpells
     SPELL_DH_NEMESIS_UNDEAD                        = 208614,
     SPELL_DH_PAINBRINGER_DUMMY                     = 225413,
     SPELL_DH_PAINBRINGER_STACK                     = 212988,
-    SPELL_DH_PREDATORS_THIRST                      = 1215617,
     SPELL_DH_RAIN_FROM_ABOVE                       = 206803,
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
@@ -615,12 +614,13 @@ class spell_dh_consume : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_PREDATORS_THIRST });
+        return ValidateSpellInfo({ SPELL_DH_PREDATORS_THIRST, SPELL_DH_SHATTERED_SOULS_DEVOURER });
     }
 
     void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
     {
-        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), GetCaster()->HasAura(SPELL_DH_PREDATORS_THIRST) ? 2 : 1);
+        AuraEffect const* shatteredSouls = GetCaster()->GetAuraEffect(SPELL_DH_SHATTERED_SOULS_DEVOURER, EFFECT_2);
+        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), shatteredSouls->GetAmount());
     }
 
     void Register() override
