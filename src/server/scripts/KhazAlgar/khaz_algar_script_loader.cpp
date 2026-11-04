@@ -23,6 +23,9 @@ void AddSC_zone_dornogal();
 // Zone Isle Of Dorn
 void AddSC_zone_isle_of_dorn();
 
+// Zone Halls of Awakening
+void AddSC_zone_hall_of_awakening();
+
 // Campaign: Visions of a Shadowed Sun
 void AddSC_campaign_visions_of_a_shadowed_sun();
 
@@ -49,6 +52,9 @@ void AddKhazAlgarScripts()
 {
     // Dornogal
     AddSC_zone_dornogal();
+
+    // Halls of Awakening
+    AddSC_zone_hall_of_awakening();
 
     // Zone Isle of Dorn
     AddSC_zone_isle_of_dorn();

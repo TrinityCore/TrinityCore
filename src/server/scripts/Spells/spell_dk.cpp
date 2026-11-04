@@ -82,6 +82,10 @@ enum DeathKnightSpells
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
     SPELL_DK_GOREFIENDS_GRASP                   = 108199,
+    SPELL_DK_GRIP_OF_THE_DEAD_TALENT            = 273952,
+    SPELL_DK_GRIP_OF_THE_DEAD_PERIODIC          = 273980,
+    SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT      = 273984,
+    SPELL_DK_GRIP_OF_THE_DEAD_SNARE             = 273977,
     SPELL_DK_HEARTBREAKER_ENERGIZE              = 210738,
     SPELL_DK_HEARTBREAKER_TALENT                = 221536,
     SPELL_DK_ICE_PRISON_ROOT                    = 454787,
@@ -596,7 +600,7 @@ class spell_dk_death_and_decay : public AuraScript
     void HandleDummyTick(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
+            caster->CastSpell(GetAura()->GetDst(), SPELL_DK_DEATH_AND_DECAY_DAMAGE, aurEff);
     }
 
     void Register() override
@@ -903,6 +907,81 @@ class spell_dk_glyph_of_scourge_strike_script : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_of_scourge_strike_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 273952 - Grip of the Dead (attached to 43265 - Death and Decay)
+class spell_dk_grip_of_the_dead : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_TALENT, SPELL_DK_GRIP_OF_THE_DEAD_PERIODIC });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_GRIP_OF_THE_DEAD_TALENT);
+    }
+
+    void HandleOnHit() const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DK_GRIP_OF_THE_DEAD_PERIODIC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dk_grip_of_the_dead::HandleOnHit);
+    }
+};
+
+// 273980 - Grip of the Dead
+class spell_dk_grip_of_the_dead_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT });
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_DK_GRIP_OF_THE_DEAD_SNARE_AMOUNT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_grip_of_the_dead_periodic::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 273977 - Grip of the Dead (attached to 52212 - Death and Decay)
+class spell_dk_grip_of_the_dead_snare : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_GRIP_OF_THE_DEAD_TALENT, SPELL_DK_GRIP_OF_THE_DEAD_SNARE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DK_GRIP_OF_THE_DEAD_TALENT);
+    }
+
+    void HandleGrip(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_GRIP_OF_THE_DEAD_SNARE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_grip_of_the_dead_snare::HandleGrip, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1510,6 +1589,38 @@ class spell_dk_voracious : public SpellScript
     }
 };
 
+// 206967 - Will of the Necropolis
+class spell_dk_will_of_the_necropolis : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        AuraEffect const* damageReduction = GetEffect(EFFECT_1);
+        AuraEffect const* healthLimit = GetEffect(EFFECT_2);
+        if (!damageReduction || !healthLimit)
+            return;
+
+        Unit* target = GetTarget();
+        if (target->HealthBelowPct(healthLimit->GetAmount()))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReduction->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis::HandleAbsorb, EFFECT_0);
+    }
+};
+
 // 43265 - Death and Decay
 struct at_dk_death_and_decay : AreaTriggerAI
 {
@@ -1530,15 +1641,15 @@ struct at_dk_death_and_decay : AreaTriggerAI
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (unit->GetGUID() != at->GetCasterGuid())
-            return;
-
-        if (Aura* deathAndDecay = unit->GetAura(SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS))
         {
-            if (AuraEffect* const cleavingStrikes = unit->GetAuraEffect(SPELL_DK_CLEAVING_STRIKES, EFFECT_3))
-                deathAndDecay->SetDuration(cleavingStrikes->GetAmountAsInt());
+            if (Aura* deathAndDecay = unit->GetAura(SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS))
+                if (AuraEffect* const cleavingStrikes = unit->GetAuraEffect(SPELL_DK_CLEAVING_STRIKES, EFFECT_3))
+                    deathAndDecay->SetDuration(cleavingStrikes->GetAmountAsInt());
+
+            unit->RemoveAurasDueToSpell(SPELL_DK_SANGUINE_GROUND);
         }
 
-        unit->RemoveAurasDueToSpell(SPELL_DK_SANGUINE_GROUND);
+        unit->RemoveAurasDueToSpell(SPELL_DK_GRIP_OF_THE_DEAD_SNARE, at->GetCasterGuid());
     }
 };
 
@@ -1571,6 +1682,9 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_frost_fever_proc);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
+    RegisterSpellScript(spell_dk_grip_of_the_dead);
+    RegisterSpellScript(spell_dk_grip_of_the_dead_periodic);
+    RegisterSpellScript(spell_dk_grip_of_the_dead_snare);
     RegisterSpellScript(spell_dk_heartbreaker);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_ice_prison);
@@ -1595,6 +1709,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_vampiric_blood);
     RegisterSpellScript(spell_dk_vestigial_shell);
     RegisterSpellScript(spell_dk_voracious);
+    RegisterSpellScript(spell_dk_will_of_the_necropolis);
 
     RegisterAreaTriggerAI(at_dk_death_and_decay);
 }

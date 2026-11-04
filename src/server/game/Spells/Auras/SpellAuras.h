@@ -166,6 +166,14 @@ struct AuraLoadEffectInfo
     std::array<SpellEffectValue, MAX_SPELL_EFFECTS> BaseAmounts;
 };
 
+struct AuraStackDropInfo
+{
+    TimePoint DropTime;
+    int32 StackAmount;
+
+    friend std::strong_ordering operator<=>(AuraStackDropInfo const& left, AuraStackDropInfo const& right) { return left.DropTime <=> right.DropTime; }
+};
+
 class TC_GAME_API Aura
 {
     friend class Unit;
@@ -227,6 +235,10 @@ class TC_GAME_API Aura
         void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
+
+        void AddStackDropTime(TimePoint dropTime, int32 stacks);
+        void RemoveStackDropTime(int32 stacksToRemove);
+        void SetLastStackDuration(int32 duration);
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
@@ -406,8 +418,9 @@ class TC_GAME_API Aura
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
-        int32 m_timeCla;                                    // Timer for power per sec calcultion
+        Trinity::Containers::FlatSet<AuraStackDropInfo> m_stackDropTimes;
         std::vector<SpellPowerEntry const*> m_periodicCosts;// Periodic costs
+        int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
