@@ -448,13 +448,17 @@ class spell_dh_burning_hatred : public SpellScript
     {
         return ValidateSpellInfo({ SPELL_DH_BURNING_HATRED })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
-            && spellInfo->GetEffect(EFFECT_0).IsEffect(SPELL_EFFECT_ENERGIZE);
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE);
     }
 
-    void HandleBurningHatred(WorldObject*& target) const
+    bool Load() override
     {
-        if (!GetCaster()->HasAura(SPELL_DH_BURNING_HATRED))
-            target = nullptr;
+        return !GetCaster()->HasAura(SPELL_DH_BURNING_HATRED);
+    }
+
+    static void HandleBurningHatred(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
     }
 
     void Register() override
