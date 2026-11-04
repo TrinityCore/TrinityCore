@@ -52,6 +52,7 @@ enum DemonHunterSpells
     SPELL_DH_BURN_IT_OUT_DISPEL                    = 1266618,
     SPELL_DH_BURNING_ALIVE                         = 207739,
     SPELL_DH_BURNING_ALIVE_TARGET_SELECTOR         = 207760,
+    SPELL_DH_BURNING_HATRED                        = 320374,
     SPELL_DH_CALCIFIED_SPIKES_TALENT               = 389720,
     SPELL_DH_CALCIFIED_SPIKES_MOD_DAMAGE           = 391171,
     SPELL_DH_CHAOS_NOVA                            = 179057,
@@ -437,6 +438,32 @@ class spell_dh_burn_it_out : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_dh_burn_it_out::HandleBurnItOut);
+    }
+};
+
+// 320374 - Burning Hatred (attached to 258922 - Immolation Aura)
+class spell_dh_burning_hatred : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_BURNING_HATRED })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_DH_BURNING_HATRED);
+    }
+
+    static void HandleBurningHatred(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_burning_hatred::HandleBurningHatred, EFFECT_1, TARGET_UNIT_CASTER);
     }
 };
 
@@ -3275,6 +3302,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_blade_dance);
     RegisterSpellScript(spell_dh_blade_dance_damage);
     RegisterSpellScript(spell_dh_burn_it_out);
+    RegisterSpellScript(spell_dh_burning_hatred);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
