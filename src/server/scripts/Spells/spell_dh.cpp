@@ -1737,7 +1737,15 @@ class spell_dh_glide : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_KNOCKBACK_ENHANCED, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH, SPELL_DH_WINGS_OF_WRATH });
+        return ValidateSpellInfo
+        ({
+            SPELL_DH_GLIDE_KNOCKBACK,
+            SPELL_DH_GLIDE_KNOCKBACK_ENHANCED,
+            SPELL_DH_GLIDE_DURATION,
+            SPELL_DH_VENGEFUL_RETREAT_TRIGGER,
+            SPELL_DH_FEL_RUSH,
+            SPELL_DH_WINGS_OF_WRATH
+        });
     }
 
     SpellCastResult CheckCast()
