@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_SENTINEL_TALONDRAS,          new CircleBoundary(Position(59.4028f, -653.566f), 38.0f) }
+    { DATA_SENTINEL_TALONDRAS, new CircleBoundary(Position(59.4028f, -653.566f, 218.0f), 38.0f) }
 };
 
 static constexpr ObjectData creatureData[] =

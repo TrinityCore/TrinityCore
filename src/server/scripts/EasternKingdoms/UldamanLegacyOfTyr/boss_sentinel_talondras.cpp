@@ -35,6 +35,7 @@ namespace Scripts::EasternKingdoms::UldamanLegacyOfTyr::SentinelTalondras
 namespace Spells
 {
     static constexpr uint32 EarthenShards         = 372718;
+    static constexpr int32 EarthenShardsMarker    = 415489;
     static constexpr uint32 CrushingStomp         = 372701;
     static constexpr uint32 ResonatingOrbSelector = 372623;
     static constexpr uint32 ResonatingOrbMarker   = 382071;
@@ -46,6 +47,7 @@ namespace Spells
     static constexpr uint32 InexorableVisual2     = 372778;
     static constexpr uint32 Unrelentling          = 386332;
     static constexpr uint32 TitanicEmpowerment    = 372719;
+    static constexpr uint32 Stunned               = 377605;
 }
 
 namespace Texts
@@ -73,11 +75,17 @@ namespace Events
 // 184124 - Sentinel Talondras
 struct boss_sentinel_talondras : public BossAI
 {
-    boss_sentinel_talondras(Creature* creature) : BossAI(creature, DATA_SENTINEL_TALONDRAS) { }
+    boss_sentinel_talondras(Creature* creature) : BossAI(creature, DATA_SENTINEL_TALONDRAS), _energyWarningTextSent(false) { }
 
     void JustAppeared() override
     {
         me->SetPower(me->GetPowerType(), 0);
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        _energyWarningTextSent = false;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -111,17 +119,17 @@ struct boss_sentinel_talondras : public BossAI
         Talk(Texts::Aggro);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-        DoCastSelf(Spells::ResonatingOrbSelector);
-
-        events.ScheduleEvent(Events::ResonatingOrb, 26700ms);
-        events.ScheduleEvent(Events::EarthenShards, 4500ms);
-        events.ScheduleEvent(Events::CrushingStomp, 5100ms);
-
         if (IsHeroicOrHigher())
         {
             DoCastSelf(Spells::AncientDynamo);
             events.ScheduleEvent(Events::CheckEnergy, 500ms);
         }
+
+        DoCastSelf(Spells::ResonatingOrbSelector, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        events.ScheduleEvent(Events::ResonatingOrb, 26700ms);
+        events.ScheduleEvent(Events::EarthenShards, 4500ms);
+        events.ScheduleEvent(Events::CrushingStomp, 5100ms);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -129,9 +137,11 @@ struct boss_sentinel_talondras : public BossAI
         if (spellInfo->Id == Spells::ResonatingOrbStun)
         {
             Talk(Texts::Stun);
+            DoCastSelf(Spells::Stunned);
             events.RescheduleEvent(Events::EarthenShards, 15200ms);
             events.RescheduleEvent(Events::CrushingStomp, 17600ms);
             events.RescheduleEvent(Events::ResonatingOrb, 32200ms);
+            _energyWarningTextSent = false;
         }
     }
 
@@ -157,7 +167,8 @@ struct boss_sentinel_talondras : public BossAI
             {
                 case Events::EarthenShards:
                 {
-                    DoCastVictim(Spells::EarthenShards);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -Spells::EarthenShardsMarker))
+                        DoCast(Spells::EarthenShards);
                     events.Repeat(9700ms);
                     break;
                 }
@@ -176,8 +187,11 @@ struct boss_sentinel_talondras : public BossAI
                 }
                 case Events::CheckEnergy:
                 {
-                    if (me->GetPower(me->GetPowerType()) == 76)
+                    if (!_energyWarningTextSent && me->GetPower(me->GetPowerType()) >= 76)
+                    {
                         Talk(Texts::EnergyWarning);
+                        _energyWarningTextSent = true;
+                    }
                     else if (me->GetPower(me->GetPowerType()) >= 100)
                     {
                         DoCastSelf(Spells::TitanicEmpowerment);
@@ -197,6 +211,9 @@ struct boss_sentinel_talondras : public BossAI
                 return;
         }
     }
+
+private:
+    bool _energyWarningTextSent;
 };
 
 // 372716 - Ancient Dynamo
@@ -214,8 +231,53 @@ class spell_sentinel_talondras_ancient_dynamo : public AuraScript
     }
 };
 
+// 372718 - Earthen Shards
+class spell_sentinel_talondras_earthen_shards : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ Spells::EarthenShardsMarker });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), Spells::EarthenShardsMarker, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sentinel_talondras_earthen_shards::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 372600 - Inexorable
-class spell_sentinel_talondras_inexorable : public AuraScript
+class spell_sentinel_talondras_inexorable : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ Spells::Unrelentling });
+    }
+
+    void HandleUnrelenting() const
+    {
+        Creature* creatureCaster = GetCaster()->ToCreature();
+        if (!creatureCaster)
+            return;
+
+        if (creatureCaster->GetMap()->IsMythic() || creatureCaster->GetMap()->IsMythicPlus())
+            creatureCaster->CastSpell(creatureCaster, Spells::Unrelentling, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_sentinel_talondras_inexorable::HandleUnrelenting);
+    }
+};
+
+class spell_sentinel_talondras_inexorable_aura : public AuraScript
 {
     static constexpr std::array<uint32, 2> InexorableSpells = { Spells::InexorableVisual1, Spells::InexorableVisual2 };
 
@@ -242,7 +304,7 @@ class spell_sentinel_talondras_inexorable : public AuraScript
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_sentinel_talondras_inexorable::HandleProc);
+        OnProc += AuraProcFn(spell_sentinel_talondras_inexorable_aura::HandleProc);
     }
 };
 
@@ -320,22 +382,6 @@ class spell_sentinel_talondras_resonating_orb_selector : public SpellScript
     }
 };
 
-class AfterStunEvent : public BasicEvent
-{
-public:
-    AfterStunEvent(Unit* caster) : _caster(caster) { }
-
-    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-    {
-        _caster->CastSpell(_caster, Spells::Inexorable, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        _caster->CastSpell(_caster, Spells::AncientDynamo, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        return false;
-    }
-
-private:
-    Unit* _caster;
-};
-
 // 372652 - Resonating Orb
 class spell_sentinel_talondras_resonating_orb_stun : public AuraScript
 {
@@ -354,8 +400,34 @@ class spell_sentinel_talondras_resonating_orb_stun : public AuraScript
         {
             creatureTarget->RemoveAurasDueToSpell(Spells::AncientDynamo);
             creatureTarget->SetPower(creatureTarget->GetPowerType(), 0);
-            creatureTarget->m_Events.AddEventAtOffset(new AfterStunEvent(creatureTarget), 3s);
         }
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
+
+        Creature* creatureTarget = GetTarget()->ToCreature();
+        if (!creatureTarget)
+            return;
+
+        creatureTarget->CastSpell(creatureTarget, Spells::Inexorable, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_sentinel_talondras_resonating_orb_stun::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sentinel_talondras_resonating_orb_stun::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 377605 - Stunned
+class spell_sentinel_talondras_stunned : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ Spells::Inexorable });
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
@@ -368,15 +440,12 @@ class spell_sentinel_talondras_resonating_orb_stun : public AuraScript
             return;
 
         creatureTarget->CastSpell(creatureTarget, Spells::Inexorable, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-
-        if (creatureTarget->GetMap()->IsMythic() || creatureTarget->GetMap()->IsMythicPlus())
-            creatureTarget->CastSpell(creatureTarget, Spells::Unrelentling, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        creatureTarget->CastSpell(creatureTarget, Spells::AncientDynamo, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectRemoveFn(spell_sentinel_talondras_resonating_orb_stun::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sentinel_talondras_resonating_orb_stun::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sentinel_talondras_stunned::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -442,10 +511,12 @@ void AddSC_boss_sentinel_talondras()
     RegisterUldamanLegacyOfTyrCreatureAI(boss_sentinel_talondras);
 
     RegisterSpellScript(spell_sentinel_talondras_ancient_dynamo);
-    RegisterSpellScript(spell_sentinel_talondras_inexorable);
+    RegisterSpellScript(spell_sentinel_talondras_earthen_shards);
+    RegisterSpellAndAuraScriptPair(spell_sentinel_talondras_inexorable, spell_sentinel_talondras_inexorable_aura);
     RegisterSpellScript(spell_sentinel_talondras_resonating_orb_marker);
     RegisterSpellScript(spell_sentinel_talondras_resonating_orb_selector);
     RegisterSpellScript(spell_sentinel_talondras_resonating_orb_stun);
+    RegisterSpellScript(spell_sentinel_talondras_stunned);
     RegisterSpellScript(spell_sentinel_talondras_titanic_empowerment);
 
     RegisterAreaTriggerAI(at_sentinel_talondras_resonating_orb);

@@ -30,16 +30,18 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 -- Spell Proc
 DELETE FROM `spell_proc` WHERE `SpellId` IN (372600);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
-(372600,0x00,0,0x00000000,0x00000000,0x00000000,0x00000000,0x0,0x0,0x4,0x2,0x100,0x0,0x0,0,0,0,0); -- Inexorable
+(372600,0x00,0,0x00000000,0x00000000,0x00000000,0x00000000,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0,0,0,0); -- Inexorable
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_sentinel_talondras_inexorable', 'spell_sentinel_talondras_ancient_dynamo', 'spell_sentinel_talondras_resonating_orb_marker', 'spell_sentinel_talondras_resonating_orb_selector', 'spell_sentinel_talondras_resonating_orb_stun', 'spell_sentinel_talondras_titanic_empowerment');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_sentinel_talondras_inexorable', 'spell_sentinel_talondras_stunned', 'spell_sentinel_talondras_ancient_dynamo', 'spell_sentinel_talondras_earthen_shards', 'spell_sentinel_talondras_resonating_orb_marker', 'spell_sentinel_talondras_resonating_orb_selector', 'spell_sentinel_talondras_resonating_orb_stun', 'spell_sentinel_talondras_titanic_empowerment');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(372600, 'spell_sentinel_talondras_inexorable'),
 (372716, 'spell_sentinel_talondras_ancient_dynamo'),
+(372718, 'spell_sentinel_talondras_earthen_shards'),
+(372600, 'spell_sentinel_talondras_inexorable'),
 (382071, 'spell_sentinel_talondras_resonating_orb_marker'),
 (372623, 'spell_sentinel_talondras_resonating_orb_selector'),
 (372652, 'spell_sentinel_talondras_resonating_orb_stun'),
+(377605, 'spell_sentinel_talondras_stunned'),
 (372719, 'spell_sentinel_talondras_titanic_empowerment');
 
 -- Texts
