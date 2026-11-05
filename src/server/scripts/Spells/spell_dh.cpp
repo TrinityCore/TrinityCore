@@ -1205,6 +1205,33 @@ class spell_dh_demon_spikes : public SpellScript
     }
 };
 
+// 205411 - Desperate Instincts
+class spell_dh_desperate_instincts : public AuraScript
+{
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        AuraEffect const* healthLimit = GetEffect(EFFECT_0);
+        AuraEffect const* damageReduction = GetEffect(EFFECT_1);
+        if (!damageReduction || !healthLimit)
+            return;
+
+        Unit* target = GetTarget();
+        if (target->HealthBelowPct(healthLimit->GetAmount()))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReduction->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_desperate_instincts::CalculateAmount, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dh_desperate_instincts::HandleAbsorb, EFFECT_3);
+    }
+};
+
 // 1240201 - Devourer's Bite
 class spell_dh_devourers_bite : public AuraScript
 {
@@ -3367,6 +3394,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_demonic_appetite);
     RegisterSpellScript(spell_dh_demonic_appetite_energize);
     RegisterSpellScript(spell_dh_demon_spikes);
+    RegisterSpellScript(spell_dh_desperate_instincts);
     RegisterSpellScript(spell_dh_devourers_bite);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
     RegisterAreaTriggerAI(at_dh_elysian_decree);
