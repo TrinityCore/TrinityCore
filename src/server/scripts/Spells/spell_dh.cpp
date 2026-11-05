@@ -734,26 +734,6 @@ class spell_dh_collective_anguish_eye_beam : public AuraScript
 };
 
 // 473662 - Consume
-class spell_dh_consume : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEVOURER });
-    }
-
-    void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
-    {
-        AuraEffect const* shatteredSouls = GetCaster()->GetAuraEffect(SPELL_DH_SHATTERED_SOULS_DEVOURER, EFFECT_2);
-        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), shatteredSouls->GetAmount());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dh_consume::HandleSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 473662 - Consume
 class spell_dh_consume_energize : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2186,6 +2166,11 @@ class spell_dh_shattered_souls_devourer : public AuraScript
         return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_DEMON_HUNTER, { 0x0, 0x0, 0x0, 0x40 });
     }
 
+    static bool CheckConsumeProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_DEMON_HUNTER, { 0x0, 0x0, 0x0, 0x2 });
+    }
+
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), 1);
@@ -2215,12 +2200,19 @@ class spell_dh_shattered_souls_devourer : public AuraScript
         }
     }
 
+    static void HandleConsumeProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(eventInfo.GetActionTarget(), eventInfo.GetActor(), aurEff->GetAmountAsInt());
+    }
+
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dh_shattered_souls_devourer::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dh_shattered_souls_devourer::CheckReapSoulGatheringProc, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dh_shattered_souls_devourer::CheckConsumeProc, EFFECT_2, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_devourer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_devourer::HandleSoulsGathering, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_devourer::HandleConsumeProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
