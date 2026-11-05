@@ -1208,11 +1208,6 @@ class spell_dh_demon_spikes : public SpellScript
 // 205411 - Desperate Instincts
 class spell_dh_desperate_instincts : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
-    }
-
     static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
