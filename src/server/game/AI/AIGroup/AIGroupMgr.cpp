@@ -568,10 +568,21 @@ void AIGroupMgr::LoadObjectTriggersFromDB()
             continue;
         }
 
-        if (!triggers.ActionSetId || mActionSetMap.find(triggers.ActionSetId) == mActionSetMap.end())
+        auto actionSetItr = mActionSetMap.find(triggers.ActionSetId);
+        if (!triggers.ActionSetId || actionSetItr == mActionSetMap.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) references an invalid ActionSetId ({}), skipped.",
                 triggers.Id, triggers.Index, triggers.ActionSetId);
+            continue;
+        }
+
+        if (std::any_of(actionSetItr->second.begin(), actionSetItr->second.end(), [&triggers](ActionSetActionHolder const& action)
+        {
+            return AI_GROUP_ACTION(action.Type) == AI_GROUP_OBJECT_ACTIVATE && uint32(action.Extra2) == triggers.ActionId;
+        }))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) action set {} activates its triggering action {} and would loop, skipped.",
+                triggers.Id, triggers.Index, triggers.ActionSetId, triggers.ActionId);
             continue;
         }
 
