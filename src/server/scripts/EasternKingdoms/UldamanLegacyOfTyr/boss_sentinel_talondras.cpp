@@ -35,7 +35,7 @@ namespace Scripts::EasternKingdoms::UldamanLegacyOfTyr::SentinelTalondras
 namespace Spells
 {
     static constexpr uint32 EarthenShards         = 372718;
-    static constexpr int32 EarthenShardsMarker    = 415489;
+    static constexpr int32  EarthenShardsMarker   = 415489;
     static constexpr uint32 CrushingStomp         = 372701;
     static constexpr uint32 ResonatingOrbSelector = 372623;
     static constexpr uint32 ResonatingOrbMarker   = 382071;
@@ -168,7 +168,7 @@ struct boss_sentinel_talondras : public BossAI
                 case Events::EarthenShards:
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -Spells::EarthenShardsMarker))
-                        DoCast(Spells::EarthenShards);
+                        DoCast(target, Spells::EarthenShards);
                     events.Repeat(9700ms);
                     break;
                 }
