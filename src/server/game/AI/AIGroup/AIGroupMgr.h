@@ -28,6 +28,7 @@
 #include <unordered_map>
 
 class WorldObject;
+class GameObject;
 
 // EnumeratedString's EnumID 1158 and g_groupActionsList
 enum AI_GROUP_ACTION
@@ -1259,8 +1260,21 @@ struct RandomActionSetHolder
     uint32 ActionSetId;
 };
 
+struct ObjectTriggersHolder
+{
+    ObjectTriggersHolder() : Id(0), Index(0), Chance(0), ActionId(0), ActionSetId(0) { }
+
+    uint32 Id;
+    uint16 Index;
+    uint8 Chance;
+    uint8 ActionId;
+    uint32 ActionSetId;
+};
+
 typedef std::vector<ActionTriggersHolder> AIGroupEventList;
 typedef std::unordered_map<uint32, AIGroupEventList> AIGroupEventMap;
+typedef std::vector<ObjectTriggersHolder> AIGroupObjectTriggerList;
+typedef std::unordered_map<uint32, AIGroupObjectTriggerList> AIGroupObjectTriggersMap;
 typedef std::vector<ActionSetActionHolder> AIGroupActionSet;
 typedef std::unordered_map<uint32, AIGroupActionSet> AIGroupActionSetMap;
 typedef std::vector<RandomActionSetHolder> AIGroupRandomActionSet;
@@ -1293,6 +1307,7 @@ class TC_GAME_API AIGroupMgr
         AIGroupEventMap mEventMap;
         AIGroupActionSetMap mActionSetMap;
         AIGroupRandomActionSetMap mRandomActionSetMap;
+        AIGroupObjectTriggersMap objectTriggersMap;
         std::unordered_map<ObjectGuid::LowType, std::vector<AIGroupMemberData>> _groupMembers;
 
         static bool IsActionValid(ActionSetActionHolder const& action);
@@ -1342,6 +1357,7 @@ class TC_GAME_API AIGroupMgr
         void LoadRandomActionSetsFromDB();
         void LoadActionTriggersFromDB();
         void LoadActionTriggersNamesFromDB();
+        void LoadObjectTriggersFromDB();
 
         enum ActionTypeField : uint16
         {
@@ -1445,6 +1461,7 @@ class TC_GAME_API AIGroupMgr
         uint8 GetPriorityPercentForPriorityType(ActionSetPriorityType type);
 
         AIGroupEventList GetScript(uint32 triggersId);
+        AIGroupObjectTriggerList GetObjectScript(uint32 triggersId);
         AIGroupActionSet GetActionSet(uint32 actionSetId);
         AIGroupRandomActionSet GetRandomActionSet(uint32 randomActionSetId);
 

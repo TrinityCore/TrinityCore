@@ -422,6 +422,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     m_stringIds[AsUnderlyingType(StringIdType::Template)] = &goinfo->StringId;
 
     AIM_Initialize();
+    ActivateObject(GameObjectActions::Creation);
 
     // Initialize loot duplicate count depending on raid difficulty
     if (map->Is25ManRaid())
@@ -1575,6 +1576,10 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
             TC_LOG_ERROR("spell", "Spell {} has unhandled action {} in effect {}", spellId, int32(action), effectIndex);
             break;
     }
+
+    if (AI())
+        if (IsGameObjectActionTriggered(action))
+            AI()->OnActionTriggered(action, spellCaster);
 }
 
 bool GameObject::IsGameObjectActionAllowed(GameObjectActions action)
@@ -1601,6 +1606,38 @@ bool GameObject::IsGameObjectActionAllowed(GameObjectActions action)
         case GameObjectActions::MakeInert:
         case GameObjectActions::MakeActive:
         case GameObjectActions::CloseAndLock:
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::SetTapList:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool GameObject::IsGameObjectActionTriggered(GameObjectActions action)
+{
+    switch (action)
+    {
+        // Below from Alpha
+        case GameObjectActions::None:
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+        case GameObjectActions::Disturb:
+        case GameObjectActions::Unlock:
+        case GameObjectActions::Lock:
+        case GameObjectActions::Open:
+        case GameObjectActions::Close:
+        case GameObjectActions::Destroy:
+        case GameObjectActions::Rebuild:
+        case GameObjectActions::Creation:
+        // Below guessed
+        case GameObjectActions::MakeInert:
+        case GameObjectActions::MakeActive:
         case GameObjectActions::UseArtKit0:
         case GameObjectActions::UseArtKit1:
         case GameObjectActions::UseArtKit2:

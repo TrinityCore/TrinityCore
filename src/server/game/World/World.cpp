@@ -2145,6 +2145,9 @@ void World::SetInitialWorldSettings()
     sAIGroupMgr->LoadActionTriggersFromDB();
     sAIGroupMgr->LoadActionTriggersNamesFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Object Triggers...");
+    sAIGroupMgr->LoadObjectTriggersFromDB();
+
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 

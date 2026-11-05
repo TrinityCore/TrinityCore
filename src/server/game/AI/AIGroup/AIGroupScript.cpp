@@ -105,11 +105,20 @@ void AIGroupScript::GetScript()
         eventList = sAIGroupMgr->GetScript(me->GetCurrentTriggersId());
         FillScript(eventList);
     }
+    else if (go)
+        mObjectTriggers = sAIGroupMgr->GetObjectScript(go->GetTriggersId());
     else if (m_group)
     {
         eventList = sAIGroupMgr->GetScript(m_group->GetTriggersId());
         FillScript(eventList);
     }
+}
+
+void AIGroupScript::OnActionTriggered(uint32 action, WorldObject const* user)
+{
+    for (ObjectTriggersHolder const& trigger : mObjectTriggers)
+        if (trigger.ActionId == action && roll_chance_i(trigger.Chance))
+            PerformActionSet(trigger.ActionSetId, user ? user->GetGUID() : ObjectGuid::Empty);
 }
 
 void AIGroupScript::InstallEvents()

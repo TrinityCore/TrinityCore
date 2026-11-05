@@ -421,6 +421,7 @@ struct GameObjectTemplate
     std::string AIName;
     uint32 ScriptId;
     std::string StringId;
+    uint32 TriggersId;
     WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers

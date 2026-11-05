@@ -46,6 +46,7 @@ class TC_GAME_API AIGroupScript
         void ReplaceActionTriggers();
         void ProcessEvent(ActionTriggersHolder& holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
         void ProcessEventsFor(ActionTriggers holder, WorldObject* object = nullptr, uint32 triggerParam1 = 0, uint32 triggerParam2 = 0);
+        void OnActionTriggered(uint32 action, WorldObject const* user);
 
         void GetActionTargets(AIGroupObjectVector& targets, ActionSetActionHolder const& action, WorldObject* invoker = nullptr) const;
         GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
@@ -74,6 +75,7 @@ class TC_GAME_API AIGroupScript
 
         AIGroupEventList mInstallEvents;
         AIGroupEventList mEvents;
+        AIGroupObjectTriggerList mObjectTriggers;
         AIGroupActiveActionSetList mActionSets;
 
         Creature* me;

@@ -23,6 +23,8 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 
+/// Creature Section
+
 AIGroupCreature::AIGroupCreature(Creature* creature) : CreatureAI(creature) { }
 
 AIGroup* AIGroupCreature::GetGroup() const
@@ -155,4 +157,28 @@ void AIGroupCreature::OnAuraApplied(AuraApplication const* aurApp)
 void AIGroupCreature::OnAuraRemoved(AuraApplication const* aurApp)
 {
     GetScript()->ProcessEventsFor(ActionTriggers::OnAuraRemoved, nullptr, aurApp->GetBase()->GetSpellInfo()->Id);
+}
+
+/// GameObject section
+
+AIGroupGameObject::AIGroupGameObject(GameObject* go) : GameObjectAI(go) { }
+
+AIGroupScript* AIGroupGameObject::GetScript()
+{
+    return &_script;
+}
+
+void AIGroupGameObject::InitializeAI()
+{
+    GetScript()->OnInitialize(me);
+}
+
+void AIGroupGameObject::UpdateAI(uint32 diff)
+{
+    GetScript()->OnUpdate(diff);
+}
+
+void AIGroupGameObject::OnActionTriggered(GameObjectActions action, WorldObject* user)
+{
+    GetScript()->OnActionTriggered(uint32(action), user);
 }

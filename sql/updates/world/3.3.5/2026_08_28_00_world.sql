@@ -4,6 +4,8 @@
 -- Add TriggersId, it exists in leaked CreatureMap
 ALTER TABLE `creature_template` ADD COLUMN `TriggersId` int unsigned NOT NULL DEFAULT '0' AFTER `StringId`;
 
+ALTER TABLE `gameobject_template` ADD COLUMN `TriggersId` int unsigned NOT NULL DEFAULT '0' AFTER `StringId`;
+
 DROP TABLE IF EXISTS `action_triggers_name`;
 CREATE TABLE `action_triggers_name` (
   `Id` int unsigned NOT NULL,
@@ -95,6 +97,24 @@ CREATE TABLE `named_point` (
   `StringId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Name` char(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `object_triggers_name`;
+CREATE TABLE `object_triggers_name` (
+  `Id` int unsigned NOT NULL,
+  `Name` char(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `object_triggers`;
+CREATE TABLE `object_triggers` (
+  `Id` int unsigned NOT NULL,
+  `Index` smallint unsigned NOT NULL DEFAULT '0',
+  `Chance` tinyint unsigned NOT NULL DEFAULT '100',
+  `ActionId` tinyint unsigned NOT NULL DEFAULT '0',
+  `ActionSetId` int unsigned NOT NULL,
+  `Comment` char(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`Id`,`Index`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELETE FROM `trinity_string` WHERE `entry` IN (5081,5082);

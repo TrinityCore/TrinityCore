@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 
 class AIGroup;
@@ -98,6 +99,28 @@ class TC_GAME_API AIGroupCreature : public CreatureAI
         AIGroup* GetGroup() const;
         AIGroupScript _script;
         bool _scriptInitialized = false;
+};
+
+class TC_GAME_API AIGroupGameObject : public GameObjectAI
+{
+    public:
+        ~AIGroupGameObject() override = default;
+        explicit AIGroupGameObject(GameObject* go);
+
+        AIGroupScript* GetScript();
+
+        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
+
+        // Custom hooks
+        void InitializeAI() override;
+
+        void UpdateAI(uint32 diff) override;
+
+        // The only real hook
+        void OnActionTriggered(GameObjectActions action, WorldObject* user) override;
+
+    private:
+        AIGroupScript _script;
 };
 
 #endif

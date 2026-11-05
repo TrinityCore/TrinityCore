@@ -525,6 +525,64 @@ void AIGroupMgr::LoadActionTriggersNamesFromDB()
     TC_LOG_INFO("server.loading", ">> Loaded {} action trigger names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AIGroupMgr::LoadObjectTriggersFromDB()
+{
+    uint32 oldMSTime = getMSTime();
+
+    objectTriggersMap.clear();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_OBJECT_TRIGGERS);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 object triggers. DB table `object_triggers` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        ObjectTriggersHolder triggers;
+
+        Field* fields = result->Fetch();
+
+        triggers.Id = fields[0].GetUInt32();
+        triggers.Index = fields[1].GetUInt16();
+        triggers.Chance = fields[2].GetUInt8();
+        triggers.ActionId = fields[3].GetUInt8();
+        triggers.ActionSetId = fields[4].GetUInt32();
+
+        if (!triggers.Chance || triggers.Chance > 100)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) has invalid Chance ({}), skipped.",
+                triggers.Id, triggers.Index, triggers.Chance);
+            continue;
+        }
+
+        if (!GameObject::IsGameObjectActionTriggered(static_cast<GameObjectActions>(triggers.ActionId)))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) has invalid ActionId ({}), skipped.",
+                triggers.Id, triggers.Index, triggers.ActionId);
+            continue;
+        }
+
+        if (!triggers.ActionSetId || mActionSetMap.find(triggers.ActionSetId) == mActionSetMap.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `object_triggers` (Id: {}, Index: {}) references an invalid ActionSetId ({}), skipped.",
+                triggers.Id, triggers.Index, triggers.ActionSetId);
+            continue;
+        }
+
+        objectTriggersMap[triggers.Id].push_back(triggers);
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} object triggers in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 bool AIGroupMgr::IsActionValid(ActionSetActionHolder const& action)
 {
     if (!IsActionTypeValid(action))
@@ -3198,6 +3256,15 @@ AIGroupEventList AIGroupMgr::GetScript(uint32 triggersId)
         return itr->second;
 
     return AIGroupEventList();
+}
+
+AIGroupObjectTriggerList AIGroupMgr::GetObjectScript(uint32 triggersId)
+{
+    auto itr = objectTriggersMap.find(triggersId);
+    if (itr != objectTriggersMap.end())
+        return itr->second;
+
+    return AIGroupObjectTriggerList();
 }
 
 AIGroupActionSet AIGroupMgr::GetActionSet(uint32 actionSetId)
