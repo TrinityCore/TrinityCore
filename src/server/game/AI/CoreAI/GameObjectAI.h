@@ -28,6 +28,7 @@ class GameObject;
 class Unit;
 class SpellInfo;
 class WorldObject;
+enum class GameObjectActions : uint32;
 
 class TC_GAME_API GameObjectAI
 {
@@ -97,6 +98,9 @@ class TC_GAME_API GameObjectAI
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
+
+        // Called when the gameobject is activated using gameobject actions
+        virtual void OnActionTriggered(GameObjectActions /*action*/, WorldObject* /*user*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

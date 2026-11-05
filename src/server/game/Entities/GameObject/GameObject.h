@@ -238,6 +238,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
         void ActivateObject(GameObjectActions action, WorldObject* spellCaster = nullptr, uint32 spellId = 0, int32 effectIndex = -1);
+        static bool IsGameObjectActionAllowed(GameObjectActions action);
+        static bool IsGameObjectActionTriggered(GameObjectActions action);
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
@@ -272,6 +274,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         std::string const& GetAIName() const;
         uint32 GetScriptId() const;
+        uint32 GetTriggersId() const { return GetGOInfo()->TriggersId; }
         GameObjectAI* AI() const { return m_AI; }
 
         void InheritStringIds(GameObject const* parent);

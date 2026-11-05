@@ -102,6 +102,7 @@ std::string_view ObjectGuid::GetTypeName(HighGuid high)
         case HighGuid::Mo_Transport: return "MoTransport";
         case HighGuid::Instance:     return "InstanceID";
         case HighGuid::Group:        return "Group";
+        case HighGuid::AIGroup:      return "AIGroup";
         default:
             return "<unknown>";
     }
