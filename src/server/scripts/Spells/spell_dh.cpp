@@ -52,6 +52,7 @@ enum DemonHunterSpells
     SPELL_DH_BURN_IT_OUT_DISPEL                    = 1266618,
     SPELL_DH_BURNING_ALIVE                         = 207739,
     SPELL_DH_BURNING_ALIVE_TARGET_SELECTOR         = 207760,
+    SPELL_DH_BURNING_HATRED                        = 320374,
     SPELL_DH_CALCIFIED_SPIKES_TALENT               = 389720,
     SPELL_DH_CALCIFIED_SPIKES_MOD_DAMAGE           = 391171,
     SPELL_DH_CHAOS_NOVA                            = 179057,
@@ -95,11 +96,14 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_DMG                   = 208645,
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
+    SPELL_DH_DEVOURERS_BITE                        = 1241532,
     SPELL_DH_ELYSIAN_DECREE                        = 306830,
     SPELL_DH_ELYSIAN_DECREE_AOE                    = 307046,
     SPELL_DH_ENDURING_TORMENT_BUFF                 = 453314,
     SPELL_DH_ERADICATE_DAMAGE                      = 1225827,
     SPELL_DH_ERADICATE_DAMAGE_METAMORPHOSIS        = 1279200,
+    SPELL_DH_ERADICATE_ENABLER                     = 1239524,
+    SPELL_DH_ERADICATE_TALENT                      = 1226033,
     SPELL_DH_ESSENCE_BREAK_DEBUFF                  = 320338,
     SPELL_DH_EYE_BEAM                              = 198013,
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
@@ -133,6 +137,7 @@ enum DemonHunterSpells
     SPELL_DH_FIERY_BRAND_DEBUFF_RANK_2             = 207771,
     SPELL_DH_FIRST_BLOOD                           = 206416,
     SPELL_DH_FLAME_CRASH                           = 227322,
+    SPELL_DH_FOCUSED_RAY                           = 1240203,
     SPELL_DH_FRAILTY                               = 224509,
     SPELL_DH_FURIOUS_GAZE                          = 343311,
     SPELL_DH_FURIOUS_GAZE_BUFF                     = 343312,
@@ -141,11 +146,19 @@ enum DemonHunterSpells
     SPELL_DH_GLIDE                                 = 131347,
     SPELL_DH_GLIDE_DURATION                        = 197154,
     SPELL_DH_GLIDE_KNOCKBACK                       = 196353,
+    SPELL_DH_GLIDE_KNOCKBACK_ENHANCED              = 1266494,
     SPELL_DH_HAVOC_MASTERY                         = 185164,
+    SPELL_DH_HUNGERING_SLASH                       = 1239123,
+    SPELL_DH_HUNGERING_SLASH_DAMAGE                = 1239127,
+    SPELL_DH_HUNGERING_SLASH_ENABLER               = 1239525,
+    SPELL_DH_HUNGERING_SLASH_ENERGIZE              = 1239507,
+    SPELL_DH_HUNGERING_SLASH_TALENT                = 1239519,
     SPELL_DH_ILLIDANS_GRASP                        = 205630,
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
     SPELL_DH_ILLIDANS_GRASP_JUMP_DEST              = 208175,
     SPELL_DH_IMMOLATION_AURA                       = 258920,
+    SPELL_DH_INFERNAL_ARMOR_TALENT                 = 320331,
+    SPELL_DH_INFERNAL_ARMOR_DAMAGE                 = 320334,
     SPELL_DH_INNER_DEMON_BUFF                      = 390145,
     SPELL_DH_INNER_DEMON_DAMAGE                    = 390137,
     SPELL_DH_INNER_DEMON_TALENT                    = 389693,
@@ -185,11 +198,15 @@ enum DemonHunterSpells
     SPELL_DH_RAZOR_SPIKES                          = 210003,
     SPELL_DH_REAP                                  = 1226019,
     SPELL_DH_REAP_DAMAGE                           = 1225823,
+    SPELL_DH_REAP_ENERGIZE                         = 1261679,
+    SPELL_DH_REAPERS_TOLL                          = 1245470,
+    SPELL_DH_REAPERS_TOLL_ENABLER                  = 1245523,
     SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
     SPELL_DH_RETALIATION_TALENT                    = 389729,
     SPELL_DH_RETALIATION_PROC                      = 391160,
+    SPELL_DH_SCYTHES_EMBRACE                       = 1246558,
     SPELL_DH_SEVER                                 = 235964,
     SPELL_DH_SHATTERED_RESTORATION                 = 389824,
     SPELL_DH_SHATTER_SOUL                          = 210038,
@@ -243,6 +260,7 @@ enum DemonHunterSpells
     SPELL_DH_SOUL_FRAGMENTS_DEVOURER_COUNTER       = 1245577,
     SPELL_DH_SOUL_FRAGMENTS_DAMAGE_TAKEN_TRACKER   = 210788,
     SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF              = 391172,
+    SPELL_DH_SOUL_IMMOLATION                       = 1241937,
     SPELL_DH_SOUL_IMMOLATION_ENERGIZE              = 1242475,
     SPELL_DH_SOUL_RENDING                          = 204909,
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
@@ -253,20 +271,24 @@ enum DemonHunterSpells
     SPELL_DH_SWALLOWED_ANGER                       = 320313,
     SPELL_DH_TACTICAL_RETREAT_ENERGIZE             = 389890,
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
+    SPELL_DH_THE_HUNT                              = 1246167,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
     SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
+    SPELL_DH_VOIDBLADE                             = 1245412,
     SPELL_DH_VOIDBLADE_CHARGE                      = 1241285,
     SPELL_DH_VOIDBLADE_DAMAGE                      = 1245414,
     SPELL_DH_VOIDGLARE_BOON_ENERGIZE               = 1241922,
     SPELL_DH_VOIDGLARE_BOON_TALENT                 = 1240202,
+    SPELL_DH_VOIDSTEP                              = 1223157,
     SPELL_DH_VOID_METAMORPHOSIS_BUFF               = 1217607,
     SPELL_DH_VOID_RAY_DAMAGE                       = 1213649,
     SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
     SPELL_DH_WAVE_OF_DEBILITATION_SLOW             = 453263,
+    SPELL_DH_WINGS_OF_WRATH                        = 1266493
 };
 
 enum DemonHunterSpellCategories
@@ -445,6 +467,32 @@ class spell_dh_burn_it_out : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_dh_burn_it_out::HandleBurnItOut);
+    }
+};
+
+// 320374 - Burning Hatred (attached to 258922 - Immolation Aura)
+class spell_dh_burning_hatred : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_BURNING_HATRED })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_DH_BURNING_HATRED);
+    }
+
+    static void HandleBurningHatred(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_burning_hatred::HandleBurningHatred, EFFECT_1, TARGET_UNIT_CASTER);
     }
 };
 
@@ -808,7 +856,7 @@ class spell_dh_critical_chaos : public AuraScript
     }
 };
 
-// 1226019 - Reap
+// 1245453 - Cull
 class spell_dh_cull : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -1186,6 +1234,52 @@ class spell_dh_demon_spikes : public SpellScript
     }
 };
 
+// 205411 - Desperate Instincts
+class spell_dh_desperate_instincts : public AuraScript
+{
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount) const
+    {
+        AuraEffect const* healthLimit = GetEffect(EFFECT_0);
+        AuraEffect const* damageReduction = GetEffect(EFFECT_1);
+        if (!damageReduction || !healthLimit)
+            return;
+
+        Unit* target = GetTarget();
+        if (target->HealthBelowPct(healthLimit->GetAmount()))
+            absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReduction->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_desperate_instincts::CalculateAmount, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dh_desperate_instincts::HandleAbsorb, EFFECT_3);
+    }
+};
+
+// 1240201 - Devourer's Bite
+class spell_dh_devourers_bite : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEVOURERS_BITE });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_DH_DEVOURERS_BITE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_devourers_bite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 452410 - Enduring Torment
 class spell_dh_enduring_torment : public AuraScript
 {
@@ -1307,6 +1401,34 @@ class spell_dh_eradicate : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_eradicate::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1238488 - Moment of Craving (attached to 473728 - Void Ray)
+class spell_dh_eradicate_enabler : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_ERADICATE_TALENT, SPELL_DH_ERADICATE_ENABLER });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_ERADICATE_TALENT);
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_ERADICATE_ENABLER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_eradicate_enabler::HandleAfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1564,6 +1686,45 @@ class spell_dh_fiery_brand : public SpellScript
     }
 };
 
+// 1240203 - Focused Ray (attached to 1213649 - Void Ray)
+class spell_dh_focused_ray : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DH_FOCUSED_RAY, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        Aura const* focusedRay = GetCaster()->GetAura(SPELL_DH_FOCUSED_RAY);
+        if (!focusedRay)
+            return false;
+
+        AuraEffect const* damageBonus = focusedRay->GetEffect(EFFECT_0);
+        AuraEffect const* maxTargets = focusedRay->GetEffect(EFFECT_1);
+        if (!maxTargets || !damageBonus)
+            return false;
+
+        _damageBonus = damageBonus->GetAmount();
+        _maxTargets = maxTargets->GetAmountAsInt();
+        return true;
+    }
+
+    void HandleDamage(SpellEffectInfo const& effectInfo, Unit const* /*victim*/, int32 const& /*damage*/, int32 const& /*flatMod*/, float& pctMod) const
+    {
+        if (GetUnitTargetCountForEffect(effectInfo.EffectIndex) <= _maxTargets)
+            AddPct(pctMod, _damageBonus);
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dh_focused_ray::HandleDamage);
+    }
+
+    SpellEffectValue _damageBonus = 0.0;
+    int64 _maxTargets = 0;
+};
+
 // Called by 198013 - Eye Beam
 class spell_dh_furious_gaze : public AuraScript
 {
@@ -1630,7 +1791,15 @@ class spell_dh_glide : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
+        return ValidateSpellInfo
+        ({
+            SPELL_DH_GLIDE_KNOCKBACK,
+            SPELL_DH_GLIDE_KNOCKBACK_ENHANCED,
+            SPELL_DH_GLIDE_DURATION,
+            SPELL_DH_VENGEFUL_RETREAT_TRIGGER,
+            SPELL_DH_FEL_RUSH,
+            SPELL_DH_WINGS_OF_WRATH
+        });
     }
 
     SpellCastResult CheckCast()
@@ -1651,8 +1820,11 @@ class spell_dh_glide : public SpellScript
         if (!caster)
             return;
 
-        caster->CastSpell(caster, SPELL_DH_GLIDE_KNOCKBACK, true);
-        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, true);
+        caster->CastSpell(caster, caster->HasAura(SPELL_DH_WINGS_OF_WRATH) ? SPELL_DH_GLIDE_KNOCKBACK_ENHANCED : SPELL_DH_GLIDE_KNOCKBACK, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 250ms);
         caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty()), 0, nullptr, false, 250ms);
@@ -1700,6 +1872,166 @@ class spell_dh_glide_timer : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1239123 - Hungering Slash
+// 1245470 - Reaper's Toll
+class spell_dh_hungering_slash : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_DH_HUNGERING_SLASH_DAMAGE,
+            SPELL_DH_HUNGERING_SLASH_ENERGIZE,
+            SPELL_DH_VOIDSTEP,
+            SPELL_DH_HUNGERING_SLASH_ENABLER,
+            SPELL_DH_REAPERS_TOLL_ENABLER
+        });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+        args.TriggeringAura = aurEff;
+
+        target->CastSpell(target, SPELL_DH_VOIDSTEP, args);
+        target->CastSpell(target->GetPosition(), SPELL_DH_HUNGERING_SLASH_DAMAGE, args);
+        target->CastSpell(target, SPELL_DH_HUNGERING_SLASH_ENERGIZE, args);
+
+        switch (GetId())
+        {
+            case SPELL_DH_HUNGERING_SLASH:
+                target->RemoveAurasDueToSpell(SPELL_DH_HUNGERING_SLASH_ENABLER);
+                break;
+            case SPELL_DH_REAPERS_TOLL:
+                target->RemoveAurasDueToSpell(SPELL_DH_REAPERS_TOLL_ENABLER);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_hungering_slash::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1239127 - Hungering Slash
+class spell_dh_hungering_slash_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_dh_shattered_souls_base_lesser::Validate();
+    }
+
+    void HandleSoulFragments(SpellEffIndex effIndex) const
+    {
+        // fragments are spawned only once
+        if (GetUnitTargetIndexForEffect(GetHitUnit()->GetGUID(), effIndex) == 0)
+            spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), urand(1, 2));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_damage::HandleSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 1239519 - Hungering Slash (attached to 1246167 - The Hunt and 1245412 - Voidblade)
+class spell_dh_hungering_slash_enabler : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_HUNGERING_SLASH_ENABLER })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY;
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
+    }
+
+    void HandleEnabler(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_HUNGERING_SLASH_ENABLER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_hungering_slash_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_ANY);
+    }
+};
+
+// 258920 - Immolation Aura
+// 427912 - Immolation Aura
+// 427913 - Immolation Aura
+// 427914 - Immolation Aura
+// 427915 - Immolation Aura
+// 258922 - Immolation Aura (periodic tick)
+// 427908 - Immolation Aura (periodic tick)
+// 427910 - Immolation Aura (periodic tick)
+// 427911 - Immolation Aura (periodic tick)
+// 427916 - Immolation Aura (periodic tick)
+class spell_dh_immolation_aura_energize : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE)
+            && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_ENERGIZE);
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    template <ChrSpecialization Spec>
+    void PreventEffect(WorldObject*& target) const
+    {
+        if (GetCaster()->ToPlayer()->GetPrimarySpecialization() != Spec)
+            target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_immolation_aura_energize::PreventEffect<ChrSpecialization::DemonHunterHavoc>, EFFECT_1, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_immolation_aura_energize::PreventEffect<ChrSpecialization::DemonHunterVengeance>, EFFECT_2, TARGET_UNIT_CASTER);
+    }
+};
+
+// 320331 - Infernal Armor (attached to 1241937 - Soul Immolation and 258920 - Immolation Aura)
+class spell_dh_infernal_armor : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_INFERNAL_ARMOR_DAMAGE, SPELL_DH_INFERNAL_ARMOR_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_INFERNAL_ARMOR_TALENT);
+    }
+
+    static void HandleInfernalArmor(AuraScript const&, ProcEventInfo const& procEvent)
+    {
+        if (Unit* attacker = procEvent.GetActor())
+            procEvent.GetActionTarget()->CastSpell(attacker, SPELL_DH_INFERNAL_ARMOR_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_infernal_armor::HandleInfernalArmor);
     }
 };
 
@@ -1882,6 +2214,51 @@ class spell_dh_monster_rising : public AuraScript
     }
 };
 
+// 427794 - Never Say Die
+class spell_dh_never_say_die : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_5 } })
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_DUMMY)
+            && spellInfo->GetEffect(EFFECT_2).IsAura(SPELL_AURA_DUMMY);
+    }
+
+    void CalcDamageBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* damageValueHolder = GetEffect(EFFECT_0))
+                amount = GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? damageValueHolder->GetAmount() : 0.0f;
+    }
+
+    void CalcLeechBuff(AuraEffect const* /*aurEff*/, SpellEffectValue& amount, bool& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* healthLimitHolder = GetEffect(EFFECT_2))
+            if (AuraEffect const* leechValueHolder = GetEffect(EFFECT_1))
+                amount = !GetUnitOwner()->HealthAbovePct(healthLimitHolder->GetAmount()) ? leechValueHolder->GetAmount() : 0.0f;
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* damageMod = GetEffect(EFFECT_3))
+            damageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* periodicDamageMod = GetEffect(EFFECT_4))
+            periodicDamageMod->RecalculateAmount(aurEff);
+
+        if (AuraEffect* leech = GetEffect(EFFECT_5))
+            leech->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcDamageBuff, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_never_say_die::CalcLeechBuff, EFFECT_5, SPELL_AURA_MOD_LEECH);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_never_say_die::UpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 207387 - Painbringer
 class spell_dh_painbringer : public AuraScript
 {
@@ -1961,6 +2338,36 @@ class spell_dh_reap : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_reap::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1239519 - Hungering Slash (attached to 1259431 - Predator's Wake and 1245483 - Pierce the Veil)
+class spell_dh_reapers_toll_enabler : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_HUNGERING_SLASH_TALENT, SPELL_DH_REAPERS_TOLL_ENABLER })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY;
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_HUNGERING_SLASH_TALENT);
+    }
+
+    void HandleEnabler(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DH_REAPERS_TOLL_ENABLER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_reapers_toll_enabler::HandleEnabler, EFFECT_0, SPELL_EFFECT_ANY);
     }
 };
 
@@ -2046,6 +2453,33 @@ class spell_dh_retaliation : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dh_retaliation::HandleAfterApply, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dh_retaliation::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 1246558 - Scythe's Embrace (attached to 1226019 - Reap, 1225826 - Eradicate, 1245453 - Cull)
+class spell_dh_scythes_embrace : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SCYTHES_EMBRACE, SPELL_DH_REAP_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_SCYTHES_EMBRACE);
+    }
+
+    void HandleEnergize() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DH_REAP_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_scythes_embrace::HandleEnergize);
     }
 };
 
@@ -2582,6 +3016,25 @@ class spell_dh_soul_sigils : public AuraScript
     }
 };
 
+// 1246556 - Spontaneous Immolation
+class spell_dh_spontaneous_immolation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_IMMOLATION });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SOUL_IMMOLATION, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_spontaneous_immolation::HandleProc);
+    }
+};
+
 // 320313 - Swallowed Anger (attached to 278326 - Consume Magic)
 class spell_dh_swallowed_anger : public SpellScript
 {
@@ -2796,6 +3249,7 @@ class spell_dh_violent_transformation : public AuraScript
 };
 
 // 1245412 - Voidblade
+// 1245483 - Pierce the Veil
 class spell_dh_voidblade : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2925,6 +3379,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_blade_dance);
     RegisterSpellScript(spell_dh_blade_dance_damage);
     RegisterSpellScript(spell_dh_burn_it_out);
+    RegisterSpellScript(spell_dh_burning_hatred);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
@@ -2951,11 +3406,14 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_demonic_appetite);
     RegisterSpellScript(spell_dh_demonic_appetite_energize);
     RegisterSpellScript(spell_dh_demon_spikes);
+    RegisterSpellScript(spell_dh_desperate_instincts);
+    RegisterSpellScript(spell_dh_devourers_bite);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
     RegisterAreaTriggerAI(at_dh_elysian_decree);
     RegisterSpellScript(spell_dh_enduring_torment);
     RegisterSpellScript(spell_dh_enduring_torment_buff);
     RegisterSpellScript(spell_dh_eradicate);
+    RegisterSpellScript(spell_dh_eradicate_enabler);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
@@ -2967,22 +3425,31 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_felblade_cooldown_reset_proc);
     RegisterSpellScript(spell_dh_fiery_brand);
     RegisterSpellScript(spell_dh_first_blood);
+    RegisterSpellScript(spell_dh_focused_ray);
     RegisterSpellScript(spell_dh_furious_gaze);
     RegisterAreaTriggerAI(at_dh_glaive_tempest);
     RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
     RegisterSpellScript(spell_dh_glide_timer);
+    RegisterSpellScript(spell_dh_hungering_slash);
+    RegisterSpellScript(spell_dh_hungering_slash_damage);
+    RegisterSpellScript(spell_dh_hungering_slash_enabler);
+    RegisterSpellScript(spell_dh_immolation_aura_energize);
+    RegisterSpellScript(spell_dh_infernal_armor);
     RegisterSpellScript(spell_dh_inner_demon);
     RegisterAreaTriggerAI(at_dh_inner_demon);
     RegisterSpellScript(spell_dh_know_your_enemy);
     RegisterSpellScript(spell_dh_last_resort);
     RegisterSpellScript(spell_dh_moment_of_craving);
     RegisterSpellScript(spell_dh_monster_rising);
+    RegisterSpellScript(spell_dh_never_say_die);
     RegisterSpellScript(spell_dh_painbringer);
     RegisterSpellScript(spell_dh_painbringer_reduce_damage);
     RegisterSpellScript(spell_dh_reap);
+    RegisterSpellScript(spell_dh_reapers_toll_enabler);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
+    RegisterSpellScript(spell_dh_scythes_embrace);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_shattered_restoration);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_havoc", SPELL_DH_SHATTERED_SOULS_HAVOC);
@@ -3013,6 +3480,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_soul_furnace_conduit);
     RegisterSpellScript(spell_dh_soul_immolation);
     RegisterSpellScript(spell_dh_soul_sigils);
+    RegisterSpellScript(spell_dh_spontaneous_immolation);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_swallowed_anger);
     RegisterSpellScript(spell_dh_tactical_retreat);
