@@ -972,7 +972,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_UNIT_COMBAT_TRIGGER:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsTriggerValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_GOSSIP:
             /// @todo Extra2 field
@@ -1112,7 +1113,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT_IC:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsTriggerValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_CAST_FAILURE:
             if (!IsSearchRadiusValid(action, action.Extra0))
@@ -1134,12 +1136,14 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
         case AI_GROUP_TRIGGER_ACTIONS_UNITS:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsTriggerValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_TRIGGER_ACTIONS_NEAREST_UNIT:
             if (!IsSearchRadiusValid(action, action.Extra0))
                 return false;
-            /// @todo Extra2 field
+            if (!IsTriggerValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_SAY_ZONE:
             if (!IsBroadcastTextValid(action, uint32(action.Extra2)))
@@ -1529,7 +1533,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
                 return false;
             /// @todo Extra2 field
             /// @todo Extra3 field
-            /// @todo Extra4 field
+            if (!IsTriggerValid(action, action.Extra4))
+                return false;
             break;
         case AI_GROUP_UNIT_NO_LEAVECOMBAT_STATE_RESTORE:
             if (!IsBooleanValid(action, action.Extra2))
@@ -1697,7 +1702,8 @@ bool AIGroupMgr::IsActionTypeValid(ActionSetActionHolder const& action)
             /// @todo Extra4 field
             break;
         case AI_GROUP_TRIGGER_ACTIONS_ON_SELF:
-            /// @todo Extra2 field
+            if (!IsTriggerValid(action, action.Extra2))
+                return false;
             break;
         case AI_GROUP_UNIT_EJECT_PASSENGER:
             /// @todo Extra2 field
@@ -2275,6 +2281,18 @@ bool AIGroupMgr::IsSeatIndexValid(ActionSetActionHolder const& action, double in
     {
         TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses incorrect Seat Index {} (must be between 0 and {}), skipped.",
             action.Id, action.Index, action.Type, index, MAX_VEHICLE_SEATS);
+        return false;
+    }
+
+    return true;
+}
+
+bool AIGroupMgr::IsTriggerValid(ActionSetActionHolder const& action, double trigger)
+{
+    if (trigger < 1 || trigger > 500 || !IsIntegerDouble(trigger))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `action_set` (Id: {}, Index: {}) with action type {} uses invalid Trigger Param {} (must be between 1 and 500), skipped.",
+            action.Id, action.Index, action.Type, trigger);
         return false;
     }
 
