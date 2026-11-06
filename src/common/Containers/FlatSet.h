@@ -96,7 +96,7 @@ public:
 
     void shrink_to_fit() { _storage.shrink_to_fit(); }
 
-    friend std::strong_ordering operator<=>(FlatSet const& left, FlatSet const& right) = default;
+    friend auto operator<=>(FlatSet const& left, FlatSet const& right) { return left <=> right; }
     friend bool operator==(FlatSet const& left, FlatSet const& right) = default;
 
 private:

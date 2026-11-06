@@ -783,7 +783,7 @@ public:
     #define SpellHitFn(F) HitHandler(&F)
 
     // example: OnCalcCritChance += SpellOnCalcCritChanceFn(class::function);
-    // where function is: void function(Unit* victim, float& critChance)
+    // where function is: void function(Unit const* victim, float& critChance)
     HookList<OnCalcCritChanceHandler> OnCalcCritChance;
     #define SpellOnCalcCritChanceFn(F) OnCalcCritChanceHandler(&F)
 
@@ -1712,7 +1712,7 @@ public:
 
     // executed when aura effect calculates amount
     // example: DoEffectCalcAmount += AuraEffectCalcAmounFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-    // where function is: void function(AuraEffect* aurEff, int32& amount, bool& canBeRecalculated);
+    // where function is: void function(AuraEffect const* aurEff, SpellEffectValue& amount, bool& canBeRecalculated);
     HookList<EffectCalcAmountHandler> DoEffectCalcAmount;
     #define AuraEffectCalcAmountFn(F, I, N) EffectCalcAmountHandler(&F, I, N)
 
@@ -1730,7 +1730,7 @@ public:
 
     // executed when aura effect calculates crit chance for dots and hots
     // example: DoEffectCalcCritChance += AuraEffectCalcCritChanceFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-    // where function is: void function(AuraEffect const* aurEff, Unit* victim, float& critChance);
+    // where function is: void function(AuraEffect const* aurEff, Unit const* victim, float& critChance);
     HookList<EffectCalcCritChanceHandler> DoEffectCalcCritChance;
     #define AuraEffectCalcCritChanceFn(F, I, N) EffectCalcCritChanceHandler(&F, I, N)
 
