@@ -243,8 +243,13 @@ bool WaypointMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
                 if (ComputeNextNode())
                 {
                     if constexpr (std::is_base_of_v<Creature, T>)
+                    {
                         if (CreatureAI* ai = owner->AI())
                             ai->WaypointStarted(path->Nodes[_currentNode].Id, path->Id);
+
+                        // inform formation
+                        owner->SignalFormationMovement();
+                    }
                 }
             }
         }
