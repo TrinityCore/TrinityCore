@@ -539,6 +539,8 @@ namespace WorldPackets
         class RequestLatestSplashScreen;
         class QueryCountdownTimer;
         class SetCurrencyFlags;
+        class RequestMythicPlusSeasonData;
+        class RequestScheduledPvpInfo;
     }
 
     namespace Movement
@@ -1834,6 +1836,8 @@ class TC_GAME_API WorldSession
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
         void HandleQueryCountdownTimer(WorldPackets::Misc::QueryCountdownTimer& queryCountdownTimer);
         void HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags const& setCurrenctFlags);
+        void HandleRequestMythicPlusSeasonData(WorldPackets::Misc::RequestMythicPlusSeasonData& requestMythicPlusSeasonData);
+        void HandleRequestScheduledPvpInfo(WorldPackets::Misc::RequestScheduledPvpInfo const& requestScheduledPvpInfo);
 
         // Adventure Journal
         void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);
