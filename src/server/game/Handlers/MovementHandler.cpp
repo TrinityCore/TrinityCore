@@ -782,6 +782,15 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
     ValidateMovementInfo(mover, &setCollisionHeightAck.Data.Status);
 }
 
+void WorldSession::HandleMoveAddImpulseAck(WorldPackets::Movement::MoveAddImpulseAck& moveAddImpulseAck)
+{
+    Unit* mover = ValidateAndGetUnitBeingMoved(moveAddImpulseAck.Ack.Status.guid, moveAddImpulseAck.GetOpcode(), true);
+    if (!mover)
+        return;
+
+    ValidateMovementInfo(mover, &moveAddImpulseAck.Ack.Status);
+}
+
 void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck)
 {
     Unit* mover = ValidateAndGetUnitBeingMoved(moveApplyMovementForceAck.Ack.Status.guid, moveApplyMovementForceAck.GetOpcode(), true);
